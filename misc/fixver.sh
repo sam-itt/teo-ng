@@ -93,13 +93,21 @@ sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > doc/teo_linux_en.htm
 # patch pack scripts
 echo "Patching pack scripts..."
 echo "s/^\#define APPVERSION\([ \t]*\)\(['\"]\)[0-9\.]*['\"]\(.*\)/\#define APPVERSION\1\2$verstr\2\3/" > $TMPDIR/fixver.sed
-cp misc/pack/teow-roms-setup.iss $TMPDIR/fixver.tmp
-sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/teow-roms-setup.iss
-cp misc/pack/teow-setup.iss $TMPDIR/fixver.tmp
-sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/teow-setup.iss
+cp misc/pack/inno/teo-rom-setup.iss $TMPDIR/fixver.tmp
+sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/inno/teo-rom-setup.iss
+cp misc/pack/inno/teo-setup.iss $TMPDIR/fixver.tmp
+sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/inno/teo-setup.iss
 echo "s/^version=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/version=\1$verstr\1\2/" > $TMPDIR/fixver.sed
 cp misc/pack/pack.sh $TMPDIR/fixver.tmp
 sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/pack.sh
+echo "s/^Version[ \t]*=[ \t]*[0-9\.]*/Version=$verstr/" > $TMPDIR/fixver.sed
+cp misc/pack/debian/teo/usr/share/applications/teo.desktop $TMPDIR/fixver.tmp
+sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/debian/teo/usr/share/applications/teo.desktop
+echo "s/^Version[ \t]*:[ \t]*[0-9\.]*/Version: $verstr/" > $TMPDIR/fixver.sed
+cp misc/pack/debian/teo/DEBIAN/control $TMPDIR/fixver.tmp
+sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/debian/teo/DEBIAN/control
+cp misc/pack/debian/teo-rom/DEBIAN/control $TMPDIR/fixver.tmp
+sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/debian/teo-rom/DEBIAN/control
 
 # bump file version number
 echo "Bumping file version number..."
