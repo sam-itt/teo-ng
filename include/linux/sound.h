@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2001 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,10 +34,10 @@
 
 /*
  *  Module     : linux/sound.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou août 1999
  *  Modifié par: Eric Botcazou 4/12/2000
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 24/02/2012
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -47,6 +47,11 @@
 #define LINUX_SOUND_H
 
 extern int InitSound(void);
+#ifdef OSS_AUDIO
 extern void PlaySoundBuffer(void);
+#else
+extern int PlaySoundBuffer(void);
+#endif
+extern void CloseSound (void);
 
 #endif

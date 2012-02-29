@@ -62,6 +62,12 @@ endif
 CFLAGS += `pkg-config gtk+-2.0 --cflags`
 LIB = `pkg-config gtk+-2.0 --libs`
 
+# -- for audio : ALSA by default, OSS only if required --
+ifdef OSS
+CFLAGS += -DOSS_AUDIO
+else
+LIB += -lasound
+endif
 
 # ------ plateform-dependant objects and executables ------
 

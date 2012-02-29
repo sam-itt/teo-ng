@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *                          Samuel Devulder
  *
@@ -35,10 +35,10 @@
 
 /*
  *  Module     : linux/main.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 26/01/2010 08/2011
+ *               François Mouret 26/01/2010 08/2011 17/01/2012
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -113,13 +113,18 @@ static void RunTO8(void)
     const struct itimerval timer_value={ {0,1e6/TO8_FRAME_FREQ},
                                 {0,1e6/TO8_FRAME_FREQ} };
 
+#ifdef OSS_AUDIO
     if (!teo.sound_enabled)
     {
     signal(SIGALRM,Timer);
     setitimer(ITIMER_REAL, &timer_value, NULL);
     }
-
     frame=1;
+#else
+    signal(SIGALRM,Timer);
+    setitimer(ITIMER_REAL, &timer_value, NULL);
+    frame=1;
+#endif
 
     do   /* boucle principale de l'émulateur */
     {
@@ -136,15 +141,21 @@ static void RunTO8(void)
 
             if (teo.exact_speed)  /* synchronisation sur fréquence réelle */
             {
+#ifdef OSS_AUDIO
                 if (teo.sound_enabled)
                     PlaySoundBuffer();
+#else
+                if (teo.sound_enabled) {
+                    if (PlaySoundBuffer()==0)
+                        pause();
+                }
+#endif
                 else
                 if (frame==tick)
                     pause();  /* on attend le SIGALARM du timer */
             }
-//            else
-                usleep(500);
-            
+            else
+                usleep(300);
             frame++;
         }
         while (teo.command==NONE);  /* fin de la boucle d'émulation */
@@ -188,6 +199,9 @@ static void RunTO8(void)
             to8_ColdReset();
     }
     while (teo.command != QUIT);  /* fin de la boucle principale */
+
+    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
+    mc6809_FlushExec();
 }
 
 
@@ -358,7 +372,7 @@ static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int 
 /* ExitMessage:
  *  Affiche un message de sortie et sort du programme.
  */
-static void ExitMessage(const char msg[])
+static void DisplayMessage(const char msg[])
 {
     GtkWidget *dialog;
 
@@ -367,6 +381,16 @@ static void ExitMessage(const char msg[])
     gtk_window_set_title (GTK_WINDOW(dialog), is_fr?"Teo - Erreur":"Teo - Error");
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
+}
+
+
+
+/* ExitMessage:
+ *  Affiche un message de sortie et sort du programme.
+ */
+static void ExitMessage(const char msg[])
+{
+    DisplayMessage(msg);
     exit(EXIT_FAILURE);
 }
 
@@ -514,7 +538,7 @@ int main(int argc, char *argv[])
 
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n":"Here's %s the thomson TO8 emulator.\n"),version_name);
-    printf("Copyright (C) 1997-2011 Gilles FÃ©tis, Eric Botcazou, Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
+    printf("Copyright (C) 1997-2012 Gilles FÃ©tis, Eric Botcazou, Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n":"Keys : [ESC] control pannel\n"));
     printf((is_fr?"         [F10] DÃ©bogueur\n\n":"     : [F10] Debugger\n\n"));
 
@@ -550,7 +574,7 @@ int main(int argc, char *argv[])
     /* Initialisation des modules graphique, sonore et disquette */
     InitGraphic();
     if (InitSound() == TO8_ERROR)
-        ExitMessage(to8_error_msg);
+        DisplayMessage(to8_error_msg);
 
     to8_ColdReset();
 #ifdef DEBIAN_BUILD
@@ -587,6 +611,10 @@ int main(int argc, char *argv[])
     /* Détruit la fenêtre principale */
     DestroyWindow();
 #endif
+
+    /* Referme le périphérique audio*/
+    CloseSound();
+
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
     exit(EXIT_SUCCESS);
