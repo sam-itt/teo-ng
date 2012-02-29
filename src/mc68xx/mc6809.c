@@ -4,7 +4,8 @@
  *    - PIA MC6846
  *    - PIA MC6821
  *
- *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou.
+ *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou, 2011 Gilles Fétis
+ *                2012 François Mouret, 2012 Samuel Devulder.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,11 +24,12 @@
 
 /*
  *  Module     : mc68xx/mc6809.c
- *  Version    : 2.7.1
+ *  Version    : 2.8.0
  *  Créé par   : Sylvain Huet 1996
  *  Modifié par: Eric Botcazou 30/11/2000
- *               François Mouret 27/09/2006 26/01/2010
+ *               François Mouret 27/09/2006 26/01/2010 04/02/2012
  *               Gilles Fétis 27/07/2011
+ *               Samuel Devulder 04/02/2012
  *
  *  Emulateur du microprocesseur Motorola MC6809E.
  *
@@ -45,6 +47,11 @@
  *  version 2.7: nouvelle interface de manipulation de l'état du MC6809E
  *          2.7.1: pré-incrément de cpu_clock pour puls et pulu.
  *          2.7.2: aménagement pour le debugger.
+ *  version 2.8: exécution cycle par cycle des instructions
+ *               émulation des instructions non standard
+ *               émulation des postcodes non standard pour TFR/EXG
+ *               émulation des postcodes non standard pour indexé
+ *               émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
  */
 
 
@@ -53,171 +60,11 @@
 #endif
 
 #include "mc68xx/mc6809.h"
+#include "to8.h"
 
 #ifdef OS_LINUX
 extern int check_bkpt(int pc);
 #endif
-
-int taille[]=
-{2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2
-,0,0,1,1,1,1,3,3,1,1,2,1,2,1,2,2
-,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,2,2,2,2,2,2,2,2,1,1,1,1,2,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,2,1,1,2,2,1,2,2,2,2,2,1,2,2,2,2
-,3,1,1,3,3,1,3,3,3,3,3,1,3,3,3,3
-,2,2,2,3,2,2,2,1,2,2,2,2,3,2,3,1
-,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
-,2,2,2,3,2,2,2,1,2,2,2,2,3,1,3,1
-,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
-
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,4,1,1,1,1,1,1,1,1,4,1,4,1
-,1,1,1,3,1,1,1,1,1,1,1,1,3,1,3,3
-,1,1,1,3,1,1,1,1,1,1,1,1,3,1,3,3
-,1,1,1,4,1,1,1,1,1,1,1,1,4,1,4,4
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,4
-
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,4,1,1,1,1,1,1,1,1,4,1,1,1
-,1,1,1,3,1,1,1,1,1,1,1,1,3,1,1,1
-,1,1,1,3,1,1,1,1,1,1,1,1,3,1,1,1
-,1,1,1,4,1,1,1,1,1,1,1,1,4,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-};
-
-
-int adr[]=
-{0,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0
-,6,6,1,1,1,1,2,2,1,1,3,1,3,1,1,1
-,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,4,4,4,4,3,3,3,3,1,1,1,1,3,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
-,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
-,3,3,3,3,3,3,3,3,3,3,3,3,3,2,3,1
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
-,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
-,3,3,3,3,3,3,3,1,3,3,3,3,3,1,3,1
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
-,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
-
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,3,1,1,1,1,1,1,1,1,3,1,3,1
-,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,0
-,1,1,1,4,1,1,1,1,1,1,1,1,4,1,4,4
-,1,1,1,5,1,1,1,1,1,1,1,1,5,1,5,5
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,4
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,5
-
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,3,1,1,1,1,1,1,1,1,3,1,1,1
-,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1
-,1,1,1,4,1,1,1,1,1,1,1,1,4,1,1,1
-,1,1,1,5,1,1,1,1,1,1,1,1,5,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-};
-
-
-int cpu_cycles[]=
-{6,2,0,6,6,0,6,6,6,6,6,0,6,6,3,6
-,0,0,2,4,0,0,5,9,0,2,3,0,3,2,8,6
-,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
-,4,4,4,4,5,5,5,5,0,5,3,3,20,11,0,7
-,2,0,0,2,2,0,2,2,2,2,2,0,2,2,0,2
-,2,0,0,2,2,0,2,2,2,2,2,0,2,2,0,2
-,6,0,0,6,6,0,6,6,6,6,6,0,6,6,3,6
-,7,0,0,7,7,0,7,7,7,7,7,0,7,7,4,7
-,2,2,2,4,2,2,2,0,2,2,2,2,4,7,3,0
-,4,4,4,6,4,4,4,4,4,4,4,4,6,7,5,5
-,4,4,4,6,4,4,4,4,4,4,4,4,6,7,5,5
-,5,5,5,7,5,5,5,5,5,5,5,5,7,8,6,6
-,2,2,2,4,2,2,2,0,2,2,2,2,3,0,3,0
-,4,4,4,6,4,4,4,4,4,4,4,4,5,5,5,5
-,4,4,4,6,4,4,4,4,4,4,4,4,5,5,5,5
-,5,5,5,7,5,5,5,5,5,5,5,5,6,6,6,6
-
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,5,0,0,0,0,0,0,0,0,5,0,4,0
-,0,0,0,7,0,0,0,0,0,0,0,0,7,0,6,6
-,0,0,0,7,0,0,0,0,0,0,0,0,7,0,6,6
-,0,0,0,8,0,0,0,0,0,0,0,0,8,0,7,7
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7
-
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,5,0,0,0,0,0,0,0,0,5,0,0,0
-,0,0,0,7,0,0,0,0,0,0,0,0,7,0,0,0
-,0,0,0,7,0,0,0,0,0,0,0,0,7,0,0,0
-,0,0,0,8,0,0,0,0,0,0,0,0,8,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
 
 static void (*FetchInstr)(int, unsigned char []);
 static int  (*LoadByte)(int);
@@ -229,1618 +76,2771 @@ static int  (*TrapCallback)(struct MC6809_REGS *);
 static void (*TimerCallback)(void *);
 static void *timer_data;
 
-static unsigned char fetch_buffer[MC6809_FETCH_BUFFER_SIZE];
+static struct MC6809_REGS reg_list;
+
+static void (*addr[])(void);
 
 /* le caractère 8-bit du MC6809 impose l'utilisation de char
    pour la manipulation des opcodes qui sont des octets signés */
-static char *op;
-static int ad;
+static char byte;
 static int *regist[4], *exreg[16];
-static int illegal_instruction_flag;
 
 /* variables d'état du MC6809 */
+static int page,opcode,postcode,address,value;
+static int *reg;
+static int step;
 static mc6809_clock_t cpu_clock, cpu_timer;
-static int pc,xr,yr,ur,sr,ar,br,dp;
+static int pc,xr,yr,ur,sr,ar,br,dp,dr;
 static int res,m1,m2,sign,ovfl,h1,h2,ccrest;
+static int bus;
+static int irq_start,irq_run;
 
-
+static void (*compute_address)(void);
+static const int swi_vector[] = { 0xFFFA, 0xFFF4, 0xFFF2 };
 
 /*************************************************/
 /*** gestion du registre d'état (CC) du MC6809 ***/
 /*************************************************/
 
-static int getcc(void)
-{
-    return  ((((h1&15)+(h2&15))&16)<<1)
-		|((sign&0x80)>>4)
-		|((((res&0xff)==0)&1)<<2)
-		|(( ((~(m1^m2))&(m1^ovfl)) &0x80)>>6)
-		|((res&0x100)>>8)
-		|ccrest;
+static int getcc(void) {
+    return  ((((h1&15)+(h2&15))&16)<<1)            /* ..x..... H   */
+             |((sign&0x80)>>4)                     /* ....x... N   */
+             |((((res&0xff)==0)&1)<<2)             /* .....x.. Z   */
+             |(( ((~(m1^m2))&(m1^ovfl))&0x80)>>6) /* ......x. V   */
+             |((res&0x100)>>8)                     /* .......x C   */
+             |ccrest;                              /* xx.x.... EFI */
 }
 
-
-static void setcc(int i)
-{
-    m1=m2=0;
-    res=((i&1)<<8)|(4-(i&4));
-    ovfl=(i&2)<<6;
-    sign=(i&8)<<4;
-    h1=h2=(i&32)>>2;
-    ccrest=i&0xd0;
+static void setcc(int i) {
+    m1=m2=0;                  
+    res=((i&1)<<8)|(4-(i&4)); /* .....x.x ZC  */
+    ovfl=(i&2)<<6;            /* ......x. V   */
+    sign=(i&8)<<4;            /* ....x... N   */
+    h1=h2=(i&32)>>2;          /* ..x..... H   */
+    ccrest=i&0xd0;            /* xx.x.... EFI */
 }
 
+/* ========================================================== */
+/*                     Adressing modes                        */
+/* ========================================================== */
 
+static void indxp(void) {  /* ,r+ */
+    switch (step) {
+    /* [Don't Care] */
+    case 5 : reg=regist[(postcode&0x60)>>5];
+             address=*reg;
+             *reg=((*reg)+1)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 3,4 = [Don't Care] */
+    default: break;
+    }
+}
 
-/***********************************/
-/*** modes d'adressage du MC6809 ***/
-/***********************************/
+static void indxpp (void) { /* ,r++ */
+    switch (step) {
+    /* [Don't Care] */
+    case 3 : reg=regist[(postcode&0x60)>>5];
+             address=*reg;
+             *reg=((*reg)+2)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 6 : step=0x20-(postcode&0x10);
+             break;
+    /* Cases 4,5 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int direc(void)
-	{
-	return (dp<<8)+((*op)&255);
-	}
+static void indmx(void) {   /* ,-r */
+    switch (step) {
+    /* [Don't Care] */
+    case 5 : reg=regist[(postcode&0x60)>>5];
+             *reg=((*reg)-1)&0xffff;
+             address=*reg;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 3,4 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int inher(void)
-	{
-	return -1;
-	}
+static void indmmx(void) { /* ,--r */
+    switch (step) {
+    /* [Don't Care] */
+    case 6 : reg=regist[(postcode&0x60)>>5];
+             *reg=((*reg)-2)&0xffff;
+             address=*reg;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 3,4,5 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int immedc(void)
-	{
-	return (pc-1)&0xffff;
-	}
+static void indx0(void) {   /* ,r */
+    /* [Don't Care] */
+    address=*(regist[(postcode&0x60)>>5]);
+    step=0x20-(postcode&0x10);
+}
 
-static int immedl(void)
-	{
-	return (pc-2)&0xffff;
-	}
+static void indbx(void) {   /* B,r */
+    switch (step) {
+    /* [Don't Care] */
+    case 4 : byte=br;
+             address=((*(regist[(postcode&0x60)>>5]))+byte)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Case 3 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int indxp(void)
-	{
-		int    *x=regist[((*op)&0x60)>>5];
-		int    k;
-	k=*x;
-	*x=((*x)+1)&0xffff;
-        cpu_clock+=2;
-	return k;
-	}
+static void indax(void) {   /* A,r */
+    switch (step) {
+    /* [Don't Care] */
+    case 4 : byte=ar;
+             address=((*(regist[(postcode&0x60)>>5]))+byte)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Case 3 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int indxpp(void)
-	{
-		int    *x=regist[((*op)&0x60)>>5];
-		int    k;
-	k=*x;
-	*x=((*x)+2)&0xffff;
-        cpu_clock+=3;
-	return k;
-	}
+static void ind07(void) {   /* ,r (not standard) */
+    switch (step) {
+    /* [Don't Care] */
+    case 4 : address=*(regist[(postcode&0x60)>>5]);
+             step=0x20-(postcode&0x10);
+             break;
+    /* Case 3 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int indmx(void)
-	{
-		int    *x=regist[((*op)&0x60)>>5];
-	*x=((*x)-1)&0xffff;
-        cpu_clock+=2;
-	return *x;
-	}
+static void ind1x(void) {   /* n8,r */
+    switch (step) {
+    /* [Offset : NNNN+2(3)] */
+    case 3 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : address=((*(regist[(postcode&0x60)>>5]))+byte)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    }
+}
 
-static int indmmx(void)
-	{
-		int    *x=regist[((*op)&0x60)>>5];
-	*x=((*x)-2)&0xffff;
-        cpu_clock+=3;
-	return *x;
-	}
+static void ind2x(void) {   /* n16,r */
+    switch (step) {
+    /* [Offset High : NNNN+2(3)] */
+    case 3 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3(4)] */
+    case 4 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 7 : address=((*(regist[(postcode&0x60)>>5]))+value)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 5,6 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int indx(void)
-	{
-	return *(regist[((*op)&0x60)>>5]);
-	}
+static void ind0A(void) {    /* pc|$ff (not standard) */
+    switch (step) {
+    /* [Don't Care] */
+    case 7 : address=pc|0xff;
+             ar&=LoadByte(pc);
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 3,4,5,6 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int indax(void)
-	{
-		char    a=ar;
-        cpu_clock++;
-        return ((*(regist[((*op)&0x60)>>5]))+a)&0xffff;
-	}
+static void inddx(void) {    /* D,r */
+    switch (step) {
+    /* [Don't Care] */
+    case 7 : address=((*(regist[(postcode&0x60)>>5]))+((ar<<8)+br))&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 3,4,5,6 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int indbx(void)
-	{
-		char    b=br;
-        cpu_clock++;
-        return ((*(regist[((*op)&0x60)>>5]))+b)&0xffff;
-	}
+static void ind1p(void) {    /* n8,PCR */
+    switch (step) {
+    /* [Offset : NNNN+2(3)] */
+    case 3 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : address=(pc+byte)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    }
+}
 
-static int inder(void)
-	{
-	return 0;
-	}
+static void ind2p(void) {    /* n16,PCR */
+    switch (step) {
+    /* [Offset High : NNNN+2(3)] */
+    case 3 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3(4)] */
+    case 4 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 8 : address=(pc+value)&0xffff;
+             step=0x20-(postcode&0x10);
+             break;
+    /* Cases 5,6,7 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int ind1x(void)
-	{
-		char    del=op[1];
-        pc++;pc&=0xffff;
-        cpu_clock++;
-        return ((*(regist[((*op)&0x60)>>5]))+del)&0xffff;
-	}
+static void ind0E(void) {   /* $ffff (not standard) */
+    switch (step) {
+    /* [Address High] */
+    case 3 : address=0xff00;
+             break;
+    /* [Address Low] */
+    case 4 : address=0xffff;
+             break;
+    /* [Don't Care] */
+    case 8 : step=0x20-(postcode&0x10);
+             break;
+    /* Cases 5,6,7 = [Don't Care] */
+    default: break;
+    }
+}
 
-static int ind2x(void)
-	{
-		int     del=((op[1]&255)<<8)+(op[2]&255);
-        pc+=2;pc&=0xffff;
-        cpu_clock+=4;
-        return ((*(regist[((*op)&0x60)>>5]))+del)&0xffff;
-	}
+static void indad(void) {    /* n16 */
+    switch (step) {
+    /* [Address High : NNNN+2(3)] */
+    case 3 : address=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Address Low : NNNN+3(4)] */
+    case 4 : address|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 5 : step=0x20-(postcode&0x10);
+             break;
+    }
+}
 
-static int inddx(void)
-	{
-		int     del=(ar<<8)+br;
-        cpu_clock+=4;
-        return ((*(regist[((*op)&0x60)>>5]))+del)&0xffff;
-	}
-
-static int ind1p(void)
-	{
-		char    del=op[1];
-        pc++;pc&=0xffff;
-        cpu_clock++;
-        return (pc+del)&0xffff;
-	}
-
-static int ind2p(void)
-	{
-		int     del=((op[1]&255)<<8)+(op[2]&255);
-        pc+=2;pc&=0xffff;
-        cpu_clock+=5;
-        return (pc+del)&0xffff;
-	}
-
-static int indad(void)
-	{
-        pc+=2;pc&=0xffff;
-        cpu_clock+=2;
-	return ((op[1]&255)<<8)+(op[2]&255);
-	}
-
-static int (*indmod[])(void)=
-{indxp,indxpp,indmx,indmmx,indx,indbx,indax,inder
-,ind1x,ind2x,inder,inddx,ind1p,ind2p,inder,indad
+static void (*indmod[])(void)= {
+    indxp ,   /* 0  ,r+ */
+    indxpp,   /* 1  ,r++ */
+    indmx ,   /* 2  ,-r */
+    indmmx,   /* 3  ,--r */
+    indx0 ,   /* 4  ,r */
+    indbx ,   /* 5  B,r */
+    indax ,   /* 6  A,r */
+    ind07 ,   /* 7  ,r (not standard) */
+    ind1x ,   /* 8  n8,r */
+    ind2x ,   /* 9  n16,r */
+    ind0A ,   /* A  pc|$ff (not standard) */
+    inddx ,   /* B  D,r */
+    ind1p ,   /* C  n8,PCR */
+    ind2p ,   /* D  n16,PCR */
+    ind0E ,   /* E  $ffff (not standard) */
+    indad     /* F  n16 */
 };
 
-
-static int indir(void)
-{
-    int k;
-
-    if ((*op)&0x80)
-    {
-        k=(*indmod[(*op)&0xf])();
-
-        if ((*op)&0x10)
-        {
-            cpu_clock+=3;  /* pénalité de 3 cycles pour le mode indirect */
-            return LoadWord(k);
-        }
-        else
-            return k; /* non indirect */
+static void indx(void) {
+    switch (step) {
+    /* [Post Byte : NNNN+1(2)] */
+    case 0x02 : postcode=LoadByte(pc);
+                pc=(pc+1)&0xffff;
+                if ((postcode&0x80)==0) step=0x17;
+                break;
+    /* -----  5 bits offset from register addressing ------ */
+    /* [Don't Care] */
+    case 0x18 : break;
+    /* [Don't Care] */
+    case 0x19 : address=*(regist[(postcode&0x60)>>5])+(postcode&0x0f)-(postcode&0x10);
+                step=0x20; /* address computed */
+                break;
+    /* ----- indirect addressing ------ */
+    /* [Indirect High : XXXX] */
+    case 0x11 : value=address;
+                address=LoadByte(value)<<8;
+                break;
+    /* [Indirect Low : XXXX+1] */
+    case 0x12 : address|=LoadByte(value+1);
+                break;
+    /* [Don't Care] */
+    case 0x13 : step=0x20; /* address computed */
+                break;
+    /* compute address */
+    default   : (*indmod[postcode&0xf])();
+                break;
     }
-
-    /* 5-bit offset */
-    cpu_clock++;
-
-    if ((*op)&0x10)
-    {
-        if ((*op)&0xf)
-            k = (*(regist[((*op)&0x60)>>5]))-((-*op)&0xf);
-	else
-	    k = (*(regist[((*op)&0x60)>>5]))-16;
-    }
-    else
-        k = (*(regist[((*op)&0x60)>>5]))+((*op)&0xf);
-
-    return k&0xffff;
 }
 
-static int etend(void)
-	{
-	return (((*op)&255)<<8)+(op[1]&255);
-	}
+static void extn(void) {
+    switch (step) {
+    /*[Address High : NNNN+1(2)]*/
+    case 2 : address=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /*[Address Low : NNNN+2(3)]*/
+    case 3 : address|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : step=0x20; /* address computed */
+             break;
+    }
+}
 
-static int (*adresc[])(void)=
-{direc,inher,inher,immedc,indir,etend,inher};
+static void drct(void) {
+    switch (step) {
+    /*[Address High : NNNN+1(2)]*/
+    case 2 : address=(dp<<8)|LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : step=0x20; /* address computed */
+             break;
+    }
+}
 
-static int (*adresl[])(void)=
-{direc,inher,inher,immedl,indir,etend,inher};
+static void rela(void) {
+}
 
+static void impl(void) {
+}
 
+static void imm1(void) {
+    address=pc;
+    pc=(pc+1)&0xffff;
+    step=0x21; /* address computed */
+}
+
+static void imm2(void) {
+    address=pc;
+    pc=(pc+2)&0xffff;
+    step=0x21; /* address computed */
+}
 
 /******************************/
 /*** instructions du MC6809 ***/
 /******************************/
 
-static void what(void)
-{
-    illegal_instruction_flag = 1;
+/* ========================================================== */
+/*       ASL ASR CLR COM DEC INC LSL LSR NEG ROL ROR TST      */
+/* ========================================================== */
+
+static void aslm(void) {    /* H?NxZxVxCx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=m2=value;
+                    value<<=1;
+                    ovfl=sign=res=value;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
 }
 
-static void negm(void)             /* H?NxZxVxCx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	m1=val; m2=-val;                /* bit V */
-	StoreByte(k,(val=-val)&255);
-	ovfl=res=sign=val;
-	}
+static void asrm(void) {    /* H?NxZxCx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : res=(value&1)<<8;
+                    value=(value>>1)|(value&0x80);
+                    sign=value;
+                    res|=sign;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void comm(void)             /* NxZxV0C1 */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	m1=~m2;
-	StoreByte(k,val=(~val)&255);
-	sign=val;
-	res=sign|0x100; /* bit C a 1 */
-	}
+static void clrm(void) {    /* N0Z1V0C0 */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=~m2;
+                    sign=res=value=0;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void lsrm(void)             /* N0ZxCx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	res=(val&1)<<8; /* bit C */
-	StoreByte(k,val>>=1);
-	sign=0;
-	res|=val;
-	}
+static void comm(void) {    /* NxZxV0C1 */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=~m2;
+                    value=(~value)&0xff;
+                    sign=value;
+                    res=sign|0x100; /* bit C a 1 */
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void rorm(void)             /* NxZxCx */
-	{
-		int    k;
-		int     val,i;
-	i=val=LoadByte(k=(*adresc[ad])());
-	StoreByte(k,val=(val|(res&0x100))>>1);
-	sign=val;
-	res=((i&1)<<8)|sign;
-	}
+static void decm(void) {    /* NxZxVx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=value; m2=0x80;
+                    ovfl=sign=(--value)&0xff;
+                    res=(res&0x100)|sign;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void asrm(void)             /* H?NxZxCx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	res=(val&1)<<8;
-	StoreByte(k,val=(val>>1)|(val&0x80));
-	sign=val;
-	res|=sign;
-	}
+static void incm(void) {    /* NxZxVx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=value; m2=0;
+                    ovfl=sign=(++value)&0xff;
+                    res=(res&0x100)|sign;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void aslm(void)             /* H?NxZxVxCx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	m1=m2=val;
-	StoreByte(k,val<<=1);
-	ovfl=sign=res=val;
-	}
+static void lsrm(void) {    /* N0ZxCx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : res=(value&1)<<8; /* bit C */
+                    value>>=1;
+                    sign=0;
+                    res|=value;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void rolm(void)             /* NxZxVxCx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	m1=m2=val;
-	StoreByte(k,val=(val<<1)|((res&0x100)>>8) );
-	ovfl=sign=res=val;
-	}
+static void negm(void) {    /* H?NxZxVxCx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=value; m2=-value;      /* bit V */
+                    value=(-value)&0xff;
+                    ovfl=res=sign=value;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void decm(void)             /* NxZxVx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	m1=val; m2=0x80;
-	StoreByte(k,--val);
-	ovfl=sign=val&255;
-	res=(res&0x100)|sign;
-	}
+static void rolm(void) {    /* NxZxVxCx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : m1=m2=value;
+                    value=(value<<1)|((res&0x100)>>8);
+                    ovfl=sign=res=value;
+                    StoreByte(address,value);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void incm(void)             /* NxZxVx */
-	{
-		int    k;
-		int     val;
-	val=LoadByte(k=(*adresc[ad])());
-	m1=val; m2=0;
-	StoreByte(k,++val);
-	ovfl=sign=val&255;
-	res=(res&0x100)|sign;
-	}
+static void rorm(void) {    /* NxZxCx */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Data (write) : EA] */
+        case 0x23 : sign=(value|(res&0x100))>>1;
+                    res=((value&1)<<8)|sign;
+                    StoreByte(address,sign);
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void tstm(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=~m2;
-	sign=val;
-	res=(res&0x100)|sign;
-	}
+static void tstm(void) {    /* NxZxV0 */
+    switch (step) {
+        /* [Data : EA] */
+        case 0x21 : value=LoadByte(address);
+                    break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [Don't Care] */
+        case 0x23 : m1=~m2;
+                    sign=value;
+                    res=(res&0x100)|sign;
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void jmpm(void)
-	{
-	pc=(*adresl[ad])();
-	}
+/* ========================================================== */
+/*                           JMP JSR                          */
+/* ========================================================== */
 
-static void jsrm(void)
-	{
-		int k;
-	k=(*adresl[ad])();
-	sr=(sr-2)&0xffff;
-	StoreWord(sr,pc);
-	pc=k;
-	}
+static void jmpm(void) {
+    compute_address();
+    if (step==0x20) {
+        pc=address;
+        step=0;  /* reset fetch */
+    }
+}
 
-static void clrm(void)     /* N0Z1V0C0 */
-	{
-	StoreByte((*adresc[ad])(),0);
-	m1=~m2;
-	sign=res=0;
-	}
+static void jsrm(void) {    /* NxZxV0 */
+    switch (step) {
+        /* [Don't Care : Sub Address] */
+        case 0x21 : break;
+        /* [Don't Care] */
+        case 0x22 : break;
+        /* [PC Low (write) : Stack] */
+        case 0x23 : sr=(sr-1)&0xffff;
+                    StoreByte(sr,pc);
+                    break;
+        /* [PC High (write) : Stack] */
+        case 0x24 : sr=(sr-1)&0xffff;
+                    StoreByte(sr,pc>>8);
+                    pc=address;
+                    step=0;  /* reset fetch */
+                    break;
+        /* compute address */
+        default   : compute_address();
+                    break;
+    }
+}
 
-static void nopm(void)
-	{
-	}
+/* ========================================================== */
+/*                          TFR EXG                           */
+/* ========================================================== */
 
-static void synm(void)
-	{
-        /* non supporté */
+static void tfrm(void) {
+        int r1,r2,v1;
+    switch (step) {
+    /* [Post Byte : NNNN+1] */
+    case 2 : postcode=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 6 : bus=0xffff;
+             r1=postcode>>4;
+             r2=postcode&0xf;
+             v1=(r1&8)?((r1==0xa)?getcc()|0xff00:*exreg[r1]|0xff00)
+                      :((r1)?*exreg[r1]:(ar<<8)+br);
+             if (!r2) { ar=v1>>8; br=v1&0xff; }
+             else if (r2==0xa) setcc(v1);
+             else *exreg[r2]=(r2&8)?v1&0xff:v1;
+             step=0;  /* reset fetch */
+             break;
+    /* Cases 3,4,5 = [Don't Care] */
+    default: break;
+    }
+}        
+
+static void exgm(void) {
+        int r1,r2,v1,v2;
+    switch (step) {
+    /* [Post Byte : NNNN+1] */
+    case 2 : postcode=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 8 : bus=0xffff;
+             r1=postcode>>4;
+             r2=postcode&0xf;
+             v1=(r1&8)?((r1==0xa)?getcc()|0xff00:*exreg[r1]|0xff00)
+                      :((r1)?*exreg[r1]:(ar<<8)+br);
+             v2=(r2&8)?((r2==0xa)?getcc()|0xff00:*exreg[r2]|0xff00)
+                      :((r2)?*exreg[r2]:(ar<<8)+br);
+             if (!r1) { ar=v2>>8; br=v2&0xff; }
+             else if (r1==0xa) setcc(v2);
+             else *exreg[r1]=(r1&8)?v2&0xff:v2;
+             if (!r2) { ar=v1>>8; br=v1&0xff; }
+             else if (r2==0xa) setcc(v1);
+             else *exreg[r2]=(r2&8)?v1&0xff:v1;
+             step=0;  /* reset fetch */
+             break;
+    /* Cases 3,4,5,6,7 = [Don't Care] */
+    default: break;
+    }
+} 
+
+/* ========================================================== */
+/*  BCC BCS BEQ BGE BGT BHI BHS BLE BLO BLS BLT BMI BNE BPL   */
+/*                      BRA BRN BVC BVS                       */
+/* ========================================================== */
+
+static void bras(void) {    /* branch always */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void brns(void) {    /* branch never */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bhis(void) {    /* branch if C|Z=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if ((!(res&0x100))&&(res&0xff))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void blss(void) {    /* branch if C|Z=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if ((res&0x100)||(!(res&0xff)))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bccs(void) {    /* branch if C=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (!(res&0x100)) pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void blos(void) {    /* branch if C=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (res&0x100) pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bnes(void) {    /* branch if Z=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (res&0xff) pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void beqs(void) {    /* branch if Z=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (!(res&0xff)) pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bvcs(void) {    /* branch if V=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (((m1^m2)&0x80)||(!((m1^ovfl)&0x80)))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bvss(void) {    /* branch if V=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if ((!((m1^m2)&0x80))&&((m1^ovfl)&0x80))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bpls(void) {    /* branch if N=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (!(sign&0x80)) pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bmis(void) {    /* branch if N=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (sign&0x80) pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bges(void) {    /* branch if N^V=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if (!((sign^((~(m1^m2))&(m1^ovfl)))&0x80))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void blts(void) {    /* branch if N^V=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if ((sign^((~(m1^m2))&(m1^ovfl)))&0x80)
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bgts(void) {    /* branch if Z|(N^V)=0 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if ((res&0xff)&&(!((sign^((~(m1^m2))&(m1^ovfl)))&0x80)))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void bles(void) {    /* branch if Z|(N^V)=1 */
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : if ((!(res&0xff))||((sign^((~(m1^m2))&(m1^ovfl)))&0x80))
+                 pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+/* ========================================================== */
+/*   LBCC LBCS LBGE LBGT LBHI LBHS LBLE LBLS LBLT LBMI LBNE   */
+/*                  LBPL LBRA LBRN LBVC LBVS                  */
+/* ========================================================== */
+
+static void lbra(void) {    /* branch always */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 5 : pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    /* Case 4 = [Don't Care] */
+    default: break;
+    }
+}
+
+static void lbrn(void) {    /* branch never */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* Case 4 = [Don't Care] */
+    default: step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbhi(void) {    /* branch if c|z=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if ((res&0x100)||(!(res&0xff)))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbls(void) {    /* c|z=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if ((!(res&0x100))&&(res&0xff))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbcc(void) {    /* c=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (res&0x100)
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lblo(void) {    /* c=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (!(res&0x100))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbne(void) {    /* z=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (!(res&0xff))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbeq(void) {    /* z=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (res&0xff)
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbvc(void) {    /* v=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if ((!((m1^m2)&0x80))&&((m1^ovfl)&0x80))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbvs(void) {    /* v=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (((m1^m2)&0x80)||(!((m1^ovfl)&0x80)))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbpl(void) {    /* n=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (sign&0x80)
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbmi(void) {    /* n=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (!(sign&0x80))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbge(void) {    /* n^v=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if ((sign^((~(m1^m2))&(m1^ovfl)))&0x80)
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lblt(void) {    /* n^v=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if (!((sign^((~(m1^m2))&(m1^ovfl)))&0x80))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lbgt(void) {    /* z|(n^v)=0 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if ((!(res&0xff))||((sign^((~(m1^m2))&(m1^ovfl)))&0x80))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+static void lble(void) {    /* z|(n^v)=1 */
+    switch (step) {
+    /* [Offset High : NNNN+2] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset Low : NNNN+3] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : if ((res&0xff)&&(!((sign^((~(m1^m2))&(m1^ovfl)))&0x80)))
+                 step=0;  /* reset fetch */
+             break;
+    /* Case 5 = [Don't Care] */
+    default: pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+/* ========================================================== */
+/*                          BSR LBSR                          */
+/* ========================================================== */
+
+static void bsrm(void) {
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : byte=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* Return Address Low : Stack */
+    case 6 : sr=(sr-1)&0xffff;
+             StoreByte(sr,pc);
+             break;
+    /* Return Address High : Stack */
+    case 7 : sr=(sr-1)&0xffff;
+             StoreByte(sr,pc>>8);
+             pc=(pc+byte)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    /* Cases 3,4,5 = [Don't Care] */
+    default: break;
+    }
+}
+
+static void lbsr(void) {
+    switch (step) {
+    /* [Offset : NNNN+1] */
+    case 2 : value=LoadByte(pc)<<8;
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Offset : NNNN+2] */
+    case 3 : value|=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* Return Address Low : Stack */
+    case 8 : sr=(sr-1)&0xffff;
+             StoreByte(sr,pc);
+             break;
+    /* Return Address High : Stack */
+    case 9 : sr=(sr-1)&0xffff;
+             StoreByte(sr,pc>>8);
+             pc=(pc+value)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    /* Cases 4,5,6,7 = [Don't Care] */
+    default: break;
+    }
+}
+
+/* ========================================================== */
+/*                         LEAX/Y/U/S                         */
+/* ========================================================== */
+
+static void leax(void) {    /* Zx */
+    switch (step) {
+    /* [Don't Care] */
+    case 0x21: xr=address;
+               res=(res&0x100)|((xr|(xr>>8))&0xff);
+               step=0;  /* reset fetch */
+               break;
+    /* Compute Address */
+    default  : compute_address();
+               break;
+    }
+}
+
+static void leay(void) {    /* Zx */
+    switch (step) {
+    /* [Don't Care] */
+    case 0x21: yr=address;
+               res=(res&0x100)|((yr|(yr>>8))&0xff);
+               step=0;  /* reset fetch */
+               break;
+    /* Compute Address */
+    default  : compute_address();
+               break;
+    }
+}
+
+static void leas(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 0x21: sr=address;
+               step=0;  /* reset fetch */
+               break;
+    /* Compute Address */
+    default  : compute_address();
+               break;
+    }
+}
+
+static void leau(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 0x21: ur=address;
+               step=0;  /* reset fetch */
+               break;
+    /* Compute Address */
+    default  : compute_address();
+               break;
+    }
+}
+
+/* ========================================================== */
+/*                        PSHS/U PULS/U                       */
+/* ========================================================== */
+
+static void pshsr(void) {
+    sr=(sr-1)&0xffff; /* stack-1 */
+    if (value&0x100) {
+             if (value&0x80) { StoreByte(sr,pc>>8); value^=0x180; } /* [PC High] */
+        else if (value&0x40) { StoreByte(sr,ur>>8); value^=0x140; } /* [U High] */
+        else if (value&0x20) { StoreByte(sr,yr>>8); value^=0x120; } /* [Y High] */
+        else                 { StoreByte(sr,xr>>8); value^=0x110; } /* [X High] */
+    }
+    else if (value&0x80) { StoreByte(sr,pc); value|=0x100; } /* [PC Low] */ 
+    else if (value&0x40) { StoreByte(sr,ur); value|=0x100; } /* [U Low] */
+    else if (value&0x20) { StoreByte(sr,yr); value|=0x100; } /* [Y Low] */
+    else if (value&0x10) { StoreByte(sr,xr); value|=0x100; } /* [X Low] */
+    else if (value&0x08) { StoreByte(sr,dp); value^=0x08; }  /* [DP] */
+    else if (value&0x04) { StoreByte(sr,br); value^=0x04; }  /* [B] */
+    else if (value&0x02) { StoreByte(sr,ar); value^=0x02; }  /* [A] */
+    else                 { StoreByte(sr,getcc()); value^=0x01; }  /* [CC] */
+}
+
+static void pshs(void) {
+    switch (step) {
+    /* Post Byte : NNNN+1] */
+    case 2 : value=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 :
+    case 4 : break;
+    /* [Don't Care] */
+    case 5 : if (value==0) step=0;  /* reset fetch if nothing to push */
+             break;
+    /* push registers */
+    default: pshsr();
+             if (value==0) step=0;  /* reset fetch if nothing left to push */
+             break;
+    }
+}
+
+static void pulsr(void) {
+    if (value&0x100) {
+             if (value&0x10) { xr|=LoadByte(sr); value^=0x110; } /* [X Low] */
+        else if (value&0x20) { yr|=LoadByte(sr); value^=0x120; } /* [Y Low] */
+        else if (value&0x40) { ur|=LoadByte(sr); value^=0x140; } /* [U Low] */
+        else                 { pc|=LoadByte(sr); value^=0x180; } /* [PC Low] */
+    }
+    else if (value&0x01) { setcc(LoadByte(sr)); value^=0x01; } /* [CC] */
+    else if (value&0x02) { ar=LoadByte(sr); value^=0x02; }     /* [A] */
+    else if (value&0x04) { br=LoadByte(sr); value^=0x04; }     /* [B] */
+    else if (value&0x08) { dp=LoadByte(sr); value^=0x08; }     /* [DP] */
+    else if (value&0x10) { xr=LoadByte(sr)<<8; value|=0x100; } /* [X High] */
+    else if (value&0x20) { yr=LoadByte(sr)<<8; value|=0x100; } /* [Y High] */
+    else if (value&0x40) { ur=LoadByte(sr)<<8; value|=0x100; } /* [U High] */
+    else                 { pc=LoadByte(sr)<<8; value|=0x100; } /* [PC High] */
+    sr=(sr+1)&0xffff; /* stack+1 */
+}
+
+static void puls(void) {
+    switch (step) {
+    /* Post Byte : NNNN+1] */
+    case 2 : value=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : break;
+    /* [Don't Care] */
+    case 4 : if (value==0) step=0x20;  /* skip if nothing to pull */
+             break;
+    /* [Don't Care] */
+    case 0x21 : step=0;  /* reset fetch */
+                break;
+    /* pull registers */
+    default: pulsr();
+             if (value==0) step=0x20; /* skip if nothing left to pull */
+             break;
+    }
+}
+
+static void pshu(void) {
+    switch (step) {
+    /* Post Byte : NNNN+1] */
+    case 2 : value=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 :
+    case 4 :  break;
+    /* [Don't Care] */
+    case 5 :  if (value==0) step=0;  /* reset fetch if nothing to push */
+              break;
+    /* push registers */
+    default:
+        ur=(ur-1)&0xffff;  /* stack-1 */
+        if (value&0x100) {
+                 if (value&0x80) { StoreByte(ur,pc>>8); value^=0x180; } /* [PC High] */
+            else if (value&0x40) { StoreByte(ur,sr>>8); value^=0x140; } /* [S High] */
+            else if (value&0x20) { StoreByte(ur,yr>>8); value^=0x120; } /* [Y High] */
+            else                 { StoreByte(ur,xr>>8); value^=0x110; } /* [X High] */
         }
+        else if (value&0x80) { StoreByte(ur,pc); value|=0x100; } /* [PC Low] */
+        else if (value&0x40) { StoreByte(ur,sr); value|=0x100; } /* [S Low] */
+        else if (value&0x20) { StoreByte(ur,yr); value|=0x100; } /* [Y Low] */
+        else if (value&0x10) { StoreByte(ur,xr); value|=0x100; } /* [X Low] */
+        else if (value&0x08) { StoreByte(ur,dp); value^=0x08; }  /* [DP] */
+        else if (value&0x04) { StoreByte(ur,br); value^=0x04; }  /* [B] */
+        else if (value&0x02) { StoreByte(ur,ar); value^=0x02; }  /* [A] */
+        else                 { StoreByte(ur,getcc()); value^=0x01; } /* [CC] */
+        if (value==0) step=0;  /* reset fetch if nothing left to push */
+        break;
+    }
+}
 
-static void lbra(void)
-	{
-	pc=(pc+((*op)<<8)+(op[1]&255))&0xffff;
-	}
-
-static void lbsr(void)
-	{
-	sr=(sr-2)&0xffff;
-	StoreWord(sr,pc);
-	pc=(pc+((*op)<<8)+(op[1]&255))&0xffff;
-	}
-
-static void daam(void)     /* NxZxV?Cx */
-	{
-		int     i=ar+(res&0x100);
-	if (((ar&15)>9)||((h1&15)+(h2&15)>15)) i+=6;
-  if (i>0x99) i+=0x60;
-	res=sign=i;
-	ar=i&255;
-	}
-
-static void orcc(void)
-	{
-	setcc(getcc()|(*op));
-	}
-
-static void andc(void)
-	{
-	setcc(getcc()&(*op));
-	}
-
-static void sexm(void)     /* NxZx */
-	{
-	if (br&0x80) ar=0xff;
-		else ar=0;
-	sign=br;
-	res=(res&0x100)|sign;
-	}
-
-
-static void exgm(void)
-	{
-		int    k,l;
-		int     o1,o2;
-		int    *p,*q;
-
-	o1=((*op)&0xf0)>>4;
-	o2=(*op)&15;
-	if ((p=exreg[o1])) k=*p;
-		else    if (o1) k=getcc();
-				else k=(ar<<8)+br;
-	if ((q=exreg[o2]))
-			{
-			l=*q;
-			*q=k;
-			}
-		else    if (o2) {
-				l=getcc();
-				setcc(k);
-				}
-				else
-				{
-				l=(ar<<8)+br;
-				ar=(k>>8)&255;
-				br=k&255;
-				}
-	if (p) *p=l;
-		else    if (o1) setcc(l);
-				else
-				{
-				ar=(l>>8)&255;
-				br=l&255;
-				}
-	}
-
-static void tfrm(void)
-	{
-		int    k;
-		int     o1,o2;
-		int    *p,*q;
-
-	o1=((*op)&0xf0)>>4;
-	o2=(*op)&15;
-	if ((p=exreg[o1])) k=*p;
-		else    if (o1) k=getcc();
-				else k=(ar<<8)+br;
-	if ((q=exreg[o2])) *q=k;
-		else    if (o2) setcc(k);
-				else
-				{
-				ar=(k>>8)&255;
-				br=k&255;
-				}
-	}
-
-static void bras(void)
-	{
-	pc+=op[0];
-	}
-static void brns(void)
-	{
-	}
-
-static void bhis(void)     /* c|z=0 */
-	{
-	if ((!(res&0x100))&&(res&0xff)) pc+=op[0];
-	}
-static void blss(void)     /* c|z=1 */
-	{
-	if ((res&0x100)||(!(res&0xff))) pc+=op[0];
-	}
-
-static void bccs(void)     /* c=0 */
-	{
-	if (!(res&0x100)) pc+=op[0];
-	}
-static void blos(void)     /* c=1 */
-	{
-	if (res&0x100) pc+=op[0];
-	}
-
-static void bnes(void)     /* z=0 */
-	{
-	if (res&0xff) pc+=op[0];
-	}
-static void beqs(void)     /* z=1 */
-	{
-	if (!(res&0xff)) pc+=op[0];
-	}
-
-static void bvcs(void)     /* v=0 */
-	{
-	if ( ((m1^m2)&0x80)||(!((m1^ovfl)&0x80)) ) pc+=op[0];
-	}
-static void bvss(void)     /* v=1 */
-	{
-	if ( (!((m1^m2)&0x80))&&((m1^ovfl)&0x80) ) pc+=op[0];
-	}
-
-static void bpls(void)     /* n=0 */
-	{
-	if (!(sign&0x80)) pc+=op[0];
-	}
-static void bmis(void)     /* n=1 */
-	{
-	if (sign&0x80) pc+=op[0];
-	}
-
-static void bges(void)     /* n^v=0 */
-	{
-	if (!((sign^((~(m1^m2))&(m1^ovfl)))&0x80)) pc+=op[0];
-	}
-static void blts(void)     /* n^v=1 */
-	{
-	if ((sign^((~(m1^m2))&(m1^ovfl)))&0x80) pc+=op[0];
-	}
-
-static void bgts(void)     /* z|(n^v)=0 */
-	{
-	if ( (res&0xff)
-	   &&(!((sign^((~(m1^m2))&(m1^ovfl)))&0x80)) ) pc+=op[0];
-	}
-static void bles(void)     /* z|(n^v)=1 */
-	{
-	if ( (!(res&0xff))
-	   ||((sign^((~(m1^m2))&(m1^ovfl)))&0x80) ) pc+=op[0];
-	}
-
-
-static void leax(void)     /* Zx */
-	{
-	xr=(*adresc[ad])();
-	res=(res&0x100)|((xr|(xr>>8))&255);
-	}
-
-static void leay(void)     /* Zx */
-	{
-	yr=(*adresc[ad])();
-	res=(res&0x100)|((yr|(yr>>8))&255);
-	}
-
-static void leas(void)
-	{
-	sr=(*adresc[ad])();
-	}
-
-static void leau(void)
-	{
-	ur=(*adresc[ad])();
-	}
-
-static void pshsr(int i)
-	{
-	if (i&0x80)     {
-			sr=(sr-2)&0xffff;
-			StoreWord(sr,pc);
-                        cpu_clock+=2;
-			}
-	if (i&0x40)     {
-			sr=(sr-2)&0xffff;
-			StoreWord(sr,ur);
-                        cpu_clock+=2;
-			}
-	if (i&0x20)     {
-			sr=(sr-2)&0xffff;
-			StoreWord(sr,yr);
-                        cpu_clock+=2;
-			}
-	if (i&0x10)     {
-			sr=(sr-2)&0xffff;
-			StoreWord(sr,xr);
-                        cpu_clock+=2;
-			}
-	if (i&0x8)      {
-			sr=(sr-1)&0xffff;
-			StoreByte(sr,dp);
-                        cpu_clock++;
-			}
-	if (i&0x4)      {
-			sr=(sr-1)&0xffff;
-			StoreByte(sr,br);
-                        cpu_clock++;
-			}
-	if (i&0x2)      {
-			sr=(sr-1)&0xffff;
-			StoreByte(sr,ar);
-                        cpu_clock++;
-			}
-	if (i&0x1)      {
-			sr=(sr-1)&0xffff;
-			StoreByte(sr,getcc());
-                        cpu_clock++;
-			}
-	}
-
-static void pshs(void)
-	{
-	pshsr(*op);
-	}
-
-static void pulsr(int i)
-	{
-	if (i&0x1)      {
-                        cpu_clock++;
-			setcc(LoadByte(sr));
-			sr=(sr+1)&0xffff;
-			}
-	if (i&0x2)      {
-                        cpu_clock++;
-			ar=LoadByte(sr);
-			sr=(sr+1)&0xffff;
-			}
-	if (i&0x4)      {
-                        cpu_clock++;
-			br=LoadByte(sr);
-			sr=(sr+1)&0xffff;
-			}
-	if (i&0x8)      {
-                        cpu_clock++;
-			dp=LoadByte(sr);
-			sr=(sr+1)&0xffff;
-			}
-	if (i&0x10)     {
-                        cpu_clock+=2;
-			xr=LoadWord(sr);
-			sr=(sr+2)&0xffff;
-			}
-	if (i&0x20)     {
-                        cpu_clock+=2;
-			yr=LoadWord(sr);
-			sr=(sr+2)&0xffff;
-			}
-	if (i&0x40)     {
-                        cpu_clock+=2;
-			ur=LoadWord(sr);
-			sr=(sr+2)&0xffff;
-			}
-	if (i&0x80)     {
-                        cpu_clock+=2;
-			pc=LoadWord(sr);
-			sr=(sr+2)&0xffff;
-			}
-	}
-
-static void puls(void)
-	{
-	pulsr(*op);
-	}
-
-static void pshu(void)
-	{
-		int     i=*op;
-
-	if (i&0x80)     {
-			ur=(ur-2)&0xffff;
-			StoreWord(ur,pc);
-                        cpu_clock+=2;
-			}
-	if (i&0x40)     {
-			ur=(ur-2)&0xffff;
-			StoreWord(ur,sr);
-                        cpu_clock+=2;
-			}
-	if (i&0x20)     {
-			ur=(ur-2)&0xffff;
-			StoreWord(ur,yr);
-                        cpu_clock+=2;
-			}
-	if (i&0x10)     {
-			ur=(ur-2)&0xffff;
-			StoreWord(ur,xr);
-                        cpu_clock+=2;
-			}
-	if (i&0x8)      {
-			ur=(ur-1)&0xffff;
-			StoreByte(ur,dp);
-                        cpu_clock++;
-			}
-	if (i&0x4)      {
-			ur=(ur-1)&0xffff;
-			StoreByte(ur,br);
-                        cpu_clock++;
-			}
-	if (i&0x2)      {
-			ur=(ur-1)&0xffff;
-			StoreByte(ur,ar);
-                        cpu_clock++;
-			}
-	if (i&0x1)      {
-			ur=(ur-1)&0xffff;
-			StoreByte(ur,getcc());
-                        cpu_clock++;
-			}
-	}
-
-static void pulu(void)
-	{
-		int     i=*op;
-
-	if (i&0x1)      {
-                        cpu_clock++;
-			setcc(LoadByte(ur));
-			ur=(ur+1)&0xffff;
-			}
-	if (i&0x2)      {
-                        cpu_clock++;
-			ar=LoadByte(ur);
-			ur=(ur+1)&0xffff;
-			}
-	if (i&0x4)      {
-                        cpu_clock++;
-			br=LoadByte(ur);
-			ur=(ur+1)&0xffff;
-			}
-	if (i&0x8)      {
-                        cpu_clock++;
-			dp=LoadByte(ur);
-			ur=(ur+1)&0xffff;
-			}
-	if (i&0x10)     {
-                        cpu_clock+=2;
-			xr=LoadWord(ur);
-			ur=(ur+2)&0xffff;
-			}
-	if (i&0x20)     {
-                        cpu_clock+=2;
-			yr=LoadWord(ur);
-			ur=(ur+2)&0xffff;
-			}
-	if (i&0x40)     {
-                        cpu_clock+=2;
-			sr=LoadWord(ur);
-			ur=(ur+2)&0xffff;
-			}
-	if (i&0x80)     {
-                        cpu_clock+=2;
-			pc=LoadWord(ur);
-			ur=(ur+2)&0xffff;
-			}
-	}
-
-static void rtsm(void)
-	{
-	pc=LoadWord(sr);
-	sr=(sr+2)&0xffff;
-	}
-
-static void abxm(void)
-	{
-	xr=(xr+br)&0xffff;
-	}
-
-static void rtim(void)
-	{
-	pulsr(1);
-	if (ccrest&0x80) pulsr(0xfe);
-		else    pulsr(0x80);
-	}
-
-static void cwai(void)
-	{
-        /* non supporté */
+static void pulu(void) {
+    switch (step) {
+    /* [Post Byte : NNNN+1] */
+    case 2 : postcode=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             value=postcode;
+             break;
+    /* [Don't Care] */
+    case 3 : break;
+    /* [Don't Care] */
+    case 4 : if (value==0) step=0x21;  /* skip if nothing to pull */
+             break;
+    /* [Don't Care] */
+    case 0x21 : step=0;  /* reset fetch */
+                break;
+    /* pull registers */
+    default:
+        if (value&0x100) {
+                 if (value&0x10) { xr|=LoadByte(ur); value^=0x110; } /* [X Low] */
+            else if (value&0x20) { yr|=LoadByte(ur); value^=0x120; } /* [Y Low] */
+            else if (value&0x40) { sr|=LoadByte(ur); value^=0x140; } /* [S Low] */
+            else                 { pc|=LoadByte(ur); value^=0x180; } /* [PC Low] */
         }
-
-static void mulm(void)             /* ZxCx */ 
-	{
-		int    k;
-	k=ar*br;
-	ar=(k>>8)&255;
-	br=k&255;
-	res=((br&0x80)<<1)|( (k|(k>>8)) &255);  /* c=bit7 de br */
-	}
-
-static void swim(void)
-	{
-	ccrest|=0x80;
-	pshsr(0xff);
-	ccrest|=0x50;
-	pc=LoadWord(0xFFFA);
-	}
-
-static void nega(void)             /* H?NxZxVxCx */
-	{
-	m1=ar; m2=-ar;          /* bit V */
-	ar=-ar;
-	ovfl=res=sign=ar;
-	ar&=255;
-	}
-
-static void coma(void)             /* NxZxV0C1 */
-	{
-	m1=ovfl;
-	ar=(~ar)&255;
-	sign=ar;
-	res=sign|0x100; /* bit C a 1 */
-	}
-
-static void lsra(void)             /* N0ZxCx */
-	{
-	res=(ar&1)<<8;  /* bit C */
-	ar>>=1;
-	sign=0;
-	res|=ar;
-	}
-
-static void rora(void)             /* NxZxCx */
-	{
-		int     i;
-	i=ar;
-	ar=(ar|(res&0x100))>>1;
-	sign=ar;
-	res=((i&1)<<8)|sign;
-	}
-
-static void asra(void)             /* H?NxZxCx */
-	{
-	res=(ar&1)<<8;
-	ar=(ar>>1)|(ar&0x80);
-	sign=ar;
-	res|=sign;
-	}
-
-static void asla(void)             /* H?NxZxVxCx */
-	{
-	m1=m2=ar;
-	ar<<=1;
-	ovfl=sign=res=ar;
-	ar&=255;
-	}
-
-static void rola(void)             /* NxZxVxCx */
-	{
-		int     i;
-	i=ar;
-	m1=m2=ar;
-	ar=(ar<<1)|((res&0x100)>>8);
-	ovfl=sign=res=ar;
-	ar&=255;
-	}
-
-static void deca(void)             /* NxZxVx */
-	{
-	m1=ar; m2=0x80;
-	ar=(ar-1)&255;
-	ovfl=sign=ar;
-	res=(res&0x100)|sign;
-	}
-
-static void inca(void)             /* NxZxVx */
-	{
-	m1=ar; m2=0;
-	ar=(ar+1)&255;
-	ovfl=sign=ar;
-	res=(res&0x100)|sign;
-	}
-
-static void tsta(void)             /* NxZxV0 */
-	{
-	m1=ovfl;
-	sign=ar;
-	res=(res&0x100)|sign;
-	}
-
-static void clra(void)             /* N0Z1V0C0 */
-	{
-	ar=0;
-	m1=ovfl;
-	sign=res=0;
-	}
-
-static void negb(void)             /* H?NxZxVxCx */
-	{
-	m1=br; m2=-br;          /* bit V */
-	br=-br;
-	ovfl=res=sign=br;
-	br&=255;
-	}
-
-static void comb(void)             /* NxZxV0C1 */
-	{
-	m1=ovfl;
-	br=(~br)&255;
-	sign=br;
-	res=sign|0x100; /* bit C a 1 */
-	}
-
-static void lsrb(void)             /* N0ZxCx */
-	{
-	res=(br&1)<<8;  /* bit C */
-	br>>=1;
-	sign=0;
-	res|=br;
-	}
-
-static void rorb(void)             /* NxZxCx */
-	{
-		int     i;
-	i=br;
-	br=(br|(res&0x100))>>1;
-	sign=br;
-	res=((i&1)<<8)|sign;
-	}
-
-static void asrb(void)             /* H?NxZxCx */
-	{
-	res=(br&1)<<8;
-	br=(br>>1)|(br&0x80);
-	sign=br;
-	res|=sign;
-	}
-
-static void aslb(void)             /* H?NxZxVxCx */
-	{
-	m1=m2=br;
-	br<<=1;
-	ovfl=sign=res=br;
-	br&=255;
-	}
-
-static void rolb(void)             /* NxZxVxCx */
-	{
-		int     i;
-	i=br;
-	m1=m2=br;
-	br=(br<<1)|((res&0x100)>>8);
-	ovfl=sign=res=br;
-	br&=255;
-	}
-
-static void decb(void)             /* NxZxVx */
-	{
-	m1=br; m2=0x80;
-	br=(br-1)&255;
-	ovfl=sign=br;
-	res=(res&0x100)|sign;
-	}
-
-static void incb(void)             /* NxZxVx */
-	{
-	m1=br; m2=0;
-	br=(br+1)&255;
-	ovfl=sign=br;
-	res=(res&0x100)|sign;
-	}
-
-static void tstb(void)             /* NxZxV0 */
-	{
-	m1=ovfl;
-	sign=br;
-	res=(res&0x100)|sign;
-	}
-
-static void clrb(void)             /* N0Z1V0C0 */
-	{
-	br=0;
-	m1=ovfl;
-	sign=res=0;
-	}
-
-static void suba(void)             /* H?NxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ar; m2=-val;
-	ar-=val;
-	ovfl=res=sign=ar;
-	ar&=255;
-	}
-
-static void cmpa(void)             /* H?NxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ar; m2=-val;
-	ovfl=res=sign=ar-val;
-	}
-
-static void sbca(void)             /* H?NxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ar; m2=-val;
-	ar-=val+((res&0x100)>>8);
-	ovfl=res=sign=ar;
-	ar&=255;
-	}
-
-static void subd(void)             /* NxZxVxCx */
-	{
-		int    dr,val;
-	val=LoadWord((*adresl[ad])());
-	m1=ar; m2=(-val)>>8;
-	dr=(ar<<8)+br-val;
-	ar=dr>>8;
-	br=dr&255;
-	ovfl=res=sign=ar;
-	res|=br;
-	ar&=255;
-	}
-
-static void anda(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	ar&=val;
-	sign=ar;
-	res=(res&0x100)|sign;
-	}
-
-static void bita(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	sign=ar&val;
-	res=(res&0x100)|sign;
-	}
-
-static void ldam(void)             /* NxZxV0 */
-	{
-	sign=ar=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	res=(res&0x100)|sign;
-	}
-
-static void stam(void)             /* NxZxV0 */
-	{
-	StoreByte((*adresc[ad])(),ar);
-	sign=ar;
-	m1=ovfl;
-	res=(res&0x100)|sign;
-	}
-
-static void eora(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	ar^=val;
-	sign=ar;
-	res=(res&0x100)|sign;
-	}
-
-static void adca(void)             /* HxNxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=h1=ar; m2=val;
-	h2=val+((res&0x100)>>8);
-	ar+=h2;
-	ovfl=res=sign=ar;
-	ar&=255;
-	}
-
-static void oram(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	ar|=val;
-	sign=ar;
-	res=(res&0x100)|sign;
-	}
-
-static void adda(void)             /* HxNxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=h1=ar; m2=h2=val;
-	ar+=val;
-	ovfl=res=sign=ar;
-	ar&=255;
-	}
-
-static void cmpx(void)             /* NxZxVxCx */
-	{
-		int    val;
-	val=LoadWord((*adresl[ad])());
-	m1=xr>>8; m2=(-val)>>8;
-	ovfl=res=sign=(xr-val)>>8;
-	res|=(xr-val)&255;
-	}
-
-static void bsrm(void)
-	{
-	sr=(sr-2)&0xffff;
-	StoreWord(sr,pc);
-	pc=(pc+op[0])&0xffff;
-	}
-
-static void ldxm(void)     /* NxZxV0 */
-	{
-	xr=LoadWord((*adresl[ad])());
-	m1=ovfl;
-	sign=xr>>8;
-	res=(res&0x100)|((sign|xr)&255);
-	}
-
-static void stxm(void)             /* NxZxV0 */
-	{
-	StoreWord((*adresl[ad])(),xr);
-	m1=0; m2=0x80;
-	sign=xr>>8;
-	res=(res&0x100)|((sign|xr)&255);
-	}
-
-static void subb(void)             /* H?NxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=br; m2=-val;
-	br-=val;
-	ovfl=res=sign=br;
-	br&=255;
-	}
-
-static void cmpb(void)             /* H?NxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=br; m2=-val;
-	ovfl=res=sign=br-val;
-	}
-
-static void sbcb(void)             /* H?NxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=br; m2=-val;
-	br-=val+((res&0x100)>>8);
-	ovfl=res=sign=br;
-	br&=255;
-	}
-
-static void addd(void)             /* NxZxVxCx */
-	{
-		int    dr,val;
-	val=LoadWord((*adresl[ad])());
-	m1=ar; m2=val>>8;
-	dr=(ar<<8)+br+val;
-	ar=dr>>8;
-	br=dr&255;
-	ovfl=res=sign=ar;
-	res|=br;
-	ar&=255;
-	}
-
-static void andb(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	br&=val;
-	sign=br;
-	res=(res&0x100)|sign;
-	}
-
-static void bitb(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	sign=br&val;
-	res=(res&0x100)|sign;
-	}
-
-static void ldbm(void)             /* NxZxV0 */
-	{
-	sign=br=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	res=(res&0x100)|sign;
-	}
-
-static void stbm(void)             /* NxZxV0 */
-	{
-	StoreByte((*adresc[ad])(),br);
-	sign=br;
-	m1=ovfl;
-	res=(res&0x100)|sign;
-	}
-
-static void eorb(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	br^=val;
-	sign=br;
-	res=(res&0x100)|sign;
-	}
-
-static void adcb(void)             /* HxNxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=h1=br; m2=val;
-	h2=val+((res&0x100)>>8);
-	br+=h2;
-	ovfl=res=sign=br;
-	br&=255;
-	}
-
-static void orbm(void)             /* NxZxV0 */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=ovfl;
-	br|=val;
-	sign=br;
-	res=(res&0x100)|sign;
-	}
-
-static void addb(void)             /* HxNxZxVxCx */
-	{
-		int     val;
-	val=LoadByte((*adresc[ad])());
-	m1=h1=br; m2=h2=val;
-	br+=val;
-	ovfl=res=sign=br;
-	br&=255;
-	}
-
-static void lddm(void)             /* NxZxV0 */
-	{
-		int    dr;
-	dr=LoadWord((*adresl[ad])());
-	m1=ovfl;
-	ar=(dr>>8)&255;
-	br=dr&255;
-	sign=ar;
-	res=(res&0x100)|br|ar;
-	}
-
-static void stdm(void)             /* NxZxV0 */
-	{
-	StoreWord((*adresl[ad])(),(ar<<8)+br);
-	m1=ovfl;
-	sign=ar;
-	res=(res&0x100)|ar|br;
-	}
-
-static void ldum(void)     /* NxZxV0 */
-	{
-	ur=LoadWord((*adresl[ad])());
-	m1=ovfl;
-	sign=ur>>8;
-	res=(res&0x100)|((sign|ur)&255);
-	}
-
-static void stum(void)             /* NxZxV0 */
-	{
-	StoreWord((*adresl[ad])(),ur);
-	m1=ovfl;
-	sign=ur>>8;
-	res=(res&0x100)|((sign|ur)&255);
-	}
-
-static void lbrn(void)
-{
-}
-
-static void lbhi(void)     /* c|z=0 */
-{
-    if ((!(res&0x100))&&(res&0xff))
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+        else if (value&0x01) { setcc(LoadByte(ur)); value^=0x01; } /* [CC] */
+        else if (value&0x02) { ar=LoadByte(ur); value^=0x02; }     /* [A] */
+        else if (value&0x04) { br=LoadByte(ur); value^=0x04; }     /* [B] */
+        else if (value&0x08) { dp=LoadByte(ur); value^=0x08; }     /* [DP] */
+        else if (value&0x10) { xr=LoadByte(ur)<<8; value|=0x100; } /* [X High] */
+        else if (value&0x20) { yr=LoadByte(ur)<<8; value|=0x100; } /* [Y High] */
+        else if (value&0x40) { sr=LoadByte(ur)<<8; value|=0x100; } /* [S High] */
+        else                 { pc=LoadByte(ur)<<8; value|=0x100; } /* [PC High] */
+        ur=(ur+1)&0xffff;  /* stack+1 */
+        if (value==0) step=0x20;  /* skip if nothing left to pull */
+        break;
     }
 }
 
-static void lbls(void)     /* c|z=1 */
-{
-    if ((res&0x100)||(!(res&0xff)))
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+/* ========================================================== */
+/*                            RTI                             */
+/* ========================================================== */
+
+static void rtim(void) {
+    switch (step) {
+    /* [Don't Care : NNNN+1] */
+    case 2 : break;
+    /* CCR : Stack] */
+    case 3 : value=0x01;
+             pulsr();
+             value=(ccrest&0x80)?0xfe:0x80;
+             break;
+    /* [Don't Care : Stack] */
+    case 0x21 : irq_run=0;
+                step=0;  /* reset fetch */
+                break;
+    /* pull registers */
+    default: pulsr();
+             if (value==0) step=0x20;  /* skip if nothing left to pull */
+             break;
     }
 }
 
-static void lbcc(void)     /* c=0 */
-{
-    if (!(res&0x100))
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+/* ========================================================== */
+/*                         NOP DAA SEX                        */
+/* ========================================================== */
+
+static void nopm(void) {
+    /* [Don't Care : NNNN+1] */
+    step=0;  /* reset fetch */
+}
+
+static void daam(void) {    /* NxZxV?Cx */
+        int i=ar+(res&0x100);
+    /* [Don't Care : NNNN+1] */
+    if (((ar&15)>9)||((h1&15)+(h2&15)>15)) i+=6;
+    if (i>0x99) i+=0x60;
+    res=sign=i;
+    ar=i&0xff;
+    step=0;  /* reset fetch */
+}
+
+static void sexm(void) {    /* NxZx */
+    /* [Don't Care : NNNN+1] */
+    ar=(br&0x80)?0xff:0;
+    sign=br;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+/* ========================================================== */
+/*  ASLA/B ASRA/B CLRA/B COMA/B DECA/B INCA/B LSRA/B NEGA/B   */
+/*                     ROLA/B RORA/B TSTA/B                   */
+/* ========================================================== */
+
+static void asla(void) {    /* H?NxZxVxCx */
+    /* [Don't Care : NNNN+1] */
+    m1=m2=ar;
+    ar<<=1;
+    ovfl=sign=res=ar;
+    ar&=0xff;
+    step=0;  /* reset fetch */
+}
+
+static void aslb(void) {    /* H?NxZxVxCx */
+    /* [Don't Care : NNNN+1] */
+    m1=m2=br;
+    br<<=1;
+    ovfl=sign=res=br;
+    br&=0xff;
+    step=0;  /* reset fetch */
+}
+
+static void asra(void) {    /* H?NxZxCx */
+    /* [Don't Care : NNNN+1] */
+    res=(ar&1)<<8;
+    ar=(ar>>1)|(ar&0x80);
+    sign=ar;
+    res|=sign;
+    step=0;  /* reset fetch */
+}
+
+static void asrb(void) {    /* H?NxZxCx */
+    /* [Don't Care : NNNN+1] */
+    res=(br&1)<<8;
+    br=(br>>1)|(br&0x80);
+    sign=br;
+    res|=sign;
+    step=0;  /* reset fetch */
+}
+
+static void clra(void) {    /* N0Z1V0C0 */
+    /* [Don't Care : NNNN+1] */
+    ar=0;
+    m1=ovfl;
+    sign=res=0;
+    step=0;  /* reset fetch */
+}
+
+static void clrb(void) {    /* N0Z1V0C0 */
+    /* [Don't Care : NNNN+1] */
+    br=0;
+    m1=ovfl;
+    sign=res=0;
+    step=0;  /* reset fetch */
+}
+
+static void coma(void) {    /* NxZxV0C1 */
+    /* [Don't Care : NNNN+1] */
+    m1=ovfl;
+    ar^=0xff;
+    sign=ar;
+    res=sign|0x100; /* bit C a 1 */
+    step=0;  /* reset fetch */
+}
+
+static void comb(void) {    /* NxZxV0C1 */
+    /* [Don't Care : NNNN+1] */
+    m1=ovfl;
+    br^=0xff;
+    sign=br;
+    res=sign|0x100; /* bit C a 1 */
+    step=0;  /* reset fetch */
+}
+
+static void deca(void) {    /* NxZxVx */
+    /* [Don't Care : NNNN+1] */
+    m1=ar; m2=0x80;
+    ar=(ar-1)&0xff;
+    ovfl=sign=ar;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+static void decb(void) {    /* NxZxVx */
+    /* [Don't Care : NNNN+1] */
+    m1=br; m2=0x80;
+    br=(br-1)&0xff;
+    ovfl=sign=br;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+static void inca(void) {    /* NxZxVx */
+    /* [Don't Care : NNNN+1] */
+    m1=ar; m2=0;
+    ar=(ar+1)&0xff;
+    ovfl=sign=ar;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+static void incb(void) {    /* NxZxVx */
+    /* [Don't Care : NNNN+1] */
+    m1=br; m2=0;
+    br=(br+1)&0xff;
+    ovfl=sign=br;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+static void lsra(void) {    /* N0ZxCx */
+    /* [Don't Care : NNNN+1] */
+    res=(ar&1)<<8;  /* bit C */
+    ar>>=1;
+    sign=0;
+    res|=ar;
+    step=0;  /* reset fetch */
+}
+
+static void lsrb(void) {    /* N0ZxCx */
+    /* [Don't Care : NNNN+1] */
+    res=(br&1)<<8;  /* bit C */
+    br>>=1;
+    sign=0;
+    res|=br;
+    step=0;  /* reset fetch */
+}
+
+static void nega(void) {    /* H?NxZxVxCx */
+    /* [Don't Care : NNNN+1] */
+    m1=ar; m2=-ar;  /* bit V */
+    ar=-ar;
+    ovfl=res=sign=ar;
+    ar&=0xff;
+    step=0;  /* reset fetch */
+}
+
+static void negb(void) {    /* H?NxZxVxCx */
+    /* [Don't Care : NNNN+1] */
+    m1=br; m2=-br;          /* bit V */
+    br=-br;
+    ovfl=res=sign=br;
+    br&=0xff;
+    step=0;  /* reset fetch */
+}
+
+static void rola(void) {    /* NxZxVxCx */
+    /* [Don't Care : NNNN+1] */
+    m1=m2=ar;
+    ar=(ar<<1)|((res&0x100)>>8);
+    ovfl=sign=res=ar;
+    ar&=0xff;
+    step=0;  /* reset fetch */
+}
+
+static void rolb(void) {    /* NxZxVxCx */
+    /* [Don't Care : NNNN+1] */
+    m1=m2=br;
+    br=(br<<1)|((res&0x100)>>8);
+    ovfl=sign=res=br;
+    br&=0xff;
+    step=0;  /* reset fetch */
+}
+
+static void rora(void) {    /* NxZxCx */
+    /* [Don't Care : NNNN+1] */
+    sign=(ar|(res&0x100))>>1;
+    res=((ar&1)<<8)|sign;
+    ar=sign;
+    step=0;  /* reset fetch */
+}
+
+static void rorb(void) {    /* NxZxCx */
+    /* [Don't Care : NNNN+1] */
+    sign=(br|(res&0x100))>>1;
+    res=((br&1)<<8)|sign;
+    br=sign;
+    step=0;  /* reset fetch */
+}
+
+static void tsta(void) {    /* NxZxV0 */
+    /* [Don't Care : NNNN+1] */
+    m1=ovfl;
+    sign=ar;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+static void tstb(void) {    /* NxZxV0 */
+    /* [Don't Care : NNNN+1] */
+    m1=ovfl;
+    sign=br;
+    res=(res&0x100)|sign;
+    step=0;  /* reset fetch */
+}
+
+/* ========================================================== */
+/*                        ORCC ANDCC                          */
+/* ========================================================== */
+
+static void orcc(void) {
+    switch (step) {
+    /* [data : NNNN+1] */
+    case 2 : value=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : setcc(getcc()|value);
+             step=0;  /* reset fetch */
+             break;
     }
 }
 
-static void lblo(void)     /* c=1 */
-{
+static void andc(void) {
+    switch (step) {
+    /* [data : NNNN+1] */
+    case 2 : value=LoadByte(pc);
+             pc=(pc+1)&0xffff;
+             break;
+    /* [Don't Care] */
+    case 3 : setcc(getcc()&value);
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+
+/* ========================================================== */
+/*                            ABX                             */
+/* ========================================================== */
+
+static void abxm(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 3 : xr=(xr+br)&0xffff;
+             step=0;  /* reset fetch */
+             break;
+    /* Case 2 = [Don't Care] */
+    default: break;
+    }
+}
+
+/* ========================================================== */
+/*                            RTS                             */
+/* ========================================================== */
+
+static void rtsm(void) {
+    switch (step) {
+    /* PC High : Stack */
+    case 3 : pc=LoadByte(sr)<<8;
+             sr=(sr+1)&0xffff;
+             break;
+    /* PC Low : Stack */
+    case 4 : pc|=LoadByte(sr);
+             sr=(sr+1)&0xffff;
+             break;
+    /* Cases 5 = [Don't Care] */
+    case 5 : step=0;  /* reset fetch */
+             break;
+    /* Case 2 = [Don't Care] */
+    default: break;
+    }
+}
+
+/* ========================================================== */
+/*                            MUL                             */
+/* ========================================================== */
+
+static void mulm(void) {    /* ZxCx */ 
+    switch (step) {
+    /* [Don't Care] */
+    case 11 : value=ar*br;
+              ar=(value>>8)&0xff;
+              br=value&0xff;
+              res=((br&0x80)<<1)|ar|br;  /* c=bit7 de br */
+              step=0;  /* reset fetch */
+              break;
+    /* Case 2->10 = [Don't Care] */
+    default : break;
+    }
+}
+
+/* ========================================================== */
+/*                    Software interrupts                     */
+/*                       SWI SWI2 SWI3                        */
+/* ========================================================== */
+
+static void swim(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 2  : ccrest|=0x80;
+              value=0xff;  /* push all registers */
+              break;
+    /* [Don't Care] */
+    case 3  : break;
+    /* [Don't Care] */
+    case 16 : ccrest|=0x50;  /* F,I masked */
+              break;
+    /* [Interrupt Vector High : FFFX] */
+    case 17 : pc=LoadByte(swi_vector[page>>8])<<8;
+              break;
+    /* [Interrupt Vector Low : FFFX+1] */
+    case 18 : pc|=LoadByte(swi_vector[page>>8]+1);
+              break;
+    /* [Don't Care] */
+    case 19 : step=0;  /* reset fetch */
+              break;
+    /* case 4->15 = push registers */
+    default : pshsr();
+              break;
+    }
+}
+
+/* ========================================================== */
+/*   ADCA/B ADDA/B ANDA/B BITA/B CMPA/B EORA/B LDA/B ORA/B    */
+/*                       SBCA/B SUBA/B                        */
+/* ========================================================== */
+/* Code is written without 'switch' or 'else' because of      */
+/* immediate addressing mode : all must be done in 2 cycles.  */
+
+static void adca(void) {    /* HxNxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=h1=ar; m2=value;
+        h2=value+((res&0x100)>>8);
+        ar+=h2;
+        ovfl=res=sign=ar;
+        ar&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void adcb(void) {    /* HxNxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=h1=br; m2=value;
+        h2=value+((res&0x100)>>8);
+        br+=h2;
+        ovfl=res=sign=br;
+        br&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void adda(void) {    /* HxNxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=h1=ar; m2=h2=value;
+        ar+=value;
+        ovfl=res=sign=ar;
+        ar&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void addb(void) {    /* HxNxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=h1=br; m2=h2=value;
+        br+=value;
+        ovfl=res=sign=br;
+        br&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void anda(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        ar&=value;
+        sign=ar;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void andb(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        br&=value;
+        sign=br;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void bita(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        sign=ar&value;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void bitb(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        sign=br&value;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void cmpa(void) {    /* H?NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ar; m2=-value;
+        ovfl=res=sign=ar-value;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void cmpb(void) {    /* H?NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=br; m2=-value;
+        ovfl=res=sign=br-value;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void eora(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        ar^=value;
+        sign=ar;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void eorb(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        br^=value;
+        sign=br;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void ldam(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        sign=ar=LoadByte(address);
+        m1=ovfl;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void ldbm(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        sign=br=LoadByte(address);
+        m1=ovfl;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void oram(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        ar|=value;
+        sign=ar;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void orbm(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ovfl;
+        br|=value;
+        sign=br;
+        res=(res&0x100)|sign;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void sbca(void) {    /* H?NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ar; m2=-value;
+        ar-=value+((res&0x100)>>8);
+        ovfl=res=sign=ar;
+        ar&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void sbcb(void) {    /* H?NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=br; m2=-value;
+        br-=value+((res&0x100)>>8);
+        ovfl=res=sign=br;
+        br&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void suba(void) {    /* H?NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=ar; m2=-value;
+        ar-=value;
+        ovfl=res=sign=ar;
+        ar&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+static void subb(void) {    /* H?NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    /* [Data : EA] */
+    if (step==0x21) {
+        value=LoadByte(address);
+        m1=br; m2=-value;
+        br-=value;
+        ovfl=res=sign=br;
+        br&=0xff;
+        step=0;  /* reset fetch */
+    }
+}
+
+/* ========================================================== */
+/*               STA STB STD STX STY STU STS                  */
+/* ========================================================== */
+
+static void stam(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register (Write) : EA] */
+    case 0x21 : StoreByte(address,ar);
+                sign=ar;
+                m1=ovfl;
+                res=(res&0x100)|sign;
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+static void stbm(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register (Write) : EA] */
+    case 0x21 : StoreByte(address,br);
+                sign=br;
+                m1=ovfl;
+                res=(res&0x100)|sign;
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+static void stdm(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register High (Write) : EA] */
+    case 0x21 : StoreByte(address,ar);
+                break;
+    /* [Register Low (Write) : EA] */
+    case 0x22 : StoreByte(address+1,br);
+                m1=ovfl;
+                sign=ar;
+                res=(res&0x100)|ar|br;
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+static void stxm(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register High (Write) : EA] */
+    case 0x21 : StoreByte(address,xr>>8);
+                break;
+    /* [Register Low (Write) : EA] */
+    case 0x22 : StoreByte(address+1,xr);
+                m1=0; m2=0x80;
+                sign=xr>>8;
+                res=(res&0x100)|((sign|xr)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+static void stum(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register High (Write) : EA] */
+    case 0x21 : StoreByte(address,ur>>8);
+                break;
+    /* [Register Low (Write) : EA] */
+    case 0x22 : StoreByte(address+1,ur);
+                m1=ovfl;
+                sign=ur>>8;
+                res=(res&0x100)|((sign|ur)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+static void stym(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register High (Write) : EA] */
+    case 0x21 : StoreByte(address,yr>>8);
+                break;
+    /* [Register Low (Write) : EA] */
+    case 0x22 : StoreByte(address+1,yr);
+                m1=ovfl;
+                sign=yr>>8;
+                res=(res&0x100)|((sign|yr)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+static void stsm(void) {    /* NxZxV0 */
+    switch (step) {
+    /* [Register High (Write) : EA] */
+    case 0x21 : StoreByte(address,sr>>8);
+                break;
+    /* [Register Low (Write) : EA] */
+    case 0x22 : StoreByte(address+1,sr);
+                m1=ovfl;
+                sign=sr>>8;
+                res=(res&0x100)|((sign|sr)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    /* compute address */
+    default   : compute_address();
+                break;
+    }
+}
+
+/* ========================================================== */
+/*                         LDD/X/Y/U/S                        */
+/* ========================================================== */
+
+static void lddm(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Register High : EA] */
+    case 0x21 : ar=LoadByte(address);
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : br=LoadByte(address+1);
+                m1=ovfl;
+                sign=ar;
+                res=(res&0x100)|br|ar;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void ldxm(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Register High : EA] */
+    case 0x21 : xr=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : xr|=LoadByte(address+1);
+                m1=ovfl;
+                sign=xr>>8;
+                res=(res&0x100)|((sign|xr)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void ldym(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Register High : EA] */
+    case 0x21 : yr=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : yr|=LoadByte(address+1);
+                m1=ovfl;
+                sign=yr>>8;
+                res=(res&0x100)|((sign|yr)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void ldum(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Register High : EA] */
+    case 0x21 : ur=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : ur|=LoadByte(address+1);
+                m1=ovfl;
+                sign=ur>>8;
+                res=(res&0x100)|((sign|ur)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void ldsm(void) {    /* NxZxV0 */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Register High : EA] */
+    case 0x21 : sr=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : sr|=LoadByte(address+1);
+                m1=ovfl;
+                sign=sr>>8;
+                res=(res&0x100)|((sign|sr)&0xff);
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+/* ========================================================== */
+/*                         CMPD/X/Y/U/S                       */
+/* ========================================================== */
+
+static void cmpd(void) {            /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : dr=(ar<<8)+br-value;
+                m1=ar; m2=(-value)>>8;
+                ovfl=res=sign=dr>>8;
+                res|=(dr&0xff);
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void cmpx(void) {    /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : m1=xr>>8; m2=(-value)>>8;
+                ovfl=res=sign=(xr-value)>>8;
+                res|=(xr-value)&0xff;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void cmpy(void) {            /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : m1=yr>>8; m2=(-value)>>8;
+                ovfl=res=sign=(yr-value)>>8;
+                res|=(yr-value)&0xff;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void cmpu(void) {            /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : m1=ur>>8; m2=(-value)>>8;
+                ovfl=res=sign=(ur-value)>>8;
+                res|=(ur-value)&0xff;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void cmps(void) {            /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : m1=sr>>8; m2=(-value)>>8;
+                ovfl=res=sign=(sr-value)>>8;
+                res|=(sr-value)&0xff;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void addd(void) {    /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : dr=(ar<<8)+br+value;
+                m1=ar; m2=value>>8;
+                ar=dr>>8;
+                br=dr&0xff;
+                ovfl=res=sign=ar;
+                res|=br;
+                ar&=0xff;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void subd(void) {    /* NxZxVxCx */
+    /* compute address */
+    if (step<0x21) compute_address();
+    switch (step) {
+    /* [Data High : EA] */
+    case 0x21 : value=LoadByte(address)<<8;
+                break;
+    /* [Register Low : EA] */
+    case 0x22 : value|=LoadByte(address+1);
+                break;
+    /* [Don't Care] */
+    case 0x23 : dr=(ar<<8)+br-value;
+                m1=ar; m2=(-value)>>8;
+                ar=dr>>8;
+                br=dr&0xff;
+                ovfl=res=sign=ar;
+                res|=br;
+                ar&=0xff;
+                step=0;  /* reset fetch */
+                break;
+    }
+}
+
+static void synm(void) {
+        /* non supporté */
+}
+
+static void cwai(void) {
+        /* non supporté */
+}
+
+/**********************************************/
+/*** instructions non documentées du MC6809 ***/
+/**********************************************/
+
+static void cd02(void) {  /* NEG if Carry=0, COM otherwise */
+     if (res&0x100)
+         comm();
+     else
+         negm();
+}
+
+static void cd10(void) { };
+static void cd11(void) { };
+
+static void hcfm(void) { /* Halt and Catch Fire */
+    /* not supported */
+}
+
+static void rset(void) { /* Reset */
+    dp=0;
+    ccrest|=0x50;
+    pc=LoadWord(0xFFFE);
+    mc6809_irq=0;
+    irq_start=irq_run=0;
+    step=0;
+}
+
+static void cd18(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 3 : res=1-((((~(m1^m2))&(m1^ovfl))&0x80)>>7);  /* V -> Z */
+             h1=h2=((ccrest&0x10)>>4)*15;               /* I -> H */
+             ccrest=sign=m1=m2=ovfl=0;  /* others bits of CC to 0 */
+             step=0;  /* reset fetch */
+             break;
+    /* Case 2 = [Don't Care] */
+    default: break;
+    }
+}
+
+static void cd38(void) {  /* ANDCC 4 cycles */
+    switch (step) {
+    /* [data : NNNN+1] */
+    case 2 : value=LoadByte(pc);
+             pc++; pc&=0xffff;
+             break;
+    /* [Don't Care] */
+    case 4 : setcc(getcc()&value);
+             step=0;  /* reset fetch */
+             break;
+    /* Case 3 = [Don't Care] */
+    default: break;
+    }
+}
+
+static void cd42(void) {  /* NEGA/COMA */
     if (res&0x100)
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+        coma();
+    else
+        nega();
+}
+
+static void cd52(void) {  /* NEGB/COMB */
+    if (res&0x100)
+        comb();
+    else
+        negb();
+}
+
+static void cd87(void) {
+    /* [Don't Care] */
+    m1=m2=ovfl=0; /* V=0 */
+    res&=0xff00;  /* Z=0 */
+    sign|=0x80;   /* N=1   */
+    step=0;  /* reset fetch */
+}
+
+static void cd8f(void) {
+    switch (step) {
+    /* [Don't Care : NNNN+1] */
+    case 2 : pc++; pc&=0xffff;
+             break;
+    /* [Register Low (write) : NNNN+2] */
+    case 3 : StoreByte(pc,xr);
+             pc++; pc&=0xffff;
+             m1=m2=ovfl=0; /* V=0 */
+             res&=0xff00;  /* Z=0 */
+             sign|=0x80;   /* N=1   */
+             step=0;  /* reset fetch */
+             break;
+    }
+}
+             
+static void cdcf(void) {
+    switch (step) {
+    /* [Don't Care : NNNN+1] */
+    case 2 : pc++; pc&=0xffff;
+             break;
+    /* [Register Low (write) : NNNN+2] */
+    case 3 : StoreByte(pc,ur);
+             pc++; pc&=0xffff;
+             m1=m2=ovfl=0; /* V=0 */
+             res&=0xff00;  /* Z=0 */
+             sign|=0x80;   /* N=1   */
+             step=0;  /* reset fetch */
+             break;
     }
 }
 
-static void lbne(void)     /* z=0 */
-{
-    if (res&0xff)
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+/*******************************/
+/*** systèmes d'interruption ***/
+/*******************************/
+
+static void do_nmi(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 1    : ccrest|=0x80;
+                value=0xff;      /* push all registers */
+                break;
+    /* [Don't Care] */
+    case 2    :
+    case 3    : break;
+    /* [Don't Care] */
+    case 0x21 : ccrest|=0x50;
+                break;
+    /* [PC High : FFFX] */
+    case 0x22 : pc=LoadByte(0xFFFC)<<8;
+                break;
+    /* [PC Low : FFFX+1] */
+    case 0x23 : pc|=LoadByte(0xFFFD);
+                break;
+    /* [Don't Care] */
+    case 0x24 : step=0;  /* reset fetch */
+                break;
+    /* push all registers */
+    default   : pshsr();
+                if (value==0) step=0x20;
+                break;
     }
 }
 
-static void lbeq(void)     /* z=1 */
-{
-    if (!(res&0xff))
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+static void do_irq(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 1    : ccrest|=0x80;
+                value=0xff;      /* push all registers */
+                break;
+    /* [Don't Care] */
+    case 2    :
+    case 3    : break;
+    /* [Don't Care] */
+    case 0x21 : ccrest|=0x10;
+                break;
+    /* [PC High : FFFX] */
+    case 0x22 : pc=LoadByte(0xFFF8)<<8;
+                break;
+    /* [PC Low : FFFX+1] */
+    case 0x23 : pc|=LoadByte(0xFFF9);
+                break;
+    /* [Don't Care] */
+    case 0x24 : irq_start=0;
+                step=0;  /* reset fetch */
+                break;
+    /* push all registers */
+    default   : pshsr();
+                if (value==0) step=0x20;
+                break;
     }
 }
 
-static void lbvc(void)     /* v=0 */
-{
-    if ( ((m1^m2)&0x80)||(!((m1^ovfl)&0x80)) )
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
+static void do_firq(void) {
+    switch (step) {
+    /* [Don't Care] */
+    case 1 : ccrest&=0x7f;
+             value=0x81;
+             break;
+    /* push PC,CC */
+    case 4 :
+    case 5 :
+    case 6 : pshsr();
+             break;
+    /* [Don't Care] */
+    case 7 : ccrest|=0x50;
+             break;
+    /* [PC High : FFFX] */
+    case 8 : pc=LoadByte(0xFFF6)<<8;
+             break;
+    /* [PC Low : FFFX+1] */
+    case 9 : pc|=LoadByte(0xFFF7);
+             break;
+    /* [Don't Care] */
+    case 10: step=0;  /* reset fetch */
+             break;
+    /* Cases 2,3 = [Don't Care] */
+    default: break;
     }
-}
-
-static void lbvs(void)     /* v=1 */
-{
-    if ( (!((m1^m2)&0x80))&&((m1^ovfl)&0x80) )
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void lbpl(void)     /* n=0 */
-{
-    if (!(sign&0x80))
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void lbmi(void)     /* n=1 */
-{
-    if (sign&0x80)
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void lbge(void)     /* n^v=0 */
-{
-    if (!((sign^((~(m1^m2))&(m1^ovfl)))&0x80))
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void lblt(void)     /* n^v=1 */
-{
-    if ((sign^((~(m1^m2))&(m1^ovfl)))&0x80)
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void lbgt(void)     /* z|(n^v)=0 */
-{
-    if ( (res&0xff)&&(!((sign^((~(m1^m2))&(m1^ovfl)))&0x80)) )
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void lble(void)     /* z|(n^v)=1 */
-{
-    if ( (!(res&0xff))||((sign^((~(m1^m2))&(m1^ovfl)))&0x80) )
-    {
-        pc=(pc+(op[0]<<8)+(op[1]&255))&0xffff;
-        cpu_clock++;
-    }
-}
-
-static void swi2(void)
-	{
-	ccrest|=0x80;
-	pshsr(0xff);
-	pc=LoadWord(0xFFF4);
-	}
-
-static void swi3(void)
-	{
-	ccrest|=0x80;
-	pshsr(0xff);
-	pc=LoadWord(0xFFF2);
-	}
-
-static void cmpd(void)             /* NxZxVxCx */
-	{
-		int    dr,val;
-	val=LoadWord((*adresl[ad])());
-	m1=ar; m2=(-val)>>8;
-	dr=(ar<<8)+br-val;
-	ovfl=res=sign=dr>>8;
-	res|=(dr&255);
-	}
-
-static void cmpy(void)             /* NxZxVxCx */
-	{
-		int    val;
-	val=LoadWord((*adresl[ad])());
-	m1=yr>>8; m2=(-val)>>8;
-	ovfl=res=sign=(yr-val)>>8;
-	res|=(yr-val)&255;
-	}
-
-static void cmpu(void)             /* NxZxVxCx */
-	{
-		int    val;
-	val=LoadWord((*adresl[ad])());
-	m1=ur>>8; m2=(-val)>>8;
-	ovfl=res=sign=(ur-val)>>8;
-	res|=(ur-val)&255;
-	}
-
-static void cmps(void)             /* NxZxVxCx */
-	{
-		int    val;
-	val=LoadWord((*adresl[ad])());
-	m1=sr>>8; m2=(-val)>>8;
-	ovfl=res=sign=(sr-val)>>8;
-	res|=(sr-val)&255;
-	}
-
-static void ldym(void)     /* NxZxV0 */
-	{
-	yr=LoadWord((*adresl[ad])());
-	m1=ovfl;
-	sign=yr>>8;
-	res=(res&0x100)|((sign|yr)&255);
-	}
-
-static void stym(void)             /* NxZxV0 */
-	{
-	StoreWord((*adresl[ad])(),yr);
-	m1=ovfl;
-	sign=yr>>8;
-	res=(res&0x100)|((sign|yr)&255);
-	}
-
-static void ldsm(void)     /* NxZxV0 */
-	{
-	sr=LoadWord((*adresl[ad])());
-	m1=ovfl;
-	sign=sr>>8;
-	res=(res&0x100)|((sign|sr)&255);
-	}
-
-static void stsm(void)             /* NxZxV0 */
-	{
-	StoreWord((*adresl[ad])(),sr);
-	m1=ovfl;
-	sign=sr>>8;
-	res=(res&0x100)|((sign|sr)&255);
-	}
-
-static void (*code[])(void);
-
-static void trap(void)
-{
-    struct MC6809_REGS regs;
-    int r;
-
-    mc6809_GetRegs(&regs);
-
-    r=TrapCallback(&regs);
-
-    mc6809_SetRegs(&regs, 0x1FF);
-
-    ad=adr[r];
-    cpu_clock+=cpu_cycles[r];
-    pc+=taille[r]-1;
-
-    (*code[r])();
-}
-
-static void cd10(void)
-{
-    int r=((*(op++))&0xFF)+256;
-
-    ad=adr[r];
-    cpu_clock+=cpu_cycles[r];
-    pc+=taille[r];
-
-    (*code[r])();
-}
-
-static void cd11(void)
-{
-    int r=((*(op++))&0xFF)+512;
-
-    ad=adr[r];
-    cpu_clock+=cpu_cycles[r];
-    pc+=taille[r];
-
-    (*code[r])();
 }
 
 
 static void (*code[])(void)=
-{negm,what,trap,comm,lsrm,what,rorm,asrm,aslm,rolm,decm,what,incm,tstm,jmpm,clrm
-,cd10,cd11,nopm,synm,what,what,lbra,lbsr,what,daam,orcc,what,andc,sexm,exgm,tfrm
+{negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,cd10,cd11,nopm,synm,hcfm,hcfm,lbra,lbsr,cd18,daam,orcc,nopm,andc,sexm,exgm,tfrm
 ,bras,brns,bhis,blss,bccs,blos,bnes,beqs,bvcs,bvss,bpls,bmis,bges,blts,bgts,bles
-,leax,leay,leas,leau,pshs,puls,pshu,pulu,what,rtsm,abxm,rtim,cwai,mulm,what,swim
-,nega,what,what,coma,lsra,what,rora,asra,asla,rola,deca,what,inca,tsta,what,clra
-,negb,what,what,comb,lsrb,what,rorb,asrb,aslb,rolb,decb,what,incb,tstb,what,clrb
-,negm,what,what,comm,lsrm,what,rorm,asrm,aslm,rolm,decm,what,incm,tstm,jmpm,clrm
-,negm,what,what,comm,lsrm,what,rorm,asrm,aslm,rolm,decm,what,incm,tstm,jmpm,clrm
-,suba,cmpa,sbca,subd,anda,bita,ldam,what,eora,adca,oram,adda,cmpx,bsrm,ldxm,what
+,leax,leay,leas,leau,pshs,puls,pshu,pulu,cd38,rtsm,abxm,rtim,cwai,mulm,rset,swim
+,nega,nega,cd42,coma,lsra,lsra,rora,asra,asla,rola,deca,deca,inca,tsta,clra,clra
+,negb,negb,cd52,comb,lsrb,lsrb,rorb,asrb,aslb,rolb,decb,decb,incb,tstb,clrb,clrb
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,suba,cmpa,sbca,subd,anda,bita,ldam,cd87,eora,adca,oram,adda,cmpx,bsrm,ldxm,cd8f
 ,suba,cmpa,sbca,subd,anda,bita,ldam,stam,eora,adca,oram,adda,cmpx,jsrm,ldxm,stxm
 ,suba,cmpa,sbca,subd,anda,bita,ldam,stam,eora,adca,oram,adda,cmpx,jsrm,ldxm,stxm
 ,suba,cmpa,sbca,subd,anda,bita,ldam,stam,eora,adca,oram,adda,cmpx,jsrm,ldxm,stxm
-,subb,cmpb,sbcb,addd,andb,bitb,ldbm,what,eorb,adcb,orbm,addb,lddm,what,ldum,what
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,cd87,eorb,adcb,orbm,addb,lddm,hcfm,ldum,cdcf
 ,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldum,stum
 ,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldum,stum
 ,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldum,stum
-
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,lbrn,lbhi,lbls,lbcc,lblo,lbne,lbeq,lbvc,lbvs,lbpl,lbmi,lbge,lblt,lbgt,lble
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,swi2
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,cmpd,what,what,what,what,what,what,what,what,cmpy,what,ldym,what
-,what,what,what,cmpd,what,what,what,what,what,what,what,what,cmpy,what,ldym,stym
-,what,what,what,cmpd,what,what,what,what,what,what,what,what,cmpy,what,ldym,stym
-,what,what,what,cmpd,what,what,what,what,what,what,what,what,cmpy,what,ldym,stym
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,ldsm,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,ldsm,stsm
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,ldsm,stsm
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,ldsm,stsm
-
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,swi3
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,cmpu,what,what,what,what,what,what,what,what,cmps,what,what,what
-,what,what,what,cmpu,what,what,what,what,what,what,what,what,cmps,what,what,what
-,what,what,what,cmpu,what,what,what,what,what,what,what,what,cmps,what,what,what
-,what,what,what,cmpu,what,what,what,what,what,what,what,what,cmps,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what,what
-,what,what,what,cmpu,what,what,what,what,what,what,what,what,cmps,what,what,what
+/* page 2 */
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,cd10,cd11,nopm,synm,hcfm,hcfm,lbra,lbsr,cd18,daam,orcc,nopm,andc,sexm,exgm,tfrm
+,lbra,lbrn,lbhi,lbls,lbcc,lblo,lbne,lbeq,lbvc,lbvs,lbpl,lbmi,lbge,lblt,lbgt,lble
+,leax,leay,leas,leau,pshs,puls,pshu,pulu,cd38,rtsm,abxm,rtim,cwai,mulm,rset,swim
+,nega,nega,cd42,coma,lsra,lsra,rora,asra,asla,rola,deca,deca,inca,tsta,clra,clra
+,negb,negb,cd52,comb,lsrb,lsrb,rorb,asrb,aslb,rolb,decb,decb,incb,tstb,clrb,clrb
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,suba,cmpa,sbca,cmpd,anda,bita,ldam,cd87,eora,adca,oram,adda,cmpy,bsrm,ldym,cd8f
+,suba,cmpa,sbca,cmpd,anda,bita,ldam,stam,eora,adca,oram,adda,cmpy,jsrm,ldym,stym
+,suba,cmpa,sbca,cmpd,anda,bita,ldam,stam,eora,adca,oram,adda,cmpy,jsrm,ldym,stym
+,suba,cmpa,sbca,cmpd,anda,bita,ldam,stam,eora,adca,oram,adda,cmpy,jsrm,ldym,stym
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,cd87,eorb,adcb,orbm,addb,lddm,hcfm,ldsm,cdcf
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldsm,stsm
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldsm,stsm
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldsm,stsm
+/* page 3 */
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,cd10,cd11,nopm,synm,hcfm,hcfm,lbra,lbsr,cd18,daam,orcc,nopm,andc,sexm,exgm,tfrm
+,bras,brns,bhis,blss,bccs,blos,bnes,beqs,bvcs,bvss,bpls,bmis,bges,blts,bgts,bles
+,leax,leay,leas,leau,pshs,puls,pshu,pulu,cd38,rtsm,abxm,rtim,cwai,mulm,rset,swim
+,nega,nega,cd42,coma,lsra,lsra,rora,asra,asla,rola,deca,deca,inca,tsta,clra,clra
+,negb,negb,cd52,comb,lsrb,lsrb,rorb,asrb,aslb,rolb,decb,decb,incb,tstb,clrb,clrb
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,negm,negm,cd02,comm,lsrm,lsrm,rorm,asrm,aslm,rolm,decm,decm,incm,tstm,jmpm,clrm
+,suba,cmpa,sbca,cmpu,anda,bita,ldam,cd87,eora,adca,oram,adda,cmps,bsrm,ldxm,cd8f
+,suba,cmpa,sbca,cmpu,anda,bita,ldam,stam,eora,adca,oram,adda,cmps,jsrm,ldxm,stxm
+,suba,cmpa,sbca,cmpu,anda,bita,ldam,stam,eora,adca,oram,adda,cmps,jsrm,ldxm,stxm
+,suba,cmpa,sbca,cmpu,anda,bita,ldam,stam,eora,adca,oram,adda,cmps,jsrm,ldxm,stxm
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,cd87,eorb,adcb,orbm,addb,lddm,hcfm,ldum,cdcf
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldum,stum
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldum,stum
+,subb,cmpb,sbcb,addd,andb,bitb,ldbm,stbm,eorb,adcb,orbm,addb,lddm,stdm,ldum,stum
+/* interrupts */
+,do_irq,do_firq,do_nmi
 };
 
-
-static inline void do_nmi(void)
-{
-    ccrest|=0x80;  /* E à 1 */
-    pshsr(0xff);
-    ccrest|=0x50;
-    cpu_clock+=7;  /* 2 + 5 pour pshsr */
-    pc=LoadWord(0xFFFC);
-}
-
-
-static inline void do_irq(void)
-{
-    if (!(ccrest&0x10)) /* si I à 0 */
-    {
-        ccrest|=0x80;  /* E à 1 */
-        pshsr(0xff);
-        ccrest|=0x10;
-        cpu_clock+=7;  /* 2 + 5 pour pshsr */
-        pc=LoadWord(0xFFF8);
-    }
-}
-
-
-static inline void do_firq(void)
-{
-    if (!(ccrest&0x40)) /* si F à 0 */
-    {
-        ccrest&=0x7F;  /* E à 0 */
-        pshsr(0x81);
-        ccrest|=0x50;
-        cpu_clock+=7;  /* 2 + 5 pour pshsr */
-        pc=LoadWord(0xFFF6);
-    }
-}
-
+static void (*addr[])(void)=
+{drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct
+,impl,impl,impl,impl,impl,impl,rela,rela,impl,impl,imm1,imm1,imm1,impl,impl,impl
+,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela,rela
+,indx,indx,indx,indx,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl
+,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl
+,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl,impl
+,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx
+,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn
+,imm1,imm1,imm1,imm2,imm1,imm1,imm1,imm1,imm1,imm1,imm1,imm1,imm2,rela,imm2,imm2
+,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct
+,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx
+,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn
+,imm1,imm1,imm1,imm2,imm1,imm1,imm1,imm1,imm1,imm1,imm1,imm1,imm2,rela,imm2,imm2
+,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct,drct
+,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx,indx
+,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn,extn
+};
 
 
 /************************************************/
@@ -1853,8 +2853,6 @@ int mc6809_irq;
 #ifdef DEBUG
    FILE *mc6809_ftrace=NULL;
 #endif
-
-
 
 /* clock:
  *  Retourne la valeur de l'horloge du CPU.
@@ -1883,7 +2881,6 @@ void mc6809_GetRegs(struct MC6809_REGS *regs)
     regs->cpu_clock = cpu_clock;
     regs->cpu_timer = cpu_timer;
 }
-
 
 
 /* SetRegs:
@@ -1926,7 +2923,6 @@ void mc6809_SetRegs(const struct MC6809_REGS *regs, int flags)
 }
 
 
-
 /* SetTimer:
  *  Installe un callback appelé par le CPU à expiration de la période spécifiée.
  */
@@ -1936,20 +2932,6 @@ void mc6809_SetTimer(mc6809_clock_t time, void (*func)(void *), void *data)
     TimerCallback = func;
     timer_data    = data;
 }
-
-
-
-/* Reset:
- *  Remet à zéro le CPU (envoie un signal sur la broche RESET du MC6809).
- */
-void mc6809_Reset(void)
-{
-    dp=0;
-    ccrest|=0x50;
-    pc=LoadWord(0xFFFE);
-    mc6809_irq=0;
-}
-
 
 
 /* Init:
@@ -1965,7 +2947,7 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
     regist[3] = &sr;
 
     for(i=0; i<16; i++)
-        exreg[i] = NULL;
+        exreg[i] = &bus;
 
     exreg[1] =  &xr;
     exreg[2] =  &yr;
@@ -1976,6 +2958,10 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
     exreg[9] =  &br;
     exreg[11] = &dp;
 
+    page      = 0;
+    step      = 1;
+    irq_start = 0;
+    irq_run   = 0;
     cpu_clock = 0;
     cpu_timer = MC6809_TIMER_DISABLED;
 
@@ -1988,6 +2974,68 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
 }
 
 
+/* Reset:
+ *  Remet à zéro le CPU (envoie un signal sur la broche RESET du MC6809).
+ */
+void mc6809_Reset(void)
+{
+    rset();
+    step=1;
+}
+
+
+static void mc6809_Step(void) {
+    if (step==1) {     /* [Fetch OpCode] */
+        if (!page) {
+#ifdef DEBUG
+            if (mc6809_ftrace)
+                fprintf(mc6809_ftrace, "pc: %04X\n", pc);
+#endif
+            if (cpu_clock>=cpu_timer)
+                TimerCallback(timer_data);
+
+            if ((mc6809_irq!=0)&&((ccrest&0x10)==0)) {
+                irq_start=irq_run=1;
+                opcode=0x300;
+                do_irq();
+            }
+        }
+        if (!irq_start) {
+            opcode=LoadByte(pc);
+            pc=(pc+1)&0xffff;
+            if(opcode==TO8_TRAP_CODE) {
+                mc6809_GetRegs(&reg_list);
+                opcode=TrapCallback(&reg_list);
+                mc6809_SetRegs(&reg_list, 0x1FF);
+            }
+        }
+        switch(opcode) {
+        case 0x10 : page=0x100; step=0; break;
+        case 0x11 : page=0x200; step=0; break;
+        default   : compute_address=addr[opcode&0xff]; break;
+        }
+    } else {
+        (*(code[opcode+page]))();
+        if (step==0)  /* fetch reset */
+            page=0;
+    }        
+}
+
+
+/* FlushExec:
+ * Achève l'exécution d'une instruction et/ou
+ * d'une interruption
+ */
+void mc6809_FlushExec(void)
+{
+    while ((step!=1)||(irq_run!=0))
+    {
+        mc6809_Step();
+        step++;     
+        cpu_clock++;
+    }
+}
+
 
 /* StepExec:
  *  Exécute un nombre donné d'instructions et retourne le
@@ -1996,120 +3044,51 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
 int mc6809_StepExec(unsigned int ninst)
 {
     mc6809_clock_t start_clock=cpu_clock;
-    register unsigned int i;
-                      int r;
+    register unsigned int i=0;
 
-    for (i=0; i<ninst; i++)
+    while (i!=ninst)
     {
-        if (cpu_clock>=cpu_timer)
-            TimerCallback(timer_data);
-
-        if (mc6809_irq)
-            do_irq();
-
-#ifdef DEBUG
-        if (mc6809_ftrace)
-            fprintf(mc6809_ftrace, "pc: %04X\n", pc);
-#endif
-
-        /* on remplit le buffer de fetch */
-        FetchInstr(pc, fetch_buffer);
-        op=(char*)fetch_buffer;
-
-        /* on décode l'instruction */
-        r=(*(op++))&0xFF;
-        ad=adr[r];
-        cpu_clock+=cpu_cycles[r];
-        pc+=taille[r];
-
-        /* on éxécute l'instruction */
-        (*code[r])();
+        mc6809_Step();
+        if ((step==0)&&(opcode<0x300)) i++;
+        step++;     
+        cpu_clock++;
     }
-
     return cpu_clock-start_clock;
 }
 
 
-
 /* TimeExec:
- *  Fait tourner le MC6809 jusqu'à un instant donné et
- *  retourne le nombre d'instructions éxécutées.
+ *  Fait tourner le MC6809 jusqu'à un instant donné
  */
-int mc6809_TimeExec(mc6809_clock_t time_limit)
+void mc6809_TimeExec(mc6809_clock_t time_limit)
 {
-    int r, ninst=0;
-
     while (cpu_clock<time_limit)
     {
-        if (cpu_clock>=cpu_timer)
-            TimerCallback(timer_data);
-
-        if (mc6809_irq)
-            do_irq();
-
-#ifdef DEBUG
-        if (mc6809_ftrace)
-            fprintf(mc6809_ftrace, "pc: %04X\n", pc);
-#endif
-
-        /* on remplit le buffer de fetch */
-        FetchInstr(pc, fetch_buffer);
-        op=(char*)fetch_buffer;
-
-        /* on décode l'instruction */
-        r=(*(op++))&0xFF;
-
-        ad=adr[r];
-        cpu_clock+=cpu_cycles[r];
-        pc+=taille[r];
-
-        /* on éxécute l'instruction */
-        (*code[r])();
-        ninst++;
+        mc6809_Step();
+        step++;
+        cpu_clock++;
     }
-
-    return ninst;
 }
 
-/* TimeExec:
+
+/* TimeExec_debug:
  *  Fait tourner le MC6809 jusqu'à un instant donné et
  *  retourne le nombre d'instructions éxécutées.
  */
 int mc6809_TimeExec_debug(mc6809_clock_t time_limit)
 {
-    int r, ninst=0;
+    int ninst=0;
 
     while (cpu_clock<time_limit)
     {
-        if (cpu_clock>=cpu_timer)
-            TimerCallback(timer_data);
-
-        if (mc6809_irq)
-            do_irq();
-
-#ifdef DEBUG
-        if (mc6809_ftrace)
-            fprintf(mc6809_ftrace, "pc: %04X\n", pc);
-#endif
-
-        /* on remplit le buffer de fetch */
-        FetchInstr(pc, fetch_buffer);
-        op=(char*)fetch_buffer;
-
-        /* on décode l'instruction */
-        r=(*(op++))&0xFF;
-
-        ad=adr[r];
-        cpu_clock+=cpu_cycles[r];
-        pc+=taille[r];
-
-        /* on éxécute l'instruction */
-        (*code[r])();
-        ninst++;
+        mc6809_Step();
+        if ((step==0)&&(opcode<0x300)) ninst++;
+        step++;     
+        cpu_clock++;        
 #ifdef OS_LINUX
 	if (check_bkpt(pc&0xFFFF)) return -1;
 #endif
     }
-
     return ninst;
 }
+

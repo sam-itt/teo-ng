@@ -4,7 +4,8 @@
  *    - PIA MC6846
  *    - PIA MC6821
  *
- *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou, 2011 Gilles Fétis.
+ *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou, 2011 Gilles Fétis
+ *                2012 François Mouret, 2012 Samuel Devulder.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@
  *  Créé par   : Sylvain Huet 1996
  *  Modifié par: Eric Botcazou 30/11/2000
  *               Gille Fétis 27/07/2011
+ *               François Mouret 07/02/2012
  *
  *  Emulateur du microprocesseur Motorola MC6809E.
  *
@@ -42,6 +44,13 @@
  *               Fetch devient FetchInstr et utilise des unsigned char
  *               suppression d'un inline inutile
  *  version 2.7: nouvelle interface de manipulation de l'état du MC6809E
+ *          2.7.1: pré-incrément de cpu_clock pour puls et pulu.
+ *          2.7.2: aménagement pour le debugger.
+ *  version 2.8: fusion des tables *code[], taille[], adr[],
+ *               cpu_cycles[].
+ *               ajout des instructions non standard
+ *               gestion des successions de codes Page2 ($10) et Page3
+ *               ($11)
  */
 
 
@@ -73,6 +82,59 @@ typedef unsigned long long int mc6809_clock_t;  /* entier 64-bit */
 #define MC6809_REGS_CPUCLOCK_FLAG  (1<<9)
 #define MC6809_REGS_CPUTIMER_FLAG  (1<<10)
 #define MC6809_REGS_MAX_FLAG       11
+
+enum {
+    CODESIZE_0=0,
+    CODESIZE_1,
+    CODESIZE_2,
+    CODESIZE_3,
+    CODESIZE_4,
+    CODESIZE_5
+};
+
+enum {
+    CPUTIME_0=0,
+    CPUTIME_1,
+    CPUTIME_2,
+    CPUTIME_3,
+    CPUTIME_4,
+    CPUTIME_5,
+    CPUTIME_6,
+    CPUTIME_7,
+    CPUTIME_8,
+    CPUTIME_9,
+    CPUTIME_10,
+    CPUTIME_11,
+    CPUTIME_12,
+    CPUTIME_13,
+    CPUTIME_14,
+    CPUTIME_15,
+    CPUTIME_16,
+    CPUTIME_17,
+    CPUTIME_18,
+    CPUTIME_19,
+    CPUTIME_20
+};
+
+
+enum {
+    A_DIRECT=0,
+    A_IMPLICIT,
+    A_BRANCH,
+    A_IMMEDIATE,
+    A_INDEXED,
+    A_EXTENDED,
+    A_PAGE
+};
+
+
+struct CODES_6809_SPEC {
+    char name[6];
+    void (*prog)(void);
+    int  taille;
+    int  adr;
+    int  cpu_cycles;
+};
 
 struct MC6809_REGS
 {
@@ -106,8 +168,9 @@ extern void mc6809_GetRegs(struct MC6809_REGS *);
 extern void mc6809_SetRegs(const struct MC6809_REGS *, int);
 extern void mc6809_SetTimer(mc6809_clock_t, void (*)(void *), void *);
 extern void mc6809_Reset(void);
+extern void mc6809_FlushExec(void);
 extern int  mc6809_StepExec(unsigned int);
-extern int  mc6809_TimeExec(mc6809_clock_t);
+extern void mc6809_TimeExec(mc6809_clock_t);
 extern int  mc6809_TimeExec_debug(mc6809_clock_t);
 extern mc6809_clock_t mc6809_clock(void);
 extern int  mc6809_irq;
