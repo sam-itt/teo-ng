@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2006 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,10 +34,10 @@
 
 /*
  *  Module     : hardware.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
- *               François Mouret 18/09/2006
+ *               François Mouret 18/09/2006 02/02/2012
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -185,10 +185,7 @@ static void SetDeviceRegister(int addr, int val)
         /* PIA 6846 système */
         case 0xE7C1:
             mc6846_WriteCommand(&mc6846, val);
-            
-            if ((mc6846.crc&0x30) == 0x30)
-                to8_PutSoundByte(mc6809_clock(), mc6846.crc&8 ? 0 : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
-            break; 
+            break;
 
         case 0xE7C2:
             mc6846.ddrc=val;
@@ -295,10 +292,9 @@ static void SetDeviceRegister(int addr, int val)
 
         case 0xE7CD:
             mc6821_WriteData(&pia_ext.portb, val);
-
             if (!(mc6846.crc&8))  /* MUTE son inactif */
-                to8_PutSoundByte(mc6809_clock(), (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
-
+                if ((mc6821_ReadCommand(&pia_ext.portb)&4) != 0) /* donnée port B */
+                    to8_PutSoundByte(mc6809_clock(), (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7CE:
@@ -385,7 +381,6 @@ static void SetDeviceRegister(int addr, int val)
                mempager.screen.vram_page=(val>>6);
                to8_new_video_params=TRUE;
             }
-            
             if ( ((mode_page.system2&0xF) != (val&0xF)) && to8_SetBorderColor)
                 to8_SetBorderColor(mode_page.lgamod, val&0xF);
 
@@ -434,8 +429,6 @@ void DrawGPL(int addr)
 
 #endif
 
-
-
 /* GetRealValue_lp4:
  *  Récupère la valeur ajustée de mode_page.lp4
  */
@@ -447,26 +440,24 @@ static inline int GetRealValue_lp4(void)
     /* Positionne d'office b7 et b5 à 1 */
     lp4=mode_page.lp4|0xA0;
 
-    /* Position du spot dans l'écran:
-        La démo HCL ne fonctionne bien qu'avec un retrait
-        de 3 cycles par ligne */
-    spot_pos=mc6809_clock()-screen_clock-3;
+    /* Position du spot dans l'écran */
+    spot_pos=mc6809_clock()-screen_clock+5;
 
     /* Ajoute 2 cycles si ligne impaire:
         Pour assurer la "fébrilité" du spot ?
-        Chinese Stack ne fonctionne bien qu'avec un retrait
+        Chinese Stack ne fonctionne bien qu'avec un ajout
         de 1 cycle pour les lignes impaires, et le raster de
         couleurs de HCL en est parfaitement centré */
     if ((spot_pos/FULL_LINE_CYCLES)&1)
-        spot_pos+=2 ;
+        spot_pos+=5;
     
-    /* Positionne b7 à 0 si le spot est à droite ou à gauche de l'écran affichable */
+    /* Positionne b7 à 0 si le spot est au dessus ou au dessous de l'écran affichable */
     spot_point=spot_pos/FULL_LINE_CYCLES;    /* Numéro de ligne */
     if ((spot_point<TOP_SHADOW_LINES+TOP_BORDER_LINES)
         || (spot_point>=TOP_SHADOW_LINES+TOP_BORDER_LINES+WINDOW_LINES))
         lp4&=0x7f;
 
-    /* Positionne b5 à 0 si le spot est au dessus ou au dessous de l'écran affichable */
+    /* Positionne b5 à 0 si le spot est à droite ou à gauche de l'écran affichable */
     spot_point=spot_pos%FULL_LINE_CYCLES;    /* Numéro de colonne */
     if ((spot_point<LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES)
         || (spot_point>=LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES+WINDOW_LINE_CYCLES))
@@ -474,7 +465,6 @@ static inline int GetRealValue_lp4(void)
 
     return lp4;
 }
-
 
 
 /* StoreByte:
@@ -682,7 +672,7 @@ static int LoadByte(int addr)
                 return (mode_page.commut&1 ? mode_page.lp3 : mode_page.cart);
 
             case 0xE7E7:
-                return (GetRealValue_lp4()&0xFE) | (mode_page.commut&1);
+                return (/*mode_page.lp4*/ GetRealValue_lp4()&0xFE) | (mode_page.commut&1);
         }
 
     return LOAD_BYTE(addr);
@@ -724,14 +714,16 @@ static int BiosCall(struct MC6809_REGS *regs)
     time_t x;
     struct tm *t;
 
+//    printf ("%x ", regs->pc); fflush (stdout);
+
     switch (regs->pc)
     {
         case 0x25D4:  /* routine d'affichage de la date */
             time(&x);
             t = gmtime(&x);
-            STORE_BYTE(0x607C, t->tm_mday);
-            STORE_BYTE(0x607D, t->tm_mon + 1);
-            STORE_BYTE(0x607E, (t->tm_year + 1900) % 100);
+            STORE_BYTE(0x607C,t->tm_mday);
+            STORE_BYTE(0x607D,t->tm_mon+1);
+            STORE_BYTE(0x607E,t->tm_year%100);
             return 0x10; /* LDY immédiat */
 
         case 0x315A:  /* routine de sélection souris/crayon optique */
