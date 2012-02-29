@@ -1,5 +1,22 @@
 
-==== Version 1.8.0 (Juillet-Septembre 2011) ====
+========================================================================
+==== Version 1.8.1 (Janvier 2012)                                   ====
+========================================================================
+- exécution cycle par cycle des instructions
+- émulation des instructions non standard
+- émulation des postcodes non standard pour TFR/EXG
+- émulation des postcodes non standard pour indexé
+- émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
+- sous Linux :
+  - réduction du temps de ralentissement usleep()
+  - gestion de la configuration lorsque le device impliqué n'est pas
+    monté
+  - reset à chaud de Teo si erreur de configuration
+  - traitement du son par ALSA plutôt que par OSS
+
+========================================================================
+==== Version 1.8.0 (Juillet-Septembre 2011)                         ====
+========================================================================
 - affichage exact du nom de cartouche
 - sauvegarde de la vitesse de l'émulateur corrigée
 - introduction du mode d'affichage entrelacé
@@ -11,14 +28,14 @@
 - versions en Français et en Anglais
 - sous Linux:
   - portage sur GTK+ 2.x/3.x (détection automatique de la version à la
-    compilation, les anciennes version de GTK peuvent donc encore
+    compilation, les anciennes versions de GTK peuvent donc encore
     fonctionner)
   - réactivation de l'effet de la touche AltGr pour les
     nouvelles versions de Linux (ajuster éventuellement les réglages
     de l'agencement clavier (Système/Préférences/Clavier/Agencement
     /Options de l'agencement.../Touche sélectionnant le 3ème niveau)
   - sauvegarde du dernier état de l'émulateur
-  - ajout du debugger gtk
+  - création du debugger gtk
   - corrections sur la mise en avant des fenêtres de menu gtk
   - la fermeture de la fenêtre de l'émulateur ne provoque plus de bug de
     X11
@@ -26,7 +43,9 @@
   (merci à Daniel Coulom)
 
 
-==== Version 1.7.6 (Septembre-Novembre 2006) ====
+========================================================================
+==== Version 1.7.6 (Septembre-Novembre 2006)                        ====
+========================================================================
 - mise à jour de la date à chaque reset
 - correction de la détection du lecteur de cassette (merci à Yves Charriau)
 - protection de la mémoire morte lors du chargement d'un secteur par le
@@ -39,11 +58,15 @@
 - François Mouret, alias Prehisto, devient co-mainteneur
 
 
-==== Version 1.7.5 (Novembre-Décembre 2003) ====
+========================================================================
+==== Version 1.7.5 (Novembre-Décembre 2003)                         ====
+========================================================================
 - corrections mineures et mise à jour des liens dans la documentation
 
 
-==== Version 1.7.4 (Oct. 2001-Novembre 2003) ====
+========================================================================
+==== Version 1.7.4 (Oct. 2001-Novembre 2003)                        ====
+========================================================================
 - redémarrage à froid plus robuste (merci à Prehisto)
 - support de multiples lecteurs de disquettes PC
 - émulation du compteur de cassettes
@@ -51,7 +74,9 @@
                          accessible depuis l'interface utilisateur
 
 
-==== Version 1.7 (Mai-Septembre 2001) ====
+========================================================================
+==== Version 1.7 (Mai-Septembre 2001)                               ====
+========================================================================
 - correction d'une régression touchant l'émulation sonore
 - correction d'une régression touchant la répétition des touches
   (merci à Prehisto pour me l'avoir signalée)
@@ -65,7 +90,9 @@
                 (merci à Prehisto pour me l'avoir signalée)
 
 
-==== Version 1.6 (Mars-Mai 2001) ====
+========================================================================
+==== Version 1.6 (Mars-Mai 2001)                                    ====
+========================================================================
 - support préliminaire de l'imprimante matricielle PR 90-612 (MSDOS et
   Windows plein-écran uniquement pour le moment)
 - sous MSDOS et Windows: correction d'un bug de la souris en présence
@@ -74,7 +101,9 @@
 - sous Linux: nouvel icône Thomson pour l'interface utilisateur
 
 
-==== Version 1.5 (Décembre 2000-Mars 2001) ====
+========================================================================
+==== Version 1.5 (Décembre 2000-Mars 2001)                          ====
+========================================================================
 - correction d'un bug apparaissant dans certains jeux TO7-70 (notamment
   Eliminator, merci à J-F Guerrero pour me l'avoir signalé)
 - sous MSDOS et Windows: support des joysticks PC
@@ -83,7 +112,9 @@
 - sous Linux: correction d'un bug clavier mineur
 
 
-==== Version 1.4 (Novembre-Décembre 2000) ====
+========================================================================
+==== Version 1.4 (Novembre-Décembre 2000)                           ====
+========================================================================
 - réduction significative de la quantité de mémoire utilisée
 - amélioration des performances graphiques
 - sous MSDOS et Linux: support de l'écriture et du formatage directs
@@ -92,7 +123,9 @@
 - mise à jour du port MacOS (Richard Bannister)
 
 
-==== Version 1.3 (Septembre-Octobre 2000) ====
+========================================================================
+==== Version 1.3 (Septembre-Octobre 2000)                           ====
+========================================================================
 - détection de mauvais format des fichiers SAP
 - correction d'un bug de chargement des cartouches
 - correction d'un bug du pourtour de l'écran (Bob Morane SF)
@@ -105,7 +138,9 @@
                                             DirectX 3.0 ou supérieure
 
 
-==== Version 1.2 (Juillet 2000) ====
+========================================================================
+==== Version 1.2 (Juillet 2000)                                     ====
+========================================================================
 - module disquettes: nouveau type de protection (Bob Winner)
                      support de la protection en écriture
                      formatage des archives SAP 
@@ -119,12 +154,16 @@
               option de protection en écriture des disquettes
 
 
-==== Version 1.1 (Juin 2000) ====
+========================================================================
+==== Version 1.1 (Juin 2000)                                        ====
+========================================================================
 - correction d'un bug du contrôleur de disquettes (La Geste d'Artillac)
 - sous MSDOS: correction du bug d'autodétection de la carte son
 
 
-==== Version 1.1beta (Juin 2000) ====
+========================================================================
+==== Version 1.1beta (Juin 2000)                                    ====
+========================================================================
 - correction d'un bug dans l'écran de réglage de la palette
 - support des cartouches Mémo7 32ko (ColorPaint)
 - support complet du pavé numérique PC (touches /, *, -, +)
@@ -133,13 +172,17 @@
 - sous Linux: correction d'un bug de fermeture des fenêtres
 
 	
-==== Version 1.0.96 (Mai 2000) ====
+========================================================================
+==== Version 1.0.96 (Mai 2000)                                      ====
+========================================================================
 - correction d'un bug dans Bob Morane SF
 - sous MSDOS: copie d'écran commandée par [F11]
               (sur une idée de Louis Progeas)
 
 
-==== Version 1.0.94 (Mai 2000) ====
+========================================================================
+==== Version 1.0.94 (Mai 2000)                                      ====
+========================================================================
 - correction d'un bug de la carte mémoire: le Pascal UCSD fonctionne
   (merci à Daniel Smague de m'avoir signalé le problème)
 - sous MSDOS: 3 modes graphiques de fonctionnement
@@ -150,12 +193,16 @@
               -geometry spécifie aussi la taille de la fenêtre
 
 
-==== Version 1.0beta2 (Mars 2000) ====
+========================================================================
+==== Version 1.0beta2 (Mars 2000)                                   ====
+========================================================================
 - sous Linux: correction d'un bug de l'affichage en mode 32-bit
               option de désactivation de l'extension MIT-SHM
 
 
-==== Version 1.0beta ====
+========================================================================
+==== Version 1.0beta                                                ====
+========================================================================
 - première version
 
 

@@ -1,9 +1,32 @@
 ========================================================================
-=== De la version 1.7.6 à la version 1.8.0 (Juillet 2011)            ===
+=== Version 1.8.1 (Janvier-Février 2012)                             ===
+========================================================================
+- to8.h : création de la variable TO8_TRAP_CODE
+          le code de trap passe de 0x02 à 0xCD
+- to8.c disk.c k7.c mouse.c : insertion de la variable TO8_TRAP_CODE
+- hardware.c : élimination de la génération du son lors de l'écriture
+          de $E7C1
+          pas de génération du son lors de l'écriture de $E7CD si la
+          direction n'est pas vers le port B
+- linux/umain.c : réduction du temps de ralentissement usleep()
+- linux/ustate.c : gestion de la configuration lorsque le device
+          impliqué n'est pas monté
+          reset à chaud de Teo si erreur de configuration au lancement
+          précédent de Teo
+- linux/usound.c : traitement du son par ALSA (version OSS conservée avec
+          l'option OSS=1 à la compilation)
+- mc68xx/mc6809.c : exécution cycle par cycle des instructions
+          émulation des instructions non standard
+          émulation des postcodes non standard pour TFR/EXG
+          émulation des postcodes non standard pour indexé
+          émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
+
+========================================================================
+=== Version 1.8.0 (Juillet 2011)                                     ===
 ========================================================================
 - sous Linux : libellés des menus en EN/FR (basé sur variable
   d'environnement LANG)
-- linux/udebug.c linux/udebug2.c : ajout du debugger gtk
+- linux/udebug.c : ajout du debugger gtk
 - sous Linux : corrections sur la mise en avant des fenêtres de menu gtk
 - création du fichier linux/ustate.c
 - linux/umain.c: introduction de l'option '-loadstate'
@@ -42,7 +65,7 @@
           le programme et en extern dans include/linux/main.h
 
 ========================================================================
-=== De la version 1.7.5 à la version 1.7.6 (Septembre-Novembre 2006) ===
+=== Version 1.7.6 (Septembre-Novembre 2006)                          ===
 ========================================================================
 - defs.h: nouvelle constante FULL_LINE_CYCLES
 - disk.c: remplacement de STORE_BYTE par StoreByte lors d'un chargement
@@ -64,7 +87,7 @@
 - win/wgui.c: rafraîchissment des 4 sélecteurs de disquette
 
 =======================================================================
-=== De la version 1.7.4 à la version 1.7.5 (Novembre-Décembre 2003) ===
+=== Version 1.7.5 (Novembre-Décembre 2003)                          ===
 =======================================================================
 - doc/*.htm: corrections mineures et mise à jour des liens
 
@@ -73,7 +96,7 @@ TODO:
 - émuler au choix le TO8/TO8D
 
 =======================================================================
-=== De la version 1.7 à la version 1.7.4 (Oct. 2001-Novembre 2003)  ===
+=== Version 1.7.4 (Oct. 2001-Novembre 2003)                         ===
 =======================================================================
 - makefile.*: gestion de UNIX_TOOLS
 - makefile.dj: ajout d'un filter-out pour alleg/amode40.c
@@ -118,7 +141,7 @@ TODO:
 - win/wmode40.c: transformation en alleg/amode40.c
 
 =======================================================================
-=== De la version 1.6 à la version 1.7 (Mai-Septembre 2001)         ===
+=== Version 1.7 (Mai-Septembre 2001)                                ===
 =======================================================================
 - fixdjgpp.bat, fixunix.sh: option --quick
 
@@ -173,7 +196,7 @@ TODO:
 - linux/udisk.c: fermeture du descripteur de fichiers en sortie
 
 =======================================================================
-=== De la version 1.5 à la version 1.6 (Mars-Mai 2001)              ===
+=== Version 1.6 (Mars-Mai 2001)                                     ===
 =======================================================================
 - printer.c: support de l'imprimante matricielle PR 90-612
 
@@ -193,7 +216,7 @@ TODO:
 - linux/thomson.xpm: nouveau pixmap repris de la version Windows
 
 =======================================================================
-=== De la version 1.4 à la version 1.5 (Décembre 2000-Mars 2001)    ===
+=== Version 1.5 (Décembre 2000-Mars 2001)                           ===
 =======================================================================
 - mc68xx/mc6821.c: version 4.0 de l'émulation
 - to8.c, to8.h: nouveau prototype pour DirectReadSector() et 
@@ -229,7 +252,7 @@ TODO:
 - linux/umain.c: pas de support joyticks
 	
 =======================================================================
-=== De la version 1.3 à la version 1.4 (Novembre-Décembre 2000)     ===
+=== Version 1.4 (Novembre-Décembre 2000)                            ===
 =======================================================================
 - intégration du module d'émulation mc68xx
 - passage des int aux unsigned char comme unité de mémoire (enfin !)
@@ -301,7 +324,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - win/wingui.c: interface utilisateur Windows native 
 	
 =======================================================================
-=== De la version 1.2 à la version 1.3 (Septembre-Octobre 2000)     ===
+=== Version 1.3 (Septembre-Octobre 2000)                            ===
 =======================================================================
 - disk.c: test du header des fichiers SAP
 - hardware.c, to8.c: suppression de la fonction to8_SetPaletteMode()
@@ -360,7 +383,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 	           suppression de DrawPaletteGPL(), RefreshBorder()
 	
 =======================================================================
-=== De la version 1.1 à la version 1.2 (Juillet 2000)               ===
+=== Version 1.2 (Juillet 2000)                                      ===
 =======================================================================
 - toutes les références à DrawByte sont remplacées par DrawGPL
 - disk.c: émulation des protections "0x18" et "0x1B"
@@ -392,7 +415,7 @@ _ win/control_dialog.rc devient win/dialog.rc
                le chargement d'une cartouche provoque un redémarrage à froid
 	
 =======================================================================
-=== De la version 1.1beta à la version 1.1 (Juin 2000)              ===
+=== Version 1.1 (Juin 2000)                                         ===
 =======================================================================
 - disk.c: correction des valeurs de retour en l'absence de disquette
           SeekTrack(): fonction haut-niveau de recherche de piste 
@@ -402,7 +425,7 @@ _ win/control_dialog.rc devient win/dialog.rc
                  test de fonctionnement du streaming
 
 =======================================================================
-=== De la version 1.0.97 à la version 1.1beta (Juin 2000)           ===
+=== Version 1.1beta (Juin 2000)                                     ===
 =======================================================================
 - toutes les références au TO8D sont remplacées par TO8
 - keyboard.c: support de tout le pavé numérique PC (/, *, -, +)
@@ -429,7 +452,7 @@ _ win/control_dialog.rc devient win/dialog.rc
   à la fermeture du panneau de contrôle
 
 =======================================================================
-=== De la version 1.0.96 à la version 1.0.97 (Juin 2000)            ===
+=== Version 1.0.97 (Juin 2000)                                      ===
 =======================================================================
 - hardware.c, to8.c: gestion améliorée des banques de mémoire
 - nouvelle émulation du gate array "mode page" conforme au manuel
@@ -437,7 +460,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - internal.h est remplacé par des fichiers spécifiques à chaque module
 
 =======================================================================
-=== De la version 1.0.94 à la version 1.0.96 (Mai 2000)             ===
+=== Version 1.0.96 (Mai 2000)                                       ===
 =======================================================================
 - hardware.c: transfert de l'init des banques mémoire vers to8.c
               nouvelle communication avec le PIA 6846
@@ -451,7 +474,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - djgpp/main.c, djgpp/keybint.c: commande SCREENSHOT appelée par F11
 
 =======================================================================
-=== De la version 1.0beta2 à la version 1.0.94 (Mai 2000)           ===
+=== Version 1.0.94 (Mai 2000)                                       ===
 =======================================================================
 - les fonctions internes à l'émulateur ne sont plus underscorées: c'est
   au module spécifique de la plateforme de distinguer ses fonctions
@@ -479,7 +502,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - linux/gui.c: string_title[100] au lieu de 64
 
 =======================================================================
-=== De la version 1.0beta à la version 1.0beta2 (Mars 2000)         ===
+=== Version 1.0beta2 (Mars 2000)                                    ===
 =======================================================================
 - version Linux: option de désactivation de l'extension MIT-SHM
 - linux/graphic.c: nouveau mécanisme d'allocation de l'espace mémoire
@@ -487,7 +510,7 @@ _ win/control_dialog.rc devient win/dialog.rc
                    (problème du mode 32-bit reporté comme 24-bit)
 
 =======================================================================
-=== De la version 0.9.4 à la version 1.0beta (Décembre 1999)        ===
+=== Version 1.0beta (Décembre 1999)                                 ===
 =======================================================================
 - linux/main.c: synchronisation par pause() pour libérer des cycles CPU
 - nouvelles options dans les makefiles
@@ -503,7 +526,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - linux/gui.c: inclusion du fichier thomson.xpm
 	
 =======================================================================
-=== De la version 0.9.3 à la version 0.9.4 (Novembre 1999)          ===
+=== Version 0.9.4 (Novembre 1999)                                   ===
 =======================================================================
 - disk.c: version avec cache intégré non concluante
 - retour au mode graphique spécial pour l'écran de réglage de la palette
@@ -524,7 +547,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - linux/main.c: correction du bug de GetUserInput()
 	
 =======================================================================
-=== De la version 0.9.2 à la version 0.9.3 (Octobre 1999)           ===
+=== Version 0.9.3 (Octobre 1999)                                    ===
 =======================================================================
 - main.c: nouvelle structure EmuTO, gestion modifiée des commandes
 - emulator.c: ColdReset(): nouvelle valeur d'initialisation (0x80) pour
@@ -536,7 +559,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - version vga: suppression du passage en mode 80 colonnes
 
 =======================================================================
-=== De la version 0.9.1 à la version 0.9.2 (Juin-Août 1999)         ===
+=== Version 0.9.2 (Juin-Août 1999)                                  ===
 =======================================================================
 - réécriture du module k7.c (plus de robustesse)
 - gui.c: Mémo7 au lieu de Mémo 7
@@ -548,7 +571,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - nouveau keycodes.h
 
 =======================================================================
-=== De la version 0.9 à la version 0.9.1 (Mai 1999)       	    ===
+=== Version 0.9.1 (Mai 1999)                                        ===
 =======================================================================
 - fonction d'édition de la mémoire dans le memory manager
 - correction du bug timer (FBI, Androides, ...)
@@ -557,7 +580,7 @@ _ win/control_dialog.rc devient win/dialog.rc
        lorsque allegro.cfg est absent, plantage en sortie
 
 =======================================================================
-=== De la version 0.6.9 à la version 0.9 (Mai 1999)       	    ===
+=== Version 0.9 (Mai 1999)       	                            ===
 =======================================================================
 - intégration du module SAP 2.0 (disk.c)
 - le test d'intégrité des archives est supprimé
@@ -576,7 +599,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - émulation de la manette 1 sur le bloc clavier gauche
 
 =======================================================================
-=== De la version 0.6 à la version 0.6.9 (Janvier-Avril 1999)       ===
+=== Version 0.6.9 (Janvier-Avril 1999)                              ===
 =======================================================================
 - remplacement du module d'émulation du MC6809 par celui de Sylvain Huet
 - modes de fonctionnement synchrone et asynchrone du clavier
@@ -611,7 +634,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - test d'intégrité des archives SAP lors de leur sélection
 
 =======================================================================
-=== De la version alpha 0.4 à la version alpha 0.5   (Juin 1998)    ===
+=== Version alpha 0.5 (Juin 1998)                                   ===
 =======================================================================
 - le gestion du contour écran tient compte des changements de palette
 - l'émulation des bits de synchronisation E7E7 est affinée
@@ -629,7 +652,7 @@ _ win/control_dialog.rc devient win/dialog.rc
 - amélioration du passage en 80 colonnes (délai et reset hard)
 
 ======================================================================
-=== De la version alpha 0.3 à la version alpha 0.4    (Mai 1998)   ===
+=== Version alpha 0.4 (Mai 1998)                                   ===
 ======================================================================
 - l'écran de modification de la palette fonctionne correctement et
   marche maintenant avec le crayon optique.
@@ -677,7 +700,7 @@ bugs:
 - à quoi sert wait, sachant qu'il est toujours à 0 ?
  
 ======================================================================
-=== De la version alpha 0.2 à la version alpha 0.3    (Avril 1998) ===
+=== Version alpha 0.3 (Avril 1998)                                 ===
 ======================================================================
 - correction d'une partie des lignes litigieuses signalées par les
   warnings habituels de gcc, à savoir: gcc -Wall -W. Il y avait
@@ -708,3 +731,8 @@ Bugs:
   utilisé pour le masque de CRA et CRB.
 - oubli de cl+=4 dans les instructions LEAS et LEAU. Lorsqu'on le
   rajoute, le clignotement du curseur devient irrégulier ???
+
+======================================================================
+=== Version alpha 0.2 (Avril 1998)                                 ===
+======================================================================
+- Première version

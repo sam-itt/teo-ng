@@ -1,7 +1,18 @@
-==== Version 1.8.0 (July-September 2011) ====
-- display exact name of a cartridge
-- correction of emulator speed backup
-- introduction of interlaced video mode
+========================================================================
+==== Version 1.8.1 (January 2012)                                   ====
+========================================================================
+- on Linux:
+  - reduction of slowdown cpu time with usleep()
+  - configuration management when the involved device is not
+    mounted
+  - warm reset if configuration error
+  - sound processing with ALSA rather than OSS
+
+
+========================================================================
+==== Version 1.8.0 (July-September 2011)                            ====
+========================================================================
+- display exact name of a cartridge-de
 - options added:
   - SAP, M7 and K7 files can be specified as command line argument
   - interlaced : activates the interlaced video mode
@@ -22,7 +33,9 @@
   Daniel Coulom)
 
 
-==== Version 1.7.6 (September-November 2006) ====
+========================================================================
+==== Version 1.7.6 (September-November 2006)                        ====
+========================================================================
 - update the date each reset
 - correction of the tape recorder detection (thanks to Yves Charriau)
 - protection of the ROM while loading a sector through the monitor
@@ -34,11 +47,15 @@
 - François Mouret, aka Prehisto, becomes co-maintainer
 
 
-==== Version 1.7.5 (November-December 2003) ====
+========================================================================
+==== Version 1.7.5 (November-December 2003)                         ====
+========================================================================
 - minor corrections and update of the links in the documentation
 
 
-==== Version 1.7.4 (Oct. 2001-November 2003) ====
+========================================================================
+==== Version 1.7.4 (Oct. 2001-November 2003)                        ====
+========================================================================
 - stronger cold reset (thanks to Prehisto)
 - support of multiple PC floppy drives
 - emulation of tape counter
@@ -46,7 +63,9 @@
                          accessible from user interface
 
 
-==== Version 1.7 (May-September 2001) ====
+========================================================================
+==== Version 1.7 (May-September 2001)                               ====
+========================================================================
 - regression correction for sound emulation
 - regression correction for keyboard repeat  (thanks to Prehisto)
 - on MSDOS and Windows: loading/saving of emulator state (Prehisto's idea)
@@ -56,7 +75,9 @@
 - on Windows: regression correction for some keys detection after an
               Alt+TAB (thanks to Prehisto to inform me)
 
-==== Version 1.6 (March-May 2001) ====
+========================================================================
+==== Version 1.6 (March-May 2001)                                   ====
+========================================================================
 - preliminary support of PR 90-612 dot-matrix printer (only MSDOS and
   Windows full screen yet)
 - on MSDOS and Windows: bug correction for the interaction between mouse
@@ -65,7 +86,9 @@
 - on Linux: new Thomson icon for user interface
 
 
-==== Version 1.5 (December 2000-March 2001) ====
+========================================================================
+==== Version 1.5 (December 2000-March 2001)                         ====
+========================================================================
 - bug correction for some TO7-70 games (especialy Eliminator, thanks J-F
   Guerrero to inform me)
 - on MSDOS and Windows: support of PC joysticks
@@ -74,7 +97,9 @@
 - on Linux: minor correction of a keyboard bug
 
 
-==== Version 1.4 (November-December 2000) ====
+========================================================================
+==== Version 1.4 (November-December 2000)                           ====
+========================================================================
 - reduction of memory usage
 - improvement of graphic performances
 - on MSDOS and Linux: support of direct writing/formating
@@ -83,7 +108,9 @@
 - update of MacOS port (Richard Bannister)
 
 
-==== Version 1.3 (September-October 2000) ====
+========================================================================
+==== Version 1.3 (September-October 2000)                           ====
+========================================================================
 - detection of SAP bad file format
 - bug correction for acrtridge loading
 - bug correction for the screen edge (Bob Morane SF)
@@ -95,7 +122,9 @@
                                             DirectX 3.0 or later
 
 
-==== Version 1.2 (July 2000) ====
+========================================================================
+==== Version 1.2 (July 2000)                                        ====
+========================================================================
 - disks module: new type of protection (Bob Winner)
                 support of the write protection
                 formating of SAP archives
@@ -109,12 +138,16 @@
             write-protect option for disks
 
 
-==== Version 1.1 (June 2000) ====
+========================================================================
+==== Version 1.1 (June 2000)                                        ====
+========================================================================
 - bug correction for drive controller (La Geste d'Artillac)
 - on MSDOS: bug correction for sound card autodetecion
 
 
-==== Version 1.1beta (June 2000) ====
+========================================================================
+==== Version 1.1beta (June 2000)                                    ====
+========================================================================
 - palette setting correction
 - support of 32ko cartridges (ColorPaint)
 - full support of PC numeric keypad (keys /, *, -, +)
@@ -123,12 +156,16 @@
 - on Linux: bug correction for windows closing
 
 	
-==== Version 1.0.96 (May 2000) ====
+========================================================================
+==== Version 1.0.96 (May 2000)                                      ====
+========================================================================
 - bug correction in Bob Morane SF
 - on MSDOS: screen capture with [F11] (Louis Progeas idea)
 
 
-==== Version 1.0.94 (May 2000) ====
+========================================================================
+==== Version 1.0.94 (May 2000)                                      ====
+========================================================================
 - bug correction of memory card: the Pascal UCSD works (thanks to Daniel
   Smague to inform me)
 - on MSDOS: 3 graphical modes
@@ -139,11 +176,15 @@
             -geometry specify the window size as well
 
 
-==== Version 1.0beta2 (March 2000) ====
+========================================================================
+==== Version 1.0beta2 (March 2000)                                  ====
+========================================================================
 - on Linux: bug correction of 32-bit displaying
             deactivation option of MIT-SHM extension
 
 
-==== version 1.0beta ====
+========================================================================
+==== version 1.0beta                                                ====
+========================================================================
 - first version
 
