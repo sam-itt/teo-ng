@@ -33,9 +33,9 @@
 
 /*
  *  Module     : src/linux/udebug.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis 27/07/2011
- *  Modifié par:
+ *  Modifié par: François Mouret 18/02/2012
  *
  *  Débogueur du TO8.
  */
@@ -79,6 +79,23 @@ static GtkWidget * window_debug;
 // static GtkEntryBuffer * address_buf;
 static GtkWidget *entry_address;
 static GtkWidget *label_middle_left,*label_middle_right;
+
+
+
+/* update_debug_text:
+ *  Mise à jour du texte de la fenêtre de debug
+ */
+static void update_debug_text (void)
+{
+    char *markup;
+
+    markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_dasm());
+    gtk_label_set_markup (GTK_LABEL (label_middle_left), markup);
+    g_free (markup);
+    markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_regs());
+    gtk_label_set_markup (GTK_LABEL (label_middle_right), markup);
+    g_free (markup);
+}
 
 
 
@@ -130,13 +147,11 @@ static void do_command_debug(GtkWidget *button, int command)
     switch (command) {
     case DEBUG_CMD_STEP:
        debug_step();
-       gtk_label_set_text (GTK_LABEL(label_middle_left),debug_get_dasm());
-       gtk_label_set_text (GTK_LABEL(label_middle_right),debug_get_regs());
+       update_debug_text ();
     break;
     case DEBUG_CMD_STEPOVER:
        debug_stepover();
-       gtk_label_set_text (GTK_LABEL(label_middle_left),debug_get_dasm());
-       gtk_label_set_text (GTK_LABEL(label_middle_right),debug_get_regs());
+       update_debug_text ();
     break;
     case DEBUG_CMD_RUN:
        teo.command=BREAKPOINT;
@@ -147,11 +162,11 @@ static void do_command_debug(GtkWidget *button, int command)
        addr=0;
        sscanf(gtk_entry_get_text (GTK_ENTRY(entry_address)),"%X",&addr);
        debug_bkpt(addr);
-       gtk_label_set_text (GTK_LABEL(label_middle_right),debug_get_regs());
+       update_debug_text ();
     break;
     case DEBUG_CMD_REMBKPT:
        debug_rembkpt();
-       gtk_label_set_text (GTK_LABEL(label_middle_right),debug_get_regs());
+       update_debug_text ();
     break;
     }
 
@@ -222,7 +237,6 @@ void InitDEBUG(void)
     xgtk_signal_connect(but_step, "clicked", do_command_debug, (gpointer) DEBUG_CMD_STEP);
     gtk_widget_show(but_step);
 
-
     but_stepover=gtk_button_new_with_label("Step over");
     gtk_box_pack_start( GTK_BOX(hbox_top), but_stepover, TRUE, FALSE, 0);
     xgtk_signal_connect(but_stepover, "clicked", do_command_debug, (gpointer) DEBUG_CMD_STEPOVER);
@@ -255,10 +269,12 @@ void InitDEBUG(void)
     gtk_widget_show(hbox_middle);
 
     label_middle_left=gtk_label_new("dasm");
+    gtk_label_set_selectable (GTK_LABEL(label_middle_left), TRUE);
     gtk_box_pack_start( GTK_BOX(hbox_middle), label_middle_left, TRUE, FALSE, DEBUG_SPACE);
     gtk_widget_show(label_middle_left);
 
     label_middle_right=gtk_label_new("regs");
+    gtk_label_set_selectable (GTK_LABEL(label_middle_right), TRUE);
     gtk_box_pack_start( GTK_BOX(hbox_middle), label_middle_right, TRUE, FALSE, DEBUG_SPACE);
     gtk_widget_show(label_middle_right);
 
@@ -282,15 +298,13 @@ void InitDEBUG(void)
 }
 
 
-
 /* ControlPanel:
  *  Affiche le panneau de contrôle.
  */
 void DebugPanel(void)
 {
-    gtk_label_set_text (GTK_LABEL(label_middle_left),debug_get_dasm());
-    gtk_label_set_text (GTK_LABEL(label_middle_right),debug_get_regs());
-
+    update_debug_text ();
+    
     /* affichage de la fenêtre principale et de ses éléments */
     gtk_widget_show(window_debug);
 
@@ -372,7 +386,6 @@ static void DisplayRegs(void)
     sprintf(regs_buffer,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_int.porta.cr,
       pia_int.porta.ddr,mc6821_ReadPort(&pia_int.porta));
     strcat(regs_buffer2,regs_buffer);
-
 
     sprintf(regs_buffer,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_int.portb.cr,
       pia_int.portb.ddr,mc6821_ReadPort(&pia_int.portb));
