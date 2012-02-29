@@ -14,8 +14,8 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2003 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,10 +34,10 @@
 
 /*
  *  Module     : k7.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 28/10/2003
- *
+ *               Samuel Devulder 05/02/2012
  *  Gestion des cassettes du TO8.
  */
 
@@ -186,7 +186,7 @@ void DoK7Stuff(int *br, int *cc)
 void InitK7(void)
 {
     /* Appel routine de gestion K7. */
-    mem.mon.bank[0][0x1A59] = 0x02;
+    mem.mon.bank[0][0x1A59] = TO8_TRAP_CODE;
     mem.mon.bank[0][0x1A5A] = 0x39;
 
     k7 = NULL;

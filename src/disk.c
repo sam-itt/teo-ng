@@ -14,8 +14,9 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2010 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, François Mouret
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret,
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,11 +35,11 @@
 
 /*
  *  Module     : disk.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012
- *
+ *               Samuel Devulder 05/02/2012
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
  */
 
@@ -765,35 +766,35 @@ void InitDisk(void)
     int drive;
         
     /* trap reset du contrôleur disk -> ResetDiskCtrl() */
-    mem.mon.bank[0][0x00FE]=0x02;
+    mem.mon.bank[0][0x00FE]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x00FF]=0x39;
 
     /* trap écriture d'un secteur -> WriteSector() */
-    mem.mon.bank[0][0x0187]=0x02;
+    mem.mon.bank[0][0x0187]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x0188]=0x39;
     /* E177 conduit toujours à ce trap */
     mem.mon.bank[0][0x0180]=0x20; /* BRA */
 
     /* trap lecture d'un secteur -> ReadSector() */
-    mem.mon.bank[0][0x03A7]=0x02;
+    mem.mon.bank[0][0x03A7]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x03A8]=0x39;
 
     /* trap formatage lecteur -> FormatDrive() + BRA >E515 */
-    mem.mon.bank[0][0x04C8]=0x02;
+    mem.mon.bank[0][0x04C8]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x04C9]=0x20;
     mem.mon.bank[0][0x04CA]=0x4A;
 
     /* trap recherche piste 0 -> DiskNop() */
-    mem.mon.bank[0][0x0134]=0x02;
+    mem.mon.bank[0][0x0134]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x0135]=0x39;
 
     /* trap attente ready -> DiskNop() */
-    mem.mon.bank[0][0x045A]=0x02;
+    mem.mon.bank[0][0x045A]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x045B]=0x39;
 
     /* trap recherche piste effective -> DiskNop() */
     /* E452 conduit toujours à ce trap */
-    mem.mon.bank[0][0x047A]=0x02;
+    mem.mon.bank[0][0x047A]=TO8_TRAP_CODE;
     mem.mon.bank[0][0x047B]=0x39;
 
     for (drive=0; drive<NBDRIVE; drive++)

@@ -14,8 +14,9 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, François Mouret
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret,
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,11 +35,12 @@
 
 /*
  *  Module     : to8.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010
  *               Gilles Fétis 27/07/2011
+ *               Samuel Devulder 05/02/2012
  *
  *  Module de pilotage de l'émulateur.
  */
@@ -141,12 +143,12 @@ static int InitMemory(void)
             return TO8_ERROR;
 
     /* modification de la page d'affichage de la date */
-    mem.rom.bank[3][0x25D3]=0x02;  /* trap */
+    mem.rom.bank[3][0x25D3]=TO8_TRAP_CODE;
     mem.rom.bank[3][0x2619]=0x21;
 
     /* modification de la page de réglage de la palette de couleurs */
-    mem.rom.bank[3][0x3579]=0x02;  /* trap */
-    mem.rom.bank[3][0x3685]=0x02;  /* trap */
+    mem.rom.bank[3][0x3579]=TO8_TRAP_CODE;
+    mem.rom.bank[3][0x3685]=TO8_TRAP_CODE;
     mem.rom.bank[3][0x38EB]=0x7E;
     mem.rom.bank[3][0x38EC]=0x39;
     mem.rom.bank[3][0x38ED]=0x10;
@@ -213,7 +215,7 @@ static void DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
             mc6809_TimeExec(*exact_clock);
 
             to8_DrawBorderLine(TO8_LEFT_BORDER, TOP_BORDER_LINES+i);
-            *exact_clock+=+LEFT_BORDER_CYCLES;
+            *exact_clock+=LEFT_BORDER_CYCLES;
 	        mc6809_TimeExec(*exact_clock);
         }
         else
@@ -540,7 +542,7 @@ void to8_DoFrame(void)
  =============================================================================
 */
 
-/* DoLines:
+/* DoLines_debug:
  *  Fait tourner le MC6809E en le synchronisant sur le
  *  faisceau vidéo ligne par ligne.
  */
@@ -571,7 +573,7 @@ int DoLines_debug(int nlines, mc6809_clock_t *exact_clock)
 
 
 
-/* DoLinesAndRetrace:
+/* DoLinesAndRetrace_debug:
  *  Fait tourner le MC6809E en retraçant l'écran ligne par ligne.
  */
 static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)

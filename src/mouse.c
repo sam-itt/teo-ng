@@ -14,8 +14,8 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2001 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,9 +34,10 @@
 
 /*
  *  Module     : mouse.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 1999
  *  Modifié par: Eric Botcazou 13/02/2001
+ *               Samuel Devulder 05/02/2012
  *
  *  Gestion de la souris et du crayon optique du TO8.
  */
@@ -169,14 +170,14 @@ void InitMouse(void)
     mem.mon.bank[1][0x13AF]=0x39;
 
     /* appel routine de sélection souris/crayon optique */
-    mem.rom.bank[3][0x3159]=0x02;
+    mem.rom.bank[3][0x3159]=TO8_TRAP_CODE;
 
     /* appel routine GETL crayon optique */
-    mem.rom.bank[3][0x337D]=0x02;
+    mem.rom.bank[3][0x337D]=TO8_TRAP_CODE;
     mem.rom.bank[3][0x337E]=0x39;
 
     /* appel routine GETL crayon optique 2 */
-    mem.rom.bank[3][0x3F96]=0x02;
+    mem.rom.bank[3][0x3F96]=TO8_TRAP_CODE;
     mem.rom.bank[3][0x3F97]=0x39;
 
     LOCK_VARIABLE(mouse_x);

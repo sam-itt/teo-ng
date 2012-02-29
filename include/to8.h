@@ -14,8 +14,9 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret,
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,11 +35,12 @@
 
 /*
  *  Module     : to8.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011
  *               Gilles Fétis 27/07/2011
+ *               Samuel Devulder 05/02/2012
  *
  *  Module de pilotage de l'émulateur.
  */
@@ -52,7 +54,7 @@
 #endif
 
 /* paramètres et symboles de l'émulation */
-#define TO8_VERSION_STR "1.8.0"
+#define TO8_VERSION_STR "1.8.1"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 
@@ -118,6 +120,7 @@
 #define TO8_JOYSTICK_FIRE_ON   1
 #define TO8_JOYSTICK_FIRE_OFF  0
 
+#define TO8_TRAP_CODE          0xCD   /* code pour le trap */
 
 enum {
     TO8_ERROR,
