@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2010 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/sound.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 24/09/2001
  *               Samuel Devulder 23/03/2010
@@ -116,8 +116,9 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
     if (index < last_index)
         index=sound_buffer_size;
 
-    for (i=last_index; i<index; i++)
-        sound_buffer[i]=last_data;
+    memset (&sound_buffer[last_index], last_data, index-last_index);
+//    for (i=last_index; i<index; i++)
+//        sound_buffer[i]=last_data;
 
     last_index=index;
     last_data=data;
@@ -133,9 +134,13 @@ void PlaySoundBuffer(void)
     register int i;
     char *buffer_ptr;
 
+    /* Pour éviter les "clac" si ralentissement */
+    if (last_index==0) last_data=0;
+
     /* on remplit la fin du buffer avec le dernier byte déposé */
-    for (i=last_index; i<sound_buffer_size; i++)
-        sound_buffer[i]=last_data;
+    memset (&sound_buffer[last_index], last_data, sound_buffer_size-last_index);
+//    for (i=last_index; i<sound_buffer_size; i++)
+//        sound_buffer[i]=last_data;
 
     last_index=0;
 
