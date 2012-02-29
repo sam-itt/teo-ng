@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>Teo - Documentation technique</TITLE>
+<link REL="stylesheet" TYPE="text/css" HREF="doc.css">
+
+</HEAD>
+<BODY>
+<TABLE WIDTH="100%"><TR><TD CLASS="ttitre">
+<IMG SRC="images/logo.jpg" WIDTH="324" HEIGHT="64" ALT="logo Teo">
+</TD></TR></TABLE>
+
+<CENTER>
+<H1>Les circuits d'entr&eacute;e/sortie de l'&eacute;mulateur Teo</H1>
+</CENTER>
+
+<TABLE WIDTH="100%"><TR><TD CLASS="ttexte">
+<UL>
+<LI><A HREF="#6846System">Le 6846 syst&egrave;me</A></LI>
+<LI><A HREF="#Pia6821System">Le PIA 6821 syst&egrave;me</A></LI>
+<LI><A HREF="#Pia6821Games">Le PIA 6821 musique et jeux</A></LI>
+<LI><A HREF="#GateArrayDisk">Le circuit Gate Array du lecteur de disquettes</A></LI>
+<LI><A HREF="#GateArrayModePage">Le circuit Gate Array mode page</A></LI>
+</UL>
+
+
+<H2><A NAME="6846System"></A>Le 6846 syst&egrave;me</H2>
+
+<H3>Description fonctionnelle</H3>
+
+<P>Le port 8 bits du 6846, appel&eacute; port C, a par initialisation trois
+   lignes P2, P4, P5 configur&eacute;es en sorties et trois autres
+   P1, P6, P7 en entr&eacute;es. Le bit P0, bien que configur&eacute; en sortie, est en r&eacute;alit&eacute; &eacute;mul&eacute; par le gate array mode page et le bit P3 est d&eacute;connect&eacute; (mais la routine de lecture clavier en fait un flag majuscules/minuscules).</P>
+<P>Le timer sert en fonctionnement normal, par des
+demandes d'interruptions successives toutes les 100 ms, &agrave;
+commander le clignotement du curseur. Sa fonction de codage des informations num&eacute;riques pour le LEP via la sortie CT0 n'est pas &eacute;mul&eacute;e, mais remplac&eacute;e par une routine haut-niveau.</P>
+
+<H3>Adresses et fonctions des registres internes</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Adresse </TH> <TH> Registre </TH> <TH> Fonction </TH> </TR>
+<TR> <TD> E7C0 </TD> <TD> CSR  </TD> <TD> Registre d'&eacute;tat composite </TD> </TR>
+<TR> <TD> E7C1 </TD> <TD> CRC  </TD> <TD> Registre de commande </TD> </TR>
+<TR> <TD> E7C2 </TD> <TD> DDRC </TD> <TD> Registre de direction de donn&eacute;es </TD> </TR>
+<TR> <TD> E7C3 </TD> <TD> PRC  </TD> <TD> Registre de donn&eacute;es (port C) </TD> </TR>
+<TR> <TD> E7C4 </TD> <TD> CSR  </TD> <TD> Registre d'&eacute;tat composite </TD> </TR>
+<TR> <TD> E7C5 </TD> <TD> TCR  </TD> <TD> Registre de commande du temporisateur </TD> </TR>
+<TR> <TD> E7C6 </TD> <TD> TMSB </TD> <TD> Registre d'octet de poids fort du temporisateur </TD> </TR>
+<TR> <TD> E7C7 </TD> <TD> TLSB </TD> <TD> Registre d'octet de poids faible du temporisateur </TD> </TR>
+</TABLE>
+
+<P>CSR (lecture seule)</P>
+<UL>
+<LI>bit 0: irq temporisateur</LI>
+<LI>bit 1: irq CP1</LI>
+<LI>bit 7: irq composite du 6846</LI>
+</UL>
+
+<P>CRC</P>
+<UL>
+<LI>bit 0 (S): validation irq CP1 (0 masqu&eacute;e/ 1 non masqu&eacute;e)</LI>
+<LI>bit 1 (S): mode de d&eacute;clenchement CP1 (0 descente/ 1 mont&eacute;e)</LI>
+<LI>bit 3 (S): CP2 - MUTE son</LI>
+<LI>bit 4 (S): &eacute;tat CP2</LI>
+<LI>bit 5 (S): direction CP2 (0 entr&eacute;e/ 1 sortie)</LI>
+<LI>bit 7 (E): CP1 - DATAS clavier (transmission s&eacute;rie)</LI>
+</UL>
+
+<P>PRC</P>
+<UL>
+<LI>bit 0 (S - &eacute;mul&eacute;): s&eacute;lection page VRAM (Point/Couleur)</LI>
+<LI>bit 1 (E): INTERLP (enfoncement crayon optique)</LI>
+<LI>bit 2 (S): s&eacute;lection ROM r&eacute;sidente/ROM cartouche</LI>
+<LI>bit 3 (S - d&eacute;connect&eacute;): flag logiciel majuscules/minuscules</LI>
+<LI>bit 4 (S): s&eacute;lection banque ROM moniteur</LI>
+<LI>bit 5 (S): ACK (acknowledge) clavier</LI>
+<LI>bit 6 (E): BUSY imprimante</LI>
+<LI>bit 7 (E): lecture LEP (magn&eacute;tophone)</LI>
+</UL>
+
+<P>TCR (&eacute;criture seule)</P>
+<UL>
+<LI>bit 0: &eacute;tat temporisateur (0 d&eacute;sactiv&eacute;/ 1 activ&eacute;)</LI>
+<LI>bit 2: pr&eacute;-compteur de diviseur par 8 (0 d&eacute;sactiv&eacute;/ 1 activ&eacute;)</LI>
+<LI>bit 3-5: mode de fonctionnement</LI>
+<LI>bit 6: validation irq temporisateur (0 masqu&eacute;e/ 1 non masqu&eacute;e)</LI>
+</UL>
+
+
+<H2><A NAME="Pia6821System"></A>Le PIA 6821 syst&egrave;me</H2>
+
+<H3>Description fonctionnelle</H3>
+
+<P>Le 6821 syst&egrave;me assure &agrave; la fois la communication avec des modules internes de l'unit&eacute; centrale (carte m&eacute;moire et clavier) et avec le port externe imprimante (Centronics).</P>
+
+<H3>Adresses et fonctions des registres internes</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Adresse </TH> <TH> Registre </TH> <TH> Fonction </TH> </TR>
+<TR> <TD> E7C8 </TD> <TD> DDRA<BR>PDRA </TD> <TD>Registre de direction de donn&eacute;es du port A<BR>
+			Registre de donn&eacute;es du port A</TD> </TR>
+<TR> <TD> E7C9 </TD> <TD> DDRB<BR>PDRB</TD> <TD>Registre de direction de donn&eacute;es du port B<BR>
+			Registre de donn&eacute;es du port B</TD> </TR>
+<TR> <TD> E7CA </TD> <TD> CRA </TD>  <TD>Registre de commande du port A</TD> </TR>
+<TR> <TD> E7CB </TD> <TD> CRB </TD>  <TD>Registre de commande du port B</TD> </TR>
+</TABLE>
+
+<P>PDRA</P>
+<UL>
+<LI>bit 0 (E): KTEST clavier (signal de touche enfonc&eacute;e)</LI>
+<LI>bit 1-7 (S): D1 &agrave; D7 de l'imprimante</LI>
+</UL>
+
+<P>PDRB</P>
+<UL>
+<LI>bit 0 (S): D0 de l'imprimante</LI>
+<LI>bit 1 (S): STROBE de l'imprimante</LI>
+<LI>bit 2 (S): commande d'incrustation (active &agrave; 0)</LI>
+<LI>bit 3-7 (S - &eacute;mul&eacute;): s&eacute;lection de la banque RAM (mode PIA compatible TO7-70/TO9)</LI>
+</UL>
+
+<P>CRA</P>
+<UL>
+<LI>bit 2 (S): s&eacute;lection du registre (0 DDRA/ 1 PDRA)</LI>
+<LI>bit 3 (S): CA2 - commande du moteur LEP (active &agrave; 0)</LI>
+<LI>bit 4 (S): &eacute;tat CA2</LI>
+<LI>bit 5 (S): direction CA2 (0 entr&eacute;e/ 1 sortie)</LI>
+<LI>bit 7 (E): CA1 - CLRG (signal de remise &agrave; l'heure du boitier d'incrustation)</LI>
+</UL>
+
+<P>CRB</P>
+<UL>
+<LI>bit 2 (S): s&eacute;lection du registre (0 DDRB/ 1 PDRB)</LI>
+<LI>bit 7 (E): CB1 - signal code barre</LI>
+</UL>
+
+<H2><A NAME="Pia6821Games"></A>Le PIA 6821 musique et jeux</H2>
+
+<H3>Description fonctionnelle</H3>
+
+<P>Le 6821 musique et jeux assure la communication avec les ports manettes et la sortie sonore 6-bit (convertisseur num&eacute;rique/analogique).</P>
+<P>Pour Teo, les signaux de commandes du PIA ne sont pas reli&eacute;s &agrave; l'IRQ du MC6809; la gestion de la souris est assur&eacute;e par une routine d'&eacute;mulation haut-niveau.</P>
+
+<H3>Adresses et fonctions des registres internes</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Adresse </TH> <TH> Registre </TH> <TH> Fonction </TH> </TR>
+<TR> <TD> E7CC </TD> <TD> DDRA<BR>PDRA </TD> <TD>Registre de direction de donn&eacute;es du port A<BR>
+			Registre de donn&eacute;es du port A</TD> </TR>
+<TR> <TD> E7CD </TD> <TD> DDRB<BR>PDRB</TD> <TD>Registre de direction de donn&eacute;es du port B<BR>
+			Registre de donn&eacute;es du port B</TD> </TR>
+<TR> <TD> E7CE </TD> <TD> CRA </TD>  <TD>Registre de commande du port A</TD> </TR>
+<TR> <TD> E7CF </TD> <TD> CRB </TD>  <TD>Registre de commande du port B</TD> </TR>
+</TABLE>
+
+<P>PDRA</P>
+<UL>
+<LI>bit 0-3 (E): direction de la manette 0 (B,H,G,D - 1 au repos)</LI>
+<LI>bit 4-7 (E): direction de la manette 1 (B,H,G,D - 1 au repos)</LI>
+</UL>
+
+<P>PDRB</P>
+<UL>
+<LI>bit 0-5 (S): convertisseur sonore num&eacute;rique -&gt; analogique 6-bit</LI>
+<LI>bit 0 (E): commun bufferisé pour la manette 0 (1 au repos)</LI>
+<LI>bit 1 (E): commun bufferisé pour la manette 1 (1 au repos)</LI>
+<LI>bit 2 (E): bouton B de la manette 0 (1 au repos)</LI>
+<LI>bit 3 (E): bouton B de la manette 1 (1 au repos)</LI>
+<LI>bit 6 (E): bouton A de la manette 0 (1 au repos)</LI>
+<LI>bit 7 (E): bouton A de la manette 1 (1 au repos)</LI>
+</UL>
+
+<P>CRA</P>
+<UL>
+<LI>bit 2 (S): s&eacute;lection du registre (0 DDRA/ 1 PDRA)</LI>
+<LI>bit 5 (S): direction CA2 (0 entr&eacute;e/ 1 sortie)</LI>
+<LI>bit 6 (E): CA2 - bouton A de la manette 0</LI>
+<LI>bit 7 (E): CA1 - bouton B de la manette 0</LI>
+</UL>
+
+<P>CRB</P>
+<UL>
+<LI>bit 2 (S): s&eacute;lection du registre (0 DDRB/ 1 PDRB)</LI>
+<LI>bit 5 (S): direction CB2 (0 entr&eacute;e/ 1 sortie)</LI>
+<LI>bit 6 (E): CB2 - bouton A de la manette 1</LI>
+<LI>bit 7 (E): CB1 - bouton B de la manette 1</LI>
+</UL>
+
+<H2><A NAME="GateArrayDisk"></A>Le circuit Gate Array du lecteur de disquettes</H2>
+
+<H3>Description fonctionnelle</H3>
+
+<P>Il assure la communication avec le contr&ocirc;leur de disquettes int&eacute;gr&eacute; qui peut g&eacute;rer jusqu'&agrave; deux lecteurs.</P>
+<P>Il n'est pas &eacute;mul&eacute; sous Teo (un embryon d'&eacute;mulation des protections disquettes existe n&eacute;anmoins) et toute la gestion des disquettes est assur&eacute;e par des routines haut-niveau utilisant le format SAP.</P>
+
+<H3>Adresses et fonctions des registres internes</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Adresse </TH> <TH> Registre </TH> <TH> Fonction </TH> </TR>
+<TR> <TD> E7D0 </TD> <TD> CMD0<BR>STAT0  </TD> <TD> Commande (&eacute;criture seule)<BR> Etat (lecture seule)</TD> </TR>
+<TR> <TD> E7D1 </TD> <TD> CMD1<BR>STAT1  </TD> <TD> Commande (&eacute;criture seule)<BR> Etat (lecture seule)</TD> </TR>
+<TR> <TD> E7D2 </TD> <TD> CMD2 </TD> <TD> Commande (&eacute;criture seule)</TD> </TR>
+<TR> <TD> E7D3 </TD> <TD> WDATA<BR>RDATA  </TD> <TD>Donn&eacute;es en &eacute;criture<BR>
+	Donn&eacute;es en lecture</TD> </TR>
+<TR> <TD> E7D4 </TD> <TD> WCLK  </TD> <TD>Horloge en &eacute;criture</TD> </TR>
+<TR> <TD> E7D5 </TD> <TD> WSECT </TD> <TD>Secteur en &eacute;criture</TD> </TR>
+<TR> <TD> E7D6 </TD> <TD> WTRCK </TD> <TD>Piste en &eacute;criture</TD> </TR>
+<TR> <TD> E7D7 </TD> <TD> WCELL </TD> <TD>Taille de la cellule en &eacute;criture</TD> </TR>
+</TABLE>
+
+<H2><A NAME="GateArrayModePage"></A>Le circuit Gate Array mode page</H2>
+
+<H3>Description fonctionnelle</H3>
+
+<P>Il est le deuxi&egrave;me composant le plus important de la machine apr&egrave;s le microprocesseur. Il assure la gestion et le rafra&icirc;chissement de la m&eacute;moire vive (en "mode page"), g&eacute;n&egrave;re l'affichage vid&eacute;o vers le moniteur, dont il d&eacute;finit le mode graphique et les couleurs de palette et enfin traite les signaux de fonctionnement du crayon optique (fonction non &eacute;mul&eacute;e par Teo, remplac&eacute;e par une routine haut-niveau de gestion du crayon optique).</P>
+
+<H3>Adresses et fonctions des registres internes</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Adresse </TH> <TH> Registre </TH> <TH> Fonction </TH> </TR>
+<TR> <TD> E7DA </TD> <TD> P_DATA </TD> <TD>Donn&eacute;es de la palette</TD> </TR>
+<TR> <TD> E7DB </TD> <TD> P_ADDR </TD> <TD>Adresse de la palette</TD></TR>
+<TR> <TD> E7DC </TD> <TD> LGAMOD</TD> <TD>Mode d'affichage</TD> </TR>
+<TR> <TD> E7DD </TD> <TD> Syst&egrave;me 2</TD> <TD>Commutation espace VRAM<BR>Couleur du pourtour de l'&eacute;cran</TD> </TR>
+<TR> <TD> E7E4 </TD> <TD> Commutation (&eacute;cr.)</TD> <TD>S&eacute;lection registres en lecture</TD> </TR>
+<TR> <TD> E7E5 </TD> <TD> RAM donn&eacute;es (&eacute;cr.)</TD> <TD>Commutation espace donn&eacute;es<BR></TD> </TR>
+<TR> <TD> E7E6 </TD> <TD> Espace cartouche (&eacute;cr.)</TD> <TD>Commutation espace cartouche</TD> </TR>
+<TR> <TD> E7E7 </TD> <TD> Syst&egrave;me 1 (&eacute;cr.)<BR>Crayon opt. 4 (lect.)</TD><TD>Gestion RAM<BR>Localisation du spot &eacute;cran</TD> </TR>
+</TABLE>
+
+<P>LGAMOD</P>
+<UL>
+<LI>00 - Mode 40 colonnes 16 couleurs</LI>
+<LI>21 - Mode bitmap 4 couleurs</LI>
+<LI>24 - Mode commutation page 1</LI>
+<LI>25 - Mode commutation page 2</LI>
+<LI>26 - Mode superposition 2 pages</LI>
+<LI>2A - Mode 80 colonnes 2 couleurs</LI>
+<LI>3F - Mode superposition 4 pages</LI>
+<LI>41 - Mode bitmap 4 couleurs non document&eacute;</LI>
+<LI>7B - Mode bitmap 16 couleurs</LI>
+</UL>
+
+<P>Syst&egrave;me 1</P>
+<UL>
+<LI>bit 4: gestion RAM espace donn&eacute;es A000-DFFF (0 mode &eacute;mulation PIA/ 1 mode registre "RAM donn&eacute;es")
+</UL>
+
+<P>Syst&egrave;me 2</P>
+<UL>
+<LI>bit 0-3: couleur du pourtour de l'&eacute;cran</LI>
+<LI>bit 6-7: s&eacute;lection de la banque RAM (0-3) &agrave; afficher sur l'&eacute;cran </LI>
+</UL>
+
+<P>RAM donn&eacute;es (accessible en &eacute;criture si le bit 4 de Syst&egrave;me 1 est &agrave; 1)</P>
+<UL>
+<LI>bit 0-4: s&eacute;lection de la banque RAM (0-31) de l'espace donn&eacute;es A000-DFFF</LI>
+<LI>bit 5-7: 0</LI>
+</UL>
+
+<P>Cartouche</P>
+<UL>
+<LI>bit 0-4: s&eacute;lection de la banque RAM (0-31) de l'espace cartouche 0000-3FFF (si bit 5 &agrave; 1)</LI>
+<LI>bit 5: recouvrement de l'espace cartouche 0000-3FFF par de la RAM (0 non/ 1 oui)</LI>
+<LI>bit 6: autorisation d'&eacute;criture dans la RAM de l'espace cartouche 0000-3FFF (0 non/ 1 oui) (si bit 5 &agrave; 1)</LI>
+<LI>bit 7: 0</LI>
+</UL>
+
+<P>Commutation</P>
+<UL>
+<LI>bit 0: s&eacute;lection des registres en lecture (0 traitement/ 1 crayon optique)</LI>
+</UL>
+
+<P>Crayon optique 4</P>
+<UL>
+<LI>bit 0: s&eacute;lection des registres en lecture (0 traitement/ 1 crayon optique)</LI>
+<LI>bit 2-4: 0</LI>
+<LI>bit 5: situation fen&ecirc;tre-cadre en ligne INILN (0 spot dans le cadre/ 1 spot dans la fen&ecirc;tre horiz.)</LI>
+<LI>bit 7: situation fen&ecirc;tre-cadre en trame INITN (0 spot dans le cadre/ 1 spot dans la fen&ecirc;tre vert.)</LI>
+</UL>
+
+<HR>
+<TABLE WIDTH="100%" SUMMARY="pied de page">
+<TR>
+<TD ALIGN="LEFT"><SMALL>Copyright &copy; 1999-2011 Eric Botcazou <A HREF="mailto:ebotcazou_at_libertysurf_dot_fr">(ebotcazou at libertysurf dot fr)</A><BR>
+Venez discuter de Teo sur le <A HREF="http://www.logicielsmoto.com/forumframe.php">Forum LogicielsMoto</A><BR>
+Derni&egrave;re modification: mardi 19 novembre 2006</SMALL></TD>
+<TD ALIGN="RIGHT">
+<TABLE SUMMARY="Teo Home Page">
+<TR>
+<TD>Teo Home Page</TD>
+<TD><A HREF="http://nostalgies.thomsonistes.org/teo_home.html"> <IMG SRC="images/home.gif" WIDTH="32" HEIGHT="32" ALT="Teo Home Page"></A></TD>
+</TR>
+</TABLE>
+</TD></TR></TABLE>
+</TD></TR></TABLE>
+</BODY>
+</HTML>
+

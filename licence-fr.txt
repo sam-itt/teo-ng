@@ -1,0 +1,33 @@
+Ce document décrit le copyright et les conditions de distribution des
+fichiers nommés ci-après:
+
+
+* teo, teo.exe et teow.exe sont Copyright (C) 1997-2003 Gilles Fétis,
+  Eric Botcazou, Alexandre Pukall, Jérémie Guillaume.
+
+Ils peuvent être librement redistribués à la condition EXPRESSE que le
+code source soit également inclus sur le support de distribution ou que
+toutes les informations nécessaires à l'obtention de ce code source soient
+fournies sur le support de distribution.
+
+Certaines portions sont Copyright (C) DJ Delorie; elles sont disponibles
+séparément, à la fois comme code source et fichier binaire, sur le site
+Web http://www.delorie.com .
+
+
+* cwsdpmi.exe est Copyright (C) 1995-1997 Charles W Sandmann
+
+Il est disponible séparément, à la fois comme code source et fichier
+binaire, sur le site Web http://www.delorie.com .
+
+Il peut être redistribué à la condition EXPRESSE que le code source soit
+également inclus sur le support de distribution ou que toutes les
+informations nécessaires à l'obtention de ce code source soient fournies
+sur le support de distribution.
+
+
+* language.dat et keyboard.dat sont des fichiers librement redistribuables
+de la librairie Allegro.
+
+La libraire Allegro est disponible séparément, à la fois comme code source
+et fichier binaire, sur le site Web http://www.talula.demon.co.uk .

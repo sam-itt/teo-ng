@@ -1,0 +1,84 @@
+obj/linux/disk.o: src/disk.c include/intern/disk.h include/intern/defs.h \
+ include/mc68xx/mc6809.h include/intern/errors.h include/to8err.h \
+ include/intern/hardware.h include/mc68xx/mc6821.h \
+ include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/intern/defs.h \
+ include/to8.h
+obj/linux/errors.o: src/errors.c include/intern/errors.h include/to8err.h \
+ include/to8.h
+obj/linux/hardware.o: src/hardware.c include/mc68xx/mc6809.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
+ include/intern/defs.h include/intern/disk.h include/intern/defs.h \
+ include/intern/errors.h include/to8err.h include/intern/hardware.h \
+ include/to8.h include/intern/keyboard.h include/intern/k7.h \
+ include/intern/mouse.h include/intern/printer.h
+obj/linux/image.o: src/image.c include/mc68xx/mc6809.h include/mc68xx/mc6846.h \
+ include/mc68xx/mc6809.h include/mc68xx/mc6821.h include/intern/disk.h \
+ include/intern/defs.h include/intern/errors.h include/to8err.h \
+ include/intern/hardware.h include/intern/defs.h include/to8.h
+obj/linux/joystick.o: src/joystick.c include/intern/hardware.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
+ include/intern/defs.h include/mc68xx/mc6809.h include/to8.h \
+ include/intern/joystick.h
+obj/linux/k7.o: src/k7.c include/intern/errors.h include/to8err.h \
+ include/intern/hardware.h include/mc68xx/mc6821.h \
+ include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/intern/defs.h \
+ include/mc68xx/mc6809.h include/to8.h include/intern/k7.h
+obj/linux/keyboard.o: src/keyboard.c include/mc68xx/mc6809.h \
+ include/intern/errors.h include/to8err.h include/intern/hardware.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
+ include/intern/defs.h include/to8.h include/intern/joystick.h \
+ include/intern/keyboard.h include/to8keys.h
+obj/linux/mouse.o: src/mouse.c include/intern/hardware.h include/mc68xx/mc6821.h \
+ include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/intern/defs.h \
+ include/mc68xx/mc6809.h include/to8.h include/intern/joystick.h \
+ include/intern/mouse.h
+obj/linux/printer.o: src/printer.c include/mc68xx/mc6809.h include/mc68xx/mc6846.h \
+ include/mc68xx/mc6809.h include/intern/hardware.h \
+ include/mc68xx/mc6821.h include/intern/defs.h include/to8.h
+obj/linux/to8.o: src/to8.c include/mc68xx/mc6809.h include/intern/defs.h \
+ include/intern/disk.h include/intern/defs.h include/intern/errors.h \
+ include/to8err.h include/intern/hardware.h include/mc68xx/mc6821.h \
+ include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/to8.h \
+ include/intern/joystick.h include/intern/keyboard.h include/intern/k7.h \
+ include/intern/mouse.h include/intern/printer.h
+obj/linux/xargs.o: src/xargs.c include/xargs.h include/to8.h
+obj/linux/dasm6809.o: src/mc68xx/dasm6809.c include/mc68xx/dasm6809.h \
+ include/mc68xx/mc6809.h
+obj/linux/mc6809.o: src/mc68xx/mc6809.c include/mc68xx/mc6809.h
+obj/linux/mc6821.o: src/mc68xx/mc6821.c
+obj/linux/mc6846.o: src/mc68xx/mc6846.c include/mc68xx/mc6809.h \
+ include/mc68xx/mc6846.h include/mc68xx/mc6809.h
+obj/linux/udebug.o: src/linux/udebug.c include/linux/display.h include/linux/xgui.h \
+ include/linux/../to8.h include/linux/filentry.h include/linux/xgui.h \
+ include/linux/graphic.h include/linux/main.h include/linux/message.h \
+ include/linux/question.h include/linux/debugger.h include/to8.h \
+ include/mc68xx/dasm6809.h include/mc68xx/mc6809.h include/to8dbg.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
+ include/intern/defs.h
+obj/linux/udisk.o: src/linux/udisk.c include/to8.h
+obj/linux/udisplay.o: src/linux/udisplay.c include/linux/question.h \
+ include/linux/xgui.h include/linux/display.h include/linux/xgui.h \
+ include/linux/../to8.h include/linux/graphic.h include/linux/main.h \
+ include/to8keys.h include/to8.h
+obj/linux/ufilentry.o: src/linux/ufilentry.c include/linux/filentry.h \
+ include/linux/xgui.h include/linux/main.h include/to8.h
+obj/linux/ugraphic.o: src/linux/ugraphic.c include/linux/display.h \
+ include/linux/xgui.h include/linux/../to8.h include/to8.h
+obj/linux/ugui.o: src/linux/ugui.c include/linux/xgui.h include/linux/display.h \
+ include/linux/xgui.h include/linux/../to8.h include/linux/filentry.h \
+ include/linux/graphic.h include/linux/main.h include/linux/message.h \
+ include/linux/question.h include/linux/license.h include/to8.h \
+ src/linux/thomson.xpm
+obj/linux/umain.o: src/linux/umain.c include/intern/defs.h include/mc68xx/mc6809.h \
+ include/linux/disk.h include/linux/display.h include/linux/xgui.h \
+ include/linux/../to8.h include/linux/graphic.h include/linux/gui.h \
+ include/linux/main.h include/linux/sound.h include/linux/debugger.h \
+ include/to8.h include/xargs.h
+obj/linux/umessage.o: src/linux/umessage.c include/linux/message.h \
+ include/linux/xgui.h
+obj/linux/uquestion.o: src/linux/uquestion.c include/linux/question.h \
+ include/linux/xgui.h include/linux/main.h include/to8.h
+obj/linux/usound.o: src/linux/usound.c include/linux/main.h include/to8.h
+obj/linux/ustate.o: src/linux/ustate.c include/intern/defs.h \
+ include/mc68xx/mc6809.h include/linux/main.h include/to8.h
+obj/linux/uxgui.o: src/linux/uxgui.c include/linux/xgui.h

@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>Teo - User manual</TITLE>
+<link REL="stylesheet" TYPE="text/css" HREF="doc.css">
+
+</HEAD>
+<BODY>
+<TABLE WIDTH="100%"><TR><TD CLASS="ttitre">
+<IMG SRC="images/logo.jpg" WIDTH="324" HEIGHT="64" ALT="logo Teo">
+</TD></TR></TABLE>
+
+<CENTER>
+Thomson TO8 Emulator<BR>
+version 1.8.0 (Linux/X11)<BR>
+Copyright &copy; 1997-2011 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall, Fran&ccedil;ois Mouret, Samuel Devulder<BR><BR>
+</CENTER>
+
+<TABLE WIDTH="100%"><TR><TD CLASS="ttexte">
+<A HREF="#Introduction">1. Introduction</A><BR>
+<A HREF="#Installation">2. Installation</A><BR>
+<A HREF="#Lancement">3. Launching</A><BR>
+<A HREF="#Modes_graphiques">4. Graphics modes</A><BR>
+<A HREF="#Clavier">5. Keyboard</A><BR>
+<A HREF="#Manettes">6. Joysticks</A><BR>
+<A HREF="#Souris">7. Mouse</A><BR>
+<A HREF="#Crayon_optique">8. Light-pen</A><BR>
+<A HREF="#Generateur_sonore">9. Sound generator</A><BR>
+<A HREF="#Supports_amovibles">10. Removable read/write media</A><BR>
+<A HREF="#Panneau_de_controle">11. Control panel</A><BR>
+<A HREF="#Acces_direct">12. Direct access to floppy drives</A><BR>
+<A HREF="#Commandes_diverses">13. Miscellaneous commands</A><BR>
+<A HREF="#Desinstallation">14. Deinstallation</A><BR>
+<A HREF="#Limitations_et_bugs">15. Limitations and bugs</A><BR>
+<A HREF="#Remerciements">16. Thanks</A><BR>
+<BR>
+
+
+<H2><A NAME="Introduction"></A>1. Introduction</H2>
+<P>Teo is a TO8 emulator for Personal Computers. It tries to mimic <EM>as closely as possible</EM> the behavior of an other computer on the PC. Teo only emulates the <EM>hardware</EM> part of a TO8: The Motorola MC6809E micro-processor, the memory banks, the video system, and the following peripheral devices: mouse, light-pen, joysticks, tape player, floppy drives and dot-matrix printer. The operating system that drives everything is not included. Therefore you'll have to use a copy of the ROMs coming out of a real TO8 machine to run Teo.</P>
+
+
+<H2><A NAME="Installation"></A>2. Installation</H2>
+<P>The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 1.2 of the GTK+ toolkit is required and might require a system update (RedHat 5.x, SuSE 5.x). It is available <A HREF="http://www.gtk.org">here</A>.</P>
+
+<P>You can install the emulator in two ways:</P>
+<UL>
+<LI>Launch <KBD>teo-1.8.0-i586.deb</KBD> and then <KBD>teo-rom.deb</KBD>. The launch of <KBD>Teo</KBD> will be done through the <KBD>Applications/Games/Teo emulator</KBD> shortcut menu.
+<LI>Unzip <KBD>teo-1.8.0-i586.tar.gz</KBD> and <KBD>teo-rom.tar.gz</KBD> into the same folder. The executable is named <KBD>teo</KBD>.</LI>
+</UL>
+
+<H2><A NAME="Lancement"></A>3. Launching</H2>
+<P>When the program is started, headers and initialization messages are printed, then the application starts.</P>
+<P>TEO accepts the following parameters on the command line:</P>
+<TABLE BORDER="0" SUMMARY="options">
+<TR><TD><KBD>[-help]</KBD></TD><TD>Prints on-line help</TD></TR>
+<TR><TD><KBD>[-m file.m7]</KBD></TD><TD>use file.m7 as ROM cartridge</TD></TR>
+<TR><TD><KBD>[-fast]</KBD></TD><TD>run the emulator at full-speed</TD></TR>
+<TR><TD><KBD>[-nosound]</KBD></TD><TD>disable the emulation of sound</TD></TR>
+<TR><TD><KBD>[-geometry +x+y]</KBD></TD><TD>specify the window position</TD></TR>
+<TR><TD><KBD>[-noshm]</KBD></TD><TD>disable the use of the MIT-SHM extension</TD></TR>
+<TR><TD><KBD>[-display displayname]</KBD></TD><TD>indicates the name of the X server to use</TD></TR>
+<TR><TD><KBD>[-interlaced]</KBD></TD><TD>use an interlaced display mode</TD></TR>
+<TR><TD><KBD>[xxxxx]</KBD></TD><TD>loads SAP, K7, M7 file(s)</TD></TR>
+</TABLE>
+
+<P>The installation with the packages <KBD>.deb</KBD> launches Teo with the option <KBD>-loadstate</KBD> by default. To deactivate this option or add some more, choose <KBD>System/Preferences/Main menu</KBD>, then select <KBD>Games/Teo emulator</KBD>, click on <KBD>Properties</KBD> and change the options by default of the executable.</P>
+
+<H2><A NAME="Modes_graphiques"></A>4. Graphic modes</H2>
+<P>Teo is able to run in the four most common X11 graphic modes available in a PC (8, 16, 24 and 32 bits). However, in 8 bit mode, dynamical palette changes are not emulated.</P>
+<P>Teo uses a 640x400 window (plus screen border) in order to correctly display all TO8 graphic modes.</P>
+
+
+<H2><A NAME="Clavier"></A>5. Keyboard</H2>
+<P>The TO8 keyboard is fully emulated, including CNT and ACC combinations.</P>
+<P>The emulation precisely maps the AZERTY layout onto the TO8 layout. Therefore a key pressed on a French keyboard should display the same character in the emulator, provided the same key exists on the TO8 keyboard. Both SHIFT and ALTGR keys act natively. If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: <KBD>System/Preferences/Keyboard/Layouts/Options/Key</KBD> to chose 3rd level options.</P>
+<P>The STOP key maps to TAB in the PC, CNT maps to the left CTRL key, CAPSLOCK maps to CAPSLOCK (the CAPSLOCK led is emulated), ACC maps to ALT, HOME maps to HOME, the four arrow keys map to the arrow keys, INS maps to INSERT, EFF maps to DEL. Note that DEL (=SHIFT+EFF) maps to BACKSPACE.</P>
+<P>The ten function keys are mapped to F1-F10 but it is possible to get F6 by pressing SHIFT+F1.</P>
+<P>The NUMLOCK key activates the joystick emulation using the keyboard (NUMLOCK led is off). This is detailed in the next section.</P>
+
+
+<H2><A NAME="Manettes"></A>6. Joystick</H2>
+<P>When the joystick mode is active (NUMLOCK led is off), the PC keypad is no more mapped onto the TO8 keypad, but emulates the eight directions of joystick #0. The fire button is mapped to the right CTRL.</P>
+<P>In the same time, the left part of the French keyboard (AZE, QSD, WXC) emulates joystick #1 while still sending characters to the TO8. (This makes use of the full TO8 keyboard and joystick #0 possible). The Fire button of joystick #1 is mapped onto left CTRL.</P>
+<P>Just like in a real joystick, only one direction is supported at a time. This is the one provided by the last pressed key.</P>
+
+
+<H2><A NAME="Souris"></A>7. Mouse</H2>
+<P>On a real TO8, the mouse is connected to joystick port #0. Hence both devices cannot be used at the same time.</P>
+<P>On the emulated TO8, both devices can work together and the mouse is the default pointing device at boot time.</P>
+<P>Both buttons of the mouse are mapped onto the left and right button a the PC mouse.<</P>
+
+
+<H2><A NAME="Crayon_optique"></A>8. Lightpen</H2>
+<P>Why would the light-pen be specifically emulated when the mouse acts the same even for Basic 1.0? The reason is twofold:</P>
+<UL>
+<LI>The light-pen is, for a thomson-fanatic, an untouchable feature that directly comes from the sacred era where TO7 and others were the glory of French computers.</LI>
+<LI>More usefully, many programs written for the TO7 or TO7-70 that use the light-pen do not display a cursor indicating the position of the pen on the screen. Therefore they are unusable with a mouse.</LI>
+</UL>
+<P>The light-pen can be selected in the "Settings" menu of the TO8. It is emulated using the PC mouse, the left mouse button being the light-pen button. The right mouse button toggles the display of the light-pen cursor on and off.</P>
+
+
+<H2><A NAME="Generateur_sonore"></A>9. Sound generator</H2>
+<P>The TO8 sound is emulated using the sound-card of the PC. Both the 1-bit (TO7) and the 6-bits (Music and games interface) generators are emulated.</P>
+<P>Teo uses the default sound device (via Open Sound System).</P>
+
+
+<H2><A NAME="Supports_amovibles"></A>10. Removable read/write media</H2>
+<P>Teo can handle three types of removable read/write media: ROM cartridges, analogical tapes, and 3"5 thomson floppies. Each media is "virtualized" through files, respectively: Memo7 files with extension .m7, K7 files with extension .k7 and SAP files with extension .sap.</P>
+<P>See the <A HREF="#Panneau_de_controle">control panel</A> to get the use of these files within the emulator.</P>
+
+
+<H2><A NAME="Panneau_de_controle"></A>11. Control panel</H2>
+<P>Pressing the [ESC] key on the PC halts the emulation and opens the control panel.</P>
+<CENTER><IMG SRC="images/teo_x1en.png" WIDTH="338" HEIGHT="405" ALT="Control panel"></CENTER>
+<P>This menu allows communicating with the emulator and gives access to peripheral devices of the TO8 (cartridge slot, tape recorder, and floppy drives).</P>
+<P>Use the first two buttons with care:</P>
+<UL>
+<LI>TO8 warm reset: acts as pressing the Reset button of the TO8 (located on the right side of the machine). As on a real TO8, this might not be enough to get out of a crash.</LI>
+<LI>TO8 cold reset: more aggressive, this is just like switching the TO8 off and on. Normally nothing should resist, but all data in RAM will be lost.</LI>
+</UL>
+
+<BLOCKQUOTE>
+
+<H3>Settings</H3>
+
+<CENTER><IMG SRC="images/teo_x2en.png" WIDTH="338" HEIGHT="195" ALT="Settings"></CENTER>
+<P>The speed option allow tuning the speed of the emulation:</P>
+<UL>
+<LI>Accurate speed: Fixes the speed of the MC6809E to 1Mhz exactly. This is the normal value which is the mode to use when playing games or sounds.</LI>
+<LI>Fast speed: Emulates the MC6809E at the maximum speed that the PC allows (for instance, a Pentium 200 gives a MC6809E running at 10Mhz). This can be used for utility tools, or to have access to a boosted TO8 which is valuable. However the sound is then deactivated.</LI>
+</UL>
+<P>The interlaced mode emulate CRTs by displaying only half the lines for each frame (even lines, then odd lines). This reduces the flickering effect that happens when rapid screen changes occur (see for instance the TruC demos by PULS).</P>
+
+
+<H3>Disks</H3>
+<CENTER><IMG SRC="images/teo_x5en.png" WIDTH="338" HEIGHT="193" ALT="Lecteurs de disquettes"></CENTER>
+<P>This menu allows choosing a SAP file (extension .sap) and uses it as a read/write floppy disk by the emulator (chooser button). These files are images of physical Thomson disks which are created by a specific utility tool called SAP. They must reside on the hard drive of the PC, preferably in the <KBD>disks</KBD> sub-folder in the emulator directory.</P>
+<P>Drives 0: and 1: map to the two faces of the first physical floppy drive of a real TO8. Drives 2: and 3: will be mapped to both faces of the second drive.</P>
+<P>It is possible to write-protect any of these drives independently (field "prot.").</P>
+<P>The button with the "file" icon switches onto "disk" icon when you want to <A HREF="#Acces_direct">directly access</A> to a physical 3"5 floppy disk (720kb, TO8 format) inserted in the A: floppy drive of the PC. Just click on "disk" button to go back to "file" mode.</P>
+<P>Please note that a green led will appear in the right upper side of the screen when a disk access occurs.</P>
+
+
+<H3>Tape recorder</H3>
+<CENTER><IMG SRC="images/teo_x4en.png" WIDTH="338" HEIGHT="196" ALT="Lecteur de cassettes"></CENTER>
+<P>Here you can, not only select a K7 file (extension .k7) which will act as a tape, but also choose to protect it against write access ("prot." field). You can also change the position on the tape (numerical field "Counter" and "+" or "-" buttons), and even rewind it completely (button "Rewind tape"). Be careful: any write-access change will automatically rewind the tape.</P>
+<P>Here again, you are advised to put all your K7 files under the <KBD>k7</KBD> sub-folder in the emulator directory to ease file selection.</P>
+
+
+<H3>Cartridge slot</H3>
+<CENTER><IMG SRC="images/teo_x3en.png" WIDTH="338" HEIGHT="196" ALT="Lecteur de cartouches"></CENTER>
+<P>This menu allows choosing a Memo7 file (extension .m7) and loads it as a cartridge (button "browse..."). The label of the cartridge appears in the left zone. Please note that Teo will then do a cold-reset of the TO8 in order for the cartridge to appear in the boot screen of the TO8.</P>
+<P>To ease the selection of files, you are advised to put all Memo7 files under the <KBD>memo7</KBD> sub-folder.</P>
+
+
+</BLOCKQUOTE>
+
+<H2><A NAME="Acces_direct"></A>12. Direct access to floppy drives</H2>
+<P>The normal way to deal with disks with Teo is, just like with other devices, "virtualization": floppy disks are represented by SAP files (extension .sap) and all access to the floppy (reading or writing) is just done on these files. This leads to a great flexibility and protection of the original TO8 floppy disks.</P>
+<P>However, since the 3"5 floppy-drive standard remained the same since the very first TO8, it is possible for any PC to physically read and write TO8 3"5 floppy disks. The floppy menu form the <A HREF="#Panneau_de_controle">control panel</A> allows TEO to directly access side #0 of any available 3"5 floppy drives present on the PC.</P>
+<P>Without explicit choice from the user, in order to protect the original Thomson floppies, only direct <EM>reading</EM> is enabled: the write-protection field of a direct-access floppy drive remains active. It is still possible to authorize direct writes (and therefore direct formatting of 3"5 - 720Kb thomson floppy disks) by starting Teo with the option <KBD>--enable-direct-write</KBD> (this option is intentionally not shown in the on-line help). It is <B>strongly recommended</B> not to use direct writes on original Thomson floppies: the TO format is not a native PC format, and remaining incompatibilities could lead to <B>serious</B> damages on data integrity. Use direct writes only on <B>copies</B>, possibly made using Teo itself.</P>
+<P>Please note that the floppy format used by Thomson is 3"5 Double Sided Double Density (720 KB - 2DD), but it is possible to use a 3"5 Double Sided High Density  disk (1.44 MB - 2HD) by concealing a simple piece of tape on the right notch of the disk.<</P>
+
+<H3>Activating disk direct access on new Linux systems</H3>
+
+<P>On new Linux systems, floppy drives are not activated at installation. It's necessary to make some adjustments from a Terminal:<P>
+
+<P><U>Creating the entry for the first drive (if you have one) :</U></P>
+<UL>
+<LI>Execute <CODE>sudo mkdir /media/floppy0</CODE></LI>
+<LI>Execute <CODE>sudo gedit /etc/fstab</CODE></LI>
+<LI>Add the line <CODE>/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</CODE> if no line begins with <KBD>/dev/fd0</KBD></LI>
+<LI>Save the file and quit GEdit</LI>
+</UL>
+
+<P><U>Creating the entry for the second drive (if you have one) :</U></P>
+<UL>
+<LI>Execute <CODE>sudo mkdir /media/floppy1</CODE></LI>
+<LI>Execute <CODE>sudo gedit /etc/fstab</CODE></LI>
+<LI>Add the line <CODE>/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</CODE> if no line begins with <KBD>/dev/fd1</KBD></LI>
+<LI>Save the file and quit GEdit</LI>
+</UL>
+
+<P><U>Declaring the disks access :</U></P>
+<UL>
+<LI>Execute <CODE>sudo gedit /etc/modules</CODE></LI>
+<LI>Add the line <CODE>floppy</CODE> if it doesn't exist</LI>
+<LI>Save the file and quit GEdit</LI>
+<LI>Execute <CODE>sudo adduser $USER floppy</CODE></LI>
+</UL>
+
+<P><U>And finally, activating everything :</U></P>
+<UL>
+<LI>Restart computer</LI>
+</UL>
+
+<H2><A NAME="Commandes_diverses"></A>13. Miscellaneous commands</H2>
+<UL>
+<LI>[F10] displays Teo's debugger.</LI>
+</UL>
+
+<H2><A NAME="Desinstallation"></A>14. Deinstallation</H2>
+<P>If installation has been made with <KBD>tar.gz</KBD> packages, just remove the root folder <KBD>teo</KBD>.</P>
+<P>If installation has been made with <KBD>.deb</KBD> packages, execute <CODE>sudo apt-get remove --purge teo-rom teo</CODE> in a Terminal. The menu shortcut <KBD>Applications/Games/Teo emulator</KBD> might not disappear. Then execute <CODE>rm ~/.local/share/applications/teo.desktop</CODE>. And to clean everything, execute <CODE>rm -r ~/.teo</CODE>, which is the folder that contains <KBD>teo.cfg</KBD> and  <KBD>autosave.img</KBD> files.</P>
+
+<H2><A NAME="Limitations_et_bugs"></A>15. Limitations and bugs</H2>
+<P>Technical reasons imply that 16 colors modes can imperfectly emulate dynamical palette changes.</P>
+<P>Please use this <A HREF="mailto:ebotcazou_at_libertysurf_Dot-matrix_fr">mail</A> address to send any remarks, suggestions and bug reports (if any).<</P>
+
+
+<H2><A NAME="Remerciements"></A>16. Thanks</H2>
+<UL>
+<LI><A HREF="http://www.sylvain-huet.com">Sylvain Huet</A> who wrote the core of the emulator,</LI>
+<LI><A HREF="http://www.gtk.org">The GTK+ Team</A> for their efficient and flexible toolkit,</LI>
+<LI>as well as to all others that reported bugs or suggested improvements to Teo.</LI>
+</UL>
+
+<HR>
+<TABLE WIDTH="100%" SUMMARY="pied de page">
+<TR>
+<TD ALIGN="LEFT"><SMALL>Copyright &copy; 1999-2011 Eric Botcazou <A HREF="mailto:ebotcazou_at_libertysurf_dot_fr">(ebotcazou at libertysurf dot fr)</A><BR>
+Discuss of Teo on <A HREF="http://www.logicielsmoto.com/forumframe.php">LogicielsMoto's forum</A><BR>
+Translated by Samuel Devulder<BR>
+Last change: Sunday, August 14th, 2011</SMALL></TD>
+<TD ALIGN="RIGHT">
+<TABLE SUMMARY="Teo Home Page">
+<TR>
+<TD>Teo Home Page</TD>
+<TD><A HREF="http://nostalgies.thomsonistes.org/teo_home.html"> <IMG SRC="images/home.gif" WIDTH="32" HEIGHT="32" ALT="Teo Home Page"></A></TD>
+</TR>
+</TABLE>
+</TD></TR></TABLE>
+</TD></TR></TABLE>
+</BODY>
+</HTML>
+

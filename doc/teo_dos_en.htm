@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>Teo - User manual</TITLE>
+<link REL="stylesheet" TYPE="text/css" HREF="doc.css">
+
+</HEAD>
+<BODY>
+<TABLE WIDTH="100%"><TR><TD CLASS="ttitre">
+<IMG SRC="images/logo.jpg" WIDTH="324" HEIGHT="64" ALT="logo Teo">
+</TD></TR></TABLE>
+
+<CENTER>
+Thomson TO8 Emulator<BR>
+version 1.8.0 (MSDOS/DPMI)<BR>
+Copyright &copy; 1997-2011 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall, J&eacute;r&eacute;mie Guillaume, Fran&ccedil;ois Mouret, Samuel Devulder<BR><BR>
+</CENTER>
+
+<TABLE WIDTH="100%"><TR><TD CLASS="ttexte">
+<A HREF="#Introduction">1. Introduction</A><BR>
+<A HREF="#Installation">2. Installation</A><BR>
+<A HREF="#Lancement">3. Launching</A><BR>
+<A HREF="#Modes_graphiques">4. Graphics modes</A><BR>
+<A HREF="#Clavier">5. Keyboard</A><BR>
+<A HREF="#Manettes">6. Joysticks</A><BR>
+<A HREF="#Souris">7. Mouse</A><BR>
+<A HREF="#Crayon_optique">8. Light-pen</A><BR>
+<A HREF="#Generateur_sonore">9. Sound generator</A><BR>
+<A HREF="#Supports_amovibles">10. Removable read/write media</A><BR>
+<A HREF="#Imprimante_matricielle">11. Dot-matrix printer</A><BR>
+<A HREF="#Panneau_de_controle">12. Control panel</A><BR>
+<A HREF="#Acces_direct">13. Direct access to floppy drives</A><BR>
+<A HREF="#Commandes_diverses">14. Miscellaneous commands</A><BR>
+<A HREF="#Limitations_et_bugs">15. Limitations and bugs</A><BR>
+<A HREF="#Remerciements">16. Thanks</A><BR>
+<BR>
+
+<H2><A NAME="Introduction"></A>1. Introduction</H2>
+<P>Teo is a TO8 emulator for Personal Computers. It tries to mimic <EM>as closely as possible</EM> the behavior of an other computer on the PC. Teo only emulates the <EM>hardware</EM> part of a TO8: The Motorola MC6809E micro-processor, the memory banks, the video system, and the following peripheral devices: mouse, light-pen, joysticks, tape player, floppy drives and dot-matrix printer. The operating system that drives everything is not included. Therefore you'll have to use a copy of the ROMs coming out of a real TO8 machine to run Teo.</P>
+
+
+<H2><A NAME="Installation"></A>2. Installation</H2>
+<P>To run the emulator, you need at least a 80386 with 2MB of RAM, a VGA card, and MSDOS version 5.0 or greater or Windows version 3.1 or greater (Windows 95/98/Me). A Sound Blaster compatible sound-card is necessary to emulate sound.</P>
+<P>To install the emulator, you just have to unzip <KBD>teo-1.8.0-dosexe.zip</KBD> and <KBD>teo-rom.zip</KBD> into the same folder. The executable will be <KBD>teo.exe</KBD>.</P>
+<P>The file <KBD>cwsdpmi.exe</KBD> is only useful for running in protected mode under MSDOS. If TEO is only started from windows, that file can be removed.</P>
+
+
+<H2><A NAME="Lancement"></A>3. Lauching</H2>
+<P>When the program is stated, headers and initialization messages are printed, then the user is asked to choose a graphic mode if it hasn't been specified on the command-line. Then the emulation starts.</P>
+<P>TEO accepts the following parameters on the command line:</P>
+<TABLE BORDER="0" SUMMARY="options">
+<TR><TD><KBD>[-help]</KBD></TD><TD>Prints on-line help</TD></TR>
+<TR><TD><KBD>[-m file.m7]</KBD></TD><TD>uses file.m7 as ROM cartridge</TD></TR>
+<TR><TD><KBD>[-fast]</KBD></TD><TD>runs the emulator at full-speed</TD></TR>
+<TR><TD><KBD>[-nosound]</KBD></TD><TD>disables sound emulation</TD></TR>
+<TR><TD><KBD>[-nojoy]</KBD></TD><TD>do not use native PC joysticks</TD></TR>
+<TR><TD><KBD>[-mode40]</KBD></TD><TD>starts the emulator in 40 columns, 16 colors and full-screen mode</TD></TR>
+<TR><TD><KBD>[-mode80]</KBD></TD><TD>starts the emulator in 80 columns, 16 colors and full-screen mode</TD></TR>
+<TR><TD><KBD>[-truecolor]</KBD></TD><TD>starts the emulator in 80 columns, 4096 colors and full-screen mode</TD></TR>
+<TR><TD><KBD>[-loadstate]</KBD></TD><TD>load the last saved emulator state</TD></TR>
+<TR><TD><KBD>[-interlaced]</KBD></TD><TD>use an interlaced display mode</TD></TR>
+</TABLE>
+<P>Please note that you can also load the last saved emulator state by pressing the left or right CTRL key while choosing the graphic mode.</P>
+
+
+<H2><A NAME="Modes_graphiques"></A>4. Graphic modes</H2>
+<P>Teo can use three different graphic modes:</P>
+<UL>
+<LI>the 40 columns, 16 colors mode (option <KBD>-mode40</KBD>) uses a 320x200x8 VGA mode that is available on any PC graphic board. The display is quite fast and fairly adapted to games and most applications,</LI>
+<LI>the 80 columns, 16 colors mode (option <KBD>-mode80</KBD>) uses a 640x400x8 VESA mode. That graphical mode is slower than the previous one, but might be necessary to run applications that requires a 80 columns display,</LI>
+<LI>the 80 columns, 4096 colors mode (option <KBD>-truecolor</KBD>) uses a 640x400x16 VESA mode. That mode is quite slow, but allows to reproduce as accurately as possible dynamic palette changes that can't be properly rendered using other graphic modes.</LI>
+</UL>
+<P>If VESA modes aren't available on your graphic board, you can use the utility SciTech Display Doctor (previously known as UniVBE) from <A HREF="http://www.scitechsoft.com">SciTech Software</A> to help correcting the problem.</P>
+<P>All TO8 graphical modes are correctly emulated except the 80 columns mode with <KBD>-mode40</KBD>.</P>
+<P>If no graphic option occur on the command-line, a graphical menu will ask you to choose the graphic mode to use.</P>
+
+
+<H2><A NAME="Clavier"></A>5. Keyboard</H2>
+<P>The TO8 keyboard is fully emulated, including CNT and ACC combinations.</P>
+<P>The emulation precisely maps the AZERTY layout onto the TO8 layout. Therefore a key pressed on a French keyboard should display the same character in the emulator, provided the same key exist on the TO8 keyboard. Both SHIFT and ALTGR keys act natively.</P>
+<P>The STOP key maps to TAB in the PC, CNT maps to the left CTRL key, CAPSLOCK maps to CAPSLOCK (the CAPSLOCK led is emulated), ACC maps to ALT, HOME maps to HOME, the four arrow keys map to the arrow keys, INS maps to INSERT, EFF maps to DEL. Note that DEL (=SHIFT+EFF) maps to BACKSPACE.</P>
+<P>The ten function keys are mapped to F1-F10 but it is possible to get F6 by pressing SHIFT+F1.</P>
+<P>The NUMLOCK key activates the joystick emulation using the keyboard (NUMLOCK led is off). This is detailed in the next section.</P>
+
+
+<H2><A NAME="Manettes"></A>6. Joystick</H2>
+<P>Teo uses available PC joysticks to emulate both TO8 joysticks. When there aren't enough PC joysticks, the missing joystick(s) is (are) emulated using the keyboard.</P>
+<P>When the joystick mode is active (NUMLOCK led is off), the PC keypad is no more mapped onto the TO8 keypad, but emulates the eight directions of the first missing PC joystick. The fire button is mapped to the right CTRL.</P>
+<P>When there is no joytick connected to the PC, the left part of the French keyboard (AZE, QSD, WXC) emulates joystick #1 while still sending characters to the TO8. (This makes use of the full TO8 keyboard and joystick #0 possible). The Fire button of joystick #1 is mapped onto left CTRL.</P>
+<P>Just like with a real joystick, only one direction is supported at a time. This is the one provided by the last pressed key.</P>
+
+
+<H2><A NAME="Souris"></A>7. Mouse</H2>
+<P>On a real TO8, the mouse is connected to joystick port #0. Hence both devices cannot be used at the same time.</P>
+<P>On the emulated TO8, both devices can work together and the mouse is the default pointing device at boot time.</P>
+<P>Both buttons of the mouse are mapped onto the left and right button a the PC mouse.</P>
+
+
+<H2><A NAME="Crayon_optique"></A>8. Lightpen</H2>
+<P>Why would the light-pen be specifically emulated when the mouse acts the same even for Basic 1.0? The reason is twofold:</P>
+<UL>
+<LI>The light-pen is, for a thomson-fanatic, an untouchable feature that directly comes from the sacred era where TO7 and others were the glory of French computers.</LI>
+<LI>More usefully, many programs written for the TO7 or TO7-70 that use the light-pen do not display a cursor indicating the position of the pen on the screen. Therefore they are unusable with a mouse.</LI>
+</UL>
+<P>The light-pen can be selected in the "Commands and Settings" menu of the TO8. It is emulated using the PC mouse, the left mouse button being the light-pen button. The right mouse button toggles the display of the light-pen cursor on and off.</P>
+
+
+<H2><A NAME="Generateur_sonore"></A>9. Sound generator</H2>
+<P>The TO8 sound is emulated using the sound-card of the PC. Both the 1-bit (TO7) and the 6-bits (Music and games interface) generators are emulated.</P>
+<P>Any compatible SoundBlaster card is supported, as well as few other cards (Ensoniq Soundscape, ESS AudioDrive et Windows Sound System).</P>
+<P>The <A HREF="#Panneau_de_controle">control panel</A> allows changing the volume of the sound generator.</P>
+
+
+<H2><A NAME="Supports_amovibles"></A>10. Removable read/write media</H2>
+<P>Teo can handle three types of removable read/write media: ROM cartridges, analogical tapes, and 3"5 thomson floppies. Each media is "virtualized" through files, respectively: Memo7 files with extension .m7, K7 files with extension .k7 and SAP files with extension .sap.</P>
+<P>See the <A HREF="#Panneau_de_controle">control panel</A> to get the use of these files within the emulator.</P>
+
+
+<H2><A NAME="Imprimante_matricielle"></A>11. Dot-matrix printer</H2>
+<P>Teo is able to emulate the Thomson dot-matrix printer PR 90-612 which can print both text and graphics.</P>
+<P>In this version, text is limited to raw text which produces ASCII files named as <KBD>sheetxxx.txt</KBD>.</P>
+<P>Similarily, graphics is limited to the SCREENPRINT 320x200 mode which produce black and white BMP files named as <KBD>pictxxx.bmp</KBD>.</P>
+<P>See the <A HREF="#Panneau_de_controle">control panel</A> for a description of the dot-matrix printer control interface.</P>
+
+
+<H2><A NAME="Panneau_de_controle"></A>12. Control panel</H2>
+<P>Pressing the [ESC] key on the PC halts the emulation and opens the control panel.</P>
+<CENTER><IMG SRC="images/teo_d1en.gif" WIDTH="320" HEIGHT="200" ALT="Control panel"></CENTER>
+<P>This menu allow communicating with the emulator and give access to peripheral devices of the TO8 (cartridge slot, tape recorder, floppy drives and dot-matrix printer).</P>
+
+<blockquote>
+
+<H3>Commands and Settings</H3>
+<CENTER><IMG SRC="images/teo_d2en.gif" WIDTH="320" HEIGHT="200" ALT="Commandes et R&eacute;glages"></CENTER>
+<P>Use the first two buttons with care:</P>
+<UL>
+<LI>TO8 warm reset: acts as pressing the Reset button of the TO8 (located on the right side of the machine). As on a real TO8, this might not be enough to get out of a crash.</LI>
+<LI>TO8 cold reset: more aggressive, this is just like switching the TO8 off and on. Normally nothing should resist, but all data in RAM will be lost.</LI>
+</UL>
+<P>The speed option allow tuning the speed of the emulation:</P>
+<UL>
+<LI>Exact speed: Fixes the speed of the MC6809E to 1Mhz exactly. This is the normal value which is the mode to use when playing games or sounds.</LI>
+<LI>Fast speed: Emulates the MC6809E at the maximum speed that the PC allows (for instance, a Pentium 200 gives a MC6809E running at 10Mhz). This can be used for utility tools, or to have access to a boosted TO8 which is valuable. However the sound is then deactivated.</LI>
+</UL>
+<P>The sound volume can be managed by a slider.</P>
+<P>The interlaced mode emulates CRTs by displaying only half the lines for each frame (even lines, then odd lines). This reduces the flickering effect that happens when rapid screen changes occur (see for instance the TruC demos by PULS).</P>
+<P>Last, it is possible to save and load "images" that contain the state of the emulator at a time. These images are somehow snapshots of a running TO8 and allow the emulator to restart in a previously saved state. However, as the image only contains the internal state of the emulator, external peripheral devices (floppy drives, etc) are not handled.</P>
+
+
+<H3>Cartridge slot</H3>
+<CENTER><IMG SRC="images/teo_d3en.gif" WIDTH="320" HEIGHT="200" ALT="Lecteur de cartouches"></CENTER>
+<P>This menu allows choosing a M&eacute;mo7 file (extension .m7) and loads it as a cartridge (button "..."). The label of the cartridge appears in the left zone. Please note that Teo will then do a cold-reset of the TO8 in order for the cartridge to appear in the boot screen of the TO8.</P>
+<P>To ease the selection of files, you are advised to put all M&eacute;mo7 files under the <KBD>memo7</KBD> sub-folder.</P>
+
+
+<H3>Tape recorder</H3>
+<CENTER><IMG SRC="images/teo_d4en.gif" WIDTH="320" HEIGHT="200" ALT="Lecteur de cassettes"></CENTER>
+<P>Here you can not only select a K7 file (extension .k7) which will act as a tape (button "..."), but also choose to protect it against write access ("prot." field). You can also change the position on the tape (numerical field "Counter" and "+" or "-" buttons), and even rewind it completely (button "Rewind"). Be careful: any write-access change will automatically rewind the tape.</P>
+<P>Here again, you are advised to put all your K7 files under the <KBD>k7</KBD> sub-folder in the emulator directory to ease file selection.</P>
+
+
+<H3>Disk drives</H3>
+<CENTER><IMG SRC="images/teo_d5en.gif" WIDTH="320" HEIGHT="200" ALT="Lecteurs de disquettes"></CENTER>
+<P>This menu allows choosing a SAP file (extension .sap) and uses it as a read/write virtual disk by the emulator (button "..."). These files are images of physical Thomson disks which are created by a specific utility tool called SAP. They must reside on the hard drive of the PC, preferably in the <KBD>disks</KBD> sub-folder in the emulator directory.</P>
+<P>Drives 0: and 1: maps to the two faces of the first physical floppy drive of a real TO8. Drives 2: and 3: will be mapped to both faces of the second drive.</P>
+<P>It is possible to write-protect any of these drives independently (field "prot.").</P>
+<P>The "Direct access" button allows <A HREF="#Acces_direct">direct access</A> to a physical 3"5 floppy disk (720kb, TO8 format) inserted in the 3"5 floppy drive of the PC.</P>
+<P>Please note that a green led will appear in the right upper side of the screen when a disk access occurs.</P>
+
+
+<H3>Dot-matrix printer</H3>
+<CENTER><IMG SRC="images/teo_d6en.gif" WIDTH="320" HEIGHT="200" ALT="Imprimante matricielle"></CENTER>
+<P>This menu allows tuning the PR 90-612 dot-matrix printer connected on the Centronics port of the TO8.</P>
+<P>The "Graphical output" option switches on and off the ability to print graphical data into black and white BMP files.</P>
+<P>Other menu items represents the native interface of the PR 90-612 printer:</P>
+<P>Lights:</P>
+<UL>
+<LI>When the light "NLQ/Failure" is fully on, this indicates that the printer is in a high-quality text mode. When half highlighted, it indicates that a problem with the printer occurred (not used in this version).</LI>
+<LI>The "On" light tells that the printer is switched on.</LI>
+<LI>The "On-Line" lights indicates that the printer is ready to receive data from the central unit.</LI>
+</UL>
+<P>Command buttons:</P>
+<UL>
+<LI>The "On-Line" button, switches data reception state on/off. It is directly connected to the "On-Line" light.</LI>
+<LI>The "Line Feed" button terminates the current line of text (or outputs a new line if no current line exists). It only works when the printer is in the "Off-Line" mode (light "On-Line" is off).</LI>
+<LI>The "Form Feed" button activates/deactivates the hight quality text mode when the printer is On-Line (light "On-Line" is on). When "Off-line", this button finishes the current text page.</LI>
+</UL>
+
+</blockquote>
+
+<H2><A NAME="Acces_direct"></A>13. Direct access to floppy drives</H2>
+<P>The normal way to deal with disks with Teo is, just like with other devices, "virtualization": floppy disks are represented by SAP files (extension .sap) and all access to the floppy (reading or writing) is just done on these files. This leads to a great flexibility and protection of the original TO8 floppy disks.</P>
+<P>However, since the 3"5 floppy-drive standard remained the same since the very first TO8, it is possible for any PC to physically read and write TO8 3"5 floppy disks. The floppy menu form the <A HREF="#Panneau_de_controle">control pannel</A> allow TEO to directly access side #0 of any available 3"5 floppy drives present on the PC.</P>
+<P>Without explicit choice from the user, in order to protect the original Thomson floppies, only direct <EM>reading</EM> is enabled: the write-protection field of a direct-access floppy drive remains active. It is still possible to authorize direct writes (and therefore direct formatting of 3"5 - 720Kb thomson floppy disks) by starting Teo with the option <KBD>--enable-direct-write</KBD> (this option is intentionally not shown in the on-line help). It is <B>strongly recommended</B> not to use direct writes on original Thomson floppies: the TO format is not a native PC format, and remaining incompatibilities could lead to <B>great</B> damages on data integrity. Use direct writes only on <B>copies</B>, possibly made using Teo itself.</P>
+<P>Please note that the floppy format used by Thomson is 3"5 Double Sided Double Density (720 KB - 2DD), but it is possible to use a 3"5 Double Sided High Density  disk (1.44 MB - 2HD) by concealing a simple piece of tape on the right notch of the disk.</P>
+
+
+<H2><A NAME="Commandes_diverses"></A>14. Miscellaneous commands</H2>
+<UL>
+<LI>[F11] will capture the screen and save it in the Teo folder as a BMP file.</LI>
+<LI>[F12] will display the the debugger and the memory manager (advanced users only).</LI>
+</UL>
+
+
+<H2><A NAME="Limitations_et_bugs"></A>15. Limitations and bugs</H2>
+<P>Technical reasons imply that 16 colors modes can imperfectly emulate dynamical palette changes. For the same reason, the screen border is not emulated with 80 columns graphics mode.</P>
+<P>Direct access to floppy might not work well for writing under Windows 95, 98 or Me (specifically if an anti-virus software runs in background). It is then necessary to reboot the PC and open a pure MS-DOS session.</P>
+<P>Please use this <A HREF="mailto:ebotcazou_at_libertysurf_Dot-matrix_fr">mail</A> address to send any remarks, suggestions and bug reports (if any).</P>
+
+
+<H2><A NAME="Remerciements"></A>16. Thanks</H2>
+<UL>
+<LI><A HREF="http://www.sylvain-huet.com">Sylvain Huet</A> who wrote the core of the emulator,</LI>
+<LI><A HREF="http://alleg.sourceforge.net">Shawn Hargreaves</A> and friends for the wonderful Allegro library,</LI>
+<LI><A HREF="http://www.delorie.com">DJ Delorie</A> and friends for the indispensable DJGPP,</LI>
+<LI>as well as to all others that reported bugs or suggested improvements to Teo.</LI>
+</UL>
+
+<HR>
+<TABLE WIDTH="100%" SUMMARY="pied de page">
+<TR>
+<TD ALIGN="LEFT"><SMALL>Copyright &copy; 1999-2011 Eric Botcazou <A HREF="mailto:ebotcazou_at_libertysurf_dot_fr">(ebotcazou at libertysurf dot fr)</A><BR>
+Discuss of Teo on <A HREF="http://www.logicielsmoto.com/forumframe.php">LogicielsMoto's forum</A><BR>
+Translated by Samuel Devulder<BR>
+Last change: Saturday, August 13th, 2011</SMALL></TD>
+<TD ALIGN="RIGHT">
+<TABLE SUMMARY="Teo Home Page">
+<TR>
+<TD>Teo Home Page</TD>
+<TD><A HREF="http://nostalgies.thomsonistes.org/teo_home.html"> <IMG SRC="images/home.gif" WIDTH="32" HEIGHT="32" ALT="Teo Home Page"></A></TD>
+</TR>
+</TABLE>
+</TD></TR></TABLE>
+</TD></TR></TABLE>
+</BODY>
+</HTML>
+

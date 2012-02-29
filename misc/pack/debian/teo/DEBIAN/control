@@ -1,0 +1,23 @@
+Package: teo
+Version: 1.8.0
+Architecture: i386
+Section: base
+Priority: optional
+Maintainer: Gilles Fétis <gilles504@gmail.com>
+Homepage: http://nostalgies.thomsonistes.org/teo_home.html
+Description: Teo, a thomson TO8D microcomputer emulator
+ Teo is an emulator of the Thomson TO8 microcomputer for PC, running on MSDOS,
+ Windows and Linux.
+ .
+ The compatibility is close to 100% for softwares which don't use non
+ emulated peripherals and don't hold physical protections. In other words,
+ if a software doesn't work on Teo, so probably :
+ 1. it needs the presence of another peripheral than mouse, light-pen,
+    joystick, tape recorder and disks (so it won't run as long as this
+    peripheral is not emulated),
+ 2. its physical protection makes it fail.
+ .
+ Because of copyright reasons, the ROMs of the TO8 needed for a good working
+ order of Teo are not included, you then have now to install 'teo-rom.deb'.
+ .
+ 

@@ -1,0 +1,209 @@
+/*
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *
+ *                  L'émulateur Thomson TO8
+ *
+ *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ *  Module     : win/dialog.rc
+ *  Version    : 1.8.0
+ *  Créé par   : Eric Botcazou 14/09/2000
+ *  Modifié par: Eric Botcazou 26/10/2003
+ *               François Mouret 27/09/2006 26/01/2010 10/08/2011
+ *
+ *  Définition des boîtes de dialogue.
+ */
+
+
+#ifndef SCAN_DEPEND
+   #include <windows.h>
+   #include <commctrl.h>
+#endif
+
+#include "win/dialog.rh"
+#include "to8.h"
+
+
+thomson_ico ICON   "src/win/thomson.ico"
+thomson_bmp BITMAP "src/win/thomson.bmp"
+panel_bmp BITMAP "src/win/panel.bmp"
+to8_bmp BITMAP     "src/win/to8.bmp"
+
+
+
+1 VERSIONINFO 
+FILEVERSION 1, 8, 0, 0
+PRODUCTVERSION 1, 8, 0, 0
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040C04E4"
+        {
+            VALUE "Comments", "Voir le fichier LICENCE.TXT pour les conditions "\
+                              "de distribution et le fichier README.TXT pour "\
+                              "les remarques générales sur l'utilisation du logiciel."
+            VALUE "CompanyName", "Teo Developers: Gilles Fétis, Eric Botcazou, "\
+                                 "Alexandre Pukall, Jérémie Guillaume, François Mouret, "\
+                                 "Samuel Devulder."
+            VALUE "FileDescription", "Teo - l'émulateur TO8"
+            VALUE "FileVersion", TO8_VERSION_STR
+            VALUE "InternalName", "TEOW.EXE"
+            VALUE "LegalCopyright", "Copyright © 1997-2011 Teo Developers"
+            VALUE "OriginalFilename", "TEOW.EXE"
+            VALUE "ProductName", "Teo"
+            VALUE "ProductVersion", TO8_VERSION_STR
+        }
+    }
+
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x040C, 1252
+    }
+}
+
+
+
+START_DIALOG DIALOGEX 0, 0, 264, 202
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    DEFPUSHBUTTON   "&OK", IDOK, 216, 180, 40, 14, WS_GROUP | WS_TABSTOP
+    CONTROL         "to8_bmp", -1, "static", SS_BITMAP, 8, 8, 80, 280
+    LTEXT           "", START_LTEXT, 70, 8, 186, 80
+    GROUPBOX        "", GFXMODE_GROUP, 70, 90, 186, 82
+    AUTORADIOBUTTON "", MODE40_BUTTON, 82, 105, 160, 10, WS_GROUP
+    AUTORADIOBUTTON "", MODE80_BUTTON, 82, 121, 160, 10
+    AUTORADIOBUTTON "", TRUECOLOR_BUTTON, 82, 137, 160, 10
+    AUTORADIOBUTTON "", WINDOWED_BUTTON, 82, 153, 160, 10
+}
+
+
+
+CONTROL_DIALOG DIALOGEX 0, 0, 214, 202
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    PUSHBUTTON      "&OK", IDOK, 166, 182, 40, 14, WS_GROUP | WS_TABSTOP
+    PUSHBUTTON      "", QUIT_BUTTON, 116, 182, 40, 14 
+    CONTROL         "panel_bmp", -1, "static", SS_BITMAP, 0, 0, 320, 64
+    PUSHBUTTON      "", RESET_BUTTON, 8, 44, 198, 14, WS_GROUP | WS_TABSTOP
+    PUSHBUTTON      "", COLDRESET_BUTTON, 8, 62, 198, 14
+    CONTROL         "Tab1", CONTROL_TAB, "SysTabControl32", WS_TABSTOP, 8, 80, 198, 96
+    PUSHBUTTON      "", ABOUT_BUTTON, 8, 182, 40, 14
+}
+
+
+SETTING_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "", SPEED_LTEXT, 34, 11, 38, 12
+    AUTORADIOBUTTON "", EXACT_SPEED_BUTTON, 70, 10, 36, 12
+    AUTORADIOBUTTON "", MAX_SPEED_BUTTON, 116, 10, 49, 12
+    AUTOCHECKBOX    "", INTERLACED_CHECK, 60, 24, 80, 14
+    LTEXT           "", VOLUME_LTEXT, 30, 42, 61, 12
+    CONTROL         "", VOLUME_BAR, TRACKBAR_CLASSA, TBS_HORZ | TBS_BOTTOM | TBS_AUTOTICKS, 86, 42, 72, 12
+    LTEXT           "", IMAGE_GROUP, 16, 60, 56, 44
+    PUSHBUTTON      "", LOAD_BUTTON, 50, 58, 60, 14
+    PUSHBUTTON      "", SAVE_BUTTON, 116, 58, 60, 14
+}
+
+
+MEMO7_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "m7", -1, 10, 12, 12, 14
+    COMBOBOX        MEMO7_COMBO, 24, 10, 128, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    PUSHBUTTON      "...", MEMO7_MORE_BUTTON, 160, 10, 14, 13
+}
+
+
+K7_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "k7", -1, 10, 12, 12, 14
+    COMBOBOX        K7_COMBO, 24, 10, 104, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    PUSHBUTTON      "...", K7_MORE_BUTTON, 136, 10, 14, 13
+    AUTOCHECKBOX    "prot.", K7_PROT_CHECK, 156, 12, 50, 10
+    LTEXT           "", K7_COUNTER_LTEXT, 10, 28, 40, 14
+    EDITTEXT        K7_COUNTER_EDIT, 52, 26, 30, 12, ES_NUMBER | ES_RIGHT
+    /* Ne pas utiliser UDS_SETBUDDYINT car il envoie un message EN_CHANGE avant
+       le message WM_INITDIALOG du dialogue.  */
+    CONTROL         "", K7_UPDOWN, UPDOWN_CLASSA, UDS_AUTOBUDDY | UDS_ALIGNRIGHT, 52, 26, 45, 14
+    PUSHBUTTON      "", K7_REWIND_BUTTON, 90, 26, 72, 14
+}
+
+
+DISK_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "0:", -1, 10, 12, 12, 14
+    LTEXT           "1:", -1, 10, 28, 12, 14
+    LTEXT           "2:", -1, 10, 44, 12, 14
+    LTEXT           "3:", -1, 10, 60, 12, 14
+    COMBOBOX        DISK0_COMBO, 20, 10, 112, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK1_COMBO, 20, 26, 112, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK2_COMBO, 20, 42, 112, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK3_COMBO, 20, 58, 112, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    PUSHBUTTON      "...", DISK0_MORE_BUTTON, 136, 10, 14, 13
+    PUSHBUTTON      "...", DISK1_MORE_BUTTON, 136, 26, 14, 13
+    PUSHBUTTON      "...", DISK2_MORE_BUTTON, 136, 42, 14, 13
+    PUSHBUTTON      "...", DISK3_MORE_BUTTON, 136, 58, 14, 13
+    AUTOCHECKBOX    "prot.", DISK0_PROT_CHECK, 156, 12, 50, 10
+    AUTOCHECKBOX    "prot.", DISK1_PROT_CHECK, 156, 28, 50, 10
+    AUTOCHECKBOX    "prot.", DISK2_PROT_CHECK, 156, 44, 50, 10
+    AUTOCHECKBOX    "prot.", DISK3_PROT_CHECK, 156, 60, 50, 10
+}
+
+
+ABOUT_DIALOG DIALOGEX 0, 0, 364, 236
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    PUSHBUTTON      "&OK", IDOK, 166, 216, 40, 14, WS_GROUP | WS_TABSTOP
+    CONTROL         "panel_bmp", -1, "static", SS_BITMAP, 0, 0, 420, 64
+    CTEXT           "Teo (Windows/DirectX) Version "\
+                    TO8_VERSION_STR, ABOUT_CTEXT_TITLE, 8, 44, 348, 24
+    CTEXT           "Copyright © 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall, "\
+                    "Jérémie Guillaume, François Mouret, Samuel Devulder", ABOUT_CTEXT_COPYRIGHT, 8, 68, 348, 24
+    CONTROL         "", ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 8, 92, 348, 16
+    EDITTEXT        ABOUT_EDIT_LICENSE, 8, 110, 348, 100, WS_GROUP | WS_TABSTOP | ES_READONLY | ES_MULTILINE | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL | ES_AUTOHSCROLL
+}
+
+

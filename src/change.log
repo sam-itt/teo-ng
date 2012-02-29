@@ -1,0 +1,710 @@
+========================================================================
+=== De la version 1.7.6 à la version 1.8.0 (Juillet 2011)            ===
+========================================================================
+- sous Linux : libellés des menus en EN/FR (basé sur variable
+  d'environnement LANG)
+- linux/udebug.c linux/udebug2.c : ajout du debugger gtk
+- sous Linux : corrections sur la mise en avant des fenêtres de menu gtk
+- création du fichier linux/ustate.c
+- linux/umain.c: introduction de l'option '-loadstate'
+- linux/main.h: le define FILENAME_LENGTH était redéfini
+- linux/ugui.c: les GtkEntry de cartouche, cassette et disquette sont
+          initialisées d'après le fichier de configuration
+- to8.h: transfert de la définition TEO_CONFIG_FILE du fichier
+          alleg/main.h
+          ajout de la fonction to8_VirtualSetDrive()
+- alleg/state.c: la valeur de la clef 'speed' en sortie ("true")
+          ne correspondait pas au test en entrée ("fast")
+- to8.c: ajustement pour la récupération du nom de memo7 (le nom
+          s'arrête généralement au caractère 0x04)
+- linux/udisplay.c: code KeySym du AltGr changé de "XK_Mode_switch" en
+          "XK_ISO_Level3_Shift" pour les nouvelles versions de Ubuntu au
+          moins à partir de la 8.04 : le dièse, les crochets, les
+          accolades, l'arobase, etc... sont à nouveau accessibles par
+          AltGr
+          window_win passe en global
+          création de la variable atomDeleteScreen
+          sortie "propre" de Teo par le gadget de fermeture en capturant
+          le signal et en positionnant teo.command à QUIT (plus de
+          FATAL ERROR de X11)
+          création d'une fenêtre GTK pour l'écran de l'émulateur
+- thomson.xpm:  passage de la couleur de fond du logo en canal alpha
+- linux/umessage.c: passage de message_get_type() en static
+- linux/uquestion.c: passage de question_get_type() en static
+- test du retour de 'fread' et 'write' pour disk.c, image.c,
+          linux/usound.c, to8.c
+- makefile.lnx : remplacement de l'option '-mcpu' (deprecated) par
+          '-mtune'
+- problème de signes dans les passages de paramètres dans umain.c,
+          to8.c, linux/ugraphic.c, mc68xx/mc6809.c
+- Ajout du panneau "A propos"
+- linux/main.c: variable 'frame' déclarée en même temps en static dans 
+          le programme et en extern dans include/linux/main.h
+
+========================================================================
+=== De la version 1.7.5 à la version 1.7.6 (Septembre-Novembre 2006) ===
+========================================================================
+- defs.h: nouvelle constante FULL_LINE_CYCLES
+- disk.c: remplacement de STORE_BYTE par StoreByte lors d'un chargement
+          de secteur disquette par le moniteur (plus d'écrasement de la
+          mémoire morte)
+- hardware.c: nouvelle variable globale screen_clock
+              StoreByte est maintenant global
+              ajustement plus sélectif pour Bob Morane SF (la commutation
+              de l'espace cartouche ne réagissait plus correctement)
+              traitement de l'affichage de la date par code trap
+              rectification de la limite basse pour LoadWord
+              modification de la valeur lue pour $E7E5
+              ajustement plus fin de la valeur lue pour $E7E7
+- to8.c: installation des vecteurs de trap pour la date
+         initialisation à 1 du bit 7 du PRC du PIA 6846
+- mc68xx/mc6809.c: pré-incrément de cpu_clock pour puls et pulu, pour
+                   ajustement correct de la valeur retournée par $E7E7
+- linux/ufilentry.c, ugui.c, umessage.c, uquestion.c: portage sur GTK+ 2.x
+- win/wgui.c: rafraîchissment des 4 sélecteurs de disquette
+
+=======================================================================
+=== De la version 1.7.4 à la version 1.7.5 (Novembre-Décembre 2003) ===
+=======================================================================
+- doc/*.htm: corrections mineures et mise à jour des liens
+
+TODO:
+- mode plein écran via Allegro pour la version Linux
+- émuler au choix le TO8/TO8D
+
+=======================================================================
+=== De la version 1.7 à la version 1.7.4 (Oct. 2001-Novembre 2003)  ===
+=======================================================================
+- makefile.*: gestion de UNIX_TOOLS
+- makefile.dj: ajout d'un filter-out pour alleg/amode40.c
+- makefile.lnx: ajout de -W à WFLAGS
+- misc/fixver.sh: prise en compte de src/readme.txt
+                  initialisation de TMPDIR
+
+- compilation avec Allegro 4.0.3
+
+- disk.c: affichage de tous les secteurs lus et écrits en mode DEBUG
+- disk.h: correction d'une erreur avec CPP >= 2.96
+- hardware.c: utilisation d'un #ifdef pour LEP_Motor
+- k7.c: suppression de to8_RewindK7
+        ajout de to8_GetK7Counter et to8_SetK7Counter
+- to8.c: nouveau flag de redémarrage à froid (Prehisto)
+- alleg/agui.c: utilisation de constantes du préprocesseur
+                effacement de #include <dir.h>
+                suppression d'un label 'default'
+                support de la lecture directe pour multiples lecteurs
+                ajout du compteur du lecteur de cassettes
+                ajout de la gestion des images
+- alleg/amode40.c, amode80.c, astate.c, atruecol.c: ajout de #include <string.h>
+- dos/ddebug.c: support des points d'arrêt
+                suppression de la fonction ftrace
+- linux/udisk.c: support de multiples lecteurs
+                 synchronisation avec sap2
+- linux/udisplay.c, ugraphic.c, usound.c: utilisation de stderr au lieu
+                                          de stdout en mode DEBUG
+- linux/udisplay.[ch]: nouveau prototype pour InitDisplay()
+- linux/ufilentry.c, umessage.c, uquestion.c: modification d'un
+                     initialiseur de structure pour GTK+ 1.2.x
+- linux/ugraphic.c: ajout de #include <string.h>
+- linux/ugui.c: marquage de deux variables non utilisées
+                support de la lecture directe pour multiples lecteurs
+                ajout du compteur du lecteur de cassettes
+- linux/umain.c: correction pour le nouveau prototype de InitDisplay()
+                 ??? sélection de la locale fr_FR
+- mc68xx/mc6809.c: passage en prototypes ANSI C
+- win/wdialog.rc, wgui.c: ajout du compteur du lecteur de cassettes
+                          ajout de la gestion des images
+- win/wmain.c: ajout d'un 'int' manquant
+- win/wmode40.c: transformation en alleg/amode40.c
+
+=======================================================================
+=== De la version 1.6 à la version 1.7 (Mai-Septembre 2001)         ===
+=======================================================================
+- fixdjgpp.bat, fixunix.sh: option --quick
+
+- makefiles: compilation avec -funroll-loops
+             remplacement de -m par -mcpu=
+- makefile.mgw: remplacement de -mwindows par -Wl,--subsystem,windows
+- makefile.lnx: utilisation de kgcc comme compilateur
+
+- misc/fixver.sh, fixtime.sh: helper scripts pour la maintenance
+
+- propagation de #ifndef SCAN_DEPEND à tous les fichiers sources
+- réorganisation des entêtes de fonctions
+
+- to8.h: changement de la valeur de TO8_PALETTE en un 'char'
+         TO8_VERSION devient TO8_VERSION_STR
+- main.h: suppression du fichier
+- disk.c: nouvelle fonction to8_GetDiskFilename()
+- hardware.c: retour à la version 1.3 de l'émulation sonore
+- k7.c: nouvelle fonction to8_GetK7Filename()
+- keyboard.c: correction d'un bug lors de la répétition des touches
+- to8.c: nouvelle fonction to8_GetMemo7Filename()
+
+- compilation avec Allegro 3.9.38 WIP
+- alleg/state.c: nouveau module de chargement/sauvegarde de l'état de
+                 l'émulateur
+- alleg/main.h: nouveau fichier entête
+- alleg/agui.c: utilisation des fonctions to8_Get*Filename()
+- alleg/amode80.c, atruecol.c: mise à zéro initiale du tampon écran
+- alleg/asound.c: pas de compensation de volume
+                  test du streaming obligatoire
+
+- dos/ddisk.c: restauration des paramètres originaux du lecteur PC
+- dos/dkeybint.c: remplacement de key_shifts par _key_shifts
+- dos/dmain.c: affichage du tampon écran au démarrage
+               option chargement/sauvegarde de l'état de l'émulateur
+               support des pilotes graphiques VESA3 and VBEAF
+               autodétection du pilote graphique en mode 80 colonnes
+               plus d'attente au démarrage si option de mode graphique
+- dos/dvga.c: mise à zéro initiale du tampon écran
+
+- win/wdialog.rc: ajout d'une feuille d'informations sur le programme
+- win/wgui.c: modification de l'initialisation des sélecteurs de fichiers
+              retour de l'état de CTRL par SelectGraphicMode()
+              utilisation des fonctions to8_Get*Filename()
+- win/wkeybint.c: remplacement de key_shifts par _key_shifts
+- win/wmain.c: affichage du tampon écran au démarrage
+               option chargement/sauvegarde de l'état de l'émulateur
+               autodétection du pilote graphique
+- win/wmode40.c: mise à zéro initiale du tampon écran
+
+- linux/main.h: nouveau fichier entête
+- linux/udisk.c: fermeture du descripteur de fichiers en sortie
+
+=======================================================================
+=== De la version 1.5 à la version 1.6 (Mars-Mai 2001)              ===
+=======================================================================
+- printer.c: support de l'imprimante matricielle PR 90-612
+
+- compilation avec Allegro 3.9.36 WIP
+- alleg/agui.c: nouveau menu pour l'imprimante
+- alleg/ajoyint.c: mise à jour différentielle de la position des joysticks
+
+- dos/dmain.c: option de désactivation des joysticks (-nojoy)
+
+- win/wkeybint.c: suppression du test bas-niveau de l'état du clavier
+- win/wmain.c: option de désactivation des joysticks (-nojoy)
+               mise en place du titre avec set_window_title()
+- makefile.mgw: keyboard.c n'est plus compilé avec TO8_DOUBLE_CAPSLOCK
+                make depend ne repose plus sur DJGPP
+
+- linux/ugui.c: nouvel onglet pour l'imprimante (désactivé)
+- linux/thomson.xpm: nouveau pixmap repris de la version Windows
+
+=======================================================================
+=== De la version 1.4 à la version 1.5 (Décembre 2000-Mars 2001)    ===
+=======================================================================
+- mc68xx/mc6821.c: version 4.0 de l'émulation
+- to8.c, to8.h: nouveau prototype pour DirectReadSector() et 
+                DirectWriteSector()
+                nouvelle initialisation des deux PIA 6821
+                nouvelle API joystick
+- to8keys.h: synchronisation avec Allegro 3.9.35 (CVS)
+- disk.c: correction d'un buffer overflow potentiel sous MSDOS
+          prise en compte des nouveaux prototypes
+- hardware.c: mise à jour de l'émulation des PIA 6821
+              recentrage de la sortie sonore sur la valeur 0x80
+- image.c: nouveau format v1.1 correspondant à mc68xx/mc6821.c v4.0
+- joystick.c: module séparé d'émulation des joysticks
+- keyboard.c: correction d'un bug clavier remontant à la version 1.0.96
+              (apparu dans Eliminator, merci à J-F Guerrero)
+              suppression partielle de l'émulation des joysticks
+              décalage de la table des touches
+- mouse.c: appel vers joystick.c (et non plus keyboard.c)
+
+- compilation avec Allegro 3.9.35 CVS
+- alleg/acolor8.c: le pointeur de la souris n'utilise plus les couleurs
+                   d'indice 16 et 255
+- alleg/ajoyint.c: module d'interface avec l'API joystick d'Allegro
+
+- dos/dmain.c: support des joysticks
+
+- win/wdialog.rc, wgui.c: nouvelle barre de réglage du volume
+- win/wmain.c: support des joysticks
+               suppression de l'appel à SetForeGroundWindow()
+
+- linux/display.c: modification de l'initialisation du clavier
+                   correction d'un bug de reconnaissance de la touche ")"
+- linux/umain.c: pas de support joyticks
+	
+=======================================================================
+=== De la version 1.3 à la version 1.4 (Novembre-Décembre 2000)     ===
+=======================================================================
+- intégration du module d'émulation mc68xx
+- passage des int aux unsigned char comme unité de mémoire (enfin !)
+- script de configuration fixdjgpp.bat, fixmingw.bat et fixunix.sh
+- création du répertoire ./include
+- refonte du processus de compilation: création de makefile.all
+
+- suppression des labels default vides (MacOS port) 
+- defs.h: TRUE est défini à 1 (MacOS port)
+          nouvelles structures EF9369 et MOTHERBOARD
+- disk.c: support de l'écriture directe
+          support du formatage direct
+          nouveau prototype pour InitDisk()
+          réécriture de FormatDrive()
+          SapFormatDrive() devient sap_format_track()
+          nouveau prototype pour to8_DirectSetDrive()
+          corrections mineures (Standard C)
+          prot devient membre de disk_ctrl        
+- disk.h: utilisation d'une macro d'accès au contrôleur
+- errors.c, errors.h: nouveau mécanisme de gestion des erreurs
+- to8err.h permet de remplacer les messages d'erreurs par défaut   
+- hardware.c: modification de BiosCall()
+              Fetch() devient FetchInstr() (MacOS port)
+              nouveau circuit de palette vidéo pal_chip
+              nouvelle (pseudo) carte mère mb
+              0x80 est la valeur au repos de la sortie sonore
+- image.c: module de sauvegarde/chargement de l'état de l'émulateur
+- keyboard.c, to8keys.h: modification des scancodes pour être en
+    concordance avec Allegro 3.9.34 CVS
+- to8.c: nouvelle API d'accès direct to8_Direct*()
+         nouvelles fonctions importables to8_DirectWriteSector() et
+         to8_DirectFormatTrack()
+         réécriture de to8_LoadMemo7()
+         nouvelle fonction to8_Exit() invoquée automatiquement à la
+         sortie du programme
+         nouveau prototype pour to8_PutSoundByte()
+         
+- alleg/gui.c: support de l'écriture directe
+               remplacement de "fichier" par "support"
+               ajout de d_yield_proc aux dialogues
+               changement du focus
+               SetPaletteGUI() devient SetColorsGUI()
+               Menu() devient ControlPanel()        
+- alleg/mode40.c, mode80.c, truecol.c: amélioration du mécanisme
+  des dirty rectangles
+
+- dos/ddisk.c: support de l'écriture directe
+               support du formatage direct
+- dos/main.c: nouvelle option --enable-direct-write
+              (non listée par l'aide en ligne)
+- dos/vga.c: nouveau mécanisme de rendu graphique
+
+- linux: abandon du support de la fenêtre 320x200	
+- linux/ddisk.c: support de l'écriture directe
+	         support du formatage direct
+- linux/display.c: suppression de screen_size
+	           le serveur X n'est plus initialisé directement 
+- linux/graphic.c: amélioration du mécanisme des dirty rectangles
+- linux/gui.c: support de l'écriture directe
+	       remplacement de "fichier" par "support"
+	       améliorations cosmétiques
+- linux/main.c: initialisation du serveur X via GTK+
+	        nouvelle fonction ExitMessage()
+	        nouvelle option --enable-direct-write
+                (non listée par l'aide en ligne)   
+	
+_ win/control_dialog.rc devient win/dialog.rc
+- win/main.c: appel à desktop_color_depth()
+- win/wingui.c: interface utilisateur Windows native 
+	
+=======================================================================
+=== De la version 1.2 à la version 1.3 (Septembre-Octobre 2000)     ===
+=======================================================================
+- disk.c: test du header des fichiers SAP
+- hardware.c, to8.c: suppression de la fonction to8_SetPaletteMode()
+                     nouveau mode TO8_PALETTE
+                     nouveau prototype pour to8_SetBorderColor()
+                     nouvelles valeurs de retour pour le Gate Array
+                     Mode Page (correction du bug de Bob SF)
+- keyboard.c: nouveau prototype et modification de ResetKeyboard()
+              re-synchronisation dans DoRequest()
+              option de compilation TO8_DOUBLE_CAPSLOCK
+- to8.c: correction d'un bug de to8_LoadMemo7()
+         to8_direct_screen_mode devient interne au module d'émulation
+         to8_SetCapsLed() devient to8_SetKeyboardLed()
+         LoadRoms() devient InitMemory()
+         nouveau prototype pour to8_InputReset()
+         variable exportable to8_error_msg
+
+- version d'Allegro utilisée: 3.9.33 WIP
+- nouvelle version générique Allegro, reprenant une partie du code de
+  la version MSDOS (alleg/)
+- nouvelle version Windows/DirectX (win/)
+- version MSDOS adaptée (dos/)
+
+- alleg/color8.c: nouveau prototype pour SetBorderColor8()
+                  RefreshBorder8() devient RefreshScreen8()
+                  SetPalette8() définit les couleurs de la GUI
+- alleg/graphic.c est renommé en alleg/gfxdrv.c
+- alleg/gfxdrv.c: suppression de need_refresh_screen
+                  suppression de need_border_refresh
+                  suppression de RefreshBorder()
+                  InitPointer() est intégré à InitGraphicMode()
+- alleg/gui.c: correction d'un bug de position de m7dial
+               remplacement de d1 par d2 pour les checkboxes
+               la manipulation des fichiers utilise maintenant
+                uniquement l'API d'Allegro
+               nouveau prototype pour InitGUI()
+               fonction de définition des couleurs SetPaletteGUI()
+- alleg/keybint.c: SetCapsLed() devient SetKeyboardLed()
+                   modification de InstallKeybint() 
+- alleg/mouseint.c: utilisation de bitmaps système 
+- alleg/sound.c: nouveau prototype pour InitSound()
+- alleg/vesa16.c, alleg/vesa8.c, alleg/vga.c sont renommés en
+   alleg/truecol.c, alleg/mode80.c, alleg/mode40.c
+- alleg/truecol.c, alleg/mode80.c, alleg/mode40.c:
+  suppression de PaletteDrawGPL(), bufferisation de l'affichage  
+                                                   
+- version MSDOS: support des cartes son Windows Sound System
+                 support du mode VESA 640x400x15
+                 suppression des modes VESA 640x480x8 et 640x480x16
+- dos/main.c: modifications mineures
+              les couleurs de la GUI ne sont plus spécifiées par InitGUI()
+- dos/vga.c: suppression de PaletteDrawGPL()
+             suppression de led_bmp
+
+- linux/graphic.c: modification des dirty rectangles
+	           suppression de DrawPaletteGPL(), RefreshBorder()
+	
+=======================================================================
+=== De la version 1.1 à la version 1.2 (Juillet 2000)               ===
+=======================================================================
+- toutes les références à DrawByte sont remplacées par DrawGPL
+- disk.c: émulation des protections "0x18" et "0x1B"
+          support du formatage des archives SAP
+          (différence avec empty.sap: 5 octets non significatifs:
+           13,14,15,46,47 du secteur 1 piste 20)
+          support de la protection en écriture
+- hardware.c: nouvelle architecture de la mémoire physique et des
+               pages mémoire
+              deux adresses supplémentaires du gate array "mode page"
+                accessibles en lecture 
+- hardware.c, disk.c: disk_ctrl est défini et émulé dans disk.c
+- k7.c: refonte de la protection en écriture
+- mouse.c: le retraçage de l'écran n'est plus assuré pas le TO8
+- to8.c: support des cartouches de 16 à 64ko avec extraction du label
+
+- djgpp/graphic.c, vesa16.c, vesa8.c, vga.c: fonction RetraceScreen()
+- djgpp/gui.c: modification des menus cartouches, cassettes et disquettes
+               diskdial intègre l'option de protection en écriture
+               le chargement d'une cartouche provoque un redémarrage à froid
+               nouvelles couleurs des boîtes de dialogue
+- djgpp/vesa16.c, vesa8.c: le buffer a la même taille que l'écran
+- djgpp/vga.c: macro assembleur BLIT_GPL()
+
+- version linux: support de la lecture directe (ddisk.c, ddisk.h)
+- linux/filentry.c: redéfinition de l'objet FileEntry
+- linux/gui.c: modification des menus cartouches, cassettes et disquettes
+               diskdial intègre l'option de protection en écriture
+               le chargement d'une cartouche provoque un redémarrage à froid
+	
+=======================================================================
+=== De la version 1.1beta à la version 1.1 (Juin 2000)              ===
+=======================================================================
+- disk.c: correction des valeurs de retour en l'absence de disquette
+          SeekTrack(): fonction haut-niveau de recherche de piste 
+          (Artillac tourne!!)
+
+- djgpp\sound.c: suppression de l'appel à detect_digi_driver()
+                 test de fonctionnement du streaming
+
+=======================================================================
+=== De la version 1.0.97 à la version 1.1beta (Juin 2000)           ===
+=======================================================================
+- toutes les références au TO8D sont remplacées par TO8
+- keyboard.c: support de tout le pavé numérique PC (/, *, -, +)
+- le PIA 6846 est maintenant un objet interne à Teo (dans hardware.c)
+- les fonctions totalement inlinables ne sont plus compilées dans la
+  version optimisée 
+- hardware.h, to8dbg.h: les fonctions d'accès à la mémoire sont
+  remplacées par des macros
+- tous les accès internes à la mémoire sont effectués via ces macros
+- hardware.c: décalage des bits sonores
+	      remontée à 1 par défaut de certains bits du port B du
+              PIA 6821 Musique et Jeux	
+- hardware.c, to8.c: EXT adresse deux banques de 16ko, la commutation
+                     se fait par latchage
+- to8.c: nouvelles valeurs d'initialisation du PIA 6821 Musique et Jeux
+
+- djgpp/memmng.c: sauvegarde d'une portion de mémoire au format ASCII
+                  ou assembleur
+		  réorganisation de la boucle principale
+- djgpp/sound.c: décalage des bits supprimé (voir hardware.c)
+
+- linux/display.c: gestion du pointeur identique à la version MSDOS
+- linux/filentry.c, linux/gui.c: tous les widgets externes sont détruits
+  à la fermeture du panneau de contrôle
+
+=======================================================================
+=== De la version 1.0.96 à la version 1.0.97 (Juin 2000)            ===
+=======================================================================
+- hardware.c, to8.c: gestion améliorée des banques de mémoire
+- nouvelle émulation du gate array "mode page" conforme au manuel
+  technique du TO8
+- internal.h est remplacé par des fichiers spécifiques à chaque module
+
+=======================================================================
+=== De la version 1.0.94 à la version 1.0.96 (Mai 2000)             ===
+=======================================================================
+- hardware.c: transfert de l'init des banques mémoire vers to8.c
+              nouvelle communication avec le PIA 6846
+- keyboard.c: correction d'une erreur dans la gestion des boutons manettes
+              nouvelle communication avec le PIA 6846
+	      émulation avancée du MC6804 clavier (bug Bob SF corrigé)
+- to8.c: modification des deux reset (appel de mc6809_Reset())
+	 ColdReset(): bit 4 du prc à 0, init des banques mémoire
+
+- djgpp/graphic.c: copie d'écran réalisée par Screenshot()
+- djgpp/main.c, djgpp/keybint.c: commande SCREENSHOT appelée par F11
+
+=======================================================================
+=== De la version 1.0beta2 à la version 1.0.94 (Mai 2000)           ===
+=======================================================================
+- les fonctions internes à l'émulateur ne sont plus underscorées: c'est
+  au module spécifique de la plateforme de distinguer ses fonctions
+- harware.c: SetDeviceRegister(): case E7C9: le PDR déclenche aussi la
+             commutation (voir Pascal UCSD)
+      	     modification des correspondances mémoire logique-physique
+- keyboard.c: la gestion de la led CapsLock est (partiellement)
+              réintégrée dans l'émulateur
+              fonction importable optionnelle to8_SetCapsLed()
+	      modification de la gestion des boutons manettes
+- to8.c et hardware.c: modification de l'émulation du PIA 6846 système
+
+- version djgpp: drivers supportés: VESA2L, VESA2B, VESA1, VGA
+    modes supportés: 320x200x8                (option -mode40)
+                     640x400x8  ou 640x480x8  (option -mode80)
+                     640x400x16 ou 640x480x16 (option -truecolor)
+		 sélection du mode par un menu au démarrage
+- djgpp/debug.c: fonction trace d'éxécution du 6809 (mode DEBUG seulement)
+- djgpp/keyboard.c: gestion de la led CapsLock via Allegro
+- djgpp/memmng.c: modification de la commutation de l'espace données
+- djgpp/mouseint.c: suppression de screen_size, remplacée par deux macros
+
+- version linux: suppression de l'option -fake, la taille de la fenêtre
+                 est intégrée dans l'option -geometry
+- linux/gui.c: string_title[100] au lieu de 64
+
+=======================================================================
+=== De la version 1.0beta à la version 1.0beta2 (Mars 2000)         ===
+=======================================================================
+- version Linux: option de désactivation de l'extension MIT-SHM
+- linux/graphic.c: nouveau mécanisme d'allocation de l'espace mémoire
+                   associé au buffer
+                   (problème du mode 32-bit reporté comme 24-bit)
+
+=======================================================================
+=== De la version 0.9.4 à la version 1.0beta (Décembre 1999)        ===
+=======================================================================
+- linux/main.c: synchronisation par pause() pour libérer des cycles CPU
+- nouvelles options dans les makefiles
+- version Linux: refonte importante du module d'affichage
+                 support du retraçage ligne par ligne de la bordure de
+                 l'écran
+- to8.c: certaines fonctions importables sont maintenant optionnelles
+- nouveau mécanisme d'émulation de la page de réglage de la palette
+- linux/display.c: gestion correcte de la touche AltGr
+- la gestion des leds du clavier est transférée au module spécifique de
+  la plateforme: suppression de la fonction to8_SetKeyboardLed()
+                 nouveau prototype de to8_InputReset()
+- linux/gui.c: inclusion du fichier thomson.xpm
+	
+=======================================================================
+=== De la version 0.9.3 à la version 0.9.4 (Novembre 1999)          ===
+=======================================================================
+- disk.c: version avec cache intégré non concluante
+- retour au mode graphique spécial pour l'écran de réglage de la palette
+- support de la plateforme Linux/X11:
+	création des répertoires djgpp/ et linux/
+	boucle principale (linux/main.c)
+	interface avec le serveur X (linux/display.c)
+	module d'affichage (linux/graphic.c) utilisant MIT-SHM
+	interface utilisateur basée sur GTK+ (linux/gui.c + extensions)
+	émulation sonore (linux/sound.c)
+- djgpp/ddisk.c: plus de valeur en sortie des reset par biosdisk()
+- djgpp/main.c: modification du traitement des options
+- djgpp/gui.c: imbrication des différents menus
+               nouvelles boites de dialogue message et question
+- hardware.c: gestion améliorée de la sortie sonore 1-bit
+- correction du bug sonore dans les deux versions
+- version MSDOS: support de toutes les cartes son d'Allegro 3.12
+- linux/main.c: correction du bug de GetUserInput()
+	
+=======================================================================
+=== De la version 0.9.2 à la version 0.9.3 (Octobre 1999)           ===
+=======================================================================
+- main.c: nouvelle structure EmuTO, gestion modifiée des commandes
+- emulator.c: ColdReset(): nouvelle valeur d'initialisation (0x80) pour
+              les deux CR du PIA externe (voir Dieux du Stade)
+              modification de l'initialisation des registres du CPU
+- hardware.c: SetDeviceRegister(): suppression du second test dans le
+              cas 0xE7CD
+- djgpp/gui.c: réorganisation de la boite de dialogue principale
+- version vga: suppression du passage en mode 80 colonnes
+
+=======================================================================
+=== De la version 0.9.1 à la version 0.9.2 (Juin-Août 1999)         ===
+=======================================================================
+- réécriture du module k7.c (plus de robustesse)
+- gui.c: Mémo7 au lieu de Mémo 7
+         réorganisation de la boite de dialogue principale
+- sound.c: simplification du mécanisme de bufferisation
+- hardware.c: décalage de la sortie son 6-bit
+              réintroduction de la protection dans LoadByte()	   	
+- nouvelles options de compilation dans le makefile
+- nouveau keycodes.h
+
+=======================================================================
+=== De la version 0.9 à la version 0.9.1 (Mai 1999)       	    ===
+=======================================================================
+- fonction d'édition de la mémoire dans le memory manager
+- correction du bug timer (FBI, Androides, ...)
+- nouveau prototype pour DrawByte()
+- bug: saut dans l'émulation sonore
+       lorsque allegro.cfg est absent, plantage en sortie
+
+=======================================================================
+=== De la version 0.6.9 à la version 0.9 (Mai 1999)       	    ===
+=======================================================================
+- intégration du module SAP 2.0 (disk.c)
+- le test d'intégrité des archives est supprimé
+- modifications de disk.c:
+	passage du POSIX à l'ANSI C pour les accès I/O
+	LoadSAP(): SAPFile[drive]=0 si file==NULL
+	ReadSector(): if ((drive==0) && ....
+	WriteSector(): err=1 si écriture directe
+- la directive de compilation sous DJGPP/Allegro est DJGPP
+- signal de présence du magnétophone: bit 7 du PRC à 1
+- la souris fonctionne maintenant en mode DMA
+- gestion améliorée du rafraîchissement de l'écran
+- LED de fonctionnement des lecteurs de disquettes (en vert)
+- suppression du code de simulation de protection
+- gestion partielle du changement dynamique de palette dans Teo VGA
+- émulation de la manette 1 sur le bloc clavier gauche
+
+=======================================================================
+=== De la version 0.6 à la version 0.6.9 (Janvier-Avril 1999)       ===
+=======================================================================
+- remplacement du module d'émulation du MC6809 par celui de Sylvain Huet
+- modes de fonctionnement synchrone et asynchrone du clavier
+- meilleure émulation des modes graphiques hybrides (Mégadémo HCL)
+- correction d'un bug du crayon optique et de la souris en 80 colonnes
+- nouveau header interne à l'émulateur MC6809
+- modifications mineures de mc6809.c
+- implémentation du PIA MC6821 dans mc6821.c
+- suppression des fichiers persfsel.c et persfsel.h
+- nouvelle gestion de la commutation majuscules/minuscules (utilisation
+  de la routine du moniteur TO8)
+- gestion plus fine du PIA MC6846 système
+- gestion du timer du PIA MC6846 dans mapper.c et mc6809.c
+- ajout de masques pour distinguer les trois irq
+- deux versions de Teo: Teo_vga (VGA 13h) et Teo_vbe (VBE 2.0 640x400x16) 
+- nouveau mode d'émulation du 80 colonnes pour Teo_vga: VBE 2.0 640x400x16
+- module son entièrement réécrit en utilisant les fonctions de lecture à
+  la volée (streaming) d'Allegro 3.1
+- synchronisation de l'émulation sur le streaming du son
+- correction du chargement des cartouches mémo7
+- options passées sur la ligne de commande
+- nouveau menu Commandes et Réglages
+- support de l'écriture sur cassette           
+- bug fixes:
+	disfonctionnement LED Caps après un redémarrage à froid
+	blocage au démarrage (irq souris reçue trop tôt)
+	clignotement de la LED dans Bob Morane SF
+	enfoncement permanent de la touche STOP
+	interruption souris autorisée dans l'écran de la palette
+	device I/O error après écriture dans un fichier SAP (passage
+        de write à fwrite)
+- test d'intégrité des archives SAP lors de leur sélection
+
+=======================================================================
+=== De la version alpha 0.4 à la version alpha 0.5   (Juin 1998)    ===
+=======================================================================
+- le gestion du contour écran tient compte des changements de palette
+- l'émulation des bits de synchronisation E7E7 est affinée
+- la détection de la souris au démarrage est améliorée
+- un bug manette (dans LAS-VEGAS notamment) est corrigé
+- le clavier est plus rapide  
+- le memory manager est terminé (remplacer mem_mng.c)
+- il y a maintenant un header main.h pour les paramètres de l'émulation
+- les modules clavier et souris ont été modifiés pour une meilleure
+  portabilité: en particulier, la séparation est maintenant nette entre
+  keyb.c (module clavier TO8) et keyb_int.c (module clavier DOS);
+  remplacer les fichiers keyb.c, keyb.h, keyb_int.c, keyb_int.h,
+  mouse.c, mouse.h
+- correction du bug de commutation RAM en mode PIA
+- amélioration du passage en 80 colonnes (délai et reset hard)
+
+======================================================================
+=== De la version alpha 0.3 à la version alpha 0.4    (Mai 1998)   ===
+======================================================================
+- l'écran de modification de la palette fonctionne correctement et
+  marche maintenant avec le crayon optique.
+- le mode 80 colonnes est enfin émulé en utilisant le VESA 1.2 640*480
+  (la vitesse est satisfaisante sur ma Cirrus Logic; il y a juste les
+  sauts de lignes en fin de page qui sont moches, j'ai essayé
+  plusieurs drivers CIRRUS54 VESA2 et ça ne change rien); il n'est
+  activé qu'aprés une période de transition en mode pseudo 80 colonnes,
+  dont la durée est déclarée dans graph.c par GRAPHIC_SWITCH_DELAY.
+  Peut-être serait-il judicieux de prévoir la possibilité de désactiver
+  ce mode de transition dans le menu des options ?
+- ajout des macros de déclaration des modes graphiques au début de
+  graph.c, ce qui permet de réduire l'éxécutable stripé de 40ko environ
+  (il repasse provisoirement sous la barre psychologique des 500ko !!!).
+- correction des entêtes des fichiers et des headers pour supprimer les
+  warnings lors de la compilation.
+- commentaire abondant du module clavier et suppression de la fonction
+  non utilisée de keyb_int.c 
+- le bug souris est corrigé: elle est maintenant à nouveau détectée
+  après un reset à froid.
+- un module de gestion mémoire a été ajouté (avec un bug mentionné dans
+  l'entête); sa non compilation économise 4ko.
+- le debugger a été amélioré: passage en notation TO8, offset 5-bit
+  signé, branchement long exact, registre des piles... Il a aussi une
+  directive de non compilation qui permet d'économiser encore 13ko.
+- la fonction SetGraphicMode() a été réécrite; l'écran est maintenant
+  redessiné progressivement après un changement de mode, ce qui permet
+  aux écrans 3 et 4 de la Mégadémo de fonctionner
+- le module main.c a été nettoyé de ses variables inutilisées et le
+  code inutile a été supprimé
+- à titre expérimental, la boucle principale est synchronisée sur le
+  faisceau écran du PC
+- la requête d'interruption vidéo a maintenant une durée non nulle, ce
+  qui assure un clignotement curseur correct et une meilleure saisie
+  des touches frappées au clavier 
+- le module mapper.c a aussi été nettoyé et hardware() est maintenant
+  sous forme de table de branchement (switch)
+- map8() tient maintenant compte du mappage RAM sur VRAM (pour l'écran
+  de présentation de la Mégadémo)
+- LEAU et LEAS ont une durée de 4 cycles CPU
+
+bugs:
+- hardware(): case E7E5, la condition (baRAM<32) est toujours vraie
+- les trois interruptions logicielles SWI* ne sont pas distinguées
+- à quoi sert wait, sachant qu'il est toujours à 0 ?
+ 
+======================================================================
+=== De la version alpha 0.2 à la version alpha 0.3    (Avril 1998) ===
+======================================================================
+- correction d'une partie des lignes litigieuses signalées par les
+  warnings habituels de gcc, à savoir: gcc -Wall -W. Il y avait
+  notamment une erreur de typage pour des pointeurs sur des fonctions.
+- ajout des fichiers mouse.c, mouse.h, keyb_int.c et keyb_int.h .
+- déplacement du menu OPTION et du debugger en F9 et F10.
+- amélioration de l'émulation clavier/manette et de l'émulation de la
+  souris en la rendant plus proche du hardware; elle fonctionne
+  maintenant dans l'écran de réglage des couleurs.
+- les modes graphiques sont tous émulés, sauf le mode 80 colonnes pour
+  lequel ça sera plus embêtant car il faudra changer de driver vidéo;
+  il reste les derniers ajustements à réaliser...
+- l'émulation des couleurs est presque terminée; il reste à donner à
+  la page de  réglage l'aspect de celle du TO8, i.e changer les deux
+  couleurs de la partie haute.
+
+Bugs:
+- le clignotement du curseur en Basic 1.0 n'est pas régulier. J'avais
+  le même problème en Basic 512, je l'ai résolu mais un peu par hasard
+  (un bit à allumer sur le CRA2 manettes) donc je nage un peu pour le
+  moment.
+- il y avait un gros plantage en sortie du debugger, dû au fait que le
+  programme redessinait l'écran sans repasseren mode VGA.
+- le comportement au démarrage de l'émulateur est erratique: de temps
+  en temps, il trouve une cartouche en 0, une application en 6 avec un
+  nom à coucher dehors...
+- bug possible dans l'emulation du PIA systeme: 0xD0 au lieu de 0xC0
+  utilisé pour le masque de CRA et CRB.
+- oubli de cl+=4 dans les instructions LEAS et LEAU. Lorsqu'on le
+  rajoute, le clignotement du curseur devient irrégulier ???

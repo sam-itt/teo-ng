@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>Teo - Technical documentation</TITLE>
+<link REL="stylesheet" TYPE="text/css" HREF="doc.css">
+
+</HEAD>
+<BODY>
+<TABLE WIDTH="100%"><TR><TD CLASS="ttitre">
+<IMG SRC="images/logo.jpg" WIDTH="324" HEIGHT="64" ALT="logo Teo">
+</TD></TR></TABLE>
+
+<CENTER>
+<H1>The input/output circuits of the emulator Teo</H1>
+</CENTER>
+
+<TABLE WIDTH="100%"><TR><TD CLASS="ttexte">
+<UL>
+<LI><A HREF="#6846System">The 6846 system</A></LI>
+<LI><A HREF="#Pia6821System">The PIA 6821 system</A></LI>
+<LI><A HREF="#Pia6821Games">The PIA 6821 music and games</A></LI>
+<LI><A HREF="#GateArrayDisk">The Gate Array circuit of the floppy drive</A></LI>
+<LI><A HREF="#GateArrayModePage">The Gate Array circuit mode page</A></LI>
+</UL>
+
+
+<H2><A NAME="6846System"></A>The 6846 system</H2>
+
+<H3>Functional description</H3>
+
+<P>The 8-bit port of the 6846, called C port, has by initialization three lines P2, P4, P5 configured as outputs and three others P1, P6, P7 as inputs. Bit P0, although configured as output, is actually emulated by the gate array and the bit mode page P3 is not connected (but the read routine of the keyboard makes it an upper/lower case flag).</P>
+<P>The timer is used in normal operation, by successive interrupt requests every 100 ms, to control the cursor blink. Its encoding function of digital informations for LEP via the output CT0 is not emulated, but replaced by a high-level routine.</P>
+
+<H3>Addresses and functions of internal registers</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Address </TH> <TH> Register </TH> <TH> Function </TH> </TR>
+<TR> <TD> E7C0 </TD> <TD> CSR  </TD> <TD> Composite state register </TD> </TR>
+<TR> <TD> E7C1 </TD> <TD> CRC  </TD> <TD> Command register </TD> </TR>
+<TR> <TD> E7C2 </TD> <TD> DDRC </TD> <TD> Data direction register </TD> </TR>
+<TR> <TD> E7C3 </TD> <TD> PRC  </TD> <TD> Data register (C port) </TD> </TR>
+<TR> <TD> E7C4 </TD> <TD> CSR  </TD> <TD> Composite state register </TD> </TR>
+<TR> <TD> E7C5 </TD> <TD> TCR  </TD> <TD> Timer control register </TD> </TR>
+<TR> <TD> E7C6 </TD> <TD> TMSB </TD> <TD> Timer byte register (MSB) </TD> </TR>
+<TR> <TD> E7C7 </TD> <TD> TLSB </TD> <TD> Timer byte register (LSB) </TD> </TR>
+</TABLE>
+
+<P>CSR (read only)</P>
+<UL>
+<LI>bit 0: irq timer</LI>
+<LI>bit 1: irq CP1</LI>
+<LI>bit 7: irq composite of 6846</LI>
+</UL>
+
+<P>CRC</P>
+<UL>
+<LI>bit 0 (O): CP1 validation irq (0 masked/ 1 unmasked)</LI>
+<LI>bit 1 (O): CP1 trigger mode (0 down/ 1 up)</LI>
+<LI>bit 3 (O): CP2 - MUTE sound</LI>
+<LI>bit 4 (O): state of CP2</LI>
+<LI>bit 5 (O): direction CP2 (0 input/ 1 output)</LI>
+<LI>bit 7 (I): CP1 - Keyboard DATAS (serial transmission)</LI>
+</UL>
+
+<P>PRC</P>
+<UL>
+<LI>bit 0 (O - emulated): VRAM page selection (Point/Color)</LI>
+<LI>bit 1 (I): INTERLP (light-pen button)</LI>
+<LI>bit 2 (O): Resident ROM selection/Cartridge ROM</LI>
+<LI>bit 3 (O - not connected): upper/lower case software flag</LI>
+<LI>bit 4 (O): monitor ROM bank selection</LI>
+<LI>bit 5 (O): ACK (acknowledge) keyboard</LI>
+<LI>bit 6 (I): BUSY printer</LI>
+<LI>bit 7 (I): reading LEP (tape recorder)</LI>
+</UL>
+
+<P>TCR (write only)</P>
+<UL>
+<LI>bit 0: timer state (0 off/ 1 on)</LI>
+<LI>bit 2: divide by 8 pre-timer (0 off/ 1 on)</LI>
+<LI>bit 3-5: operating mode</LI>
+<LI>bit 6: irq timer validation (0 masked/ 1 unmasked)</LI>
+</UL>
+
+
+<H2><A NAME="Pia6821System"></A>The PIA 6821 system</H2>
+
+<H3>Functional description</H3>
+
+<P>The 6821 system provides communication both with the internal modules of the central unit (memory card and keyboard) and with the external printer port (Centronics).</P>
+
+<H3>Addresses and functions of internal registers</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Address </TH> <TH> Register </TH> <TH> Function </TH> </TR>
+<TR> <TD> E7C8 </TD> <TD> DDRA<BR>PDRA </TD> <TD>Data direction register Port A<BR>
+			Data register Port A</TD> </TR>
+<TR> <TD> E7C9 </TD> <TD> DDRB<BR>PDRB</TD> <TD>Data direction register Port B<BR>
+			Data register Port B</TD> </TR>
+<TR> <TD> E7CA </TD> <TD> CRA </TD>  <TD>Command register port A</TD> </TR>
+<TR> <TD> E7CB </TD> <TD> CRB </TD>  <TD>Command register port B</TD> </TR>
+</TABLE>
+
+<P>PDRA</P>
+<UL>
+<LI>bit 0 (I): KTEST keyboard (key pressed signal)</LI>
+<LI>bit 1-7 (O): D1 to D7 of printer</LI>
+</UL>
+
+<P>PDRB</P>
+<UL>
+<LI>bit 0 (O): D0 of printer</LI>
+<LI>bit 1 (O): STROBE of printer</LI>
+<LI>bit 2 (O): inlay control (activated when 0)</LI>
+<LI>bit 3-7 (O - emulated): RAM bank selection (TO7-70/TO9 compatible PIA mode)</LI>
+</UL>
+
+<P>CRA</P>
+<UL>
+<LI>bit 2 (O): register selection (0 DDRA/ 1 PDRA)</LI>
+<LI>bit 3 (O): CA2 - LEP (tape recorder) motor command (activated when 0)</LI>
+<LI>bit 4 (O): status CA2</LI>
+<LI>bit 5 (O): direction CA2 (0 input/ 1 output)</LI>
+<LI>bit 7 (I): CA1 - CLRG (time reset signal of the inlay  box)</LI>
+</UL>
+
+<P>CRB</P>
+<UL>
+<LI>bit 2 (O): register selection (0 DDRB/ 1 PDRB)</LI>
+<LI>bit 7 (I): CB1 - bar code signal</LI>
+</UL>
+
+<H2><A NAME="Pia6821Games"></A>The PIA 6821 music and games</H2>
+
+<H3>Functional description</H3>
+
+<P>The 6821 music and games provides communication with the joystick ports and audio output 6-bits (D/A converter)</P>
+<P>For Teo, the control signals from the PIA are not connected to the IRQ of the MC6809; the mouse control is provided by a high-level emulation routine.</P>
+
+<H3>Addresses and functions of internal registers</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Address </TH> <TH> Register </TH> <TH> Function </TH> </TR>
+<TR> <TD> E7CC </TD> <TD> DDRA<BR>PDRA </TD> <TD>Data direction register Port A<BR>
+			Data register Port A</TD> </TR>
+<TR> <TD> E7CD </TD> <TD> DDRB<BR>PDRB</TD> <TD>Data direction register Port B<BR>
+			Data register Port B</TD> </TR>
+<TR> <TD> E7CE </TD> <TD> CRA </TD>  <TD>Command register port A</TD> </TR>
+<TR> <TD> E7CF </TD> <TD> CRB </TD>  <TD>Command register port B</TD> </TR>
+</TABLE>
+
+<P>PDRA</P>
+<UL>
+<LI>bit 0-3 (I): direction of joystick 0 (B,H,G,D - 1 at rest)</LI>
+<LI>bit 4-7 (I): direction of joystick 1 (B,H,G,D - 1 at rest)</LI>
+</UL>
+
+<P>PDRB</P>
+<UL>
+<LI>bit 0-5 (O): 6 bits D/A sound converter</LI>
+<LI>bit 0 (I): common buffered for joystick 0 (1 at rest)</LI>
+<LI>bit 1 (I): common buffered for joystick 1 (1 at rest)</LI>
+<LI>bit 2 (I): B button of joystick 0 (1 at rest)</LI>
+<LI>bit 3 (I): B button of joystick 1 (1 at rest)</LI>
+<LI>bit 6 (I): A button of joystick 0 (1 at rest)</LI>
+<LI>bit 7 (I): A button of joystick 1 (1 at rest)</LI>
+</UL>
+
+<P>CRA</P>
+<UL>
+<LI>bit 2 (O): register selection (0 DDRA/ 1 PDRA)</LI>
+<LI>bit 5 (O): direction CA2 (0 input/ 1 output)</LI>
+<LI>bit 6 (I): CA2 - A button of joystick 0</LI>
+<LI>bit 7 (I): CA1 - B button of joystick 0</LI>
+</UL>
+
+<P>CRB</P>
+<UL>
+<LI>bit 2 (O): register selection (0 DDRB/ 1 PDRB)</LI>
+<LI>bit 5 (O): CB2 direction (0 input/ 1 output)</LI>
+<LI>bit 6 (I): CB2 - A button of joystick 1</LI>
+<LI>bit 7 (I): CB1 - B button of joystick 1</LI>
+</UL>
+
+<H2><A NAME="GateArrayDisk"></A>The Gate Array circuit of the floppy drive</H2>
+
+<H3>Functional description</H3>
+
+<P>It provides communication with the integrated floppy controller which can handle up to two drives.</P>
+<P>It is not emulated by Teo (an emulation embryo of disks protection exists however), and any disk management is ensured by high-level routines using the SAP format.</P>
+
+<H3>Addresses and functions of internal registers</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Address </TH> <TH> Register </TH> <TH> Function </TH> </TR>
+<TR> <TD> E7D0 </TD> <TD> CMD0<BR>STAT0  </TD> <TD> Command (write only)<BR> Status (read only)</TD> </TR>
+<TR> <TD> E7D1 </TD> <TD> CMD1<BR>STAT1  </TD> <TD> Command (write only)<BR> Status (read only)</TD> </TR>
+<TR> <TD> E7D2 </TD> <TD> CMD2 </TD> <TD> Command (write only)</TD> </TR>
+<TR> <TD> E7D3 </TD> <TD> WDATA<BR>RDATA  </TD> <TD>Write data<BR>
+	Read data</TD> </TR>
+<TR> <TD> E7D4 </TD> <TD> WCLK  </TD> <TD>Write clock</TD> </TR>
+<TR> <TD> E7D5 </TD> <TD> WSECT </TD> <TD>Write sector</TD> </TR>
+<TR> <TD> E7D6 </TD> <TD> WTRCK </TD> <TD>Write track</TD> </TR>
+<TR> <TD> E7D7 </TD> <TD> WCELL </TD> <TD>Write cell size</TD> </TR>
+</TABLE>
+
+<H2><A NAME="GateArrayModePage"></A>The Gate Array circuit mode page</H2>
+
+<H3>Functional description</H3>
+
+<P>It is the second most important component of the machine after the microprocessor. It ensures management and refresh of the RAM (in "page mode"), generates the video display to the monitor, which defines the graphic mode and the colors of the palette, and then processes the light-pen operating signals (not emulated by Teo, replaced by a high-level routine of light pen management)</P>
+
+<H3>Addresses and functions of internal registers</H3>
+
+<TABLE BORDER=1>
+<TR> <TH> Address </TH> <TH> Register </TH> <TH> Function </TH> </TR>
+<TR> <TD> E7DA </TD> <TD> P_DATA </TD> <TD>Palette datas</TD> </TR>
+<TR> <TD> E7DB </TD> <TD> P_ADDR </TD> <TD>Palette address</TD></TR>
+<TR> <TD> E7DC </TD> <TD> LGAMOD</TD> <TD>Display mode</TD> </TR>
+<TR> <TD> E7DD </TD> <TD> System 2</TD> <TD>VRAM space switching<BR>Color of the screen edge</TD> </TR>
+<TR> <TD> E7E4 </TD> <TD> Switching (write)</TD> <TD>Registers selection (read)</TD> </TR>
+<TR> <TD> E7E5 </TD> <TD> RAM datas (write)</TD> <TD>Data space switching<BR></TD> </TR>
+<TR> <TD> E7E6 </TD> <TD> Cartridge space (write)</TD> <TD>Cartridge space switching</TD> </TR>
+<TR> <TD> E7E7 </TD> <TD> System 1 (write)<BR>Light pen 4 (read)</TD><TD>RAM management<BR>Screen spot location</TD> </TR>
+</TABLE>
+
+<P>LGAMOD</P>
+<UL>
+<LI>00 - 40 columns 16 colors mode</LI>
+<LI>21 - Bitmap 4 colors mode</LI>
+<LI>24 - Page 1 switching mode</LI>
+<LI>25 - Page 2 switching mode</LI>
+<LI>26 - 2 pages superposition mode</LI>
+<LI>2A - 80 columns 2 colors mode</LI>
+<LI>3F - 4 pages superposition mode</LI>
+<LI>41 - Undocumented bitmap 4 colors mode</LI>
+<LI>7B - bitmap 16 colors mode</LI>
+</UL>
+
+<P>System 1</P>
+<UL>
+<LI>bit 4: RAM data space management A000-DFFF (0 PIA emulation mode/ 1 "Data RAM" register mode)
+</UL>
+
+<P>System 2</P>
+<UL>
+<LI>bit 0-3: color of screen edge</LI>
+<LI>bit 6-7: selection of the RAM bank (0-3) to display on screen </LI>
+</UL>
+
+<P>RAM datas (writable if bit 4 of System 1 is in state 1)</P>
+<UL>
+<LI>bit 0-4: selection of data space RAM bank (0-31) A000-DFFF</LI>
+<LI>bit 5-7: 0</LI>
+</UL>
+
+<P>Cartridge</P>
+<UL>
+<LI>bit 0-4: RAM bank selection (0-31) of the cartridge space 0000-3FFF (if bit 5 in state 1)</LI>
+<LI>bit 5: overlay of cartridge space 0000-3FFF by RAM (0 no/ 1 yes)</LI>
+<LI>bit 6: write permission to the cartridge RAM space 0000-3FFF (0 no/ 1 yes) (if bit 5 in state 1)</LI>
+<LI>bit 7: 0</LI>
+</UL>
+
+<P>Switching</P>
+<UL>
+<LI>bit 0: selection of the registers in write mode (0 processing/ 1 light pen)</LI>
+</UL>
+
+<P>Light pen 4</P>
+<UL>
+<LI>bit 0: selection of the registers in read mode (0 processing/ 1 light pen)</LI>
+<LI>bit 2-4: 0</LI>
+<LI>bit 5: window-frame location in line INILN (0 spot in frame/ 1 spot in horiz. window)</LI>
+<LI>bit 7: window-frame location in field INITN (0 spot in frame/ 1 spot in vert. window)</LI>
+</UL>
+
+<HR>
+<TABLE WIDTH="100%" SUMMARY="pied de page">
+<TR>
+<TD ALIGN="LEFT"><SMALL>Copyright &copy; 1999-2011 Eric Botcazou <A HREF="mailto:ebotcazou_at_libertysurf_dot_fr">(ebotcazou at libertysurf dot fr)</A><BR>
+Discuss of Teo on <A HREF="http://www.logicielsmoto.com/forumframe.php">LogicielsMoto's forum</A><BR>
+Translated by Fran&ccedil;ois Mouret<BR>
+Last modification: mardi 19 novembre 2006</SMALL></TD>
+<TD ALIGN="RIGHT">
+<TABLE SUMMARY="Teo Home Page">
+<TR>
+<TD>Teo Home Page</TD>
+<TD><A HREF="http://nostalgies.thomsonistes.org/teo_home.html"> <IMG SRC="images/home.gif" WIDTH="32" HEIGHT="32" ALT="Teo Home Page"></A></TD>
+</TR>
+</TABLE>
+</TD></TR></TABLE>
+</TD></TR></TABLE>
+</BODY>
+</HTML>
+

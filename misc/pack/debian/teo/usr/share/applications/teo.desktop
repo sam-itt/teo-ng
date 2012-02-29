@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.8.0
+Name=Teo emulator
+Name[fr]=Emulateur Teo
+GenericName=Teo emulator
+GenericName[fr]=Emulateur Teo
+Exec=/usr/games/teo -loadstate
+Comment=TO8D microcomputer emulator
+Comment[fr]=Emulateur de l'ordinateur TO8D
+Type=Application
+Icon=teo-32x32
+Categories=GNOME;GTK;Game;Emulator;
+

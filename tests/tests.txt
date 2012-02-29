@@ -1,0 +1,32 @@
+Tests de non-régression pour Teo:
+
+- PIA MC6846 système:
+	PRC, irqs: Bob Morane SF
+	Timer: FBI, Androïdes
+
+- PIA MC6821 système, commutation de l'espace données en mode PIA:
+	Le Crépuscule du Naja, Pascal UCSD
+
+- PIA MC6821 musique et jeux, manettes de jeux:
+	Les Dieux du Stade
+
+- espace cartouche:
+	Pascal UCSD, 6809 ASM, ColorPaint
+
+- timing interne, modes graphiques, commutation VRAM, changement dynamique de la palette:
+	Mégadémo HCL
+
+- spot écran E7E7:
+	Bivouac, Chinese Stack
+
+- lecteur de k7:
+	Arkanoid
+
+- générateur sonore:
+	Les Cavernes de Thénèbé
+
+- protection disquette:
+	Avenger, Les Chevaliers, Marche à l'Ombre
+
+- compatibilité TO7-70:
+	Eliminator, Arkanoid

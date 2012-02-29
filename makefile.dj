@@ -1,0 +1,93 @@
+#
+#  Rules for building Teo with djgpp. This file is included
+#  by the primary makefile, and should not be used directly.
+#
+#  The "depend" target uses sed.
+#
+#  See makefile.all for a list of the available targets.
+
+
+ifneq (,$(findstring bash,$(SHELL)))
+  UNIX_TOOLS = 1
+endif
+
+
+# ------ compiler flags ------ 
+
+CC = gcc
+
+WFLAGS = -Wall -Werror
+
+
+ifdef PGCC
+   OFLAGS = -O6 -ffast-math
+else
+ifdef PENTIUMONLY
+   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
+else
+   OFLAGS = -O2 -funroll-loops -ffast-math
+endif
+endif
+
+
+ifdef DEBUGMODE
+
+# -- debugging build --
+CFLAGS = -g -DDEBUG $(WFLAGS)
+LFLAGS = -g
+LIB = -lalld
+DESCRIPTION = debugging
+
+else
+ifdef PROFILEMODE
+
+# -- profiling build --
+CFLAGS = -pg $(WFLAGS) $(OFLAGS)
+LFLAGS = -pg
+LIB = -lallp
+DESCRIPTION = profiling
+
+else
+
+# -- optimised build --
+CFLAGS = $(WFLAGS) $(OFLAGS)
+LFLAGS = -s
+LIB = -lalleg
+DESCRIPTION = optimized
+
+endif
+endif
+
+ifdef EN_LANG
+CFLAGS += -DENGLISH_LANG
+else
+CFLAGS += -DFRENCH_LANG
+endif
+
+# ------ plateform-dependant objects and executables ------
+
+PLATFORM = djgpp
+EXE_NAME = teo.exe
+OBJ_DIR = obj/djgpp
+
+VPATH += src/alleg src/dos
+
+OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(filter-out src/alleg/amode40.c, $(TEO_SRC_ALLEG_FILES)) $(TEO_SRC_DOS_FILES)))
+
+
+# ------ special file rules ------
+
+$(OBJ_DIR)/to8.o: src/to8.c
+	$(CC) -c $(CFLAGS) -DTO8_NO_BORDER -I./include -o $(OBJ_DIR)/to8.o src/to8.c
+
+
+# ------ dependency generation -------
+
+DEPEND_PARAMS = -MM -MG -DSCAN_DEPEND -I./include
+
+depend:
+	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/alleg/*.c src/dos/*.c > _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/djgpp\/\1/" _depend2.tmp > obj/djgpp/makefile.dep
+	del _depend.tmp
+	del _depend2.tmp

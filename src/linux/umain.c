@@ -1,0 +1,594 @@
+/*
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *
+ *                  L'émulateur Thomson TO8
+ *
+ *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret
+ *                          Samuel Devulder
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ *  Module     : linux/main.c
+ *  Version    : 1.8.0
+ *  Créé par   : Eric Botcazou octobre 1999
+ *  Modifié par: Eric Botcazou 19/11/2006
+ *               François Mouret 26/01/2010 08/2011
+ *               Samuel Devulder 07/2011
+ *               Gilles Fétis 07/2011
+ *
+ *  Boucle principale de l'émulateur.
+ */
+
+
+#ifndef SCAN_DEPEND
+   #include <locale.h>
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <signal.h>
+   #include <unistd.h>
+   #include <sys/time.h>
+   #include <sys/types.h>
+   #include <sys/stat.h>
+   #include <gtk/gtk.h>
+   #include <X11/Xlib.h>
+   #include <X11/Xresource.h>
+   #include <X11/Xutil.h>
+#endif
+
+#include "intern/defs.h"
+#include "linux/disk.h"
+#include "linux/display.h"
+#include "linux/graphic.h"
+#include "linux/gui.h"
+#include "linux/main.h"
+#include "linux/sound.h"
+#include "linux/debugger.h"
+#include "to8.h"
+#include "xargs.h"
+
+struct EmuTO teo={
+    True,
+    True,
+    NONE
+};
+
+int frame;           /* compteur de frame vidéo */
+static volatile int tick;   /* compteur du timer */
+
+#define OP_TABLE_SIZE  10
+static XrmOptionDescRec op_table[OP_TABLE_SIZE]={
+{"-help"                , ".help"     , XrmoptionIsArg , NULL  },
+{"-m"                   , ".memo7"    , XrmoptionSepArg, NULL  },
+{"-fast"                , ".speed"    , XrmoptionNoArg , "fast"},
+{"-nosound"             , ".sound"    , XrmoptionNoArg , "off" },
+{"-geometry"            , ".geometry" , XrmoptionSepArg, NULL  },
+{"-noshm"               , ".shm"      , XrmoptionNoArg , "off" },
+{"-display"             , ".display"  , XrmoptionSepArg, NULL  },
+{"--enable-direct-write", ".direct"   , XrmoptionNoArg , "on"  },
+{"-loadstate"           , ".loadstate", XrmoptionIsArg , NULL  },
+{"-xrm"                 , NULL        , XrmoptionResArg, NULL  }
+};
+
+
+static void Timer(int sigtype)
+{
+    tick++;
+    signal(SIGALRM,Timer);
+    (void) sigtype;
+}
+
+
+/* RunTO8:
+*  Boucle principale de l'émulateur.
+ */
+static void RunTO8(void)
+{
+    const struct itimerval timer_value={ {0,1e6/TO8_FRAME_FREQ},
+                                {0,1e6/TO8_FRAME_FREQ} };
+
+    if (!teo.sound_enabled)
+    {
+    signal(SIGALRM,Timer);
+    setitimer(ITIMER_REAL, &timer_value, NULL);
+    }
+
+    frame=1;
+
+    do   /* boucle principale de l'émulateur */
+    {
+        teo.command=NONE;
+        tick=frame;
+
+        do  /* boucle d'émulation */
+        {
+            to8_DoFrame();
+
+            RefreshScreen();
+
+            HandleEvents();
+
+            if (teo.exact_speed)  /* synchronisation sur fréquence réelle */
+            {
+                if (teo.sound_enabled)
+                    PlaySoundBuffer();
+                else
+                if (frame==tick)
+                    pause();  /* on attend le SIGALARM du timer */
+            }
+//            else
+                usleep(500);
+            
+            frame++;
+        }
+        while (teo.command==NONE);  /* fin de la boucle d'émulation */
+
+        if (teo.command==CONTROL_PANEL)
+            ControlPanel();
+
+        if (teo.command==DEBUGGER)
+        {
+            do {
+                teo.command=NONE;
+                DebugPanel();
+                /* cas particulier, en sortie de debugger si on est en attente de breakpoint */
+                if (teo.command==BREAKPOINT) {
+//                  fprintf(stderr,"In breakpoint\n");
+                    teo.command=NONE;
+                    /* on passe à la boucle breakpoint */
+                    while (teo.command==NONE) {
+                        if (to8_DoFrame_debug()==0) teo.command=BREAKPOINT;
+                        RefreshScreen();
+                        if (teo.command==NONE)
+                            HandleEvents();
+                        if (teo.exact_speed)  /* synchronisation sur fréquence réelle */
+                        {
+                            if (teo.sound_enabled)
+                                PlaySoundBuffer();
+                            else if (frame==tick)
+                                pause();  /* on attend le SIGALARM du timer */
+                        }
+                        frame++;
+                    } // of teo.command==NONE
+                } // of if BREAKPOINT
+            } while (teo.command==BREAKPOINT);
+//          fprintf(stderr,"leaving breakpoint\n");
+        }
+
+        if (teo.command==RESET)
+            to8_Reset();
+
+        if (teo.command==COLD_RESET)
+            to8_ColdReset();
+    }
+    while (teo.command != QUIT);  /* fin de la boucle principale */
+}
+
+
+
+/* GetUserInput:
+ *  Lit toutes les options spécifiées par l'utilisateur dans
+ *  l'ordre de priorité décroissante suivant:
+ *    - ligne de commande,
+ *    - ressource de l'écran mise en place par xrdb,
+ *    - fichier .Xdefaults dans le répertoire utilisateur,
+ *  et les fusionne dans la base de données user_db.
+ */
+static XrmDatabase GetUserInput(int *argc, char *argv[])
+{
+    char file_name[FILENAME_LENGTH+1];
+    char *str_type[20];
+    XrmDatabase commandline_db=NULL, user_db;
+    XrmValue value;
+
+    XrmParseCommand(&commandline_db,op_table,OP_TABLE_SIZE,PROG_NAME,argc,argv);
+
+    /* Demande d'aide ? */
+    if (XrmGetResource(commandline_db,PROG_NAME".help",PROG_CLASS".Help",str_type, &value))
+    {
+    if (is_fr) {
+        printf("Usage:\n");
+        printf("           %s [options...]\n",argv[0]);
+        printf("oÃ¹ les options sont prises parmi les suivantes:\n");
+        printf("    -help                   affiche cette aide\n");
+        printf("    -m file.m7              place la cartouche file.m7 dans le lecteur\n");
+        printf("    -fast                   active la pleine vitesse de l'Ã©mulateur\n");
+        printf("    -nosound                supprime le son de l'Ã©mulateur\n");
+        printf("    -geometry +x+y          spÃ©cifie la position de la fenÃªtre\n");
+        printf("    -noshm                  dÃ©sactive l'utilisation de l'extension MIT-SHM\n");
+        printf("    -display displayname    spÃ©cifie le serveur X Ã  utiliser\n");
+        printf("    -loadstate              charge le dernier Ã©tat sauvegardÃ© de l'Ã©mulateur\n");
+    } else {
+        printf("Usage:\n");
+        printf("           %s [options...]\n",argv[0]);
+        printf("Where options are:\n");
+        printf("    -help                   this help message\n");
+        printf("    -m file.m7              loads a ROM cart from file.m7\n");
+        printf("    -fast                   fastest speed of emulation\n");
+        printf("    -nosound                disable sound support\n");
+        printf("    -geometry +x+y          set absolute position of window\n");
+        printf("    -noshm                  disable MIT-SHM extension\n");
+        printf("    -display displayname    set another X server\n");
+        printf("    -loadstate              loads last state of emulation\n");
+    }    
+        exit(EXIT_SUCCESS);
+    }
+
+    /* On a besoin de display pour accéder à la configuration utilisateur */
+    InitDisplay();
+
+    if (XScreenResourceString(DefaultScreenOfDisplay(display)) != NULL)
+        user_db=XrmGetStringDatabase(XScreenResourceString(DefaultScreenOfDisplay(display)));
+    else if (XResourceManagerString(display) != NULL)
+        user_db=XrmGetStringDatabase(XResourceManagerString(display));
+    else
+    {
+        strcat(strcpy(file_name,getenv("HOME")),"./Xdefaults");
+        user_db=XrmGetFileDatabase(file_name);
+    }
+
+    XrmMergeDatabases(commandline_db, &user_db);
+
+    return user_db;
+}
+
+
+
+/* SetParameters:
+ *  Fixe les paramètres de l'émulation, à partir des options de
+ *  l'utilisateur ou par défaut.
+ */
+static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int *direct_write_support, XrmDatabase user_db)
+{
+    char *str_type[20], buffer[20];
+    int flags;
+    XrmValue value;
+    unsigned int w,h;
+
+    /* Fichier qui décrit la cartouche placée dans le lecteur */
+    if (XrmGetResource(user_db,PROG_NAME".memo7",PROG_CLASS".Memo7", str_type, &value))
+        strncpy(memo_name, value.addr, value.size);
+
+    /* Vitesse de l'émulation: réelle (celle du TO8) ou rapide (celle du PC) */
+    if (XrmGetResource(user_db,PROG_NAME".speed",PROG_CLASS".Speed", str_type, &value))
+    {
+        if (!strncmp(value.addr,"fast",value.size))
+            teo.exact_speed=FALSE;
+        else if (strncmp(value.addr,"true",value.size))
+        {
+            fprintf(stderr,is_fr?"%s: spÃ©cification de vitesse invalide (voir %s -help)\n"
+                                :"%s: invalid speed parameter (see %s -help)\n", PROG_NAME, PROG_NAME);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    /* Activation de l'émulation sonore */
+    if (XrmGetResource(user_db,PROG_NAME".sound",PROG_CLASS".Sound", str_type, &value))
+    {
+        if (!strncmp(value.addr,"off",value.size))
+            teo.sound_enabled=False;
+        else if (strncmp(value.addr,"on",value.size))
+        {
+            fprintf(stderr,is_fr?"%s: spÃ©cification de l'émulation sonore invalide (voir %s -help)\n"
+                                :"%s: invalid sound parameter (see %s -help)\n", PROG_NAME, PROG_NAME);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    /* Géométrie de la fenêtre */
+    if (XrmGetResource(user_db,PROG_NAME".geometry",PROG_CLASS".Geometry",str_type, &value))
+    {
+        strncpy(buffer, value.addr, value.size);
+        flags=XParseGeometry(buffer, x, y, &w, &h);
+
+    /* position x */
+        if (flags&XValue)
+        {
+            *user_flags|=USPosition;
+
+            if (flags&XNegative)
+                *x=DisplayWidth(display,screen)+*x-TO8_SCREEN_W*2;
+        }
+
+    /* position y */
+        if (flags&YValue)
+        {
+            *user_flags|=USPosition;
+
+            if (flags&YNegative)
+                *y=DisplayHeight(display,screen)+*y-TO8_SCREEN_H*2;
+        }
+    }
+
+    /* Activation de l'extension MIT-SHM */
+    if (XrmGetResource(user_db,PROG_NAME".shm",PROG_CLASS".Shm",str_type, &value))
+    {
+        if (!strncmp(value.addr,"off",value.size))
+            mit_shm_enabled=False;
+        else if (strncmp(value.addr,"on",value.size))
+        {
+            fprintf(stderr,is_fr?"%s: spÃ©cification de l'extension MIT-SHM invalide\n"
+                                :"%s: invalid MIT-SHM extension\n",PROG_NAME);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    /* Autorisation d'écriture directe */
+    if (XrmGetResource(user_db,PROG_NAME".direct",PROG_CLASS".direct",str_type, &value))
+    {
+        if (!strncmp(value.addr,"on",value.size))
+            *direct_write_support = True;
+    }
+
+    /* Chargement du dernier état sauvegardé de l'émulateur */
+    if (XrmGetResource(user_db,PROG_NAME".loadstate",PROG_CLASS".loadstate",str_type, &value))
+        return TRUE;
+
+    return FALSE;
+}
+
+
+
+/* ExitMessage:
+ *  Affiche un message de sortie et sort du programme.
+ */
+static void ExitMessage(const char msg[])
+{
+    GtkWidget *dialog;
+
+    fprintf(stderr, "%s\n", msg);
+    dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", msg);
+    gtk_window_set_title (GTK_WINDOW(dialog), is_fr?"Teo - Erreur":"Teo - Error");
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    exit(EXIT_FAILURE);
+}
+
+#if !BEFORE_GTK_2_MIN
+
+/* isDir:
+ *  Retourne vrai si le fichier est un répertoire.
+ */
+static int isDir(char *path) {
+    struct stat buf;
+    int ret = 0;
+    if(!stat(path, &buf)) ret = S_ISDIR(buf.st_mode);
+    return ret;
+}
+
+/* isFile:
+ *  Retourne vrai si le fichier est un fichier.
+ */
+static int isFile(char *path) {
+    struct stat buf;
+    int ret = 0;
+    if(!stat(path, &buf)) ret = S_ISREG(buf.st_mode);
+    return ret;
+}
+
+/* sysexec:
+ *  Demande à l'OS d'executer une cmd dans un dossier précis.
+ */
+static void sysExec(char *cmd, const char *dir) {
+    char cwd[MAX_PATH]="";
+    char *tmp;
+    int i;
+    
+    tmp = getcwd(cwd, MAX_PATH);
+    i = chdir(dir);
+    i = system(cmd);
+    i = chdir(cwd);
+}
+
+
+/* rmFile:
+ *   Efface un fichier.
+ */
+static void rmFile(char *path) {
+    unlink(path);
+}
+
+
+/* tmpFile:
+ *   Cree un fichier temporaire.
+ */
+static char *tmpFile(char *buf, int maxlen) {
+#ifdef OS_LINUX
+    int tmp;
+    tmp = mkstemp(buf);
+#else
+    char *tmp;
+    tmp = tmpnam(buf);
+#endif
+    strcat(buf, ".sap");
+    return buf;
+    (void)maxlen;
+}
+
+
+/* unknownArg:
+ *  traite les arguments inconnus.
+ */
+static int unknownArg(char *arg) {
+    char buf[256];
+        
+    if(!strcmp(arg,"-help")      ||
+       !strcmp(arg,"-m")         ||
+       !strcmp(arg,"-fast")      ||
+       !strcmp(arg,"-nosound")   ||
+       !strcmp(arg,"-geometry")  ||
+       !strcmp(arg,"-noshm")     ||
+       !strcmp(arg,"-display")   ||
+       !strcmp(arg,"-loadstate"))
+            return 1;
+
+    sprintf(buf, is_fr?"Argument inconnu: %s\n":"Unknown arg: %s\n", arg);
+    ExitMessage(buf);
+    
+    return 0;
+}
+#endif
+
+#define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
+
+
+/* main:
+ *  Point d'entrée du programme appelé par Linux.
+ */
+int main(int argc, char *argv[])
+{
+    int i, x=0, y=0, user_flags=0;
+    char version_name[]="Teo "TO8_VERSION_STR" (Linux/X11)";
+    char memo_name[FILENAME_LENGTH+1]="\0";
+    int direct_support = 0, direct_write_support = FALSE;
+    int drive_type[4];
+    char *lang;
+    int load_state = FALSE;
+    XrmDatabase user_db;
+#if !BEFORE_GTK_2_MIN
+    xargs xargs;
+#endif
+#ifdef DEBIAN_BUILD
+    char fname[MAX_PATH+1] = "";
+#endif
+
+    /* Initialisation du serveur X */ 
+    lang=getenv("LANG");
+    if (lang==NULL) lang="fr_FR";        
+    setlocale(LC_ALL, "fr_FR.UTF8");    
+    if (strncmp(lang,"fr",2)==0) 
+        is_fr=-1;
+    else
+        is_fr=0;
+         
+    gtk_init(&argc, &argv);
+
+    /* Initialisation du module de gestion des ressources */
+    XrmInitialize();
+
+    /* Mise en commun dans user_db toutes les commandes et options spécifiées
+       par l'utilisateur */
+    user_db = GetUserInput(&argc, argv);
+#if !BEFORE_GTK_2_MIN
+    /* Lecture des arguments supplémentaires */
+    xargs_init(&xargs);
+    xargs.tmpFile    = tmpFile;
+    xargs.sysExec    = sysExec;
+    xargs.isFile     = isFile;
+    xargs.isDir      = isDir;
+    xargs.rmFile     = rmFile;
+    xargs.unknownArg = unknownArg;
+    xargs.sapfs      = "sapfs";
+    xargs.exitMsg = (void*)ExitMessage;
+    xargs_parse(&xargs, argc-1, argv+1);
+#endif
+    /* Mise en place des paramètres de l'émulation */
+    load_state = SetParameters(memo_name, &x, &y, &user_flags, &direct_write_support, user_db);
+    XrmDestroyDatabase(user_db);
+
+    /* Affichage du message de bienvenue du programme */
+    printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n":"Here's %s the thomson TO8 emulator.\n"),version_name);
+    printf("Copyright (C) 1997-2011 Gilles FÃ©tis, Eric Botcazou, Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
+    printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n":"Keys : [ESC] control pannel\n"));
+    printf((is_fr?"         [F10] DÃ©bogueur\n\n":"     : [F10] Debugger\n\n"));
+
+    /* Initialisation du TO8 */
+    printf((is_fr?"Initialisation de l'Ã©mulateur...":"Initialization of the emulator..."));
+    fflush(stdout);
+
+    if ( to8_Init(TO8_NJOYSTICKS) == TO8_ERROR )
+        ExitMessage(to8_error_msg);
+
+    printf("ok\n");
+
+    /* Chargement de la cartouche */
+    if (memo_name[0])
+        to8_LoadMemo7(memo_name);
+
+    /* Initialisation de l'interface d'accès direct */
+    InitDirectDisk(drive_type, direct_write_support);
+
+    /* Détection des lecteurs supportés (3"5 seulement) */
+    for (i=0; i<4; i++)
+    {
+         if (IS_3_INCHES(i))
+             direct_support |= (1<<i);
+    }
+
+    /* Création de la fenêtre principale de l'émulateur */
+    InitWindow(argc, argv, x, y, user_flags);
+
+    /* Init du debugger */
+    InitDEBUG();
+
+    /* Initialisation des modules graphique, sonore et disquette */
+    InitGraphic();
+    if (InitSound() == TO8_ERROR)
+        ExitMessage(to8_error_msg);
+
+    to8_ColdReset();
+#ifdef DEBIAN_BUILD
+    (void)snprintf (fname, MAX_PATH, "%s/.teo", getenv("HOME"));
+    if (access (fname, F_OK) < 0)
+        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+#endif
+    if (load_state == TRUE)
+        LoadState(TEO_CONFIG_FILE);
+#if !BEFORE_GTK_2_MIN
+    /* arguments supplementaires  */
+    xargs_start(&xargs);
+#endif
+    /* Initialisation de l'interface utilisateur */
+    InitGUI(version_name, direct_support);
+
+    /* Attend que GTK ait fini son travail */
+    while (gtk_events_pending ())
+        gtk_main_iteration ();
+
+    /* Et c'est parti !!! */
+    printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulator...\n"));
+    RunTO8();
+
+    /* Sauvegarde de l'état de l'émulateur */
+    SaveState(TEO_CONFIG_FILE);
+
+    /* Mise au repos de l'interface d'accès direct */
+    ExitDirectDisk();
+#if !BEFORE_GTK_2_MIN
+    /* nettoyage des arguments supplementaires */
+    xargs_exit(&xargs);
+
+    /* Détruit la fenêtre principale */
+    DestroyWindow();
+#endif
+    /* Sortie de l'émulateur */
+    printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
+    exit(EXIT_SUCCESS);
+}
+

@@ -1,0 +1,107 @@
+/*
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *
+ *                  L'émulateur Thomson TO8
+ *
+ *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ *  Module     : win/dialog.rh
+ *  Version    : 1.8.0
+ *  Créé par   : Eric Botcazou 14/09/2000
+ *  Modifié par: Eric Botcazou 26/10/2003
+ *               François Mouret 10/08/2011
+ *
+ *  Définition des boîtes de dialogue.
+ */
+
+
+#ifndef WIN_DIALOG_RH
+#define WIN_DIALOG_RH 
+
+#define START_LTEXT             101
+#define GFXMODE_GROUP           102
+#define MODE40_BUTTON           103
+#define MODE80_BUTTON           104
+#define TRUECOLOR_BUTTON        105
+#define WINDOWED_BUTTON         106
+
+#define RESET_BUTTON            120
+#define ABOUT_BUTTON            121
+#define COMMANDS_LTEXT          122
+#define COLDRESET_BUTTON        123
+#define CONTROL_TAB             124
+#define QUIT_BUTTON             125
+
+#define SETTING_TAB             130
+#define SPEED_LTEXT             131
+#define EXACT_SPEED_BUTTON      132
+#define MAX_SPEED_BUTTON        133
+#define INTERLACED_CHECK        134
+#define VOLUME_LTEXT            135
+#define VOLUME_BAR              136
+#define IMAGE_GROUP             137
+#define LOAD_BUTTON             138
+#define SAVE_BUTTON             139
+
+#define MEMO7_TAB               140
+#define MEMO7_COMBO             141
+#define MEMO7_MORE_BUTTON       142
+
+#define K7_TAB                  150
+#define K7_COMBO                151
+#define K7_MORE_BUTTON          152
+#define K7_PROT_CHECK           153
+#define K7_UPDOWN               154
+#define K7_COUNTER_LTEXT        155
+#define K7_COUNTER_EDIT         156
+#define K7_REWIND_BUTTON        157
+
+#define DISK_TAB                160
+#define DISK0_COMBO             161
+#define DISK1_COMBO             162
+#define DISK2_COMBO             163
+#define DISK3_COMBO             164
+#define DISK0_MORE_BUTTON       165
+#define DISK1_MORE_BUTTON       166
+#define DISK2_MORE_BUTTON       167
+#define DISK3_MORE_BUTTON       168
+#define DISK0_PROT_CHECK        169
+#define DISK1_PROT_CHECK        170
+#define DISK2_PROT_CHECK        171
+#define DISK3_PROT_CHECK        172
+
+#define ABOUT_DIALOG            180
+#define ABOUT_CTEXT_TITLE       181
+#define ABOUT_CTEXT_COPYRIGHT   182
+#define ABOUT_STATIC_LINK       183
+#define ABOUT_EDIT_LICENSE      184
+
+#endif

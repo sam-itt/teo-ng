@@ -1,0 +1,163 @@
+#
+#  Shared makefile for building Teo. Requires GNU make.
+#
+#  Available options:
+#
+#     Environment variables:
+#        DEBUGMODE=1       selects a debug build.
+#        PROFILEMODE=1     selects a profiling build.
+#        STATICLINK=1      use static linking (mingw32 only).
+#        PGCC=1            use PGCC compiler switches (djgpp and mingw32 only).
+#        PENTIUMONLY=1     make the library faster, but pentium-only.
+#        DEBIAN            adapt pathes for DEBIAN build (Linux only)
+#        FR_LANG=1         (by default) create a french build (djgpp and mingw32 only).
+#        EN_LANG=1         create an english build (djgpp and mingw32 only).
+#
+#     Targets: 
+#        default:          build teo
+#        install:          build and install teo in $(HOME)/emu/teo
+#        compress:         compress the executable files (mingw32 and djgpp only).
+#        all:              build, compress and install teo
+#        clean:            remove objects and executable files.
+#        veryclean:        remove all generated files.
+#        depend:           regenerate the dependency files.
+#
+#  The "clean" and "veryclean" targets require a Unix-style rm command
+#  to be installed, eg. from the djgpp fileutils package.
+#
+#  The "depend" target requires long command line support and the stream
+#  editor sed to be installed. 
+
+
+.PHONY: _default
+
+_default: default
+
+
+# ------ sources files ------
+
+TEO_SRC_FILES =   \
+   src/disk.c     \
+   src/errors.c   \
+   src/hardware.c \
+   src/image.c    \
+   src/joystick.c \
+   src/k7.c       \
+   src/keyboard.c \
+   src/mouse.c    \
+   src/printer.c  \
+   src/xargs.c    \
+   src/to8.c
+
+TEO_SRC_ALLEG_FILES =   \
+   src/alleg/acolor8.c  \
+   src/alleg/agfxdrv.c  \
+   src/alleg/agui.c     \
+   src/alleg/ajoyint.c  \
+   src/alleg/amode40.c  \
+   src/alleg/amode80.c  \
+   src/alleg/amouse.c   \
+   src/alleg/asound.c   \
+   src/alleg/astate.c   \
+   src/alleg/atruecol.c
+
+TEO_SRC_DOS_FILES =   \
+   src/dos/ddebug.c   \
+   src/dos/ddisk.c    \
+   src/dos/dkeybint.c \
+   src/dos/dmain.c    \
+   src/dos/dmemmng.c  \
+   src/dos/dvga.c
+
+TEO_SRC_LINUX_FILES =    \
+   src/linux/udisk.c     \
+   src/linux/udisplay.c  \
+   src/linux/ufilentry.c \
+   src/linux/ugraphic.c  \
+   src/linux/ugui.c      \
+   src/linux/umain.c     \
+   src/linux/umessage.c  \
+   src/linux/uquestion.c \
+   src/linux/usound.c    \
+   src/linux/ustate.c    \
+   src/linux/udebug.c    \
+   src/linux/uxgui.c
+
+TEO_SRC_MC68XX_FILES =   \
+   src/mc68xx/dasm6809.c \
+   src/mc68xx/mc6809.c   \
+   src/mc68xx/mc6821.c   \
+   src/mc68xx/mc6846.c
+
+TEO_SRC_WIN_FILES =    \
+   src/win/wdialog.rc  \
+   src/win/wgui.c      \
+   src/win/wkeybint.c  \
+   src/win/wmain.c
+
+
+# ------ object files ------
+
+VPATH = src src/mc68xx
+
+COMMON_OBJ_LIST = $(basename $(notdir $(TEO_SRC_FILES) $(TEO_SRC_MC68XX_FILES)))
+
+include $(MAKEFILE_INC)
+
+CFLAGS += -fsigned-char
+
+OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o , $(OBJ_LIST)))
+
+CLEAN_FILES = $(OBJ) $(EXE_NAME)
+
+
+$(OBJ_DIR)/%.o: %.c
+	$(CC) -c $(CFLAGS) -I./include -o $@ $<
+
+
+$(EXE_NAME): $(OBJ)
+	$(CC) $(LFLAGS) -o $(EXE_NAME) $(OBJ) $(LIB)
+
+
+
+# ------ target rules ------ 
+
+.PHONY: default install compress all clean veryclean depend
+
+default: $(EXE_NAME)
+	@echo The $(DESCRIPTION) $(PLATFORM) version has been compiled.
+
+install: $(EXE_NAME)
+ifdef UNIX_TOOLS
+	mv $(EXE_NAME) $(HOME)/emu/teo
+else
+	move $(EXE_NAME) $(subst /,\,$(HOME)/emu/teo)
+endif
+
+compress: $(EXE_NAME)
+	upx $(EXE_NAME)
+
+all: $(EXE_NAME) compress install
+
+clean:
+ifdef UNIX_TOOLS
+	rm -f $(CLEAN_FILES)
+else
+   define RM_FILES
+      $(foreach file, $(CLEAN_FILES), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
+endif
+
+veryclean: clean
+ifdef UNIX_TOOLS
+	rm -f $(OBJ_DIR)/makefile.dep
+else
+	-del $(subst /,\,$(OBJ_DIR)/makefile.dep)
+endif
+
+
+# ------ automatic source dependencies ------
+
+-include $(OBJ_DIR)/makefile.dep
