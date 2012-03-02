@@ -20,7 +20,7 @@ if [ `expr match $PWD '.*/teo$'` = 0 ]
       exit
 fi
 
-version='1.8.0'
+version='1.8.1'
 packDir="teo/misc/pack"
 zipOptions="-q -9"
 gzipOptions="-9"

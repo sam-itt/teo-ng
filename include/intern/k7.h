@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/k7.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 15/05/2000
  *

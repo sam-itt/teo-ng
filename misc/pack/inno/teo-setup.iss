@@ -3,7 +3,7 @@
 
 #define OUTPUTDIR  'misc\pack'
 #define SOURCEDIR  '..\..\..'
-#define APPVERSION  '1.8.0'
+#define APPVERSION  '1.8.1'
 
 [Setup]
 AppName=Teow

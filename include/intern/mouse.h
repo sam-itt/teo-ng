@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/mouse.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 1999
  *  Modifié par: Eric Botcazou 15/05/2000
  *

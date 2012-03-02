@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/message.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 31/07/2011

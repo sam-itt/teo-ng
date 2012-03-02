@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/main.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 2/12/2000
  *               François Mouret 30/01/2010

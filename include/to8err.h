@@ -34,7 +34,7 @@
 
 /*
  *  Module     : to8err.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 23/11/2000
  *  Modifié par: Eric Botcazou 12/02/2001
  *

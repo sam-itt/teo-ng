@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/gui.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 24/10/2003

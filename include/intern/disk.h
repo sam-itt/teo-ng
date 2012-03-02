@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/disk.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 24/10/2003
  *

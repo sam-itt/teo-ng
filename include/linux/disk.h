@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/disk.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 29/07/2000
  *  Modifié par: Eric Botcazou 03/11/2003
  *

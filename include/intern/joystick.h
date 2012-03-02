@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/joystick.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 12/02/2001
  *  Modifié par:
  *

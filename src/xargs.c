@@ -34,7 +34,7 @@
 
 /*
  *  Module     : xargs.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Samuel Devulder 30/07/2011
  *
  *  Module de traitement des arguments supplémentaires en ligne de commande.

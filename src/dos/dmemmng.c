@@ -34,7 +34,7 @@
 
 /*
  *  Module     : dos/memmng.c
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 23/11/2000
  *               François Mouret 08/2011

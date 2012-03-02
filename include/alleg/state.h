@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/state.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 24/09/2001
  *  Modifié par: François Mouret 30/01/2010
  *

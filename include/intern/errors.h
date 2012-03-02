@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/errors.h
- *  Version    : 1.8.0
+ *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 22/11/2000
  *  Modifié par:
  *
