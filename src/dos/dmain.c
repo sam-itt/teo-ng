@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -328,13 +328,13 @@ int main(int argc, char *argv[])
     /* message d'entête */
     if (is_fr) {
     printf("Voici %s l'‚mulateur Thomson TO8.\n", version_name);
-    printf("Copyright 1997-2011 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
+    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
     printf("Touches: [ESC] Panneau de contr“le\n");
     printf("         [F11] Capture d'‚cran\n");
     printf("         [F12] D‚bogueur\n\n");
     } else {
     printf("Here is %s the Thomson TO8 emulator.\n", version_name);
-    printf("Copyright 1997-2011 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
+    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
     printf("Keys: [ESC] Control panel\n");
     printf("      [F11] Screen capture\n");
     printf("      [F12] Debugger\n\n");

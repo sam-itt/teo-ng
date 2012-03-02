@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -420,7 +420,7 @@ static void run_about_window (GtkWidget *button, gpointer user_data)
     gtk_window_set_transient_for (GTK_WINDOW(about_dialog), GTK_WINDOW(window));
     gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG(about_dialog), "Teo");
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(about_dialog), TO8_VERSION_STR);
-    gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dialog), "Copyright Â© 1997-2011");
+    gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dialog), "Copyright Â© 1997-2012");
     gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG(about_dialog), "Linux/X11");
     gtk_about_dialog_set_license (GTK_ABOUT_DIALOG(about_dialog), linux_license);
     gtk_about_dialog_set_website (GTK_ABOUT_DIALOG(about_dialog), "http://nostalgies.thomsonistes.org/teo_home.html");
@@ -460,7 +460,7 @@ static void InitGUI_title (const char version_name[], GtkWidget *vbox_window)
     gtk_widget_show(widget);
 
     /* label du titre */
-    strcat(strcpy(string_title,version_name),"\nCopyright Â© 1997-2011 Gilles FÃ©tis\nEric Botcazou - Alexandre Pukall\n FranÃ§ois Mouret - Samuel Devulder");
+    strcat(strcpy(string_title,version_name),"\nCopyright Â© 1997-2012 Gilles FÃ©tis\nEric Botcazou - Alexandre Pukall\n FranÃ§ois Mouret - Samuel Devulder");
     widget=gtk_label_new(string_title);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
     gtk_widget_show(widget);

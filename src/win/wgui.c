@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1289,7 +1289,7 @@ static BOOL CALLBACK StartDialogProc(HWND hDlg, UINT Message, WPARAM wParam, LPA
                     "Version "\
                     TO8_VERSION_STR\
                     "\r\n"\
-                    "Copyright © 1997-2011  Gilles Fétis, Eric Botcazou,\r\n"\
+                    "Copyright © 1997-2012  Gilles Fétis, Eric Botcazou,\r\n"\
                     "Alexandre Pukall, Jérémie Guillaume, François Mouret,\r\n"\
                     "Samuel Devulder\r\n\n"\
                     "Ce programme est un logiciel libre; vous pouvez le redistri-\r\nbuer "\
@@ -1307,7 +1307,7 @@ static BOOL CALLBACK StartDialogProc(HWND hDlg, UINT Message, WPARAM wParam, LPA
                     "Version "\
                     TO8_VERSION_STR\
                     "\r\n"\
-                    "Copyright © 1997-2011  Gilles Fétis, Eric Botcazou,\r\n"\
+                    "Copyright © 1997-2012  Gilles Fétis, Eric Botcazou,\r\n"\
                     "Alexandre Pukall, Jérémie Guillaume, François Mouret,\r\n"\
                     "Samuel Devulder\r\n\n"\
                     "This program is free software; you can redistribute it and/or modify "\
