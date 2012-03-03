@@ -441,15 +441,15 @@ static inline int GetRealValue_lp4(void)
     lp4=mode_page.lp4|0xA0;
 
     /* Position du spot dans l'écran */
-    spot_pos=mc6809_clock()-screen_clock+5;
+    spot_pos=mc6809_clock()-screen_clock;
 
-    /* Ajoute 2 cycles si ligne impaire:
+    /* Ajoute 1 cycle si ligne impaire:
         Pour assurer la "fébrilité" du spot ?
         Chinese Stack ne fonctionne bien qu'avec un ajout
         de 1 cycle pour les lignes impaires, et le raster de
         couleurs de HCL en est parfaitement centré */
     if ((spot_pos/FULL_LINE_CYCLES)&1)
-        spot_pos+=5;
+        spot_pos+=1;
     
     /* Positionne b7 à 0 si le spot est au dessus ou au dessous de l'écran affichable */
     spot_point=spot_pos/FULL_LINE_CYCLES;    /* Numéro de ligne */
