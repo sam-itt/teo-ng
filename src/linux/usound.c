@@ -81,7 +81,6 @@ static unsigned char last_data;
  */
 static void PutSoundByte(unsigned long long int clock, unsigned char data)
 {
-    register int i;
     int index=(clock%TO8_CYCLES_PER_FRAME)*SOUND_FREQ/TO8_CPU_FREQ;
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
@@ -90,8 +89,6 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 	index=SOUND_BUFFER_SIZE;
 
     memset (&sound_buffer[last_index], last_data, index-last_index);
-//    for (i=last_index; i<index; i++)
-//        sound_buffer[i]=last_data;
 
     last_index=index;
     last_data=data;
@@ -99,10 +96,10 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 
 
 
-/* CloseSound:
+/* FreeSound:
  *  Referme le device audio.
  */
-void CloseSound (void)
+void FreeSound (void)
 {
     if (audio_fd >= 0)
         close(audio_fd);
@@ -119,7 +116,7 @@ int InitSoundError (char *error_name, char *error_string)
     perror(error_name);
     (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
                    "%s : %s", error_name, error_string);
-    CloseSound ();
+    FreeSound ();
     return TO8_ERROR;
 }
 
@@ -216,7 +213,6 @@ int InitSound(void)
  */
 void PlaySoundBuffer(void)
 {
-    register int i;
     size_t res;
 
     /* Pour éviter les "clac" si ralentissement */
@@ -224,8 +220,6 @@ void PlaySoundBuffer(void)
 
     /* on remplit la fin du buffer avec le dernier byte déposé */
     memset (&sound_buffer[last_index], last_data, SOUND_BUFFER_SIZE-last_index);
-//    for (i=last_index; i<SOUND_BUFFER_SIZE; i++)
-//        sound_buffer[i]=last_data;
 
     last_index=0;
 
@@ -233,7 +227,9 @@ void PlaySoundBuffer(void)
         res = write(audio_fd, sound_buffer, SOUND_BUFFER_SIZE);
 }
 
-#else
+#endif
+
+#ifdef ALSA_AUDIO
 
 /* ------------------------------------------------------------------ */
 /*                       Gestion du son par ALSA                      */
@@ -261,7 +257,7 @@ void PlaySoundBuffer(void)
 #define CHANNELS 1                                          /* nombre de canaux */
 #define RESAMPLE 1                                          /* enable alsa-lib resampling */
 #define ACCESS SND_PCM_ACCESS_RW_INTERLEAVED                /* type d'accès */
-#define FORMAT SND_PCM_FORMAT_S16_LE /*SND_PCM_FORMAT_U8*/  /* format */
+#define FORMAT SND_PCM_FORMAT_S16_LE                        /* format */
 
 static int last_index = 0;
 static unsigned char last_data = 0x00;
@@ -274,7 +270,23 @@ static unsigned int rate = SOUND_FREQ;
 static snd_pcm_sframes_t buffer_size;
 static snd_pcm_sframes_t period_size;
 
+static int audio_can_pause = 0;
 static int period_table [TO8_CYCLES_PER_FRAME];
+
+void FreeSound (void);
+
+/* InitSoundError:
+ *  Erreur d'initialisation du module de streaming audio.
+ */
+static int Error (const char *error_name, char *error_string)
+{
+    perror(error_name);
+    (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
+                   "%s : %s", error_name, error_string);
+    FreeSound ();
+    return TO8_ERROR;
+}
+
 
 
 /* PutSoundByte:
@@ -284,7 +296,6 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 {
     register int i;
     register const unsigned char cur_data = last_data-128;
-//    int index=(period_size*(clock%TO8_CYCLES_PER_FRAME))/TO8_CYCLES_PER_FRAME;
     int index=period_table[clock%TO8_CYCLES_PER_FRAME];
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
@@ -293,7 +304,6 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 	index=period_size;
 
     if (sound_buffer != NULL)
-//        memset (&sound_buffer[last_index], cur_data, index-last_index);
         for (i=last_index; i<index; i++)
             sound_buffer[(i<<1)+1]=cur_data;
 
@@ -301,37 +311,6 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
     last_data=data;
 }
 
-
-
-/* CloseSound:
- *  Referme le device audio.
- */
-void CloseSound (void)
-{
-    if (sound_buffer != NULL) {
-        free(sound_buffer);
-        sound_buffer = NULL;
-    }
-    if (hpcm != NULL) {
-        snd_pcm_close(hpcm);
-        hpcm = NULL;
-    }
-    teo.sound_enabled=0;
-}
-
-
-
-/* InitSoundError:
- *  Erreur d'initialisation du module de streaming audio.
- */
-int Error (const char *error_name, char *error_string)
-{
-    perror(error_name);
-    (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
-                   "%s : %s", error_name, error_string);
-    CloseSound ();
-    return 1;
-}
 
 
 /* set_hwparams:
@@ -365,7 +344,7 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
     if ((err = snd_pcm_hw_params_set_channels (hpcm, params, CHANNELS)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_channels())");
 
-    /* Initialise le débit en octets/seconde */
+    /* Initialise le débit en données/seconde */
     if ((err = snd_pcm_hw_params_set_rate_near (hpcm, params, &rate, 0)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_near())");
 
@@ -422,21 +401,27 @@ static int set_swparams (snd_pcm_sw_params_t *params)
 
 
 
-/* InitSound:
- *  Initialise le module de streaming audio.
+/* CloseSound:
+ *  Ferme le device audio.
  */
-int InitSound(void)
-{
-    int i;
-    int err;
+void CloseSound (void) {
+    if (hpcm != NULL) {
+        snd_pcm_close(hpcm);
+        hpcm = NULL;
+    }
+}
 
-    to8_PutSoundByte=PutSoundByte;
+
+
+/* OpenSound:
+ *  Ouvre le device audio.
+ */
+int OpenSound(void)
+{
+    int err;
 
     if (teo.sound_enabled)
     {
-        printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
-        fflush(stdout);
-
         to8_error_msg[0] = '\0';
 
         /* Open PCM device for playback. */
@@ -454,9 +439,48 @@ int InitSound(void)
         snd_pcm_sw_params_alloca (&swparams);
         if (set_swparams (swparams) != 0)
             return TO8_ERROR;
- 
-        /* Ouvre le buffer de son */
-        sound_buffer = calloc (1, ((period_size * CHANNELS * snd_pcm_format_physical_width(FORMAT)) / 8)+4);
+
+        /* Vérifie si le hardware peut entrer en pause */
+        audio_can_pause = snd_pcm_hw_params_can_pause(hwparams);
+    }
+    return TO8_OK;
+}
+
+
+
+/* FreeSound:
+ *  Libère le module de streaming audio.
+ */
+void FreeSound (void)
+{
+    if (sound_buffer != NULL) {
+        free(sound_buffer);
+        sound_buffer = NULL;
+    }
+    CloseSound ();
+    teo.sound_enabled=0;
+}
+
+
+
+/* InitSound:
+ *  Initialise le module de streaming audio.
+ */
+int InitSound(void)
+{
+    int i;
+
+    to8_PutSoundByte=PutSoundByte;
+
+    if (teo.sound_enabled)
+    {
+        printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
+
+        if (OpenSound()==TO8_ERROR)
+            return TO8_ERROR;
+
+        /* Alloue le buffer de son */
+        sound_buffer = (unsigned char *)calloc (1, ((period_size * CHANNELS * snd_pcm_format_physical_width(FORMAT)) / 8)+4);
         if (sound_buffer == NULL)
             return Error (is_fr?"Erreur audio":"Audio error",
                             is_fr?"MÃ©moire insuffisante pour le buffer"
@@ -473,6 +497,31 @@ int InitSound(void)
 
 
 
+/* StopSound:
+ * Stoppe la génération audio
+ */
+void StopSound (void) {
+    if (audio_can_pause)
+        snd_pcm_pause(hpcm, 1);
+    else
+        CloseSound();
+   
+}
+
+
+
+/* ResumeSound:
+ * Relance la génération audio
+ */
+void ResumeSound (void) {
+    if (audio_can_pause)
+        snd_pcm_pause(hpcm, 0);
+    else
+        OpenSound();
+}
+
+
+
 /* PlaySoundBuffer:
  *  Envoie le tampon de streaming audio à la carte son.
  */
@@ -484,17 +533,17 @@ int PlaySoundBuffer(void)
 
     if (sound_buffer != NULL)
     {
-        /* on remplit la fin du buffer avec le dernier byte déposé */
-//        memset (&sound_buffer[last_index], last_data, period_size-last_index);
-
+    
         if ((!(mc6846.crc&8))  /* MUTE son inactif */
-         && (mc6821_ReadCommand(&pia_ext.portb)&4))
+         && ((mc6821_ReadCommand(&pia_ext.portb)&4) != 0))
         {
+            /* on remplit la fin du buffer avec le dernier byte déposé */
             for (i=last_index; i<period_size+2; i++)
                 sound_buffer[(i<<1)+1]=last_data-128;
-            if (teo.sound_enabled != 0)
+            if (hpcm != NULL) {
                 err = snd_pcm_writei (hpcm, sound_buffer, period_size);
-            played=1;
+                played=1;
+            }
         }
         else
             memset(sound_buffer, 0x00, (period_size+2)*2);

@@ -2613,7 +2613,7 @@ static void cd38(void) {  /* ANDCC 4 cycles */
     switch (step) {
     /* [data : NNNN+1] */
     case 2 : value=LoadByte(pc);
-             pc++; pc&=0xffff;
+             pc=(pc+1)&0xffff;
              break;
     /* [Don't Care] */
     case 4 : setcc(getcc()&value);
@@ -2649,11 +2649,11 @@ static void cd87(void) {
 static void cd8f(void) {
     switch (step) {
     /* [Don't Care : NNNN+1] */
-    case 2 : pc++; pc&=0xffff;
+    case 2 : pc=(pc+1)&0xffff;
              break;
     /* [Register Low (write) : NNNN+2] */
     case 3 : StoreByte(pc,xr);
-             pc++; pc&=0xffff;
+             pc=(pc+1)&0xffff;
              m1=m2=ovfl=0; /* V=0 */
              res&=0xff00;  /* Z=0 */
              sign|=0x80;   /* N=1   */
@@ -2665,11 +2665,11 @@ static void cd8f(void) {
 static void cdcf(void) {
     switch (step) {
     /* [Don't Care : NNNN+1] */
-    case 2 : pc++; pc&=0xffff;
+    case 2 : pc=(pc+1)&0xffff;
              break;
     /* [Register Low (write) : NNNN+2] */
     case 3 : StoreByte(pc,ur);
-             pc++; pc&=0xffff;
+             pc=(pc+1)&0xffff;
              m1=m2=ovfl=0; /* V=0 */
              res&=0xff00;  /* Z=0 */
              sign|=0x80;   /* N=1   */

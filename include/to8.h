@@ -38,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
- *               François Mouret 30/01/2010 07/08/2011
+ *               François Mouret 30/01/2010 07/08/2011 05/03/2012
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -190,6 +190,9 @@ extern const char* to8_GetMemo7Label(void);
 extern const char* to8_GetMemo7Filename(void);
 extern const char* to8_GetK7Filename(void);
 extern const char* to8_GetDiskFilename(int drive);
+
+extern void to8_StartTimer (void);
+extern void to8_StopTimer (void);
 
 #endif
 

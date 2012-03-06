@@ -49,9 +49,12 @@
 extern int InitSound(void);
 #ifdef OSS_AUDIO
 extern void PlaySoundBuffer(void);
-#else
-extern int PlaySoundBuffer(void);
 #endif
-extern void CloseSound (void);
+#ifdef ALSA_AUDIO
+extern int PlaySoundBuffer(void);
+extern void StopSound (void);
+extern void ResumeSound (void);
+#endif
+extern void FreeSound (void);
 
 #endif

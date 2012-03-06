@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/disk.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.0
  *  Créé par   : Eric Botcazou 29/07/2000
  *  Modifié par: Eric Botcazou 05/11/2003
  *               Gilles Fétis 07/09/2011
@@ -56,10 +56,11 @@
 #endif
 
 #include "to8.h"
+#include "linux/sound.h"
 
 
-#define DISK_RETRY    3
-#define RESET_RETRY   2
+#define DISK_RETRY    5
+#define RESET_RETRY   5
 
 static int fd[2] = {-1, -1};
 static int drive_type[2];
@@ -119,19 +120,15 @@ static int OpenFloppyDrive(int drive)
  */
 static int ExecCommand(int drive, struct floppy_raw_cmd *fd_cmd)
 {
-    int i, ret;
+    int i, ret=-1;
 
     if (fd[drive]<0 && !OpenFloppyDrive(drive))
         return 0x10;  /* lecteur non prêt */
 
-    for (i=0; i<DISK_RETRY; i++)
+    for (i=0; (i<DISK_RETRY)&&(ret!=0); i++)
     {
+        if (i) ResetFloppyDrive(drive);
         ret=ioctl(fd[drive], FDRAWCMD, fd_cmd);
-
-        if (ret >= 0)
-            break;
-
-        ResetFloppyDrive(drive);
     }
 
     if (ret<0)
@@ -173,16 +170,28 @@ static int ExecCommand(int drive, struct floppy_raw_cmd *fd_cmd)
  */
 static int ExecDiskCommand(int drive, struct floppy_raw_cmd *fd_cmd)
 {
-    int i,ret;
+    int i,ret=-1;
 
-    for (i=0;i<RESET_RETRY;i++)
+#ifdef ALSA_AUDIO
+    /* Conflict with ALSA : ALSA is stopped */
+    StopSound ();
+#endif
+    /* Conflict with timer : timer is stopped */
+    to8_StopTimer();
+    
+    for (i=0;(i<RESET_RETRY)&&(ret!=0);i++)
     {
+        if (i) ResetFloppyDrive(drive);
         ret = ExecCommand (drive,fd_cmd);
-        if (ret == 0)
-            return 0;
-
-        ResetFloppyDrive(drive);
     }
+    
+#ifdef ALSA_AUDIO
+    /* Conflict with ALSA : ALSA is restarted */
+    ResumeSound ();
+#endif
+    /* Conflict with timer : timer is restarted */
+    to8_StartTimer();
+    
     return ret;
 }
 

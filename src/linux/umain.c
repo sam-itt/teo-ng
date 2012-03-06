@@ -105,26 +105,51 @@ static void Timer(int sigtype)
 }
 
 
-/* RunTO8:
-*  Boucle principale de l'émulateur.
+/* to8_StartTimer:
+ *  Démarrage du timer.
  */
-static void RunTO8(void)
-{
+void to8_StartTimer (void) {
     const struct itimerval timer_value={ {0,1e6/TO8_FRAME_FREQ},
                                 {0,1e6/TO8_FRAME_FREQ} };
-
 #ifdef OSS_AUDIO
     if (!teo.sound_enabled)
     {
     signal(SIGALRM,Timer);
     setitimer(ITIMER_REAL, &timer_value, NULL);
     }
-    frame=1;
-#else
+#endif
+#ifdef ALSA_AUDIO
     signal(SIGALRM,Timer);
     setitimer(ITIMER_REAL, &timer_value, NULL);
-    frame=1;
 #endif
+}
+
+
+
+/* to8_StopTimer:
+ *  Arrêt du timer.
+ */
+void to8_StopTimer (void) {
+    const struct itimerval timer_value={ {0,0}, {0,0} };
+
+#ifdef OSS_AUDIO
+    if (!teo.sound_enabled)
+        setitimer(ITIMER_REAL, &timer_value, NULL);
+#endif
+#ifdef ALSA_AUDIO
+    setitimer(ITIMER_REAL, &timer_value, NULL);
+#endif
+}
+
+
+
+/* RunTO8:
+ *  Boucle principale de l'émulateur.
+ */
+static void RunTO8(void)
+{
+    to8_StartTimer();
+    frame=1;
 
     do   /* boucle principale de l'émulateur */
     {
@@ -144,10 +169,12 @@ static void RunTO8(void)
 #ifdef OSS_AUDIO
                 if (teo.sound_enabled)
                     PlaySoundBuffer();
-#else
+#endif
+#ifdef ALSA_AUDIO
                 if (teo.sound_enabled) {
                     if (PlaySoundBuffer()==0)
-                        pause();
+                        if (frame==tick)
+                             pause();
                 }
 #endif
                 else
@@ -613,7 +640,7 @@ int main(int argc, char *argv[])
 #endif
 
     /* Referme le périphérique audio*/
-    CloseSound();
+    FreeSound();
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));

@@ -83,51 +83,6 @@ typedef unsigned long long int mc6809_clock_t;  /* entier 64-bit */
 #define MC6809_REGS_CPUTIMER_FLAG  (1<<10)
 #define MC6809_REGS_MAX_FLAG       11
 
-enum {
-    CODESIZE_0=0,
-    CODESIZE_1,
-    CODESIZE_2,
-    CODESIZE_3,
-    CODESIZE_4,
-    CODESIZE_5
-};
-
-enum {
-    CPUTIME_0=0,
-    CPUTIME_1,
-    CPUTIME_2,
-    CPUTIME_3,
-    CPUTIME_4,
-    CPUTIME_5,
-    CPUTIME_6,
-    CPUTIME_7,
-    CPUTIME_8,
-    CPUTIME_9,
-    CPUTIME_10,
-    CPUTIME_11,
-    CPUTIME_12,
-    CPUTIME_13,
-    CPUTIME_14,
-    CPUTIME_15,
-    CPUTIME_16,
-    CPUTIME_17,
-    CPUTIME_18,
-    CPUTIME_19,
-    CPUTIME_20
-};
-
-
-enum {
-    A_DIRECT=0,
-    A_IMPLICIT,
-    A_BRANCH,
-    A_IMMEDIATE,
-    A_INDEXED,
-    A_EXTENDED,
-    A_PAGE
-};
-
-
 struct CODES_6809_SPEC {
     char name[6];
     void (*prog)(void);
