@@ -52,9 +52,7 @@ extern void PlaySoundBuffer(void);
 #endif
 #ifdef ALSA_AUDIO
 extern int PlaySoundBuffer(void);
-extern void StopSound (void);
-extern void ResumeSound (void);
 #endif
-extern void FreeSound (void);
+extern void CloseSound (void);
 
 #endif

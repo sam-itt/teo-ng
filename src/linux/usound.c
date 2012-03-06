@@ -270,10 +270,9 @@ static unsigned int rate = SOUND_FREQ;
 static snd_pcm_sframes_t buffer_size;
 static snd_pcm_sframes_t period_size;
 
-static int audio_can_pause = 0;
 static int period_table [TO8_CYCLES_PER_FRAME];
 
-void FreeSound (void);
+void CloseSound (void);
 
 /* InitSoundError:
  *  Erreur d'initialisation du module de streaming audio.
@@ -283,7 +282,7 @@ static int Error (const char *error_name, char *error_string)
     perror(error_name);
     (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
                    "%s : %s", error_name, error_string);
-    FreeSound ();
+    CloseSound ();
     return TO8_ERROR;
 }
 
@@ -405,23 +404,33 @@ static int set_swparams (snd_pcm_sw_params_t *params)
  *  Ferme le device audio.
  */
 void CloseSound (void) {
+    if (sound_buffer != NULL) {
+        free(sound_buffer);
+        sound_buffer = NULL;
+    }
     if (hpcm != NULL) {
         snd_pcm_close(hpcm);
         hpcm = NULL;
     }
+    teo.sound_enabled=0;
 }
 
 
 
-/* OpenSound:
- *  Ouvre le device audio.
+/* InitSound:
+ *  Initialise le module de streaming audio.
  */
-int OpenSound(void)
+int InitSound(void)
 {
+    int i;
     int err;
+
+    to8_PutSoundByte=PutSoundByte;
 
     if (teo.sound_enabled)
     {
+        printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
+
         to8_error_msg[0] = '\0';
 
         /* Open PCM device for playback. */
@@ -440,45 +449,6 @@ int OpenSound(void)
         if (set_swparams (swparams) != 0)
             return TO8_ERROR;
 
-        /* Vérifie si le hardware peut entrer en pause */
-        audio_can_pause = snd_pcm_hw_params_can_pause(hwparams);
-    }
-    return TO8_OK;
-}
-
-
-
-/* FreeSound:
- *  Libère le module de streaming audio.
- */
-void FreeSound (void)
-{
-    if (sound_buffer != NULL) {
-        free(sound_buffer);
-        sound_buffer = NULL;
-    }
-    CloseSound ();
-    teo.sound_enabled=0;
-}
-
-
-
-/* InitSound:
- *  Initialise le module de streaming audio.
- */
-int InitSound(void)
-{
-    int i;
-
-    to8_PutSoundByte=PutSoundByte;
-
-    if (teo.sound_enabled)
-    {
-        printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
-
-        if (OpenSound()==TO8_ERROR)
-            return TO8_ERROR;
-
         /* Alloue le buffer de son */
         sound_buffer = (unsigned char *)calloc (1, ((period_size * CHANNELS * snd_pcm_format_physical_width(FORMAT)) / 8)+4);
         if (sound_buffer == NULL)
@@ -493,31 +463,6 @@ int InitSound(void)
         printf("ok\n");
     }
     return TO8_OK;
-}
-
-
-
-/* StopSound:
- * Stoppe la génération audio
- */
-void StopSound (void) {
-    if (audio_can_pause)
-        snd_pcm_pause(hpcm, 1);
-    else
-        CloseSound();
-   
-}
-
-
-
-/* ResumeSound:
- * Relance la génération audio
- */
-void ResumeSound (void) {
-    if (audio_can_pause)
-        snd_pcm_pause(hpcm, 0);
-    else
-        OpenSound();
 }
 
 

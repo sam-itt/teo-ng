@@ -172,10 +172,6 @@ static int ExecDiskCommand(int drive, struct floppy_raw_cmd *fd_cmd)
 {
     int i,ret=-1;
 
-#ifdef ALSA_AUDIO
-    /* Conflict with ALSA : ALSA is stopped */
-    StopSound ();
-#endif
     /* Conflict with timer : timer is stopped */
     to8_StopTimer();
     
@@ -185,10 +181,6 @@ static int ExecDiskCommand(int drive, struct floppy_raw_cmd *fd_cmd)
         ret = ExecCommand (drive,fd_cmd);
     }
     
-#ifdef ALSA_AUDIO
-    /* Conflict with ALSA : ALSA is restarted */
-    ResumeSound ();
-#endif
     /* Conflict with timer : timer is restarted */
     to8_StartTimer();
     

@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
 #endif
 
     /* Referme le périphérique audio*/
-    FreeSound();
+    CloseSound();
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
