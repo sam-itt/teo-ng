@@ -173,8 +173,7 @@ static void RunTO8(void)
 #ifdef ALSA_AUDIO
                 if (teo.sound_enabled) {
                     if (PlaySoundBuffer()==0)
-                        if (frame==tick)
-                             pause();
+                        pause();
                 }
 #endif
                 else

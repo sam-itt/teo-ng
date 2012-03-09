@@ -250,14 +250,12 @@ void PlaySoundBuffer(void)
 #include "to8.h"
 #include "intern/hardware.h"
 
-#define DEVNAME "default"         /* nom du périphérique */
-#define SOUND_FREQ  44100         /* débit */
-#define PERIOD_TIME (unsigned int)(1000000/TO8_FRAME_FREQ)  /* longueur d'une période en microsecondes */
-#define BUFFER_TIME (unsigned int)(PERIOD_TIME*6)           /* longueur du ring buffer en microsecondes */
-#define CHANNELS 1                                          /* nombre de canaux */
-#define RESAMPLE 1                                          /* enable alsa-lib resampling */
-#define ACCESS SND_PCM_ACCESS_RW_INTERLEAVED                /* type d'accès */
-#define FORMAT SND_PCM_FORMAT_S16_LE                        /* format */
+#define ALSA_DEVNAME "default"         /* nom du périphérique */
+#define ALSA_SOUND_FREQ  44100         /* débit */
+#define ALSA_CHANNELS 1                            /* nombre de canaux */
+#define ALSA_RESAMPLE 1                            /* enable alsa-lib resampling */
+#define ALSA_ACCESS SND_PCM_ACCESS_RW_INTERLEAVED  /* type d'accès */
+#define ALSA_FORMAT SND_PCM_FORMAT_S16          /* format */
 
 static int last_index = 0;
 static unsigned char last_data = 0x00;
@@ -266,13 +264,17 @@ static unsigned char *sound_buffer = NULL;
 static snd_pcm_t *hpcm = NULL;
 static snd_pcm_hw_params_t *hwparams;
 static snd_pcm_sw_params_t *swparams;
-static unsigned int rate = SOUND_FREQ;
+static unsigned int rate = ALSA_SOUND_FREQ;
 static snd_pcm_sframes_t buffer_size;
 static snd_pcm_sframes_t period_size;
+static unsigned int period_time;  /* longueur d'une période en microsecondes */
+static unsigned int buffer_time;  /* longueur du ring buffer en microsecondes */
 
 static int period_table [TO8_CYCLES_PER_FRAME];
 
 void CloseSound (void);
+static int must_play_sound = 0;
+
 
 /* InitSoundError:
  *  Erreur d'initialisation du module de streaming audio.
@@ -302,9 +304,11 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
     if (index < last_index)
 	index=period_size;
 
-    if (sound_buffer != NULL)
+    if (sound_buffer != NULL) {
         for (i=last_index; i<index; i++)
             sound_buffer[(i<<1)+1]=cur_data;
+        must_play_sound=1;
+    }
 
     last_index=index;
     last_data=data;
@@ -320,27 +324,28 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
     int err;
     int dir = 0;
     snd_pcm_uframes_t size;
-    unsigned int buffer_time = BUFFER_TIME;
-    unsigned int period_time = PERIOD_TIME;
+
+    period_time = (unsigned int)TO8_CYCLES_PER_FRAME;
+    buffer_time = period_time*6;
 
     /* Initialise la structure */
     if ((err = snd_pcm_hw_params_any (hpcm, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_any())");
 
     /* Initialise le resample */
-    if ((err = snd_pcm_hw_params_set_rate_resample (hpcm, params, RESAMPLE)) < 0)
+    if ((err = snd_pcm_hw_params_set_rate_resample (hpcm, params, ALSA_RESAMPLE)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_resample())");
 
     /* Initialise le type d'accès */
-    if ((err = snd_pcm_hw_params_set_access (hpcm, params, ACCESS)) < 0)
+    if ((err = snd_pcm_hw_params_set_access (hpcm, params, ALSA_ACCESS)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_access())");
 
     /* Initialise le format */
-    if ((err = snd_pcm_hw_params_set_format (hpcm, params, FORMAT)) < 0)
+    if ((err = snd_pcm_hw_params_set_format (hpcm, params, ALSA_FORMAT)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_format())");
 
     /* Initialise le nombre de canaux */
-    if ((err = snd_pcm_hw_params_set_channels (hpcm, params, CHANNELS)) < 0)
+    if ((err = snd_pcm_hw_params_set_channels (hpcm, params, ALSA_CHANNELS)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_channels())");
 
     /* Initialise le débit en données/seconde */
@@ -434,7 +439,7 @@ int InitSound(void)
         to8_error_msg[0] = '\0';
 
         /* Open PCM device for playback. */
-        if ((err = snd_pcm_open(&hpcm, DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
+        if ((err = snd_pcm_open(&hpcm, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
             return Error (snd_strerror(err),
                                    is_fr?"Impossible d'ouvrir le pÃ©riphÃ©rique audio"
                                         :"Unable to open audio device");
@@ -450,7 +455,8 @@ int InitSound(void)
             return TO8_ERROR;
 
         /* Alloue le buffer de son */
-        sound_buffer = (unsigned char *)calloc (1, ((period_size * CHANNELS * snd_pcm_format_physical_width(FORMAT)) / 8)+4);
+        sound_buffer = (unsigned char *)calloc (1, ((period_size * ALSA_CHANNELS
+                            * snd_pcm_format_physical_width(ALSA_FORMAT)) / 8)+4);
         if (sound_buffer == NULL)
             return Error (is_fr?"Erreur audio":"Audio error",
                             is_fr?"MÃ©moire insuffisante pour le buffer"
@@ -473,27 +479,28 @@ int InitSound(void)
 int PlaySoundBuffer(void)
 {
     register int i;
-    int err;
     int played=0;
+    static int size = 0;
 
     if (sound_buffer != NULL)
     {
-    
-        if ((!(mc6846.crc&8))  /* MUTE son inactif */
-         && ((mc6821_ReadCommand(&pia_ext.portb)&4) != 0))
-        {
-            /* on remplit la fin du buffer avec le dernier byte déposé */
-            for (i=last_index; i<period_size+2; i++)
-                sound_buffer[(i<<1)+1]=last_data-128;
+        if ((must_play_sound) || (size!=0)) {
+            if (must_play_sound) {
+                /* on remplit la fin du buffer avec le dernier byte déposé */
+                for (i=last_index; i<period_size+2; i++)
+                    sound_buffer[(i<<1)+1]=last_data-128;
+            }
             if (hpcm != NULL) {
-                err = snd_pcm_writei (hpcm, sound_buffer, period_size);
+                size += snd_pcm_writei (hpcm, sound_buffer, period_size);
                 played=1;
+                if ((unsigned int)size >= buffer_time) size=0;
             }
         }
-        else
-            memset(sound_buffer, 0x00, (period_size+2)*2);
+        /* effacement du buffer */
+        memset(sound_buffer, 0x00, (period_size+2)*2);
         last_index=0;
     }
+    must_play_sound=0;
     return played;
 }
 
