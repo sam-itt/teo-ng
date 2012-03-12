@@ -259,21 +259,22 @@ void PlaySoundBuffer(void)
 
 static int last_index = 0;
 static unsigned char last_data = 0x00;
+static int end_data = 0;
 static unsigned char *sound_buffer = NULL;
 
-static snd_pcm_t *hpcm = NULL;
+static snd_pcm_t *handle = NULL;
 static snd_pcm_hw_params_t *hwparams;
 static snd_pcm_sw_params_t *swparams;
 static unsigned int rate = ALSA_SOUND_FREQ;
-static snd_pcm_sframes_t buffer_size;
 static snd_pcm_sframes_t period_size;
-static unsigned int period_time;  /* longueur d'une période en microsecondes */
-static unsigned int buffer_time;  /* longueur du ring buffer en microsecondes */
+static int threshold;
 
 static int period_table [TO8_CYCLES_PER_FRAME];
 
 void CloseSound (void);
 static int must_play_sound = 0;
+static int play=0;
+static int dead_sound=1;
 
 
 /* InitSoundError:
@@ -296,7 +297,8 @@ static int Error (const char *error_name, char *error_string)
 static void PutSoundByte(unsigned long long int clock, unsigned char data)
 {
     register int i;
-    register const unsigned char cur_data = last_data-128;
+    register const char char_data = last_data-128;
+    float delta, new_data=end_data;
     int index=period_table[clock%TO8_CYCLES_PER_FRAME];
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
@@ -305,12 +307,30 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 	index=period_size;
 
     if (sound_buffer != NULL) {
+
+        if ((must_play_sound==0) && (dead_sound==1)) {
+//            printf ("*%d* ",index-last_index); fflush(stdout);
+            if (index-last_index>1) {
+                delta=(float)(((char_data<<8)-new_data)/((index-last_index)>>1));
+//                printf ("[D=%f depart=%x arrivee=%x last_index=%x]", delta,end_data,char_data<<8,last_index); fflush (stdout);
+                for (i=last_index; i<(last_index+((index-last_index)>>1)); i++) {
+//                     printf ("<%x ",(int)new_data); fflush (stdout);
+                     new_data+=delta;
+                     sound_buffer[i<<1]=(char)new_data;
+                     sound_buffer[(i<<1)+1]=(char)((int)new_data>>8);
+                }
+                last_index+=(index-last_index)>>1;
+            }
+        }
         for (i=last_index; i<index; i++)
-            sound_buffer[(i<<1)+1]=cur_data;
+            sound_buffer[(i<<1)+1]=char_data;
+
         must_play_sound=1;
     }
+//    printf ("=%x ",(int)char_data<<8); fflush (stdout);
 
     last_index=index;
+    end_data=char_data<<8;
     last_data=data;
 }
 
@@ -324,36 +344,36 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
     int err;
     int dir = 0;
     snd_pcm_uframes_t size;
-
-    period_time = (unsigned int)TO8_CYCLES_PER_FRAME;
-    buffer_time = period_time*6;
+    unsigned int period_time = (unsigned int)TO8_CYCLES_PER_FRAME;  /* longueur d'une période en microsecondes */
+    unsigned int buffer_time = period_time*6; /* longueur du ring buffer en microsecondes */
+    snd_pcm_uframes_t buffer_size;
 
     /* Initialise la structure */
-    if ((err = snd_pcm_hw_params_any (hpcm, params)) < 0)
+    if ((err = snd_pcm_hw_params_any (handle, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_any())");
 
     /* Initialise le resample */
-    if ((err = snd_pcm_hw_params_set_rate_resample (hpcm, params, ALSA_RESAMPLE)) < 0)
+    if ((err = snd_pcm_hw_params_set_rate_resample (handle, params, ALSA_RESAMPLE)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_resample())");
 
     /* Initialise le type d'accès */
-    if ((err = snd_pcm_hw_params_set_access (hpcm, params, ALSA_ACCESS)) < 0)
+    if ((err = snd_pcm_hw_params_set_access (handle, params, ALSA_ACCESS)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_access())");
 
     /* Initialise le format */
-    if ((err = snd_pcm_hw_params_set_format (hpcm, params, ALSA_FORMAT)) < 0)
+    if ((err = snd_pcm_hw_params_set_format (handle, params, ALSA_FORMAT)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_format())");
 
     /* Initialise le nombre de canaux */
-    if ((err = snd_pcm_hw_params_set_channels (hpcm, params, ALSA_CHANNELS)) < 0)
+    if ((err = snd_pcm_hw_params_set_channels (handle, params, ALSA_CHANNELS)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_channels())");
 
     /* Initialise le débit en données/seconde */
-    if ((err = snd_pcm_hw_params_set_rate_near (hpcm, params, &rate, 0)) < 0)
+    if ((err = snd_pcm_hw_params_set_rate_near (handle, params, &rate, 0)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_near())");
 
     /* Initialise le temps du ring-buffer en microsecondes */
-    if ((err = snd_pcm_hw_params_set_buffer_time_near (hpcm, params, &buffer_time, &dir)) < 0)
+    if ((err = snd_pcm_hw_params_set_buffer_time_near (handle, params, &buffer_time, &dir)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_buffer_time_near())");
 
     /* Lit la taille du ring-buffer */
@@ -362,16 +382,17 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
     buffer_size = size;
 
     /* Set period size (frames) */
-    if ((err = snd_pcm_hw_params_set_period_time_near (hpcm, params, &period_time, &dir)) < 0)
+    if ((err = snd_pcm_hw_params_set_period_time_near (handle, params, &period_time, &dir)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_period_time_near())");
 
     /* Lit la taille de la période en frames */
     if ((err = snd_pcm_hw_params_get_period_size (params, &size, &dir)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_period_size())");
     period_size = size;
+    threshold = (buffer_size / period_size) * period_size;
 
     /* Actualise des paramètres hardware */
-    if ((err = snd_pcm_hw_params (hpcm, params)) < 0)
+    if ((err = snd_pcm_hw_params (handle, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params())");
 
     return 0;
@@ -387,17 +408,17 @@ static int set_swparams (snd_pcm_sw_params_t *params)
     int err;
 
     /* Récupère le swparams courant */
-    if ((err = snd_pcm_sw_params_current (hpcm, params)) < 0)
+    if ((err = snd_pcm_sw_params_current (handle, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params_current())");
 
-    if ((err = snd_pcm_sw_params_set_start_threshold (hpcm, params, (buffer_size / period_size) * period_size)) < 0)
+    if ((err = snd_pcm_sw_params_set_start_threshold (handle, params, threshold)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params_set_start_threshold())");
 
-    if ((err = snd_pcm_sw_params_set_avail_min (hpcm, params, period_size)) < 0)
+    if ((err = snd_pcm_sw_params_set_avail_min (handle, params, period_size)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params_set_avail_min())");
 
     /* Actualise les paramètres software */
-    if ((err = snd_pcm_sw_params (hpcm, params)) < 0)
+    if ((err = snd_pcm_sw_params (handle, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params()");
 
     return 0;
@@ -413,9 +434,9 @@ void CloseSound (void) {
         free(sound_buffer);
         sound_buffer = NULL;
     }
-    if (hpcm != NULL) {
-        snd_pcm_close(hpcm);
-        hpcm = NULL;
+    if (handle != NULL) {
+        snd_pcm_close(handle);
+        handle = NULL;
     }
     teo.sound_enabled=0;
 }
@@ -439,7 +460,7 @@ int InitSound(void)
         to8_error_msg[0] = '\0';
 
         /* Open PCM device for playback. */
-        if ((err = snd_pcm_open(&hpcm, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
+        if ((err = snd_pcm_open(&handle, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
             return Error (snd_strerror(err),
                                    is_fr?"Impossible d'ouvrir le pÃ©riphÃ©rique audio"
                                         :"Unable to open audio device");
@@ -456,7 +477,7 @@ int InitSound(void)
 
         /* Alloue le buffer de son */
         sound_buffer = (unsigned char *)calloc (1, ((period_size * ALSA_CHANNELS
-                            * snd_pcm_format_physical_width(ALSA_FORMAT)) / 8)+4);
+                            * snd_pcm_format_physical_width(ALSA_FORMAT)) >> 3));
         if (sound_buffer == NULL)
             return Error (is_fr?"Erreur audio":"Audio error",
                             is_fr?"MÃ©moire insuffisante pour le buffer"
@@ -473,35 +494,58 @@ int InitSound(void)
 
 
 
+#define DELTA_TO_0_VALUE 1
 /* PlaySoundBuffer:
  *  Envoie le tampon de streaming audio à la carte son.
  */
 int PlaySoundBuffer(void)
 {
     register int i;
-    int played=0;
     static int size = 0;
 
     if (sound_buffer != NULL)
     {
-        if ((must_play_sound) || (size!=0)) {
-            if (must_play_sound) {
-                /* on remplit la fin du buffer avec le dernier byte déposé */
-                for (i=last_index; i<period_size+2; i++)
-                    sound_buffer[(i<<1)+1]=last_data-128;
-            }
-            if (hpcm != NULL) {
-                size += snd_pcm_writei (hpcm, sound_buffer, period_size);
-                played=1;
-                if ((unsigned int)size >= buffer_time) size=0;
-            }
+        play=1;
+        dead_sound=1;
+        /* on remplit la fin du buffer avec la dernière valeur déposée */
+        if (must_play_sound) {
+            for (i=last_index; i<period_size; i++)
+                sound_buffer[(i<<1)+1]=last_data-128;
+            end_data = (last_data-128)<<8;
+            dead_sound=0;
         }
-        /* effacement du buffer */
-        memset(sound_buffer, 0x00, (period_size+2)*2);
+        else
+        /* on fait tendre la valeur vers 0 */
+        if (end_data!=0) {
+//            printf (" >%x ", end_data);fflush(stdout);
+            for (i=0; i<period_size; i++) {
+                sound_buffer[i<<1]=end_data;
+                sound_buffer[(i<<1)+1]=end_data>>8;
+                if (end_data<0)
+                    if ((end_data+=DELTA_TO_0_VALUE)>0)
+                         end_data=0;
+                if (end_data>0)
+                    if ((end_data-=DELTA_TO_0_VALUE)<0)
+                         end_data=0;
+            }
+        } else
+        /* on remplit le buffer hardware jusqu'au seuil de déclenchement
+         * et on stoppe la génération du son une fois atteint */
+        if (size==0) play=0;
+
+        if ((play) && (handle != NULL)) {
+            size += snd_pcm_writei (handle, sound_buffer, period_size);
+            if (size >= threshold) size=0;
+        } else
+            play=0;
+
+        /* reset du buffer */
+        memset(sound_buffer, 0x00, (period_size * snd_pcm_format_physical_width(ALSA_FORMAT)) >> 3);
         last_index=0;
     }
     must_play_sound=0;
-    return played;
+//    printf ("%d",play); fflush(stdout);
+    return play;
 }
 
 #endif
