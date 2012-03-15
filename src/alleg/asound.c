@@ -108,7 +108,6 @@ void SetVolume(int val)
  */
 static void PutSoundByte(unsigned long long int clock, unsigned char data)
 {
-    register int i;
     int index=(clock%TO8_CYCLES_PER_FRAME)*sound_freq/TO8_CPU_FREQ;
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
@@ -117,8 +116,6 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
         index=sound_buffer_size;
 
     memset (&sound_buffer[last_index], last_data, index-last_index);
-//    for (i=last_index; i<index; i++)
-//        sound_buffer[i]=last_data;
 
     last_index=index;
     last_data=data;
@@ -131,7 +128,6 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
  */
 void PlaySoundBuffer(void)
 {
-    register int i;
     char *buffer_ptr;
 
     /* Pour éviter les "clac" si ralentissement */
@@ -139,8 +135,6 @@ void PlaySoundBuffer(void)
 
     /* on remplit la fin du buffer avec le dernier byte déposé */
     memset (&sound_buffer[last_index], last_data, sound_buffer_size-last_index);
-//    for (i=last_index; i<sound_buffer_size; i++)
-//        sound_buffer[i]=last_data;
 
     last_index=0;
 
