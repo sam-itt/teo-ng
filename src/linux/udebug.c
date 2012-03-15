@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 2011 Gilles Fétis
+ *  Copyright (C) 2011-2012 Gilles Fétis, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,6 +58,9 @@
 #include "linux/question.h"
 #include "linux/debugger.h"
 #include "to8.h"
+#include "mc68xx/dasm6809.h"
+#include "mc68xx/mc6809.h"
+#include "to8dbg.h"
 
 #define DEBUG_SPACE 5
 
@@ -67,19 +70,112 @@
 #define DEBUG_CMD_BKPT 3
 #define DEBUG_CMD_REMBKPT 4
 
-extern char* debug_get_dasm(void);
-extern void debug_step(void);
-extern void debug_stepover(void);
-extern char* debug_get_regs(void);
-extern void debug_bkpt(int);
-extern void debug_rembkpt(void);
+#define DASM_NLINES 100
+
+#define MAX_BREAKPOINTS  4
+static int breakpoint[MAX_BREAKPOINTS]={-1,-1,-1,-1};
+
+static struct MC6809_REGS regs, prev_regs;
+
+static char fetch_buffer[MC6809_FETCH_BUFFER_SIZE]="";
+static char string_buffer[MAX(MC6809_DASM_BUFFER_SIZE,128)]="";
+static char text_buffer[MAX(MC6809_DASM_BUFFER_SIZE*DASM_NLINES,2048)]="";
 
 /* fenêtre de l'interface utilisateur */
 static GtkWidget * window_debug;
 // static GtkEntryBuffer * address_buf;
 static GtkWidget *entry_address;
 static GtkWidget *label_middle_left,*label_middle_right;
+static GtkWidget *label_6809regs,*label_sr_list;
 
+
+static char* debug_get_sr_list(void) {
+    int i;
+    char *ptr = text_buffer;
+
+    *ptr='\0';
+    for(i=0;i<15;i++)
+        ptr+=sprintf(ptr,"%02X " ,LOAD_BYTE(regs.sr+i));
+    return text_buffer;
+}        
+
+
+static char* debug_get_6809regs(void) {
+    sprintf(text_buffer, "%02X [%c%c%c%c%c%c%c%c] %02X %02X %02X %04X %04X %04X %04X %04X [%04X]"
+                         ,regs.cc
+                            ,regs.cc&0x80 ? 'E' : '.'
+                            ,regs.cc&0x40 ? 'F' : '.'
+                            ,regs.cc&0x20 ? 'H' : '.'
+                            ,regs.cc&0x10 ? 'I' : '.'
+                            ,regs.cc&0x08 ? 'N' : '.'
+                            ,regs.cc&0x04 ? 'Z' : '.'
+                            ,regs.cc&0x02 ? 'V' : '.'
+                            ,regs.cc&0x01 ? 'C' : '.'
+                         ,regs.ar,regs.br
+                         ,regs.dp
+                         ,regs.xr,regs.yr
+                         ,regs.ur,regs.sr
+                         ,regs.pc,prev_regs.pc);
+    return text_buffer;
+}
+
+
+static char* debug_get_regs(void) {
+    int i;
+    char *ptr = text_buffer;
+    *ptr='\0';
+    for (i=0;i< MAX_BREAKPOINTS;i++) {
+        if (breakpoint[i]==-1) break;
+    	ptr+=sprintf(ptr,"BKPT[%d]=%04X\n",i,breakpoint[i]);
+    }
+    ptr+=sprintf(ptr,"IRQ: %d\n" ,mc6809_irq);
+    ptr+=sprintf(ptr," CSR: %02X   CRC: %02X\n",mc6846.csr,mc6846.crc);
+    ptr+=sprintf(ptr,"DDRC: %02X   PRC: %02X\n",mc6846.ddrc,mc6846.prc);
+    ptr+=sprintf(ptr," TCR: %02X  TMSB: %02X  TLSB: %02X\n",mc6846.tcr,mc6846.tmsb, mc6846.tlsb);
+    ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_int.porta.cr,
+                          pia_int.porta.ddr,mc6821_ReadPort(&pia_int.porta));
+    ptr+=sprintf(ptr,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_int.portb.cr,
+                          pia_int.portb.ddr,mc6821_ReadPort(&pia_int.portb));
+    ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_ext.porta.cr,
+                          pia_ext.porta.ddr,mc6821_ReadPort(&pia_ext.porta));
+    ptr+=sprintf(ptr,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_ext.portb.cr,
+                          pia_ext.portb.ddr,mc6821_ReadPort(&pia_ext.portb));
+    ptr+=sprintf(ptr,"P_DATA: %02X   P_ADDR: %02X\n",mode_page.p_data,mode_page.p_addr);
+    ptr+=sprintf(ptr,"LGAMOD: %02X     SYS1: %02X\n",mode_page.lgamod,mode_page.system1);
+    ptr+=sprintf(ptr,"  SYS2: %02X     DATA: %02X\n",mode_page.system2,mode_page.ram_data);
+    ptr+=sprintf(ptr,"  CART: %02X   COMMUT: %02X\n",mode_page.cart,mode_page.commut);
+    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n", disk_ctrl.cmd0, disk_ctrl.cmd1, disk_ctrl.cmd2);
+    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",disk_ctrl.stat0, disk_ctrl.stat1);
+    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",disk_ctrl.wdata, disk_ctrl.rdata);
+    ptr+=sprintf(ptr,is_fr?"page de ROM cartouche : %d\n":"ROM cartridge page  : %d\n", mempager.cart.rom_page);
+    ptr+=sprintf(ptr,is_fr?"page de RAM cartouche : %d\n":"RAM cartridge page  : %d\n", mempager.cart.ram_page);
+    ptr+=sprintf(ptr,is_fr?"page de VRAM          : %d\n":"VRAM page           : %d\n", mempager.screen.vram_page);
+    ptr+=sprintf(ptr,is_fr?"page de RAM (registre): %d\n":"RAM page (register) : %d\n", mempager.data.reg_page);
+    ptr+=sprintf(ptr,is_fr?"page de RAM (PIA)     : %d\n":"RAM page (PIA)      : %d\n", mempager.data.pia_page);
+    return text_buffer;
+}
+
+
+static char* debug_get_dasm(void) { 
+        int i,j,pc;
+        char *ptr=text_buffer;
+	text_buffer[0]='\0';
+        mc6809_GetRegs(&regs);
+        pc=regs.pc;
+        for (i=0; i<DASM_NLINES; i++)
+        {
+            for (j=0; j<5; j++)
+                fetch_buffer[j]=LOAD_BYTE(pc+j);
+
+            pc=(pc+MC6809_Dasm(string_buffer,(const unsigned char *)fetch_buffer,pc,MC6809_DASM_BINASM_MODE))&0xFFFF;
+            if (i==0)
+                ptr+=sprintf(ptr, "%s\n", string_buffer);
+            else
+                ptr+=sprintf(ptr, "%s\n", string_buffer);
+        }
+        ptr+=sprintf(ptr, "                                                 ");
+	return text_buffer;
+}
 
 
 /* update_debug_text:
@@ -89,6 +185,13 @@ static void update_debug_text (void)
 {
     char *markup;
 
+    mc6809_GetRegs(&regs);
+    markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_6809regs());
+    gtk_label_set_markup (GTK_LABEL (label_6809regs), markup);
+    g_free (markup);
+    markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>S&gt;</b> %s</span>", debug_get_sr_list());
+    gtk_label_set_markup (GTK_LABEL (label_sr_list), markup);
+    g_free (markup);
     markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_dasm());
     gtk_label_set_markup (GTK_LABEL (label_middle_left), markup);
     g_free (markup);
@@ -139,6 +242,43 @@ static int do_hide_debug(GtkWidget *widget, GdkEvent *event, gpointer user_data)
     (void) user_data;
 }
 
+
+
+static void
+debug_stepover(void) {
+	    int pc;
+	    int watch=0;
+            mc6809_GetRegs(&regs);
+
+                    pc = regs.pc;
+                    do
+                    {
+                        mc6809_GetRegs(&prev_regs);
+                        mc6809_StepExec(1);
+                        mc6809_GetRegs(&regs);
+                    } while (((regs.pc<pc) || (regs.pc>pc+5)) && ((watch++)<20000));
+}
+
+static void
+debug_step(void) {
+            mc6809_StepExec(1);
+}
+
+static void debug_bkpt(int addr) {
+    int i;
+    for (i=0;i< MAX_BREAKPOINTS;i++) {
+	if (breakpoint[i]==-1) break;
+    }
+    if (i==MAX_BREAKPOINTS) i=(MAX_BREAKPOINTS-1);
+    breakpoint[i]=addr;
+}
+
+static void debug_rembkpt(void) {
+    int i;
+    for (i=0;i< MAX_BREAKPOINTS;i++) {
+	breakpoint[i]=-1;
+	}
+}
 
 
 static void do_command_debug(GtkWidget *button, int command)
@@ -195,8 +335,12 @@ void InitDEBUG(void)
     GtkWidget *but_quit,*but_step,*but_stepover,*but_run,*but_bkpt,*but_rembkpt;
 
     GtkWidget *hbox_middle;
+    GtkWidget *hbox,*vbox;
 
     GtkWidget *hbox_bottom;
+    GtkWidget *dasm_window;
+    GtkWidget *label;
+    gchar *markup;
 
     printf("Init debugger...");
 
@@ -262,15 +406,54 @@ void InitDEBUG(void)
     gtk_box_pack_start( GTK_BOX(hbox_top), but_rembkpt, TRUE, FALSE, 0);
     xgtk_signal_connect(but_rembkpt, "clicked", do_command_debug, (gpointer) DEBUG_CMD_REMBKPT);
     gtk_widget_show(but_rembkpt);
+    
+    /* boîte vericale des textes */
+    vbox=gtk_vbox_new(FALSE,0);
+    gtk_box_pack_start( GTK_BOX(vbox_window), vbox, FALSE, FALSE, DEBUG_SPACE);
+    gtk_widget_show(vbox);
 
+    hbox=gtk_hbox_new(FALSE,0);
+    gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
+    gtk_widget_show(hbox);
+    label=gtk_label_new("");
+    markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>%s</b></span>",
+             "CC            A  B  DP  X    Y    U    S    PC");
+    gtk_label_set_markup (GTK_LABEL (label), markup);
+    g_free (markup);
+    gtk_box_pack_start( GTK_BOX(hbox), label, FALSE, FALSE, 0);
+    gtk_widget_show(label);
+    
+    /* label pour les registres 6809 */
+    hbox=gtk_hbox_new(FALSE,0);
+    gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
+    gtk_widget_show(hbox);
+    label_6809regs=gtk_label_new("");
+    gtk_box_pack_start( GTK_BOX(hbox), label_6809regs, FALSE, FALSE, 0);
+    gtk_widget_show(label_6809regs);
+    
+    /* label pour lecontenu de la pile S */
+    hbox=gtk_hbox_new(FALSE,0);
+    gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
+    gtk_widget_show(hbox);
+    label_sr_list=gtk_label_new("");
+    markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>S</b>:</span>");
+    gtk_label_set_markup (GTK_LABEL (label_sr_list), markup);
+    g_free (markup);
+    gtk_box_pack_start( GTK_BOX(hbox), label_sr_list, FALSE, FALSE, 0);
+    gtk_widget_show(label_sr_list);
+    
     /* boîte horizontale du milieu */
     hbox_middle=gtk_hbox_new(FALSE,DEBUG_SPACE);
     gtk_box_pack_start( GTK_BOX(vbox_window), hbox_middle, TRUE, FALSE, DEBUG_SPACE);
     gtk_widget_show(hbox_middle);
 
     label_middle_left=gtk_label_new("dasm");
+    dasm_window=gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(dasm_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(dasm_window), label_middle_left);
     gtk_label_set_selectable (GTK_LABEL(label_middle_left), TRUE);
-    gtk_box_pack_start( GTK_BOX(hbox_middle), label_middle_left, TRUE, FALSE, DEBUG_SPACE);
+    gtk_box_pack_start( GTK_BOX(hbox_middle), dasm_window, TRUE, FALSE, DEBUG_SPACE);
+    gtk_widget_show(dasm_window);
     gtk_widget_show(label_middle_left);
 
     label_middle_right=gtk_label_new("regs");
@@ -298,11 +481,12 @@ void InitDEBUG(void)
 }
 
 
-/* ControlPanel:
- *  Affiche le panneau de contrôle.
+/* DebugPanel:
+ *  Affiche le panneau du debug.
  */
 void DebugPanel(void)
 {
+    /* actualise le texte à afficher */
     update_debug_text ();
     
     /* affichage de la fenêtre principale et de ses éléments */
@@ -312,191 +496,6 @@ void DebugPanel(void)
     gtk_main();
 }
 
-
-/* 
- ===============================================================================
-*/
-
-#include "mc68xx/dasm6809.h"
-#include "mc68xx/mc6809.h"
-#include "to8dbg.h"
-
-#define DASM_NLINES 24
-
-#define MAX_BREAKPOINTS  4
-static int breakpoint[MAX_BREAKPOINTS]={-1,-1,-1,-1};
-
-static struct MC6809_REGS regs, prev_regs;
-
-static char fetch_buffer[MC6809_FETCH_BUFFER_SIZE]="",
-            dasm_buffer[MC6809_DASM_BUFFER_SIZE]="";
-static char dasm_buffer2[MC6809_DASM_BUFFER_SIZE*DASM_NLINES]="";
-
-static char regs_buffer[128]="";
-static char regs_buffer2[2048]="";
-
-static void DisplayRegs(void)
-{
-    int i;
-    regs_buffer2[0]='\0';
-    for (i=0;i< MAX_BREAKPOINTS;i++) {
-	if (breakpoint[i]==-1) break;
-    	sprintf(regs_buffer,"BKPT[%d]=%04X\n",i,breakpoint[i]);
-    	strcat(regs_buffer2,regs_buffer);
-	}
-
-    sprintf(regs_buffer,"PC: %04X [%04X]\nDP: %02X\n",regs.pc,prev_regs.pc,regs.dp);
-    strcat(regs_buffer2,regs_buffer);
-    sprintf(regs_buffer," A: %02X\nB: %02X\n",regs.ar,regs.br);
-    strcat(regs_buffer2,regs_buffer);
-    sprintf(regs_buffer," X: %04X\nY: %04X\n",regs.xr,regs.yr);
-    strcat(regs_buffer2,regs_buffer);
-    sprintf(regs_buffer," U: %04X\nS: %04X\n",regs.ur,regs.sr);
-    strcat(regs_buffer2,regs_buffer);
-    sprintf(regs_buffer,"CC: %c%c%c%c%c%c%c%c   IRQ: %d\n" ,regs.cc&0x80 ? 'E' : '.'
-                                             ,regs.cc&0x40 ? 'F' : '.'
-                                             ,regs.cc&0x20 ? 'H' : '.'
-                                             ,regs.cc&0x10 ? 'I' : '.'
-                                             ,regs.cc&0x08 ? 'N' : '.'
-                                             ,regs.cc&0x04 ? 'Z' : '.'
-                                             ,regs.cc&0x02 ? 'V' : '.'
-                                             ,regs.cc&0x01 ? 'C' : '.'
-                                             ,mc6809_irq);
-
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"[S ] [S+1] [S+2] [S+3] [S+4]\n");
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer," %2X   %2X    %2X    %2X    %2X\n",LOAD_BYTE(regs.sr),LOAD_BYTE(regs.sr+1),
-              LOAD_BYTE(regs.sr+2),LOAD_BYTE(regs.sr+3),LOAD_BYTE(regs.sr+4));
-
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer," CSR: %02X   CRC: %02X\n",mc6846.csr,mc6846.crc);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"DDRC: %02X   PRC: %02X\n",mc6846.ddrc,mc6846.prc);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer," TCR: %02X  TMSB: %02X  TLSB: %02X\n",mc6846.tcr,mc6846.tmsb,
-      mc6846.tlsb);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_int.porta.cr,
-      pia_int.porta.ddr,mc6821_ReadPort(&pia_int.porta));
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_int.portb.cr,
-      pia_int.portb.ddr,mc6821_ReadPort(&pia_int.portb));
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_ext.porta.cr,
-      pia_ext.porta.ddr,mc6821_ReadPort(&pia_ext.porta));
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_ext.portb.cr,
-      pia_ext.portb.ddr,mc6821_ReadPort(&pia_ext.portb));
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"P_DATA: %02X   P_ADDR: %02X\n",mode_page.p_data,mode_page.p_addr);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"LGAMOD: %02X     SYS1: %02X\n",mode_page.lgamod,mode_page.system1);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"  SYS2: %02X     DATA: %02X\n",mode_page.system2,mode_page.ram_data);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"  CART: %02X   COMMUT: %02X\n",mode_page.cart,mode_page.commut);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n", disk_ctrl.cmd0,
-      disk_ctrl.cmd1, disk_ctrl.cmd2);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer," STAT0: %02X    STAT1: %02X\n",disk_ctrl.stat0, disk_ctrl.stat1);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer," WDATA: %02X    RDATA: %02X\n",disk_ctrl.wdata, disk_ctrl.rdata);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,is_fr?"page de ROM cartouche : %d\n":"ROM cartridge page  : %d\n", mempager.cart.rom_page);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,is_fr?"page de RAM cartouche : %d\n":"RAM cartridge page  : %d\n", mempager.cart.ram_page);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,is_fr?"page de VRAM          : %d\n":"VRAM page           : %d\n", mempager.screen.vram_page);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,is_fr?"page de RAM (registre): %d\n":"RAM page (register) : %d\n", mempager.data.reg_page);
-    strcat(regs_buffer2,regs_buffer);
-
-    sprintf(regs_buffer,is_fr?"page de RAM (PIA)     : %d\n":"RAM page (PIA)      : %d\n", mempager.data.pia_page);
-    strcat(regs_buffer2,regs_buffer);
-}
-
-
-
-char* debug_get_regs(void) {
-        mc6809_GetRegs(&regs);
-        DisplayRegs();
-	return regs_buffer2;
-}
-
-char* debug_get_dasm(void) { 
-        int i,j,pc;
-	dasm_buffer2[0]='\0';
-        mc6809_GetRegs(&regs);
-        pc=regs.pc;
-        for (i=0; i<DASM_NLINES; i++)
-        {
-            for (j=0; j<5; j++)
-                fetch_buffer[j]=LOAD_BYTE(pc+j);
-
-            pc=(pc+MC6809_Dasm(dasm_buffer,(const unsigned char *)fetch_buffer,pc,MC6809_DASM_BINASM_MODE))&0xFFFF;
-            strcat(dasm_buffer2,dasm_buffer);
-            strcat(dasm_buffer2,"\n");
-        }
-	return dasm_buffer2;
-}
-
-void
-debug_stepover(void) {
-	    int pc;
-	    int watch=0;
-            mc6809_GetRegs(&regs);
-
-                    pc = regs.pc;
-                    do
-                    {
-                        mc6809_GetRegs(&prev_regs);
-                        mc6809_StepExec(1);
-                        mc6809_GetRegs(&regs);
-                    } while (((regs.pc<pc) || (regs.pc>pc+5)) && ((watch++)<20000));
-}
-
-void
-debug_step(void) {
-            mc6809_StepExec(1);
-}
-
-void debug_bkpt(int addr) {
-    int i;
-    for (i=0;i< MAX_BREAKPOINTS;i++) {
-	if (breakpoint[i]==-1) break;
-    }
-    if (i==MAX_BREAKPOINTS) i=(MAX_BREAKPOINTS-1);
-    breakpoint[i]=addr;
-}
-
-void debug_rembkpt(void) {
-    int i;
-    for (i=0;i< MAX_BREAKPOINTS;i++) {
-	breakpoint[i]=-1;
-	}
-}
 
 int 
 check_bkpt(int pc) {

@@ -298,8 +298,11 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
     /* affichage du mnémonique */
     strncpy(p_buffer, mne+opcode*4, 4);
     p_buffer+=4;
-    p_buffer+=sprintf(p_buffer, " ");
-
+    if (opcode==0x1c)
+        p_buffer+=sprintf(p_buffer, "C");
+    else
+        p_buffer+=sprintf(p_buffer, " ");
+    p_buffer+=sprintf(p_buffer, "  ");
     size=taille[opcode];
 
     switch (adr[opcode])
@@ -314,7 +317,7 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
             break;
 
 	case 2: /* relatif */
-            p_buffer+=sprintf(p_buffer,">%04X", addr + size +
+            p_buffer+=sprintf(p_buffer,"$%04X", addr + size +
                        (size==2 ? (signed char) in_str[1] : (signed char) in_str[1]*256+in_str[2] ));
             break;
 
@@ -351,9 +354,9 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
                 }
             }
             else if (size==2)
-                p_buffer+=sprintf(p_buffer,"#%02X", in_str[1]);
+                p_buffer+=sprintf(p_buffer,"#$%02X", in_str[1]);
             else
-                p_buffer+=sprintf(p_buffer,"#%04X", in_str[1]*256+in_str[2]);
+                p_buffer+=sprintf(p_buffer,"#$%04X", in_str[1]*256+in_str[2]);
             break;
 
 	case 4: /* indexé */
@@ -399,7 +402,7 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
                             p_buffer+=sprintf(p_buffer,"-");
                             offset=-offset;
                         }
-			p_buffer+=sprintf(p_buffer,"%02x,%s",offset,reg[((in_str[1]&0x60)>>5)+1]);
+			p_buffer+=sprintf(p_buffer,"$%02x,%s",offset,reg[((in_str[1]&0x60)>>5)+1]);
 			size++;
 			break;
 
@@ -410,7 +413,7 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
                             p_buffer+=sprintf(p_buffer,"-");
                             offset=-offset;
                         }
-			p_buffer+=sprintf(p_buffer,"%04x,%s",offset,reg[((in_str[1]&0x60)>>5)+1]);
+			p_buffer+=sprintf(p_buffer,"$%04x,%s",offset,reg[((in_str[1]&0x60)>>5)+1]);
 			size+=2;
 			break;
 
@@ -425,7 +428,7 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
                             p_buffer+=sprintf(p_buffer,"-");
                             offset=-offset;
                         }
-			p_buffer+=sprintf(p_buffer,"%02x,PC",offset);
+			p_buffer+=sprintf(p_buffer,"$%02x,PC",offset);
 			size++;
 			break;
 
@@ -436,12 +439,12 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
                             p_buffer+=sprintf(p_buffer,"-");
                             offset=-offset;
                         }
-			p_buffer+=sprintf(p_buffer,"%04x,PC",offset);
+			p_buffer+=sprintf(p_buffer,"$%04x,PC",offset);
 			size+=2;
 			break;
 
                     case 0xF:
-			p_buffer+=sprintf(p_buffer,"%04X", in_str[2]*256+in_str[3]);
+			p_buffer+=sprintf(p_buffer,"$%04X", in_str[2]*256+in_str[3]);
 			size+=2;
 			break;
 
@@ -465,7 +468,7 @@ int MC6809_Dasm(char *out_str, const unsigned char *in_str, int addr, int mode)
             break;
 
 	case 5: /* étendu */
-            p_buffer+=sprintf(p_buffer,">%04X", in_str[1]*256+in_str[2]);
+            p_buffer+=sprintf(p_buffer,">$%04X", in_str[1]*256+in_str[2]);
             break;
 
         default: /* erreur */
