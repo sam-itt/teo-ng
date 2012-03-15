@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Bash script to adjust the version number of files.
+# Bash script to adjust the version number and dates of files.
 
 
 recurse_bump()
@@ -11,14 +11,24 @@ recurse_bump()
       if [ -d $ent ]; then
          if [ "`basename $ent`" != "mc68xx" ]; then
             echo " opening" $ent
-            recurse_bump $ent $2
+            recurse_bump $ent
          fi
       fi
    done
 
    for ent in $1/*.*[ch] ; do
       cp $ent $TMPDIR/fixver.tmp
-      sed -e "s/Version    : [0-9.]*/Version    : $2/" $TMPDIR/fixver.tmp > $ent
+      sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > $ent
+   done
+}
+
+recurse_bump_doc()
+{
+   local ent
+
+   for ent in $1/*.*[h] ; do
+      cp $ent $TMPDIR/fixver.tmp
+      sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > $ent
    done
 }
 
@@ -70,13 +80,14 @@ sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > src/readme.txt
 todayYear=$(date +%Y)
 echo "Patching docs..."
 echo "s/version [0-9.]*<BR>/version $verstr<BR>/" > $TMPDIR/fixver.sed
+echo "s/Copyright \(.* [0-9]*\)\-[0-9]* /Copyright \1-$todayYear /" >> $TMPDIR/fixver.sed
 cp doc/teo.htm $TMPDIR/fixver.tmp
 sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > doc/teo.htm
 cp doc/teo_en.htm $TMPDIR/fixver.tmp
 sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > doc/teo_en.htm
 echo "s/version [0-9.]* \([(A-Za-z0-9)\/]*\)<BR>/version $verstr \1<BR>/" > $TMPDIR/fixver.sed
 echo "s/\([teow?]\)\-[0-9\.]*\-\([a-z0-9\.]*\)/\1\-$verstr\-\2/g" >> $TMPDIR/fixver.sed
-echo "s/Copyright \&copy\; 199\([79]\)\-[0-9]* /Copyright \&copy\; 199\1\-$todayYear /" >> $TMPDIR/fixver.sed
+echo "s/Copyright \(.* [0-9]*\)\-[0-9]* /Copyright \1-$todayYear /" >> $TMPDIR/fixver.sed
 cp doc/teo_dos.htm $TMPDIR/fixver.tmp
 sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > doc/teo_dos.htm
 cp doc/teo_dos_en.htm $TMPDIR/fixver.tmp
@@ -111,9 +122,11 @@ sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > misc/pack/debian/teo-rom/DEBIAN/c
 
 # bump file version number
 echo "Bumping file version number..."
+echo "s/Version    : [0-9.]*/Version    : $verstr/" > $TMPDIR/fixver.sed
+echo "s/Copyright \(.* [0-9]*\)\-[0-9]* /Copyright \1-$todayYear /" >> $TMPDIR/fixver.sed
 # shopt -s nullglob
-recurse_bump include $verstr
-recurse_bump src $verstr
+recurse_bump include
+recurse_bump src
 unset recurse_bump
 
 # clean up after ourselves
