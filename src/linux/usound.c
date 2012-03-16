@@ -307,14 +307,11 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 	index=period_size;
 
     if (sound_buffer != NULL) {
-
+        /* create start ramp */
         if ((must_play_sound==0) && (dead_sound==1)) {
-//            printf ("*%d* ",index-last_index); fflush(stdout);
             if (index-last_index>1) {
                 delta=(float)(((char_data<<8)-new_data)/((index-last_index)>>1));
-//                printf ("[D=%f depart=%x arrivee=%x last_index=%x]", delta,end_data,char_data<<8,last_index); fflush (stdout);
                 for (i=last_index; i<(last_index+((index-last_index)>>1)); i++) {
-//                     printf ("<%x ",(int)new_data); fflush (stdout);
                      new_data+=delta;
                      sound_buffer[i<<1]=(char)new_data;
                      sound_buffer[(i<<1)+1]=(char)((int)new_data>>8);
@@ -322,12 +319,11 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
                 last_index+=(index-last_index)>>1;
             }
         }
+        /* fill buffer with sound data */
         for (i=last_index; i<index; i++)
             sound_buffer[(i<<1)+1]=char_data;
-
         must_play_sound=1;
     }
-//    printf ("=%x ",(int)char_data<<8); fflush (stdout);
 
     last_index=index;
     end_data=char_data<<8;
@@ -517,7 +513,6 @@ int PlaySoundBuffer(void)
         else
         /* on fait tendre la valeur vers 0 */
         if (end_data!=0) {
-//            printf (" >%x ", end_data);fflush(stdout);
             for (i=0; i<period_size; i++) {
                 sound_buffer[i<<1]=end_data;
                 sound_buffer[(i<<1)+1]=end_data>>8;
@@ -544,7 +539,6 @@ int PlaySoundBuffer(void)
         last_index=0;
     }
     must_play_sound=0;
-//    printf ("%d",play); fflush(stdout);
     return play;
 }
 
