@@ -38,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
- *               François Mouret 25/09/2006 26/01/2010
+ *               François Mouret 25/09/2006 26/01/2010 18/03/2012
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -303,6 +303,24 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
 /* partie publique                */
 /**********************************/
 
+/* EjectMemo7:
+ *  Ejecte la cartouche Mémo7.
+ */
+void to8_EjectMemo7(void)
+{
+    register int i;
+
+    for (i=0; i<4; i++)
+    {
+        if (mem.cart.bank[i] != NULL)
+        {
+            free(mem.cart.bank[i]);
+            mem.cart.bank[i] = NULL;
+        }
+    }
+    mem.cart.nbank = 0;
+}
+
 
 /* LoadMemo7:
  *  Charge une cartouche Mémo7 et extrait son label.
@@ -342,6 +360,9 @@ int to8_LoadMemo7(const char filename[])
         
     /* allocation de la mémoire nécessaire */
     nbank = (length-1)/mem.cart.size + 1;
+
+    printf ("%d %d %d %d %d %d\n", mem.cart.nbank, mem.cart.size,
+                 (int)mem.cart.bank[0],(int)mem.cart.bank[1],(int)mem.cart.bank[2],(int)mem.cart.bank[3]);
 
     if (mem.cart.nbank < nbank)
     {

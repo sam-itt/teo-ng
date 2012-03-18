@@ -37,7 +37,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
- *               François Mouret 17/09/2006 28/08/2011
+ *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *
  *  Interface utilisateur Windows native.
  */
@@ -99,6 +99,21 @@ extern int SetInterlaced(int);
 extern int  (*SetInterlaced)(int);
 #endif
 
+static int nCurrentTab = 0;
+
+/* reset_vector:
+ *  Efface les entrées périphériques
+ */
+static void reset_vector(struct FILE_VECTOR *vector)
+{
+    vector->size = 0;
+    vector->capacity = 0;
+    vector->selected = 0;
+    if (vector->file != 0) {
+        free (vector->file);
+        vector->file = NULL;
+    }
+}
 
 
 /* vector< pair<string, string> >::push_back( make_pair(string(), string()) ):
@@ -291,6 +306,15 @@ static void select_file_memo(struct FILE_VECTOR *vector, HWND hDlg)
 }
 
 
+static void eject_file_memo(struct FILE_VECTOR *vector, HWND hDlg)
+{
+    SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
+    reset_vector (vector);
+    init_file_memo(vector, hDlg);
+    to8_EjectMemo7();
+    teo.command = COLD_RESET;
+}         
+
 
 /***********************************************/
 /* méthodes du vecteur associé à la cassette   */
@@ -456,6 +480,18 @@ static void update_counter_cass(HWND hDlg)
 }
 
 
+static void eject_file_cass(struct FILE_VECTOR *vector, HWND hDlg)
+{
+    SendDlgItemMessage(hDlg, K7_COMBO, CB_RESETCONTENT, 0, 0);
+    reset_vector (vector);
+    vector->protection = TRUE;
+    init_file_cass(vector, hDlg);
+    init_check_cass(vector, hDlg);
+    to8_EjectK7();
+    update_counter_cass(hDlg);
+}
+
+
 
 /***********************************************/
 /* méthodes du vecteur associé à la disquette  */
@@ -612,6 +648,14 @@ static void change_protection_disk(struct FILE_VECTOR *vector, HWND hDlg)
 }
 
 
+static void eject_file_disk(struct FILE_VECTOR *vector, HWND hDlg)
+{
+    SendDlgItemMessage(hDlg, DISK0_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
+    reset_vector (vector);
+    init_file_disk(vector, hDlg);
+    to8_EjectDisk(vector->id);
+}
+
 
 /***********************************************/
 /* méthodes de la barre du volume              */
@@ -722,11 +766,9 @@ static int get_open_image_name(HWND hDlg, char filename[BUFFER_SIZE], int must_e
 static void
 ShowTab(HWND hDlg)
 {
-    static int nTemp = 0;
-
-    ShowWindow(hTab[nTemp], SW_HIDE);
-    nTemp = SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_GETCURSEL, 0, 0);
-    ShowWindow(hTab[nTemp], SW_SHOW);
+    ShowWindow(hTab[nCurrentTab], SW_HIDE);
+    nCurrentTab = SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_GETCURSEL, 0, 0);
+    ShowWindow(hTab[nCurrentTab], SW_SHOW);
 }
 
 
@@ -889,6 +931,13 @@ CALLBACK DiskTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
+            case DISK0_EJECT_BUTTON:
+            case DISK1_EJECT_BUTTON:
+            case DISK2_EJECT_BUTTON:
+            case DISK3_EJECT_BUTTON: 
+               eject_file_disk(&disk[LOWORD(wParam) - DISK0_EJECT_BUTTON], hDlg);
+               break;
+
             case DISK0_MORE_BUTTON:
             case DISK1_MORE_BUTTON:
             case DISK2_MORE_BUTTON:
@@ -953,6 +1002,10 @@ CALLBACK CassetteTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
+            case K7_EJECT_BUTTON:
+               eject_file_cass(&k7, hDlg);
+               break; 
+
             case K7_MORE_BUTTON:
                open_file_cass(&k7, hDlg);
                break; 
@@ -1019,6 +1072,10 @@ CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
+            case MEMO7_EJECT_BUTTON:
+               eject_file_memo(&memo7, hDlg);
+               break;
+
             case MEMO7_MORE_BUTTON:
                open_file_memo(&memo7, hDlg);
                break;
@@ -1185,8 +1242,8 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, CassetteTabProc);
          hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, CartridgeTabProc);
 
-         /* Affiche l'onglet des disquetttes */
-         SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, 0, 0);
+         /* Affiche l'onglet des disquettes */
+         SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, nCurrentTab, 0);
          ShowTab(hDlg);
 
          /* mise en place de l'icône */

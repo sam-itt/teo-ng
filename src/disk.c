@@ -878,6 +878,18 @@ int to8_VirtualSetDrive(int drive)
 #endif
 
 
+
+/* EjectDisk:
+ *  Ejecte l'archive SAP du le lecteur spécifié.
+ */
+void to8_EjectDisk(int drive)
+{
+    disk[drive].filename[0]='\0';
+    disk[drive].state = NO_DISK;
+}
+    
+
+
 /* LoadDisk:
  *  Charge l'archive SAP dans le lecteur spécifié et
  *  force si nécessaire le mode lecture seule.

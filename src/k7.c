@@ -203,6 +203,20 @@ void InitK7(void)
 /**********************************/
 
 
+/* EjectK7:
+ *  Ejecte la cassette.
+ */
+void to8_EjectK7(void)
+{
+    if (k7)
+        fclose(k7);
+    k7 = NULL;
+    k7_filename[0] = '\0';
+    k7_counter = -1;
+    current_op = READ;
+}
+
+
 /* LoadK7:
  *  Charge une cassette dans le lecteur et retourne le mode d'ouverture.
  *  Retourne TO8_ERROR en cas d'échec et préserve la cassette précédemment

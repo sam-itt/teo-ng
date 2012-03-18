@@ -38,7 +38,7 @@
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
- *               François Mouret 12/08/2011
+ *               François Mouret 12/08/2011 18/03/2012
  *
  *  Panneau de contrôle de l'émulateur.
  */
@@ -282,22 +282,26 @@ static DIALOG diskdial[]={
 #endif
   /* disk 0 */
 { d_text_proc,       30,   54,    0,    0,     0,     0,   0,    0,       0,    0,    "0:" },
-{ d_textbox_proc,    47,   50,  167,   16,     0,     0,   0,    0,       0,    0,    disk_label[0] },
+{ d_button_proc,     47,   52,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
+{ d_textbox_proc,    64,   50,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[0] },
 { d_button_proc,    220,   50,   30,   16,     0,     0, '0',    D_EXIT,  0,    0,    "..." },
 { d_check_proc,     260,   50,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
   /* disk 1 */
 { d_text_proc,       30,   78,    0,    0,     0,     0,   0,    0,       0,    0,    "1:" },
-{ d_textbox_proc,    47,   74,  167,   16,     0,     0,   0,    0,       0,    0,    disk_label[1] },
+{ d_button_proc,     47,   76,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
+{ d_textbox_proc,    64,   74,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[1] },
 { d_button_proc,    220,   74,   30,   16,     0,     0, '1',    D_EXIT,  0,    0,    "..." },
 { d_check_proc,     260,   74,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
   /* disk 2 */
 { d_text_proc,       30,  102,    0,    0,     0,     0,   0,    0,       0,    0,    "2:" },
-{ d_textbox_proc,    47,   98,  167,   16,     0,     0,   0,    0,       0,    0,    disk_label[2] },
+{ d_button_proc,     47,  100,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
+{ d_textbox_proc,    64,   98,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[2] },
 { d_button_proc,    220,   98,   30,   16,     0,     0, '2',    D_EXIT,  0,    0,    "..." },
 { d_check_proc,     260,   98,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
   /* disk 3 */
 { d_text_proc,       30,  126,    0,    0,     0,     0,   0,    0,       0,    0,    "3:" },
-{ d_textbox_proc,    47,  122,  167,   16,     0,     0,   0,    0,       0,    0,    disk_label[3] },
+{ d_button_proc,     47,  124,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
+{ d_textbox_proc,    64,  122,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[3] },
 { d_button_proc,    220,  122,   30,   16,     0,     0, '3',    D_EXIT,  0,    0,    "..." },
 { d_check_proc,     260,  122,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
   /* direct disk */
@@ -312,20 +316,28 @@ static DIALOG diskdial[]={
 { NULL,               0,    0,    0,    0,     0,     0,   0,    0,       0,    0,    NULL }
 };
 
-#define DISKDIAL_LABEL0    4
-#define DISKDIAL_BUTTON0   5
-#define DISKDIAL_CHECK0    6
-#define DISKDIAL_LABEL1    8
-#define DISKDIAL_BUTTON1   9
-#define DISKDIAL_CHECK1    10
-#define DISKDIAL_LABEL2    12
-#define DISKDIAL_BUTTON2   13
-#define DISKDIAL_CHECK2    14
-#define DISKDIAL_LABEL3    16
-#define DISKDIAL_BUTTON3   17
-#define DISKDIAL_CHECK3    18
-#define DISKDIAL_DIRECT    19
-#define DISKDIAL_OK        21
+#define DISKDIAL_EJECT0    4
+#define DISKDIAL_LABEL0    5
+#define DISKDIAL_BUTTON0   6
+#define DISKDIAL_CHECK0    7
+
+#define DISKDIAL_EJECT1    9
+#define DISKDIAL_LABEL1    10
+#define DISKDIAL_BUTTON1   11
+#define DISKDIAL_CHECK1    12
+
+#define DISKDIAL_EJECT2    14
+#define DISKDIAL_LABEL2    15
+#define DISKDIAL_BUTTON2   16
+#define DISKDIAL_CHECK2    17
+
+#define DISKDIAL_EJECT3    19
+#define DISKDIAL_LABEL3    20
+#define DISKDIAL_BUTTON3   21
+#define DISKDIAL_CHECK3    22
+#define DISKDIAL_DIRECT    23
+
+#define DISKDIAL_OK        25
 
 
 /* MenuDisk:
@@ -363,11 +375,20 @@ static void MenuDisk(void)
         
         switch (ret)
         {
+            case DISKDIAL_EJECT0:
+            case DISKDIAL_EJECT1:
+            case DISKDIAL_EJECT2:
+            case DISKDIAL_EJECT3:
+                drive=(ret-4)/5;
+                strncpy(disk_label[drive], is_fr?"aucune disquette":"no disk", LABEL_LENGTH);
+                to8_EjectDisk(drive);
+                break;
+
             case DISKDIAL_BUTTON0:
             case DISKDIAL_BUTTON1:
             case DISKDIAL_BUTTON2:
             case DISKDIAL_BUTTON3:
-                drive=(ret-5)/4;
+                drive=(ret-6)/5;
             
                 if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:", filename, "sap",
                                    FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
@@ -378,6 +399,7 @@ static void MenuDisk(void)
                         PopupMessage(to8_error_msg);
                     else
                     {
+                        diskdial[DISKDIAL_EJECT0+5*drive].flags &= ~D_DISABLED;
                         strncpy(disk_label[drive], get_filename(filename), LABEL_LENGTH);
 
                         if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
@@ -394,7 +416,7 @@ static void MenuDisk(void)
             case DISKDIAL_CHECK1:
             case DISKDIAL_CHECK2:
             case DISKDIAL_CHECK3:
-                drive=(ret-6)/4;
+                drive=(ret-7)/5;
             
                 if (diskdial[ret].d2)
                 {
@@ -423,17 +445,18 @@ static void MenuDisk(void)
                 {
                     if (direct_disk & (1<<drive))
                     {
+                        diskdial[DISKDIAL_EJECT0+5*drive].flags |= D_DISABLED;
                         strncpy(disk_label[drive], is_fr?"accès direct":"direct access", LABEL_LENGTH);
 
                         if (to8_DirectSetDrive(drive) == TO8_READ_ONLY)
                         {
-                            diskdial[DISKDIAL_CHECK0+4*drive].flags|=D_SELECTED;
-                            diskdial[DISKDIAL_CHECK0+4*drive].d2=1;
+                            diskdial[DISKDIAL_CHECK0+5*drive].flags|=D_SELECTED;
+                            diskdial[DISKDIAL_CHECK0+5*drive].d2=1;
                         }
                         else
                         {
-                            diskdial[DISKDIAL_CHECK0+4*drive].flags&=~D_SELECTED;
-                            diskdial[DISKDIAL_CHECK0+4*drive].d2=0;
+                            diskdial[DISKDIAL_CHECK0+5*drive].flags&=~D_SELECTED;
+                            diskdial[DISKDIAL_CHECK0+5*drive].d2=0;
                         }
                     }
                 }
@@ -474,7 +497,8 @@ static DIALOG k7dial[]={
 { d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Tape recorder" },
 #endif
 { d_text_proc,        30,  54,    0,    0,     0,     0,    0,    0,       0,    0,    "k7" },
-{ d_textbox_proc,     47,  50,  167,   16,     0,     0,    0,    0,       0,    0,    k7_label },
+{ d_button_proc,      47,  52,   15,   12,     0,     0,    0,    D_EXIT,  0,    0,    "x" },
+{ d_textbox_proc,     64,  50,  150,   16,     0,     0,    0,    0,       0,    0,    k7_label },
 { d_button_proc,     220,  50,   30,   16,     0,     0,  'k',    D_EXIT,  0,    0,    "..." },
 { d_check_proc,      260,  50,   15,   15,     0,     0,    0,    D_EXIT|D_SELECTED,0,1,"" },
 { d_text_proc,       255,  40,    0,    0,     0,     0,    0,    0,       0,    0,    "prot." },
@@ -497,13 +521,14 @@ static DIALOG k7dial[]={
 { NULL,                0,   0,    0,    0,     0,     0,    0,    0,       0,    0,    NULL }
 };
 
-#define K7DIAL_LABEL    4
-#define K7DIAL_BUTTON   5
-#define K7DIAL_CHECK    6
-#define K7DIAL_BOXEDIT  9
-#define K7DIAL_EDIT     10
-#define K7DIAL_REWIND   13
-#define K7DIAL_OK       14
+#define K7DIAL_EJECT    4
+#define K7DIAL_LABEL    5
+#define K7DIAL_BUTTON   6
+#define K7DIAL_CHECK    7
+#define K7DIAL_BOXEDIT  10
+#define K7DIAL_EDIT     11
+#define K7DIAL_REWIND   14
+#define K7DIAL_OK       15
 
 
 /* updown_edit_proc:
@@ -679,6 +704,11 @@ static void MenuK7(void)
         
         switch (ret)
         {
+            case K7DIAL_EJECT:
+                strncpy(k7_label, is_fr?"aucune cassette":"no tape", LABEL_LENGTH);
+                to8_EjectK7();
+                break;
+
             case K7DIAL_BUTTON:
                 if (file_select_ex(is_fr?"Choisissez votre cassette:":"Choose your tape:", filename, "k7", 
                                    FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
@@ -752,16 +782,18 @@ static DIALOG m7dial[]={
 { d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Cartridge reader" },
 #endif
 { d_text_proc,        30,  54,    0,    0,     0,     0,    0,    0,       0,    0,    "m7" },
-{ d_textbox_proc,     47,  50,  208,   16,     0,     0,    0,    0,       0,    0,    m7_label },
+{ d_button_proc,      47,  52,   15,   12,     0,     0,    0,    D_EXIT,  0,    0,    "x" },
+{ d_textbox_proc,     64,  50,  191,   16,     0,     0,    0,    0,       0,    0,    m7_label },
 { d_button_proc,     260,  50,   30,   16,     0,     0,  'm',    D_EXIT,  0,    0,    "..." },
 { d_button_proc,      30, 170,  126,   16,     0,     0,  'o',    D_EXIT,  0,    0,    "&OK" },
 { d_yield_proc,       20,  10,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
 { NULL,                0,   0,    0,    0,     0,     0,    0,    0,       0,    0,    NULL }
 };
 
-#define M7DIAL_LABEL   4
-#define M7DIAL_BUTTON  5
-#define M7DIAL_OK      6
+#define M7DIAL_EJECT   4
+#define M7DIAL_LABEL   5
+#define M7DIAL_BUTTON  6
+#define M7DIAL_OK      7
 
 
 /* MenuMemo7:
@@ -796,6 +828,12 @@ static void MenuMemo7(void)
 
         switch (ret)
         {
+            case M7DIAL_EJECT:
+                strncpy(m7_label, is_fr?"aucune cartouche":"no cartridge", TO8_MEMO7_LABEL_LENGTH);
+                to8_EjectMemo7();
+                teo.command=COLD_RESET;
+                break;
+
             case M7DIAL_BUTTON:
                 if (file_select_ex(is_fr?"Choisissez votre cartouche:":"Choose your cartridge", filename, "m7",
                                    FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
