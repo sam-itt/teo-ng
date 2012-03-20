@@ -33,15 +33,12 @@ Lancer './misc/pack/pack.sh' à partir du répertoire 'teo/'.
 A l'exécution, 'pack.sh' :
 - Compile l'exécutable Linux en mode DEBIAN
 - Crée le DEBIAN distribuable Linux pour l'exécutable
-- Crée le DEBIAN distribuable Linux pour les ROMs
 - Compile l'exécutable Linux pour le TAR.GZ
 - Crée le TAR.GZ distribuable Linux
 - Crée le ZIP distribuable Window en Français
 - Crée le ZIP distribuable Window en Anglais
 - Crée le ZIP distribuable MsDos en Français
 - Crée le ZIP distribuable MsDos en Anglais
-- Crée le ZIP pour les ROMs
-- Crée le TAR.GZ pour les ROMs
 - Crée le ZIP pour les sources
 - Crée le TAR.GZ pour les sources
 

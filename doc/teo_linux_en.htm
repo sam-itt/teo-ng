@@ -38,7 +38,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 
 
 <H2><A NAME="Introduction"></A>1. Introduction</H2>
-<P>Teo is a TO8 emulator for Personal Computers. It tries to mimic <EM>as closely as possible</EM> the behavior of an other computer on the PC. Teo only emulates the <EM>hardware</EM> part of a TO8: The Motorola MC6809E micro-processor, the memory banks, the video system, and the following peripheral devices: mouse, light-pen, joysticks, tape player, floppy drives and dot-matrix printer. The operating system that drives everything is not included. Therefore you'll have to use a copy of the ROMs coming out of a real TO8 machine to run Teo.</P>
+<P>Teo is a TO8 emulator for Personal Computers. It tries to mimic <EM>as closely as possible</EM> the behavior of an other computer on the PC. Teo only emulates the <EM>hardware</EM> part of a TO8: The Motorola MC6809E micro-processor, the memory banks, the video system, and the following peripheral devices: mouse, light-pen, joysticks, tape player, floppy drives and dot-matrix printer.</P>
 
 
 <H2><A NAME="Installation"></A>2. Installation</H2>
@@ -46,8 +46,8 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 
 <P>You can install the emulator in two ways:</P>
 <UL>
-<LI>Launch <KBD>teo-1.8.1-i586.deb</KBD> and then <KBD>teo-rom.deb</KBD>. The launch of <KBD>Teo</KBD> will be done through the <KBD>Applications/Games/Teo emulator</KBD> shortcut menu.
-<LI>Unzip <KBD>teo-1.8.1-i586.tar.gz</KBD> and <KBD>teo-rom.tar.gz</KBD> into the same folder. The executable is named <KBD>teo</KBD>.</LI>
+<LI>Launch <KBD>teo-1.8.1-i586.deb</KBD>. The launch of <KBD>Teo</KBD> will be done through the <KBD>Applications/Games/Teo emulator</KBD> shortcut menu.
+<LI>Unzip <KBD>teo-1.8.1-i586.tar.gz</KBD>. The executable is named <KBD>teo</KBD>.</LI>
 </UL>
 
 <H2><A NAME="Lancement"></A>3. Launching</H2>
@@ -205,7 +205,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 
 <H2><A NAME="Desinstallation"></A>14. Deinstallation</H2>
 <P>If installation has been made with <KBD>tar.gz</KBD> packages, just remove the root folder <KBD>teo</KBD>.</P>
-<P>If installation has been made with <KBD>.deb</KBD> packages, execute <CODE>sudo apt-get remove --purge teo-rom teo</CODE> in a Terminal. The menu shortcut <KBD>Applications/Games/Teo emulator</KBD> might not disappear. Then execute <CODE>rm ~/.local/share/applications/teo.desktop</CODE>. And to clean everything, execute <CODE>rm -r ~/.teo</CODE>, which is the folder that contains <KBD>teo.cfg</KBD> and  <KBD>autosave.img</KBD> files.</P>
+<P>If installation has been made with <KBD>.deb</KBD> packages, execute <CODE>sudo apt-get remove --purge teo</CODE> in a Terminal. The menu shortcut <KBD>Applications/Games/Teo emulator</KBD> might not disappear. Then execute <CODE>rm ~/.local/share/applications/teo.desktop</CODE>. And to clean everything, execute <CODE>rm -r ~/.teo</CODE>, which is the folder that contains <KBD>teo.cfg</KBD> and  <KBD>autosave.img</KBD> files.</P>
 
 <H2><A NAME="Limitations_et_bugs"></A>15. Limitations and bugs</H2>
 <P>Technical reasons imply that 16 colors modes can imperfectly emulate dynamical palette changes.</P>

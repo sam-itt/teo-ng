@@ -43,6 +43,12 @@ Source: teo.cfg; DestDir: {app}
 Source: language.dat; DestDir: {app}
 Source: keyboard.dat; DestDir: {app}
 Source: alleg40.dll; DestDir: {app}
+Source: b512_b0.rom; DestDir: {app}
+Source: b512_b1.rom; DestDir: {app}
+Source: basic1.rom; DestDir: {app}
+Source: fichier.rom; DestDir: {app}
+Source: to8mon1.rom; DestDir: {app}
+Source: to8mon2.rom; DestDir: {app}
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: doc\images\home.gif; DestDir: {app}\doc\images
 Source: doc\images\logo.jpg; DestDir: {app}\doc\images
@@ -74,36 +80,6 @@ Source: doc\images\teo_v6en.gif; DestDir: {app}\doc\images; Languages: en
 Source: doc\teo_win.htm; DestDir: {app}\doc; Languages: fr
 Source: doc\teo_win_en.htm; DestDir: {app}\doc; Languages: en
 Source: doc\doc.css; DestDir: {app}\doc
-
-[Code]
-var
-  FinishedInstall: Boolean;
-
-const
-   msg1_en = 'Because of copyright reasons, the ROMs of the TO8 needed for';
-   msg2_en = 'a good working order of Teo are not included, you then have now';
-   msg3_en = 'to download and launch the file ''teo-rom-setup.exe''.';
-   msg1_fr = 'Pour des raisons de copyright, les ROMs du TO8 nécessaires au bon';
-   msg2_fr = 'fonctionnement de Teo ne sont pas incluses, vous devez donc maintenant';
-   msg3_fr = 'télécharger et exécuter le fichier ''teo-rom-setup.exe''.';
-
-procedure DeinitializeSetup();
-begin
-  if FinishedInstall then
-  begin
-    if ActiveLanguage = 'fr' then begin
-      MsgBox(msg1_fr+#13+msg2_fr+#13+msg3_fr, mbInformation, MB_OK);
-    end else
-      MsgBox(msg1_en+#13+msg2_en+#13+msg3_en, mbInformation, MB_OK);
-  end;
-end;
-
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-  Log('CurStepChanged(' + IntToStr(Ord(CurStep)) + ') called');
-  if CurStep = ssPostInstall then
-    FinishedInstall := True;
-end;
 
 [Icons]
 Name: {group}\Teow; Filename: {app}\teow.exe; IconIndex: 0; Parameters: " -window -loadstate"
