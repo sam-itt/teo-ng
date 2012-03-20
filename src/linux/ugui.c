@@ -53,7 +53,6 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "linux/xgui.h"
 #include "linux/display.h"
 #include "linux/filentry.h"
 #include "linux/graphic.h"
@@ -62,18 +61,11 @@
 #include "linux/question.h"
 #include "linux/license.h"
 #include "to8.h"
-#if BEFORE_GTK_2_MIN
-#include "thomson.xpm"
-#else
 #include "commands.xpm"
-#endif
 
 #define NDISKS       4
 #define COUNTER_MAX  999
-
-#if !BEFORE_GTK_2_MIN
 #define ICON_SIZE   GTK_ICON_SIZE_MENU
-#endif
 
 struct GADGETLIST {
    int num;
@@ -91,23 +83,6 @@ static GtkWidget *window;
 static GtkWidget *spinner_cass;
 
 extern int SetInterlaced(int);
-
-#if BEFORE_GTK_2_MIN
-/* basename:
- *  Helper pour extraire le nom simple du fichier.
- */
-static char *basename(char *filename)
-{
-    while (*filename)
-        filename++;
-
-    while (*filename != '/')
-        filename--;
-
-    return filename+1;
-}
-#endif
-
 
 
 /* retrace_callback:
@@ -155,15 +130,8 @@ static int do_hide(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
 static void question_exit(GtkWidget *button, gpointer unused)
 {
-#if BEFORE_GTK_2_MIN
-    GtkWidget *quest=question_new((is_fr?"Voulez-vous vraiment quitter l'Ã©mulateur ?":"Do you really want to quit the emulator ?"));
-    xgtk_signal_connect(quest, "clicked_yes", do_exit, (gpointer)QUIT);
-    gtk_quit_add_destroy(1, GTK_OBJECT(quest));
-    gtk_widget_show(quest);
-#else
     if (question_response (is_fr?"Voulez-vous vraiment quitter l'Ã©mulateur ?":"Do you really want to quit the emulator ?", window) == TRUE)
         do_exit (NULL, QUIT);
-#endif
     (void) button;
     (void) unused;
 }
@@ -172,13 +140,7 @@ static void question_exit(GtkWidget *button, gpointer unused)
 
 static void error_message(char *message)
 {
-#if BEFORE_GTK_2_MIN
-    GtkWidget *mesg=message_new(message);
-    gtk_quit_add_destroy(1, GTK_OBJECT(mesg));
-    gtk_widget_show(mesg);
-#else
     message_box (message, window);
-#endif
 }
 
 
@@ -192,31 +154,19 @@ static void toggle_button_true(GtkWidget *button, gpointer unused)
 
 
 
-#if BEFORE_GTK_2_MIN
-static void read_filent_memo(GtkWidget *filent, gpointer unused)
-{
-    char *filename=file_entry_get_filename(FILE_ENTRY(filent));
-    (void) unused;
-#else
 static void read_filent_memo(GtkFileChooserButton *chooser_button, GtkWidget *entry)
 {
     char *filename = file_chooser_get_filename();
     (void)chooser_button;
-#endif
+
     if (to8_LoadMemo7(filename) == TO8_ERROR)
     {
-#if !BEFORE_GTK_2_MIN
         file_chooser_reset_filename (chooser_button);
-#endif
         error_message(to8_error_msg);
     }
     else
     {
-#if BEFORE_GTK_2_MIN
-        file_entry_set_entry( FILE_ENTRY(filent), to8_GetMemo7Label());
-#else
         gtk_entry_set_text (GTK_ENTRY(entry), to8_GetMemo7Label());
-#endif
         teo.command=COLD_RESET;
     }
 }
@@ -234,30 +184,19 @@ static void click_rewind_cass(GtkWidget *button, GtkSpinButton *spinner)
 
 
 
-#if BEFORE_GTK_2_MIN
-static void read_filent_cass(GtkWidget *filent, GtkToggleButton *button)
-{
-    char *name = file_entry_get_filename(FILE_ENTRY(filent));
-#else
 static void read_filent_cass(GtkFileChooserButton *chooser_button, GtkToggleButton *button)
 {
     char *name = file_chooser_get_filename();
     (void)chooser_button;
-#endif
     int ret=to8_LoadK7(name);
 
     if (ret==TO8_ERROR)
     {
-#if !BEFORE_GTK_2_MIN
         file_chooser_reset_filename (chooser_button);
-#endif
         error_message(to8_error_msg);
     }
     else
     {
-#if BEFORE_GTK_2_MIN
-        file_entry_set_entry( FILE_ENTRY(filent), basename(file_entry_get_filename(FILE_ENTRY(filent))));
-#endif
         click_rewind_cass(NULL, GTK_SPIN_BUTTON(spinner_cass));
         if ((ret==TO8_READ_ONLY) && !button->active)
         {
@@ -292,11 +231,6 @@ static void change_counter_cass(GtkWidget *widget, GtkSpinButton *spinner)
 
 
 
-#if BEFORE_GTK_2_MIN
-static void read_filent_disk(GtkWidget *filent, struct GADGETLIST *gadget)
-{
-    int ret=to8_LoadDisk( gadget->num, file_entry_get_filename(FILE_ENTRY(filent)) );
-#else
 static void set_direct_access(GtkWidget *button, struct GADGETLIST *gadget);
 static void read_filent_disk(GtkFileChooserButton *chooser_button,  struct GADGETLIST *gadget)
 {
@@ -307,29 +241,23 @@ static void read_filent_disk(GtkFileChooserButton *chooser_button,  struct GADGE
     {
         image = gtk_image_new_from_stock ("gtk-file", ICON_SIZE);
         gtk_button_set_image(GTK_BUTTON(gadget->access), image);
-        xgtk_signal_connect(gadget->access, "clicked", set_direct_access, (gpointer) gadget);
+        g_signal_connect(G_OBJECT(gadget->access), "clicked", G_CALLBACK(set_direct_access), (gpointer) gadget);
     }
-    (void)chooser_button;
-#endif
 
     if (ret==TO8_ERROR)
     {
-#if !BEFORE_GTK_2_MIN
         file_chooser_reset_filename (chooser_button);
-#endif
         error_message(to8_error_msg);
     }
     else
     {
-#if BEFORE_GTK_2_MIN
-        file_entry_set_entry( FILE_ENTRY(filent), basename(file_entry_get_filename(FILE_ENTRY(filent))));
-#endif
         if ((ret==TO8_READ_ONLY) && !(GTK_TOGGLE_BUTTON(gadget->check)->active) )
         {
             error_message(is_fr?"Attention: Ã©criture impossible.":"Warning: writing unavailable.");
             gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(gadget->check), TRUE);
         }
     }
+    (void)chooser_button;
 }
 
 
@@ -346,34 +274,13 @@ static void toggle_check_disk(GtkWidget *button, int num)
 }
 
 
-#if BEFORE_GTK_2_MIN
-static void set_direct_disk(GtkWidget *button, gpointer *pointer)
-{
-    int i;
-
-    for (i=0; i<NDISKS; i++)
-    {
-        if (gadget[i].root)
-        {
-            file_entry_set_entry( FILE_ENTRY(gadget[i].root), (is_fr?"accÃ¨s direct":"direct access"));
-
-            if (to8_DirectSetDrive(i) == TO8_READ_ONLY)
-                gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(gadget[i].check), TRUE);
-            else
-                gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(gadget[i].check), FALSE);
-        }
-    }
-    (void)button;
-    (void)pointer;
-}
-#else
 static void set_virtual_access (GtkWidget *button, struct GADGETLIST *gadget)
 {
     GtkWidget *image;
 
     image = gtk_image_new_from_stock ("gtk-file", ICON_SIZE);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    xgtk_signal_connect(button, "clicked", set_direct_access, (gpointer) gadget);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(set_direct_access), (gpointer) gadget);
 
     (void)to8_VirtualSetDrive(gadget->num);
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(gadget->check), FALSE);
@@ -389,7 +296,7 @@ static void set_direct_access(GtkWidget *button, struct GADGETLIST *gadget)
     {
         image = gtk_image_new_from_stock ("gtk-floppy", ICON_SIZE);
         gtk_button_set_image(GTK_BUTTON(button), image);
-        xgtk_signal_connect(button, "clicked", set_virtual_access, (gpointer) gadget);
+        g_signal_connect(G_OBJECT(button), "clicked",G_CALLBACK(set_virtual_access), (gpointer) gadget);
 
         if (to8_DirectSetDrive(gadget->num) == TO8_READ_ONLY)
             gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(gadget->check), TRUE);
@@ -397,20 +304,17 @@ static void set_direct_access(GtkWidget *button, struct GADGETLIST *gadget)
             gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(gadget->check), FALSE);
     }
 }
-#endif
 
 
-#if !BEFORE_GTK_2_MIN
+
 static void toggle_check_interlaced (GtkWidget *button, gpointer user_data)
 {
     SetInterlaced (GTK_TOGGLE_BUTTON(button)->active ? 1 : 0);
     (void)user_data;
 }
-#endif
 
 
 
-#if !BEFORE_GTK_2_MIN
 static void run_about_window (GtkWidget *button, gpointer user_data)
 {
     GtkWidget *about_dialog;
@@ -431,7 +335,6 @@ static void run_about_window (GtkWidget *button, gpointer user_data)
     (void)button;
     (void)user_data;
 }
-#endif
 
 
 
@@ -439,37 +342,6 @@ static void InitGUI_title (const char version_name[], GtkWidget *vbox_window)
 {
     GtkWidget *hbox;
     GtkWidget *widget;
-#if BEFORE_GTK_2_MIN
-    char string_title[1024];
-    GdkBitmap *mask;
-    GtkStyle  *style;
-    GdkPixmap *pixmap;
-
-    /* boîte horizontale du titre */
-    hbox=gtk_hbox_new(FALSE,5);
-    gtk_box_pack_start( GTK_BOX(vbox_window), hbox, TRUE, FALSE, 5);
-    gtk_widget_show(hbox);
-
-    /* création du pixmap */
-    style=gtk_widget_get_style(window);
-    pixmap=gdk_pixmap_create_from_xpm_d(window->window, &mask, &style->bg[GTK_STATE_NORMAL], thomson_xpm);
-
-    /* première instance du pixmap */
-    widget=gtk_pixmap_new(pixmap,mask);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    gtk_widget_show(widget);
-
-    /* label du titre */
-    strcat(strcpy(string_title,version_name),"\nCopyright Â© 1997-2012 Gilles FÃ©tis\nEric Botcazou - Alexandre Pukall\n FranÃ§ois Mouret - Samuel Devulder");
-    widget=gtk_label_new(string_title);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    gtk_widget_show(widget);
-
-    /* deuxième instance du pixmap */
-    widget=gtk_pixmap_new(pixmap,mask);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    gtk_widget_show(widget);
-#else
     GdkPixbuf *pixbuf;
 
     /* boîte horizontale du titre */
@@ -486,7 +358,6 @@ static void InitGUI_title (const char version_name[], GtkWidget *vbox_window)
     gtk_widget_show(widget);
 
     (void)version_name;
-#endif
 }
 
 
@@ -530,14 +401,13 @@ static void InitGUI_settings_notebook_frame (GtkWidget *notebook)
     gtk_widget_show(widget);
 
     /* bouton de vitesse exacte */
-    group_speed=xgtk_radio_button_group(widget);
+    group_speed=gtk_radio_button_get_group (GTK_RADIO_BUTTON(widget));
     widget=gtk_radio_button_new_with_label(group_speed, (is_fr?"exacte":"exact"));
-    xgtk_signal_connect(widget, "toggled", toggle_button_true, (gpointer)NULL);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_button_true), (gpointer)NULL);
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.exact_speed ? TRUE : FALSE);
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
     gtk_widget_show(widget);
 
-#if !BEFORE_GTK_2_MIN
     /* boîte horizontale du mode entrelacé */
     hbox=gtk_hbox_new(FALSE,5);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -546,10 +416,9 @@ static void InitGUI_settings_notebook_frame (GtkWidget *notebook)
     /* checkbox du mode entrelacé */
     widget=gtk_check_button_new_with_label((is_fr?"Affichage vidÃ©o entrelacÃ©":"Interlaced video display"));
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), FALSE);
-    xgtk_signal_connect(widget, "toggled", toggle_check_interlaced, (gpointer)NULL);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_check_interlaced), (gpointer)NULL);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
     gtk_widget_show(widget);
-#endif
 }
 
 
@@ -567,13 +436,13 @@ static void InitGUI_commands (GtkWidget *vbox_window)
 
     /* bouton de réinitialisation */
     widget=gtk_button_new_with_label((is_fr?"RÃ©initialiser le TO8":"TO8 warm reset"));
-    xgtk_signal_connect(widget, "clicked", do_exit, (gpointer) RESET);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
     gtk_widget_show(widget);
 
     /* bouton de redémarrage à froid */
     widget=gtk_button_new_with_label((is_fr?"RedÃ©marrer Ã  froid le TO8":"TO8 cold reset"));
-    xgtk_signal_connect(widget, "clicked", do_exit, (gpointer) COLD_RESET);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) COLD_RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
     gtk_widget_show(widget);
 
@@ -586,10 +455,8 @@ static void InitGUI_cartridge_notebook_frame (GtkWidget *notebook)
     GtkWidget *vbox;
     GtkWidget *hbox;
     GtkWidget *widget;
-#if !BEFORE_GTK_2_MIN
     GtkWidget *entry_name;
     GtkWidget *chooser_button;
-#endif
     GtkWidget *frame;
 
     /* frame de la cartouche */
@@ -613,22 +480,6 @@ static void InitGUI_cartridge_notebook_frame (GtkWidget *notebook)
     gtk_widget_show(hbox);
 
     /* entrée fichier de la cartouche */
-#if BEFORE_GTK_2_MIN
-    widget=file_entry_new("m7");
-    xgtk_signal_connect( widget, "file_selected", read_filent_memo, (gpointer)NULL);
-
-    if (strlen(to8_GetMemo7Label()))
-        file_entry_set_entry( FILE_ENTRY(widget), to8_GetMemo7Label());
-    else
-    {
-	file_entry_set_entry( FILE_ENTRY(widget), (is_fr?"aucune cartouche":"no cartridge"));
-
-	if (!access("./memo7/", F_OK))
-	    file_entry_set_filename( FILE_ENTRY(widget), "./memo7/");
-    }
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-    gtk_widget_show(widget);
-#else
     chooser_button = file_chooser_button_new( "m7",
                      is_fr?"SÃ©lectionner une cartouche":"Select a cartridge",
                      is_fr?"Fichiers cartouche (.m7)":"Cartridge files (.m7)",
@@ -650,10 +501,9 @@ static void InitGUI_cartridge_notebook_frame (GtkWidget *notebook)
     entry_name=gtk_entry_new ();
     if (strlen(to8_GetMemo7Label()))
         gtk_entry_set_text (GTK_ENTRY(entry_name), to8_GetMemo7Label());
-    xgtk_signal_connect( chooser_button, "file-set", read_filent_memo, (gpointer)entry_name);
+    g_signal_connect(G_OBJECT(chooser_button), "file-set", G_CALLBACK(read_filent_memo), (gpointer)entry_name);
     gtk_box_pack_start( GTK_BOX(hbox), entry_name, TRUE, TRUE, 0);
     gtk_widget_show(entry_name);
-#endif
 }
 
 
@@ -694,30 +544,16 @@ static void InitGUI_cassette_notebook_frame (GtkWidget *notebook)
     /* bouton protection de la cassette */
     check_button=gtk_check_button_new();
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_button), TRUE);
-    xgtk_signal_connect(check_button, "toggled", toggle_check_cass, (gpointer) spinner_cass);
+    g_signal_connect(G_OBJECT(check_button), "toggled", G_CALLBACK(toggle_check_cass), (gpointer) spinner_cass);
     gtk_box_pack_end( GTK_BOX(hbox), check_button, FALSE, TRUE, 0);
     gtk_widget_show(check_button);
 
     /* entrée fichier de la cassette */
-#if BEFORE_GTK_2_MIN
-    widget=file_entry_new("k7");
-    xgtk_signal_connect( widget, "file_selected", read_filent_cass, (gpointer) check_button);
-
-    if (strlen(to8_GetK7Filename()))
-        file_entry_set_entry( FILE_ENTRY(widget), basename((char *)to8_GetK7Filename()));
-    else
-    {
-        file_entry_set_entry( FILE_ENTRY(widget), (is_fr?"aucune cassette":"no tape"));
-        if (!access("./k7/", F_OK))
-        file_entry_set_filename( FILE_ENTRY(widget), "./k7/");
-    }
-#else
     widget = file_chooser_button_new( "k7",
                      is_fr?"SÃ©lectionner une cassette":"Select a tape",
                      is_fr?"Fichiers cassette (.k7)":"Tape files (.k7)",
                      "*.k7|*.K7", to8_GetK7Filename(), "./k7/", window, hbox);
-    xgtk_signal_connect( widget, "file-set", read_filent_cass, (gpointer) check_button);
-#endif
+    g_signal_connect(G_OBJECT(widget), "file-set", G_CALLBACK(read_filent_cass), (gpointer) check_button);
 
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
     gtk_widget_show(widget);
@@ -733,14 +569,14 @@ static void InitGUI_cassette_notebook_frame (GtkWidget *notebook)
     gtk_widget_show(widget);
 
     /* Connecter le signal directement au spin button ne marche pas. */
-    xgtk_signal_connect(adjustment, "value_changed", change_counter_cass, (gpointer) spinner_cass);
+    g_signal_connect(G_OBJECT(adjustment), "value_changed", G_CALLBACK(change_counter_cass), (gpointer) spinner_cass);
     gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner_cass), FALSE);
     gtk_box_pack_start (GTK_BOX (hbox), spinner_cass, FALSE, FALSE, 0);
     gtk_widget_show(spinner_cass);
 
     /* bouton rembobinage */
     widget=gtk_button_new_with_label((is_fr?"Rembobiner la cassette":"Rewind tape"));
-    xgtk_signal_connect(widget, "clicked", click_rewind_cass, (gpointer) spinner_cass);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(click_rewind_cass), (gpointer) spinner_cass);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
     gtk_widget_show(widget);
 }
@@ -754,11 +590,7 @@ static void InitGUI_disk_notebook_frame (GtkWidget *notebook, int direct_disk_su
     GtkWidget *frame_disk;
     GtkWidget *vbox_disk;
     GtkWidget *hbox_disk[NDISKS];
-#if BEFORE_GTK_2_MIN
-    GtkWidget *direct_access;
-#else
     GtkWidget *image;
-#endif
     
     memset (gadget, 0x00, sizeof(struct GADGETLIST)*NDISKS);
 
@@ -789,36 +621,19 @@ static void InitGUI_disk_notebook_frame (GtkWidget *notebook, int direct_disk_su
         /* boutons protection des disquettes */
         gadget[i].num=i;
         gadget[i].check=gtk_check_button_new();
-        xgtk_signal_connect(gadget[i].check, "toggled", toggle_check_disk, (gpointer) i);
+        g_signal_connect(G_OBJECT(gadget[i].check), "toggled", G_CALLBACK(toggle_check_disk), (gpointer) i);
         gtk_box_pack_end( GTK_BOX(hbox_disk[i]), gadget[i].check, FALSE, TRUE,0);
         gtk_widget_show(gadget[i].check);
 
         /* entrée fichier des disquettes */
         sprintf(num, "%d:", i);
-#if BEFORE_GTK_2_MIN
-        gadget[i].root=file_entry_new(num);
-        xgtk_signal_connect( gadget[i].root, "file_selected", read_filent_disk, (gpointer) &gadget[i]);
-
-	    file_entry_set_entry( FILE_ENTRY(gadget[i].root), (is_fr?"aucune disquette":"no disk"));
-        if (strlen(to8_GetDiskFilename(i)))
-            file_entry_set_entry( FILE_ENTRY(gadget[i].root), basename((char *)to8_GetDiskFilename(i)));
-        else
-        {
-            file_entry_set_entry( FILE_ENTRY(gadget[i].root), (is_fr?"aucune disquette":"no disk"));
-	    if (!access("./disks/", F_OK))
-	        file_entry_set_filename( FILE_ENTRY(gadget[i].root), "./disks/");
-        }
-        gtk_box_pack_start( GTK_BOX(hbox_disk[i]), gadget[i].root, TRUE, TRUE, 0);
-        gtk_widget_show(gadget[i].root);
-#else
         gadget[i].root = file_chooser_button_new( num,
                      is_fr?"SÃ©lectionner une disquette":"Select a disk",
                      is_fr?"Fichiers disquette (.sap)":"Disk files (.sap)",
                      "*.sap|*.SAP", to8_GetDiskFilename(i), "./disks/", window, hbox_disk[i]);
-        xgtk_signal_connect( gadget[i].root, "file-set", read_filent_disk, (gpointer) &gadget[i]);
+        g_signal_connect(G_OBJECT(gadget[i].root), "file-set", G_CALLBACK(read_filent_disk), (gpointer) &gadget[i]);
         gtk_box_pack_start( GTK_BOX(hbox_disk[i]), gadget[i].root, TRUE, TRUE, 0);
         gtk_widget_show(gadget[i].root);
-#endif
     }
 
     if (direct_disk_support)
@@ -832,24 +647,16 @@ static void InitGUI_disk_notebook_frame (GtkWidget *notebook, int direct_disk_su
                 gadget[i].root=NULL;
                 gadget[i].check=NULL;
             }
-#if !BEFORE_GTK_2_MIN
             else
             {
                 gadget[i].access = gtk_button_new ();
                 image = gtk_image_new_from_stock ("gtk-file", ICON_SIZE);
                 gtk_button_set_image(GTK_BUTTON(gadget[i].access), image);
-                xgtk_signal_connect(gadget[i].access, "clicked", set_direct_access, (gpointer) &gadget[i]);
+                g_signal_connect(G_OBJECT(gadget[i].access), "clicked", G_CALLBACK(set_direct_access), (gpointer) &gadget[i]);
                 gtk_box_pack_start( GTK_BOX(hbox_disk[i]), gadget[i].access, FALSE, FALSE, 0);
                 gtk_widget_show(gadget[i].access);
             }
-#endif                
         }
-#if BEFORE_GTK_2_MIN
-        direct_access=gtk_button_new_with_label((is_fr?"AccÃ¨s direct":"Direct access"));
-        xgtk_signal_connect(direct_access, "clicked", set_direct_disk, (gpointer) gadget);
-        gtk_box_pack_start( GTK_BOX(vbox_disk), direct_access, TRUE, TRUE, 0);
-        gtk_widget_show(direct_access);
-#endif                
     }
 }
 
@@ -901,45 +708,31 @@ static void InitGUI_buttons (GtkWidget *vbox_window)
 
     /* boîte horizontale des boutons de sortie */
     hbox=gtk_hbutton_box_new();
-#if BEFORE_GTK_2_MIN
-    gtk_hbutton_box_set_layout_default(GTK_BUTTONBOX_SPREAD);
-#else
     gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_SPREAD);
-#endif
     gtk_box_pack_start( GTK_BOX(vbox_window), hbox, TRUE, FALSE, 0);
     gtk_widget_show(hbox);
 
-#if BEFORE_GTK_2_MIN
-    /* bouton retour */
-    widget=gtk_button_new_with_label("OK");
-#else
     /* bouton à propos */
     widget=gtk_button_new_from_stock (GTK_STOCK_ABOUT);
-    xgtk_signal_connect(widget, "clicked", run_about_window, (gpointer) NULL);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(run_about_window), (gpointer) NULL);
     gtk_container_add( GTK_CONTAINER(hbox), widget);
     gtk_widget_show(widget);
     
     /* bouton retour */
     widget=gtk_button_new_from_stock (GTK_STOCK_OK);
-#endif
-    xgtk_signal_connect(widget, "clicked", do_exit, (gpointer) NONE);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) NONE);
     gtk_container_add( GTK_CONTAINER(hbox), widget);
     gtk_widget_show(widget);
 
     /* bouton quitter */
-#if BEFORE_GTK_2_MIN
-    widget=gtk_button_new_with_label((is_fr?"Quitter":"Quit"));
-#else
     widget=gtk_button_new_from_stock (GTK_STOCK_QUIT);
-#endif
-    xgtk_signal_connect(widget, "clicked", question_exit, (gpointer)NULL);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(question_exit), (gpointer)NULL);
     gtk_container_add( GTK_CONTAINER(hbox), widget);
     gtk_widget_show(widget);
 }
 
 
 
-#if !BEFORE_GTK_2_MIN
 static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_data)
 {
     if (event->window_state.new_window_state == GDK_WINDOW_STATE_ICONIFIED) {
@@ -948,7 +741,6 @@ static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_d
     (void)widget;
     (void)user_data;
 }
-#endif
 
 
 
@@ -963,19 +755,15 @@ void InitGUI(const char version_name[], int direct_disk_support)
 
     /* fenêtre d'affichage */
     window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-#if BEFORE_GTK_2_MIN
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-#else
     gtk_window_set_transient_for (GTK_WINDOW(window), GTK_WINDOW(widget_win));
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER_ON_PARENT);
     gtk_window_set_destroy_with_parent (GTK_WINDOW(window), TRUE);
     gtk_window_set_modal (GTK_WINDOW(window), TRUE);
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW(window), TRUE);
-    xgtk_signal_connect(window, "window-state-event", iconify_teo_window, (gpointer)NULL);
-#endif
+    g_signal_connect(G_OBJECT(window), "window-state-event", G_CALLBACK(iconify_teo_window), (gpointer)NULL);
     gtk_window_set_resizable (GTK_WINDOW(window), FALSE);
     gtk_window_set_title(GTK_WINDOW(window), (is_fr?"Teo - Panneau de contrÃ´le":"Teo - Control panel"));
-    xgtk_signal_connect(window, "delete-event", do_hide, (gpointer)NULL);
+    g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(do_hide), (gpointer)NULL);
     gtk_widget_realize(window); /* nécessaire pour charger le pixmap */
 
     /* boîte verticale associée à la fenêtre */
@@ -992,11 +780,8 @@ void InitGUI(const char version_name[], int direct_disk_support)
     gtk_widget_show(vbox_window);
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
        principale de l'émulateur */
-#if BEFORE_GTK_2_MIN
-    gdk_window_add_filter(gdk_window_foreign_new(screen_win), retrace_callback, NULL);
-#else
     gdk_window_add_filter(GTK_WIDGET(widget_win)->window, retrace_callback, NULL);
-#endif
+
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())
         gtk_main_iteration ();

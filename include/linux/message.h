@@ -50,33 +50,7 @@
    #include <gtk/gtkwindow.h>
 #endif
 
-#include "linux/xgui.h"
-
-#if BEFORE_GTK_2_MIN
-
-#define MESSAGE(obj)          GTK_CHECK_CAST(obj, message_get_type(), Message)
-#define MESSAGE_CLASS(klass)  GTK_CHECK_CLASS_CAST(klass, message_get_type(), MessageClass)
-#define IS_MESSAGE(obj)       GTK_CHECK_TYPE(obj, message_get_type())
-
-typedef struct _Message       Message;
-typedef struct _MessageClass  MessageClass;
-
-struct _Message {
-    GtkWindow window;
-
-    GtkWidget *label;
-};
-
-struct _MessageClass {
-    GtkWindowClass parent_class;
-};
-
-extern GtkWidget *message_new(const gchar *);
-
-#else
-
 extern void message_box (const gchar *message, GtkWidget *parent_window);
 
 #endif
 
-#endif

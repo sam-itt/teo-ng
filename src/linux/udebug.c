@@ -315,7 +315,6 @@ static void do_command_debug(GtkWidget *button, int command)
 
 
 
-#if !BEFORE_GTK_2_MIN
 static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_data)
 {
     if (event->window_state.new_window_state == GDK_WINDOW_STATE_ICONIFIED) {
@@ -324,7 +323,6 @@ static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_d
     (void)widget;
     (void)user_data;
 }
-#endif
 
 
 
@@ -346,18 +344,14 @@ void InitDEBUG(void)
 
     /* fenêtre d'affichage */
     window_debug=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-#if BEFORE_GTK_2_MIN
-    gtk_window_set_position(GTK_WINDOW(window_debug), GTK_WIN_POS_CENTER);
-#else
     gtk_window_set_transient_for (GTK_WINDOW(window_debug), GTK_WINDOW(widget_win));
     gtk_window_set_position(GTK_WINDOW(window_debug), GTK_WIN_POS_CENTER_ON_PARENT);
     gtk_window_set_destroy_with_parent (GTK_WINDOW(window_debug), TRUE);
     gtk_window_set_modal (GTK_WINDOW(window_debug), TRUE);
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW(window_debug), TRUE);
-    xgtk_signal_connect(window_debug, "window-state-event", iconify_teo_window, (gpointer)NULL);
-#endif
+    g_signal_connect(G_OBJECT(window_debug), "window-state-event", G_CALLBACK (iconify_teo_window), (gpointer)NULL);
     gtk_window_set_title(GTK_WINDOW(window_debug), is_fr?"Teo - DÃ©bogueur":"Teo - Debugger");
-    xgtk_signal_connect(window_debug, "delete-event", do_hide_debug, (gpointer)NULL);
+    g_signal_connect(G_OBJECT(window_debug), "delete-event", G_CALLBACK (do_hide_debug), (gpointer)NULL);
     gtk_widget_realize(window_debug);
 
     /* boîte verticale associée à la fenêtre */
@@ -372,28 +366,28 @@ void InitDEBUG(void)
     gtk_widget_show(hbox_top);
 
     but_quit=gtk_button_new_with_label("Quit");
-    xgtk_signal_connect( but_quit, "clicked", do_exit_debug, (gpointer) NONE);
+    g_signal_connect(G_OBJECT(but_quit), "clicked", G_CALLBACK (do_exit_debug), (gpointer) NONE);
     gtk_box_pack_start( GTK_BOX(hbox_top), but_quit, TRUE, FALSE, 0);
     gtk_widget_show(but_quit);
 
     but_step=gtk_button_new_with_label("Step");
-    gtk_box_pack_start( GTK_BOX(hbox_top), but_step, TRUE, FALSE, 0);
-    xgtk_signal_connect(but_step, "clicked", do_command_debug, (gpointer) DEBUG_CMD_STEP);
+    gtk_box_pack_start(GTK_BOX(hbox_top), but_step, TRUE, FALSE, 0);
+    g_signal_connect(G_OBJECT(but_step), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEP);
     gtk_widget_show(but_step);
 
     but_stepover=gtk_button_new_with_label("Step over");
     gtk_box_pack_start( GTK_BOX(hbox_top), but_stepover, TRUE, FALSE, 0);
-    xgtk_signal_connect(but_stepover, "clicked", do_command_debug, (gpointer) DEBUG_CMD_STEPOVER);
+    g_signal_connect(G_OBJECT(but_stepover), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEPOVER);
     gtk_widget_show(but_stepover);
 
     but_run=gtk_button_new_with_label("Run");
     gtk_box_pack_start( GTK_BOX(hbox_top), but_run, TRUE, FALSE, 0);
-    xgtk_signal_connect(but_run, "clicked", do_command_debug, (gpointer) DEBUG_CMD_RUN);
+    g_signal_connect(G_OBJECT(but_run), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_RUN);
     gtk_widget_show(but_run);
 
     but_bkpt=gtk_button_new_with_label("Set BKPT");
     gtk_box_pack_start( GTK_BOX(hbox_top), but_bkpt, TRUE, FALSE, 0);
-    xgtk_signal_connect(but_bkpt, "clicked", do_command_debug, (gpointer) DEBUG_CMD_BKPT);
+    g_signal_connect(G_OBJECT(but_bkpt), "clicked", G_CALLBACK(do_command_debug), (gpointer) DEBUG_CMD_BKPT);
     gtk_widget_show(but_bkpt);
 
 //    address_buf=gtk_entry_buffer_new("0000",6);
@@ -404,7 +398,7 @@ void InitDEBUG(void)
 
     but_rembkpt=gtk_button_new_with_label(is_fr?"Supprimer les BKPT":"Remove all BKPT");
     gtk_box_pack_start( GTK_BOX(hbox_top), but_rembkpt, TRUE, FALSE, 0);
-    xgtk_signal_connect(but_rembkpt, "clicked", do_command_debug, (gpointer) DEBUG_CMD_REMBKPT);
+    g_signal_connect(G_OBJECT(but_rembkpt), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_REMBKPT);
     gtk_widget_show(but_rembkpt);
     
     /* boîte vericale des textes */
@@ -472,11 +466,8 @@ void InitDEBUG(void)
 
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
        principale de l'émulateur */
-#if BEFORE_GTK_2_MIN
-    gdk_window_add_filter(gdk_window_foreign_new(screen_win), retrace_callback, NULL);
-#else
     gdk_window_add_filter(GTK_WIDGET(widget_win)->window, retrace_callback, NULL);
-#endif
+
     printf("ok\n");
 }
 

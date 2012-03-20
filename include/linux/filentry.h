@@ -50,51 +50,14 @@
    #include <gtk/gtkhbox.h>
 #endif
 
-#include "linux/xgui.h"
-
-
 #define FILENT_LENGTH  127
 
-#if BEFORE_GTK_2_MIN
-
-#define FILE_ENTRY(obj)          GTK_CHECK_CAST(obj, file_entry_get_type(), FileEntry)
-#define FILE_ENTRY_CLASS(klass)  GTK_CHECK_CLASS_CAST(klass, file_entry_get_type(), FileEntryClass)
-#define IS_FILE_ENTRY(obj)       GTK_CHECK_TYPE(obj, file_entry_get_type())
-
-typedef struct _FileEntry       FileEntry;
-typedef struct _FileEntryClass  FileEntryClass;
-
-struct _FileEntry {
-    GtkHBox hbox;
-  
-    GtkWidget *label;
-    GtkWidget *entry;
-    GtkWidget *button;
-    GtkWidget *filesel;
-
-    gchar filename[FILENT_LENGTH+1];
-};
-
-struct _FileEntryClass {
-    GtkHBoxClass parent_class;
-
-    void (*file_selected)(FileEntry *);
-};
-
-extern GType      file_entry_get_type(void);
-extern GtkWidget *file_entry_new(const gchar *);
-extern void       file_entry_set_entry(FileEntry *, const gchar *);
-extern void       file_entry_set_filename(FileEntry *, const gchar *);
-extern gchar     *file_entry_get_filename(FileEntry *);    
-#else
 extern GtkWidget *file_chooser_button_new(char *label, const gchar *title,
                       const gchar *patternname, char *patternfilter,
                       const gchar *current_file, char *current_dir,
                       GtkWidget *parent_window, GtkWidget *hbox);
 extern gchar *file_chooser_get_filename(void);
 extern void file_chooser_reset_filename(GtkFileChooserButton *chooser_button);
-
-#endif
 
 #endif
 

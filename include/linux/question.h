@@ -50,36 +50,7 @@
    #include <gtk/gtkwindow.h>
 #endif
 
-#include "linux/xgui.h"
-
-#if BEFORE_GTK_2_MIN
-
-#define QUESTION(obj)          GTK_CHECK_CAST(obj, question_get_type(), Question)
-#define QUESTION_CLASS(klass)  GTK_CHECK_CLASS_CAST(klass, question_get_type(), QuestionClass)
-#define IS_QUESTION(obj)       GTK_CHECK_TYPE(obj, question_get_type())
-
-typedef struct _Question       Question;
-typedef struct _QuestionClass  QuestionClass;
-
-struct _Question {
-    GtkWindow window;
-
-    GtkWidget *label;
-};
-
-struct _QuestionClass {
-    GtkWindowClass parent_class;
-
-    void (*clicked_yes)(Question *);
-    void (*clicked_no) (Question *);
-};
-
-extern GtkWidget *question_new(const gchar *);
-
-#else
-
 extern int question_response (const gchar *message, GtkWidget *parent_window);
 
 #endif
 
-#endif

@@ -111,17 +111,8 @@ static void Timer(int sigtype)
 void to8_StartTimer (void) {
     const struct itimerval timer_value={ {0,1e6/TO8_FRAME_FREQ},
                                 {0,1e6/TO8_FRAME_FREQ} };
-#ifdef OSS_AUDIO
-    if (!teo.sound_enabled)
-    {
     signal(SIGALRM,Timer);
     setitimer(ITIMER_REAL, &timer_value, NULL);
-    }
-#endif
-#ifdef ALSA_AUDIO
-    signal(SIGALRM,Timer);
-    setitimer(ITIMER_REAL, &timer_value, NULL);
-#endif
 }
 
 
@@ -132,13 +123,7 @@ void to8_StartTimer (void) {
 void to8_StopTimer (void) {
     const struct itimerval timer_value={ {0,0}, {0,0} };
 
-#ifdef OSS_AUDIO
-    if (!teo.sound_enabled)
-        setitimer(ITIMER_REAL, &timer_value, NULL);
-#endif
-#ifdef ALSA_AUDIO
     setitimer(ITIMER_REAL, &timer_value, NULL);
-#endif
 }
 
 
@@ -166,16 +151,10 @@ static void RunTO8(void)
 
             if (teo.exact_speed)  /* synchronisation sur fréquence réelle */
             {
-#ifdef OSS_AUDIO
-                if (teo.sound_enabled)
-                    PlaySoundBuffer();
-#endif
-#ifdef ALSA_AUDIO
                 if (teo.sound_enabled) {
                     if (PlaySoundBuffer()==0)
                         pause();
                 }
-#endif
                 else
                 if (frame==tick)
                     pause();  /* on attend le SIGALARM du timer */
@@ -420,7 +399,7 @@ static void ExitMessage(const char msg[])
     exit(EXIT_FAILURE);
 }
 
-#if !BEFORE_GTK_2_MIN
+
 
 /* isDir:
  *  Retourne vrai si le fichier est un répertoire.
@@ -503,7 +482,6 @@ static int unknownArg(char *arg) {
     
     return 0;
 }
-#endif
 
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
 
@@ -521,9 +499,7 @@ int main(int argc, char *argv[])
     char *lang;
     int load_state = FALSE;
     XrmDatabase user_db;
-#if !BEFORE_GTK_2_MIN
     xargs xargs;
-#endif
 #ifdef DEBIAN_BUILD
     char fname[MAX_PATH+1] = "";
 #endif
@@ -545,7 +521,7 @@ int main(int argc, char *argv[])
     /* Mise en commun dans user_db toutes les commandes et options spécifiées
        par l'utilisateur */
     user_db = GetUserInput(&argc, argv);
-#if !BEFORE_GTK_2_MIN
+
     /* Lecture des arguments supplémentaires */
     xargs_init(&xargs);
     xargs.tmpFile    = tmpFile;
@@ -557,7 +533,7 @@ int main(int argc, char *argv[])
     xargs.sapfs      = "sapfs";
     xargs.exitMsg = (void*)ExitMessage;
     xargs_parse(&xargs, argc-1, argv+1);
-#endif
+
     /* Mise en place des paramètres de l'émulation */
     load_state = SetParameters(memo_name, &x, &y, &user_flags, &direct_write_support, user_db);
     XrmDestroyDatabase(user_db);
@@ -610,10 +586,10 @@ int main(int argc, char *argv[])
 #endif
     if (load_state == TRUE)
         LoadState(TEO_CONFIG_FILE);
-#if !BEFORE_GTK_2_MIN
+
     /* arguments supplementaires  */
     xargs_start(&xargs);
-#endif
+
     /* Initialisation de l'interface utilisateur */
     InitGUI(version_name, direct_support);
 
@@ -630,13 +606,12 @@ int main(int argc, char *argv[])
 
     /* Mise au repos de l'interface d'accès direct */
     ExitDirectDisk();
-#if !BEFORE_GTK_2_MIN
+
     /* nettoyage des arguments supplementaires */
     xargs_exit(&xargs);
 
     /* Détruit la fenêtre principale */
     DestroyWindow();
-#endif
 
     /* Referme le périphérique audio*/
     CloseSound();

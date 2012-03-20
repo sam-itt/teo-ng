@@ -55,91 +55,6 @@
 #include "linux/message.h"
 
 
-#if BEFORE_GTK_2_MIN
-
-/* partie privée de la classe Message:
- */
-static void message_class_init(MessageClass *class)
-{
-    (void) class;
-}
-
-
-
-static void message_init(Message *mesg)
-{
-    GtkWidget *vbox, *button_box, *button;
-
-    mesg->window.type=GTK_WINDOW_POPUP;
-    gtk_window_set_title(GTK_WINDOW(mesg), "Teo");
-    gtk_window_set_position(GTK_WINDOW(mesg), GTK_WIN_POS_CENTER);
-    gtk_signal_connect_object(GTK_OBJECT(GTK_WINDOW(mesg)), "destroy", GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(mesg));
-
-    vbox=gtk_vbox_new(FALSE,5);
-    gtk_container_set_border_width( GTK_CONTAINER(vbox), 10);
-    gtk_container_add(GTK_CONTAINER(GTK_WINDOW(mesg)), vbox);
-    gtk_widget_show(vbox);
-
-    mesg->label=gtk_label_new("\0");
-    gtk_box_pack_start(GTK_BOX(vbox), mesg->label, TRUE, FALSE, 0);
-    gtk_widget_show(mesg->label);
-
-    button_box=gtk_hbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(vbox), button_box, TRUE, FALSE, 0);
-    gtk_widget_show(button_box);
-
-    button=gtk_button_new_with_label("OK");
-    gtk_container_add(GTK_CONTAINER(button_box), button);
-    gtk_signal_connect_object(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),GTK_OBJECT(mesg));
-    gtk_widget_show(button);
-}
-
-
-
-static GType message_get_type(void)
-{
-    static GType mesg_type = 0;
-
-    if (!mesg_type)
-    {
-	static const GTypeInfo mesg_info =
-	{
-	    sizeof(MessageClass),
-	    NULL, /* base_init */
-	    NULL, /* base_finalize */
-	    (GClassInitFunc) message_class_init,
-	    NULL, /* class_finalize */
-	    NULL, /* class_data */
-	    sizeof(Message),
-	    0,    /* n_preallocs */
-	    (GInstanceInitFunc) message_init,
-	    NULL
-	};
-
-        mesg_type = g_type_register_static (GTK_TYPE_WINDOW,
-					    "MessageInfo",
-					    &mesg_info,
-					    0);
-    }
-
-    return mesg_type;
-}
-
-
-
-/* partie publique de la classe Message:
- */
-GtkWidget *message_new(const gchar *label)
-{
-    Message *mesg=MESSAGE( gtk_type_new (message_get_type() ));
-
-    gtk_label_set_text( GTK_LABEL(mesg->label), label);
-
-    return GTK_WIDGET(mesg);
-}
-
-#else
-
 void message_box (const gchar *message, GtkWidget *parent_window)
 {
     GtkWidget *dialog = gtk_message_dialog_new  (
@@ -151,6 +66,4 @@ void message_box (const gchar *message, GtkWidget *parent_window)
     (void)gtk_dialog_run ((GtkDialog *)dialog);
     gtk_widget_destroy ((GtkWidget *)dialog);
 }
-
-#endif
 

@@ -52,9 +52,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <X11/Xlib.h>
-#include "xgui.h"
 #include "../to8.h"
-
 
 extern GtkWidget *widget_win;
 extern GdkWindow *gscreen_win;
@@ -67,8 +65,7 @@ extern int mit_shm_enabled;
 extern void InitDisplay(void);
 extern void InitWindow(int, char *[], int, int, int);
 extern void HandleEvents(void);
-#if !BEFORE_GTK_2_MIN
 extern void DestroyWindow (void);
-#endif
 
 #endif
+

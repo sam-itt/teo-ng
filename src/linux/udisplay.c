@@ -60,9 +60,7 @@
 #include "linux/main.h"
 #include "to8keys.h"
 #include "to8.h"
-#if !BEFORE_GTK_2_MIN
 #include "thomson.xpm"
-#endif
 
 
 GtkWidget *widget_win;
@@ -213,11 +211,7 @@ void InitDisplay(void)
     int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
-#if BEFORE_GTK_2_MIN
-    display = GDK_DISPLAY();
-#else
     display=gdk_x11_get_default_xdisplay();
-#endif
     screen=DefaultScreen(display);
 
     /* Calcul de la table de conversion des keycodes */
@@ -229,7 +223,6 @@ void InitDisplay(void)
 }
 
 
-#if !BEFORE_GTK_2_MIN
 /* DestroyWindow:
  *  Elimine la fenêtre principale
  */
@@ -237,7 +230,6 @@ void DestroyWindow (void)
 {
     gtk_widget_destroy (widget_win);
 }
-#endif
 
 
 /* InitWindow:
@@ -247,36 +239,12 @@ void DestroyWindow (void)
 void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 {
     char *window_name=(is_fr?"Teo - l'Ã©mulateur TO8 (menu:ESC)":"Teo - thomson TO8 emulator (menu:ESC)");
-#if BEFORE_GTK_2_MIN
-    Pixmap null_bitmap;
-    XColor color;
-    XTextProperty windowName;
-    XSizeHints *size_hints;
-    XWMHints *wm_hints;
-    XClassHint *class_hints;
-    XSetWindowAttributes win_attrb;
-#else
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
     GdkColor color;
-#endif
 
     printf((is_fr?"CrÃ©ation de la fenÃªtre principale...":"Creates main window..."));
-#if BEFORE_GTK_2_MIN
-    if ( !(size_hints=XAllocSizeHints()) || !(wm_hints = XAllocWMHints()) ||
-	                                  !(class_hints = XAllocClassHint()) )
-    {
-        fprintf(stderr,is_fr?"erreur d'allocation mémoire X\n":"allocation error of X memory");
-        exit(EXIT_FAILURE);
-    }
 
-    /* Création de la fenêtre principale */
-    screen_win=XCreateSimpleWindow(display, RootWindow(display,screen), x, y,
-      TO8_SCREEN_W*2, TO8_SCREEN_H*2, 4, WhitePixel(display, screen),
-        BlackPixel(display,screen));
-
-    XSelectInput(display, screen_win, ExposureMask | FocusChangeMask | KeyPressMask | KeyReleaseMask);
-#else
     widget_win=gtk_window_new (GTK_WINDOW_TOPLEVEL);
     hints.min_width = TO8_SCREEN_W*2;
     hints.max_width = TO8_SCREEN_W*2;
@@ -303,55 +271,16 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     gtk_widget_show (widget_win);
     gscreen_win=GTK_WIDGET(widget_win)->window;
     screen_win=GDK_WINDOW_XID(gscreen_win);
-#endif
+
     /* Connecte le callback pour le gadget de fermeture */
     atomDeleteScreen = XInternAtom(display, "WM_DELETE_WINDOW", FALSE);
     XSetWMProtocols(display, screen_win, &atomDeleteScreen, 1);
-#if BEFORE_GTK_2_MIN
-    /* Création du curseur invisible */
-    null_bitmap = XCreateBitmapFromData(display, screen_win, "", 1, 1);
-    null_cursor = XCreatePixmapCursor(display, null_bitmap, null_bitmap, &color, &color, 0, 0);
-    XDefineCursor(display, screen_win, null_cursor);
-    XFreePixmap(display, null_bitmap);
 
-    /* Création de la fenêtre de l'écran */
-    win_attrb.win_gravity=CenterGravity;
-    win_attrb.event_mask=ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
-    window_win=XCreateWindow(display, screen_win, TO8_BORDER_W*2, TO8_BORDER_H*2, TO8_WINDOW_W*2, TO8_WINDOW_H*2, 0, CopyFromParent, InputOnly, CopyFromParent, CWWinGravity|CWEventMask, &win_attrb);
-
-    /* Dimensionnement de la fenêtre */
-    size_hints->min_width=TO8_SCREEN_W*2;
-    size_hints->min_height=TO8_SCREEN_H*2;
-    size_hints->max_width=TO8_SCREEN_W*2;
-    size_hints->max_height=TO8_SCREEN_H*2;
-    size_hints->flags=PPosition | PSize | PMinSize | PMaxSize | user_flags;
-
-    /* Formatage du nom de la fenêtre */
-    if (!XStringListToTextProperty(&window_name, 1, &windowName))
-    {
-        fprintf(stderr,is_fr?"erreur d'allocation de structure X\n":"allocation error of X structure");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Renseignement du Window Manager */
-    wm_hints->initial_state = NormalState;
-    wm_hints->input = True;
-    wm_hints->flags = StateHint | InputHint;
-
-    class_hints->res_name=PROG_NAME;
-    class_hints->res_class=PROG_CLASS;
-
-    XSetWMProperties(display, screen_win, &windowName, NULL, argv, argc, size_hints, wm_hints, class_hints);
-
-    XMapWindow(display, window_win);
-    XMapWindow(display, screen_win);
-    XFlush(display);
-#else
     window_win=screen_win;
     argc=argc;
     argv=argv;
     user_flags=user_flags;
-#endif
+
     to8_SetPointer=SetPointer;
 
     printf("ok\n");
@@ -375,10 +304,8 @@ void HandleEvents(void)
         {
             case ClientMessage:  /* screen_win */
                 if (atomDeleteScreen == (Atom)ev.xclient.data.l[0])
-#if !BEFORE_GTK_2_MIN
                     if (question_response (is_fr?"Voulez-vous vraiment quitter l'Ã©mulateur ?"
                                                 :"Do you really want to quit the emulator ?", widget_win) == TRUE)
-#endif
                         teo.command = QUIT;
                 break;
 
@@ -468,12 +395,8 @@ void HandleEvents(void)
                 break;
 
             case MotionNotify:  /* window_win */
-#if BEFORE_GTK_2_MIN
-                to8_HandleMouseMotion(ev.xbutton.x/2, ev.xbutton.y/2);
-#else
                 to8_HandleMouseMotion((ev.xbutton.x/2<TO8_BORDER_W) ? 0 : ev.xbutton.x/2-TO8_BORDER_W,
                                       (ev.xbutton.y/2<TO8_BORDER_H) ? 0 : ev.xbutton.y/2-TO8_BORDER_H);
-#endif
                 break;
 
         } /* end of switch(ev.type) */

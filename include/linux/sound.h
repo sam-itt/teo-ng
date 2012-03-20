@@ -47,12 +47,8 @@
 #define LINUX_SOUND_H
 
 extern int InitSound(void);
-#ifdef OSS_AUDIO
-extern void PlaySoundBuffer(void);
-#endif
-#ifdef ALSA_AUDIO
 extern int PlaySoundBuffer(void);
-#endif
 extern void CloseSound (void);
 
 #endif
+

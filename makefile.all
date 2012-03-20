@@ -10,7 +10,6 @@
 #        PGCC=1            use PGCC compiler switches (djgpp and mingw32 only).
 #        PENTIUMONLY=1     make the library faster, but pentium-only.
 #        DEBIAN=1          adapt pathes for DEBIAN build (Linux only)
-#        OSS=1             OSS audio required, ALSA by default (Linux only)
 #        FR_LANG=1         (by default) create a french build (djgpp and mingw32 only).
 #        EN_LANG=1         create an english build (djgpp and mingw32 only).
 #
@@ -81,8 +80,7 @@ TEO_SRC_LINUX_FILES =    \
    src/linux/uquestion.c \
    src/linux/usound.c    \
    src/linux/ustate.c    \
-   src/linux/udebug.c    \
-   src/linux/uxgui.c
+   src/linux/udebug.c
 
 TEO_SRC_MC68XX_FILES =   \
    src/mc68xx/dasm6809.c \
