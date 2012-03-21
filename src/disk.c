@@ -858,7 +858,7 @@ int to8_DirectSetDrive(int drive)
 }
 
 
-#if !BEFORE_GTK_2_MIN
+
 /* VitualSetDrive:
  *  Déclare le lecteur spécifié en accès virtuel
  */
@@ -875,7 +875,6 @@ int to8_VirtualSetDrive(int drive)
 
     return disk[drive].mode;
 }
-#endif
 
 
 
