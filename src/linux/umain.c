@@ -38,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 26/01/2010 08/2011 17/01/2012
+ *               François Mouret 26/01/2010 08/2011 23/03i/2012
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -69,7 +69,6 @@
 #include "linux/gui.h"
 #include "linux/main.h"
 #include "linux/sound.h"
-#include "linux/debugger.h"
 #include "to8.h"
 #include "xargs.h"
 
@@ -570,9 +569,6 @@ int main(int argc, char *argv[])
     /* Création de la fenêtre principale de l'émulateur */
     InitWindow(argc, argv, x, y, user_flags);
 
-    /* Init du debugger */
-    InitDEBUG();
-
     /* Initialisation des modules graphique, sonore et disquette */
     InitGraphic();
     if (InitSound() == TO8_ERROR)
@@ -591,7 +587,7 @@ int main(int argc, char *argv[])
     xargs_start(&xargs);
 
     /* Initialisation de l'interface utilisateur */
-    InitGUI(version_name, direct_support);
+    InitGUI(direct_support);
 
     /* Attend que GTK ait fini son travail */
     while (gtk_events_pending ())
@@ -609,6 +605,9 @@ int main(int argc, char *argv[])
 
     /* nettoyage des arguments supplementaires */
     xargs_exit(&xargs);
+
+    /* Libère la mémoire utilisée par la GUI */
+    FreeGUI ();
 
     /* Détruit la fenêtre principale */
     DestroyWindow();

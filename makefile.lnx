@@ -71,7 +71,7 @@ EXE_NAME = teo
 OBJ_DIR = obj/linux
 CFLAGS += -DOS_LINUX
 
-VPATH += src/linux
+VPATH += src/linux src/linux/ugui
 
 OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_LINUX_FILES)))
 

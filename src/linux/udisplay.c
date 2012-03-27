@@ -54,7 +54,7 @@
    #include <X11/keysym.h>
 #endif
 
-#include "linux/question.h"
+#include "linux/gui.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
 #include "linux/main.h"
@@ -304,7 +304,7 @@ void HandleEvents(void)
         {
             case ClientMessage:  /* screen_win */
                 if (atomDeleteScreen == (Atom)ev.xclient.data.l[0])
-                    if (question_response (is_fr?"Voulez-vous vraiment quitter l'émulateur ?"
+                    if (ask_box (is_fr?"Voulez-vous vraiment quitter l'émulateur ?"
                                                 :"Do you really want to quit the emulator ?", widget_win) == TRUE)
                         teo.command = QUIT;
                 break;

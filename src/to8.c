@@ -361,9 +361,6 @@ int to8_LoadMemo7(const char filename[])
     /* allocation de la mémoire nécessaire */
     nbank = (length-1)/mem.cart.size + 1;
 
-    printf ("%d %d %d %d %d %d\n", mem.cart.nbank, mem.cart.size,
-                 (int)mem.cart.bank[0],(int)mem.cart.bank[1],(int)mem.cart.bank[2],(int)mem.cart.bank[3]);
-
     if (mem.cart.nbank < nbank)
     {
         for (i=mem.cart.nbank; i<nbank; i++)

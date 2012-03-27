@@ -33,17 +33,26 @@
  */
 
 /*
- *  Module     : linux/license.h
+ *  Module     : linux/ugui/uabout.c
  *  Version    : 1.8.1
- *  Créé par   : François Mouret 12/08/2011
- *  Modifié par:
+ *  Créé par   : François Mouret 21/03/2012
+ *  Modifié par: 
  *
- *  License.
+ *  Fenêtre "A propos"
  */
 
 
-#ifndef LINUX_LICENSE_H
-#define LINUX_LICENSE_H 1
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <unistd.h>
+   #include <gdk/gdkx.h>
+   #include <gtk/gtk.h>
+#endif
+
+#include "to8.h"
+#include "linux/gui.h"
 
 
 #define linux_license ""\
@@ -389,5 +398,32 @@
 " Public License instead of this License.\n" \
 "\n"
 
-#endif
+
+
+/* run_about_window:
+ *  Affiche le panneau "A propos"
+ */
+void run_about_window (GtkWidget *button, gpointer user_data)
+{
+    GtkWidget *about_dialog;
+    const gchar *authors_list[] = { "Gilles FÃ©tis", "Eric Botcazou", "Alexandre Pukall",
+                                    "JÃ©rÃ©mie Guillaume", "FranÃ§ois Mouret",
+                                    "Samuel Devulder", NULL };
+
+    about_dialog=gtk_about_dialog_new ();
+    gtk_window_set_transient_for (GTK_WINDOW(about_dialog), GTK_WINDOW(wdControl));
+    gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG(about_dialog), "Teo");
+    gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(about_dialog), TO8_VERSION_STR);
+    gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dialog), "Copyright Â© 1997-2012");
+    gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG(about_dialog), "Linux/X11");
+    gtk_about_dialog_set_license (GTK_ABOUT_DIALOG(about_dialog), linux_license);
+    gtk_about_dialog_set_website (GTK_ABOUT_DIALOG(about_dialog), "http://nostalgies.thomsonistes.org/teo_home.html");
+    gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG(about_dialog), is_fr?"Site Web de Nostalgies Thomsonistes"
+                                                                             :"Web site of Nostalgies Thomsonistes");
+    gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG(about_dialog), (const gchar **)&authors_list);
+    (void)gtk_dialog_run (GTK_DIALOG(about_dialog));
+    gtk_widget_destroy (about_dialog);
+    (void)button;
+    (void)user_data;
+}
 

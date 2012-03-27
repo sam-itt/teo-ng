@@ -69,18 +69,20 @@ TEO_SRC_DOS_FILES =   \
    src/dos/dmemmng.c  \
    src/dos/dvga.c
 
-TEO_SRC_LINUX_FILES =    \
-   src/linux/udisk.c     \
-   src/linux/udisplay.c  \
-   src/linux/ufilentry.c \
-   src/linux/ugraphic.c  \
-   src/linux/ugui.c      \
-   src/linux/umain.c     \
-   src/linux/umessage.c  \
-   src/linux/uquestion.c \
-   src/linux/usound.c    \
-   src/linux/ustate.c    \
-   src/linux/udebug.c
+TEO_SRC_LINUX_FILES =         \
+   src/linux/ufloppy.c        \
+   src/linux/udisplay.c       \
+   src/linux/ugraphic.c       \
+   src/linux/umain.c          \
+   src/linux/usound.c         \
+   src/linux/ustate.c         \
+   src/linux/ugui.c           \
+   src/linux/ugui/usetting.c  \
+   src/linux/ugui/udisk.c     \
+   src/linux/ugui/umemo.c     \
+   src/linux/ugui/ucass.c     \
+   src/linux/ugui/uabout.c    \
+   src/linux/ugui/udebug.c
 
 TEO_SRC_MC68XX_FILES =   \
    src/mc68xx/dasm6809.c \

@@ -32,7 +32,7 @@
  */
 
 /*
- *  Module     : src/linux/udebug.c
+ *  Module     : src/linux/ugui/udebug.c
  *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis 27/07/2011
  *  Modifié par: François Mouret 18/02/2012
@@ -51,18 +51,15 @@
 #endif
 
 #include "linux/display.h"
-#include "linux/filentry.h"
+#include "linux/gui.h"
 #include "linux/graphic.h"
 #include "linux/main.h"
-#include "linux/message.h"
-#include "linux/question.h"
-#include "linux/debugger.h"
 #include "to8.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
 #include "to8dbg.h"
 
-#define DEBUG_SPACE 5
+#define DEBUG_SPACE 2
 
 #define DEBUG_CMD_STEP 0
 #define DEBUG_CMD_STEPOVER 1
@@ -284,30 +281,35 @@ static void debug_rembkpt(void) {
 static void do_command_debug(GtkWidget *button, int command)
 {
     int addr;
-    switch (command) {
+    switch (command)
+    {
     case DEBUG_CMD_STEP:
        debug_step();
        update_debug_text ();
-    break;
+       break;
+
     case DEBUG_CMD_STEPOVER:
        debug_stepover();
        update_debug_text ();
-    break;
+       break;
+
     case DEBUG_CMD_RUN:
        teo.command=BREAKPOINT;
        gtk_widget_hide(window_debug);
        gtk_main_quit();
-    break;
+       break;
+
     case DEBUG_CMD_BKPT:
        addr=0;
        sscanf(gtk_entry_get_text (GTK_ENTRY(entry_address)),"%X",&addr);
        debug_bkpt(addr);
        update_debug_text ();
-    break;
+       break;
+
     case DEBUG_CMD_REMBKPT:
        debug_rembkpt();
        update_debug_text ();
-    break;
+       break;
     }
 
     (void) button;
@@ -326,7 +328,7 @@ static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_d
 
 
 
-void InitDEBUG(void)
+static void InitDEBUG(void)
 {
     GtkWidget *vbox_window;
     GtkWidget *hbox_top;
@@ -339,8 +341,6 @@ void InitDEBUG(void)
     GtkWidget *dasm_window;
     GtkWidget *label;
     gchar *markup;
-
-    printf("Init debugger...");
 
     /* fenêtre d'affichage */
     window_debug=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -467,8 +467,6 @@ void InitDEBUG(void)
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
        principale de l'émulateur */
     gdk_window_add_filter(GTK_WIDGET(widget_win)->window, retrace_callback, NULL);
-
-    printf("ok\n");
 }
 
 
@@ -477,6 +475,14 @@ void InitDEBUG(void)
  */
 void DebugPanel(void)
 {
+    static int first=1;
+ 
+    /* Initialise la fenêtre si pas fait */
+    if (first) {
+        InitDEBUG();
+        first=0;
+    }
+
     /* actualise le texte à afficher */
     update_debug_text ();
     

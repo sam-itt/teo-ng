@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
+ *               Gilles Fétis 30/07/2011
+ *               François Mouret 21/03/2012
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 2.x .
  */
@@ -45,8 +47,30 @@
 #ifndef LINUX_GUI_H
 #define LINUX_GUI_H
 
-extern void InitGUI(const char [], int);
+#define FILENT_LENGTH  127
+
+extern GtkWidget *wdControl;
+
+/* main panel */
+extern void InitGUI(int);
+extern void FreeGUI (void);
 extern void ControlPanel(void);
+
+/* boxes */
+extern int  ask_box (const gchar *message, GtkWidget *parent_window);
+extern void error_box (const gchar *message, GtkWidget *parent_window);
+
+/* sub panels */
+extern void DebugPanel(void);
+extern void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support);
+extern void free_disk_list (void);
+extern void run_about_window (GtkWidget *button, gpointer user_data);
+extern void init_memo_notebook_frame (GtkWidget *notebook);
+extern void free_memo_list (void);
+extern void init_cass_notebook_frame (GtkWidget *notebook);
+extern void update_counter_cass (void);
+extern void free_cass_list (void);
+extern void init_setting_notebook_frame (GtkWidget *notebook);
 
 #endif
 
