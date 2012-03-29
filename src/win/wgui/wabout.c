@@ -33,18 +33,26 @@
  */
 
 /*
- *  Module     : linux/license.h
+ *  Module     : win/wgui/wabout.c
  *  Version    : 1.8.1
- *  Créé par   : François Mouret 12/08/2011
- *  Modifié par:
+ *  Créé par   : Eric Botcazou 28/11/2000
+ *  Modifié par: Eric Botcazou 28/10/2003
+ *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *
- *  License.
+ *  Fenêtre "A Propos".
  */
 
 
-#ifndef WIN_LICENSE_H
-#define WIN_LICENSE_H 1
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <windows.h>
+   #include <shellapi.h>
+   #include <commctrl.h>
+#endif
 
+#include "win/dialog.rh"
 
 #define license_text ""\
 "                   GNU GENERAL PUBLIC LICENSE\r\n" \
@@ -389,4 +397,102 @@
 " Public License instead of this License.\r\n" \
 "\r\n"
 
+
+
+/* AboutProc:
+ * Procédure pour la boîte "A propos"
+ */
+int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+   static HWND aboutLink;
+   static HWND aboutTitle;
+   static HWND aboutCopyright;
+   static HWND aboutLicense;
+   static HFONT hLinkStyle;
+   static HFONT hTitleStyle;
+   static HFONT hCopyrightStyle;
+   static HFONT hLicenseStyle;
+
+   switch(uMsg)
+   {
+      case WM_INITDIALOG:
+         aboutLink  = GetDlgItem (hDlg, ABOUT_STATIC_LINK);
+         aboutTitle = GetDlgItem (hDlg, ABOUT_CTEXT_TITLE);
+         aboutCopyright = GetDlgItem (hDlg, ABOUT_CTEXT_COPYRIGHT);
+         aboutLicense = GetDlgItem (hDlg, ABOUT_EDIT_LICENSE);
+         hTitleStyle = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+                              OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                             DEFAULT_QUALITY, DEFAULT_PITCH, "Tahoma");
+         hLinkStyle = CreateFont(18, 0, 0, 0, FW_BOLD, FALSE, TRUE, FALSE, DEFAULT_CHARSET,
+                              OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                             DEFAULT_QUALITY, DEFAULT_PITCH, "Tahoma");
+         hCopyrightStyle = CreateFont(14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+                              OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                             DEFAULT_QUALITY, DEFAULT_PITCH, "Tahoma");
+         hLicenseStyle = CreateFont(14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+                              OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                             DEFAULT_QUALITY, DEFAULT_PITCH, "Courier New");
+         SendMessage(aboutLink, WM_SETFONT, (WPARAM)hLinkStyle, TRUE);
+         SendMessage(aboutTitle, WM_SETFONT, (WPARAM)hTitleStyle, TRUE);
+         SendMessage(aboutLicense, WM_SETFONT, (WPARAM)hLicenseStyle, TRUE);
+         SendMessage(aboutCopyright, WM_SETFONT, (WPARAM)hCopyrightStyle, TRUE);
+         SetWindowText(aboutLicense, license_text);
+#ifdef FRENCH_LANG
+         SetWindowText(hDlg, "Teo - A propos");
+         SetWindowText(aboutLink, "Teo sur le site Web de Nostalgies Thomsonistes");
+#else
+         SetWindowText(hDlg, "Teo - About");
+         SetWindowText(aboutLink, "Teo on Nostalgies Thomsonistes Web site");
 #endif
+         SetClassLongPtr(aboutLink, GCLP_HCURSOR, (ULONG_PTR)LoadCursor(NULL, IDC_HAND));
+         return TRUE;
+
+      case WM_CTLCOLORSTATIC :
+          if ((HWND)lParam == aboutLink)
+          {
+              SetTextColor((HDC)wParam, RGB(0, 0, 255));
+              SetBkMode((HDC)wParam, TRANSPARENT);
+              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+          }
+          if ((HWND)lParam == aboutLicense)
+          {
+              SetTextColor((HDC)wParam, RGB(0, 0, 0));
+              SetBkMode((HDC)wParam, OPAQUE);
+              SetBkColor((HDC)wParam, RGB(255, 255, 255));
+              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+          }
+          return TRUE;
+
+      case WM_CTLCOLOREDIT :
+          return TRUE;
+
+      case WM_DESTROY :
+          (void)DeleteObject((HGDIOBJ)hLinkStyle);
+          (void)DeleteObject((HGDIOBJ)hTitleStyle);
+          (void)DeleteObject((HGDIOBJ)hCopyrightStyle);
+          (void)DeleteObject((HGDIOBJ)hLicenseStyle);
+          EndDialog(hDlg, IDOK);
+          return TRUE;
+
+      case WM_COMMAND:
+         switch(LOWORD(wParam))
+         {
+            case IDOK:
+               (void)DeleteObject((HGDIOBJ)hLinkStyle);
+               (void)DeleteObject((HGDIOBJ)hTitleStyle);
+               (void)DeleteObject((HGDIOBJ)hCopyrightStyle);
+               (void)DeleteObject((HGDIOBJ)hLicenseStyle);
+               EndDialog(hDlg, IDOK);
+               break;
+
+            case ABOUT_STATIC_LINK :
+               ShellExecute(NULL, "open", "http://nostalgies.thomsonistes.org/teo_home.html", 0, 0, SW_SHOWNORMAL);
+               break;
+
+         }
+         return TRUE;
+
+      default:
+         return FALSE;
+   }
+}

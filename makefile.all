@@ -94,7 +94,13 @@ TEO_SRC_WIN_FILES =    \
    src/win/wdialog.rc  \
    src/win/wgui.c      \
    src/win/wkeybint.c  \
-   src/win/wmain.c
+   src/win/wmain.c     \
+   src/win/wgui/wstart.c   \
+   src/win/wgui/wabout.c   \
+   src/win/wgui/wsetting.c \
+   src/win/wgui/wcass.c    \
+   src/win/wgui/wdisk.c    \
+   src/win/wgui/wmemo.c
 
 
 # ------ object files ------

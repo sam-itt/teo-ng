@@ -49,6 +49,25 @@
    #include <windows.h>
 #endif
 
+#define PROGNAME_STR  "Teo"
+#define BUFFER_SIZE  512
+#define NOT_FOUND   -1
+
+/* pair<string, string> */
+struct STRING_PAIR {
+    char *fullname;
+    char *label;
+};
+
+/* vector< pair<string, string> > */
+struct FILE_VECTOR {
+    int id;
+    int size;
+    int capacity;
+    int selected;
+    int protection;
+    struct STRING_PAIR *file;   
+};
 
 extern HINSTANCE prog_inst;
 extern HWND prog_win;
@@ -56,5 +75,18 @@ extern HICON prog_icon;
 
 extern void SelectGraphicMode(int *, int *);
 extern void DisplayControlPanelWin(void);
+
+extern int  CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern int  CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern int  CALLBACK CassetteTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern int  CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern int  CALLBACK DiskTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern BOOL CALLBACK StartDialogProc(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
+
+extern int  WGUI_push_back(struct FILE_VECTOR *vector, const char fullname[], const char label[]);
+extern void WGUI_reset_vector(struct FILE_VECTOR *vector);
+extern int  WGUI_vector_index(struct FILE_VECTOR *vector, const char fullname[]);
+extern void WGUI_extract_dir(char dir[], const char fullname[]);
+extern const char* WGUI_get_filename(const char fullname[]);
 
 #endif

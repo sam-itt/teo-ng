@@ -86,7 +86,7 @@ endif
 
 OBJ_DIR = obj/mingw32
 
-VPATH += src/alleg src/win
+VPATH += src/alleg src/win src/win/wgui
 
 OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_SRC_WIN_FILES)))
 
