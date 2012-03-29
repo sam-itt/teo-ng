@@ -278,7 +278,7 @@ static void debug_rembkpt(void) {
 }
 
 
-static void do_command_debug(GtkWidget *button, int command)
+static void do_command_debug (GtkWidget *button, int command)
 {
     int addr;
     switch (command)
@@ -300,10 +300,14 @@ static void do_command_debug(GtkWidget *button, int command)
        break;
 
     case DEBUG_CMD_BKPT:
-       addr=0;
-       sscanf(gtk_entry_get_text (GTK_ENTRY(entry_address)),"%X",&addr);
-       debug_bkpt(addr);
-       update_debug_text ();
+       if (strlen(gtk_entry_get_text (GTK_ENTRY(entry_address))) != 0)
+       {
+           addr=0;
+           sscanf(gtk_entry_get_text (GTK_ENTRY(entry_address)),"%X",&addr);
+           gtk_entry_set_text (GTK_ENTRY(entry_address), "");
+           debug_bkpt(addr);
+           update_debug_text ();
+       }
        break;
 
     case DEBUG_CMD_REMBKPT:
@@ -331,15 +335,8 @@ static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_d
 static void InitDEBUG(void)
 {
     GtkWidget *vbox_window;
-    GtkWidget *hbox_top;
-    GtkWidget *but_quit,*but_step,*but_stepover,*but_run,*but_bkpt,*but_rembkpt;
-
-    GtkWidget *hbox_middle;
     GtkWidget *hbox,*vbox;
-
-    GtkWidget *hbox_bottom;
-    GtkWidget *dasm_window;
-    GtkWidget *label;
+    GtkWidget *widget;
     gchar *markup;
 
     /* fenêtre d'affichage */
@@ -349,116 +346,108 @@ static void InitDEBUG(void)
     gtk_window_set_destroy_with_parent (GTK_WINDOW(window_debug), TRUE);
     gtk_window_set_modal (GTK_WINDOW(window_debug), TRUE);
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW(window_debug), TRUE);
-    g_signal_connect(G_OBJECT(window_debug), "window-state-event", G_CALLBACK (iconify_teo_window), (gpointer)NULL);
+    gtk_window_set_resizable (GTK_WINDOW(window_debug), FALSE);
     gtk_window_set_title(GTK_WINDOW(window_debug), is_fr?"Teo - DÃ©bogueur":"Teo - Debugger");
+    g_signal_connect(G_OBJECT(window_debug), "window-state-event", G_CALLBACK (iconify_teo_window), (gpointer)NULL);
     g_signal_connect(G_OBJECT(window_debug), "delete-event", G_CALLBACK (do_hide_debug), (gpointer)NULL);
     gtk_widget_realize(window_debug);
 
     /* boîte verticale associée à la fenêtre */
-    vbox_window=gtk_vbox_new(FALSE,DEBUG_SPACE);
+    vbox_window=gtk_vbox_new(FALSE,10);
     gtk_container_set_border_width( GTK_CONTAINER(vbox_window), DEBUG_SPACE);
     gtk_container_add( GTK_CONTAINER(window_debug), vbox_window);
-    gtk_widget_show(vbox_window);
 
     /* boîte horizontale de la barre de boutons */
-    hbox_top=gtk_hbox_new(FALSE,DEBUG_SPACE);
-    gtk_box_pack_start( GTK_BOX(vbox_window), hbox_top, TRUE, FALSE, DEBUG_SPACE);
-    gtk_widget_show(hbox_top);
+    hbox=gtk_hbutton_box_new ();
+    gtk_box_set_spacing ( GTK_BOX(hbox), 10);
+    gtk_button_box_set_layout ((GtkButtonBox *)hbox, GTK_BUTTONBOX_START);
+    gtk_box_pack_start( GTK_BOX(vbox_window), hbox, FALSE, FALSE, 0);
 
-    but_quit=gtk_button_new_with_label("Quit");
-    g_signal_connect(G_OBJECT(but_quit), "clicked", G_CALLBACK (do_exit_debug), (gpointer) NONE);
-    gtk_box_pack_start( GTK_BOX(hbox_top), but_quit, TRUE, FALSE, 0);
-    gtk_widget_show(but_quit);
+    widget=gtk_button_new_with_label("Step");
+    gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEP);
 
-    but_step=gtk_button_new_with_label("Step");
-    gtk_box_pack_start(GTK_BOX(hbox_top), but_step, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(but_step), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEP);
-    gtk_widget_show(but_step);
+    widget=gtk_button_new_with_label("Step over");
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEPOVER);
 
-    but_stepover=gtk_button_new_with_label("Step over");
-    gtk_box_pack_start( GTK_BOX(hbox_top), but_stepover, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(but_stepover), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEPOVER);
-    gtk_widget_show(but_stepover);
-
-    but_run=gtk_button_new_with_label("Run");
-    gtk_box_pack_start( GTK_BOX(hbox_top), but_run, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(but_run), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_RUN);
-    gtk_widget_show(but_run);
-
-    but_bkpt=gtk_button_new_with_label("Set BKPT");
-    gtk_box_pack_start( GTK_BOX(hbox_top), but_bkpt, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(but_bkpt), "clicked", G_CALLBACK(do_command_debug), (gpointer) DEBUG_CMD_BKPT);
-    gtk_widget_show(but_bkpt);
+    widget=gtk_button_new_with_label("Set BKPT");
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_command_debug), (gpointer) DEBUG_CMD_BKPT);
 
 //    address_buf=gtk_entry_buffer_new("0000",6);
 //    entry_address=gtk_entry_new_with_buffer(address_buf);
-    entry_address=gtk_entry_new();
-    gtk_box_pack_start( GTK_BOX(hbox_top), entry_address, TRUE, FALSE, 0);
-    gtk_widget_show(entry_address);
+    entry_address=gtk_entry_new ();
+    gtk_entry_set_max_length (GTK_ENTRY(entry_address), 4);
+    gtk_entry_set_width_chars (GTK_ENTRY(entry_address), 4);
+    g_signal_connect(G_OBJECT(entry_address), "activate", G_CALLBACK(do_command_debug), (gpointer) DEBUG_CMD_BKPT);
+    gtk_box_pack_start( GTK_BOX(hbox), entry_address, TRUE, FALSE, 0);
 
-    but_rembkpt=gtk_button_new_with_label(is_fr?"Supprimer les BKPT":"Remove all BKPT");
-    gtk_box_pack_start( GTK_BOX(hbox_top), but_rembkpt, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(but_rembkpt), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_REMBKPT);
-    gtk_widget_show(but_rembkpt);
+    widget=gtk_button_new_with_label("Reset BKPT");
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_REMBKPT);
     
-    /* boîte vericale des textes */
+    /* boîte verticale des textes */
     vbox=gtk_vbox_new(FALSE,0);
     gtk_box_pack_start( GTK_BOX(vbox_window), vbox, FALSE, FALSE, DEBUG_SPACE);
-    gtk_widget_show(vbox);
 
+    /* label des registres */
     hbox=gtk_hbox_new(FALSE,0);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
-    gtk_widget_show(hbox);
-    label=gtk_label_new("");
+    widget=gtk_label_new("");
     markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>%s</b></span>",
              "CC            A  B  DP  X    Y    U    S    PC");
-    gtk_label_set_markup (GTK_LABEL (label), markup);
+    gtk_label_set_markup (GTK_LABEL (widget), markup);
     g_free (markup);
-    gtk_box_pack_start( GTK_BOX(hbox), label, FALSE, FALSE, 0);
-    gtk_widget_show(label);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     
-    /* label pour les registres 6809 */
+    /* widget pour les registres 6809 */
     hbox=gtk_hbox_new(FALSE,0);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
-    gtk_widget_show(hbox);
     label_6809regs=gtk_label_new("");
     gtk_box_pack_start( GTK_BOX(hbox), label_6809regs, FALSE, FALSE, 0);
-    gtk_widget_show(label_6809regs);
     
     /* label pour lecontenu de la pile S */
     hbox=gtk_hbox_new(FALSE,0);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
-    gtk_widget_show(hbox);
     label_sr_list=gtk_label_new("");
     markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>S</b>:</span>");
     gtk_label_set_markup (GTK_LABEL (label_sr_list), markup);
     g_free (markup);
     gtk_box_pack_start( GTK_BOX(hbox), label_sr_list, FALSE, FALSE, 0);
-    gtk_widget_show(label_sr_list);
     
     /* boîte horizontale du milieu */
-    hbox_middle=gtk_hbox_new(FALSE,DEBUG_SPACE);
-    gtk_box_pack_start( GTK_BOX(vbox_window), hbox_middle, TRUE, FALSE, DEBUG_SPACE);
-    gtk_widget_show(hbox_middle);
+    hbox=gtk_hbox_new(FALSE,DEBUG_SPACE);
+    gtk_box_pack_start( GTK_BOX(vbox_window), hbox, TRUE, FALSE, DEBUG_SPACE);
 
     label_middle_left=gtk_label_new("dasm");
-    dasm_window=gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(dasm_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(dasm_window), label_middle_left);
+    widget=gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(widget), label_middle_left);
     gtk_label_set_selectable (GTK_LABEL(label_middle_left), TRUE);
-    gtk_box_pack_start( GTK_BOX(hbox_middle), dasm_window, TRUE, FALSE, DEBUG_SPACE);
-    gtk_widget_show(dasm_window);
-    gtk_widget_show(label_middle_left);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, DEBUG_SPACE);
 
     label_middle_right=gtk_label_new("regs");
     gtk_label_set_selectable (GTK_LABEL(label_middle_right), TRUE);
-    gtk_box_pack_start( GTK_BOX(hbox_middle), label_middle_right, TRUE, FALSE, DEBUG_SPACE);
-    gtk_widget_show(label_middle_right);
+    gtk_box_pack_start( GTK_BOX(hbox), label_middle_right, TRUE, FALSE, DEBUG_SPACE);
 
-    /* boîte horizontale du bas */
-    hbox_bottom=gtk_hbox_new(FALSE,DEBUG_SPACE);
-    gtk_box_pack_start( GTK_BOX(vbox_window), hbox_bottom, TRUE, FALSE, DEBUG_SPACE);
-    gtk_widget_show(hbox_bottom);
+    /* boîte horizontale des boutons du bas */
+    hbox=gtk_hbutton_box_new ();
+    gtk_box_set_spacing ( GTK_BOX(hbox), 7);
+    gtk_box_pack_start( GTK_BOX(vbox_window), hbox, TRUE, FALSE, 10);
+    gtk_button_box_set_layout ((GtkButtonBox *)hbox, GTK_BUTTONBOX_END);
+
+    /* bouton annuler */
+    widget=gtk_button_new_from_stock (GTK_STOCK_CANCEL);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_exit_debug), (gpointer) NONE);
+
+    /* bouton appliquer */
+    widget=gtk_button_new_from_stock (GTK_STOCK_APPLY);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_RUN);
+
+    gtk_widget_show_all(vbox_window);
 
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())

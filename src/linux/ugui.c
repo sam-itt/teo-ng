@@ -257,25 +257,35 @@ void InitGUI(int direct_disk_support)
     init_memo_notebook_frame (notebook);
     gtk_notebook_set_page( GTK_NOTEBOOK(notebook), 0);
     
+    /* séparateur */
+//    widget=gtk_hseparator_new ();
+//    gtk_box_pack_start(GTK_BOX(main_vbox), widget, FALSE, FALSE, 0);
+
     /* boîte horizontale des boutons de sortie */
     hbox=gtk_hbutton_box_new();
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_SPREAD);
-    gtk_box_pack_start( GTK_BOX(main_vbox), hbox, TRUE, FALSE, 0);
+    gtk_box_set_spacing ( GTK_BOX(hbox), 7);
+    gtk_box_pack_start( GTK_BOX(main_vbox), hbox, TRUE, FALSE, 10);
+    gtk_button_box_set_layout ((GtkButtonBox *)hbox, GTK_BUTTONBOX_END);
 
     /* bouton à propos */
     widget=gtk_button_new_from_stock (GTK_STOCK_ABOUT);
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(run_about_window), (gpointer) NULL);
-    gtk_container_add( GTK_CONTAINER(hbox), widget);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, TRUE);
     
     /* bouton quitter */
     widget=gtk_button_new_from_stock (GTK_STOCK_QUIT);
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(ask_to_quit), (gpointer)NULL);
-    gtk_container_add( GTK_CONTAINER(hbox), widget);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, TRUE);
 
     /* bouton retour */
     widget=gtk_button_new_from_stock (GTK_STOCK_OK);
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) NONE);
-    gtk_container_add( GTK_CONTAINER(hbox), widget);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, FALSE);
+
+    /* affiche tout */
     gtk_widget_show_all(main_vbox);
 
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
