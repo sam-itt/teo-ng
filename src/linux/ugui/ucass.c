@@ -68,7 +68,7 @@ static GList *path_list = NULL;
 
 
 /* set_counter_cass:
- *  Positionne le compteur de cassette
+ *  Positionne le compteur de cassette.
  */
 static void set_counter_cass (void)
 {
@@ -78,7 +78,7 @@ static void set_counter_cass (void)
 
 
 /* rewind_cass:
- *  Met le compteur de cassette à 0
+ *  Met le compteur de cassette à 0.
  */
 static void rewind_cass (void)
 {
@@ -89,7 +89,7 @@ static void rewind_cass (void)
 
 
 /* eject_cass:
- *  Ejecte la cassette
+ *  Ejecte la cassette.
  */
 static void eject_cass (void)
 {
@@ -100,7 +100,7 @@ static void eject_cass (void)
 
 
 /* click_rewind_cass:
- *  Met le compteur de cassette à 0 (callback)
+ *  Met le compteur de cassette à 0 (callback).
  */static void click_rewind_cass (GtkWidget *button, gpointer data)
 {
     rewind_cass ();
@@ -113,7 +113,7 @@ static void eject_cass (void)
 /* load_cass:
  *  Charge une cassette.
  */
-static int load_cass (gchar *filename)
+static int load_cass (gchar *filename).
 {
     int ret = to8_LoadK7 (filename);
 
@@ -136,7 +136,7 @@ static int load_cass (gchar *filename)
 
 
 /* toggle_check_cass:
- *  Gestion de la protection (callback)
+ *  Gestion de la protection (callback).
  */
 static void toggle_check_cass (GtkWidget *button, gpointer data)
 {
@@ -158,7 +158,7 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
 
 
 /* change_counter_cass:
- *  Change le compteur de la cassette (callback)
+ *  Change le compteur de la cassette (callback).
  */
 static void change_counter_cass (GtkWidget *widget, gpointer data)
 {
@@ -170,7 +170,7 @@ static void change_counter_cass (GtkWidget *widget, gpointer data)
 
 
 /* add_combo_entry
- *  Ajoute une entrée dans le combobox si inexistante
+ *  Ajoute une entrée dans le combobox si inexistante.
  */
 static void add_combo_entry (const char *path)
 {
@@ -190,7 +190,7 @@ static void add_combo_entry (const char *path)
 
 
 /* init_combo:
- *  Remplit un combo vide
+ *  Remplit un combo vide.
  */
 static void init_combo (void)
 {
@@ -200,7 +200,7 @@ static void init_combo (void)
 
 
 /* reset_combo:
- *  Vide le combobox (sauf l'entrée "aucune cassette") (callback)
+ *  Vide le combobox (sauf l'entrée "aucune cassette") (callback).
  */
 static void reset_combo (GtkButton *button, gpointer data)
 {
@@ -223,7 +223,7 @@ static void reset_combo (GtkButton *button, gpointer data)
 
 
 /* combo_changed:
- *  Changement de sélection du combobox (callback)
+ *  Changement de sélection du combobox (callback).
  */
 static void combo_changed (GtkComboBox *combo_box, gpointer data)
 {
@@ -241,7 +241,7 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
 
 
 /* open_file:
- *  Charge une nouvelle cassette (callback)
+ *  Charge une nouvelle cassette (callback).
  */
 static void open_file (GtkButton *button, gpointer data)
 {
@@ -297,7 +297,7 @@ static void open_file (GtkButton *button, gpointer data)
 
 
 /* free_cass_list
- *  Libère la mémoire utilisée par la liste des cartouches
+ *  Libère la mémoire utilisée par la liste des cartouches.
  */
 void free_cass_list (void)
 {
@@ -309,7 +309,7 @@ void free_cass_list (void)
 
 
 /* update_counter_cass:
- *  Positionne le compteur de cassette
+ *  Positionne le compteur de cassette.
  */ 
 void update_counter_cass (void)
 {
@@ -319,7 +319,7 @@ void update_counter_cass (void)
 
 
 /* init_cass_notebook_frame:
- *  Initialise la frame du notebook pour la cassette
+ *  Initialise la frame du notebook pour la cassette.
  */
 void init_cass_notebook_frame (GtkWidget *notebook)
 {

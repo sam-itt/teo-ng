@@ -98,7 +98,7 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
 
 
 /* toggle_check_disk:
- *  Vérifie si l'état de la protection peut être changée
+ *  Vérifie si l'état de la protection peut être changée.
  */
 static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
 {
@@ -116,7 +116,7 @@ static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
 
 
 /* add_combo_entry
- *  Ajoute une entrée dans le combobox si inexistante
+ *  Ajoute une entrée dans le combobox si inexistante.
  */
 static void add_combo_entry (const char *path, struct FILE_VECTOR *vector)
 {
@@ -136,7 +136,7 @@ static void add_combo_entry (const char *path, struct FILE_VECTOR *vector)
 
 
 /* free_disk_entry:
- *  Libère la mémoire utilisée par la liste des disquettes
+ *  Libère la mémoire utilisée par la liste des disquettes.
  */
 static void free_disk_entry (struct FILE_VECTOR *vector)
 {
@@ -148,7 +148,7 @@ static void free_disk_entry (struct FILE_VECTOR *vector)
 
 
 /* set_access_mode:
- *  Positionne le checkbox de protection de disquette
+ *  Positionne le checkbox de protection de disquette.
  */
 static void set_access_mode (struct FILE_VECTOR *vector)
 {
@@ -163,7 +163,7 @@ static void set_access_mode (struct FILE_VECTOR *vector)
 
 
 /* init_combo:
- *  Remplit un combo vide
+ *  Remplit un combo vide.
  */
 static void init_combo (struct FILE_VECTOR *vector)
 {
@@ -175,7 +175,7 @@ static void init_combo (struct FILE_VECTOR *vector)
 
 
 /* reset_combo:
- *  Ejecte la disquette et vide le combobox (callback)
+ *  Ejecte la disquette et vide le combobox (callback).
  *  (sauf l'entrée "aucune cartouche" et "direct access") 
  */
 static void reset_combo (GtkButton *button, struct FILE_VECTOR *vector)
@@ -199,7 +199,7 @@ static void reset_combo (GtkButton *button, struct FILE_VECTOR *vector)
 
 
 /* combo_changed:
- *  Changement de sélection du combobox (callback)
+ *  Changement de sélection du combobox (callback).
  */
 static void combo_changed (GtkComboBox *combo_box, struct FILE_VECTOR *vector)
 {
@@ -217,7 +217,7 @@ static void combo_changed (GtkComboBox *combo_box, struct FILE_VECTOR *vector)
 
 
 /* open_file:
- *  Charge une nouvelle disquette (callback)
+ *  Charge une nouvelle disquette (callback).
  */
 static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
 {
@@ -271,7 +271,7 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
 
 
 /* free_disk_list:
- *  Libère la mémoire utilisée par les listes de disquettes
+ *  Libère la mémoire utilisée par les listes de disquettes.
  */
 void free_disk_list (void)
 {
@@ -284,7 +284,7 @@ void free_disk_list (void)
 
 
 /* init_disk_notebook_frame:
- *  Initialise la frame du notebook pour la cartouche
+ *  Initialise la frame du notebook pour la cartouche.
  */
 void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support)
 {

@@ -64,7 +64,7 @@ static GList *path_list = NULL;
 
 
 /* add_combo_entry:
- *  Ajoute une entrée dans le combobox si inexistante
+ *  Ajoute une entrée dans le combobox si inexistante.
  *  et sélectionne l'entrée demandée
  */
 static void add_combo_entry (const char *name, const char *path)
@@ -90,7 +90,7 @@ static void add_combo_entry (const char *name, const char *path)
 
 
 /* init_combo:
- *  Remplit un combo vide
+ *  Remplit un combo vide.
  */
 static void init_combo (void)
 {
@@ -100,7 +100,7 @@ static void init_combo (void)
 
 
 /* reset_combo:
- *  Ejecte la mémo7 et vide le combobox (sauf l'entrée "aucune cartouche") (callback)
+ *  Ejecte la mémo7 et vide le combobox (sauf l'entrée "aucune cartouche") (callback).
  */
 static void reset_combo (GtkButton *button, gpointer data)
 {
@@ -123,7 +123,7 @@ static void reset_combo (GtkButton *button, gpointer data)
 
 
 /* combo_changed:
- *  Changement de sélection du combobox (callback)
+ *  Changement de sélection du combobox (callback).
  */
 static void combo_changed (GtkComboBox *combo_box, gpointer data)
 {
@@ -145,7 +145,7 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
 
 
 /* open_file:
- *  Charge une nouvelle cartouche
+ *  Charge une nouvelle cartouche.
  */
 static void open_file (GtkButton *button, gpointer data)
 {
@@ -203,7 +203,7 @@ static void open_file (GtkButton *button, gpointer data)
 
 
 /* free_memo_list
- *  Libère la mémoire utilisée par la liste des cartouches
+ *  Libère la mémoire utilisée par la liste des cartouches.
  */
 void free_memo_list (void)
 {
@@ -218,7 +218,7 @@ void free_memo_list (void)
 
 
 /* init_memo_notebook_frame:
- *  Initialise la frame du notebook pour la cartouche
+ *  Initialise la frame du notebook pour la cartouche.
  */
 void init_memo_notebook_frame (GtkWidget *notebook)
 {
