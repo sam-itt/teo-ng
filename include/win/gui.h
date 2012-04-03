@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,8 @@
  *  Module     : win/gui.h
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 28/11/2000
- *  Modifié par: Eric Botcazou 4/12/2000
+ *  Modifié par: Eric Botcazou 04/12/2000
+ *               François Mouret 01/04/2012
  *
  *  Interface utilisateur Windows native.
  */
@@ -53,20 +54,9 @@
 #define BUFFER_SIZE  512
 #define NOT_FOUND   -1
 
-/* pair<string, string> */
-struct STRING_PAIR {
-    char *fullname;
-    char *label;
-};
-
-/* vector< pair<string, string> > */
-struct FILE_VECTOR {
-    int id;
-    int size;
-    int capacity;
-    int selected;
-    int protection;
-    struct STRING_PAIR *file;   
+struct STRING_LIST {
+    char *str;
+    struct STRING_LIST *next;
 };
 
 extern HINSTANCE prog_inst;
@@ -83,10 +73,17 @@ extern int  CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 extern int  CALLBACK DiskTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL CALLBACK StartDialogProc(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
 
-extern int  WGUI_push_back(struct FILE_VECTOR *vector, const char fullname[], const char label[]);
-extern void WGUI_reset_vector(struct FILE_VECTOR *vector);
-extern int  WGUI_vector_index(struct FILE_VECTOR *vector, const char fullname[]);
-extern void WGUI_extract_dir(char dir[], const char fullname[]);
-extern const char* WGUI_get_filename(const char fullname[]);
+extern void free_cass_list (void);
+extern void free_memo_list (void);
+extern void free_disk_list (void);
+extern void FreeGUI (void);
+
+extern int  stringlist_index (struct STRING_LIST *p, char *str);
+extern char *stringlist_text (struct STRING_LIST *p, int index);
+extern struct STRING_LIST *stringlist_append (struct STRING_LIST *p, char *str);
+extern void stringlist_free (struct STRING_LIST *p);
+
+extern const char* basename_ptr(const char fullname[]);
+extern void create_tooltip (HWND hWnd, WORD id, char *text);
 
 #endif

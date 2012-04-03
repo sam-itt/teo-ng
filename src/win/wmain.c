@@ -549,14 +549,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     SaveState();
 
+    /* nettoyage des arguments supplémentaires */
+    xargs_exit(&xargs);
+
     /* désinstallation du callback *avant* la sortie du mode graphique */
     remove_display_switch_callback(RetraceCallback);
 
+    /* libération de la mémoire si mode fenêtré */
+    if (windowed_mode)
+       FreeGUI();
+
     /* sortie du mode graphique */
     SetGraphicMode(SHUTDOWN);
-
-    /* nettoyage des arguments supplémentaires */
-    xargs_exit(&xargs);
 
     /* sortie de l'émulateur */
     exit(EXIT_SUCCESS);

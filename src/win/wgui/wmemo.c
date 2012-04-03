@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *
- *  Interface utilisateur Windows native.
+ *  Gestion des cartouches.
  */
 
 
@@ -57,139 +57,203 @@
 #include "to8.h"
 #include "alleg/main.h"
 
+static int entry_max = 0;
+static int combo_index = 0;
+static struct STRING_LIST *path_list = NULL;
+static struct STRING_LIST *name_list = NULL;
+static char current_dir[BUFFER_SIZE] = "";
 
 
-static void init_file_memo(struct FILE_VECTOR *vector, HWND hDlg)
+
+/* update_params:
+ *  Sauve les paramètres d'une cartouche.
+ */
+static void update_params (HWND hWnd)
 {
-   static int first = 1;
-   const char *str_p;
-   int i;
-
-   if (first)
-   {
-      str_p = to8_GetMemo7Filename();
-      if (*str_p)
-         WGUI_push_back(vector, str_p, to8_GetMemo7Label());
-
-      first = 0;
-   }
-
-   if (vector->size)
-   {
-      for (i=0; i<vector->size; i++)
-         SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) vector->file[i].label);
-   }
-   else
-      SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) (is_fr?"aucune cartouche":"no cartridge"));
-
-   SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_SETCURSEL, vector->selected, 0);
+    combo_index = SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_GETCURSEL, 0, 0);
 }
 
 
 
-static void open_file_memo(struct FILE_VECTOR *vector, HWND hDlg)
+/* load_memo:
+ *  Charge une cartouche.
+ */
+static int load_memo (HWND hWnd, char *filename)
 {
+    int ret = to8_LoadMemo7(filename);
+
+    if (ret == TO8_ERROR)
+        MessageBox(hWnd, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
+
+    return ret;
+}
+
+
+
+/* add_combo_entry:
+ *  Ajoute une entrée dans le combobox si inexistante
+ *  et sélectionne l'entrée demandée.
+ */
+static void add_combo_entry (HWND hWnd, const char *name, const char *path)
+{
+    int path_index = stringlist_index (path_list, (char *)path);
+    int name_index = stringlist_index (name_list, (char *)name);
+
+    if ((path_index < 0) || (name_index != path_index))
+    {
+        path_list = stringlist_append (path_list, (char *)path);
+        name_list = stringlist_append (name_list, (char *)name);
+        SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) name);
+        SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_SETCURSEL, entry_max, 0);
+        entry_max++;
+    }
+    else
+    {
+        SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_SETCURSEL, path_index, 0);
+        if (path_index != combo_index)
+        {
+            (void)load_memo (hWnd, stringlist_text (path_list, path_index));
+        }
+    }
+}
+
+
+
+/* init_combo:
+ *  Remplit un combo vide.
+ */
+static void init_combo (HWND hWnd)
+{
+    add_combo_entry (hWnd, is_fr?"(aucun)":"(none)", "");
+}
+
+
+
+/* clear_combo:
+ *  Vide un combo.
+ */
+static void clear_combo (HWND hWnd)
+{
+    free_memo_list ();
+    to8_EjectMemo7();
+    SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
+    init_combo (hWnd);
+    teo.command = COLD_RESET;
+    update_params(hWnd);
+}
+
+
+
+/* combo_changed:
+ *  Changement de sélection du combobox.
+ */
+static void combo_changed (HWND hWnd)
+{
+    int index = SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_GETCURSEL, 0, 0);
+
+    if (index != combo_index)
+    {
+        if (index == 0)
+        {
+            to8_EjectMemo7();
+        }
+        else
+        {
+            (void)load_memo (hWnd, stringlist_text (path_list, index));
+        }
+        teo.command = COLD_RESET;
+        update_params(hWnd);
+    }
+}
+
+
+
+/* open_file:
+ *  Chargement d'un fichier cartouche.
+ */
+static void open_file (HWND hWnd)
+{
+   char current_file[BUFFER_SIZE]="";
    OPENFILENAME openfilename;
-   char buffer[BUFFER_SIZE], dir[BUFFER_SIZE];
-   int index;
 
-   /* initialisation du sélecteur de fichiers */
    memset(&openfilename, 0, sizeof(OPENFILENAME));
-
    openfilename.lStructSize = sizeof(OPENFILENAME);
-   openfilename.hwndOwner = hDlg;
+   openfilename.hwndOwner = hWnd;
    openfilename.lpstrFilter = is_fr?"Fichiers M7\0*.m7\0":"M7 files\0*.m7\0";
    openfilename.nFilterIndex = 1;
-   openfilename.lpstrFile = buffer;
+   openfilename.lpstrFile = current_file;
+   openfilename.lpstrInitialDir = (current_dir[0]=='\0')?".\\memo7":current_dir;
    openfilename.nMaxFile = BUFFER_SIZE;
-
-   if (vector->size)
-   {
-      WGUI_extract_dir(dir, vector->file[vector->selected].fullname);
-      openfilename.lpstrInitialDir = dir;
-   }
-   else
-      openfilename.lpstrInitialDir = ".\\memo7";
-
    openfilename.lpstrTitle = is_fr?"Choisissez votre cartouche:":"Choose your cartridge:";
    openfilename.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
    openfilename.lpstrDefExt ="m7";
 
-   buffer[0] = '\0';
-
    if (GetOpenFileName(&openfilename))
    {
-      if (to8_LoadMemo7(openfilename.lpstrFile))
-      {        
-         index = WGUI_vector_index(vector, openfilename.lpstrFile);
-                         
-         if (index == NOT_FOUND)
-         {
-            index = WGUI_push_back(vector, openfilename.lpstrFile, to8_GetMemo7Label());
-
-            if (!index)
-               SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_DELETESTRING, 0, 0);
-                             
-            SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) vector->file[index].label);
-         }
-
-         SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_SETCURSEL, index, 0);
-         vector->selected = index;
-         teo.command = COLD_RESET;
+      if (load_memo (hWnd, openfilename.lpstrFile) != TO8_ERROR)
+      {
+          add_combo_entry (hWnd, to8_GetMemo7Label(), to8_GetMemo7Filename());
+          teo.command = COLD_RESET;
+          update_params(hWnd);
       }
-      else
-         MessageBox(hDlg, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONERROR);
+      strcpy(current_dir, current_file);
    }
 }
 
 
+/* --------------------------- Partie publique ----------------------------- */
 
-static void select_file_memo(struct FILE_VECTOR *vector, HWND hDlg)
+
+/* free_memo_list
+ *  Libère la mémoire utilisée par la liste des cartouches.
+ */
+void free_memo_list (void)
 {
-   int index;
-
-   if (vector->size)
-   {
-      index = SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_GETCURSEL, 0, 0);
-
-      if (to8_LoadMemo7(vector->file[index].fullname))
-      {
-         vector->selected= index;
-         teo.command = COLD_RESET;
-      }
-      else
-      {
-         MessageBox(hDlg, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONERROR);
-         SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_SETCURSEL, vector->selected, 0);
-      }
-   }
+    stringlist_free (name_list);
+    name_list=NULL;
+    stringlist_free (path_list);
+    path_list=NULL;
+    entry_max=0;
+    combo_index=0;
 }
-
-
-
-static void eject_file_memo(struct FILE_VECTOR *vector, HWND hDlg)
-{
-    SendDlgItemMessage(hDlg, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
-    WGUI_reset_vector (vector);
-    init_file_memo(vector, hDlg);
-    to8_EjectMemo7();
-    teo.command = COLD_RESET;
-}         
 
 
 
 /* CartridgeTabProc:
  * Procédure pour l'onglet des cartouches
  */
-int CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+int CALLBACK CartridgeTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-   static struct FILE_VECTOR memo7;
+   static int first=1;
+   HANDLE himg;
+   struct STRING_LIST *slist;
 
    switch(uMsg)
    {
       case WM_INITDIALOG:
          /* initialisation du sélecteur de cartouches */
-         init_file_memo(&memo7, hDlg);
+         if (first)
+         {
+             init_combo(hWnd);
+             if (strlen(to8_GetMemo7Label()))
+                 add_combo_entry (hWnd, to8_GetMemo7Label(), to8_GetMemo7Filename());
+             update_params (hWnd);
+             first=0;
+         }
+         /* initialisation du combo */
+         SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
+         for (slist=name_list; slist!=NULL; slist=slist->next)
+             SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) basename_ptr(slist->str));
+         SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_SETCURSEL, combo_index, 0);
+
+         /* initialisation des images pour les boutons */
+         himg = LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         SendMessage(GetDlgItem(hWnd, MEMO7_EJECT_BUTTON), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
+         himg = LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         SendMessage(GetDlgItem(hWnd, MEMO7_MORE_BUTTON), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
+
+         /* initialisation de l'info-bulle */
+         create_tooltip (hWnd, MEMO7_EJECT_BUTTON, is_fr?"Vider la liste":"Empty the list");
 
          return TRUE;
 
@@ -197,15 +261,18 @@ int CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
          switch(LOWORD(wParam))
          {
             case MEMO7_EJECT_BUTTON:
-               eject_file_memo(&memo7, hDlg);
+               clear_combo(hWnd);
                break;
 
             case MEMO7_MORE_BUTTON:
-               open_file_memo(&memo7, hDlg);
+               open_file(hWnd);
                break;
 
             case MEMO7_COMBO:
-               select_file_memo(&memo7, hDlg);
+               if (HIWORD(wParam)==CBN_SELCHANGE)
+               {
+                   combo_changed(hWnd);
+               }
                break;
          }
          return TRUE;

@@ -439,10 +439,10 @@ int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(aboutLicense, license_text);
 #ifdef FRENCH_LANG
          SetWindowText(hDlg, "Teo - A propos");
-         SetWindowText(aboutLink, "Teo sur le site Web de Nostalgies Thomsonistes");
+         SetWindowText(aboutLink, "Teo sur SourceForge");
 #else
          SetWindowText(hDlg, "Teo - About");
-         SetWindowText(aboutLink, "Teo on Nostalgies Thomsonistes Web site");
+         SetWindowText(aboutLink, "Teo on SourceForge");
 #endif
          SetClassLongPtr(aboutLink, GCLP_HCURSOR, (ULONG_PTR)LoadCursor(NULL, IDC_HAND));
          return TRUE;
@@ -486,7 +486,7 @@ int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                break;
 
             case ABOUT_STATIC_LINK :
-               ShellExecute(NULL, "open", "http://nostalgies.thomsonistes.org/teo_home.html", 0, 0, SW_SHOWNORMAL);
+               ShellExecute(NULL, "open", "https://sourceforge.net/projects/teoemulator/?source=directory", 0, 0, SW_SHOWNORMAL);
                break;
 
          }

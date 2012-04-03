@@ -73,98 +73,15 @@ static int nCurrentTab = 0;
 
 
 
-/* WGUI_reset_vector:
- *  Efface les entrées périphériques
+/* stringlist_last:
+ *  Renvoit le pointeur sur le dernier élément de la stringlist.
  */
-void WGUI_reset_vector(struct FILE_VECTOR *vector)
+static struct STRING_LIST *stringlist_last (struct STRING_LIST *p)
 {
-    vector->size = 0;
-    vector->capacity = 0;
-    vector->selected = 0;
-    if (vector->file != 0) {
-        free (vector->file);
-        vector->file = NULL;
-    }
-}
-
-
-
-/* vector< pair<string, string> >::WGUI_push_back( make_pair(string(), string()) ):
- *  Ajoute une paire de chaînes au vecteur spécifié en l'agrandissant si nécessaire.
- */
-int WGUI_push_back(struct FILE_VECTOR *vector, const char fullname[], const char label[])
-{
-   if (vector->size == vector->capacity)
-   {
-       /* on alloue un espace mémoire plus important */
-       struct STRING_PAIR *temp;
-       vector->capacity += CHUNK_SIZE;
-       temp = malloc( vector->capacity*sizeof(struct STRING_PAIR) );
-       memcpy(temp, vector->file, vector->size*sizeof(struct STRING_PAIR));
-       free(vector->file);
-       vector->file = temp;
-   }
-
-   vector->file[vector->size].fullname = malloc( (strlen(fullname)+1)*sizeof(char) );
-   strcpy(vector->file[vector->size].fullname, fullname);
-
-   vector->file[vector->size].label = malloc( (strlen(label)+1)*sizeof(char) );
-   strcpy(vector->file[vector->size].label, label);
-
-   vector->size++;
-
-   return (vector->size-1);
-}
-
-
-
-/* find:
- *  Cherche un nom de fichier dans un vecteur et retourne le cas échéant son index.
- */
-int WGUI_vector_index(struct FILE_VECTOR *vector, const char fullname[])
-{
-   int i;
-
-   for (i=0; i<vector->size; i++)
-      if (!strcmp(vector->file[i].fullname, fullname))
-         return i;
-
-   return NOT_FOUND;
-}
-
-
-
-/* WGUI_extract_dir:
- *  Extrait le nom du répertoire du nom complet du fichier spécifié.
- */
-void WGUI_extract_dir(char dir[], const char fullname[])
-{
-   int len = strlen(fullname);
-
-   strcpy(dir, fullname);
-
-   while (--len > 0)
-      if (dir[len] == '\\')
-      {
-         dir[len] = '\0';
-         break;
-      }
-}
- 
-
-
-/* WGUI_get_filename:
- *  Retourne le nom du fichier à partir du nom complet du fichier spécifié.
- */
-const char* WGUI_get_filename(const char fullname[])
-{
-   int len = strlen(fullname);
-
-   while (--len > 0)
-      if (fullname[len] == '\\')
-         return fullname + len + 1;
-
-   return fullname;
+    for (; p!=NULL; p=p->next)
+        if (p->next==NULL)
+            break;
+    return p;
 }
 
 
@@ -268,8 +185,6 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk", DISK_TAB, DiskTabProc);
          hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, CassetteTabProc);
          hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, CartridgeTabProc);
-
-         /* Affiche l'onglet des disquettes */
          SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, nCurrentTab, 0);
          ShowTab(hDlg);
 
@@ -283,7 +198,7 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          for(i=0;i<NBTABS_MASTER;i++)
             if (hTab[i] != NULL)
                 DestroyWindow(hTab[i]);
-         return FALSE;
+         return TRUE;
 
       case WM_COMMAND:
          switch(LOWORD(wParam))
@@ -329,6 +244,140 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
       default:
          return FALSE;
    }
+}
+
+
+
+/* stringlist_index:
+ *  Renvoit l'index de l'élément de la stringlist.
+ */
+int stringlist_index (struct STRING_LIST *p, char *str)
+{
+    int index;
+
+    for (index=0; p!=NULL; p=p->next,index++)
+        if (p->str!=NULL)
+            if (strcmp (p->str, str) == 0)
+                break;
+    return (p==NULL)?-1:index;
+}
+
+
+
+/* stringlist_text:
+ *  Renvoit le pointeur du texte de l'élément de la stringlist.
+ */
+char *stringlist_text (struct STRING_LIST *p, int index)
+{
+    for (;index>0;index--)
+    {
+        if (p!=NULL)
+            p=p->next;
+    }
+    return (p!=NULL)?p->str:NULL;
+}
+
+
+
+/* stringlist_append:
+ *  Ajoute un élément à la stringlist.
+ */
+struct STRING_LIST *stringlist_append (struct STRING_LIST *p, char *str)
+{
+    struct STRING_LIST *last_str = stringlist_last (p);
+    struct STRING_LIST *new_str = calloc (1, sizeof (struct STRING_LIST));
+
+    if (new_str!=NULL)
+    {
+        new_str->str=malloc (strlen (str)+1);
+        if (new_str->str!=NULL)
+        {
+            *new_str->str='\0';
+            strcpy (new_str->str, str);
+        }
+    }
+    if ((last_str!=NULL) && (last_str->str!=NULL))
+        last_str->next=new_str;
+
+    return (p==NULL)?new_str:p;
+}
+
+
+
+/* stringlist_free:
+ *  Libère la mémoire de la stringlist.
+ */
+void stringlist_free (struct STRING_LIST *p)
+{
+    struct STRING_LIST *next;
+
+    while (p!=NULL)
+    {
+        next=p->next;
+        if (p->str!=NULL)
+            free (p->str);
+        free (p);
+        p=next;
+    }
+}
+
+
+
+/* WGUI_basename:
+ *  Retourne le nom du fichier à partir du nom complet du fichier spécifié.
+ */
+const char* basename_ptr(const char fullname[])
+{
+   int len = strlen(fullname);
+
+   while (--len > 0)
+      if (fullname[len] == '\\')
+         return fullname + len + 1;
+
+   return fullname;
+}
+
+
+
+/* create_tooltip:
+ *  Crée une info-bulle.
+ */
+void create_tooltip (HWND hWnd, WORD id, char *text)
+{
+    RECT rect;
+    TOOLINFO ti;
+    HWND hwndTip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL,
+                            WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+                            CW_USEDEFAULT, CW_USEDEFAULT,
+                            CW_USEDEFAULT, CW_USEDEFAULT,
+                            hWnd, NULL, prog_inst,
+                            NULL);
+
+    GetClientRect (hWnd, &rect);
+
+    memset (&ti, 0x00, sizeof(TOOLINFO));
+    ti.cbSize = sizeof(TOOLINFO);
+    ti.uFlags = TTF_SUBCLASS;
+    ti.hwnd = GetDlgItem(hWnd, id);
+    ti.hinst = prog_inst;
+    ti.lpszText = text;
+    ti.rect.left = rect.left;
+    ti.rect.top = rect.top;
+    ti.rect.right = rect.right;
+    ti.rect.bottom = rect.bottom;
+    SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
+}
+
+
+
+/* FreeGUI:
+ *  Libère la mémoire utilisée par l'interface
+ */
+void FreeGUI (void)
+{
+    free_memo_list ();
+    free_cass_list ();
+    free_disk_list ();
 }
 
 

@@ -46,68 +46,69 @@
 #ifndef WIN_DIALOG_RH
 #define WIN_DIALOG_RH 
 
-#define START_LTEXT             101
-#define GFXMODE_GROUP           102
-#define MODE40_BUTTON           103
-#define MODE80_BUTTON           104
-#define TRUECOLOR_BUTTON        105
-#define WINDOWED_BUTTON         106
+#define START_LTEXT             2101
+#define GFXMODE_GROUP           2102
+#define MODE40_BUTTON           2103
+#define MODE80_BUTTON           2104
+#define TRUECOLOR_BUTTON        2105
+#define WINDOWED_BUTTON         2106
 
-#define RESET_BUTTON            120
-#define ABOUT_BUTTON            121
-#define COMMANDS_LTEXT          122
-#define COLDRESET_BUTTON        123
-#define CONTROL_TAB             124
-#define QUIT_BUTTON             125
+#define RESET_BUTTON            2120
+#define ABOUT_BUTTON            2121
+#define COMMANDS_LTEXT          2122
+#define COLDRESET_BUTTON        2123
+#define CONTROL_TAB             2124
+#define QUIT_BUTTON             2125
 
-#define SETTING_TAB             130
-#define SPEED_LTEXT             131
-#define EXACT_SPEED_BUTTON      132
-#define MAX_SPEED_BUTTON        133
-#define INTERLACED_CHECK        134
-#define VOLUME_LTEXT            135
-#define VOLUME_BAR              136
-#define IMAGE_GROUP             137
-#define LOAD_BUTTON             138
-#define SAVE_BUTTON             139
+#define SETTING_TAB             2140
+#define SPEED_LTEXT             2141
+#define EXACT_SPEED_BUTTON      2142
+#define MAX_SPEED_BUTTON        2143
+#define INTERLACED_CHECK        2144
+#define VOLUME_LTEXT            2145
+#define VOLUME_BAR              2146
+#define IMAGE_GROUP             2147
+#define LOAD_BUTTON             2148
+#define SAVE_BUTTON             2149
 
-#define MEMO7_TAB               140
-#define MEMO7_COMBO             141
-#define MEMO7_MORE_BUTTON       142
-#define MEMO7_EJECT_BUTTON      143
+#define MEMO7_TAB               2160
+#define MEMO7_COMBO             2161
+#define MEMO7_MORE_BUTTON       2162
+#define MEMO7_EJECT_BUTTON      2163
 
-#define K7_TAB                  150
-#define K7_COMBO                151
-#define K7_MORE_BUTTON          152
-#define K7_EJECT_BUTTON         153
-#define K7_PROT_CHECK           154
-#define K7_UPDOWN               155
-#define K7_COUNTER_LTEXT        156
-#define K7_COUNTER_EDIT         157
-#define K7_REWIND_BUTTON        158
+#define K7_TAB                  2180
+#define K7_COMBO                2181
+#define K7_MORE_BUTTON          2182
+#define K7_EJECT_BUTTON         2183
+#define K7_EJECT_TOOLTIP        2184
+#define K7_PROT_CHECK           2185
+#define K7_UPDOWN               2186
+#define K7_COUNTER_LTEXT        2187
+#define K7_COUNTER_EDIT         2188
+#define K7_REWIND_BUTTON        2189
 
-#define DISK_TAB                160
-#define DISK0_COMBO             161
-#define DISK1_COMBO             162
-#define DISK2_COMBO             163
-#define DISK3_COMBO             164
-#define DISK0_MORE_BUTTON       165
-#define DISK1_MORE_BUTTON       166
-#define DISK2_MORE_BUTTON       167
-#define DISK3_MORE_BUTTON       168
-#define DISK0_EJECT_BUTTON      169
-#define DISK1_EJECT_BUTTON      170
-#define DISK2_EJECT_BUTTON      171
-#define DISK3_EJECT_BUTTON      172
-#define DISK0_PROT_CHECK        173
-#define DISK1_PROT_CHECK        174
-#define DISK2_PROT_CHECK        175
-#define DISK3_PROT_CHECK        176
+#define DISK_TAB                2200
+#define DISK0_COMBO             2201
+#define DISK1_COMBO             2202
+#define DISK2_COMBO             2203
+#define DISK3_COMBO             2204
+#define DISK0_MORE_BUTTON       2205
+#define DISK1_MORE_BUTTON       2206
+#define DISK2_MORE_BUTTON       2207
+#define DISK3_MORE_BUTTON       2208
+#define DISK0_EJECT_BUTTON      2209
+#define DISK1_EJECT_BUTTON      2210
+#define DISK2_EJECT_BUTTON      2211
+#define DISK3_EJECT_BUTTON      2212
+#define DISK0_PROT_CHECK        2213
+#define DISK1_PROT_CHECK        2214
+#define DISK2_PROT_CHECK        2215
+#define DISK3_PROT_CHECK        2216
 
-#define ABOUT_DIALOG            180
-#define ABOUT_CTEXT_TITLE       181
-#define ABOUT_CTEXT_COPYRIGHT   182
-#define ABOUT_STATIC_LINK       183
-#define ABOUT_EDIT_LICENSE      184
+#define ABOUT_DIALOG            2230
+#define ABOUT_CTEXT_TITLE       2231
+#define ABOUT_CTEXT_COPYRIGHT   2232
+#define ABOUT_STATIC_LINK       2233
+#define ABOUT_EDIT_LICENSE      2234
 
 #endif
