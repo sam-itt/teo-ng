@@ -113,7 +113,7 @@ static void eject_cass (void)
 /* load_cass:
  *  Charge une cassette.
  */
-static int load_cass (gchar *filename).
+static int load_cass (gchar *filename)
 {
     int ret = to8_LoadK7 (filename);
 
