@@ -171,6 +171,23 @@ static char *ValuePtr(char *section, char *key, char *init_value)
 
 
 
+/* DeleteKey:
+ * Efface une clef
+ */
+static void DeleteKey(char *section, char *key)
+{
+    struct CFG_LIST *list = NULL;
+    struct CFG_LIST *pList = NULL;
+
+    list = KeyPtr (section, key, &pList);
+    if ((pList != NULL) && (list != NULL)) {
+        pList->next = list->next;
+        free (list);
+    }
+}
+
+
+
 /* SetValue:
  * Enregistre une valeur selon la section et la clef
  */
@@ -196,22 +213,8 @@ static void SetValue(char *section, char *key, const char *value)
             }
         }
     }
-}
-
-
-/* DeleteKey:
- * Efface une clef
- */
-static void DeleteKey(char *section, char *key)
-{
-    struct CFG_LIST *list = NULL;
-    struct CFG_LIST *pList = NULL;
-
-    list = KeyPtr (section, key, &pList);
-    if ((pList != NULL) && (list != NULL)) {
-        pList->next = list->next;
-        free (list);
-    }
+    else
+        DeleteKey(section, key);
 }
 
 
