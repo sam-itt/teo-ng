@@ -194,13 +194,13 @@ static void add_combo_entry (const char *path)
  */
 static void init_combo (void)
 {
-    add_combo_entry (is_fr?"-aucune cassette-":"-no tape-");
+    add_combo_entry (is_fr?"(Aucun)":"(None)");
 }
 
 
 
 /* reset_combo:
- *  Vide le combobox (sauf l'entrée "aucune cassette") (callback).
+ *  Vide le combobox (callback).
  */
 static void reset_combo (GtkButton *button, gpointer data)
 {

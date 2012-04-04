@@ -94,7 +94,7 @@ static void add_combo_entry (const char *name, const char *path)
  */
 static void init_combo (void)
 {
-    add_combo_entry (is_fr?"-aucune cartouche-":"-no cartridge-", "");
+    add_combo_entry (is_fr?"(Aucun)":"(None)", "");
 }
 
 
