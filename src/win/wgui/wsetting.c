@@ -181,7 +181,7 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 #ifdef FRENCH_LANG
          SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "Vitesse:");
          SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exacte");
-         SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "maximale");
+         SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "rapide");
          SetWindowText(GetDlgItem(hDlg, IMAGE_GROUP), "Images:");
          SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Charger");
          SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Sauver");

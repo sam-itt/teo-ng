@@ -868,7 +868,7 @@ static DIALOG commdial[]={
 { d_button_proc,      30,  68,   260,   16,     0,     0,    'f',  D_EXIT,   0,    0,    "&Redémarrer à &froid le TO8" },
 { d_text_proc,        32,  94,     0,    0,     0,     0,      0,   0,       0,    0,    "Vitesse:" },
 { d_radio_proc,      107,  94,   126,    8,     0,     0,    'e',   0,       1,    0,    "&exacte" },
-{ d_radio_proc,      107, 108,   126,    8,     0,     0,    'm',   0,       1,    0,    "&maximale" },
+{ d_radio_proc,      107, 108,   126,    8,     0,     0,    'p',   0,       1,    0,    "ra&pide" },
 { d_text_proc,        32, 124,     0,    0,     0,     0,      0,   0,       0,    0,    "&Volume:" },
 { d_slider_proc,      92, 122,   100,   15,     0,     0,    'v',   0,     254,    0,    NULL },
 { d_check_proc,       30, 142,   147,   14,     5,     0,    't',   0,       0,    0,    "Vidéo en&trelacée" },
