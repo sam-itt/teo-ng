@@ -540,7 +540,7 @@ int main(int argc, char *argv[])
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'émulateur Thomson TO8.\n":"Here's %s the thomson TO8 emulator.\n"),version_name);
     printf("Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall, François Mouret, Samuel Devulder.\n\n");
-    printf((is_fr?"Touches: [ESC] Panneau de contrôle\n":"Keys : [ESC] control pannel\n"));
+    printf((is_fr?"Touches: [ESC] Panneau de contrôle\n":"Keys : [ESC] Control pannel\n"));
     printf((is_fr?"         [F10] Débogueur\n\n":"     : [F10] Debugger\n\n"));
 
     /* Initialisation du TO8 */
