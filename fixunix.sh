@@ -7,7 +7,10 @@ echo "MAKEFILE_INC = makefile.lnx" >> makefile
 echo "include makefile.all" >> makefile
 
 if [ "$1" != "--quick" ]; then
-   find . -type f "(" \
+   find . -type d "(" \
+      -name ".hg" -prune \
+      ")" -o \
+      -type f "(" \
       -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
       -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
       -name "*.txt" -o -name "change.log" -o -name "*.htm*" \
