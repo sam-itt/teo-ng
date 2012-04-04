@@ -258,7 +258,6 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     gtk_window_set_title (GTK_WINDOW(widget_win), window_name);
     gtk_window_move (GTK_WINDOW(widget_win), x, y);
     gtk_widget_realize (widget_win);
-    gdk_window_set_cursor (GTK_WIDGET(widget_win)->window, gdk_cursor_new (GDK_TCROSS));
     color.red = 0;
     color.green = 0;
     color.blue = 0;
