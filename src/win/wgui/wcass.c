@@ -192,7 +192,7 @@ static void add_combo_entry (HWND hWnd, const char *path)
  */
 static void init_combo (HWND hWnd)
 {
-    add_combo_entry (hWnd, is_fr?"(aucun)":"(none)");
+    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)");
 }
 
 

@@ -10,7 +10,7 @@
  *          TT        EE              OO          OO
  *          TT        EE              OO          OO
  *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
- *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOOaucun
  *
  *                  L'émulateur Thomson TO8
  *
@@ -216,9 +216,9 @@ static void free_disk_entry (struct FILE_VECTOR *vector)
  */
 static void init_combo (HWND hWnd, struct FILE_VECTOR *vector)
 {
-    add_combo_entry (hWnd, is_fr?"(aucun)":"(none)", vector);
+    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)", vector);
     if (vector->direct)
-        add_combo_entry (hWnd, is_fr?"(accès direct)":"(direct access)", vector);
+        add_combo_entry (hWnd, is_fr?"(Accès Direct)":"(Direct Access)", vector);
     set_access_mode (hWnd, vector);
 }
 

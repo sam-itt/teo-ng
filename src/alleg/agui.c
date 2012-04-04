@@ -361,7 +361,7 @@ static void MenuDisk(void)
         {
             strncpy(disk_label[drive], get_filename(to8_GetDiskFilename(drive)), LABEL_LENGTH);
             if (disk_label[drive][0] == '\0')
-                strncpy(disk_label[drive], is_fr?"aucune disquette":"no disk", LABEL_LENGTH);
+                strncpy(disk_label[drive], is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
         }
 
 	first=0;
@@ -380,7 +380,7 @@ static void MenuDisk(void)
             case DISKDIAL_EJECT2:
             case DISKDIAL_EJECT3:
                 drive=(ret-4)/5;
-                strncpy(disk_label[drive], is_fr?"aucune disquette":"no disk", LABEL_LENGTH);
+                strncpy(disk_label[drive], is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
                 to8_EjectDisk(drive);
                 break;
 
@@ -446,7 +446,7 @@ static void MenuDisk(void)
                     if (direct_disk & (1<<drive))
                     {
                         diskdial[DISKDIAL_EJECT0+5*drive].flags |= D_DISABLED;
-                        strncpy(disk_label[drive], is_fr?"accès direct":"direct access", LABEL_LENGTH);
+                        strncpy(disk_label[drive], is_fr?"Accès Direct":"Direct Access", LABEL_LENGTH);
 
                         if (to8_DirectSetDrive(drive) == TO8_READ_ONLY)
                         {
@@ -688,7 +688,7 @@ static void MenuK7(void)
 
         strncpy(k7_label, get_filename(to8_GetK7Filename()), LABEL_LENGTH);
         if (k7_label[0] == '\0')
-            strncpy(k7_label, is_fr?"aucune cassette":"no tape", LABEL_LENGTH);
+            strncpy(k7_label, is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
 
 	first=0;
     }
@@ -705,7 +705,7 @@ static void MenuK7(void)
         switch (ret)
         {
             case K7DIAL_EJECT:
-                strncpy(k7_label, is_fr?"aucune cassette":"no tape", LABEL_LENGTH);
+                strncpy(k7_label, is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
                 to8_EjectK7();
                 break;
 
@@ -815,7 +815,7 @@ static void MenuMemo7(void)
 
         strncpy(m7_label, to8_GetMemo7Label(), TO8_MEMO7_LABEL_LENGTH);
         if (m7_label[0] == '\0')
-            strncpy(m7_label, is_fr?"aucune cartouche":"no cartridge", TO8_MEMO7_LABEL_LENGTH);
+            strncpy(m7_label, is_fr?"(Aucun)":"(None)", TO8_MEMO7_LABEL_LENGTH);
 
 	first=0;
     }
@@ -829,7 +829,7 @@ static void MenuMemo7(void)
         switch (ret)
         {
             case M7DIAL_EJECT:
-                strncpy(m7_label, is_fr?"aucune cartouche":"no cartridge", TO8_MEMO7_LABEL_LENGTH);
+                strncpy(m7_label, is_fr?"(Aucun)":"(None)", TO8_MEMO7_LABEL_LENGTH);
                 to8_EjectMemo7();
                 teo.command=COLD_RESET;
                 break;

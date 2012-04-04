@@ -169,7 +169,7 @@ static void init_combo (struct FILE_VECTOR *vector)
 {
     add_combo_entry (is_fr?"(Aucun)":"(None)", vector);
     if (vector->direct)
-        add_combo_entry (is_fr?"-Accès direct-":"-Direct access-", vector);
+        add_combo_entry (is_fr?"(Accès Direct)":"(Direct Access)", vector);
 }
 
 
