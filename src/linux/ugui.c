@@ -257,10 +257,6 @@ void InitGUI(int direct_disk_support)
     init_memo_notebook_frame (notebook);
     gtk_notebook_set_page( GTK_NOTEBOOK(notebook), 0);
     
-    /* séparateur */
-//    widget=gtk_hseparator_new ();
-//    gtk_box_pack_start(GTK_BOX(main_vbox), widget, FALSE, FALSE, 0);
-
     /* boîte horizontale des boutons de sortie */
     hbox=gtk_hbutton_box_new();
     gtk_box_set_spacing ( GTK_BOX(hbox), 7);
@@ -277,7 +273,7 @@ void InitGUI(int direct_disk_support)
     widget=gtk_button_new_from_stock (GTK_STOCK_QUIT);
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(ask_to_quit), (gpointer)NULL);
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-    gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, TRUE);
+    gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, FALSE);
 
     /* bouton retour */
     widget=gtk_button_new_from_stock (GTK_STOCK_OK);
