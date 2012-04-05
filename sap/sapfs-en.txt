@@ -1,0 +1,159 @@
+1. Introduction
+---------------
+The SAP archiving system, designed by Alexander Pukall, is the tool used
+by Teo emulator to handle flexibly and securely 3 "5 or 5" 25 disks
+formatted Thomson. The main idea is to reproduce Thomson physical disks
+as files "images", storable on hard disk and directly readable by emulators:
+all operations read / write are thus performed on these images and not on
+the original disks.
+
+This system allows to easily copy disks, to spread any digital medium and
+ultimately ensures the preservation of their data beyond the life of the
+physical medium.
+
+L'utilitaire SAPfs permet de réaliser sur les archives SAP les opérations
+naturelles d'un système de fichiers: création, formatage, vérification, dump
+binaire, listage des fichiers, extraction de fichiers, ajout de fichiers et
+destruction de fichiers.
+
+The SAPfs utility allows to make standard system file operations on SAP
+archives: creation, formatting, checking, dump binary, directory, extracting
+files, adding files and deleting files.
+
+
+2. How to get it ?
+------------------
+By downloading it at the web page:
+http://sourceforge.net/projects/teoemulator/?source=directory
+
+
+3. How the program works
+------------------------
+SAPfs works in batch mode: a command, possibly followed by one or more
+arguments, must be passed in command line.
+
+
+4. Program commands
+-------------------
+One of the following must be passed as first argument:
+
+  -h, --help
+                    display help.
+                    ex:  sapfs --help
+
+  -v, --version
+                    display the program version.
+                    ex:  sapfs --version
+
+  -w, --verify archive [track] [sector]
+                    check the SAP archive and displays error details for each
+                    bad sector.
+                    archive: full name of the SAP archive
+                    track  : track number which the verification will be
+                             limited to
+                    sector : sector number (from 1 to 16)
+                    ex:  sapfs --verify foo.sap
+                         sapfs --verify foo.sap 10
+
+  -u, --dump archive [track] [sector]
+                    make a binary dump of the SAP archive.
+                    archive: full name of the SAP archive
+                    track  : track number which the verification will be
+                             limited to
+                    sector : sector number (from 1 to 16)
+                    ex:  sapfs --dump foo.sap 20 2
+                         sapfs --dump foo.sap 10
+
+  -t, --list archive
+                    display the directory of the SAP archive
+                    archive  whose full
+                    name is specified as second argument.
+                    ex:  sapfs --list foo.sap
+
+  -i, --info archive file
+                    display informations about a file of the SAP archive.
+                    Case is sensitive.
+                    archive: full name of the SAP archive
+                    file   : name of the file to display informations from
+                    ex:  sapfs --info foo.sap AUTO.BAT
+
+  -x, --extract archive file [file...]
+                    extract one or more files from SAP archive. Wildcards '*'
+                    and '?' can be used for the file name. Case is sensitive.
+                    archive: full name of the SAP archive
+                    file   : name(s) of the file(s) to extract
+                    ex:  sapfs --extract foo.sap BAR.BIN
+                         sapfs --extract foo.sap Prog.BAS Prog.BIN
+                         sapfs --extract foo.sap *.DAT
+
+      --extract-all archive
+                    extract all files from SAP archive.
+                    archive: full name of the SAP archive
+                    ex:  sapfs --extract-all foo.sap
+
+  -a, --add archive file_or_folder [file_or_folder...]
+                    add one or more files to the SAP archive. Case is
+                    sensitive.
+                    archive: full name of the SAP archive
+                    file_or_folder : name(s) of the file(s) or folder(s) to add
+                    ex:  sapfs --add foo.sap BAR.BIN
+                         sapfs --add foo.sap Prog.BAS Prog.BIN
+
+  -d, --delete archive file [file...]
+                    delete one or more files to the SAP archive. Wildcards '*'
+                    and '?' can be used for the file name. Case is sensitive.
+                    archive: full name of the SAP archive
+                    file   : name(s) of the file(s) to delete
+                    ex:  sapfs --delete foo.sap B?R.BIN
+                         sapfs --delete foo.sap thom.bas son.bas
+                         sapfs --delete foo.sap LEVEL*.DAT
+
+  -c, --create archive [nb_of_tracks] [density]
+                    create an empty formatted SAP archive.
+                    archive: full name of the SAP archive
+                    nb_of_tracks : number of tracks (40 or 80, default 80)
+                    density : 1 = simple density
+                              2 = double density (default)
+                    ex:  sapfs --create foo.sap
+                    ex:  sapfs --create foo.sap 40
+
+  -f, --format archive [nb_of_tracks] [density]
+                    format a SAP archive.
+                    archive: full name of the SAP archive
+                    nb_of_tracks : number of tracks (40 or 80, default 80)
+                    density : 1 = simple density
+                              2 = double density (default)
+                    ex:  sapfs --format foo.sap
+                    ex:  sapfs --format foo.sap 40
+
+  -k, --copy archive1 archive2 [track] [sector]
+                    duplicate a SAP archive.
+                    archive1 : full name of the SAP archive to copy from
+                    archive2 : full name of the SAP archive to copy to
+                    track  : track number which the copy will be limited to
+                    sector : sector number (from 1 to 16)
+                    ex:  sapfs --copy foo.sap bar.sap 65
+                         sapfs --copy foo.sap bar.sap 20 3
+
+  -m, --move archive1 track sector archive2 track sector
+                    copy the contents of a sector.
+                    archive1 : full name of the SAP archive to copy from
+                    archive2 : full name of the SAP archive to copy to
+                    track  : track number
+                    sector : sector number (from 1 to 16)
+                    ex:  sapfs --move foo.sap 12 4 bar.sap 26 16
+
+
+5. Known problems
+-----------------
+None yet (cross my fingers ;-)
+
+
+6. Conclusion
+-------------
+I hope this version of SAP will come up to your expectations, please let me
+know your comments and suggestions.
+
+
+Eric Botcazou
+e-mail: <ebotcazou@libertysurf.fr>
