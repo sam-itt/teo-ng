@@ -267,7 +267,7 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
             update_params (hWnd, vector);
         }
         strcpy(vector->current_dir, current_file);
-        last_dir=vector->current_dir;
+        strcpy(last_dir, current_file);
     }
 }
 
