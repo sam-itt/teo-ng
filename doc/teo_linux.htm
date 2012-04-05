@@ -41,7 +41,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 <P>Teo ne r&eacute;alise lui-m&ecirc;me que l'&eacute;mulation <EM>mat&eacute;rielle</EM> du TO8, &agrave; savoir celle du microprocesseur Motorola MC6809E, de la carte m&eacute;moire, de la carte vid&eacute;o et des p&eacute;riph&eacute;riques suivants: souris, crayon optique, manettes de jeux, lecteur de cassettes et lecteurs de disquettes.</P>
 
 <H2><A NAME="Installation"></A>2. Installation</H2>
-<P>La configuration n&eacute;cessaire pour faire tourner l'&eacute;mulateur est la configuration standard des distributions r&eacute;centes; seule la pr&eacute;sence obligatoire de la version 1.2 du toolkit GTK+ peut n&eacute;cessiter une mise &agrave; jour du syst&egrave;me (RedHat 5.x, SuSE 5.x), disponible <A HREF="http://www.gtk.org">ici</A>.</P>
+<P>La configuration n&eacute;cessaire pour faire tourner l'&eacute;mulateur est la configuration standard des distributions r&eacute;centes; seule la pr&eacute;sence obligatoire de la version 2.12 ou sup&eacute;rieure du toolkit GTK+ peut n&eacute;cessiter une mise &agrave; jour du syst&egrave;me (RedHat 5.x, SuSE 5.x), disponible <A HREF="http://www.gtk.org">ici</A>.</P>
 
 <P>Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:</P>
 <UL>
@@ -55,7 +55,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 <TABLE BORDER="0" SUMMARY="options">
 <TR><TD><KBD>[-help]</KBD></TD><TD>affiche l'aide en ligne</TD></TR>
 <TR><TD><KBD>[-m file.m7]</KBD></TD><TD>place la cartouche file.m7 dans le lecteur</TD></TR>
-<TR><TD><KBD>[-fast]</KBD></TD><TD>active la pleine vitesse de l'&eacute;mulateur</TD></TR>
+<TR><TD><KBD>[-fast]</KBD></TD><TD>active la vitesse rapide de l'&eacute;mulateur</TD></TR>
 <TR><TD><KBD>[-nosound]</KBD></TD><TD>supprime le son de l'&eacute;mulateur</TD></TR>
 <TR><TD><KBD>[-geometry +x+y]</KBD></TD><TD>sp&eacute;cifie la position de la fen&ecirc;tre</TD></TR>
 <TR><TD><KBD>[-noshm]</KBD></TD><TD>d&eacute;sactive l'utilisation de l'extension MIT-SHM</TD></TR>
@@ -97,7 +97,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 
 <H2><A NAME="Generateur_sonore"></A>9. G&eacute;n&eacute;rateur sonore</H2>
 <P>Le son du TO8 est &eacute;mul&eacute; via la carte son du PC. Les deux g&eacute;n&eacute;rateurs sonores 1-bit compatible TO7 et 6-bit compatible interface Musique et Jeux sont &eacute;mul&eacute;s.</P>
-<P>Teo utilise le p&eacute;riph&eacute;rique sonore par d&eacute;faut du syst&egrave;me (via Open Sound System).</P>
+<P>Teo utilise le p&eacute;riph&eacute;rique sonore par d&eacute;faut du syst&egrave;me (via ALSA).</P>
 
 <H2><A NAME="Supports_amovibles"></A>10. Supports amovibles de lecture/&eacute;criture</H2>
 <P>Teo peut manipuler trois types de support amovible de lecture et/ou &eacute;criture: les cartouches ROM, les cassettes analogiques et les disquettes 3"5 Thomson. Chaque support est virtualis&eacute; par le biais de fichiers au format M&eacute;mo7 (extension .m7), K7 (extension .k7) et SAP (extension .sap) respectivement.</P>
@@ -106,7 +106,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 <H2><A NAME="Panneau_de_controle"></A>11. Panneau de contr&ocirc;le</H2>
 <P>L'appui sur la touche [ESC] du clavier du PC suspend l'&eacute;mulation et ouvre le Panneau de contr&ocirc;le.</P>
 
-<CENTER><IMG SRC="images/teo_x1fr.png" WIDTH="338" HEIGHT="405" ALT="Panneau de contr&ocirc;le"></CENTER>
+<CENTER><IMG SRC="images/teo_x1fr.png" WIDTH="338" HEIGHT="449" ALT="Panneau de contr&ocirc;le"></CENTER>
 
 <P>Ce menu permet de communiquer avec l'&eacute;mulateur et d'acc&eacute;der aux p&eacute;riph&eacute;riques du TO8 (lecteur de cartouches, lecteur de cassettes et lecteurs de disquettes).</P>
 
@@ -120,32 +120,31 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 
 <H3>R&eacute;glages</H3>
 
-<CENTER><IMG SRC="images/teo_x2fr.png" WIDTH="338" HEIGHT="196" ALT="R&eacute;glages"></CENTER>
+<CENTER><IMG SRC="images/teo_x2fr.png" WIDTH="338" HEIGHT="217" ALT="R&eacute;glages"></CENTER>
 
 <P>L'option vitesse permet de r&eacute;gler la vitesse de l'&eacute;mulation:</P>
 <UL>
 <LI>Vitesse exacte: &eacute;mulation du MC6809E &agrave; 1Mhz strictement, c'est le choix normal, le seul utilisable pour les jeux et pour l'&eacute;mulation sonore.</LI>
-<LI>Vitesse maximale: &eacute;mulation du MC6809E &agrave; la vitesse maximale atteinte par le PC (&agrave; titre d'exemple un P200 &eacute;mule un MC6809E &agrave; 10Mhz). C'est utilisable pour les utilitaires, c'est m&ecirc;me assez agr&eacute;able d'avoir un TO8 rapide, mais le son est alors d&eacute;sactiv&eacute;.</LI>
+<LI>Vitesse rapide: &eacute;mulation du MC6809E &agrave; vitesse rapide. C'est utilisable pour les utilitaires, c'est m&ecirc;me assez agr&eacute;able d'avoir un TO8 rapide, mais le son est alors d&eacute;sactiv&eacute;.</LI>
 </UL>
 <P>Le mode vid&eacute;o entrelac&eacute; simule les &eacute;crans cathodiques en affichant uniquement la moitit&eacute; des lignes &agrave; chaque trame (lignes paires puis impaires), r&eacute;duisant ainsi le scintillement lors des changements rapides d'images (voir par exemple les d&eacute;mos TruC de PULS).</P>
 
 <H3>Lecteurs de disquettes</H3>
-<CENTER><IMG SRC="images/teo_x5fr.png" WIDTH="338" HEIGHT="197" ALT="Lecteurs de disquettes"></CENTER>
+<CENTER><IMG SRC="images/teo_x5fr.png" WIDTH="338" HEIGHT="222" ALT="Lecteurs de disquettes"></CENTER>
 <P>Ce menu permet de s&eacute;lectionner les fichiers au format SAP (extension .sap) qui seront utilis&eacute;s comme disquettes en lecture/&eacute;criture par l'&eacute;mulateur. Ces fichiers sont des images des disquettes physiques Thomson, r&eacute;alis&eacute;es par un utilitaire sp&eacute;cifiques appel&eacute; SAP, et doivent &ecirc;tre stock&eacute;s sur le disque dur du PC, de pr&eacute;f&eacute;rence dans un sous-r&eacute;pertoire <KBD>disks</KBD> du r&eacute;pertoire de l'&eacute;mulateur.</P>
-<P>Les lecteurs 0: et 1: correspondent aux deux faces du premier lecteur physique de disquettes d'un v&eacute;ritable TO8; les lecteur 2: et 3: correspondent quant &agrave; eux aux deux faces du second lecteur.</P>
+<P>Les lecteurs 0: et 1: correspondent aux deux faces du premier lecteur physique de disquettes d'un v&eacute;ritable TO8; les lecteurs 2: et 3: correspondent quant &agrave; eux aux deux faces du second lecteur.</P>
 <P>Il est possible d'activer pour chacun des lecteurs, ind&eacute;pendamment des autres, la protection d'acc&egrave;s en &eacute;criture de la disquette (case "prot.").</P>
-<P>Le bouton avec l'ic&ocirc;ne "fichier" se transforme en ic&ocirc;ne "disque" si vous voulez <A HREF="#Acces_direct">acc&eacute;der directement</A> &agrave; une disquette physique 3"5 - 720 ko au format TO8 introduite dans le lecteur A: du PC. Il suffira ensuite de cliquer sur le bouton avec l'ic&ocirc;ne "disque" pour revenir au mode "fichier".</P>
+<P>S&eacute;lectionnez l'entr&eacute;e "(Acc&egrave;s direct)" de la bo&icirc;te combin&eacute;e si vous voulez <A HREF="#Acces_direct">acc&eacute;der directement</A> &agrave; une disquette physique 3"5 - 720 ko au format TO8 introduite dans le lecteur A: du PC. Il suffira ensuite d'ouvrir ou de s&eacute;lectionner un fichier SAP ou "(Aucun)" pour sortir du mode acc&egrave;s direct.</P>
 <P>A noter qu'une led verte s'allume en haut &agrave; droite de l'&eacute;cran lorsqu'un acc&egrave;s disque est en cours.</P>
 
 <H3>Lecteur de cassettes</H3>
-<CENTER><IMG SRC="images/teo_x4fr.png" WIDTH="338" HEIGHT="195" ALT="Lecteur de cassettes"></CENTER>
-<P>Vous pouvez ici non seulement s&eacute;lectionner le fichier au format K7 (extension .k7) qui joue le r&ocirc;le de cassette (bouton "...") mais aussi choisir de prot&eacute;ger son acc&egrave;s en &eacute;criture (case "prot.") ou encore modifier
-la position de la bande (champ num&eacute;rique "Compteur" et boutons "+" et "-") ou m&ecirc;me rembobiner la cassette, i.e revenir au d&eacute;but du fichier (bouton "Rembobiner la cassette"). Attention, tout changement de protection d'acc&egrave;s en &eacute;criture provoque automatiquement le rembobinage.</P>
+<CENTER><IMG SRC="images/teo_x4fr.png" WIDTH="338" HEIGHT="221" ALT="Lecteur de cassettes"></CENTER>
+<P>Vous pouvez ici non seulement s&eacute;lectionner le fichier au format K7 (extension .k7) qui joue le r&ocirc;le de cassette (bouton d'ouverture) mais aussi choisir de prot&eacute;ger son acc&egrave;s en &eacute;criture (case "prot.") ou encore modifier la position de la bande (champ num&eacute;rique "Compteur" et boutons "+" et "-") ou m&ecirc;me rembobiner la cassette, i.e revenir au d&eacute;but du fichier (bouton "Rembobiner la cassette"). Attention, tout changement de protection d'acc&egrave;s en &eacute;criture provoque automatiquement le rembobinage.</P>
 <P>L&agrave; encore, il est conseill&eacute; de mettre tous les fichiers K7 dans un m&ecirc;me sous-r&eacute;pertoire <KBD>k7</KBD> du r&eacute;pertoire de l'&eacute;mulateur pour une s&eacute;lection plus ais&eacute;e.</P>
 
 <H3>Lecteur de cartouches</H3>
-<CENTER><IMG SRC="images/teo_x3fr.png" WIDTH="338" HEIGHT="194" ALT="Lecteur de cartouches"></CENTER>
-<P>Ce menu permet de s&eacute;lectionner un fichier au format M&eacute;mo7 (extension .m7) et de le charger comme cartouche (bouton "Parcourir..."). L'intitul&eacute; de la cartouche appara&icirc;t dans la zone de gauche. A noter que Teo effectue alors un red&eacute;marrage &agrave; froid afin que la cartouche soit effectivement prise en compte et apparaisse sur l'&eacute;cran de d&eacute;marrage.</P>
+<CENTER><IMG SRC="images/teo_x3fr.png" WIDTH="338" HEIGHT="221" ALT="Lecteur de cartouches"></CENTER>
+<P>Ce menu permet de s&eacute;lectionner un fichier au format M&eacute;mo7 (extension .m7) et de le charger comme cartouche (bouton d'ouverture). L'intitul&eacute; de la cartouche appara&icirc;t dans la bo&icirc;te combin&eacute;e. A noter que Teo effectue alors un red&eacute;marrage &agrave; froid afin que la cartouche soit effectivement prise en compte et apparaisse sur l'&eacute;cran de d&eacute;marrage.</P>
 <P>Il est conseill&eacute; de mettre tous les fichiers M&eacute;mo7 dans un m&ecirc;me sous-r&eacute;pertoire <KBD>memo7</KBD> du r&eacute;pertoire de l'&eacute;mulateur pour une s&eacute;lection plus ais&eacute;e.</P>
 
 </BLOCKQUOTE>
