@@ -1,11 +1,9 @@
-HTML {
-	COLOR: #333333;
-	FONT-FAMILY: Verdana,Arial,Helvetica,sans-serif;
-}
+
 BODY {
-	PADDING: 0px;
-	MARGIN: 0px;
+	COLOR: #333333;
 	FONT-FAMILY: Verdana,Geneva,Arial,Helvetica,sans-serif;
+	FONT-SIZE: 75%;	PADDING: 0px;
+	MARGIN: 0px;
 	TEXT-ALIGN: left;
 }
 

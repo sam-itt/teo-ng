@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-1.8.1-1">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
 <TITLE>Teo - User manual</TITLE>
 <link REL="stylesheet" TYPE="text/css" HREF="doc.css">
 
@@ -50,12 +50,12 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 </UL>
 
 <H2><A NAME="Lancement"></A>3. Launching</H2>
-<P>When the program is stated, headers and initialization messages are printed, then the user is asked to choose a graphic mode if it hasn't been specified on the command-line. Then the emulation starts.</P>
+<P>When the program is starting, headers and initialization messages are printed, then the user is asked to choose a graphic mode if it hasn't been specified on the command-line. Then the emulation starts.</P>
 <CENTER><IMG SRC="images/teo_w0en.gif" WIDTH="402" HEIGHT="353" ALT="Start panel"></CENTER>
 <P>TEO accepts the following parameters on the command line:</P>
 <TABLE BORDER="0" SUMMARY="options">
 <TR><TD><KBD>[-m file.m7]</KBD></TD><TD>uses file.m7 as ROM cartridge</TD></TR>
-<TR><TD><KBD>[-fast]</KBD></TD><TD>runs the emulator at full-speed</TD></TR>
+<TR><TD><KBD>[-fast]</KBD></TD><TD>runs the emulator at fast-speed</TD></TR>
 <TR><TD><KBD>[-nosound]</KBD></TD><TD>disables sound emulation</TD></TR>
 <TR><TD><KBD>[-nojoy]</KBD></TD><TD>does not use native PC joysticks</TD></TR>
 <TR><TD><KBD>[-mode40]</KBD></TD><TD>starts the emulator in 40 columns, 16 colors and full-screen mode</TD></TR>
@@ -127,7 +127,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 
 
 <H2><A NAME="Panneau_de_controle"></A>11. Control panel</H2>
-<P>Pressing the [ESC] key on the PC halts the emulation and opens the control panel.<</P>
+<P>Pressing the [ESC] key on the PC halts the emulation and opens the control panel.</P>
 <P>The user interface aspect might depend on the selected graphic mode: in full-screen modes, it is displayed over the screen; in windowed mode, it is displayed in a separate window.</P>
 <TABLE WIDTH="100%" SUMMARY="Panneau de contr&ocirc;le">
 <TR ALIGN="Center">
@@ -151,7 +151,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 </TR>
 <TR ALIGN="Center">
 <TD><IMG SRC="images/teo_v2en.gif" WIDTH="320" HEIGHT="200" ALT="Commands &amp; settings"></TD>
-<TD><IMG SRC="images/teo_w2en.gif" WIDTH="327" HEIGHT="170" ALT="Settings"></TD>
+<TD><IMG SRC="images/teo_w2en.gif" WIDTH="327" HEIGHT="165" ALT="Settings"></TD>
 </TR>
 </TABLE>
 
@@ -164,7 +164,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 <P>The speed option allow tuning the speed of the emulation:</P>
 <UL>
 <LI>Accurate speed : Fixes the speed of the MC6809E to 1Mhz exactly. This is the normal value which is the mode to use when playing games or sounds.</LI>
-<LI>Fast speed: Emulates the MC6809E at the maximum speed that the PC allows (for instance, a Pentium 200 gives a MC6809E running at 10Mhz). This can be used for utility tools, or to have access to a boosted TO8 which is valuable. However the sound is then deactivated.</LI>
+<LI>Fast speed: Emulates the MC6809E at fast speed. This can be used for utility tools, or to have access to a boosted TO8 which is valuable. However the sound is then disabled.</LI>
 </UL>
 <P>The sound volume can be managed by a slider.</P>
 <P>The interlaced mode emulates CRTs by displaying only half the lines for each frame (even lines, then odd lines). This reduces the flickering effect that happens when rapid screen changes occur (see for instance the TruC demos by PULS).</P>
@@ -179,7 +179,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 </TR>
 <TR ALIGN="Center">
 <TD><IMG SRC="images/teo_v3en.gif" WIDTH="320" HEIGHT="200" ALT="Cartridge slot"></TD>
-<TD><IMG SRC="images/teo_w3en.gif" WIDTH="327" HEIGHT="170" ALT="Cartridge slot"></TD>
+<TD><IMG SRC="images/teo_w3en.gif" WIDTH="327" HEIGHT="166" ALT="Cartridge slot"></TD>
 </TR>
 </TABLE>
 <P>This menu allows choosing a Memo7 file (extension .m7) and loads it as a cartridge (button "..."). The label of the cartridge appears in the left zone. Please note that Teo will then do a cold-reset of the TO8 in order for the cartridge to appear in the boot screen of the TO8.</P>
@@ -194,7 +194,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 </TR>
 <TR ALIGN="Center">
 <TD><IMG SRC="images/teo_v4en.gif" WIDTH="320" HEIGHT="200" ALT="Tape recorder"></TD>
-<TD><IMG SRC="images/teo_w4en.gif" WIDTH="327" HEIGHT="170" ALT="Tape recorder"></TD>
+<TD><IMG SRC="images/teo_w4en.gif" WIDTH="327" HEIGHT="164" ALT="Tape recorder"></TD>
 </TR>
 </TABLE>
 <P>Here you can not only select a K7 file (extension .k7) which will act as a tape (button "..."), but also choose to protect it against write access ("prot." field). You can also change the position on the tape (numerical field "Counter" and "+" or "-" buttons), and even rewind it completely ("Rewind" button). Be careful: any write-access change will automatically rewind the tape.</P>
@@ -209,7 +209,7 @@ Copyright &copy; 1997-2012 Gilles F&eacute;tis, Eric Botcazou, Alexandre Pukall,
 </TR>
 <TR ALIGN="Center">
 <TD><IMG SRC="images/teo_v5en.gif" WIDTH="320" HEIGHT="200" ALT="Disk drives"></TD>
-<TD><IMG SRC="images/teo_w5en.gif" WIDTH="327" HEIGHT="170" ALT="Disk drives"></TD>
+<TD><IMG SRC="images/teo_w5en.gif" WIDTH="327" HEIGHT="163" ALT="Disk drives"></TD>
 </TR>
 </TABLE>
 <P>This menu allows choosing a SAP file (extension .sap) and uses it as a read/write floppy disk by the emulator (button "..."). These files are images of physical Thomson disks which are created by a specific utility tool called SAP. They must reside on the hard drive of the PC, preferably in the <KBD>disks</KBD> sub-folder in the emulator directory.</P>
