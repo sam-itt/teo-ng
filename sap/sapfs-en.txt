@@ -11,11 +11,6 @@ This system allows to easily copy disks, to spread any digital medium and
 ultimately ensures the preservation of their data beyond the life of the
 physical medium.
 
-L'utilitaire SAPfs permet de réaliser sur les archives SAP les opérations
-naturelles d'un système de fichiers: création, formatage, vérification, dump
-binaire, listage des fichiers, extraction de fichiers, ajout de fichiers et
-destruction de fichiers.
-
 The SAPfs utility allows to make standard system file operations on SAP
 archives: creation, formatting, checking, dump binary, directory, extracting
 files, adding files and deleting files.
