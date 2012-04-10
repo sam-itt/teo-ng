@@ -1,18 +1,25 @@
 
 ========================================================================
-==== Version 1.8.1 (Janvier 2012)                                   ====
+==== Version 1.8.1 (Janvier-Avril 2012)                             ====
 ========================================================================
+- ROMs incluses dans les packages
 - exécution cycle par cycle des instructions
 - émulation des instructions non standard
 - émulation des postcodes non standard pour TFR/EXG
 - émulation des postcodes non standard pour indexé
 - émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
+- ajout et internationalisation des saptools et des k7tools
 - sous Linux :
+  - passage à GTK+ 2.12
   - réduction du temps de ralentissement usleep()
   - gestion de la configuration lorsque le device impliqué n'est pas
     monté
   - reset à chaud de Teo si erreur de configuration
   - traitement du son par ALSA plutôt que par OSS
+  - passage au combobox pour les fichiers sous Linux et ajout de boutons
+    pour les vider
+  - F12 pour l'appel du débogueur
+
 
 ========================================================================
 ==== Version 1.8.0 (Juillet-Septembre 2011)                         ====

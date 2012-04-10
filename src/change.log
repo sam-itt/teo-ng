@@ -13,13 +13,34 @@
           impliqué n'est pas monté
           reset à chaud de Teo si erreur de configuration au lancement
           précédent de Teo
-- linux/usound.c : traitement du son par ALSA (version OSS conservée avec
-          l'option OSS=1 à la compilation)
+          les clefs indéfinies ne sont plus sauvegardées
+- linux/usound.c : passage à ALSA
+          l'interruption timer prend le relai si pas de son à jouer
 - mc68xx/mc6809.c : exécution cycle par cycle des instructions
           émulation des instructions non standard
           émulation des postcodes non standard pour TFR/EXG
           émulation des postcodes non standard pour indexé
           émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
+- linux/ugui.c : Sub-division des sources en ugui.c, uabout.c, ucass.c,
+          udisk.c, umemo.c, usetting.c
+          Passage des file_chooser à la boîte combinée pour les fichiers
+          Création de boutons de vidange pour les boîtes combinées
+          Ajout des icônes pour les boutons
+- win/wgui.c : Sub-division des sources en wgui.c, wabout.c, wcass.c,
+          wdisk.c, wmemo.c, wsetting.c
+          Création de boutons de vidange pour les boîtes combinées
+          Ajout des icônes pour les boutons
+- fixunix.sh : le répertoire de Mercurial n'est plus affecté par le
+          traitement
+- dasm6809.c : syntaxe d'affichage plus fidèle pour le désassemblage
+- linux/udebug.c : utilisation de fontes à taille fixe
+          agrandissement de la fenêtre de sortie
+          texte de la fenêtre de sortie sélectionnable et copiable
+- linux/ufloppy.c : arrêt de l'interruption timer pendant le travail des
+          lecteurs (sinon conflit)
+- linux/udisplay.c : pointeur de souris standard pour la fenêtre
+          principale
+- Ajout des saptools et k7tools
 
 ========================================================================
 === Version 1.8.0 (Juillet 2011)                                     ===

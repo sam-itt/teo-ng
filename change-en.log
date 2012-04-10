@@ -1,12 +1,22 @@
 ========================================================================
 ==== Version 1.8.1 (January 2012)                                   ====
 ========================================================================
+- ROMs included in packages
+- execution cycle by cycle of machine codes
+- emulation of non standard instructions
+- emulation of non standard postcodes for TFR/EXG
+- emulation of non standard postcodes for indexed
+- emulation of postcode 0x00 for PSHS/PSHU/PULS/PULU
+- add and internationalization of saptools and k7tools
 - on Linux:
+  - transition to GTK+ 2.12
   - reduction of slowdown cpu time with usleep()
   - configuration management when the involved device is not
     mounted
   - warm reset if configuration error
   - sound processing with ALSA rather than OSS
+  - transition to combobox for files and add emptying buttons
+  - F12 to call the debugger
 
 
 ========================================================================
