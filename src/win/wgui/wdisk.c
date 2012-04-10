@@ -334,8 +334,9 @@ int CALLBACK DiskTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              himg=LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
              SendMessage(GetDlgItem(hWnd, DISK0_MORE_BUTTON+drive), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg);
              
-             /* initialisation de l'info-bulle */
-             create_tooltip (hWnd, DISK0_EJECT_BUTTON+drive, is_fr?"Vider la liste":"Empty the list");
+             /* initialisation des info-bulles */
+             create_tooltip (hWnd, DISK0_EJECT_BUTTON+drive, is_fr?"Vider la listedes fichiers":"Empty the file list");
+             create_tooltip (hWnd, DISK0_MORE_BUTTON+drive, is_fr?"Ouvrir un fichier disquette":"Open a disk file");
 
          }
          first=0;

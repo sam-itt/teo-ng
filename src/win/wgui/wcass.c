@@ -329,8 +329,10 @@ int CALLBACK CassetteTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(GetDlgItem(hWnd, K7_COUNTER_LTEXT), is_fr?"Compteur:":" Counter:");
          SetWindowText(GetDlgItem(hWnd, K7_REWIND_BUTTON), is_fr?"Rembobiner":"Rewind");
 
-         /* initialisation del'info-bulle */
-         create_tooltip (hWnd, K7_EJECT_BUTTON, is_fr?"Vider la liste":"Empty the list");
+         /* initialisation des info-bulles */
+         create_tooltip (hWnd, K7_EJECT_BUTTON, is_fr?"Vider la listedes fichiers":"Empty the file list");
+         create_tooltip (hWnd, K7_MORE_BUTTON, is_fr?"Ouvrir un fichier cassette":"Open a tape file");
+
          return TRUE;
 
       case WM_COMMAND:

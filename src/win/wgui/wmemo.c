@@ -253,7 +253,8 @@ int CALLBACK CartridgeTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          SendMessage(GetDlgItem(hWnd, MEMO7_MORE_BUTTON), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
 
          /* initialisation de l'info-bulle */
-         create_tooltip (hWnd, MEMO7_EJECT_BUTTON, is_fr?"Vider la liste":"Empty the list");
+         create_tooltip (hWnd, MEMO7_EJECT_BUTTON, is_fr?"Vider la listedes fichiers":"Empty the file list");
+         create_tooltip (hWnd, MEMO7_MORE_BUTTON, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
 
          return TRUE;
 
