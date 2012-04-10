@@ -248,6 +248,7 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     widget = gtk_button_new ();
     image = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(widget), image);
+    gtk_widget_set_tooltip_text (widget, is_fr?"Vide la liste des fichiers":"Empty the file list");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(reset_combo), (gpointer) NULL);
 
@@ -263,6 +264,7 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     widget = gtk_button_new ();
     image = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(widget), image);
+    gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer) NULL);
 }
