@@ -55,7 +55,6 @@
 #include "to8dbg.h"
 #include "to8.h"
 
-
 #define MENU_NLINES 8
 #define MENU_POS_X  4
 #define MENU_POS_Y 42
@@ -435,27 +434,6 @@ void Debugger(void)
             gotoxy(33,i+2);
             cputs(dasm_buffer);
         }
-
-#ifdef DEBUG
-        for (i=0; i<FTRACE_NLINES; i++)
-        {
-            gotoxy(FTRACE_POS_X, FTRACE_POS_Y+i);
-            cputs(ftrace_line[i]);
-        }
-
-        gotoxy(FTRACE_POS_X+4, FTRACE_POS_Y+2);
-        if (ftrace_mode)
-        {
-            textcolor(GREEN);
-            cprintf(is_fr?"Activ‚":"Activated");
-        }
-        else
-        {
-            textcolor(RED);
-            cprintf(is_fr?"D‚sactiv‚":"Disabled");
-        }
-#endif
-        
         c=getch();
 
     } while ((c != 'q') && (c != 'Q'));
