@@ -355,7 +355,7 @@ void HandleEvents(void)
 
                 if (key==KEY_ESC)
                     teo.command=CONTROL_PANEL;
-                else if (key==KEY_F10)
+                else if (key==KEY_F12)
                     teo.command=DEBUGGER;
                 else   
                     to8_HandleKeyPress(key, False);
