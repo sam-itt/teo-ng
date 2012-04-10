@@ -43,6 +43,7 @@ TEO_SRC_FILES =   \
    src/image.c    \
    src/joystick.c \
    src/k7.c       \
+   src/memo7.c    \
    src/keyboard.c \
    src/mouse.c    \
    src/printer.c  \
