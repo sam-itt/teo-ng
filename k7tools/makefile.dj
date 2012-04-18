@@ -10,6 +10,7 @@ OFLAGS = -O2
 
 CFLAGS = $(WFLAGS) $(OFLAGS)
 
+msdos = 1
 
 ################
 # target rules #

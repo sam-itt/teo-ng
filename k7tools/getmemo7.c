@@ -6,6 +6,20 @@ int tab[4]={0xff,0x01,0x03c,0x01};
 
 FILE *fw,*fr;
 int noct;
+static int is_fr=0;
+
+/* ugly hack to support French accents */
+#ifdef linux
+static char eacute[] = "Ã©";
+static char egrave[] = "Ã¨";
+static char agrave[] = "Ã ";
+static char ugrave[] = "Ã¹";
+#else
+static char eacute[] = "‚";
+static char egrave[] = "Š";
+static char agrave[] = "…";
+static char ugrave[] = "—";
+#endif
 
 
 int mygetc(void)
@@ -14,7 +28,7 @@ int mygetc(void)
 
     if (a==EOF)
     {
-        printf("erreur : fichier source incomplet\n");
+        printf(is_fr?"erreur : fichier source incomplet\n":"error : incomplete source file\n");
         exit(EXIT_FAILURE);
     }
 
@@ -45,34 +59,66 @@ int main(int argc,char **argv)
     int c,n;
     char buf[256];
 
-    printf("GetMemo7 1.0 par Sylvain HUET\n");
-    printf("R‚cuperation d'une cartouche Memo7 a partir d'un fichier .k7\n");
-    printf("La cartouche a du ˆtre sauvegard‚e par : SAVEM\"MEMO7\",0,&H3FFF,0\n\n");
+#ifdef linux
+    lang=getenv("LANG");
+    if (lang==NULL) lang="fr_FR";        
+    setlocale(LC_ALL, "fr_FR.UTF8");    
+    if (strncmp(lang,"fr",2)==0) 
+        is_fr=-1;
+#endif
+#ifdef msdos
+#ifdef FR_LANG
+    fr=*1
+#endif
+#endif
+
+    if (is_fr)
+    {
+        printf("GetMemo7 1.0 par Sylvain HUET\n");
+        printf("R%scuperation d'une cartouche Memo7 a partir d'un fichier .k7\n",eacute);
+        printf("La cartouche a du %stre sauvegard%se par : SAVEM\"MEMO7\",0,&H3FFF,0\n\n",ecirc,eacute);
+    }
+    else
+    {
+        printf("GetMemo7 1.0 by Sylvain HUET\n");
+        printf("Get a memo7 cartridge from a k7 file\n");
+        printf("Cartridge must have been saved by : SAVEM\"MEMO7\",0,&H3FFF,0\n\n");
+    }
 
     if ((argc<2)
       ||((strcmp(".k7",&argv[1][strlen(argv[1])-3]))
           &&(strcmp(".K7",&argv[1][strlen(argv[1])-3]))))
     {
-        printf("usage : getmemo7 fichier.k7\n");
+        printf(is_fr?"usage : getmemo7 fichier.k7\n":"usage : getmemo7 file.k7\n");
         exit(EXIT_FAILURE);
     }
 
     strcpy(buf,argv[1]);
     strcpy(&buf[strlen(buf)-3],".rom");
 
-    printf("ouverture de %s\n",argv[1]);
+    if (is_fr)
+        printf("ouverture de %s\n",argv[1]);
+    else
+        printf("open %s\n",argv[1]);
+    
 
     if ((fr=fopen(argv[1],"rb"))==NULL)
     {
-        printf("fichier introuvable\n");
+        printf(is_fr?"fichier introuvable\n":"file not found\n");
         exit(EXIT_FAILURE);
     }
 
-    printf("ecriture de %s\n",buf);
+    if (is_fr)
+        printf("%scriture de %s\n",eacute,buf);
+    else
+        printf("write %s\n",buf);
 
     if ((fw=fopen(buf,"wb"))==NULL)
     {
-        printf("‚criture impossible\n");
+        if (is_fr)
+            printf("%scriture impossible\n",eacute);
+        else
+            printf("can't write\n");
         exit(EXIT_FAILURE);
     }
 
