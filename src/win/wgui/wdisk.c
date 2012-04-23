@@ -335,7 +335,7 @@ int CALLBACK DiskTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              SendMessage(GetDlgItem(hWnd, DISK0_MORE_BUTTON+drive), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg);
              
              /* initialisation des info-bulles */
-             create_tooltip (hWnd, DISK0_EJECT_BUTTON+drive, is_fr?"Vider la listedes fichiers":"Empty the file list");
+             create_tooltip (hWnd, DISK0_EJECT_BUTTON+drive, is_fr?"Vider la liste des fichiers":"Empty the file list");
              create_tooltip (hWnd, DISK0_MORE_BUTTON+drive, is_fr?"Ouvrir un fichier disquette":"Open a disk file");
 
          }
