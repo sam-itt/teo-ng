@@ -54,8 +54,7 @@
 
 #include "win/dialog.rh"
 
-#define license_text ""\
-"                   GNU GENERAL PUBLIC LICENSE\r\n" \
+#define license_text "                   GNU GENERAL PUBLIC LICENSE\r\n" \
 "                      Version 2, June 1991\r\n" \
 "\r\n" \
 " Copyright (C) 1989, 1991 Free Software Foundation, Inc.\r\n" \
