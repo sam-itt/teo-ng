@@ -702,7 +702,7 @@ static void PR_line_feed_144 (void)
  */
 static void print_gfx7_data (void)
 {
-    draw_column (data, 7, 2, 2);
+    draw_column (data, 7, 4, 4);
 }
 
 
@@ -908,7 +908,7 @@ static void PR_pica_positionning (void)
  */
 static void PR_line_feed (void)
 {
-    if ((gfx7_mode == 0) && (gfx_counter == 0))
+    if (gfx7_mode == 0)
     {
         print_gfx_line_feed ();
         print_text_char (0x0d);
