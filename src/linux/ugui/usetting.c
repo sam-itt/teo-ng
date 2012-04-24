@@ -92,7 +92,6 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     GtkWidget *hbox;
     GtkWidget *vbox;
     GtkWidget *widget;
-    GSList *group_speed;
     GtkWidget *frame;
 
     /* frame des commandes et réglages */
@@ -120,8 +119,7 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* bouton de vitesse exacte */
-    group_speed=gtk_radio_button_get_group (GTK_RADIO_BUTTON(widget));
-    widget=gtk_radio_button_new_with_label(group_speed, (is_fr?"exacte":"exact"));
+    widget=gtk_radio_button_new_with_label_from_widget((GtkRadioButton *) widget, (is_fr?"exacte":"exact"));
     g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_speed), (gpointer)NULL);
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.exact_speed ? TRUE : FALSE);
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
