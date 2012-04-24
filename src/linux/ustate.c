@@ -52,6 +52,7 @@
 #endif
 
 #include "intern/defs.h"
+#include "intern/printer.h"
 #include "linux/main.h"
 #include "to8.h"
 
@@ -149,10 +150,10 @@ static struct CFG_LIST *KeyPtr (char *section, char *key, struct CFG_LIST **pLis
 
 
 
-/* ValuePtr:
+/* get_string:
  * Retourne une valeur selon la section et la clef
  */
-static char *ValuePtr(char *section, char *key, char *init_value)
+static char *get_string(char *section, char *key, char *init_value)
 {
     static char *value_ptr = NULL;
     static char *p = NULL;
@@ -188,10 +189,10 @@ static void DeleteKey(char *section, char *key)
 
 
 
-/* SetValue:
+/* set_string:
  * Enregistre une valeur selon la section et la clef
  */
-static void SetValue(char *section, char *key, const char *value)
+static void set_string(char *section, char *key, const char *value)
 {
     struct CFG_LIST *list = NULL;
     struct CFG_LIST *pList = NULL;
@@ -297,39 +298,39 @@ void LoadState(char *filename)
 
     LoadCfg(filename);
 
-    str_p = ValuePtr("teo", "speed", "exact");
+    str_p = get_string("teo", "speed", "exact");
     if (strcmp(str_p, "fast") == 0)
         teo.exact_speed = FALSE;
 
-    str_p = ValuePtr("teo", "memo7", NULL);
+    str_p = get_string("teo", "memo7", NULL);
     if (str_p)
         load_error += (to8_LoadMemo7(str_p) == TO8_ERROR) ? 1 : 0;
 
-    str_p = ValuePtr("teo", "k7", NULL);
+    str_p = get_string("teo", "k7", NULL);
     if (str_p)
         load_error += (to8_LoadK7(str_p) == TO8_ERROR) ? 1 : 0;
 
-    str_p = ValuePtr("teo", "disk_0", NULL);
+    str_p = get_string("teo", "disk_0", NULL);
     if (str_p)
         load_error += (to8_LoadDisk(0, str_p) == TO8_ERROR) ? 1 : 0;
 
-    str_p = ValuePtr("teo", "disk_1", NULL);
+    str_p = get_string("teo", "disk_1", NULL);
     if (str_p)
         load_error += (to8_LoadDisk(1, str_p) == TO8_ERROR) ? 1 : 0;
 
-    str_p = ValuePtr("teo", "disk_2", NULL);
+    str_p = get_string("teo", "disk_2", NULL);
     if (str_p)
         load_error += (to8_LoadDisk(2, str_p) == TO8_ERROR) ? 1 : 0;
 
-    str_p = ValuePtr("teo", "disk_3", NULL);
+    str_p = get_string("teo", "disk_3", NULL);
     if (str_p)
         load_error += (to8_LoadDisk(3, str_p) == TO8_ERROR) ? 1 : 0;
 
-    str_p = ValuePtr("teo", "autosave", "autosave.img");
+    str_p = get_string("teo", "autosave", "autosave.img");
     if ((str_p) && (load_error == 0))
         to8_LoadImage(str_p);
 
-    str_p = ValuePtr("teo", "load_error", "no");
+    str_p = get_string("teo", "load_error", "no");
     if (strcmp(str_p, "yes") == 0)
         to8_Reset();
 
@@ -359,25 +360,25 @@ void SaveState(char *filename)
 {
     LoadCfg(filename);
 
-    SetValue("teo", "speed", teo.exact_speed ? "exact" : "fast");
+    set_string("teo", "speed", teo.exact_speed ? "exact" : "fast");
 
-    SetValue("teo", "memo7", to8_GetMemo7Filename());
+    set_string("teo", "memo7", to8_GetMemo7Filename());
 
-    SetValue("teo", "k7", to8_GetK7Filename());
+    set_string("teo", "k7", to8_GetK7Filename());
 
-    SetValue("teo", "disk_0", to8_GetDiskFilename(0));
+    set_string("teo", "disk_0", to8_GetDiskFilename(0));
 
-    SetValue("teo", "disk_1", to8_GetDiskFilename(1));
+    set_string("teo", "disk_1", to8_GetDiskFilename(1));
 
-    SetValue("teo", "disk_2", to8_GetDiskFilename(2));
+    set_string("teo", "disk_2", to8_GetDiskFilename(2));
 
-    SetValue("teo", "disk_3", to8_GetDiskFilename(3));
+    set_string("teo", "disk_3", to8_GetDiskFilename(3));
 
-    to8_SaveImage(ValuePtr("teo", "autosave", "autosave.img"));
+    to8_SaveImage(get_string("teo", "autosave", "autosave.img"));
 
     DeleteKey ("teo", "load_error");
     if (load_error != 0)
-        SetValue("teo", "load_error", "yes");
+        set_string("teo", "load_error", "yes");
 
     SaveCfg(filename);
 

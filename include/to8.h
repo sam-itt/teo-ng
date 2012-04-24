@@ -187,8 +187,6 @@ extern const char* to8_GetMemo7Label(void);
 extern const char* to8_GetMemo7Filename(void);
 extern const char* to8_GetK7Filename(void);
 extern const char* to8_GetDiskFilename(int drive);
-extern void  to8_SetPrinterFolder (char *folder);
-extern char  *to8_GetPrinterFolder (void);
 extern void to8_StartTimer (void);
 extern void to8_StopTimer (void);
 

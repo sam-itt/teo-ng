@@ -71,19 +71,13 @@ static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
     { "PR90-612", 612 }
 };
 
-static int combo_index = 0;
-static int dip_state = BST_UNCHECKED;
-static int nlq_state = BST_UNCHECKED;
-static int raw_output_state = BST_UNCHECKED;
-static int txt_output_state = BST_UNCHECKED;
-static int gfx_output_state = BST_CHECKED;
-static char folder[MAX_PATH] = "";
+static struct LPRT_CONFIG config;
 
 
 /*
  *  Callback pour la boîte de dialogue du répertoire.
  */
-int CALLBACK xmain_BrowseCallbackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+static int CALLBACK xmain_BrowseCallbackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
     if (uMsg == BFFM_INITIALIZED)
         SendMessage(hWnd, BFFM_SETSELECTION, TRUE, lpData);
@@ -143,20 +137,28 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          /* initialisation du combo */
          SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_RESETCONTENT, 0, 0);
          for (i=0; i<PRINTER_NUMBER; i++)
+         {
              SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_ADDSTRING, 0, (LPARAM) prt_list[i].name);
-         SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_SETCURSEL, combo_index, 0);
+             if (config.number == prt_list[i].number)
+                 SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_SETCURSEL, i, 0);
+         }
 
+         /* initialisation des cases à cocher */
+         state = (config.dip_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hWnd, PRINTER_DIP_CHECK, state);
+         state = (config.nlq_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hWnd, PRINTER_NLQ_CHECK, state);
+         state = (config.raw_ouput_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hWnd, PRINTER_RAW_CHECK, state);
+         state = (config.txt_output_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hWnd, PRINTER_TXT_CHECK, state);
+         state = (config.gfx_output_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hWnd, PRINTER_GFX_CHECK, state);
+         
          /* initialisation des images pour les boutons */
          himg = LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
          SendMessage(GetDlgItem(hWnd, PRINTER_MORE_BUTTON), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
 
-         /* initialisation des cases à cocher */
-         CheckDlgButton(hWnd, PRINTER_DIP_CHECK, dip_state);
-         CheckDlgButton(hWnd, PRINTER_NLQ_CHECK, nlq_state);
-         CheckDlgButton(hWnd, PRINTER_RAW_CHECK, raw_output_state);
-         CheckDlgButton(hWnd, PRINTER_TXT_CHECK, txt_output_state);
-         CheckDlgButton(hWnd, PRINTER_GFX_CHECK, gfx_output_state);
-         
          /* initialisation des textes */
          SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_RTEXT), is_fr?"Sauver dans : ":" Save in : ");
          SetWindowText(GetDlgItem(hWnd, PRINTER_CHOOSE_RTEXT), is_fr?"Imprimante : ":"Printer : ");
@@ -181,35 +183,35 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                break;
 
             case PRINTER_DIP_CHECK:
-               dip_state = IsDlgButtonChecked(hWnd, PRINTER_DIP_CHECK);
-               printer_SetDip ((dip_state == BST_CHECKED) ? TRUE : FALSE);
+               state = IsDlgButtonChecked(hWnd, PRINTER_DIP_CHECK);
+               config.dip_check = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_NLQ_CHECK:
-               nlq_state = IsDlgButtonChecked(hWnd, PRINTER_NLQ_CHECK);
-               printer_SetNlq ((nlq_state == BST_CHECKED) ? TRUE : FALSE);
+               state = IsDlgButtonChecked(hWnd, PRINTER_NLQ_CHECK);
+               config.dip_check = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_RAW_CHECK:
-               raw_output_state = IsDlgButtonChecked(hWnd, PRINTER_RAW_CHECK);
-               printer_SetRawOutput ((raw_output_state == BST_CHECKED) ? TRUE : FALSE);
+               state = IsDlgButtonChecked(hWnd, PRINTER_RAW_CHECK);
+               config.raw_output_check = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_TXT_CHECK:
-               txt_output_state = IsDlgButtonChecked(hWnd, PRINTER_TXT_CHECK);
-               printer_SetTxtOutput ((txt_output_state == BST_CHECKED) ? TRUE : FALSE);
+               state = IsDlgButtonChecked(hWnd, PRINTER_TXT_CHECK);
+               config.txt_output_check = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_GFX_CHECK:
-               gfx_output_state = IsDlgButtonChecked(hWnd, PRINTER_GFX_CHECK);
-               printer_SetGfxOutput ((gfx_output_state == BST_CHECKED) ? TRUE : FALSE);
+               state = IsDlgButtonChecked(hWnd, PRINTER_GFX_CHECK);
+               config.gfx_output_check = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_CHOOSE_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
                {
                    combo_index = SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_GETCURSEL, 0, 0);
-                   printer_SetNumber(prt_list[combo_index].number);
+                   (void)snprintf(inteface.number, MAX_PATH, "%s", prt_list[combo_index].number);
                }
                break;
          }
@@ -220,3 +222,17 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
    }
 }
 
+
+
+struct LPRT_CONFIG *printer_get_config (void)
+{
+    return config;
+}
+    
+    
+
+void printer_set_config (struct LPRT_CONFIG *new_config)
+{
+    memcpy (&config, &new_config, sizeof(struct LPRT_CONFIG));
+}
+    

@@ -575,6 +575,9 @@ int main(int argc, char *argv[])
     if (InitSound() == TO8_ERROR)
         DisplayMessage(to8_error_msg);
 
+    /* Initialisation de l'imprimante */
+    InitPrinter();
+
     to8_ColdReset();
 #ifdef DEBIAN_BUILD
     (void)snprintf (fname, MAX_PATH, "%s/.teo", getenv("HOME"));
@@ -584,18 +587,11 @@ int main(int argc, char *argv[])
     if (load_state == TRUE)
         LoadState(TEO_CONFIG_FILE);
 
-    /* Initialisation de l'imprimante */
-    InitPrinter();
-
     /* arguments supplementaires  */
     xargs_start(&xargs);
 
     /* Initialisation de l'interface utilisateur */
     InitGUI(direct_support);
-
-    /* Attend que GTK ait fini son travail */
-    while (gtk_events_pending ())
-        gtk_main_iteration ();
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'émulation...\n":"Launching emulator...\n"));

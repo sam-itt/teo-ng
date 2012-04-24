@@ -526,6 +526,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     if (!windowed_mode)   
        InitGUI(version_name, gfx_mode, FALSE);
 
+    /* Initialisation de l'imprimante */
+    InitPrinter();
+
     /* installation de la fonction callback de retraçage de l'écran nécessaire
        pour les modes fullscreen */
     set_display_switch_callback(SWITCH_IN, RetraceCallback);
@@ -538,9 +541,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     if (memo_name[0])
         to8_LoadMemo7(memo_name);
-
-    /* Initialisation de l'imprimante */
-    InitPrinter();
 
     /* arguments supplémentaires  */
     xargs_start(&xargs);

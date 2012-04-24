@@ -46,13 +46,21 @@
 #ifndef PRINTER_H
 #define PRINTER_H
 
-/* setters */
-extern void printer_SetNumber (int number);
-extern void printer_SetNlq (int state);
-extern void printer_SetDip (int state);
-extern void printer_SetRawOutput (int state);
-extern void printer_SetTxtOutput (int state);
-extern void printer_SetGfxOutput (int state);
+#include "to8.h"
+
+struct LPRT_CONFIG
+{
+    int  number;
+    int  nlq;
+    int  dip;
+    int  raw_output;
+    int  txt_output;
+    int  gfx_output;
+    char folder[MAX_PATH];
+};
+
+extern struct LPRT_CONFIG *printer_get_config (void);
+extern void  printer_set_config (struct LPRT_CONFIG *config);
 
 extern void printer_WriteData(int mask, int value);
 extern void printer_SetStrobe(int state);
