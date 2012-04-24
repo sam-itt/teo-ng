@@ -59,7 +59,7 @@
 #include "to8.h"
 
 /* ressources globales de l'application */
-#define NBTABS_MASTER 4
+#define NBTABS_MASTER 5
 HINSTANCE prog_inst;
 HWND prog_win;
 HICON prog_icon;
@@ -183,8 +183,9 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          /* Crée les onglets */
          hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting", SETTING_TAB, SettingTabProc);
          hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk", DISK_TAB, DiskTabProc);
-         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, CassetteTabProc);
-         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, CartridgeTabProc);
+         hTab[2] = CreateTab(hDlg, 2, is_fr?"K7":"Tape", K7_TAB, CassetteTabProc);
+         hTab[3] = CreateTab(hDlg, 3, is_fr?"Memo7":"Cartridge", MEMO7_TAB, CartridgeTabProc);
+         hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer", PRINTER_TAB, PrinterTabProc);
          SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, nCurrentTab, 0);
          ShowTab(hDlg);
 

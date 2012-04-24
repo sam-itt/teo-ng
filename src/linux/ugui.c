@@ -255,6 +255,7 @@ void InitGUI(int direct_disk_support)
     init_disk_notebook_frame (notebook, direct_disk_support);
     init_cass_notebook_frame (notebook);
     init_memo_notebook_frame (notebook);
+    init_printer_notebook_frame (notebook);
     gtk_notebook_set_page( GTK_NOTEBOOK(notebook), 0);
     
     /* boîte horizontale des boutons de sortie */

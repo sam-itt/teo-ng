@@ -71,6 +71,7 @@ extern void init_cass_notebook_frame (GtkWidget *notebook);
 extern void update_counter_cass (void);
 extern void free_cass_list (void);
 extern void init_setting_notebook_frame (GtkWidget *notebook);
+extern void init_printer_notebook_frame (GtkWidget *notebook);
 
 #endif
 

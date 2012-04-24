@@ -113,6 +113,7 @@ static void open_folder (HWND hWnd)
     if (SHGetPathFromIDList(pidl, (LPTSTR)folder) == TRUE)
     {
         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basename_ptr(folder));
+        to8_SetPrinterFolder (folder);
     }
 }
 
@@ -181,28 +182,34 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             case PRINTER_DIP_CHECK:
                dip_state = IsDlgButtonChecked(hWnd, PRINTER_DIP_CHECK);
+               printer_SetDip ((dip_state == BST_CHECKED) ? TRUE : FALSE);
                break;
 
             case PRINTER_NLQ_CHECK:
                nlq_state = IsDlgButtonChecked(hWnd, PRINTER_NLQ_CHECK);
+               printer_SetNlq ((nlq_state == BST_CHECKED) ? TRUE : FALSE);
                break;
 
             case PRINTER_RAW_CHECK:
                raw_output_state = IsDlgButtonChecked(hWnd, PRINTER_RAW_CHECK);
+               printer_SetRawOutput ((raw_output_state == BST_CHECKED) ? TRUE : FALSE);
                break;
 
             case PRINTER_TXT_CHECK:
                txt_output_state = IsDlgButtonChecked(hWnd, PRINTER_TXT_CHECK);
+               printer_SetTxtOutput ((txt_output_state == BST_CHECKED) ? TRUE : FALSE);
                break;
 
             case PRINTER_GFX_CHECK:
                gfx_output_state = IsDlgButtonChecked(hWnd, PRINTER_GFX_CHECK);
+               printer_SetGfxOutput ((gfx_output_state == BST_CHECKED) ? TRUE : FALSE);
                break;
 
             case PRINTER_CHOOSE_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
                {
                    combo_index = SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_GETCURSEL, 0, 0);
+                   printer_SetNumber(prt_list[combo_index].number);
                }
                break;
          }
@@ -213,38 +220,3 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
    }
 }
 
-
-int to8_PrinterDip (void)
-{
-     return (dip_state == BST_CHECKED) ? TRUE : FALSE;
-}
-
-int to8_PrinterNlq (void)
-{
-     return (nlq_state == BST_CHECKED) ? TRUE : FALSE;
-}
-
-int to8_PrinterRawOutput (void)
-{
-     return (raw_output_state == BST_CHECKED) ? TRUE : FALSE;
-}
-
-int to8_PrinterTxtOutput (void)
-{
-     return (txt_output_state == BST_CHECKED) ? TRUE : FALSE;
-}
-
-int to8_PrinterGfxOutput (void)
-{
-     return (gfx_output_state == BST_CHECKED) ? TRUE : FALSE;
-}
-
-char *to8_PrinterFolder (void)
-{
-     return folder;
-}
-
-int to8_PrinterNumber (void)
-{
-     return prt_list[combo_index].number;
-}

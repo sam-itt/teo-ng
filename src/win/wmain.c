@@ -53,6 +53,7 @@
    #include <ctype.h>
 #endif
 
+#include "intern/printer.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
@@ -537,6 +538,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     if (memo_name[0])
         to8_LoadMemo7(memo_name);
+
+    /* Initialisation de l'imprimante */
+    InitPrinter();
 
     /* arguments supplémentaires  */
     xargs_start(&xargs);

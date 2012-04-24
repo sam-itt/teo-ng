@@ -232,7 +232,7 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Cartouche":"Cartridge"));
+    widget=gtk_label_new((is_fr?"Memo7":"Cartridge"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */

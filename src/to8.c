@@ -567,7 +567,7 @@ void to8_Exit(void)
     if (!to8_alive)
         return;
 
-    pr90612_EjectPaper();
+    printer_Close();
 
     /* on libère la mémoire */
     for (i=0; i<mem.rom.nbank; i++)

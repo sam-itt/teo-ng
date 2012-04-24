@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,16 +37,27 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 24/03/2001
+ *               François Mouret 18/04/2012
  *
- *  Emulation de l'imprimante PR 90-600.
+ *  Emulation de l'imprimante.
  */
 
 
 #ifndef PRINTER_H
 #define PRINTER_H
 
-extern void pr90612_WriteData(int mask, int value);
-extern void pr90612_SetStrobe(int state);
-extern void pr90612_EjectPaper(void);
+/* setters */
+extern void printer_SetNumber (int number);
+extern void printer_SetNlq (int state);
+extern void printer_SetDip (int state);
+extern void printer_SetRawOutput (int state);
+extern void printer_SetTxtOutput (int state);
+extern void printer_SetGfxOutput (int state);
+
+extern void printer_WriteData(int mask, int value);
+extern void printer_SetStrobe(int state);
+extern void printer_Close(void);
+extern void InitPrinter(void);
 
 #endif
+

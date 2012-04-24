@@ -71,6 +71,7 @@ extern int  CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM 
 extern int  CALLBACK CassetteTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern int  CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern int  CALLBACK DiskTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern int  CALLBACK PrinterTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL CALLBACK StartDialogProc(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
 
 extern void free_cass_list (void);

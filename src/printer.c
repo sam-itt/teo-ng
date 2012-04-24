@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,45 +37,287 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 30/03/2001
+ *               François Mouret 14/04/2012
  *
- *  Emulation de l'imprimante PR 90-612.
+ *  Emulation des imprimantes PR90-055, PR90-600 et PR90-612.
  */
 
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <ctype.h>
+   #include <png.h>
 #endif
+
 
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "intern/hardware.h"
 
+#ifdef UNIX_TOOL
+#   define SLASH "/"
+#else
+#   define SLASH "\\"
+#endif
 
-/* variables générales */
-static int printer_online = FALSE;
-static int printer_nlq = FALSE;
-static int graphic_mode_enabled = FALSE;
-static int graphic_mode = 0;
-static int data = 0;
-static int last_data_time = 0;
+#define FONT_CHAR_MAX (256-32)
+#define FONT_WIDTH_MAX  32
+#define FONT_BUFFER_SIZE (FONT_CHAR_MAX*sizeof(int)*FONT_WIDTH_MAX)
 
-/* mode texte */
-static FILE *paper = NULL;
-static int sheet_counter = 0;
+enum {
+    FACE_NORMAL = 0,
+    FACE_ITALIC,
+    FACE_PROPORTIONAL,
+    FACE_SUPERSCRIPT,
+    FACE_SUBSCRIPT
+};
 
-/* mode graphique */
-static FILE *gfx_paper = NULL;
-static int gfx_sheet_counter = 0;
-static int line_counter = 0;
-static int data_counter = 0;
+enum {
+    GFX8_RUN = 0,
+    GFX16_RUN,
+    SCREENPRINT_RUN
+};
+
+enum {
+    BINARY_VALUE = 0,
+    DIGIT_VALUE
+};
+
+struct LPRT_COUNTER
+{
+    int  mode;
+    int  count;
+    int  length;
+    int  value;
+    int  valid;
+    void (*jump)();
+};
+
+struct LPRT_PAPER
+{
+    int  type;
+    int  x;
+    int  y;
+    int  width;
+    int  height;
+    int  left_margin;
+    int  lf_size;
+    int  pixels_per_inch;
+    int  chars_per_line;
+    char *buffer;
+};
+
+struct LPRT_FONT
+{
+    int  type;
+    char name[6];
+    int  count;
+    int  width;
+    int  height;
+    int  fixed_width;
+    int  dot_width;
+    int  dot_height;
+    int  *buffer;
+    char prop_width[FONT_CHAR_MAX];
+};
+
+struct LPRT_INTERFACE
+{
+    int  number;
+    int  nlq;
+    int  dip;
+    int  raw_output;
+    int  txt_output;
+    int  gfx_output;
+    char folder[MAX_PATH];
+};
+
+
+static FILE *fp_text = NULL;
+static FILE *fp_raw = NULL;
+static int  file_counter = 0;
+static int  data;
+static int  pica_width;
+static int  double_width;
+static int  underline;
+static int  bold;
+static int  last_data_time = 0;
+static struct LPRT_PAPER paper;
+static struct LPRT_FONT font;
+static struct LPRT_COUNTER counter;
+static struct LPRT_INTERFACE printer[2];
+static int  val16 = 0;
+static int  flag16 = 0;
+static int  gfx7_mode = 0;
+static void (*gfx_prog)();
+static int  gfx_counter = 0;
+
+static int  printer_online = FALSE;
+static void (*prog)();
+static void (*restart_prog)();
+
+static void pr90055_start (void);
+static void pr906xx_first (void);
 
 
 
-/**********************************/
-/******** sortie graphique ********/
-/**********************************/
+/* print_raw_char:
+ *  Ecrit un caractère brut.
+ */
+static void print_raw_char (int c)
+{
+    char path[MAX_PATH+1] = "";
+
+    if (!printer[0].raw_output)
+        return;
+
+    if (fp_raw == NULL)
+    {
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", printer[0].folder, SLASH, file_counter);
+        fp_raw = fopen (path, "wb");
+        if (fp_raw == NULL)
+            return;
+    }
+    fputc (c, fp_raw);
+    fflush (fp_raw);
+}
 
 
+
+/* print_text_char:
+ *  Ecrit un caractère texte.
+ */
+static void print_text_char (int c)
+{
+    char path[MAX_PATH+1] = "";
+
+    if (!printer[0].txt_output)
+        return;
+
+    if (fp_text == NULL)
+    {
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", printer[0].folder, SLASH, file_counter);
+        fp_text = fopen (path, "wb");
+        if (fp_text == NULL)
+            return;
+    }
+    fputc (c, fp_text);
+    fflush (fp_text);
+}
+
+
+
+/* print_drawable_text_char:
+ *  Ecrit un caractère texte affichable.
+ */
+static void print_drawable_text_char (int c)
+{
+    if (c >= 0xa0)
+    {
+        switch (c)
+        {
+            case 0xa1 : c = (int)'ä'; break;
+            case 0xa2 : c = (int)'à'; break;
+            case 0xa3 : c = (int)'â'; break;
+            case 0xa4 : c = (int)'É'; break;
+            case 0xa5 : c = (int)'È'; break;
+            case 0xa6 : c = (int)'é'; break;
+            case 0xa7 : c = (int)'è'; break;
+            case 0xa8 : c = (int)'ê'; break;
+            case 0xab : c = (int)'ß'; break;
+            case 0xac : c = (int)'ë'; break;
+            case 0xad : c = (int)'î'; break;
+            case 0xae : c = (int)'ï'; break;
+            case 0xb1 : c = (int)'Ä'; break;
+            case 0xb2 : c = (int)'Ö'; break;
+            case 0xb3 : c = (int)'ô'; break;
+            case 0xb4 : c = (int)'Ü'; break;
+            case 0xb5 : c = (int)'ü'; break;
+            case 0xb6 : c = (int)'ù'; break;
+            case 0xb7 : c = (int)'û'; break;
+            case 0xb9 : c = (int)'£'; break;
+            case 0xbb : c = (int)'§'; break;
+            case 0xc2 : c = (int)'¡'; break;
+            case 0xc3 : c = (int)'¿'; break;
+            case 0xc4 : c = (int)'Ñ'; break;
+            case 0xc5 : c = (int)'ñ'; break;
+            case 0xd0 : c = (int)'ö'; break;
+            case 0xd1 : c = (int)'ç'; break;
+            case 0xd2 : c = (int)'°'; break;
+            default   : c = (int)' '; break;
+        }
+    }
+    print_text_char (c);
+}
+
+
+
+/* gfx_eject:
+ *  Ejecte le tirage BMP.
+ */
+static void gfx_eject (void)
+{
+    FILE *file;
+    int y;
+    int ppw = paper.width/8;
+    int pph = paper.height;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    char path[MAX_PATH+1] = "";
+    
+
+    paper.x = paper.left_margin;
+    paper.y = 0;
+
+    if (!printer[0].gfx_output || (paper.buffer == NULL))
+        return;
+
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", printer[0].folder, SLASH, file_counter);
+	
+    file = fopen(path, "wb");
+    if (file != NULL)
+    {
+       /* initialize png write structure */
+       png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+       if (png_ptr != NULL)
+       {
+          /* initialize png info structure */
+          info_ptr = png_create_info_struct(png_ptr);
+          if (info_ptr != NULL)
+          {
+             /* setup png exception handling */
+             if (setjmp(png_jmpbuf(png_ptr)) == 0)
+             {
+                png_init_io(png_ptr, file);
+
+                /* header */
+                png_set_IHDR (png_ptr, info_ptr, paper.width, paper.height,
+                             1, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
+                             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+                png_write_info(png_ptr, info_ptr);
+                png_set_invert_mono(png_ptr);
+
+                /* bitmap */
+                for (y=0; y<pph; y++)
+                    png_write_row (png_ptr, (png_bytep)(paper.buffer+y*ppw));
+
+                /* finished write */
+                png_write_end(png_ptr, NULL);
+             }
+             png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+          }
+          png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+       }
+       fclose (file);
+    }
+    free (paper.buffer);
+    paper.buffer = NULL;
+}
+
+
+#if 0
 /* fputw: 
  *  Helper pour écrire en little endian un entier 16-bit
  *  quel que soit son format natif.
@@ -109,256 +351,1024 @@ static void fputl(int val, FILE *file)
 } 
 
 
-#define GFX_WIDTH  320
 
-
-/* OpenGraphicMode:
- *  Ouvre le mode d'impression graphique.
+/* gfx_eject:
+ *  Ejecte le tirage BMP.
  */
-static int OpenGraphicMode(void)
+static void gfx_eject (void)
 {
-    char filename[13];
+    FILE *file;
+    int y;
+    int ppw = paper.width/8;
+    int pph = paper.height;
+    char path[MAX_PATH+1] = "";
 
-    sprintf(filename, "pict%03d.bmp", gfx_sheet_counter);
-    gfx_paper = fopen(filename, "wb");
+    paper.x = paper.left_margin;
+    paper.y = 0;
 
-    if (!gfx_paper)
-    {
-        graphic_mode = FALSE;
-        return -1;
-    }
+    if ((!printer[0].gfx_output || (paper.buffer == NULL))
+        return;
+
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bmp", printer[0].folder, SLASH, file_counter);
+
+    writePng (path, paper.width, paper.height);
+
+    file = fopen (path, "wb");
+    if (file == NULL)
+        return;
 
     /* file header */
-    fputw(0x4D42, gfx_paper);      /* bfType ("BM") */
-    fputl(0, gfx_paper);           /* bfSize        */
-    fputw(0, gfx_paper);           /* bfReserved1   */
-    fputw(0, gfx_paper);           /* bfReserved2   */
-    fputl(62, gfx_paper);          /* bfOffBits     */
+    fputw(0x4D42, file);      /* bfType ("BM")  */
+    fputl(62+ppw*pph, file);  /* bfSize         */
+    fputw(0, file);           /* bfReserved1    */
+    fputw(0, file);           /* bfReserved2    */
+    fputl(62, file);          /* bfOffBits      */
 
     /* info header */
-    fputl(40, gfx_paper);          /* biSize          */
-    fputl(GFX_WIDTH, gfx_paper);   /* biWidth         */
-    fputl(0, gfx_paper);           /* biHeight        */
-    fputw(1, gfx_paper);           /* biPlanes        */
-    fputw(1, gfx_paper);           /* biBitCount      */
-    fputl(0, gfx_paper);           /* biCompression   */
-    fputl(0, gfx_paper);           /* biSizeImage     */
-    fputl(3790, gfx_paper);        /* biXPelsPerMeter */
-    fputl(3780, gfx_paper);        /* biYPelsPerMeter */
-    fputl(0, gfx_paper);           /* biClrUsed       */
-    fputl(0, gfx_paper);           /* biClrImportant  */
+    fputl(40, file);          /* biSize          */
+    fputl(paper.width, file); /* biWidth         */
+    fputl(pph, file);         /* biHeight        */
+    fputw(1, file);           /* biPlanes        */
+    fputw(1, file);           /* biBitCount      */
+    fputl(0, file);           /* biCompression   */
+    fputl(ppw*pph, file);     /* biSizeImage */  
+    fputl(3790, file);        /* biXPelsPerMeter */
+    fputl(3780, file);        /* biYPelsPerMeter */
+    fputl(0, file);           /* biClrUsed       */
+    fputl(0, file);           /* biClrImportant  */
 
-    /* color header */ 
-    fputl(0xFFFFFF, gfx_paper);    /* bcRGBBackground */
-    fputl(0, gfx_paper);           /* bcRGBForeground */
+     /* color header */ 
+    fputl(0xFFFFFF, file);    /* bcRGBBackground */
+    fputl(0, file);           /* bcRGBForeground */
 
-    line_counter = 0;
-    data_counter = 0;
-
-    return 0;
-}
-
-
-
-/* PutGraphicData:
- *  Imprime un octet graphique.
- */
-static void PutGraphicData(int data)
-{
-    if (!gfx_paper)
-        if (OpenGraphicMode() != 0)
-            return;
-
-    fputc(data, gfx_paper);
-
-    data_counter++;
-    if (data_counter == GFX_WIDTH/8)
+    /* bitmap */
+    for (y=pph-1; y>=0; y--)
     {
-        line_counter++;
-        data_counter = 0;
+        (void)fwrite (paper.buffer+y*ppw, 1, ppw, file);
+        fflush(file);
+    }
+
+    fclose(file);
+    free (paper.buffer);
+    paper.buffer = NULL;
+}
+#endif
+
+
+/* print_gfx_line_feed:
+ *  Effectue un passage de ligne en mode graphique.
+ */
+static void print_gfx_line_feed (void)
+{
+    paper.y += paper.lf_size;
+    paper.x = paper.left_margin;
+    if (paper.y + paper.lf_size > paper.height)
+    {
+        gfx_eject ();
+        file_counter++;
     }
 }
 
 
 
-/* CloseGraphicMode:
- *  Ferme le mode d'impression graphique.
+/* draw_pixel:
+ *  Ecrit un pixel.
  */
-static void CloseGraphicMode(void)
+static void draw_pixel (int y, int width, int height)
 {
-    char filename[13];
-    int i;
+    int  pixel;
+    char *p;
+    char *pline;
+    int px, py;
 
-    if (!gfx_paper)
+    if (!printer[0].gfx_output)
         return;
 
-    if (data_counter)
+    if (paper.buffer == NULL)
     {
-        for (i=data_counter; i<GFX_WIDTH/8; i++)
-            fputc(0xFF, gfx_paper);
-
-        line_counter++;
+        paper.buffer = calloc (1, (paper.width/8)*paper.height);
+        if (paper.buffer == NULL)
+            return;
     }
 
-    fclose(gfx_paper);
+    pline = paper.buffer + ((paper.y + y) * (paper.width >> 3));
 
-    sprintf(filename, "pict%03d.bmp", gfx_sheet_counter);
-
-    gfx_paper = fopen(filename, "rb+");
-    fseek(gfx_paper, 2, SEEK_SET);
-    fputl(62+GFX_WIDTH/8*line_counter, gfx_paper);   /* bfSize      */
-    fseek(gfx_paper, 22, SEEK_SET);
-    fputl(line_counter, gfx_paper);                  /* biHeight    */
-    fseek(gfx_paper, 34, SEEK_SET);
-    fputl(GFX_WIDTH/8*line_counter, gfx_paper);      /* biSizeImage */
-
-    fclose(gfx_paper);
-    gfx_paper = NULL;
-    gfx_sheet_counter++;
+    for (px=0; px<width; px++)
+    {
+        if ((paper.x + px) < paper.width)
+        {
+            p = pline + ((paper.x + px) >> 3);
+            pixel = 1 << (~(paper.x + px) & 7);
+            for (py=0; py<height; py++)
+            {
+                if ((paper.y + py + y) < paper.height)
+                    *p |= pixel;
+                p += (paper.width >> 3);
+            }
+        }
+    }
 }
 
 
 
-/**********************************/
-/********* sortie texte ***********/
-/**********************************/
-
-
-/* OpenTextMode:
- *  Ouvre le mode d'impression texte.
+/* draw_column:
+ *  Ecrit une colonne de points.
  */
-static int OpenTextMode(void)
+static void draw_column (int column, int length,
+                           int pixel_width, int pixel_height)
 {
-    char filename[13];
+    int y;
 
-    sprintf(filename, "sheet%03d.txt", sheet_counter);
-    paper = fopen(filename, "w");
-
-    if (!paper)
-        return -1;
-
-    return 0;
+    for (y = 0; y < length; y++)
+    {
+        if ((column & (1 << y)) != 0)
+        {
+            draw_pixel (y * pixel_height, pixel_width, pixel_height);
+        }
+    }
+    paper.x += pixel_width;
 }
 
 
 
-/* PutTextData:
- *  Imprime un octet de texte.
+/* print_drawable_gfx_char:
+ *  Ecrit un caractère affichable.
  */
-static void PutTextData(int data)
+static void print_drawable_gfx_char (int c)
 {
-    if (!paper)
-        if (OpenTextMode() != 0)
-            return;
+    int x;
+    int x_max;
+    int dot_width = font.dot_width << double_width;
+    int dot_height = font.dot_height << 1;
+    int column;
 
-    fputc(data, paper);
+    /* special chars */
+    if (c >= 0xa0)
+    {
+        switch (c)
+        {
+            case 0xa1 : c = 0x80; break;
+            case 0xa2 : c = 0x81; break;
+            case 0xa3 : c = 0x82; break;
+            case 0xa4 : c = 0x83; break;
+            case 0xa5 : c = 0x84; break;
+            case 0xa6 : c = 0x85; break;
+            case 0xa7 : c = 0x86; break;
+            case 0xa8 : c = 0x87; break;
+            case 0xab : c = 0x88; break;
+            case 0xac : c = 0x89; break;
+            case 0xad : c = 0x8a; break;
+            case 0xae : c = 0x8b; break;
+            case 0xb1 : c = 0x8c; break;
+            case 0xb2 : c = 0x8d; break;
+            case 0xb3 : c = 0x8e; break;
+            case 0xb4 : c = 0x8f; break;
+            case 0xb5 : c = 0x90; break;
+            case 0xb6 : c = 0x91; break;
+            case 0xb7 : c = 0x92; break;
+            case 0xb9 : c = 0x93; break;
+            case 0xbb : c = 0x94; break;
+            case 0xc2 : c = 0x95; break;
+            case 0xc3 : c = 0x96; break;
+            case 0xc4 : c = 0x97; break;
+            case 0xc5 : c = 0x98; break;
+            case 0xd0 : c = 0x99; break;
+            case 0xd1 : c = 0x9a; break;
+            case 0xd2 : c = 0x9b; break;
+            default   : c = 0x20; break;
+        }
+    }
+
+    /* draw char */
+    
+    x_max = (font.type == FACE_PROPORTIONAL) ? (int)font.prop_width[data-0x20] : font.fixed_width;
+
+    if (paper.x + x_max > paper.width)
+        print_gfx_line_feed ();
+
+    for (x = 0; x < x_max; x++)
+    {
+        column = (font.buffer == NULL) ? 0 : font.buffer[(c-0x20)*FONT_WIDTH_MAX+x];
+    
+        if (underline != 0)
+            column |= 1  << (font.height - 1);
+
+        draw_column (column, font.height, dot_width, dot_height);
+
+        if (bold != 0)
+        {
+            draw_column (column, font.height, 2, dot_height);
+            paper.x -= 2;
+        }
+    }
 }
 
 
 
-/* CloseTextMode:
- *  Ferme le mode d'impression texte.
+/* print_drawable_char:
+ *  Ecrit un caractère affichable.
  */
-static void CloseTextMode(void)
+static void print_drawable_char (void)
 {
-    if (!paper)
+    /* char filtering */
+    if (((data & 0x7f) < 32)
+     || ((data >= 0xa0) && (printer[0].number != 612)))
         return;
 
-    fputc('\n', paper);
-    fclose(paper);
-    paper = NULL;
-    sheet_counter++;
+    print_drawable_text_char (data);
+    print_drawable_gfx_char (data);
 }
 
 
 
-/**********************************/
-/********** commandes *************/
-/**********************************/
-
-
-/* WriteData:
- *  Ecrit un octet sur le port de donnée.
+/* PR_forget:
+ *  Oublie la commande courante.
  */
-void pr90612_WriteData(int mask, int value)
+static void PR_forget (void)
 {
-    data = (value & mask) | (data & (mask^0xFF));
+    prog = restart_prog;
 }
 
 
 
-/* EjectPaper:
- *  Ejecte le papier de l'imprimante.
+/* read_value:
+ *  Récupère un compteur.
  */
-void pr90612_EjectPaper(void)
+static void read_counter (void)
 {
-    if (graphic_mode)
-        CloseGraphicMode();
+    counter.count++;
+    switch (counter.mode)
+    {
+        case DIGIT_VALUE :
+            counter.value = (counter.value * 10) + (data - '0');
+            counter.valid += (isdigit((int)data) != 0) ? 1 : 0;
+            break;
+        case BINARY_VALUE :
+            counter.value = (counter.value << 8) + data;
+            counter.valid++;
+            break;
+    }
+    if (counter.count == counter.length)
+    {
+        if (counter.valid == counter.length)
+            (*counter.jump)();
+        else
+            PR_forget ();
+    }
+}
+
+
+
+/* set_read_counter:
+ *  Initialise une lecture de compteur.
+ */
+static void set_read_counter (int mode, int length, void (*jump)())
+{
+    counter.value = 0;
+    counter.count = 0;
+    counter.valid = 0;
+    counter.mode = mode;
+    counter.length = length;
+    counter.jump = jump;
+    prog = read_counter;
+}
+
+
+
+/* PR_left_margin:
+ *  Marge gauche en caractères.
+ */
+static void PR_left_margin (void)
+{
+    int value = counter.value * pica_width;
+    
+    if (value < 936)
+        paper.left_margin = value;
+    PR_forget();
+}
+
+
+
+/* PR_dot_print_position:
+ *  Colonne de début d'impression en points.
+ */
+static void PR_dot_print_position (void)
+{
+    int value = paper.left_margin + (counter.value * 2);
+
+    if (value < paper.width)
+        paper.x = value;
+    PR_forget ();
+}
+
+
+
+/* PR_space_dot:
+ *  Espacement en points.
+ */
+static void PR_space_dot (void)
+{
+    paper.x += counter.value;
+    PR_forget ();
+}
+
+
+
+/* PR_line_feed_per_inch:
+ *  Taille d'interligne spéciale.
+ */
+static void PR_line_feed_per_inch (int nblines)
+{
+    paper.lf_size = paper.pixels_per_inch / nblines;
+    PR_forget();
+}
+
+
+
+/* PR_line_feed_144:
+ *  Taille d'interligne par 144ème de pouce.
+ */
+static void PR_line_feed_144 (void)
+{
+    paper.lf_size = counter.value;
+    PR_forget();
+}
+
+
+
+/* print_gfx7_data:
+ *  Ecrit une colonne graphique 7 points.
+ */
+static void print_gfx7_data (void)
+{
+    draw_column (data, 7, 2, 2);
+}
+
+
+
+/* PR_gfx7:
+ *  Programme le mode graphique 7 points.
+ */
+static void PR_gfx7 (void)
+{
+    gfx7_mode = 0x80;
+    PR_forget ();
+}
+
+
+
+/* print_gfx8_data:
+ *  Ecrit une colonne graphique 8 points.
+ */
+static void print_gfx8_data (void)
+{
+    draw_column (data, 8, 2, 4);
+}
+
+
+
+/* PR_gfx8:
+ *  Programme l'impression de colonnes graphiques 8 points.
+ */
+static void PR_gfx8 (void)
+{
+    gfx_prog = print_gfx8_data;
+    gfx_counter = counter.value;
+    PR_forget ();
+}
+
+
+
+/* print_gfx16_data:
+ *  Ecrit une colonne graphique 16 points.
+ */
+static void print_gfx16_data (void)
+{
+    if ((flag16 ^= 1) == 1)
+    {
+        val16 = data;
+        gfx_counter++;
+    }
     else
-        CloseTextMode();
+    {
+        val16 |= data << 8;
+        draw_column (val16, 16, 2, 2);
+    }
 }
+
+
+
+/* PR_gfx16:
+ *  Programme l'impression de colonnes graphiques 16 points.
+ */
+static void PR_gfx16 (void)
+{
+    gfx_prog = print_gfx16_data;
+    gfx_counter = counter.value;
+    PR_forget ();
+}
+
 
 
 #define GRAPHIC_MODE_DELAY  0.08*TO8_CPU_FREQ
 
-
-/* SetStrobe:
- *  Change l'état de la STROBE.
+/* print_screen_data:
+ *  Ecrit un octet graphique 8 points.
  */
-void pr90612_SetStrobe(int state)
+static void print_screen_data (void)
 {
-    if (!printer_online)
+    int i;
+    int pixel_size = (printer[0].number >= 600) ? 3 : 2;
+
+    if ((mc6809_clock() - last_data_time) < GRAPHIC_MODE_DELAY)
+    {
+        gfx_counter = 0;
         return;
-
-    if (state)
-    {
-        mc6846.prc &= 0xBF;  /* BUSY à 0 */
-        return;
     }
 
-    if (graphic_mode)
+    last_data_time = mc6809_clock();
+
+    for (i=0x80; i>0; i>>=1)
     {
-        if ((mc6809_clock() - last_data_time) < GRAPHIC_MODE_DELAY)
-        {
-            last_data_time = mc6809_clock();
-            PutGraphicData(data);
-            mc6846.prc |= 0x40;  /* BUSY à 1 */
-            return;
-        }
-        else
-        {
-            last_data_time = 0;
-            CloseGraphicMode();
-            graphic_mode = FALSE;
-        }
+        if (data & i)
+           draw_pixel (0, pixel_size, pixel_size);
+        paper.x += pixel_size;
     }
-    
-    /* text mode */
-    switch (data)
+    if ((gfx_counter % 40) == 0)
     {
-        case 7:  /* Copy */
-            if (!graphic_mode && graphic_mode_enabled)
-            {
-                CloseTextMode();
-                graphic_mode = TRUE;
-                last_data_time = mc6809_clock();
-            }
-            else
-                PutTextData(data);
-            break;
-
-        case 12:  /* Form Feed */
-            CloseTextMode();
-            break;
-
-        default:
-            PutTextData(data);
-            break;
+        paper.x = 0;
+        paper.y += pixel_size;
     }
-
-    mc6846.prc |= 0x40;  /* BUSY à 1 */
 }
 
+
+
+/* PR_screenprint:
+ *  Active la copie graphique d'écran.
+ */
+static void PR_screenprint (void)
+{
+    gfx_prog = print_screen_data;
+    last_data_time = mc6809_clock();
+    gfx_counter = 8000;
+}
+
+
+
+/* PR_repeat_gfx7:
+ *  Programme la répétition d'une colonne graphique 7 points.
+ */
+static void PR_repeat_gfx7 (void)
+{
+    int i;
+
+    for (i=0; i<counter.value; i++)
+        print_gfx7_data ();
+    PR_forget ();
+}
+          
+
+
+/* PR_repeat_gfx8:
+ *  Programme la répétition d'une colonne graphique 8 points.
+ */
+static void PR_repeat_gfx8 (void)
+{
+    int i;
+
+    for (i=0; i<counter.value; i++)
+        print_gfx8_data ();
+    PR_forget ();
+}
+          
+
+
+/* PR_repeat_gfx16:
+ *  Programme la répétition d'une colonne graphique 16 points.
+ */
+static void PR_repeat_gfx16 (void)
+{
+    int i;
+
+    val16 = ((val16 << 8) | data) & 0xffff;
+
+    if ((flag16 ^= 1) == 0)
+        return;
+
+    for (i=0; i<counter.value; i++)
+        draw_column (val16, 16, 2, 2);
+    PR_forget ();
+}
+
+
+
+/* PR_print_position:
+ *  Position d'impression graphique.
+ */
+static void PR_print_position (void)
+{
+    if (counter.value < 960)
+        paper.x = counter.value * 2;
+    PR_forget();
+}
+
+
+
+/* PR_char_positionning:
+ *  Positionne l'impression à partir du caractère spécifié.
+ */
+static void PR_char_positionning (void)
+{
+    int value = paper.left_margin + (counter.value * ((font.fixed_width
+                                    * font.dot_width) << double_width));
+    if (value < paper.width)
+        paper.x = value;
+    PR_forget ();
+}
+
+
+
+/* PR_pica_positionning:
+ *  Positionne l'impression à partir du caractère 'Pica' spécifié.
+ */
+static void PR_pica_positionning (void)
+{
+    paper.x = paper.left_margin + (counter.value * pica_width);
+    if (paper.x > paper.width)
+        paper.x = 0;
+    PR_forget ();
+}
+
+
+
+/* PR_line_feed:
+ *  Passe à la ligne suivante.
+ */
+static void PR_line_feed (void)
+{
+    if ((gfx7_mode == 0) && (gfx_counter == 0))
+    {
+        print_gfx_line_feed ();
+        print_text_char (0x0d);
+        print_text_char (0x0a);
+    }
+}        
+
+
+
+/* PR_line_start:
+ *  Retour en début de ligne courante.
+ */
+static void PR_line_start (void)
+{
+    paper.x = 0;
+}    
+
+
+
+/* PR_line_start:
+ *  Retour en début de ligne courante.
+ */
+static void PR_line_start_dip (void)
+{
+    if (printer[0].dip == FALSE)
+        PR_line_start ();
+    else
+        PR_line_feed ();
+}    
+
+
+
+/* PR_form_feed:
+ *  Passe la page.
+ */
+static void PR_form_feed (void)
+{
+    int i;
+
+    gfx_eject ();
+
+    for (i=0; i<12; i++)
+    {
+        print_text_char (0x0d);
+        print_text_char (0x0a);
+    }
+    file_counter++;
+} 
+
+
+
+/* load_font:
+ *  Charge un générateur de caractères imprimante.
+ */
+static void load_font (char *filename, int face)
+{
+    FILE *file;
+    int  i, x, y;
+    int  xp = 0, yp = 0;
+    char str[150+1] = "";
+    char *p;
+    char *res;
+
+    if (font.buffer == NULL)
+    {
+        font.buffer = malloc (FONT_CHAR_MAX*sizeof(int)*FONT_WIDTH_MAX);
+        if (font.buffer == NULL)
+            return;
+    }
+
+    /* open file */
+    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, printer[0].number);
+    if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
+    {
+        (void)snprintf (str, 150, "fonts%s%s.txt", SLASH, filename);
+        if (face == FACE_SUBSCRIPT) yp = 7;
+    }
+    file = fopen (str, "rb");
+
+    /* skip comments */
+    while ((*str < '0') || (*str > '9'))
+        res=fgets (str, 150, file);
+
+    /* load font parameters */
+    font.type = face;
+    font.count  = (int)strtol (str, &p, 10);
+    font.width  = (int)strtol (p, &p, 10);
+    font.height = (int)strtol (p, &p, 10);
+    font.fixed_width = (int)strtol (p, &p, 10);
+    font.dot_width = (int)strtol (p, &p, 10);
+    font.dot_height = (int)strtol (p, &p, 10);
+    memset (font.prop_width, font.fixed_width, FONT_CHAR_MAX);
+    memset (font.buffer, 0x00, FONT_CHAR_MAX*sizeof(int)*FONT_WIDTH_MAX);
+
+    /* load matrix */
+    for (i=0; i<font.count; i++)
+    {
+        res=fgets (str, 150, file);
+        font.prop_width[i] = (char)strtol (str, &p, 10);
+
+        for (y=yp; y<font.height+yp; y++)
+        {
+             res=fgets (str, 150, file);
+
+             if (face == FACE_ITALIC)
+                 xp = (font.height+yp-1-y)/2;
+
+             for (x=xp; x<font.width+xp; x++)
+                  if (str[x-xp] == '0')
+                      font.buffer[i*FONT_WIDTH_MAX+x] |= 1 << y;
+        }
+    }
+    font.height += yp;
+    fclose(file);
+}
+
+
+
+/* PR_load_font:
+ *  Charge un jeu de caractères d'imprimante.
+ */
+static void PR_load_font (char *filename, int face)
+{
+    load_font (filename, face);
+    PR_forget ();
+}
+
+
+
+/* eject_paper:
+ *  Ferme les fichiers ouverts et la mémoire de la sortie graphique.
+ */
+static void eject_paper (void)
+{
+    if (printer[0].gfx_output && (fp_raw != NULL))
+    {
+        fclose (fp_raw);
+        fp_raw = NULL;
+    }
+        
+    if (printer[0].txt_output && (fp_text != NULL))
+    {
+        PR_line_feed ();
+        fclose (fp_text);
+        fp_text = NULL;
+    }
+
+    gfx_eject();
+    
+    file_counter++;
+}
+
+
+
+/* PR_page_length:
+ *  Nombre de lignes par page.
+ */
+static void PR_page_length (void)
+{
+    if ((counter.value > 0) && (counter.value < 100))
+    {
+        eject_paper();
+        paper.height = counter.value * (paper.pixels_per_inch / 6);
+    }
+    PR_forget();
+}
+
+
+
+/* PR_underline:
+ *  Passe en mode souligné.
+ */
+static void PR_underline (void)
+{
+    underline = 1;
+    PR_forget();
+}
+
+
+
+/* PR_no_underline:
+ *  Quitte le mode souligné.
+ */
+static void PR_no_underline (void)
+{
+    underline = 0;
+    PR_forget();
+}
+
+
+
+/* PR_bold:
+ *  Passe en mode caractères gras.
+ */
+static void PR_bold (void)
+{
+    bold = 1;
+    PR_forget();
+}
+
+
+
+/* PR_thin:
+ *  Passe en mode caractères maigres.
+ */
+static void PR_thin (void)
+{
+    bold = 0;
+    PR_forget();
+}
+
+
+
+/* PR_double_width:
+ *  Passe en mode double largeur.
+ */
+static void PR_double_width (void)
+{
+    double_width = 1;
+    PR_forget();
+}
+
+
+
+/* PR_simple_width:
+ *  Passe en mode simple largeur.
+ */
+static void PR_simple_width (void)
+{
+    double_width = 0;
+    PR_forget();
+}
+
+
+
+/* reinit_printer:
+ *  Réinitialise l'imprimante.
+ */
+static void reinit_printer (void)
+{
+    eject_paper();
+    load_font("picas", FACE_NORMAL);
+    pica_width = 24;
+    paper.pixels_per_inch = 288;
+    PR_line_feed_per_inch(6);
+    paper.left_margin = 0;
+    paper.width = pica_width*paper.chars_per_line;
+    paper.height = ((paper.width*29.7)/21)+1;
+    double_width = 0;
+    underline = 0;
+    bold = 0;
+}
+
+
+
+/* PR_reset:
+ *  Réinitialise l'imprimante.
+ */
+static void PR_reset (void)
+{
+    reinit_printer();
+    PR_forget();
+}
+
+
+/* ----------------------- PR90-600 / PR90-612 ----------------------- */
+
+
+/* pr906xx_init:
+ *  Initialise les imprimantes PR90-600 et PR90-612.
+ */
+static void pr906xx_init (void)
+{
+    paper.chars_per_line = 80;
+    reinit_printer();
+    prog = pr906xx_first;
+    restart_prog = prog;
+};
+
+
+
+/* clear_gfx7_mode:
+ *  Sort du mode gfx7.
+ */
+void clear_gfx7_mode(void)
+{
+    if (gfx7_mode != 0)
+    {
+        gfx7_mode = 0;
+        PR_line_feed ();
+    }
+}
+
+
+/* pr906xx_escape:
+ *  Traite le code introduit par ESC pour les PR90-600 et PR90-612.
+ */
+static void pr906xx_escape (void)
+{
+    switch (data)
+    {
+        case 16 : set_read_counter (BINARY_VALUE, 2, PR_print_position); return;
+    }
+
+    clear_gfx7_mode();
+    
+    switch ((char)data)
+    {
+        case 14 : PR_double_width(); break;
+        case 15 : PR_simple_width(); break;
+        case 'N': PR_load_font((printer[0].nlq) ? "picac" : "picas", FACE_NORMAL); break;
+        case 'E': PR_load_font((printer[0].nlq) ? "elitc" : "elits", FACE_NORMAL); break;
+        case 'C': PR_load_font("condc", FACE_NORMAL); break;
+        case 'b': PR_load_font((printer[0].nlq) ? "picac" : "picas", FACE_ITALIC); break;
+        case 'p': PR_load_font((printer[0].nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
+        case 'H': PR_load_font("picac", FACE_NORMAL); break;
+        case 'Q': PR_load_font("elitc", FACE_NORMAL); break;
+        case 'B': PR_load_font("picac", FACE_ITALIC); break;
+        case 'P': PR_load_font("picac", FACE_PROPORTIONAL); break;
+        case 'U': PR_load_font("tiny" , FACE_SUPERSCRIPT); break;
+        case 'D': PR_load_font("tiny" , FACE_SUBSCRIPT); break;
+        case '6': PR_line_feed_per_inch(6); break;
+        case '8': PR_line_feed_per_inch(8); break;
+        case '9': PR_line_feed_per_inch(9); break;
+        case '7': PR_line_feed_per_inch(12); break;
+        case 'T': set_read_counter (DIGIT_VALUE, 2, PR_line_feed_144); break;
+        case 'Z': set_read_counter (DIGIT_VALUE, 3, PR_page_length); break;
+        case 'X': PR_underline(); break;
+        case 'Y': PR_no_underline(); break;
+        case '#': PR_bold(); break;
+        case '$': PR_thin(); break;
+        case 'G': set_read_counter (DIGIT_VALUE, 3, PR_gfx8); break;
+        case 'I': set_read_counter (DIGIT_VALUE, 3, PR_gfx16); break;
+        case 'V': set_read_counter (DIGIT_VALUE, 3, PR_repeat_gfx8); break;
+        case 'W': set_read_counter (DIGIT_VALUE, 3, PR_repeat_gfx16); break;
+        case '@': PR_reset(); break;
+        case 'L': set_read_counter (DIGIT_VALUE , 3, PR_left_margin); break;
+        case 'F': set_read_counter (DIGIT_VALUE , 3, PR_dot_print_position); break;
+        case 'S': set_read_counter (DIGIT_VALUE , 1, PR_space_dot); break;
+        default : PR_forget(); break;
+    }
+}
+
+
+
+/* pr906xx_first:
+ *  Traite le code de tête pour les PR90-600 et PR90-612.
+ */
+static void pr906xx_first (void)
+{
+    val16 = 0;
+    flag16 = 0;
+
+    switch (data)
+    {
+        case 10 : PR_line_feed(); return;
+        case 13 : PR_line_start_dip(); return;
+        case 20 : PR_line_start(); return;
+        case 16 : set_read_counter (DIGIT_VALUE, 2, PR_pica_positionning); return;
+        case 28 : PR_repeat_gfx7(); return;
+        case 27 : prog = pr906xx_escape; return;
+    }
+
+    clear_gfx7_mode();
+
+    switch (data)
+    {
+        case 12 : PR_form_feed(); break;
+        case 14 : PR_double_width(); break;
+        case 15 : PR_simple_width(); break;
+        case 24 : break;
+        case 7  : PR_screenprint(); break;
+        case 8  : PR_gfx7(); break;
+        case 18 : set_read_counter (DIGIT_VALUE, 3, PR_char_positionning); break;
+        default : print_drawable_char (); break;
+    }
+}
+
+
+/* ---------------------------- PR90-055 ---------------------------- */
+
+
+/* pr90055_init:
+ *  Initialise l'imprimante PR90-055.
+ */
+static void pr90055_init (void)
+{
+    paper.chars_per_line = 40;
+    reinit_printer();
+    prog = pr90055_start;
+    restart_prog = prog;
+};
+
+
+
+/* PR_mo_line_feed:
+ *  Passe un groupe d'interligne.
+ */
+static void PR_mo_line_feed (void)
+{
+    int i;
+
+    for (i=data&0x7f; i>0; i--)
+         PR_line_feed ();
+
+    PR_forget ();
+}
+
+
+
+/* pr90055_escape:
+ *  Traite le code introduit par ESC pour la PR90-055.
+ */
+static void pr90055_escape (void)
+{
+    switch ((char)data)
+    {
+        case '9': PR_line_feed_per_inch(9); break;
+        case '6': PR_line_feed_per_inch(6); break;
+        default : PR_forget(); break;
+    }
+}
+
+
+
+/* pr90055_start:
+ *  Traite le code de tête pour la PR90-055.
+ */
+static void pr90055_start (void)
+{
+    switch (data)
+    {
+        case 13 : PR_line_start(); break;
+        case 20 : PR_line_start(); break;
+        case 10 : PR_line_feed(); break;
+        case 18 : PR_line_feed(); break;
+        case 12 : PR_form_feed(); break;
+        case 14 : PR_double_width(); break;
+        case 15 : PR_simple_width(); break;
+        case 7  : PR_screenprint(); break;
+        case 27 : prog = pr90055_escape; break;
+        case 11 : prog = PR_mo_line_feed; break;
+        default : print_drawable_char (); break;
+    }
+}
+
+
+/* --------------------- */
+
+/* printer_init_params:
+ *
+ */
+static void printer_Open (void)
+{
+    memcpy (&printer[0], &printer[1], sizeof (struct LPRT_INTERFACE));
+    switch (printer[0].number)
+    {
+        case  55 : pr90055_init (); break;
+        case 600 : pr906xx_init (); break;
+        case 612 : pr906xx_init (); break;
+    }
+}
 
 
 /**********************************/
@@ -366,63 +1376,134 @@ void pr90612_SetStrobe(int state)
 /**********************************/
 
 
-/* PrinterSendCommand:
- *  Envoie une commande à l'imprimante.
+/* WriteData:
+ *  Ecrit un octet sur le port de donnée.
  */
-int to8_PrinterSendCommand(int command)
+void printer_WriteData(int mask, int value)
 {
-    switch (command)
+    data = (value & mask) | (data & (mask^0xFF));
+}
+
+
+
+/* InitPrinter:
+ *  Initialise l'imprimante.
+ */
+void InitPrinter(void)
+{
+    /* trap pour récuparation de RS.STA */
+    mem.mon.bank[0][0x1B65]=TO8_TRAP_CODE;
+
+    memset (&paper, 0x00, sizeof (struct LPRT_PAPER));
+    memset (&font, 0x00, sizeof (struct LPRT_FONT));
+    printer[0].number = 55;
+    pr90055_init ();
+}
+
+
+
+/* PrinterClose:
+ *  Ferme l'imprimante.
+ */
+void printer_Close(void)
+{
+    eject_paper ();
+    if (font.buffer != NULL)
     {
-        case TO8_PRINTER_ONLINE:
-            if (printer_online)
-            {
-                mc6846.prc |= 0x40;  /* BUSY à 1 */
-                printer_online = FALSE;
-                printer_nlq = FALSE;
-            }
-            else
-                printer_online = TRUE;
+        free (font.buffer);
+        font.buffer = NULL;
+    }
+    prog = restart_prog;
+    printer_online = FALSE;
+    mc6846.prc &= 0xBF;  /* BUSY à 0 */
+}
 
-            break;
 
-        case TO8_PRINTER_LINE_FEED:
-            if (!printer_online && paper)
-                fputs("\n\r", paper);
-            break;
 
-        case TO8_PRINTER_FORM_FEED: /* ou NLQ */
-            if (printer_online)
-                printer_nlq = !printer_nlq;
-            else 
-                pr90612_EjectPaper();
-            break;
+/* SetStrobe:
+ *  Change l'état de la STROBE.
+ */
+void printer_SetStrobe(int state)
+{
+    mc6846.prc &= 0xBF;  /* BUSY à 0 */
+
+    if (state)
+    {
+        if ((LOAD_BYTE(0x602B) & 0x40) != 0)
+        {
+            printer_Open();
+            printer_online = TRUE;
+        }
+        return;
     }
 
-    return 0;
+    if (printer_online == FALSE)
+        return;
+
+    mc6846.prc |= 0x40;  /* BUSY à 1 */
+
+    /* print data if RAW mode selected */
+    if (printer[0].raw_output)
+        print_raw_char (data);
+
+    /* print data if GFX mode with counter */
+    if (gfx_counter != 0)
+    {
+        gfx_counter--;
+        (*gfx_prog)();
+        return;
+    }
+
+    /* print data if GFX mode 7 dots */
+    if (((gfx7_mode & data) != 0) && (prog != read_counter))
+    {
+        print_gfx7_data ();
+        return;
+    }
+
+    /* print data */
+    (*prog)();
 }
 
 
 
-/* PrinterGetState:
- *  Lit l'état des voyants de l'imprimante.
- */
-void to8_PrinterGetState(int leds[3])
+void printer_SetNumber (int number)
 {
-   leds[0] = printer_nlq;
-   leds[1] = TRUE;
-   leds[2] = printer_online;
+    printer[1].number = number;
 }
 
-
-
-/* PrinterEnableGraphicMode:
- *  Active/désactive le mode d'impression graphique.
- */
-void to8_PrinterEnableGraphicMode(int state)
+void printer_SetNlq (int state)
 {
-    if (!state)
-        CloseGraphicMode();
+    printer[1].nlq = state;
+}
+    
+void printer_SetDip (int state)
+{
+    printer[1].dip = state;
+}
+    
+void printer_SetRawOutput (int state)
+{
+    printer[1].raw_output = state;
+}
+    
+void printer_SetTxtOutput (int state)
+{
+    printer[1].txt_output = state;
+}
+    
+void printer_SetGfxOutput (int state)
+{
+    printer[1].gfx_output = state;
+}
+    
+void to8_SetPrinterFolder (char *folder)
+{
+    (void)snprintf (printer[1].folder, MAX_PATH, "%s", folder);
+}
 
-    graphic_mode_enabled = state;
+char *to8_GetPrinterFolder (void)
+{
+    return printer[1].folder;
 }
 

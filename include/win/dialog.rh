@@ -105,10 +105,23 @@
 #define DISK2_PROT_CHECK        2215
 #define DISK3_PROT_CHECK        2216
 
-#define ABOUT_DIALOG            2230
-#define ABOUT_CTEXT_TITLE       2231
-#define ABOUT_CTEXT_COPYRIGHT   2232
-#define ABOUT_STATIC_LINK       2233
-#define ABOUT_EDIT_LICENSE      2234
+#define PRINTER_TAB             2220
+#define PRINTER_MORE_RTEXT      2221
+#define PRINTER_MORE_EDIT       2222
+#define PRINTER_MORE_BUTTON     2223
+#define PRINTER_CHOOSE_RTEXT    2224
+#define PRINTER_CHOOSE_COMBO    2225
+#define PRINTER_DIP_CHECK       2226
+#define PRINTER_NLQ_CHECK       2227
+#define PRINTER_OUTPUT_RTEXT    2228
+#define PRINTER_RAW_CHECK       2229
+#define PRINTER_TXT_CHECK       2230
+#define PRINTER_GFX_CHECK       2231
+
+#define ABOUT_DIALOG            2240
+#define ABOUT_CTEXT_TITLE       2241
+#define ABOUT_CTEXT_COPYRIGHT   2242
+#define ABOUT_STATIC_LINK       2243
+#define ABOUT_EDIT_LICENSE      2244
 
 #endif

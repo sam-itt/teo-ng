@@ -226,17 +226,17 @@ static void SetDeviceRegister(int addr, int val)
             mc6821_WriteData(&pia_int.porta, val);
 
             /* écriture sur le port donnée de l'imprimante */
-            pr90612_WriteData(0xFE, mc6821_ReadPort(&pia_int.porta));
+            printer_WriteData(0xFE, mc6821_ReadPort(&pia_int.porta));
             break;
 
         case 0xE7C9:
             mc6821_WriteData(&pia_int.portb, val);
 
             /* écriture sur le port donnée de l'imprimante */
-            pr90612_WriteData(0x01, mc6821_ReadPort(&pia_int.portb));
+            printer_WriteData(0x01, mc6821_ReadPort(&pia_int.portb));
 
             /* écriture sur le STROBE de l'imprimante */
-            pr90612_SetStrobe(mc6821_ReadPort(&pia_int.portb)&0x02);
+            printer_SetStrobe(mc6821_ReadPort(&pia_int.portb)&0x02);
 
             switch (mc6821_ReadPort(&pia_int.portb)&0xF8)
             {
@@ -769,6 +769,11 @@ static int BiosCall(struct MC6809_REGS *regs)
         case 0xE47B:
             DiskNop(&regs->cc);
             break;
+
+ 	/* Imprimante */
+        case 0xFB66:
+            printer_Close();
+            return 0x8a; /* ORA immédiat */
 
     } /* end of switch */
     return 0x12;  /* NOP */

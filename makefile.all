@@ -82,6 +82,7 @@ TEO_SRC_LINUX_FILES =         \
    src/linux/ugui/udisk.c     \
    src/linux/ugui/umemo.c     \
    src/linux/ugui/ucass.c     \
+   src/linux/ugui/uprinter.c  \
    src/linux/ugui/uabout.c    \
    src/linux/ugui/udebug.c
 
@@ -101,6 +102,7 @@ TEO_SRC_WIN_FILES =    \
    src/win/wgui/wsetting.c \
    src/win/wgui/wcass.c    \
    src/win/wgui/wdisk.c    \
+   src/win/wgui/wprinter.c \
    src/win/wgui/wmemo.c
 
 
@@ -113,6 +115,10 @@ COMMON_OBJ_LIST = $(basename $(notdir $(TEO_SRC_FILES) $(TEO_SRC_MC68XX_FILES)))
 include $(MAKEFILE_INC)
 
 CFLAGS += -fsigned-char
+
+ifdef UNIX_TOOLS
+CFLAGS += -DUNIX_TOOL
+endif
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o , $(OBJ_LIST)))
 

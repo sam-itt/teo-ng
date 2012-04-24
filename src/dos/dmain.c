@@ -51,6 +51,7 @@
    #include <allegro.h>
 #endif
 
+#include "intern/printer.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
@@ -445,6 +446,9 @@ int main(int argc, char *argv[])
 
     if (interlaced)
         SetInterlaced(1);
+
+    /* Initialisation de l'imprimante */
+    InitPrinter();
 
     if (load_state)
         LoadState();

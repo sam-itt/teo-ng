@@ -224,7 +224,7 @@ static void MenuPrinter(void)
         online_led = create_bitmap(58, 14);
         printerdial[PRINTERDIAL_ONLINE_LED].dp = online_led;
 
-        to8_PrinterEnableGraphicMode(TRUE);
+//        to8_PrinterEnableGraphicMode(TRUE);
         first = 0;
     }
 
@@ -234,7 +234,7 @@ static void MenuPrinter(void)
     while (TRUE)
     {
         /* Lit l'état de l'imprimante. */
-        to8_PrinterGetState(leds);
+//        to8_PrinterGetState(leds);
         clear_to_color(nlq_led, leds[0] ? makecol(255, 0, 0) : gui_bg_color);
         clear_to_color(on_led, leds[1] ? makecol(255, 255, 0) : gui_bg_color);
         clear_to_color(online_led, leds[2] ? makecol(0, 255, 0) : gui_bg_color);
@@ -242,20 +242,20 @@ static void MenuPrinter(void)
         switch (popup_dialog(printerdial, PRINTERDIAL_OK))
         {
             case PRINTERDIAL_ONLINE:
-                to8_PrinterSendCommand(TO8_PRINTER_ONLINE);
+//                to8_PrinterSendCommand(TO8_PRINTER_ONLINE);
                 break;
 
             case PRINTERDIAL_LINEFEED:
-                to8_PrinterSendCommand(TO8_PRINTER_LINE_FEED);
+//                to8_PrinterSendCommand(TO8_PRINTER_LINE_FEED);
                 break;
 
             case PRINTERDIAL_FORMFEED:
-                to8_PrinterSendCommand(TO8_PRINTER_FORM_FEED);
+//                to8_PrinterSendCommand(TO8_PRINTER_FORM_FEED);
                 break;
 
             case -1:  /* ESC */
             case PRINTERDIAL_OK:
-                to8_PrinterEnableGraphicMode(printerdial[PRINTERDIAL_GFX].flags & D_SELECTED);
+//                to8_PrinterEnableGraphicMode(printerdial[PRINTERDIAL_GFX].flags & D_SELECTED);
                 return;
         }
     }

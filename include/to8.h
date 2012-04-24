@@ -182,20 +182,18 @@ extern void  to8_EjectDisk(int drive);
 extern int   to8_LoadDisk(int drive, const char filename[]);
 extern int   to8_SetDiskMode(int drive, int mode);
 extern int   to8_DirectSetDrive(int drive);
-#if !BEFORE_GTK_2_MIN
 extern int   to8_VirtualSetDrive(int drive);
-#endif
-extern int   to8_PrinterSendCommand(int command);
-extern void  to8_PrinterGetState(int leds[3]);
-extern void  to8_PrinterEnableGraphicMode(int state);
-
 extern const char* to8_GetMemo7Label(void);
 extern const char* to8_GetMemo7Filename(void);
 extern const char* to8_GetK7Filename(void);
 extern const char* to8_GetDiskFilename(int drive);
-
+extern void  to8_SetPrinterFolder (char *folder);
+extern char  *to8_GetPrinterFolder (void);
 extern void to8_StartTimer (void);
 extern void to8_StopTimer (void);
 
 #endif
+
+
+
 

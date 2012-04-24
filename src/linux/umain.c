@@ -63,6 +63,7 @@
 #endif
 
 #include "intern/defs.h"
+#include "intern/printer.h"
 #include "linux/disk.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
@@ -582,6 +583,9 @@ int main(int argc, char *argv[])
 #endif
     if (load_state == TRUE)
         LoadState(TEO_CONFIG_FILE);
+
+    /* Initialisation de l'imprimante */
+    InitPrinter();
 
     /* arguments supplementaires  */
     xargs_start(&xargs);
