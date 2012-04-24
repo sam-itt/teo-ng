@@ -143,11 +143,12 @@ static int  pica_width;
 static int  double_width;
 static int  underline;
 static int  bold;
-static int  last_data_time = 0;
+static mc6809_clock_t last_data_time = 0;
+static int screenprint_data_delay = 0;
 static struct LPRT_PAPER paper;
 static struct LPRT_FONT font;
 static struct LPRT_COUNTER counter;
-static struct LPRT_INTERFACE printer[2];
+static struct LPRT_INTERFACE selected[2];
 static int  val16 = 0;
 static int  flag16 = 0;
 static int  gfx7_mode = 0;
@@ -170,12 +171,12 @@ static void print_raw_char (int c)
 {
     char path[MAX_PATH+1] = "";
 
-    if (!printer[0].raw_output)
+    if (!selected[0].raw_output)
         return;
 
     if (fp_raw == NULL)
     {
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", printer[0].folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", selected[0].folder, SLASH, file_counter);
         fp_raw = fopen (path, "wb");
         if (fp_raw == NULL)
             return;
@@ -193,12 +194,12 @@ static void print_text_char (int c)
 {
     char path[MAX_PATH+1] = "";
 
-    if (!printer[0].txt_output)
+    if (!selected[0].txt_output)
         return;
 
     if (fp_text == NULL)
     {
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", printer[0].folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", selected[0].folder, SLASH, file_counter);
         fp_text = fopen (path, "wb");
         if (fp_text == NULL)
             return;
@@ -271,10 +272,10 @@ static void gfx_eject (void)
     paper.x = paper.left_margin;
     paper.y = 0;
 
-    if (!printer[0].gfx_output || (paper.buffer == NULL))
+    if (!selected[0].gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", printer[0].folder, SLASH, file_counter);
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", selected[0].folder, SLASH, file_counter);
 	
     file = fopen(path, "wb");
     if (file != NULL)
@@ -366,10 +367,10 @@ static void gfx_eject (void)
     paper.x = paper.left_margin;
     paper.y = 0;
 
-    if ((!printer[0].gfx_output || (paper.buffer == NULL))
+    if ((!selected[0].gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bmp", printer[0].folder, SLASH, file_counter);
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bmp", selected[0].folder, SLASH, file_counter);
 
     writePng (path, paper.width, paper.height);
 
@@ -441,7 +442,7 @@ static void draw_pixel (int y, int width, int height)
     char *pline;
     int px, py;
 
-    if (!printer[0].gfx_output)
+    if (!selected[0].gfx_output)
         return;
 
     if (paper.buffer == NULL)
@@ -572,7 +573,7 @@ static void print_drawable_char (void)
 {
     /* char filtering */
     if (((data & 0x7f) < 32)
-     || ((data >= 0xa0) && (printer[0].number != 612)))
+     || ((data >= 0xa0) && (selected[0].number != 612)))
         return;
 
     print_drawable_text_char (data);
@@ -770,7 +771,7 @@ static void PR_gfx16 (void)
 
 
 
-#define GRAPHIC_MODE_DELAY  0.08*TO8_CPU_FREQ
+#define GRAPHIC_MODE_DELAY  TO8_CPU_FREQ*0.08
 
 /* print_screen_data:
  *  Ecrit un octet graphique 8 points.
@@ -778,9 +779,10 @@ static void PR_gfx16 (void)
 static void print_screen_data (void)
 {
     int i;
-    int pixel_size = (printer[0].number >= 600) ? 3 : 2;
+    int pixel_size = (selected[0].number >= 600) ? 3 : 2;
+    mc6809_clock_t delay = GRAPHIC_MODE_DELAY;
 
-    if ((mc6809_clock() - last_data_time) < GRAPHIC_MODE_DELAY)
+    if (mc6809_clock() - last_data_time > delay)
     {
         gfx_counter = 0;
         return;
@@ -808,8 +810,8 @@ static void print_screen_data (void)
  */
 static void PR_screenprint (void)
 {
-    gfx_prog = print_screen_data;
     last_data_time = mc6809_clock();
+    gfx_prog = print_screen_data;
     gfx_counter = 8000;
 }
 
@@ -931,7 +933,7 @@ static void PR_line_start (void)
  */
 static void PR_line_start_dip (void)
 {
-    if (printer[0].dip == FALSE)
+    if (selected[0].dip == FALSE)
         PR_line_start ();
     else
         PR_line_feed ();
@@ -978,7 +980,7 @@ static void load_font (char *filename, int face)
     }
 
     /* open file */
-    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, printer[0].number);
+    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, selected[0].number);
     if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
     {
         (void)snprintf (str, 150, "fonts%s%s.txt", SLASH, filename);
@@ -1041,13 +1043,13 @@ static void PR_load_font (char *filename, int face)
  */
 static void eject_paper (void)
 {
-    if (printer[0].gfx_output && (fp_raw != NULL))
+    if (selected[0].gfx_output && (fp_raw != NULL))
     {
         fclose (fp_raw);
         fp_raw = NULL;
     }
         
-    if (printer[0].txt_output && (fp_text != NULL))
+    if (selected[0].txt_output && (fp_text != NULL))
     {
         PR_line_feed ();
         fclose (fp_text);
@@ -1182,6 +1184,7 @@ static void pr906xx_init (void)
 {
     paper.chars_per_line = 80;
     reinit_printer();
+    screenprint_data_delay = (selected[0].number == 612) ? 100 : 80;
     prog = pr906xx_first;
     restart_prog = prog;
 };
@@ -1217,11 +1220,11 @@ static void pr906xx_escape (void)
     {
         case 14 : PR_double_width(); break;
         case 15 : PR_simple_width(); break;
-        case 'N': PR_load_font((printer[0].nlq) ? "picac" : "picas", FACE_NORMAL); break;
-        case 'E': PR_load_font((printer[0].nlq) ? "elitc" : "elits", FACE_NORMAL); break;
+        case 'N': PR_load_font((selected[0].nlq) ? "picac" : "picas", FACE_NORMAL); break;
+        case 'E': PR_load_font((selected[0].nlq) ? "elitc" : "elits", FACE_NORMAL); break;
         case 'C': PR_load_font("condc", FACE_NORMAL); break;
-        case 'b': PR_load_font((printer[0].nlq) ? "picac" : "picas", FACE_ITALIC); break;
-        case 'p': PR_load_font((printer[0].nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
+        case 'b': PR_load_font((selected[0].nlq) ? "picac" : "picas", FACE_ITALIC); break;
+        case 'p': PR_load_font((selected[0].nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
         case 'H': PR_load_font("picac", FACE_NORMAL); break;
         case 'Q': PR_load_font("elitc", FACE_NORMAL); break;
         case 'B': PR_load_font("picac", FACE_ITALIC); break;
@@ -1296,6 +1299,7 @@ static void pr90055_init (void)
 {
     paper.chars_per_line = 40;
     reinit_printer();
+    screenprint_data_delay = 100;
     prog = pr90055_start;
     restart_prog = prog;
 };
@@ -1361,12 +1365,20 @@ static void pr90055_start (void)
  */
 static void printer_Open (void)
 {
-    memcpy (&printer[0], &printer[1], sizeof (struct LPRT_INTERFACE));
-    switch (printer[0].number)
+    memcpy (&selected[0], &selected[1], sizeof (struct LPRT_INTERFACE));
+    switch (selected[0].number)
     {
-        case  55 : pr90055_init (); break;
-        case 600 : pr906xx_init (); break;
+        case  55 : pr90055_init ();
+                   screenprint_data_delay = 100;
+                   break;
+
+        case 600 : pr906xx_init ();
+                   screenprint_data_delay = 80;
+                   break;
+
         case 612 : pr906xx_init (); break;
+                   screenprint_data_delay = 100;
+                   break;
     }
 }
 
@@ -1396,7 +1408,7 @@ void InitPrinter(void)
 
     memset (&paper, 0x00, sizeof (struct LPRT_PAPER));
     memset (&font, 0x00, sizeof (struct LPRT_FONT));
-    printer[0].number = 55;
+    selected[0].number = 55;
     pr90055_init ();
 }
 
@@ -1443,7 +1455,7 @@ void printer_SetStrobe(int state)
     mc6846.prc |= 0x40;  /* BUSY à 1 */
 
     /* print data if RAW mode selected */
-    if (printer[0].raw_output)
+    if (selected[0].raw_output)
         print_raw_char (data);
 
     /* print data if GFX mode with counter */
@@ -1469,41 +1481,41 @@ void printer_SetStrobe(int state)
 
 void printer_SetNumber (int number)
 {
-    printer[1].number = number;
+    selected[1].number = number;
 }
 
 void printer_SetNlq (int state)
 {
-    printer[1].nlq = state;
+    selected[1].nlq = state;
 }
     
 void printer_SetDip (int state)
 {
-    printer[1].dip = state;
+    selected[1].dip = state;
 }
     
 void printer_SetRawOutput (int state)
 {
-    printer[1].raw_output = state;
+    selected[1].raw_output = state;
 }
     
 void printer_SetTxtOutput (int state)
 {
-    printer[1].txt_output = state;
+    selected[1].txt_output = state;
 }
     
 void printer_SetGfxOutput (int state)
 {
-    printer[1].gfx_output = state;
+    selected[1].gfx_output = state;
 }
     
 void to8_SetPrinterFolder (char *folder)
 {
-    (void)snprintf (printer[1].folder, MAX_PATH, "%s", folder);
+    (void)snprintf (selected[1].folder, MAX_PATH, "%s", folder);
 }
 
 char *to8_GetPrinterFolder (void)
 {
-    return printer[1].folder;
+    return selected[1].folder;
 }
 
