@@ -15,7 +15,8 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, Samuel Devulder
+ *                          Jérémie Guillaume, François Mouret, 
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/0/2003
  *               Samuel Devulder 30/07/2011
+ *               François Mouret 25/04/2012
  *
  *  Gestion de l'affichage 40 colonnes du TO8.
  */
@@ -58,7 +60,6 @@ static int allegro_driver;
 static int graphic_mode;
 static BITMAP *gpl_buffer, *screen_buffer;
 static int *dirty_cell;
-static int interlaced;
 
 
 #define PUT2PIXEL(val) *gpl_src++ = val; \
@@ -227,26 +228,6 @@ END_OF_FUNCTION(mod4_RetraceScreen)
 
 
 /* RefreshScreen:
- *  Rafraîchit l'écran du TO8 en mode entrelacé.
- */
-static void mod4_RefreshScreenInterlaced(void)
-{
-    register int j;
-    static int odd = 1;
-    odd ^= 1;
-
-    acquire_screen();
-
-    for(j=odd; j<TO8_WINDOW_H*2; j+=2) {
-	blit(screen_buffer, screen, 0, j, 0, j, TO8_WINDOW_W*2, 1);
-    }
-
-    release_screen();
-}
-
-
-
-/* RefreshScreen:
  *  Rafraîchit l'écran du TO8.
  */
 static void mod4_RefreshScreen(void)
@@ -254,33 +235,39 @@ static void mod4_RefreshScreen(void)
     register int i,j;
              int cell_start;
              int *dirty_cell_row = dirty_cell;
+    static int odd = 1;
 
     if (!graphic_mode)
         return;
 	
-    if(interlaced) {
-        mod4_RefreshScreenInterlaced();
-	return;
-    }
-
     acquire_screen();
 
-    /* on groupe les dirty rectangles ligne par ligne */ 
-    for (j=0; j<TO8_WINDOW_CH; j++)
+    if (gui->setting.interlaced_video)
     {
-        for (i=0; i<TO8_WINDOW_CW; i++)
-            if (dirty_cell_row[i])
-	        {
-                cell_start=i;
+        odd ^= 1;
+        for(j=odd; j<TO8_WINDOW_H<<1; j+=2)
+            blit(screen_buffer, screen, 0, j, 0, j, TO8_WINDOW_W<<1, 1);
+    }
+    else
+    {
+        /* on groupe les dirty rectangles ligne par ligne */ 
+        for (j=0; j<TO8_WINDOW_CH; j++)
+        {
+            for (i=0; i<TO8_WINDOW_CW; i++)
+            {
+                if (dirty_cell_row[i])
+                {
+                    cell_start=i;
 
-                while ((i<TO8_WINDOW_CW) && dirty_cell_row[i])
-                    dirty_cell_row[i++]=FALSE;
-
-                mod4_RetraceScreen(cell_start*TO8_CHAR_SIZE, j*TO8_CHAR_SIZE, (i-cell_start)*TO8_CHAR_SIZE, TO8_CHAR_SIZE);
+                    while ((i<TO8_WINDOW_CW) && dirty_cell_row[i])
+                        dirty_cell_row[i++]=FALSE;
+    
+                    mod4_RetraceScreen(cell_start*TO8_CHAR_SIZE, j*TO8_CHAR_SIZE, (i-cell_start)*TO8_CHAR_SIZE, TO8_CHAR_SIZE);
+                }
             }
-
-        /* ligne suivante */
-        dirty_cell_row += TO8_WINDOW_CW;
+            /* ligne suivante */
+            dirty_cell_row += TO8_WINDOW_CW;
+        }
     }
 
     release_screen();
@@ -343,24 +330,6 @@ static void mod4_SetDiskLed(int led_on)
 
 
 
-/* SetInterlace:
- *   change le mode d'affichage. Retourne le mode précédent.
- */
-static int mod4_SetInterlaced(int onoff)
-{
-     int old = interlaced;
-     if(onoff!=interlaced) {
-         int i;
-         interlaced = onoff;
-	 if(!interlaced)
-	      for(i = TO8_WINDOW_CW*TO8_WINDOW_CH; --i>=0;) 
-	           dirty_cell[i] = TRUE;
-     }
-     return old;
-}
-
-
-
 /* InitGraphic:
  *  Initialise le pilote graphique 40 colonnes.
  */
@@ -399,7 +368,6 @@ struct GRAPHIC_DRIVER mod4_driver={
     NULL,
     SetColor8,
     NULL,
-    mod4_SetDiskLed,
-    mod4_SetInterlaced
+    mod4_SetDiskLed
 };
 

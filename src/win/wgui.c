@@ -324,12 +324,31 @@ void stringlist_free (struct STRING_LIST *p)
 
 
 
-/* WGUI_basename:
+/* basename_ptr:
  *  Retourne le nom du fichier à partir du nom complet du fichier spécifié.
  */
 const char* basename_ptr(const char fullname[])
 {
    int len = strlen(fullname);
+
+   while (--len > 0)
+      if (fullname[len] == '\\')
+         return fullname + len + 1;
+
+   return fullname;
+}
+
+
+
+/* basedir_ptr:
+ *  Retourne le nom du dernier répertoire à partir du nom complet du fichier spécifié.
+ */
+char* basedir_ptr(char fullname[])
+{
+   int len = strlen(fullname);
+
+   while ((len > 0) && ((fullname[len-1] == '\\') || (fullname[len-1] == '/')))
+       fullname[--len] = '\0';
 
    while (--len > 0)
       if (fullname[len] == '\\')

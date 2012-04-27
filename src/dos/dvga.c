@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 22/09/2001
  *               Samuel Devulder 07/2011
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 25/04/2012
  *
  *  Gestion de l'affichage 40 colonnes du TO8.
  */
@@ -77,8 +77,6 @@ static BITMAP *gpl_buffer, *screen_buffer;
 
 #define PUT2PIXEL(val) *gpl_src++ = val; \
                        *gpl_src++ = val;
-
-static int interlaced = 0;
 
 
 /* gpl_need_update:
@@ -315,15 +313,6 @@ static int vga_InitGraphic(int depth, int _allegro_driver, int border_support)
 
 
 
-static int vga_SetInterlaced (int onoff)
-{
-     int old = interlaced;
-     if(onoff!=interlaced)
-         interlaced = onoff;
-     return old;
-}
-
-
 struct GRAPHIC_DRIVER mod4_driver={
     vga_InitGraphic,
     vga_SetGraphicMode,
@@ -334,7 +323,6 @@ struct GRAPHIC_DRIVER mod4_driver={
     NULL,
     SetColor8,
     SetBorderColor8,
-    vga_SetDiskLed,
-    vga_SetInterlaced
+    vga_SetDiskLed
 };
 

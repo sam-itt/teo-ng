@@ -52,6 +52,7 @@
 
 #include "intern/printer.h"
 #include "linux/gui.h"
+#include "to8.h"
 #include "linux/main.h"
 
 #define PRINTER_NUMBER 3
@@ -67,15 +68,14 @@ static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
     { "PR90-612", 612 }
 };
 
-static struct LPRT_CONFIG config;
 
 
 
 void folder_changed (GtkFileChooser *chooser, gpointer user_data)
 {
-    gchar *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(chooser));
+    gchar *filename = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER(chooser));
 
-    (void)snprintf(config.folder, MAX_PATH, "%s", filename);
+    (void)snprintf(gui->lprt.folder, MAX_PATH, "%s", filename);
     g_free (filename);
     (void)user_data;
 }
@@ -91,7 +91,7 @@ void check_button_toggled (GtkToggleButton *button, int *reg)
 
 void combo_changed (GtkComboBox *combo, gpointer user_data)
 {
-    config.number = (prt_list[gtk_combo_box_get_active (GTK_COMBO_BOX(combo))].number);
+    gui->lprt.number = (prt_list[gtk_combo_box_get_active (GTK_COMBO_BOX(combo))].number);
     (void)user_data;
 }
 
@@ -103,6 +103,7 @@ void combo_changed (GtkComboBox *combo, gpointer user_data)
 void init_printer_notebook_frame (GtkWidget *notebook)
 {
     int i;
+    int combo_index = 0;
     GtkWidget *vbox;
     GtkWidget *hbox;
     GtkWidget *widget;
@@ -135,8 +136,7 @@ void init_printer_notebook_frame (GtkWidget *notebook)
              (GtkWindow *) wdControl, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
              GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
              GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-//    if (strlen (to8_GetPrinterFolder()) != 0)
-//        (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, to8_GetPrinterFolder());
+    gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->lprt.folder);
     g_signal_connect(G_OBJECT(dialog), "current-folder-changed", G_CALLBACK(folder_changed), (gpointer) NULL);
     widget = gtk_file_chooser_button_new_with_dialog (dialog);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
@@ -152,20 +152,26 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     /* combo pour les imprimantes */
     widget=gtk_combo_box_new_text();
     for (i=0; i<PRINTER_NUMBER; i++)
+    {
         gtk_combo_box_append_text (GTK_COMBO_BOX(widget), prt_list[i].name);
-    gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 0);
+        if (gui->lprt.number == prt_list[i].number)
+            combo_index = i;
+    }
+    gtk_combo_box_set_active (GTK_COMBO_BOX(widget), combo_index);
     g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* bouton check pour le dip */
     widget=gtk_check_button_new_with_label("dip");
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &config.dip);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), gui->lprt.dip);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &gui->lprt.dip);
     gtk_widget_set_tooltip_text (widget, is_fr?"Change le comportement de CR":"Change the behavior of CR");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
     /* bouton check pour le nlq */
     widget=gtk_check_button_new_with_label("nlq");
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &config.nlq);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), gui->lprt.nlq);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &gui->lprt.nlq);
     gtk_widget_set_tooltip_text (widget, is_fr?"Imprime en haute qualitÃ©":"High-quality print");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     
@@ -183,35 +189,24 @@ void init_printer_notebook_frame (GtkWidget *notebook)
 
     /* bouton check pour la sortie brute */
     widget=gtk_check_button_new_with_label(is_fr?"brute":"raw");
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &config.raw_output);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), gui->lprt.raw_output);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &gui->lprt.raw_output);
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
     /* bouton check pour la sortie texte */
     widget=gtk_check_button_new_with_label(is_fr?"texte":"text");
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &config.txt_output);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), gui->lprt.txt_output);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &gui->lprt.txt_output);
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
     /* bouton check pour la sortie graphique */
     widget=gtk_check_button_new_with_label(is_fr?"graphique":"graphic");
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &config.gfx_output);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), gui->lprt.gfx_output);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &gui->lprt.gfx_output);
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
     /* boîte de centrage */
     widget=gtk_hbox_new(FALSE, 2);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
-}
-
-
-
-struct LPRT_CONFIG *printer_get_config (void)
-{
-    return &config;
-}
-
-
-
-void printer_set_config (struct LPRT_CONFIG *new_config)
-{
-    memcpy (&config, &new_config, sizeof(struct LPRT_CONFIG));
 }
 

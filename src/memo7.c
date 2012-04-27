@@ -58,9 +58,6 @@
 #include "to8.h"
 
 
-static char memo7_label[TO8_MEMO7_LABEL_LENGTH+1];
-static char memo7_filename[FILENAME_LENGTH+1];
-
 
 /* EjectMemo7:
  *  Ejecte la cartouche Mémo7.
@@ -89,6 +86,7 @@ int to8_LoadMemo7(const char filename[])
     register int i;
     FILE *file;
     int length, c, nbank, label_offset;
+    char *memo_name, *p;
 
     if ((file=fopen(filename,"rb")) == NULL)
         return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
@@ -146,42 +144,19 @@ int to8_LoadMemo7(const char filename[])
     fclose(file);
 
     /* extraction du label */
-    strncpy(memo7_label, (char*)mem.cart.bank[0]+label_offset, TO8_MEMO7_LABEL_LENGTH);
-
-    for (i=0; i<TO8_MEMO7_LABEL_LENGTH; i++)
+    memo_name = (char*)mem.cart.bank[0]+label_offset;
+    if ((p = strchr (memo_name, '\4')) != NULL)
     {
-        if (memo7_label[i] == '\4')
-            memo7_label[i] = '\0';
-        else
-            if ((memo7_label[i]<32) || (memo7_label[i] == 94) || (memo7_label[i]>122))
-                memo7_label[i] = 32;
+        memset (gui->memo.label, 0x00, TO8_MEMO7_LABEL_LENGTH);
+        memcpy (gui->memo.label, memo_name, (size_t)(p-memo_name));
     }
 
-    strncpy(memo7_filename, filename, FILENAME_LENGTH);
+    (void) snprintf (gui->memo.file, MAX_PATH, "%s", filename);
+
     return TO8_READ_ONLY;
 
   bad_format:
     fclose(file);
     return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
-}
-
-
-
-/* GetMemo7Label:
- *  Retourne le label extrait de la cartouche Memo7.
- */
-const char* to8_GetMemo7Label(void)
-{
-    return memo7_label;
-}
-
-
-
-/* GetMemo7Filename:
- *  Retourne le nom du fichier utilisé comme cartouche Memo7.
- */
-const char* to8_GetMemo7Filename(void)
-{
-    return memo7_filename;
 }
 

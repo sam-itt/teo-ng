@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : win/gui.c
+ *  Module     : win/wcass.c
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
@@ -60,7 +60,6 @@
 
 static int entry_max = 0;
 static int combo_index = 0;
-static UINT prot = BST_CHECKED;
 static struct STRING_LIST *path_list = NULL;
 static char current_dir[BUFFER_SIZE] = "";
 
@@ -71,7 +70,7 @@ static char current_dir[BUFFER_SIZE] = "";
  */
 static void update_params (HWND hWnd)
 {
-    prot = IsDlgButtonChecked(hWnd, K7_PROT_CHECK);
+    gui->cass.write_protect = (IsDlgButtonChecked(hWnd, K7_PROT_CHECK) == BST_CHECKED) ? TRUE : FALSE;
     combo_index = SendDlgItemMessage(hWnd, K7_COMBO, CB_GETCURSEL, 0, 0);
 }
 
@@ -132,6 +131,7 @@ static int load_cass (HWND hWnd, char *filename)
         default : break;
     }
     rewind_cass(hWnd);
+    update_params(hWnd);
     return ret;
 }
 
@@ -170,7 +170,7 @@ static void add_combo_entry (HWND hWnd, const char *path)
     if (index<0)
     {
         path_list = stringlist_append (path_list, (char *)path);
-        SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, entry_max, (LPARAM) basename_ptr(path));
+        SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0, (LPARAM) basename_ptr(path));
         SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, entry_max, 0);
         entry_max++;
     }
@@ -182,7 +182,6 @@ static void add_combo_entry (HWND hWnd, const char *path)
             (void)load_cass (hWnd, stringlist_text (path_list, index));
         }
     }
-
 }
 
 
@@ -238,7 +237,7 @@ static void combo_changed (HWND hWnd)
  */
 static void open_file (HWND hWnd)
 {
-    char current_file[BUFFER_SIZE]="";
+    char current_file[BUFFER_SIZE+1]="";
     OPENFILENAME openfilename;
 
     memset(&openfilename, 0, sizeof(OPENFILENAME));
@@ -257,10 +256,10 @@ static void open_file (HWND hWnd)
     {
          if (load_cass (hWnd, openfilename.lpstrFile) != TO8_ERROR)
          {
-             add_combo_entry (hWnd, to8_GetK7Filename());
+             add_combo_entry (hWnd, gui->cass.file);
              update_params(hWnd);
          }
-         strcpy(current_dir, current_file);
+         (void)snprintf (current_dir, BUFFER_SIZE, "%s", current_file);
     }
 }
 
@@ -287,6 +286,7 @@ void free_cass_list (void)
 int CALLBACK CassetteTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    static int first=1;
+   int state;
    static HWND counter_updown;
    LPNM_UPDOWN nmupdown;
    HANDLE himg;
@@ -300,9 +300,10 @@ int CALLBACK CassetteTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          if (first)
          {
              init_combo (hWnd);
-             if (strlen(to8_GetK7Filename()))
-                 add_combo_entry (hWnd, to8_GetK7Filename());
-             update_params (hWnd);
+             if (strlen(gui->cass.file) != 0)
+                 add_combo_entry (hWnd, gui->cass.file);
+             
+             combo_index = SendDlgItemMessage(hWnd, K7_COMBO, CB_GETCURSEL, 0, 0);
              first=0;
          }
          /* initialisation du combo */
@@ -312,7 +313,8 @@ int CALLBACK CassetteTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, combo_index, 0);
 
          /* initialisation de la protection */
-         CheckDlgButton(hWnd, K7_PROT_CHECK, prot);
+         state = (gui->cass.write_protect == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hWnd, K7_PROT_CHECK, state);
 
          /* initialisation du compteur de cassettes */
          counter_updown = GetDlgItem(hWnd, K7_UPDOWN);

@@ -36,11 +36,22 @@
 - linux/udebug.c : utilisation de fontes à taille fixe
           agrandissement de la fenêtre de sortie
           texte de la fenêtre de sortie sélectionnable et copiable
-- linux/ufloppy.c : arrêt de l'interruption timer pendant le travail des
-          lecteurs (sinon conflit)
+- linux/ufloppy.c : arrêt de l'interruption timer pendant le travail
+          des lecteurs (sinon conflit)
 - linux/udisplay.c : pointeur de souris standard pour la fenêtre
           principale
 - Ajout des saptools et k7tools
+- printer.c : gestion des imprimantes PR90-055, PR90-600 et PR90-612
+- linux/uprinter.c : création du fichier
+- linux/wprinter.c : création du fichier
+- state.c : création du fichier
+- élimination des fonctions to8_GetMemo7Label, to8_GetMemo7Filename,
+  to8_GetK7Filename, to8_GetDiskFilename, to8_GetK7Counter et
+  to8_SetK7Counter; remplacement par une structure pour la GUI;
+  passage de la variable teo.exact_speed en gui.setting.exact_speed
+- effacement de src/alleg/astate.c et src/linux/ustate.c; création
+  de state.c pour le chargement de l'état de l'émulateur
+- création de gui.c pour la gestion des parties communes de la GUI
 
 ========================================================================
 === Version 1.8.0 (Juillet 2011)                                     ===

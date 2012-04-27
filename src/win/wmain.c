@@ -61,7 +61,6 @@
 #include "alleg/main.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
-#include "alleg/state.h"
 #include "win/gui.h"
 #include "xargs.h"
 #include "to8.h"
@@ -117,7 +116,7 @@ static void RunTO8(int windowed_mode)
         InstallKeybint();
         InstallPointer(LAST_POINTER);
 
-        if (teo.sound_enabled && teo.exact_speed)
+        if (teo.sound_enabled && gui->setting.exact_speed)
             StartSound();
 
         do  /* boucle d'émulation */
@@ -135,7 +134,7 @@ static void RunTO8(int windowed_mode)
             UpdateJoystick();
 
             /* synchronisation sur fréquence réelle */
-            if (teo.exact_speed)
+            if (gui->setting.exact_speed)
             {
                 if (teo.sound_enabled)
                     PlaySoundBuffer();
@@ -149,7 +148,7 @@ static void RunTO8(int windowed_mode)
         while (teo.command==NONE);  /* fin de la boucle d'émulation */
 
         /* désinstallation des handlers clavier, souris et son */
-        if (teo.sound_enabled && teo.exact_speed)
+        if (teo.sound_enabled && gui->setting.exact_speed)
             StopSound();
 
         ShutDownPointer();
@@ -340,7 +339,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #else
     is_fr = 0;
 #endif
-	
+
     /* On s'assure que "fichier.rom" est dispo dans le repertoire courant sinon TEO échoue. */
     do {
         FILE *f = fopen("fichier.rom", "rb");
@@ -400,7 +399,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	if (!strcmp(argv[i],"-m") && i<argc-1)
         strcpy(memo_name, argv[++i]);
         else if (!strcmp(argv[i],"-fast"))
-            teo.exact_speed=FALSE;
+            gui->setting.exact_speed=FALSE;
         else if (!strcmp(argv[i],"-nosound"))
             teo.sound_enabled=FALSE;
         else if (!strcmp(argv[i],"-nojoy"))
@@ -526,9 +525,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     if (!windowed_mode)   
        InitGUI(version_name, gfx_mode, FALSE);
 
-    /* Initialisation de l'imprimante */
-    InitPrinter();
-
     /* installation de la fonction callback de retraçage de l'écran nécessaire
        pour les modes fullscreen */
     set_display_switch_callback(SWITCH_IN, RetraceCallback);
@@ -546,12 +542,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     xargs_start(&xargs);
 	
     if (load_state)
-        LoadState();
+        to8_LoadState(TEO_CONFIG_FILE);
 
     /* et c'est parti !!! */
     RunTO8(windowed_mode);
-
-    SaveState();
 
     /* nettoyage des arguments supplémentaires */
     xargs_exit(&xargs);

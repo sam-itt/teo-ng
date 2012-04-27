@@ -137,7 +137,7 @@ static int screenprint_data_delay = 0;
 static struct LPRT_PAPER paper;
 static struct LPRT_FONT font;
 static struct LPRT_COUNTER counter;
-static struct LPRT_CONFIG config;
+static struct LPRT_GUI private;
 static int  val16 = 0;
 static int  flag16 = 0;
 static int  gfx7_mode = 0;
@@ -160,12 +160,12 @@ static void print_raw_char (int c)
 {
     char path[MAX_PATH+1] = "";
 
-    if (!config.raw_output)
+    if (!private.raw_output)
         return;
 
     if (fp_raw == NULL)
     {
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", config.folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", private.folder, SLASH, file_counter);
         fp_raw = fopen (path, "wb");
         if (fp_raw == NULL)
             return;
@@ -183,12 +183,12 @@ static void print_text_char (int c)
 {
     char path[MAX_PATH+1] = "";
 
-    if (!config.txt_output)
+    if (!private.txt_output)
         return;
 
     if (fp_text == NULL)
     {
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", config.folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", private.folder, SLASH, file_counter);
         fp_text = fopen (path, "wb");
         if (fp_text == NULL)
             return;
@@ -261,10 +261,10 @@ static void gfx_eject (void)
     paper.x = paper.left_margin;
     paper.y = 0;
 
-    if (!config.gfx_output || (paper.buffer == NULL))
+    if (!private.gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", config.folder, SLASH, file_counter);
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", private.folder, SLASH, file_counter);
 	
     file = fopen(path, "wb");
     if (file != NULL)
@@ -356,10 +356,10 @@ static void gfx_eject (void)
     paper.x = paper.left_margin;
     paper.y = 0;
 
-    if ((!config.gfx_output || (paper.buffer == NULL))
+    if ((!private.gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bmp", config.folder, SLASH, file_counter);
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bmp", private.folder, SLASH, file_counter);
 
     writePng (path, paper.width, paper.height);
 
@@ -431,7 +431,7 @@ static void draw_pixel (int y, int width, int height)
     char *pline;
     int px, py;
 
-    if (!config.gfx_output)
+    if (!private.gfx_output)
         return;
 
     if (paper.buffer == NULL)
@@ -564,7 +564,7 @@ static void print_drawable_char (void)
 
     /* char filtering */
     if (((c & 0x7f) < 32)
-     || ((c >= 0xa0) && (config.number != 612)))
+     || ((c >= 0xa0) && (private.number != 612)))
         return;
 
     if (c == 0x7f)
@@ -771,7 +771,7 @@ static void PR_gfx16 (void)
 static void print_screen_data (void)
 {
     int i;
-    int pixel_size = (config.number >= 600) ? 3 : 2;
+    int pixel_size = (private.number >= 600) ? 3 : 2;
     mc6809_clock_t delay = (screenprint_data_delay * TO8_CPU_FREQ) / 1000;
 
     if (mc6809_clock() - last_data_time > delay)
@@ -925,7 +925,7 @@ static void PR_line_start (void)
  */
 static void PR_line_start_dip (void)
 {
-    if (config.dip == FALSE)
+    if (private.dip == FALSE)
         PR_line_start ();
     else
         PR_line_feed ();
@@ -972,7 +972,7 @@ static void load_font (char *filename, int face)
     }
 
     /* open file */
-    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, config.number);
+    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, private.number);
     if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
     {
         (void)snprintf (str, 150, "fonts%s%s.txt", SLASH, filename);
@@ -1039,13 +1039,13 @@ static void PR_load_font (char *filename, int face)
  */
 static void eject_paper (void)
 {
-    if (config.gfx_output && (fp_raw != NULL))
+    if (private.gfx_output && (fp_raw != NULL))
     {
         fclose (fp_raw);
         fp_raw = NULL;
     }
         
-    if (config.txt_output && (fp_text != NULL))
+    if (private.txt_output && (fp_text != NULL))
     {
         PR_line_feed ();
         fclose (fp_text);
@@ -1184,7 +1184,7 @@ static void pr906xx_init (void)
 {
     paper.chars_per_line = 80;
     reinit_printer();
-    screenprint_data_delay = (config.number == 612) ? 100 : 80;
+    screenprint_data_delay = (private.number == 612) ? 100 : 80;
     prog = pr906xx_first;
     restart_prog = prog;
 };
@@ -1220,11 +1220,11 @@ static void pr906xx_escape (void)
     {
         case 14 : PR_double_width(); break;
         case 15 : PR_simple_width(); break;
-        case 'N': PR_load_font((config.nlq) ? "picac" : "picas", FACE_NORMAL); break;
-        case 'E': PR_load_font((config.nlq) ? "elitc" : "elits", FACE_NORMAL); break;
+        case 'N': PR_load_font((private.nlq) ? "picac" : "picas", FACE_NORMAL); break;
+        case 'E': PR_load_font((private.nlq) ? "elitc" : "elits", FACE_NORMAL); break;
         case 'C': PR_load_font("condc", FACE_NORMAL); break;
-        case 'b': PR_load_font((config.nlq) ? "picac" : "picas", FACE_ITALIC); break;
-        case 'p': PR_load_font((config.nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
+        case 'b': PR_load_font((private.nlq) ? "picac" : "picas", FACE_ITALIC); break;
+        case 'p': PR_load_font((private.nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
         case 'H': PR_load_font("picac", FACE_NORMAL); break;
         case 'Q': PR_load_font("elitc", FACE_NORMAL); break;
         case 'B': PR_load_font("picac", FACE_ITALIC); break;
@@ -1365,8 +1365,8 @@ static void pr90055_start (void)
  */
 static void printer_Open (void)
 {
-    memcpy (&config, printer_get_config(), sizeof (struct LPRT_CONFIG));
-    switch (config.number)
+    memcpy (&private, &gui->lprt, sizeof (struct LPRT_GUI));
+    switch (private.number)
     {
         case  55 : pr90055_init ();
                    screenprint_data_delay = 100;
@@ -1388,7 +1388,7 @@ static void printer_Open (void)
 /**********************************/
 
 
-/* WriteData:
+/* printer_WriteData:
  *  Ecrit un octet sur le port de donnée.
  */
 void printer_WriteData(int mask, int value)
@@ -1398,26 +1398,7 @@ void printer_WriteData(int mask, int value)
 
 
 
-/* InitPrinter:
- *  Initialise l'imprimante.
- */
-void InitPrinter(void)
-{
-    struct LPRT_CONFIG config;
-
-    /* trap pour récuparation de RS.STA */
-    mem.mon.bank[0][0x1B65]=TO8_TRAP_CODE;
-
-    memset (&paper, 0x00, sizeof (struct LPRT_PAPER));
-    memset (&font, 0x00, sizeof (struct LPRT_FONT));
-    memset (&config, 0x00 , sizeof(struct LPRT_CONFIG));
-    config.number = 55;
-    printer_set_config (&config);
-}
-
-
-
-/* PrinterClose:
+/* printer_Close:
  *  Ferme l'imprimante.
  */
 void printer_Close(void)
@@ -1435,7 +1416,7 @@ void printer_Close(void)
 
 
 
-/* SetStrobe:
+/* printer_SetStrobe:
  *  Change l'état de la STROBE.
  */
 void printer_SetStrobe(int state)
@@ -1458,7 +1439,7 @@ void printer_SetStrobe(int state)
     mc6846.prc |= 0x40;  /* BUSY à 1 */
 
     /* print data if RAW mode selected */
-    if (config.raw_output)
+    if (private.raw_output)
         print_raw_char (data);
 
     /* print data if GFX mode with counter */
@@ -1478,5 +1459,21 @@ void printer_SetStrobe(int state)
 
     /* print data */
     (*prog)();
+}
+
+
+
+/* InitPrinter:
+ *  Initialise l'imprimante.
+ */
+void InitPrinter(void)
+{
+    /* trap pour récuparation de RS.STA */
+    mem.mon.bank[0][0x1B65]=TO8_TRAP_CODE;
+
+    memset (&paper, 0x00, sizeof (struct LPRT_PAPER));
+    memset (&font, 0x00, sizeof (struct LPRT_FONT));
+    gui->lprt.number = 55;
+    gui->lprt.gfx_output = TRUE;
 }
 

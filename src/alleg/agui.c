@@ -33,12 +33,12 @@
  */
 
 /*
- *  Module     : alleg/gui.c
+ *  Module     : alleg/gui->c
  *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
- *               François Mouret 12/08/2011 18/03/2012
+ *               François Mouret 12/08/2011 18/03/2012 25/04/2012
  *
  *  Panneau de contrôle de l'émulateur.
  */
@@ -60,12 +60,12 @@
 #define BUTTON_FIX 6
 
 /* Titre commun des boîtes de dialogue. */
-static char title[35];
-
+#define TEXT_LENGTH  35
+static char title[TEXT_LENGTH+1] = "";
 
 
 /* Message affiché dans la boîte de dialogue. */
-static char mesg[35];
+static char mesg[TEXT_LENGTH+1] = "";
 
 /* Boîte de dialogue. */
 static DIALOG mesgdial[]={
@@ -81,7 +81,6 @@ static DIALOG mesgdial[]={
 #define MESGDIAL_MESG     1
 #define MESGDIAL_OK       2
 
-extern int  (*SetInterlaced)(int);
 
 /* PopupMessage:
  *  Affiche une boîte de dialogue contenant le message et un bouton OK.
@@ -92,7 +91,7 @@ static void PopupMessage(const char message[])
     mesgdial[MESGDIAL_MESG].x=mesgdial[MESGDIAL_SHADOW].x+mesgdial[MESGDIAL_SHADOW].w/2;
     mesgdial[MESGDIAL_OK].x=mesgdial[MESGDIAL_MESG].x-(mesgdial[MESGDIAL_OK].w+BUTTON_FIX)/2;
 
-    strcpy(mesg, message);
+    (void)snprintf (mesg, TEXT_LENGTH, "%s", message);
 
     centre_dialog(mesgdial);
 
@@ -102,7 +101,7 @@ static void PopupMessage(const char message[])
 
 
 /* Question posée dans la boîte de dialogue. */
-static char quest[35];
+static char quest[TEXT_LENGTH+1] = "";
 
 /* Boîte de dialogue. */
 static DIALOG questdial[]={
@@ -143,7 +142,7 @@ static int PopupQuestion(const char question[], int focus)
     questdial[QUESTDIAL_YES].x=questdial[QUESTDIAL_SHADOW].x+esp;
     questdial[QUESTDIAL_NO].x=questdial[QUESTDIAL_YES].x+(questdial[QUESTDIAL_YES].w+BUTTON_FIX)+esp;
 
-    strcpy(quest, question);
+    (void)snprintf(quest, TEXT_LENGTH, "%s", question);
 
     centre_dialog(questdial);
 
@@ -346,22 +345,22 @@ static DIALOG diskdial[]={
 static void MenuDisk(void)
 {
     static int first=1;
-    static char filename[FILENAME_LENGTH];
+    static char filename[FILENAME_LENGTH+1];
     int drive, ret, ret2;
     
     if (first)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
         if (file_exists("./disks", FA_DIREC, NULL))
-	    strcpy(filename,"./disks/");
+	    (void)snprintf (filename, FILENAME_LENGTH, "./disks/");
 	
         centre_dialog(diskdial);
 
         for (drive=0; drive<4; drive++)
         {
-            strncpy(disk_label[drive], get_filename(to8_GetDiskFilename(drive)), LABEL_LENGTH);
+            (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(gui->disk[drive].file));
             if (disk_label[drive][0] == '\0')
-                strncpy(disk_label[drive], is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
+                (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
         }
 
 	first=0;
@@ -380,7 +379,7 @@ static void MenuDisk(void)
             case DISKDIAL_EJECT2:
             case DISKDIAL_EJECT3:
                 drive=(ret-4)/5;
-                strncpy(disk_label[drive], is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
+                (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
                 to8_EjectDisk(drive);
                 break;
 
@@ -400,7 +399,7 @@ static void MenuDisk(void)
                     else
                     {
                         diskdial[DISKDIAL_EJECT0+5*drive].flags &= ~D_DISABLED;
-                        strncpy(disk_label[drive], get_filename(filename), LABEL_LENGTH);
+                        (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(filename));
 
                         if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
                         {
@@ -446,7 +445,7 @@ static void MenuDisk(void)
                     if (direct_disk & (1<<drive))
                     {
                         diskdial[DISKDIAL_EJECT0+5*drive].flags |= D_DISABLED;
-                        strncpy(disk_label[drive], is_fr?"Accès Direct":"Direct Access", LABEL_LENGTH);
+                        (void)snprintf(disk_label[drive], LABEL_LENGTH, "%s", is_fr?"Accès Direct":"Direct Access");
 
                         if (to8_DirectSetDrive(drive) == TO8_READ_ONLY)
                         {
@@ -682,13 +681,13 @@ static void MenuK7(void)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
     	if (file_exists("./k7", FA_DIREC, NULL))
-	    strcpy(filename,"./k7/");
+	    (void)snprintf (filename, MAX_PATH, "./k7/");
 
         centre_dialog(k7dial);
 
-        strncpy(k7_label, get_filename(to8_GetK7Filename()), LABEL_LENGTH);
+        (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(gui->cass.file));
         if (k7_label[0] == '\0')
-            strncpy(k7_label, is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
+            (void)snprintf (k7_label, LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
 
 	first=0;
     }
@@ -705,7 +704,7 @@ static void MenuK7(void)
         switch (ret)
         {
             case K7DIAL_EJECT:
-                strncpy(k7_label, is_fr?"(Aucun)":"(None)", LABEL_LENGTH);
+                (void)snprintf (k7_label, LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
                 to8_EjectK7();
                 break;
 
@@ -719,7 +718,7 @@ static void MenuK7(void)
                         PopupMessage(to8_error_msg);
                     else
                     {
-                        strncpy(k7_label, get_filename(filename), LABEL_LENGTH);
+                        (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(filename));
 
                         if ((ret==TO8_READ_ONLY) && !(k7dial[6].d2))
                         {
@@ -809,13 +808,13 @@ static void MenuMemo7(void)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
 	if (file_exists("./memo7", FA_DIREC, NULL))
-	    strcpy(filename,"./memo7/");
+	    (void)snprintf (filename, MAX_PATH, "./memo7/");
 	
         centre_dialog(m7dial);
 
-        strncpy(m7_label, to8_GetMemo7Label(), TO8_MEMO7_LABEL_LENGTH);
+        (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.file);
         if (m7_label[0] == '\0')
-            strncpy(m7_label, is_fr?"(Aucun)":"(None)", TO8_MEMO7_LABEL_LENGTH);
+            (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
 
 	first=0;
     }
@@ -829,7 +828,7 @@ static void MenuMemo7(void)
         switch (ret)
         {
             case M7DIAL_EJECT:
-                strncpy(m7_label, is_fr?"(Aucun)":"(None)", TO8_MEMO7_LABEL_LENGTH);
+                (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
                 to8_EjectMemo7();
                 teo.command=COLD_RESET;
                 break;
@@ -842,7 +841,7 @@ static void MenuMemo7(void)
                         PopupMessage(to8_error_msg);
                     else
                     {
-                        strncpy(m7_label, to8_GetMemo7Label(), TO8_MEMO7_LABEL_LENGTH);
+                        (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.file);
                         teo.command=COLD_RESET;
                     }   
                 }
@@ -914,12 +913,9 @@ static DIALOG commdial[]={
  */
 static void MenuComm(void)
 {
-    static int interlaced;
     static char filename[FILENAME_LENGTH];
 
-    interlaced = commdial[COMMDIAL_INTERLACE].flags & D_SELECTED;
-    
-    if (teo.exact_speed)
+    if (gui->setting.exact_speed)
     {
         commdial[COMMDIAL_EXACTSPEED].flags=D_SELECTED;
         commdial[COMMDIAL_MAXSPEED].flags=0;
@@ -930,7 +926,7 @@ static void MenuComm(void)
         commdial[COMMDIAL_MAXSPEED].flags=D_SELECTED;
     }
 
-    if (teo.sound_enabled && teo.exact_speed)
+    if (teo.sound_enabled && gui->setting.exact_speed)
         commdial[COMMDIAL_SLIDER].d2=GetVolume()-1;
 
     clear_keybuf();
@@ -965,13 +961,12 @@ static void MenuComm(void)
             break;
     }
 
-    if ((commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) != interlaced)
-        SetInterlaced(((commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) == 0) ? 0 : 1);
+    gui->setting.interlaced_video = ((commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) == 0) ? FALSE : TRUE;
 
-    if (teo.sound_enabled && teo.exact_speed)
+    if (teo.sound_enabled && gui->setting.exact_speed)
         SetVolume(commdial[COMMDIAL_SLIDER].d2+1);
 
-    teo.exact_speed=(commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED ? TRUE : FALSE);
+    gui->setting.exact_speed=(commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED ? TRUE : FALSE);
 }
 
 
@@ -1100,7 +1095,7 @@ void SetGUIColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void InitGUI(char version_name[], int gfx_mode, int direct_disk_support)
 {
-    strcpy(title, version_name);
+    (void)snprintf (title, TEXT_LENGTH, "%s", version_name);
 
     if ((strstr (version_name, "MSDOS") != NULL) && (gfx_mode == GFX_MODE40))
         commdial[COMMDIAL_INTERLACE].flags |= D_DISABLED;
@@ -1113,7 +1108,7 @@ void InitGUI(char version_name[], int gfx_mode, int direct_disk_support)
 
     direct_disk = direct_disk_support;
 
-    if (strlen(to8_GetMemo7Label()))
-        strncpy(m7_label, to8_GetMemo7Label(), TO8_MEMO7_LABEL_LENGTH);
+    if (strlen(gui->memo.file))
+        (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.file);
 }
 

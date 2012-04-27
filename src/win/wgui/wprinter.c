@@ -71,7 +71,6 @@ static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
     { "PR90-612", 612 }
 };
 
-static struct LPRT_CONFIG config;
 
 
 /*
@@ -95,6 +94,7 @@ static void open_folder (HWND hWnd)
 {
     BROWSEINFO bi;
     ITEMIDLIST *pidl;
+    static char folder[MAX_PATH] = "";
 
     bi.hwndOwner = hWnd;
     bi.pidlRoot = NULL;
@@ -106,8 +106,8 @@ static void open_folder (HWND hWnd)
     pidl = SHBrowseForFolder(&bi);
     if (SHGetPathFromIDList(pidl, (LPTSTR)folder) == TRUE)
     {
-        SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basename_ptr(folder));
-        to8_SetPrinterFolder (folder);
+        SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basedir_ptr(folder));
+        (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", folder);
     }
 }
 
@@ -121,6 +121,8 @@ static void open_folder (HWND hWnd)
 int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    int i;
+   int state;
+   int combo_index = 0;
    int first = 1;
    HANDLE himg;
 
@@ -129,8 +131,8 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_INITDIALOG:
          if (first)
          {
-             if (strlen(folder) == 0)
-                 (void)getcwd (folder, MAX_PATH);
+             if (strlen(gui->lprt.folder) == 0)
+                 (void)getcwd (gui->lprt.folder, MAX_PATH);
              first = 0;
          }
 
@@ -139,20 +141,21 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          for (i=0; i<PRINTER_NUMBER; i++)
          {
              SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_ADDSTRING, 0, (LPARAM) prt_list[i].name);
-             if (config.number == prt_list[i].number)
-                 SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_SETCURSEL, i, 0);
+             if (gui->lprt.number == prt_list[i].number)
+                 combo_index = i;
          }
+         SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_SETCURSEL, combo_index, 0);
 
          /* initialisation des cases à cocher */
-         state = (config.dip_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         state = (gui->lprt.dip == TRUE) ? BST_CHECKED : BST_UNCHECKED;
          CheckDlgButton(hWnd, PRINTER_DIP_CHECK, state);
-         state = (config.nlq_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         state = (gui->lprt.nlq == TRUE) ? BST_CHECKED : BST_UNCHECKED;
          CheckDlgButton(hWnd, PRINTER_NLQ_CHECK, state);
-         state = (config.raw_ouput_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         state = (gui->lprt.raw_output == TRUE) ? BST_CHECKED : BST_UNCHECKED;
          CheckDlgButton(hWnd, PRINTER_RAW_CHECK, state);
-         state = (config.txt_output_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         state = (gui->lprt.txt_output == TRUE) ? BST_CHECKED : BST_UNCHECKED;
          CheckDlgButton(hWnd, PRINTER_TXT_CHECK, state);
-         state = (config.gfx_output_check == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+         state = (gui->lprt.gfx_output == TRUE) ? BST_CHECKED : BST_UNCHECKED;
          CheckDlgButton(hWnd, PRINTER_GFX_CHECK, state);
          
          /* initialisation des images pour les boutons */
@@ -166,7 +169,7 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(GetDlgItem(hWnd, PRINTER_RAW_CHECK), is_fr?"brute":"raw");
          SetWindowText(GetDlgItem(hWnd, PRINTER_TXT_CHECK), is_fr?"texte":"text");
          SetWindowText(GetDlgItem(hWnd, PRINTER_GFX_CHECK), is_fr?"graphique":"graphic");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basename_ptr(folder));
+         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basedir_ptr(gui->lprt.folder));
 
          /* initialisation des info-bulles */
          create_tooltip (hWnd, PRINTER_MORE_BUTTON, is_fr?"Choisir un répertoire de sauvegarde":"Choose a save folder");
@@ -184,34 +187,34 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             case PRINTER_DIP_CHECK:
                state = IsDlgButtonChecked(hWnd, PRINTER_DIP_CHECK);
-               config.dip_check = (state == BST_CHECKED) ? TRUE : FALSE;
+               gui->lprt.dip = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_NLQ_CHECK:
                state = IsDlgButtonChecked(hWnd, PRINTER_NLQ_CHECK);
-               config.dip_check = (state == BST_CHECKED) ? TRUE : FALSE;
+               gui->lprt.nlq = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_RAW_CHECK:
                state = IsDlgButtonChecked(hWnd, PRINTER_RAW_CHECK);
-               config.raw_output_check = (state == BST_CHECKED) ? TRUE : FALSE;
+               gui->lprt.raw_output = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_TXT_CHECK:
                state = IsDlgButtonChecked(hWnd, PRINTER_TXT_CHECK);
-               config.txt_output_check = (state == BST_CHECKED) ? TRUE : FALSE;
+               gui->lprt.txt_output = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_GFX_CHECK:
                state = IsDlgButtonChecked(hWnd, PRINTER_GFX_CHECK);
-               config.gfx_output_check = (state == BST_CHECKED) ? TRUE : FALSE;
+               gui->lprt.gfx_output = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
             case PRINTER_CHOOSE_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
                {
                    combo_index = SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_GETCURSEL, 0, 0);
-                   (void)snprintf(inteface.number, MAX_PATH, "%s", prt_list[combo_index].number);
+                   gui->lprt.number = prt_list[combo_index].number;
                }
                break;
          }
@@ -221,18 +224,3 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          return FALSE;
    }
 }
-
-
-
-struct LPRT_CONFIG *printer_get_config (void)
-{
-    return config;
-}
-    
-    
-
-void printer_set_config (struct LPRT_CONFIG *new_config)
-{
-    memcpy (&config, &new_config, sizeof(struct LPRT_CONFIG));
-}
-    

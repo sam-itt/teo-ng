@@ -56,8 +56,6 @@
 #include "linux/main.h"
 #include "to8.h"
 
-extern int SetInterlaced(int);
-
 
 
 /* toggle_speed:
@@ -65,7 +63,7 @@ extern int SetInterlaced(int);
  */
 static void toggle_speed (GtkWidget *button, gpointer data)
 {
-    teo.exact_speed=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+    gui->setting.exact_speed=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
     (void)data;
 }
 
@@ -74,9 +72,9 @@ static void toggle_speed (GtkWidget *button, gpointer data)
 /* toggle_interlaced:
  *  Positionne l'état du mode entrelacé
  */
-static void toggle_interlaced (GtkWidget *button, gpointer data)
+static void toggle_interlace (GtkWidget *button, gpointer data)
 {
-    SetInterlaced (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)) ? 1 : 0);
+    gui->setting.interlaced_video = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
     (void)data;
 }
 
@@ -121,7 +119,7 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     /* bouton de vitesse exacte */
     widget=gtk_radio_button_new_with_label_from_widget((GtkRadioButton *) widget, (is_fr?"exacte":"exact"));
     g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_speed), (gpointer)NULL);
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.exact_speed ? TRUE : FALSE);
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.exact_speed ? TRUE : FALSE);
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte horizontale du mode entrelacé */
@@ -130,8 +128,8 @@ void init_setting_notebook_frame (GtkWidget *notebook)
 
     /* checkbox du mode entrelacé */
     widget=gtk_check_button_new_with_label((is_fr?"Affichage vidÃ©o entrelacÃ©":"Interlaced video display"));
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), FALSE);
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_interlaced), (gpointer)NULL);
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.interlaced_video);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_interlace), (gpointer)NULL);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 }
 

@@ -567,6 +567,9 @@ void to8_Exit(void)
     if (!to8_alive)
         return;
 
+    /* Sauvegarde de l'état de l'émulateur */
+    to8_SaveState(TEO_CONFIG_FILE);
+
     printer_Close();
 
     /* on libère la mémoire */
@@ -586,6 +589,9 @@ void to8_Exit(void)
         if (mem.cart.bank[i])
             free(mem.cart.bank[i]);
 
+    /* libère les parties communes de la GUI */
+    to8_FreeGUI ();
+
     to8_alive = FALSE;
 }
 
@@ -601,6 +607,12 @@ int to8_Init(int num_joy)
         return ErrorMessage(TO8_MULTIPLE_INIT, NULL);
 
     InitHardware();
+
+    if (to8_InitGUI() == TO8_ERROR)
+    {
+        to8_Exit();
+        return TO8_ERROR;
+    }
 
     if (InitMemory() == TO8_ERROR)
     {
@@ -618,6 +630,7 @@ int to8_Init(int num_joy)
     InitMouse();
     InitDisk();
     InitK7();
+    InitPrinter();
 
     to8_alive = TRUE;
     atexit(to8_Exit);
@@ -625,4 +638,3 @@ int to8_Init(int num_joy)
     to8_new_video_params = FALSE;
     return TO8_OK;
 }
-

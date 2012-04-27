@@ -38,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
- *               François Mouret 15/09/2006 26/01/2010 12/01/2012
+ *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
  *               Samuel Devulder 05/02/2012
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
  */
@@ -56,7 +56,6 @@
 
 
 /* paramètres physiques des lecteurs Thomson */
-#define NBDRIVE    4
 #define NBTRACK   80
 #define NBSECT    16
 #define SECTSIZE 256
@@ -72,12 +71,9 @@ typedef struct {
         NORMAL_ACCESS
     } state;
     int mode;
-    char filename[FILENAME_LENGTH+1];
 } disk_t;
 
 static disk_t disk[NBDRIVE];
-
-
 
 /*****************************************/
 /* émulation du contrôleur de disquettes */
@@ -302,7 +298,7 @@ static int sap_get_sector(int drive, sapsector_t *sapsector)
     FILE *file;
 
     /* lecture du secteur dans le fichier */
-    if ((file=fopen(disk[drive].filename, "rb")) == NULL)
+    if ((file=fopen(gui->disk[drive].file, "rb")) == NULL)
         return 4;
              
     pos = SAP_HEADER_SIZE + (sapsector->track*NBSECT+(sapsector->sector-1))*SAP_SECT_SIZE;
@@ -358,7 +354,7 @@ static int sap_put_sector(int drive, sapsector_t *sapsector)
    buffer[4+i+1]=sapsector->crc2sect;
 				
    /* écriture du secteur dans le fichier */
-   if ((file=fopen(disk[drive].filename,"rb+"))==NULL)
+   if ((file=fopen(gui->disk[drive].file,"rb+"))==NULL)
        return 4;
 
    pos = SAP_HEADER_SIZE + (sapsector->track*NBSECT+(sapsector->sector-1))*SAP_SECT_SIZE;
@@ -801,7 +797,7 @@ void InitDisk(void)
     {
         disk[drive].state=NO_DISK;
         disk[drive].mode=TO8_READ_WRITE;
-        disk[drive].filename[0] = '\0';
+        gui->disk[drive].file[0] = '\0';
     }
 }
 
@@ -867,7 +863,7 @@ int to8_VirtualSetDrive(int drive)
     if ((disk[drive].state != NORMAL_ACCESS) &&
         (disk[drive].state != NO_DISK))
     {
-        disk[drive].state = (disk[drive].filename[0] == '\0') ? NO_DISK : NORMAL_ACCESS;
+        disk[drive].state = (gui->disk[drive].file[0] == '\0') ? NO_DISK : NORMAL_ACCESS;
             
         /* premier accès en lecture seule */
         disk[drive].mode=TO8_READ_WRITE;
@@ -883,7 +879,7 @@ int to8_VirtualSetDrive(int drive)
  */
 void to8_EjectDisk(int drive)
 {
-    disk[drive].filename[0]='\0';
+    gui->disk[drive].file[0]='\0';
     disk[drive].state = NO_DISK;
 }
     
@@ -911,7 +907,7 @@ int to8_LoadDisk(int drive, const char filename[])
         if (strncmp(header, sap_header, SAP_HEADER_SIZE))
             return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
 
-        strncpy(disk[drive].filename,filename, FILENAME_LENGTH);
+        (void) snprintf (gui->disk[drive].file, MAX_PATH, "%s", filename);
         disk[drive].state = NORMAL_ACCESS;
         disk[drive].mode = ret;
     }
@@ -947,22 +943,12 @@ int to8_SetDiskMode(int drive, int mode)
 
         case NORMAL_ACCESS:
         default:
-            ret=CheckFile(disk[drive].filename, mode);
+            ret=CheckFile(gui->disk[drive].file, mode);
 
             if (ret != TO8_ERROR)
                 disk[drive].mode = ret;
 
             return ret;
     }
-}
-
-
-
-/* GetDiskFilename:
- *  Retourne le nom du fichier utilisé comme disquette.
- */
-const char* to8_GetDiskFilename(int drive)
-{
-    return disk[drive].filename;
 }
 

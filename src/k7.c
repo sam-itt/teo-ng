@@ -15,7 +15,8 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, Samuel Devulder
+ *                          Jérémie Guillaume, François Mouret,
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +39,7 @@
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 28/10/2003
  *               Samuel Devulder 05/02/2012
+ *               François Mouret 25/04/2012
  *  Gestion des cassettes du TO8.
  */
 
@@ -56,7 +58,6 @@
 #define COUNTER_RATIO   100
 
 static FILE *k7;
-static char k7_filename[FILENAME_LENGTH+1];
 static int k7_mode;
 static int k7_counter;
 static enum {
@@ -190,7 +191,7 @@ void InitK7(void)
     mem.mon.bank[0][0x1A5A] = 0x39;
 
     k7 = NULL;
-    k7_filename[0] = '\0';
+    gui->cass.file[0] = '\0';
     k7_mode = TO8_READ_ONLY;
     k7_counter = -1;
     current_op = READ;
@@ -211,7 +212,7 @@ void to8_EjectK7(void)
     if (k7)
         fclose(k7);
     k7 = NULL;
-    k7_filename[0] = '\0';
+    gui->cass.file[0] = '\0';
     k7_counter = -1;
     current_op = READ;
 }
@@ -227,7 +228,7 @@ int to8_LoadK7(const char filename[])
    int ret = DoLoadK7(filename, k7_mode);
 
    if (ret != TO8_ERROR) {
-      strcpy(k7_filename, filename);
+      (void)snprintf (gui->cass.file, MAX_PATH, "%s", filename);
       k7_mode = ret;
    }
 
@@ -246,7 +247,7 @@ int to8_SetK7Mode(int mode)
       return k7_mode;
 
    if (k7) {
-      int ret = DoLoadK7(k7_filename, mode);
+      int ret = DoLoadK7(gui->cass.file, mode);
 
       if (ret != TO8_ERROR)
 	 k7_mode = ret;
@@ -286,15 +287,5 @@ void to8_SetK7Counter(int counter)
 	 k7_counter = counter;
       }
    }
-}
-
-
-
-/* GetK7Filename:
- *  Retourne le nom du fichier utilisé comme cassette.
- */
-const char* to8_GetK7Filename(void)
-{
-   return k7_filename;
 }
 

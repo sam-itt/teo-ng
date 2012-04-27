@@ -50,7 +50,7 @@
 #define TO8_H
 
 #ifndef MAX_PATH
-#define MAX_PATH 300
+#   define MAX_PATH 300
 #endif
 
 /* paramètres et symboles de l'émulation */
@@ -136,6 +136,55 @@ enum {
 
 extern int is_fr;
 
+struct LPRT_GUI {
+    int  number;
+    int  nlq;
+    int  dip;
+    int  raw_output;
+    int  txt_output;
+    int  gfx_output;
+    char *folder;
+};
+
+struct DISK_GUI {
+    int  write_protect;
+    char *file;
+};
+
+struct CASS_GUI  {
+    int  write_protect;
+    char *file;
+};
+
+struct MEMO_GUI {
+    char *file;
+    char *label;
+};
+
+struct SETTING_GUI {
+    int  exact_speed;
+    int  sound_volume;
+    int  interlaced_video;
+};
+
+struct IMAGE_GUI {
+    char *file;
+};
+
+#define NBDRIVE    4
+
+struct THOMSON_GUI {
+    int loadstate_error;
+    struct SETTING_GUI setting;
+    struct DISK_GUI disk[NBDRIVE];
+    struct CASS_GUI cass;
+    struct MEMO_GUI memo;
+    struct LPRT_GUI lprt;
+    struct IMAGE_GUI imag;
+};
+
+extern struct THOMSON_GUI *gui;
+
 /* fonctions importables requises */
 extern void (*to8_SetColor)(int index, int r, int g, int b);
 extern void (*to8_DrawGPL)(int mode, int addr, int pt, int col);
@@ -159,8 +208,8 @@ extern int  to8_new_video_params;
 /* fonctions exportables */
 extern int   to8_Init(int num_joy);
 extern void  to8_Exit(void);
-extern int   to8_LoadImage(const char filename[]);
-extern int   to8_SaveImage(const char finename[]);
+extern int   to8_InitGUI (void);
+extern void  to8_FreeGUI (void);
 extern void  to8_Reset(void);
 extern void  to8_ColdReset(void);
 extern void  to8_InputReset(int mask, int value);
@@ -183,15 +232,10 @@ extern int   to8_LoadDisk(int drive, const char filename[]);
 extern int   to8_SetDiskMode(int drive, int mode);
 extern int   to8_DirectSetDrive(int drive);
 extern int   to8_VirtualSetDrive(int drive);
-extern const char* to8_GetMemo7Label(void);
-extern const char* to8_GetMemo7Filename(void);
-extern const char* to8_GetK7Filename(void);
-extern const char* to8_GetDiskFilename(int drive);
-extern void to8_StartTimer (void);
-extern void to8_StopTimer (void);
-
+extern int   to8_LoadImage(const char filename[]);
+extern int   to8_SaveImage(const char finename[]);
+extern void  to8_StartTimer (void);
+extern void  to8_StopTimer (void);
+extern void  to8_LoadState (char *filename);
+extern void  to8_SaveState (char *filename);
 #endif
-
-
-
-

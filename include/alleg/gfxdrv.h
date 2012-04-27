@@ -57,7 +57,6 @@ struct GRAPHIC_DRIVER {
     void (*SetColor)(int, int, int, int);
     void (*SetBorderColor)(int, int);
     void (*SetDiskLed)(int);
-    int  (*SetInterlaced)(int);
 };
 
 extern struct GRAPHIC_DRIVER mod4_driver, mod8_driver, tcol_driver;

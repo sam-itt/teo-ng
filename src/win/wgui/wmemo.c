@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : win/gui.c
+ *  Module     : win/wgui/wmemo.c
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
@@ -192,7 +192,7 @@ static void open_file (HWND hWnd)
    {
       if (load_memo (hWnd, openfilename.lpstrFile) != TO8_ERROR)
       {
-          add_combo_entry (hWnd, to8_GetMemo7Label(), to8_GetMemo7Filename());
+          add_combo_entry (hWnd, gui->memo.label, gui->memo.file);
           teo.command = COLD_RESET;
           update_params(hWnd);
       }
@@ -234,9 +234,10 @@ int CALLBACK CartridgeTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          /* initialisation du sélecteur de cartouches */
          if (first)
          {
+             printf ("CartridgeTabProc = %s (%d)\n", gui->memo.file, (int)&gui->memo.file);
              init_combo(hWnd);
-             if (strlen(to8_GetMemo7Label()))
-                 add_combo_entry (hWnd, to8_GetMemo7Label(), to8_GetMemo7Filename());
+             if (strlen(gui->memo.file) != 0)
+                 add_combo_entry (hWnd, gui->memo.label, gui->memo.file);
              update_params (hWnd);
              first=0;
          }

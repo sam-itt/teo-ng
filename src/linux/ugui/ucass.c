@@ -126,6 +126,7 @@ static int load_cass (gchar *filename)
 
         case TO8_READ_ONLY :
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(check_prot), TRUE);
+            gui->cass.write_protect = TRUE;
             break;
 
         default : break;
@@ -143,13 +144,19 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
     if ( GTK_TOGGLE_BUTTON(button)->active)
     {
         to8_SetK7Mode(TO8_READ_ONLY);
+        gui->cass.write_protect = TRUE;
     }
     else
-    if (to8_SetK7Mode(TO8_READ_WRITE)==TO8_READ_ONLY)
     {
-        error_box((is_fr?"Ecriture impossible sur ce support."
-                        :"Writing unavailable on this device."), wdControl);
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+        gui->cass.write_protect = FALSE;
+
+        if (to8_SetK7Mode(TO8_READ_WRITE)==TO8_READ_ONLY)
+        {
+            error_box((is_fr?"Ecriture impossible sur ce support."
+                            :"Writing unavailable on this device."), wdControl);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+            gui->cass.write_protect = TRUE;
+        }
     }
     set_counter_cass ();
     (void)data;
@@ -181,7 +188,7 @@ static void add_combo_entry (const char *path)
     else
     {
         path_list = g_list_append (path_list, (gpointer)(g_strdup_printf (path,"%s")));
-        gtk_combo_box_append_text (GTK_COMBO_BOX(combo), basename((char *)path));
+        gtk_combo_box_append_text (GTK_COMBO_BOX(combo), (gchar *)basename((char *)path));
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
         entry_max++;
     }
@@ -261,8 +268,8 @@ static void open_file (GtkButton *button, gpointer data)
         gtk_file_filter_add_pattern (filter, "*.K7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if (strlen (to8_GetK7Filename()) != 0)
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, to8_GetK7Filename());
+        if (strlen (gui->cass.file) != 0)
+            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->cass.file);
         else
         if (access("./k7/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./k7/");
@@ -281,7 +288,7 @@ static void open_file (GtkButton *button, gpointer data)
             /* Bloque l'intervention de combo_changed */
             g_signal_handler_block (combo, combo_changed_id);
 
-            add_combo_entry (to8_GetK7Filename());
+            add_combo_entry (gui->cass.file);
 
             /* Débloque l'intervention de combo_changed */
             g_signal_handler_unblock (combo, combo_changed_id); 
@@ -358,13 +365,13 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     combo=gtk_combo_box_new_text();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
     init_combo ();
-    if (strlen(to8_GetK7Filename()))
-        add_combo_entry (to8_GetK7Filename());
+    if (strlen(gui->cass.file) != 0)
+        add_combo_entry (gui->cass.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton protection de la cassette */
     check_prot=gtk_check_button_new_with_label("prot.");
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_prot), TRUE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_prot), gui->cass.write_protect);
     g_signal_connect(G_OBJECT(check_prot), "toggled", G_CALLBACK(toggle_check_cass), (gpointer)NULL);
     gtk_box_pack_end( GTK_BOX(hbox), check_prot, FALSE, TRUE, 0);
 

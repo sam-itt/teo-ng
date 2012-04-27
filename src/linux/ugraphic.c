@@ -15,7 +15,8 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, François Mouret
+ *                          Jérémie Guillaume, François Mouret,
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/10/2003
- *               François Mouret 26/01/2010 08/2011
+ *               François Mouret 26/01/2010 08/2011 25/04/2012
  *               Samuel Devulder 07/2011
  *
  *  Gestion de l'affichage du TO8.
@@ -69,7 +70,6 @@ static int border_color;
 static XImage *gpl_buffer, *screen_buffer;
 static XColor xcolor[TO8_NCOLORS+4];
 static int pixel_size;
-static int interlaced = 0;
 
 /* SetColor:
  *  Change une couleur de la palette du TO8.
@@ -386,9 +386,14 @@ void RefreshScreen(void)
     int cell_start;
     int *dirty_cell_row = dirty_cell;
     static int odd = 1;
-    odd ^= 1;
 
-    if (interlaced == 0)
+    if (gui->setting.interlaced_video)
+    {
+        odd ^= 1;
+        for(j=odd; j<TO8_SCREEN_CH*TO8_CHAR_SIZE<<1; j+=2)
+            RetraceScreen(0, j, TO8_SCREEN_CW*TO8_CHAR_SIZE<<1, 1);
+    }        
+    else
     {
         /* on groupe les dirty rectangles ligne par ligne */
         for (j=0; j<TO8_SCREEN_CH; j++)
@@ -408,13 +413,6 @@ void RefreshScreen(void)
             dirty_cell_row += TO8_SCREEN_CW;
         }
     }
-    else
-    {
-        for(j=odd; j<TO8_SCREEN_CH*TO8_CHAR_SIZE*2; j+=2)
-        {
-            RetraceScreen(0, j, TO8_SCREEN_CW*TO8_CHAR_SIZE*2, 1);
-        }
-    }        
 }
 
 
@@ -441,24 +439,6 @@ static void SetDiskLed(int led_on)
     else
 	/* RetraceScreen() laisse parfois la led allumée... */
         dirty_cell[TO8_SCREEN_CW-1] = True;
-}
-
-
-
-/* SetInterlace:
- *   change le mode d'affichage. Retourne le mode précédent.
- */
-int SetInterlaced(int onoff)
-{
-     int old = interlaced;
-     if(onoff!=interlaced) {
-         int i;
-         interlaced = onoff;
-	 if(!interlaced)
-	      for(i=TO8_WINDOW_CW*TO8_WINDOW_CH; --i>=0;) 
-	           dirty_cell[i] = TRUE;
-     }
-     return old;
 }
 
 

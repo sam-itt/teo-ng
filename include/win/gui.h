@@ -85,6 +85,7 @@ extern struct STRING_LIST *stringlist_append (struct STRING_LIST *p, char *str);
 extern void stringlist_free (struct STRING_LIST *p);
 
 extern const char* basename_ptr(const char fullname[]);
+extern char* basedir_ptr(char fullname[]);
 extern void create_tooltip (HWND hWnd, WORD id, char *text);
 
 #endif

@@ -38,7 +38,7 @@
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 04/11/2003
  *               Samuel Devulder 08/2011
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 25/04/2012
  *
  *  Boucle principale de l'émulateur.
  */
@@ -63,8 +63,6 @@
 #include "dos/disk.h"
 #include "dos/debug.h"
 #include "to8.h"
-
-extern int (*SetInterlaced)(int);
 
 /* pour limiter la taille de l'éxécutable */
 BEGIN_COLOR_DEPTH_LIST
@@ -133,7 +131,7 @@ static void RunTO8(void)
         InstallKeybint();
         InstallPointer(LAST_POINTER);
 
-        if (teo.sound_enabled && teo.exact_speed)
+        if (teo.sound_enabled && gui.setting.exact_speed)
             StartSound();
 
         do  /* boucle d'émulation */
@@ -151,7 +149,7 @@ static void RunTO8(void)
             UpdateJoystick();
 
             /* synchronisation sur fréquence réelle */
-            if (teo.exact_speed)
+            if (gui.setting.exact_speed)
             {
                 if (teo.sound_enabled)
                     PlaySoundBuffer();
@@ -165,7 +163,7 @@ static void RunTO8(void)
         while (teo.command==NONE);  /* fin de la boucle d'émulation */
 
         /* désinstallation des handlers clavier, souris et son */
-        if (teo.sound_enabled && teo.exact_speed)
+        if (teo.sound_enabled && gui.setting.exact_speed)
             StopSound();
 
         ShutDownPointer();
@@ -239,7 +237,6 @@ int main(int argc, char *argv[])
     int drive_type[4];
     int load_state = FALSE;
     int njoy = 0, scancode, i;
-    int interlaced = FALSE;
 
 #ifdef FRENCH_LANG
     is_fr = 1;
@@ -265,7 +262,6 @@ int main(int argc, char *argv[])
             printf("    -mode80       lance l'‚mulateur en mode 80 colonnes 16 couleurs\n");
             printf("    -truecolor    lance l'‚mulateur en mode 80 colonnes 4096 couleurs\n");
             printf("    -loadstate    charge le dernier ‚tat sauvegard‚ de l'‚mulateur\n");
-            printf("    -interlaced   active l'affichage entrelac‚\n");
             printf("    xxxxxx        charge un (des) fichier(s) SAP, K7, M7\n");
             } else {
             printf("Usage:\n");
@@ -280,7 +276,6 @@ int main(int argc, char *argv[])
             printf("    -mode80       run the emulator in 80 columns mode 16 colors\n");
             printf("    -truecolor    run the emulator in 80 columns mode 4096 colors\n");
             printf("    -loadstate    load last saved state of the emulator\n");
-            printf("    -interlaced   activate interlaced video\n");
             printf("    xxxxxx        load SAP, K7, M7 file(s)\n");
             }
             exit(EXIT_SUCCESS);
@@ -288,7 +283,7 @@ int main(int argc, char *argv[])
         else if (!strcmp(argv[i],"-m") && i<argc-1)
             strcpy(memo_name, argv[++i]);
         else if (!strcmp(argv[i],"-fast"))
-            teo.exact_speed = FALSE;
+            gui.setting.exact_speed = FALSE;
         else if (!strcmp(argv[i],"-nosound"))
             teo.sound_enabled = FALSE;
         else if (!strcmp(argv[i],"-nojoy"))
@@ -301,8 +296,6 @@ int main(int argc, char *argv[])
             gfx_mode = GFX_TRUECOLOR;
         else if (!strcmp(argv[i],"-loadstate"))
             load_state = TRUE;
-        else if (!strcmp(argv[i],"-interlaced"))
-            interlaced = TRUE;
         else if (!strcmp(argv[i],"--enable-direct-write"))
             direct_write_support = TRUE;
         else
@@ -444,19 +437,14 @@ int main(int argc, char *argv[])
     if (memo_name[0])
         to8_LoadMemo7(memo_name);
 
-    if (interlaced)
-        SetInterlaced(1);
-
     /* Initialisation de l'imprimante */
     InitPrinter();
 
     if (load_state)
-        LoadState();
+        to8_LoadState();
 
     /* et c'est parti !!! */
     RunTO8();
-
-    SaveState();
 
     /* sortie du mode graphique */
     SetGraphicMode(SHUTDOWN);

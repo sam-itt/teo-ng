@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : win/gui.c
+ *  Module     : win/gui->c
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
@@ -57,13 +57,6 @@
 #include "win/dialog.rh"
 #include "win/gui.h"
 #include "to8.h"
-
-
-#ifdef OS_LINUX
-extern int SetInterlaced(int);
-#else
-extern int  (*SetInterlaced)(int);
-#endif
 
 
 
@@ -114,9 +107,9 @@ static void init_bar(HWND volume_bar)
    SendMessage(volume_bar, TBM_SETTICFREQ, PAGE_STEP, 0);
 
    SendMessage(volume_bar, TBM_SETPOS, TRUE,
-      (teo.sound_enabled && teo.exact_speed) ? GetVolume()-1 : (MAX_POS-MIN_POS)/2);
+      (teo.sound_enabled && gui->setting.exact_speed) ? GetVolume()-1 : (MAX_POS-MIN_POS)/2);
    
-   if (!teo.sound_enabled || !teo.exact_speed)
+   if (!teo.sound_enabled || !gui->setting.exact_speed)
       EnableWindow(volume_bar, FALSE);
 }
 
@@ -172,7 +165,6 @@ static void update_bar(HWND volume_bar, WPARAM wParam)
 int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    static HWND volume_bar;
-   static int interlaced = 0;
    char filename[BUFFER_SIZE];
 
    switch(uMsg)
@@ -199,10 +191,10 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 #endif
          /* initialisation des boutons radio de la vitesse */
          CheckRadioButton(hDlg, EXACT_SPEED_BUTTON, MAX_SPEED_BUTTON, 
-               (teo.exact_speed ? EXACT_SPEED_BUTTON : MAX_SPEED_BUTTON));
+               (gui->setting.exact_speed ? EXACT_SPEED_BUTTON : MAX_SPEED_BUTTON));
 
          /* initialisation du mode entrelacé */
-         CheckDlgButton(hDlg, INTERLACED_CHECK, interlaced ? BST_CHECKED : BST_UNCHECKED);
+         CheckDlgButton(hDlg, INTERLACED_CHECK, gui->setting.interlaced_video ? BST_CHECKED : BST_UNCHECKED);
 
          /* initialisation de la barre du volume */
          volume_bar = GetDlgItem(hDlg, VOLUME_BAR);
@@ -214,18 +206,17 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          switch(LOWORD(wParam))
          {
             case EXACT_SPEED_BUTTON:
-               teo.exact_speed = TRUE;
+               gui->setting.exact_speed = TRUE;
                EnableWindow(volume_bar, TRUE);
                break;
 
             case MAX_SPEED_BUTTON:
-               teo.exact_speed = FALSE;
+               gui->setting.exact_speed = FALSE;
                EnableWindow(volume_bar, FALSE);
                break;
 
             case INTERLACED_CHECK:
-               SetInterlaced ((IsDlgButtonChecked(hDlg, INTERLACED_CHECK)) ? 1 : 0);
-               interlaced = IsDlgButtonChecked(hDlg, INTERLACED_CHECK) ? 1 : 0;
+               gui->setting.interlaced_video = (IsDlgButtonChecked(hDlg, INTERLACED_CHECK) == BST_CHECKED) ? TRUE : FALSE;
                break;
                
             case LOAD_BUTTON:
@@ -249,7 +240,7 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_HSCROLL:
          if ((HWND)lParam == volume_bar)
          {
-            if (teo.sound_enabled && teo.exact_speed)
+            if (teo.sound_enabled && gui->setting.exact_speed)
                update_bar(volume_bar, wParam);
          }
          return TRUE;

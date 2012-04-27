@@ -165,8 +165,8 @@ static void open_file (GtkButton *button, gpointer data)
         gtk_file_filter_add_pattern (filter, "*.M7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if (strlen (to8_GetMemo7Filename()) != 0)
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, to8_GetMemo7Filename());
+        if (strlen (gui->memo.file) != 0)
+            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->memo.file);
         else
         if (access("./memo7/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./memo7/");
@@ -187,7 +187,7 @@ static void open_file (GtkButton *button, gpointer data)
             /* Bloque l'intervention de combo_changed */
             g_signal_handler_block (combo, combo_changed_id);
 
-            add_combo_entry (to8_GetMemo7Label(), to8_GetMemo7Filename());
+            add_combo_entry (gui->memo.label, gui->memo.file);
 
             /* Débloque l'intervention de combo_changed */
             g_signal_handler_unblock (combo, combo_changed_id); 
@@ -256,8 +256,8 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     combo=gtk_combo_box_new_text();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
     init_combo();
-    if (strlen(to8_GetMemo7Label()))
-        add_combo_entry (to8_GetMemo7Label(), to8_GetMemo7Filename());
+    if (strlen (gui->memo.label) != 0)
+        add_combo_entry (gui->memo.label, gui->memo.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton d'ouverture de fichier */

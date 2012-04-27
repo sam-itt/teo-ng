@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : win/gui.c
+ *  Module     : win/wgui/wdisk.c
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
@@ -65,7 +65,6 @@ struct FILE_VECTOR {
     int direct;
     int entry_max;
     int combo_index;
-    UINT prot;
     char current_dir[BUFFER_SIZE];
     struct STRING_LIST *path_list;
 };
@@ -79,7 +78,9 @@ static struct FILE_VECTOR vector[NDISKS];
  */
 static void update_params (HWND hWnd, struct FILE_VECTOR *vector)
 {
-    vector->prot = IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id);
+    int state = IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id);
+
+    gui->disk[vector->id].write_protect = (state == BST_CHECKED) ? TRUE : FALSE;
     vector->combo_index = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
 }
 
@@ -117,9 +118,11 @@ static void set_access_mode (HWND hWnd, struct FILE_VECTOR *vector)
     int ret = to8_VirtualSetDrive(vector->id);
     int index = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
 
+    ret = (gui->disk[vector->id].write_protect == TRUE) ? TO8_READ_ONLY : TO8_READ_WRITE;
     if ((vector->direct) && (index == 1))
         ret = to8_DirectSetDrive(vector->id);
     CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, (ret==TO8_READ_ONLY) ? BST_CHECKED : BST_UNCHECKED);
+    update_params (hWnd, vector);
 }
 
 
@@ -263,7 +266,7 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
     {
         if (load_disk (hWnd, openfilename.lpstrFile, vector) != TO8_ERROR)
         {
-            add_combo_entry (hWnd, to8_GetDiskFilename(vector->id), vector);
+            add_combo_entry (hWnd, gui->disk[vector->id].file, vector);
             update_params (hWnd, vector);
         }
         strcpy(vector->current_dir, current_file);
@@ -293,8 +296,9 @@ void free_disk_list (void)
  */
 int CALLBACK DiskTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-   int drive;
    static int first=1;
+   int drive;
+   int state;
    HANDLE himg;
    struct STRING_LIST *slist;
 
@@ -310,11 +314,11 @@ int CALLBACK DiskTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                  vector[drive].id=drive;
                  vector[drive].direct=(direct_disk_support>>drive)&1;
                  init_combo (hWnd, &vector[drive]);
-                 if (strlen(to8_GetDiskFilename(drive)) != 0)
+                 if (strlen(gui->disk[drive].file) != 0)
                  {
-                     add_combo_entry (hWnd, to8_GetDiskFilename(drive), &vector[drive]);
+                     add_combo_entry (hWnd, gui->disk[drive].file, &vector[drive]);
                      vector[drive].current_dir[0]='\0';
-                     strcpy (vector[drive].current_dir, to8_GetDiskFilename(drive));
+                     strcpy (vector[drive].current_dir, gui->disk[drive].file);
                  }
                  set_access_mode (hWnd, &vector[drive]);
                  update_params (hWnd, &vector[drive]);
@@ -326,7 +330,8 @@ int CALLBACK DiskTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              SendDlgItemMessage(hWnd, DISK0_COMBO+drive, CB_SETCURSEL, vector[drive].combo_index, 0);
 
              /* initialisation de la protection */
-             CheckDlgButton(hWnd, DISK0_PROT_CHECK+drive, vector[drive].prot);
+             state = (gui->disk[drive].write_protect == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+             CheckDlgButton(hWnd, DISK0_PROT_CHECK+drive, state);
 
              /* initialisation des images */
              himg=LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);

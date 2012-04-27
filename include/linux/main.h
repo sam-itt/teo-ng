@@ -50,16 +50,12 @@
 enum _command { NONE, CONTROL_PANEL, RESET, COLD_RESET, QUIT, DEBUGGER, BREAKPOINT };
 
 struct EmuTO {
-    int exact_speed;
     int sound_enabled;
     volatile enum _command command;
 };
 
 extern struct EmuTO teo;
 extern int frame;
-
-extern void LoadState(char *);
-extern void SaveState(char *);
 
 #endif
 

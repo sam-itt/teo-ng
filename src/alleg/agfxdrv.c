@@ -15,7 +15,8 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, Samuel Devulder
+ *                          Jérémie Guillaume, François Mouret,
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +39,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/09/2000
  *               Samuel Devulder 12/08/2011
+ *               François Mouret 25/04/2012
  *
  *  Sélection du driver graphique.
  */
@@ -61,7 +63,6 @@ void (*RefreshBorder)(void);
 void (*RefreshPalette)(void);
 void (*RefreshScreen)(void);
 void (*RetraceScreen)(int, int, int, int);
-int (*SetInterlaced)(int);
 
 
 static struct GRAPHIC_DRIVER *graphic_driver_list[]={
@@ -90,7 +91,6 @@ int InitGraphic(int mode, int depth, int allegro_driver, int border_support)
         RefreshPalette = graphic_driver_list[mode]->RefreshPalette;
         RefreshScreen  = graphic_driver_list[mode]->RefreshScreen;
         RetraceScreen  = graphic_driver_list[mode]->RetraceScreen;
-        SetInterlaced  = graphic_driver_list[mode]->SetInterlaced;
 
         need_palette_refresh = FALSE;
 

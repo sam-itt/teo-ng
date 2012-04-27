@@ -75,7 +75,6 @@
 
 struct EmuTO teo={
     True,
-    True,
     NONE
 };
 
@@ -149,7 +148,7 @@ static void RunTO8(void)
 
             HandleEvents();
 
-            if (teo.exact_speed)  /* synchronisation sur frÈquence rÈelle */
+            if (gui->setting.exact_speed)  /* synchronisation sur frÈquence rÈelle */
             {
                 if (teo.sound_enabled) {
                     if (PlaySoundBuffer()==0)
@@ -183,7 +182,7 @@ static void RunTO8(void)
                         RefreshScreen();
                         if (teo.command==NONE)
                             HandleEvents();
-                        if (teo.exact_speed)  /* synchronisation sur frÈquence rÈelle */
+                        if (gui->setting.exact_speed)  /* synchronisation sur frÈquence rÈelle */
                         {
                             if (teo.sound_enabled)
                                 PlaySoundBuffer();
@@ -298,7 +297,7 @@ static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int 
     if (XrmGetResource(user_db,PROG_NAME".speed",PROG_CLASS".Speed", str_type, &value))
     {
         if (!strncmp(value.addr,"fast",value.size))
-            teo.exact_speed=FALSE;
+            gui->setting.exact_speed=FALSE;
         else if (strncmp(value.addr,"true",value.size))
         {
             fprintf(stderr,is_fr?"%s: sp√©cification de vitesse invalide (voir %s -help)\n"
@@ -542,7 +541,7 @@ int main(int argc, char *argv[])
     printf((is_fr?"Voici %s l'√©mulateur Thomson TO8.\n":"Here's %s the thomson TO8 emulator.\n"),version_name);
     printf("Copyright (C) 1997-2012 Gilles F√©tis, Eric Botcazou, Alexandre Pukall, Fran√ßois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contr√¥le\n":"Keys : [ESC] Control pannel\n"));
-    printf((is_fr?"         [F10] D√©bogueur\n\n":"     : [F10] Debugger\n\n"));
+    printf((is_fr?"         [F12] D√©bogueur\n\n":"     : [F12] Debugger\n\n"));
 
     /* Initialisation du TO8 */
     printf((is_fr?"Initialisation de l'√©mulateur...":"Initialization of the emulator..."));
@@ -585,7 +584,7 @@ int main(int argc, char *argv[])
         (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 #endif
     if (load_state == TRUE)
-        LoadState(TEO_CONFIG_FILE);
+        to8_LoadState(TEO_CONFIG_FILE);
 
     /* arguments supplementaires  */
     xargs_start(&xargs);
@@ -594,11 +593,8 @@ int main(int argc, char *argv[])
     InitGUI(direct_support);
 
     /* Et c'est parti !!! */
-    printf((is_fr?"Lancement de l'√©mulation...\n":"Launching emulator...\n"));
+    printf((is_fr?"Lancement de l'√©mulation...\n":"Launching emulation...\n"));
     RunTO8();
-
-    /* Sauvegarde de l'Ètat de l'Èmulateur */
-    SaveState(TEO_CONFIG_FILE);
 
     /* Mise au repos de l'interface d'accËs direct */
     ExitDirectDisk();

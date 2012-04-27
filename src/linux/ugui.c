@@ -228,8 +228,6 @@ void InitGUI(int direct_disk_support)
 
     /* création du pixbuf */
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)commands_xpm);
-
-    /* instance du pixbuf */
     widget=gtk_image_new_from_pixbuf (pixbuf);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 

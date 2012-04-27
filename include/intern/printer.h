@@ -46,19 +46,6 @@
 #ifndef PRINTER_H
 #define PRINTER_H
 
-#include "to8.h"
-
-struct LPRT_CONFIG
-{
-    int  number;
-    int  nlq;
-    int  dip;
-    int  raw_output;
-    int  txt_output;
-    int  gfx_output;
-    char folder[MAX_PATH];
-};
-
 extern struct LPRT_CONFIG *printer_get_config (void);
 extern void  printer_set_config (struct LPRT_CONFIG *config);
 
