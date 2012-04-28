@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
+ *               François Mouret 28/04/2012
  *
  *  Définition des structures et constantes internes.
  */
@@ -73,12 +74,12 @@
 
 #endif
 
-
 #ifndef TRUE
-#define TRUE  1
+#ifdef DJGPP
+#   define TRUE  -1
+#else
+#   define TRUE  1
 #endif
- 
-#ifndef FALSE
 #define FALSE 0
 #endif
 

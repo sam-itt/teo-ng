@@ -59,7 +59,6 @@
 #include "alleg/main.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
-#include "alleg/state.h"
 #include "dos/disk.h"
 #include "dos/debug.h"
 #include "to8.h"
@@ -131,7 +130,7 @@ static void RunTO8(void)
         InstallKeybint();
         InstallPointer(LAST_POINTER);
 
-        if (teo.sound_enabled && gui.setting.exact_speed)
+        if (teo.sound_enabled && gui->setting.exact_speed)
             StartSound();
 
         do  /* boucle d'émulation */
@@ -149,7 +148,7 @@ static void RunTO8(void)
             UpdateJoystick();
 
             /* synchronisation sur fréquence réelle */
-            if (gui.setting.exact_speed)
+            if (gui->setting.exact_speed)
             {
                 if (teo.sound_enabled)
                     PlaySoundBuffer();
@@ -163,7 +162,7 @@ static void RunTO8(void)
         while (teo.command==NONE);  /* fin de la boucle d'émulation */
 
         /* désinstallation des handlers clavier, souris et son */
-        if (teo.sound_enabled && gui.setting.exact_speed)
+        if (teo.sound_enabled && gui->setting.exact_speed)
             StopSound();
 
         ShutDownPointer();
@@ -210,6 +209,7 @@ static void ExitMessage(const char msg[])
     fprintf(stderr, "%s\n", msg);
     exit(EXIT_FAILURE);
 }
+
 
 
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
         else if (!strcmp(argv[i],"-m") && i<argc-1)
             strcpy(memo_name, argv[++i]);
         else if (!strcmp(argv[i],"-fast"))
-            gui.setting.exact_speed = FALSE;
+            gui->setting.exact_speed = FALSE;
         else if (!strcmp(argv[i],"-nosound"))
             teo.sound_enabled = FALSE;
         else if (!strcmp(argv[i],"-nojoy"))
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
   driver_found:
     /* initialisation de l'interface utilisateur */
     InitGUI(version_name, gfx_mode, direct_support);
-
+    
     to8_ColdReset();
 
     if (memo_name[0])
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
     InitPrinter();
 
     if (load_state)
-        to8_LoadState();
+        to8_LoadState(TEO_CONFIG_FILE);
 
     /* et c'est parti !!! */
     RunTO8();

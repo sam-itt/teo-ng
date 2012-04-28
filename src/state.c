@@ -94,7 +94,11 @@ static struct CFG_LIST *create_line (char *line)
         list->line = (char *)malloc (strlen(line)+1);
         if (list->line != NULL) {
             *(list->line) = '\0';
+#ifdef DJGPP
+            (void) sprintf (list->line, "%s", line);
+#else
             (void) snprintf (list->line, strlen(line)+1, "%s", line);
+#endif
         } else {
             free (list);
             list = NULL;
@@ -203,7 +207,11 @@ static void set_string(char *section, char *key, const char *value)
 
     if (*value != '\0')
     {
+#ifdef DJGPP
+        (void)sprintf (line, "%s = %s", key, value);
+#else
         (void)snprintf (line, 300, "%s = %s", key, value);
+#endif
         list = key_ptr (section, key, &pList);
         if ((list != NULL) && (list->line != NULL))
         {
@@ -211,7 +219,11 @@ static void set_string(char *section, char *key, const char *value)
             if (list->line != NULL)
             {
                 *(list->line) = '\0';
+#ifdef DJGPP
+                (void) sprintf (list->line, "%s", line);
+#else
                 (void) snprintf (list->line, strlen(line)+1, "%s", line);
+#endif
             }
         }
         else
@@ -237,7 +249,11 @@ static void set_int (char *section, char *key, int value)
     char string[10] = "";
 
     if (value != 0)
+#ifdef DJGPP
+        (void)sprintf (string, "%d", value);
+#else
         (void)snprintf (string, 10, "%d", value);
+#endif
     set_string(section, key, string);
 }
 
@@ -390,7 +406,13 @@ void to8_LoadState(char *filename)
         gui->loadstate_error += (to8_LoadDisk(2, p) == TO8_ERROR) ? 1 : 0;
     if ((p = get_string ("teo", "disk_3_file", NULL)) != NULL)
         gui->loadstate_error += (to8_LoadDisk(3, p) == TO8_ERROR) ? 1 : 0;
+#ifdef DJGPP
+    (void)sprintf (gui->lprt.folder, "%s", get_string ("teo", "printer_folder", ""));
+#else
     (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", get_string ("teo", "printer_folder", ""));
+#endif
+
+    gui->setting.sound_volume  = get_int ("teo", "sound_vol", 128);
 
     gui->cass.write_protect = get_bool ("teo", "k7_write_protect", TRUE);
     gui->disk[0].write_protect = get_bool ("teo", "disk_0_write_protect", FALSE);
@@ -420,28 +442,33 @@ void to8_SaveState (char *filename)
 {
     load_cfg (filename);
 
-    set_bool   ("teo", "exact_speed"   , gui->setting.exact_speed);
+    set_bool   ("teo", "exact_speed", gui->setting.exact_speed);
     set_bool   ("teo", "interlaced_video", gui->setting.interlaced_video);
-    set_string ("teo", "memo_file"     , gui->memo.file);
-    set_string ("teo", "k7_file"       , gui->cass.file);
-    set_string ("teo", "disk_0_file"   , gui->disk[0].file);
-    set_string ("teo", "disk_1_file"   , gui->disk[1].file);
-    set_string ("teo", "disk_2_file"   , gui->disk[2].file);
-    set_string ("teo", "disk_3_file"   , gui->disk[3].file);
 
+    set_string ("teo", "memo_file", gui->memo.file);
+
+    set_string ("teo", "k7_file", gui->cass.file);
     set_bool   ("teo", "k7_write_protect", gui->cass.write_protect);
+
+    set_string ("teo", "disk_0_file", gui->disk[0].file);
+    set_string ("teo", "disk_1_file", gui->disk[1].file);
+    set_string ("teo", "disk_2_file", gui->disk[2].file);
+    set_string ("teo", "disk_3_file", gui->disk[3].file);
     set_bool   ("teo", "disk_0_write_protect", gui->disk[0].write_protect);
     set_bool   ("teo", "disk_1_write_protect", gui->disk[1].write_protect);
     set_bool   ("teo", "disk_2_write_protect", gui->disk[2].write_protect);
     set_bool   ("teo", "disk_3_write_protect", gui->disk[3].write_protect);
 
+    set_int    ("teo", "sound_vol", gui->setting.sound_volume);
+
     set_string ("teo", "printer_folder", gui->lprt.folder);
     set_int    ("teo", "printer_number", gui->lprt.number);
-    set_bool   ("teo", "printer_dip"   , gui->lprt.dip);
-    set_bool   ("teo", "printer_nlq"   , gui->lprt.nlq);
+    set_bool   ("teo", "printer_dip", gui->lprt.dip);
+    set_bool   ("teo", "printer_nlq", gui->lprt.nlq);
     set_bool   ("teo", "printer_raw_output", gui->lprt.raw_output);
     set_bool   ("teo", "printer_txt_output", gui->lprt.txt_output);
     set_bool   ("teo", "printer_gfx_output", gui->lprt.gfx_output);
+
     to8_SaveImage ("autosave.img");
 
     save_cfg (filename);

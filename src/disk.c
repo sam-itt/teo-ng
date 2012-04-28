@@ -907,7 +907,11 @@ int to8_LoadDisk(int drive, const char filename[])
         if (strncmp(header, sap_header, SAP_HEADER_SIZE))
             return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
 
+#ifdef DJGPP
+        strncpy(gui->disk[drive].file, filename, MAX_PATH);
+#else
         (void) snprintf (gui->disk[drive].file, MAX_PATH, "%s", filename);
+#endif
         disk[drive].state = NORMAL_ACCESS;
         disk[drive].mode = ret;
     }

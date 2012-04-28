@@ -228,7 +228,11 @@ int to8_LoadK7(const char filename[])
    int ret = DoLoadK7(filename, k7_mode);
 
    if (ret != TO8_ERROR) {
+#ifdef DJGPP
+      strncpy (gui->cass.file, filename, MAX_PATH);
+#else
       (void)snprintf (gui->cass.file, MAX_PATH, "%s", filename);
+#endif
       k7_mode = ret;
    }
 

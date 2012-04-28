@@ -313,6 +313,17 @@ static int unknownArg(char *arg) {
 }
 
 
+
+/* close_procedure:
+ *  Procédure de fermeture de la fenêtre par le bouton close.
+ */
+void close_procedure (void)
+{
+    teo.command = QUIT;
+}
+ 
+
+
 /* WinMain:
  *  Point d'entrée du programme appelé par l'API Win32.
  */
@@ -522,8 +533,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     }
     
     /* initialisation de l'interface utilisateur Allegro */
-    if (!windowed_mode)   
+    if (!windowed_mode)
+    {
        InitGUI(version_name, gfx_mode, FALSE);
+    }
+    else
+    {
+       set_window_close_hook(close_procedure);
+    }
 
     /* installation de la fonction callback de retraçage de l'écran nécessaire
        pour les modes fullscreen */

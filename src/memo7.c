@@ -151,7 +151,11 @@ int to8_LoadMemo7(const char filename[])
         memcpy (gui->memo.label, memo_name, (size_t)(p-memo_name));
     }
 
+#ifdef DJGPP
+     strncpy (gui->memo.file, filename, MAX_PATH);
+#else
     (void) snprintf (gui->memo.file, MAX_PATH, "%s", filename);
+#endif
 
     return TO8_READ_ONLY;
 

@@ -165,7 +165,11 @@ static void print_raw_char (int c)
 
     if (fp_raw == NULL)
     {
+#ifdef DJGPP
+        (void)sprintf (path, "%s%slprt%03d.bin", private.folder, SLASH, file_counter);
+#else
         (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", private.folder, SLASH, file_counter);
+#endif
         fp_raw = fopen (path, "wb");
         if (fp_raw == NULL)
             return;
@@ -188,7 +192,11 @@ static void print_text_char (int c)
 
     if (fp_text == NULL)
     {
+#ifdef DJGPP
+        (void)sprintf (path, "%s%slprt%03d.txt", private.folder, SLASH, file_counter);
+#else
         (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", private.folder, SLASH, file_counter);
+#endif
         fp_text = fopen (path, "wb");
         if (fp_text == NULL)
             return;
@@ -264,7 +272,11 @@ static void gfx_eject (void)
     if (!private.gfx_output || (paper.buffer == NULL))
         return;
 
+#ifdef DJGPP
+    (void)sprintf (path, "%s%slprt%03d.png", private.folder, SLASH, file_counter);
+#else
     (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", private.folder, SLASH, file_counter);
+#endif
 	
     file = fopen(path, "wb");
     if (file != NULL)
@@ -972,10 +984,20 @@ static void load_font (char *filename, int face)
     }
 
     /* open file */
+#ifdef DJGPP
+    (void)sprintf (str, "fonts%s%s%03d.txt", SLASH, filename, private.number);
+#else
     (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, private.number);
+#endif
+    
     if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
     {
+#ifdef DJGPP
+        (void)sprintf (str, "fonts%s%s.txt", SLASH, filename);
+#else
         (void)snprintf (str, 150, "fonts%s%s.txt", SLASH, filename);
+#endif
+    
         if (face == FACE_SUBSCRIPT) yp = 7;
     }
     file = fopen (str, "rb");
@@ -988,7 +1010,11 @@ static void load_font (char *filename, int face)
 
     /* load font parameters */
     font.type = face;
+#ifdef DJGPP
+    (void)sprintf (font.name, "%s", filename);
+#else
     (void)snprintf (font.name, 6, "%s", filename);
+#endif
     font.count  = (int)strtol (str, &p, 10);
     font.width  = (int)strtol (p, &p, 10);
     font.height = (int)strtol (p, &p, 10);
