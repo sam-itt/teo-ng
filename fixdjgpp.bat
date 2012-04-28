@@ -7,8 +7,27 @@ echo include makefile.all >> makefile
 
 if [%1] == [--quick] goto done
 
-utod .../*.c .../*.h .../*.rc .../*.rh .../*.xpm
-utod *.bat .../makefile.* .../*.txt .../*.log .../*.htm*
+REM for %%a in (*.*) do echo %%a
+
+cd src
+utod .../*.c .../*.rc .../*.xpm .../*.txt .../*.log
+cd ..
+cd misc
+utod .../*.bat .../*.txt
+cd ..
+cd k7tools
+utod .../*.c .../makefile.* .../*.txt
+cd ..
+cd include
+utod .../*.h .../*.rh
+cd ..
+cd fonts
+utod .../*.txt
+cd ..
+cd doc
+utod .../*.htm*
+cd ..
+utod *.bat makefile.* *.txt *.log
 
 :done
 
