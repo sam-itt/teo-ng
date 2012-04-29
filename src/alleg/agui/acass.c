@@ -87,7 +87,7 @@ static DIALOG k7dial[]={
 { d_button_proc,      47,  52,   15,   12,     0,     0,    0,    D_EXIT,  0,    0,    "x" },
 { d_textbox_proc,     64,  50,  150,   16,     0,     0,    0,    0,       0,    0,    k7_label },
 { d_button_proc,     220,  50,   30,   16,     0,     0,  'k',    D_EXIT,  0,    0,    "..." },
-{ d_check_proc,      260,  50,   15,   15,     0,     0,    0,    D_EXIT|D_SELECTED,0,1,"" },
+{ d_check_proc,      260,  50,   15,   15,     0,     0,    0,    D_EXIT,  0,    1,    "" },
 { d_text_proc,       255,  40,    0,    0,     0,     0,    0,    0,       0,    0,    "prot." },
 #ifdef FRENCH_LANG
 { d_text_proc,        30,  79,    0,    0,     0,     0,    0,    0,       0,    0,    "Compteur:" },
@@ -288,10 +288,15 @@ void MenuK7(void)
 #else
             (void)snprintf (k7_label, LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
 #endif
-            if (gui->cass.write_protect)
-                k7dial[K7DIAL_CHECK].flags |= D_SELECTED;
-
-	first=0;
+        (void)to8_SetK7Mode(TO8_READ_WRITE);
+        k7dial[K7DIAL_CHECK].d2=0;
+        if (gui->cass.write_protect)
+        {
+            k7dial[K7DIAL_CHECK].flags |= D_SELECTED;
+            k7dial[K7DIAL_CHECK].d2=1;
+            (void)to8_SetK7Mode(TO8_READ_ONLY);
+        }
+        first=0;
     }
 
     clear_keybuf();
