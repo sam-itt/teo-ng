@@ -137,7 +137,7 @@ static int screenprint_data_delay = 0;
 static struct LPRT_PAPER paper;
 static struct LPRT_FONT font;
 static struct LPRT_COUNTER counter;
-static struct LPRT_GUI private;
+static struct LPRT_GUI lprt;
 static int  val16 = 0;
 static int  flag16 = 0;
 static int  gfx7_mode = 0;
@@ -160,15 +160,15 @@ static void print_raw_char (int c)
 {
     char path[MAX_PATH+1] = "";
 
-    if (!private.raw_output)
+    if (!lprt.raw_output)
         return;
 
     if (fp_raw == NULL)
     {
 #ifdef DJGPP
-        (void)sprintf (path, "%s%slprt%03d.bin", private.folder, SLASH, file_counter);
+        (void)sprintf (path, "%s%slprt%03d.bin", lprt.folder, SLASH, file_counter);
 #else
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", private.folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", lprt.folder, SLASH, file_counter);
 #endif
         fp_raw = fopen (path, "wb");
         if (fp_raw == NULL)
@@ -187,15 +187,15 @@ static void print_text_char (int c)
 {
     char path[MAX_PATH+1] = "";
 
-    if (!private.txt_output)
+    if (!lprt.txt_output)
         return;
 
     if (fp_text == NULL)
     {
 #ifdef DJGPP
-        (void)sprintf (path, "%s%slprt%03d.txt", private.folder, SLASH, file_counter);
+        (void)sprintf (path, "%s%slprt%03d.txt", lprt.folder, SLASH, file_counter);
 #else
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", private.folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", lprt.folder, SLASH, file_counter);
 #endif
         fp_text = fopen (path, "wb");
         if (fp_text == NULL)
@@ -251,75 +251,8 @@ static void print_drawable_text_char (int c)
 }
 
 
-
-/* gfx_eject:
- *  Ejecte le tirage BMP.
- */
-static void gfx_eject (void)
-{
-    FILE *file;
-    int y;
-    int ppw = paper.width/8;
-    int pph = paper.height;
-    png_structp png_ptr;
-    png_infop info_ptr;
-    char path[MAX_PATH+1] = "";
-    
-
-    paper.x = paper.left_margin;
-    paper.y = 0;
-
-    if (!private.gfx_output || (paper.buffer == NULL))
-        return;
-
 #ifdef DJGPP
-    (void)sprintf (path, "%s%slprt%03d.png", private.folder, SLASH, file_counter);
-#else
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", private.folder, SLASH, file_counter);
-#endif
-	
-    file = fopen(path, "wb");
-    if (file != NULL)
-    {
-       /* initialize png write structure */
-       png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-       if (png_ptr != NULL)
-       {
-          /* initialize png info structure */
-          info_ptr = png_create_info_struct(png_ptr);
-          if (info_ptr != NULL)
-          {
-             /* setup png exception handling */
-             if (setjmp(png_jmpbuf(png_ptr)) == 0)
-             {
-                png_init_io(png_ptr, file);
 
-                /* header */
-                png_set_IHDR (png_ptr, info_ptr, paper.width, paper.height,
-                             1, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
-                             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-                png_write_info(png_ptr, info_ptr);
-                png_set_invert_mono(png_ptr);
-
-                /* bitmap */
-                for (y=0; y<pph; y++)
-                    png_write_row (png_ptr, (png_bytep)(paper.buffer+y*ppw));
-
-                /* finished write */
-                png_write_end(png_ptr, NULL);
-             }
-             png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-          }
-          png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-       }
-       fclose (file);
-    }
-    free (paper.buffer);
-    paper.buffer = NULL;
-}
-
-
-#if 0
 /* fputw: 
  *  Helper pour écrire en little endian un entier 16-bit
  *  quel que soit son format natif.
@@ -368,12 +301,10 @@ static void gfx_eject (void)
     paper.x = paper.left_margin;
     paper.y = 0;
 
-    if ((!private.gfx_output || (paper.buffer == NULL))
+    if (!lprt.gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bmp", private.folder, SLASH, file_counter);
-
-    writePng (path, paper.width, paper.height);
+    (void)sprintf (path, "%s%slprt%03d.bmp", lprt.folder, SLASH, file_counter);
 
     file = fopen (path, "wb");
     if (file == NULL)
@@ -414,6 +345,71 @@ static void gfx_eject (void)
     free (paper.buffer);
     paper.buffer = NULL;
 }
+
+#else
+
+/* gfx_eject:
+ *  Ejecte le tirage PNG.
+ */
+static void gfx_eject (void)
+{
+    FILE *file;
+    int y;
+    int ppw = paper.width/8;
+    int pph = paper.height;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    char path[MAX_PATH+1] = "";
+    
+
+    paper.x = paper.left_margin;
+    paper.y = 0;
+
+    if (!lprt.gfx_output || (paper.buffer == NULL))
+        return;
+
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", lprt.folder, SLASH, file_counter);
+	
+    file = fopen(path, "wb");
+    if (file != NULL)
+    {
+       /* initialize png write structure */
+       png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+       if (png_ptr != NULL)
+       {
+          /* initialize png info structure */
+          info_ptr = png_create_info_struct(png_ptr);
+          if (info_ptr != NULL)
+          {
+             /* setup png exception handling */
+             if (setjmp(png_jmpbuf(png_ptr)) == 0)
+             {
+                png_init_io(png_ptr, file);
+
+                /* header */
+                png_set_IHDR (png_ptr, info_ptr, paper.width, paper.height,
+                             1, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
+                             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+                png_write_info(png_ptr, info_ptr);
+                png_set_invert_mono(png_ptr);
+
+                /* bitmap */
+                for (y=0; y<pph; y++)
+                    png_write_row (png_ptr, (png_bytep)(paper.buffer+y*ppw));
+
+                /* finished write */
+                png_write_end(png_ptr, NULL);
+             }
+             png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+          }
+          png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+       }
+       fclose (file);
+    }
+    free (paper.buffer);
+    paper.buffer = NULL;
+}
+
 #endif
 
 
@@ -443,7 +439,7 @@ static void draw_pixel (int y, int width, int height)
     char *pline;
     int px, py;
 
-    if (!private.gfx_output)
+    if (!lprt.gfx_output)
         return;
 
     if (paper.buffer == NULL)
@@ -576,7 +572,7 @@ static void print_drawable_char (void)
 
     /* char filtering */
     if (((c & 0x7f) < 32)
-     || ((c >= 0xa0) && (private.number != 612)))
+     || ((c >= 0xa0) && (lprt.number != 612)))
         return;
 
     if (c == 0x7f)
@@ -783,7 +779,7 @@ static void PR_gfx16 (void)
 static void print_screen_data (void)
 {
     int i;
-    int pixel_size = (private.number >= 600) ? 3 : 2;
+    int pixel_size = (lprt.number >= 600) ? 3 : 2;
     mc6809_clock_t delay = (screenprint_data_delay * TO8_CPU_FREQ) / 1000;
 
     if (mc6809_clock() - last_data_time > delay)
@@ -937,7 +933,7 @@ static void PR_line_start (void)
  */
 static void PR_line_start_dip (void)
 {
-    if (private.dip == FALSE)
+    if (lprt.dip == FALSE)
         PR_line_start ();
     else
         PR_line_feed ();
@@ -985,9 +981,9 @@ static void load_font (char *filename, int face)
 
     /* open file */
 #ifdef DJGPP
-    (void)sprintf (str, "fonts%s%s%03d.txt", SLASH, filename, private.number);
+    (void)sprintf (str, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
 #else
-    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, private.number);
+    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
 #endif
     
     if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
@@ -1065,13 +1061,13 @@ static void PR_load_font (char *filename, int face)
  */
 static void eject_paper (void)
 {
-    if (private.gfx_output && (fp_raw != NULL))
+    if (lprt.gfx_output && (fp_raw != NULL))
     {
         fclose (fp_raw);
         fp_raw = NULL;
     }
         
-    if (private.txt_output && (fp_text != NULL))
+    if (lprt.txt_output && (fp_text != NULL))
     {
         PR_line_feed ();
         fclose (fp_text);
@@ -1210,7 +1206,7 @@ static void pr906xx_init (void)
 {
     paper.chars_per_line = 80;
     reinit_printer();
-    screenprint_data_delay = (private.number == 612) ? 100 : 80;
+    screenprint_data_delay = (lprt.number == 612) ? 100 : 80;
     prog = pr906xx_first;
     restart_prog = prog;
 };
@@ -1246,11 +1242,11 @@ static void pr906xx_escape (void)
     {
         case 14 : PR_double_width(); break;
         case 15 : PR_simple_width(); break;
-        case 'N': PR_load_font((private.nlq) ? "picac" : "picas", FACE_NORMAL); break;
-        case 'E': PR_load_font((private.nlq) ? "elitc" : "elits", FACE_NORMAL); break;
+        case 'N': PR_load_font((lprt.nlq) ? "picac" : "picas", FACE_NORMAL); break;
+        case 'E': PR_load_font((lprt.nlq) ? "elitc" : "elits", FACE_NORMAL); break;
         case 'C': PR_load_font("condc", FACE_NORMAL); break;
-        case 'b': PR_load_font((private.nlq) ? "picac" : "picas", FACE_ITALIC); break;
-        case 'p': PR_load_font((private.nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
+        case 'b': PR_load_font((lprt.nlq) ? "picac" : "picas", FACE_ITALIC); break;
+        case 'p': PR_load_font((lprt.nlq) ? "picac" : "picas", FACE_PROPORTIONAL); break;
         case 'H': PR_load_font("picac", FACE_NORMAL); break;
         case 'Q': PR_load_font("elitc", FACE_NORMAL); break;
         case 'B': PR_load_font("picac", FACE_ITALIC); break;
@@ -1391,8 +1387,8 @@ static void pr90055_start (void)
  */
 static void printer_Open (void)
 {
-    memcpy (&private, &gui->lprt, sizeof (struct LPRT_GUI));
-    switch (private.number)
+    memcpy (&lprt, &gui->lprt, sizeof (struct LPRT_GUI));
+    switch (lprt.number)
     {
         case  55 : pr90055_init ();
                    screenprint_data_delay = 100;
@@ -1465,7 +1461,7 @@ void printer_SetStrobe(int state)
     mc6846.prc |= 0x40;  /* BUSY à 1 */
 
     /* print data if RAW mode selected */
-    if (private.raw_output)
+    if (lprt.raw_output)
         print_raw_char (data);
 
     /* print data if GFX mode with counter */
