@@ -58,8 +58,6 @@ DESCRIPTION = optimized
 endif
 endif
 
-LIB += -lpng
-
 ifdef EN_LANG
 CFLAGS += -DENGLISH_LANG
 else
