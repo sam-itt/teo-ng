@@ -34,7 +34,7 @@
  */
 
 /*
- *  Module     : gui->c
+ *  Module     : gui.c
  *  Version    : 1.8.1
  *  Créé par   : François Mouret 26/04/2012
  *  Modifié par:
@@ -69,7 +69,7 @@ static int bad_alloc (void)
 
 
 /* to8_FreeGUI:
- *  Libère la mémoire occupée par la gui->
+ *  Libère la mémoire occupée par la GUI commune.
  */
 void to8_FreeGUI (void)
 {
@@ -124,7 +124,7 @@ void to8_FreeGUI (void)
     
 
 /* to8_InitGUI:
- *  Initialise la structure gui->
+ *  Initialise la GUI commune.
  */
 int to8_InitGUI (void)
 {
@@ -154,3 +154,4 @@ int to8_InitGUI (void)
 
     return TO8_OK;
 }
+

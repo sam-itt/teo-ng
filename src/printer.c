@@ -148,7 +148,7 @@ static int  printer_open_state = FALSE;
 static void (*prog)();
 static void (*restart_prog)();
 
-static void pr90055_start (void);
+static void pr90055_first (void);
 static void pr906xx_first (void);
 
 
@@ -1210,20 +1210,6 @@ static void PR_reset (void)
 /* ----------------------- PR90-600 / PR90-612 ----------------------- */
 
 
-/* pr906xx_init:
- *  Initialise les imprimantes PR90-600 et PR90-612.
- */
-static void pr906xx_init (void)
-{
-    paper.chars_per_line = 80;
-    reinit_printer();
-    screenprint_data_delay = (lprt.number == 612) ? 100 : 80;
-    prog = pr906xx_first;
-    restart_prog = prog;
-};
-
-
-
 /* clear_gfx7_mode:
  *  Sort du mode gfx7.
  */
@@ -1325,20 +1311,6 @@ static void pr906xx_first (void)
 /* ---------------------------- PR90-055 ---------------------------- */
 
 
-/* pr90055_init:
- *  Initialise l'imprimante PR90-055.
- */
-static void pr90055_init (void)
-{
-    paper.chars_per_line = 40;
-    reinit_printer();
-    screenprint_data_delay = 100;
-    prog = pr90055_start;
-    restart_prog = prog;
-};
-
-
-
 /* PR_mo_line_feed:
  *  Passe un groupe d'interligne.
  */
@@ -1369,10 +1341,10 @@ static void pr90055_escape (void)
 
 
 
-/* pr90055_start:
+/* pr90055_first:
  *  Traite le code de tête pour la PR90-055.
  */
-static void pr90055_start (void)
+static void pr90055_first (void)
 {
     switch (data)
     {
@@ -1401,18 +1373,23 @@ static void printer_Open (void)
     memcpy (&lprt, &gui->lprt, sizeof (struct LPRT_GUI));
     switch (lprt.number)
     {
-        case  55 : pr90055_init ();
+        case  55 : paper.chars_per_line = 40;
                    screenprint_data_delay = 100;
+                   prog = pr90055_first;
                    break;
 
-        case 600 : pr906xx_init ();
+        case 600 : paper.chars_per_line = 80;
                    screenprint_data_delay = 80;
+                   prog = pr906xx_first;
                    break;
 
-        case 612 : pr906xx_init (); break;
+        case 612 : paper.chars_per_line = 80;
                    screenprint_data_delay = 100;
+                   prog = pr906xx_first;
                    break;
     }
+    reinit_printer();
+    restart_prog = prog;
 }
 
 
