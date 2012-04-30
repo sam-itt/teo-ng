@@ -537,17 +537,18 @@ static void print_drawable_gfx_char (int c)
         }
     }
 
-    /* draw char */
-    x_max = font.fixed_width;
-    switch (font.type)
-    {
-       case FACE_PROPORTIONAL : (int)font.prop_width[data-0x20]; break;
-       case FACE_ITALIC        : x_max += 2; break;
-    }
+    /* compute width of char */
+    x_max = (font.type == FACE_PROPORTIONAL) ? (int)font.prop_width[data-0x20] : font.fixed_width;
 
+    /* CR if End Of Line */
     if (paper.x + x_max > paper.width)
         print_gfx_line_feed ();
 
+    /* 2 pixels more if italic */
+    if (font.type == FACE_ITALIC)
+        x_max += 2;
+
+    /* draw char */
     for (x = 0; x < x_max; x++)
     {
         if (paper.x + x < paper.width)
@@ -559,13 +560,14 @@ static void print_drawable_gfx_char (int c)
 
             draw_column (column, font.height, dot_width, dot_height);
 
-            if (bold != 0)
+            if ((bold != 0) && (paper.x + x + 2 < paper.width))
             {
                 draw_column (column, font.height, 2, dot_height);
                 paper.x -= 2;
             }
         }
     }
+    /* restore cursor if italic */
     if (font.type == FACE_ITALIC)
         paper.x -= 2;
 }
