@@ -538,27 +538,36 @@ static void print_drawable_gfx_char (int c)
     }
 
     /* draw char */
-    
-    x_max = (font.type == FACE_PROPORTIONAL) ? (int)font.prop_width[data-0x20] : font.fixed_width;
+    x_max = font.fixed_width;
+    switch (font.type)
+    {
+       case FACE_PROPORTIONAL : (int)font.prop_width[data-0x20]; break;
+       case FACE_ITALIC        : x_max += 2; break;
+    }
 
     if (paper.x + x_max > paper.width)
         print_gfx_line_feed ();
 
     for (x = 0; x < x_max; x++)
     {
-        column = (font.buffer == NULL) ? 0 : font.buffer[(c-0x20)*FONT_WIDTH_MAX+x];
-    
-        if (underline != 0)
-            column |= 1  << (font.height - 1);
-
-        draw_column (column, font.height, dot_width, dot_height);
-
-        if (bold != 0)
+        if (paper.x + x < paper.width)
         {
-            draw_column (column, font.height, 2, dot_height);
-            paper.x -= 2;
+            column = (font.buffer == NULL) ? 0 : font.buffer[(c-0x20)*FONT_WIDTH_MAX+x];
+    
+            if (underline != 0)
+                column |= 1  << (font.height - 1);
+
+            draw_column (column, font.height, dot_width, dot_height);
+
+            if (bold != 0)
+            {
+                draw_column (column, font.height, 2, dot_height);
+                paper.x -= 2;
+            }
         }
     }
+    if (font.type == FACE_ITALIC)
+        paper.x -= 2;
 }
 
 
