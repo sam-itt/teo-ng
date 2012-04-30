@@ -57,13 +57,13 @@
 struct THOMSON_GUI *gui = NULL;
 
 
-/* bad_alloc:
+/* alloc_error:
  *  Libère la mémoire occupée par la GUI et retourne une erreur.
  */
-static int bad_alloc (void)
+static int alloc_error (void)
 {
    to8_FreeGUI ();
-   return ErrorMessage(TO8_BAD_ALLOC, NULL);
+   return ErrorMessage(TO8_alloc_error, NULL);
 }
 
 
@@ -131,26 +131,26 @@ int to8_InitGUI (void)
     int i;
 
     if ((gui = (struct THOMSON_GUI *)calloc (sizeof(struct THOMSON_GUI), 1)) == NULL)
-        return (bad_alloc());
+        return (alloc_error());
     
     if ((gui->lprt.folder = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
-        return (bad_alloc());
+        return (alloc_error());
 
     for (i=0; i<NBDRIVE; i++)
         if ((gui->disk[i].file = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
-            return (bad_alloc());
+            return (alloc_error());
 
     if ((gui->cass.file = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
-        return (bad_alloc());
+        return (alloc_error());
 
     if ((gui->memo.file = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
-        return (bad_alloc());
+        return (alloc_error());
 
     if ((gui->memo.label = (char *)calloc (TO8_MEMO7_LABEL_LENGTH + 1, sizeof(char))) == NULL)
-        return (bad_alloc());
+        return (alloc_error());
 
     if ((gui->imag.file = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
-        return (bad_alloc());
+        return (alloc_error());
 
     return TO8_OK;
 }
