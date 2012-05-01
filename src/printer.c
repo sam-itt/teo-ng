@@ -97,6 +97,7 @@ struct LPRT_COUNTER
 
 struct LPRT_PAPER
 {
+    int  counter;
     int  type;
     int  x;
     int  y;
@@ -123,10 +124,15 @@ struct LPRT_FONT
     char prop_width[FONT_CHAR_MAX];
 };
 
+struct LPRT_GFX
+{
+    int mode7;
+    void (*prog)();
+    int counter;
+};
 
 static FILE *fp_text = NULL;
 static FILE *fp_raw = NULL;
-static int  file_counter = 0;
 static int  data;
 static int  pica_width;
 static int  double_width;
@@ -138,18 +144,11 @@ static struct LPRT_PAPER paper;
 static struct LPRT_FONT font;
 static struct LPRT_COUNTER counter;
 static struct LPRT_GUI lprt;
-static int  val16 = 0;
-static int  flag16 = 0;
-static int  gfx7_mode = 0;
-static void (*gfx_prog)();
-static int  gfx_counter = 0;
+static struct LPRT_GFX gfx;
 
 static int  printer_open_state = FALSE;
 static void (*prog)();
 static void (*restart_prog)();
-
-static void pr90055_first (void);
-static void pr906xx_first (void);
 
 
 
@@ -166,9 +165,9 @@ static void print_raw_char (int c)
     if (fp_raw == NULL)
     {
 #ifdef DJGPP
-        (void)sprintf (path, "%s%slprt%03d.bin", lprt.folder, SLASH, file_counter);
+        (void)sprintf (path, "%s%slprt%03d.bin", lprt.folder, SLASH, paper.counter);
 #else
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", lprt.folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.bin", lprt.folder, SLASH, paper.counter);
 #endif
         fp_raw = fopen (path, "wb");
         if (fp_raw == NULL)
@@ -193,9 +192,9 @@ static void print_text_char (int c)
     if (fp_text == NULL)
     {
 #ifdef DJGPP
-        (void)sprintf (path, "%s%slprt%03d.txt", lprt.folder, SLASH, file_counter);
+        (void)sprintf (path, "%s%slprt%03d.txt", lprt.folder, SLASH, paper.counter);
 #else
-        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", lprt.folder, SLASH, file_counter);
+        (void)snprintf (path, MAX_PATH, "%s%slprt%03d.txt", lprt.folder, SLASH, paper.counter);
 #endif
         fp_text = fopen (path, "wb");
         if (fp_text == NULL)
@@ -204,6 +203,10 @@ static void print_text_char (int c)
     fputc (c, fp_text);
     fflush (fp_text);
 }
+
+
+
+
 
 
 
@@ -304,7 +307,7 @@ static void gfx_eject (void)
     if (!lprt.gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)sprintf (path, "%s%slprt%03d.bmp", lprt.folder, SLASH, file_counter);
+    (void)sprintf (path, "%s%slprt%03d.bmp", lprt.folder, SLASH, paper.counter);
 
     file = fopen (path, "wb");
     if (file == NULL)
@@ -368,7 +371,7 @@ static void gfx_eject (void)
     if (!lprt.gfx_output || (paper.buffer == NULL))
         return;
 
-    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", lprt.folder, SLASH, file_counter);
+    (void)snprintf (path, MAX_PATH, "%s%slprt%03d.png", lprt.folder, SLASH, paper.counter);
 	
     file = fopen(path, "wb");
     if (file != NULL)
@@ -423,7 +426,7 @@ static void print_gfx_line_feed (void)
     if (paper.y + paper.lf_size > paper.height)
     {
         gfx_eject ();
-        file_counter++;
+        paper.counter++;
     }
 }
 
@@ -472,8 +475,7 @@ static void draw_pixel (int y, int width, int height)
 /* draw_column:
  *  Ecrit une colonne de points.
  */
-static void draw_column (int column, int length,
-                           int pixel_width, int pixel_height)
+static void draw_column (int column, int length, int pixel_width, int pixel_height)
 {
     int y;
 
@@ -725,7 +727,7 @@ static void print_gfx7_data (void)
  */
 static void PR_gfx7 (void)
 {
-    gfx7_mode = 0x80;
+    gfx.mode7 = 0x80;
     PR_forget ();
 }
 
@@ -746,8 +748,8 @@ static void print_gfx8_data (void)
  */
 static void PR_gfx8 (void)
 {
-    gfx_prog = print_gfx8_data;
-    gfx_counter = counter.value;
+    gfx.prog = print_gfx8_data;
+    gfx.counter = counter.value;
     PR_forget ();
 }
 
@@ -758,15 +760,15 @@ static void PR_gfx8 (void)
  */
 static void print_gfx16_data (void)
 {
-    if ((flag16 ^= 1) == 1)
-    {
-        val16 = data;
-        gfx_counter++;
-    }
+    static int value = 0;
+
+    if (value >= 0)
+        value = ~data;
     else
     {
-        val16 |= data << 8;
-        draw_column (val16, 16, 2, 2);
+        value = ~value | (data << 8);
+        draw_column (value, 16, 2, 2);
+        PR_forget ();
     }
 }
 
@@ -777,8 +779,8 @@ static void print_gfx16_data (void)
  */
 static void PR_gfx16 (void)
 {
-    gfx_prog = print_gfx16_data;
-    gfx_counter = counter.value;
+    gfx.prog = print_gfx16_data;
+    gfx.counter = counter.value << 1;
     PR_forget ();
 }
 
@@ -795,7 +797,7 @@ static void print_screen_data (void)
 
     if (mc6809_clock() - last_data_time > delay)
     {
-        gfx_counter = 0;
+        gfx.counter = 0;
         return;
     }
 
@@ -807,7 +809,7 @@ static void print_screen_data (void)
            draw_pixel (0, pixel_size, pixel_size);
         paper.x += pixel_size;
     }
-    if ((gfx_counter % 40) == 0)
+    if ((gfx.counter % 40) == 0)
     {
         paper.x = 0;
         paper.y += pixel_size;
@@ -822,8 +824,23 @@ static void print_screen_data (void)
 static void PR_screenprint (void)
 {
     last_data_time = mc6809_clock();
-    gfx_prog = print_screen_data;
-    gfx_counter = 8000;
+    gfx.prog = print_screen_data;
+    gfx.counter = 8000;
+}
+
+
+
+/* print_gfx7_repeat:
+ *  Programme la répétition d'une colonne graphique 7 points.
+ */
+static void print_gfx7_repeat (void)
+{
+    int i;
+
+    for (i=0; i<counter.value; i++)
+        print_gfx7_data ();
+    gfx.mode7 >>= 1;
+    PR_forget ();
 }
 
 
@@ -833,19 +850,18 @@ static void PR_screenprint (void)
  */
 static void PR_repeat_gfx7 (void)
 {
-    int i;
-
-    for (i=0; i<counter.value; i++)
-        print_gfx7_data ();
-    PR_forget ();
+     if (gfx.mode7 != 0)
+         prog = print_gfx7_repeat;
+     else
+         PR_forget ();
 }
-          
 
 
-/* PR_repeat_gfx8:
+
+/* print_gfx8_repeat:
  *  Programme la répétition d'une colonne graphique 8 points.
  */
-static void PR_repeat_gfx8 (void)
+static void print_gfx8_repeat (void)
 {
     int i;
 
@@ -856,21 +872,43 @@ static void PR_repeat_gfx8 (void)
           
 
 
+/* PR_repeat_gfx8:
+ *  Programme la répétition d'une colonne graphique 8 points.
+ */
+static void PR_repeat_gfx8 (void)
+{
+    prog = print_gfx8_repeat;
+}
+          
+
+
+/* print_gfx16_repeat:
+ *  Programme la répétition d'une colonne graphique 16 points.
+ */
+static void print_gfx16_repeat (void)
+{
+    int i;
+    static int value = 0;
+
+    if (value >= 0)
+        value = ~data;
+    else
+    {
+        value = (~value) | (data << 8);
+        for (i=0; i<counter.value; i++)
+            draw_column (value, 16, 2, 2);
+        PR_forget ();
+    }
+}
+
+
+
 /* PR_repeat_gfx16:
  *  Programme la répétition d'une colonne graphique 16 points.
  */
 static void PR_repeat_gfx16 (void)
 {
-    int i;
-
-    val16 = ((val16 << 8) | data) & 0xffff;
-
-    if ((flag16 ^= 1) == 0)
-        return;
-
-    for (i=0; i<counter.value; i++)
-        draw_column (val16, 16, 2, 2);
-    PR_forget ();
+    prog = print_gfx16_repeat;
 }
 
 
@@ -881,7 +919,8 @@ static void PR_repeat_gfx16 (void)
 static void PR_print_position (void)
 {
     if (counter.value < 960)
-        paper.x = counter.value * 2;
+        paper.x = counter.value << 1;
+    gfx.mode7 >>= 1;
     PR_forget();
 }
 
@@ -909,6 +948,7 @@ static void PR_pica_positionning (void)
     paper.x = paper.left_margin + (counter.value * pica_width);
     if (paper.x > paper.width)
         paper.x = 0;
+    gfx.mode7 >>= 1;
     PR_forget ();
 }
 
@@ -919,13 +959,14 @@ static void PR_pica_positionning (void)
  */
 static void PR_line_feed (void)
 {
-    if (gfx7_mode == 0)
+    if (gfx.mode7 == 0)
     {
         print_gfx_line_feed ();
         print_text_char (0x0d);
         print_text_char (0x0a);
     }
-}        
+    gfx.mode7 >>= 1;
+}
 
 
 
@@ -935,6 +976,7 @@ static void PR_line_feed (void)
 static void PR_line_start (void)
 {
     paper.x = 0;
+    gfx.mode7 >>= 1;
 }    
 
 
@@ -966,7 +1008,7 @@ static void PR_form_feed (void)
         print_text_char (0x0d);
         print_text_char (0x0a);
     }
-    file_counter++;
+    paper.counter++;
 } 
 
 
@@ -974,12 +1016,13 @@ static void PR_form_feed (void)
 /* load_font:
  *  Charge un générateur de caractères imprimante.
  */
+#define FONT_STR_LENGTH 150
 static void load_font (char *filename, int face)
 {
     FILE *file;
     int  i, x, y;
     int  xp = 0, yp = 0;
-    char str[150+1] = "";
+    char str[FONT_STR_LENGTH+1] = "";
     char *p;
     char *res;
 
@@ -994,7 +1037,7 @@ static void load_font (char *filename, int face)
 #ifdef DJGPP
     (void)sprintf (str, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
 #else
-    (void)snprintf (str, 150, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
+    (void)snprintf (str, FONT_STR_LENGTH, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
 #endif
     
     if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
@@ -1002,7 +1045,7 @@ static void load_font (char *filename, int face)
 #ifdef DJGPP
         (void)sprintf (str, "fonts%s%s.txt", SLASH, filename);
 #else
-        (void)snprintf (str, 150, "fonts%s%s.txt", SLASH, filename);
+        (void)snprintf (str, FONT_STR_LENGTH, "fonts%s%s.txt", SLASH, filename);
 #endif
     
         if (face == FACE_SUBSCRIPT) yp = 7;
@@ -1013,7 +1056,7 @@ static void load_font (char *filename, int face)
 
     /* skip comments */
     while ((*str < '0') || (*str > '9'))
-        res=fgets (str, 150, file);
+        res=fgets (str, FONT_STR_LENGTH, file);
 
     /* load font parameters */
     font.type = face;
@@ -1034,12 +1077,12 @@ static void load_font (char *filename, int face)
     /* load matrix */
     for (i=0; i<font.count; i++)
     {
-        res=fgets (str, 150, file);
+        res=fgets (str, FONT_STR_LENGTH, file);
         font.prop_width[i] = (char)strtol (str, &p, 10);
 
         for (y=yp; y<font.height+yp; y++)
         {
-             res=fgets (str, 150, file);
+             res=fgets (str, FONT_STR_LENGTH, file);
 
              if (face == FACE_ITALIC)
                  xp = (font.height+yp-1-y)/2;
@@ -1087,7 +1130,7 @@ static void eject_paper (void)
 
     gfx_eject();
     
-    file_counter++;
+    paper.counter++;
 }
 
 
@@ -1210,14 +1253,14 @@ static void PR_reset (void)
 /* ----------------------- PR90-600 / PR90-612 ----------------------- */
 
 
-/* clear_gfx7_mode:
+/* clear_gfx_mode7:
  *  Sort du mode gfx7.
  */
-void clear_gfx7_mode(void)
+void clear_gfx_mode7(void)
 {
-    if (gfx7_mode != 0)
+    if (gfx.mode7 != 0)
     {
-        gfx7_mode = 0;
+        gfx.mode7 = 0;
         PR_line_feed ();
     }
 }
@@ -1233,8 +1276,8 @@ static void pr906xx_escape (void)
         case 16 : set_read_counter (BINARY_VALUE, 2, PR_print_position); return;
     }
 
-    clear_gfx7_mode();
-    
+    clear_gfx_mode7();
+
     switch ((char)data)
     {
         case 14 : PR_double_width(); break;
@@ -1279,20 +1322,20 @@ static void pr906xx_escape (void)
  */
 static void pr906xx_first (void)
 {
-    val16 = 0;
-    flag16 = 0;
+    gfx.mode7 <<= 1;
 
     switch (data)
     {
+        case 8  : PR_gfx7(); return;
         case 10 : PR_line_feed(); return;
         case 13 : PR_line_start_dip(); return;
         case 20 : PR_line_start(); return;
         case 16 : set_read_counter (DIGIT_VALUE, 2, PR_pica_positionning); return;
-        case 28 : PR_repeat_gfx7(); return;
+        case 28 : set_read_counter (BINARY_VALUE, 1, PR_repeat_gfx7); return;
         case 27 : prog = pr906xx_escape; return;
     }
 
-    clear_gfx7_mode();
+    clear_gfx_mode7();
 
     switch (data)
     {
@@ -1301,7 +1344,6 @@ static void pr906xx_first (void)
         case 15 : PR_simple_width(); break;
         case 24 : break;
         case 7  : PR_screenprint(); break;
-        case 8  : PR_gfx7(); break;
         case 18 : set_read_counter (DIGIT_VALUE, 3, PR_char_positionning); break;
         default : print_drawable_char (); break;
     }
@@ -1375,21 +1417,21 @@ static void printer_Open (void)
     {
         case  55 : paper.chars_per_line = 40;
                    screenprint_data_delay = 100;
-                   prog = pr90055_first;
+                   restart_prog = pr90055_first;
                    break;
 
         case 600 : paper.chars_per_line = 80;
                    screenprint_data_delay = 80;
-                   prog = pr906xx_first;
+                   restart_prog = pr906xx_first;
                    break;
 
         case 612 : paper.chars_per_line = 80;
                    screenprint_data_delay = 100;
-                   prog = pr906xx_first;
+                   restart_prog = pr906xx_first;
                    break;
     }
     reinit_printer();
-    restart_prog = prog;
+    PR_forget ();
 }
 
 
@@ -1419,7 +1461,7 @@ void printer_Close(void)
         free (font.buffer);
         font.buffer = NULL;
     }
-    prog = restart_prog;
+    PR_forget ();
     printer_open_state = FALSE;
     mc6846.prc &= 0xBF;  /* BUSY à 0 */
 }
@@ -1453,15 +1495,15 @@ void printer_SetStrobe(int state)
         print_raw_char (data);
 
     /* print data if GFX mode with counter */
-    if (gfx_counter != 0)
+    if (gfx.counter != 0)
     {
-        gfx_counter--;
-        (*gfx_prog)();
+        gfx.counter--;
+        (*gfx.prog)();
         return;
     }
 
     /* print data if GFX mode 7 dots */
-    if (((gfx7_mode & data) != 0) && (prog != read_counter))
+    if ((gfx.mode7 & data) != 0)
     {
         print_gfx7_data ();
         return;
@@ -1478,11 +1520,12 @@ void printer_SetStrobe(int state)
  */
 void InitPrinter(void)
 {
-    /* trap pour récuparation de RS.STA */
+    /* trap to get RS.STA value */
     mem.mon.bank[0][0x1B65]=TO8_TRAP_CODE;
 
     memset (&paper, 0x00, sizeof (struct LPRT_PAPER));
     memset (&font, 0x00, sizeof (struct LPRT_FONT));
+    memset (&gfx, 0x00, sizeof (struct LPRT_GFX));
     gui->lprt.number = 55;
     gui->lprt.gfx_output = TRUE;
 }
