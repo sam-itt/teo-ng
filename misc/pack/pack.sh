@@ -21,11 +21,32 @@ version='1.8.1'
 packDir="teo/misc/pack"
 zipOptions="-q -9"
 gzipOptions="-9"
+
+# ----------------- Convert files from DOS to UNIX
+
+find . -type d "(" \
+   -name ".hg" -prune \
+   ")" -o \
+   -type f "(" \
+   -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
+   -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
+   -name "*.txt" -o -name "change.log" -o -name "*.htm*" \
+   ")" \
+   -exec sh -c "echo {};
+                mv {} _tmpfile;
+                tr -d \\\r < _tmpfile > {};
+                touch -r _tmpfile {};
+                rm _tmpfile" \;
+
+chmod +x *.sh misc/*.sh
+
 cd ..
 
 # ----------------- Clean all
 
 rm -f $packDir/teo-*.tar* $packDir/teo-*.zip $packDir/teo-*.deb
+rm ./teo/teo.cfg
+cp ./teo/misc/teo_init.cfg teo/teo.cfg
 
 # ----------------- Linux DEBIAN package for executable
 
@@ -78,7 +99,7 @@ sudo rm -r -f ~/teo-$version-i586.deb
 
 # ----------------- Linux executable package
 
-echo "Creating TAR.GZ package for Linux executable..." \
+echo "Creating TAR.GZ package for Linux executable..."
 
 # Compile Linux executable
 cd teo
@@ -100,6 +121,57 @@ teo/*.rom"
 
 tar -cf $packFile $files
 gzip $gzipOptions $packFile
+
+# ----------------- Create TAR.GZ package for sources
+
+srcfiles="
+teo/src
+teo/include
+teo/doc/*.htm
+teo/doc/images
+teo/tests
+teo/obj/linux/*.dep
+teo/obj/djgpp/*.dep
+teo/obj/mingw32/*.dep
+teo/misc/*.*
+$packDir/*.txt
+$packDir/*.bat
+$packDir/*.sh
+$packDir/inno/*.iss
+$packDir/inno/*.bmp
+$packDir/debian
+teo/*-??.*
+teo/fix*
+teo/makefile*
+teo/*.diff
+teo/*.cfg
+teo/*.rom"
+
+echo "Creating TAR.GZ package for sources..."
+
+packFile="$packDir/teo-$version-src.tar"
+tar -cf $packFile $srcfiles
+gzip $gzipOptions $packFile
+
+# ----------------- Convert files from UNIX to DOS
+
+cd teo
+find . -type d "(" \
+      -name ".hg" -prune \
+      ")" -o \
+      -type f "(" \
+      -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
+      -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
+      -name "*.txt" -o -name "change.log" -o -name "*.htm*" \
+      ")" \
+      -exec sh -c "echo {};
+                   mv {} _tmpfile;
+                   sed 's/\x0d$//' _tmpfile > _tmpfile2;
+                   sed 's/$/\r/' _tmpfile2 > {};
+                   touch -r _tmpfile {};
+                   rm _tmpfile _tmpfile2" \;
+
+cd ..
 
 # ----------------- MSDOS executable packages
 
@@ -140,7 +212,7 @@ teo/memo7
 teo/k7
 teo/language.dat
 teo/keyboard.dat
-teo/alleg40.dll
+teo/*.dll
 teo/teo.cfg
 teo/doc/images/home.gif
 teo/doc/images/logo*.jpg
@@ -161,43 +233,32 @@ rm teo/teow.exe
 cp $packDir/inno/teow-en.exe teo/teow.exe
 zip -r $zipOptions $packFile $commonFiles teo/*-en.* teo/doc/images/teo_v?en.gif teo/doc/images/teo_w?en.gif teo/doc/teo_win_en.htm
 
-# ----------------- Sources packages
+# ----------------- Create ZIP package for sources
 
 echo "Creating ZIP package for sources..."
 
-files="
-teo/src
-teo/include
-teo/doc/*.htm
-teo/doc/images
-teo/tests
-teo/obj/linux/*.dep
-teo/obj/djgpp/*.dep
-teo/obj/mingw32/*.dep
-teo/misc/*.*
-$packDir/*.txt
-$packDir/*.bat
-$packDir/*.sh
-$packDir/inno/*.iss
-$packDir/inno/*.bmp
-$packDir/debian
-teo/*-??.*
-teo/fix*
-teo/makefile*
-teo/*.diff
-teo/*.cfg
-teo/*.rom"
-
 packFile="$packDir/teo-$version-src.zip"
-zip -r $zipOptions $packFile $files
-
-echo "Creating TAR.GZ package for sources..."
-
-packFile="$packDir/teo-$version-src.tar"
-tar -cf $packFile $files
-gzip $gzipOptions $packFile
+zip -r $zipOptions $packFile $srcfiles
 
 cd teo
+
+# ----------------- Convert files from DOS to UNIX
+
+find . -type d "(" \
+   -name ".hg" -prune \
+   ")" -o \
+   -type f "(" \
+   -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
+   -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
+   -name "*.txt" -o -name "change.log" -o -name "*.htm*" \
+   ")" \
+   -exec sh -c "echo {};
+                mv {} _tmpfile;
+                tr -d \\\r < _tmpfile > {};
+                touch -r _tmpfile {};
+                rm _tmpfile" \;
+
+chmod +x *.sh misc/*.sh
 
 echo "Done!"
 
