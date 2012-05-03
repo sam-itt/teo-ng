@@ -1,5 +1,5 @@
-1. Introduction
----------------
+Introduction
+------------
 Le système d'archivage SAP, conçu par Alexandre Pukall, est l'outil utilisé
 par les émulateurs Thomson pour manipuler de façon souple et sécurisée les
 disquettes 3"5 ou 5"25 au format Thomson. L'idée directrice de SAP est de
@@ -18,20 +18,20 @@ binaire, listage des fichiers, extraction de fichiers, ajout de fichiers et
 destruction de fichiers.
 
 
-2. Comment l'obtenir ?
-----------------------
+Comment l'obtenir ?
+-------------------
 En le téléchargeant depuis la page Web:
 http://nostalgies.thomsonistes.org/utilitaires.html
 
 
-3. Fonctionnement du programme
-------------------------------
+Fonctionnement du programme
+---------------------------
 SAPfs fonctionne en mode batch: une commande éventuellement suivie d'un ou
 plusieurs arguments doit lui être passée sur la ligne de commandes.
 
 
-4. Commandes du programme
--------------------------
+Commandes du programme
+----------------------
 Une des commandes suivantes doit être passée à SAPfs comme premier argument:
 
   -h, --help
@@ -140,17 +140,3 @@ Une des commandes suivantes doit être passée à SAPfs comme premier argument:
                     secteur : numéro du secteur (de 1 à 16)
                     ex:  sapfs --move foo.sap 12 4 bar.sap 26 16
 
-
-5. Problèmes connus
--------------------
-Aucun pour le moment (je croise les doigts ;-)
-
-
-6. Conclusion
--------------
-J'espère que cette version de SAPfs répondra à vos attentes; n'hésitez pas à
-me faire part de vos remarques et suggestions.
-
-
-Eric Botcazou
-e-mail: <ebotcazou@libertysurf.fr>

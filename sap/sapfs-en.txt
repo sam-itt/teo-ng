@@ -1,5 +1,5 @@
-1. Introduction
----------------
+Introduction
+------------
 The SAP archiving system, designed by Alexander Pukall, is the tool used
 by Teo emulator to handle flexibly and securely 3 "5 or 5" 25 disks
 formatted Thomson. The main idea is to reproduce Thomson physical disks
@@ -16,20 +16,20 @@ archives: creation, formatting, checking, dump binary, directory, extracting
 files, adding files and deleting files.
 
 
-2. How to get it ?
-------------------
+How to get it ?
+---------------
 By downloading it at the web page:
 http://sourceforge.net/projects/teoemulator/?source=directory
 
 
-3. How the program works
-------------------------
+How the program works
+---------------------
 SAPfs works in batch mode: a command, possibly followed by one or more
 arguments, must be passed in command line.
 
 
-4. Program commands
--------------------
+Program commands
+----------------
 One of the following must be passed as first argument:
 
   -h, --help
@@ -138,17 +138,3 @@ One of the following must be passed as first argument:
                     sector : sector number (from 1 to 16)
                     ex:  sapfs --move foo.sap 12 4 bar.sap 26 16
 
-
-5. Known problems
------------------
-None yet (cross my fingers ;-)
-
-
-6. Conclusion
--------------
-I hope this version of SAP will come up to your expectations, please let me
-know your comments and suggestions.
-
-
-Eric Botcazou
-e-mail: <ebotcazou@libertysurf.fr>

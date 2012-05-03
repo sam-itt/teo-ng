@@ -1,5 +1,5 @@
-1. Introduction
----------------
+Introduction
+------------
 Le système d'archivage SAP, conçu par Alexandre Pukall, est l'outil utilisé
 par les émulateurs Thomson pour manipuler de façon souple et sécurisée les
 disquettes 3"5 ou 5"25 au format Thomson. L'idée directrice de SAP est de
@@ -18,14 +18,14 @@ lui-même; la version étendue SAP2 présentée ci-dessous, disponible pour
 MSDOS et Linux, en reprend intégralement les fonctionnalités.
 
 
-2. Comment l'obtenir ?
-----------------------
+Comment l'obtenir ?
+-------------------
 En le téléchargeant depuis la page Web:
 http://nostalgies.thomsonistes.org/utilitaires.html
 
 
-3. Fonctionnement du programme
-------------------------------
+Fonctionnement du programme
+---------------------------
 SAP2 peut fonctionner selon deux modes: si aucun argument ne lui est passé
 sur la ligne de commandes, il entre en mode interactif et propose un menu des
 commandes disponibles; si au moins un argument lui est passé sur la ligne de
@@ -33,13 +33,13 @@ commandes, il entre en mode batch et décode l'argument pour éxécuter la
 commande spécifiée.
 
 
-4. Commandes du programme en mode interactif
---------------------------------------------
+Commandes du programme en mode interactif
+-----------------------------------------
 Les commandes se répartissent en trois catégories: transfert TO-->PC,
 transfert PC-->TO et autres commandes.
 
-  4.1 Transfert TO-->PC
-  ---------------------
+  Transfert TO-->PC
+  -----------------
   Commande 1: Visualiser le contenu d'une disquette Thomson
     Cette commande peut être utile *avant* de lancer le processus
     d'archivage proprement dit: elle affiche le répertoire d'une
@@ -61,8 +61,8 @@ transfert PC-->TO et autres commandes.
     active le mécanisme que le format SAP définit dans ce cas.
 
 
-  4.2 Transfert PC-->TO
-  ---------------------
+  Transfert PC-->TO
+  -----------------
   Commande 4: Visualiser le contenu d'une archive SAP
     Cette commande peut être utile *avant* de lancer le processus de
     désarchivage proprement dit: elle affiche la liste des fichiers
@@ -85,14 +85,14 @@ transfert PC-->TO et autres commandes.
     Thomson.
 
 
-  4.3 Autres commandes
-  --------------------
+  Autres commandes
+  ----------------
   Commande 7: Quitter
     Comme son nom ne l'indique pas ;-) elle permet de quitter le programme.
 
 
-5. Commandes du programme en mode batch
----------------------------------------
+Commandes du programme en mode batch
+------------------------------------
 Une des commandes suivantes doit être passée à SAP2 comme premier argument:
 
   -h, --help
@@ -171,8 +171,8 @@ Une des commandes suivantes doit être passée à SAP2 comme premier argument:
                     [voir la commande 5 du mode interactif]
 
 
-6. Problèmes connus
--------------------
+Problèmes connus
+----------------
 - la version MSDOS peut fonctionner sous Windows 95 et 98; néanmoins, et
   notamment si un logiciel anti-virus tourne en tâche de fond, il peut être
   nécessaire de redémarrer l'ordinateur et d'ouvrir une session MS-DOS pure.
@@ -188,12 +188,3 @@ Une des commandes suivantes doit être passée à SAP2 comme premier argument:
 - il se peut que MSDOS ne puisse plus reformater au format standard une
   disquette formatée au format Thomson.
 
-
-7. Conclusion
--------------
-J'espère que cette version de SAP répondra à vos attentes; n'hésitez pas à
-me faire part de vos remarques et suggestions.
-
-
-Eric Botcazou
-e-mail: <ebotcazou@libertysurf.fr>

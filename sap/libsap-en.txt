@@ -242,6 +242,3 @@ is set to one of the following error codes:
     SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
     SAP_ENOENT : the file does not exist.
 
-
-Eric Botcazou
-e-mail: <ebotcazou@libertysurf.fr>

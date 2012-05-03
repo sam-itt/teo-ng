@@ -248,6 +248,3 @@ contient l'un des codes d'erreur suivants:
     SAP_EBUSY : l'archive SAP est en train détre remplie par sap_FillArchive()
     SAP_ENOENT : le fichier n'existe pas dans l'archive SAP.
 
-
-Eric Botcazou
-e-mail: <ebotcazou@libertysurf.fr>

@@ -1,5 +1,5 @@
-1. Introduction
----------------
+Introduction
+------------
 The SAP archiving system, designed by Alexander Pukall, is the tool used
 by Thomson emulators to handle flexibly and securely 3 "5 or 5" 25 disks
 formatted Thomson. The main idea is to reproduce Thomson physical disks
@@ -17,27 +17,27 @@ itself, the extended version SAP2 shown below, available for
 MSDOS and Linux, includes all features.
 
 
-2. How to get it ?
-------------------
+How to get it ?
+---------------
 By downloading it at the web page:
 http://sourceforge.net/projects/teoemulator/?source=directory
 
 
-3. How the Program Works
-------------------------
+How the Program Works
+---------------------
 SAP2 can work in two modes: if no argument is passed on the command line,
 it enters interactive mode and offers a menu of commands available, if at
 least one argument is passed to it on the command line, it enters in batch
 mode and decodes the argument to execute the specified command.
 
 
-4. Program commands in interactive mode
---------------------------------------------
+Program commands in interactive mode
+------------------------------------
 The commands fall into three categories: Transfer TO -> PC PC transfer -> TO
 and other commands.
 
-   4.1 TO--> PC transfer
-   ---------------------
+   TO--> PC transfer
+   -----------------
    Command 1: Viewing the contents of a Thomson floppy
      This command can be useful *before* starting the process archive
      itself: it displays the directory of a 3"5 or 5"25 disc formatted
@@ -58,8 +58,8 @@ and other commands.
      activates the mechanism that SAP format defines in this case.
      
      
-   4.2 PC--> TO transfer
-   ---------------------
+   PC--> TO transfer
+   -----------------
    Command 4: View the contents of a SAP archive
      This command can be useful *before* starting the unpack process
      itself: it displays the directory of the specified SAP archive.
@@ -79,14 +79,14 @@ and other commands.
      Caution: (see Order 5) the floppy must be Thomson pre-formatted.
 
 
-   4.3 Other commands
-   ------------------
+   Other commands
+   --------------
    Control 7: Quit
      As its name doesn't suggest it ;-), it allows to exit the program.
      
      
-5. Program commands in batch mode
----------------------------------
+Program commands in batch mode
+------------------------------
 One of the following must be passed to SAP2 as the first argument:
 
   -h, --help
@@ -167,8 +167,8 @@ One of the following must be passed to SAP2 as the first argument:
                     [see command 5 of interactive mode]
 
 
-6. Known problems
--------------------
+Known problems
+---------------
 - MSDOS version can run on Windows 95 and 98; however, especially if an
   anti-virus software is running in the background, it may be necessary to
   restart the computer and log on pure MS-DOS.
@@ -181,13 +181,3 @@ One of the following must be passed to SAP2 as the first argument:
   In contrary, Linux is not affected by this problem.
 - MSDOS may no longer reformat a Thomson formatted floppy to a standard format.
 
-
-7. Conclusion
--------------
-
-I hope this version of SAP will come up to your expectations, please let me
-know your comments and suggestions.
-
-
-Eric Botcazou
-e-mail: <ebotcazou@libertysurf.fr>
