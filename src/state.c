@@ -427,7 +427,7 @@ void to8_LoadState(char *filename)
     gui->lprt.txt_output = get_bool ("teo", "printer_txt_output", FALSE);
     gui->lprt.gfx_output = get_bool ("teo", "printer_gfx_output", TRUE);
 
-    if (access("autosave.img", R_OK))
+    if (access("autosave.img", F_OK) >= 0)
         to8_LoadImage("autosave.img");
 
     unload_cfg();
