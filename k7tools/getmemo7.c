@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef DJGPP
+#    include <locale.h>
+#endif
 
 int tab[4]={0xff,0x01,0x03c,0x01};
 
@@ -9,16 +12,12 @@ int noct;
 static int is_fr=0;
 
 /* ugly hack to support French accents */
-#ifdef linux
-static char eacute[] = "Ã©";
-static char egrave[] = "Ã¨";
-static char agrave[] = "Ã ";
-static char ugrave[] = "Ã¹";
-#else
+#ifdef DJGPP
 static char eacute[] = "‚";
-static char egrave[] = "Š";
-static char agrave[] = "…";
-static char ugrave[] = "—";
+static char ecirc[]  = "Š";
+#else
+static char eacute[] = "Ã©";
+static char ecirc[]  = "Ãª";
 #endif
 
 
@@ -58,6 +57,7 @@ int main(int argc,char **argv)
     int i,step;
     int c,n;
     char buf[256];
+    char *lang;
 
 #ifdef linux
     lang=getenv("LANG");

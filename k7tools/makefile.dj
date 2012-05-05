@@ -12,6 +12,12 @@ CFLAGS = $(WFLAGS) $(OFLAGS)
 
 msdos = 1
 
+ifdef EN_LANG
+    CFLAGS += -DENGLISH_LANG
+else
+    CFLAGS += -DFRENCH_LANG
+endif
+
 ################
 # target rules #
 ################
