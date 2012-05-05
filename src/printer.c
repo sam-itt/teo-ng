@@ -1528,5 +1528,6 @@ void InitPrinter(void)
     memset (&gfx, 0x00, sizeof (struct LPRT_GFX));
     gui->lprt.number = 55;
     gui->lprt.gfx_output = TRUE;
+    mc6846.prc &= 0xBF;  /* BUSY à 0 */
 }
 
