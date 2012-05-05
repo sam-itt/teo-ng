@@ -63,6 +63,8 @@
 /* fenêtre de l'interface utilisateur */
 GtkWidget *wdControl;
 
+/* répertoire par défaut pour l'ouverture à froid des file choosers */
+char gui_default_folder[MAX_PATH] = "";
 
 
 /* retrace_callback:

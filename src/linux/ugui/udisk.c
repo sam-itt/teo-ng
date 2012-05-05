@@ -56,6 +56,8 @@
 #include "linux/main.h"
 #include "to8.h"
 
+extern char gui_default_folder[];
+
 #define NDISKS 4
 
 struct FILE_VECTOR {
@@ -229,6 +231,7 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
 {
     GtkFileFilter *filter;
     static GtkWidget *dialog;
+    char *folder_name;
 
     if (vector->first) {
         dialog = gtk_file_chooser_dialog_new (
@@ -244,6 +247,9 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
 
         if (strlen (gui->disk[vector->id].file) != 0)
             (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->disk[vector->id].file);
+        else
+        if (strlen (gui_default_folder) != 0)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui_default_folder);
         else
         if (access("./disks/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./disks/");
@@ -263,6 +269,9 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
             g_signal_handler_block (vector->combo, vector->combo_changed_id);
 
             add_combo_entry (gui->disk[vector->id].file, vector);
+            folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
+            (void)snprintf (gui_default_folder, MAX_PATH, "%s", folder_name);
+            g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */
             g_signal_handler_unblock (vector->combo, vector->combo_changed_id); 

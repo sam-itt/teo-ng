@@ -56,6 +56,8 @@
 #include "linux/main.h"
 #include "to8.h"
 
+extern char gui_default_folder[];
+
 #define COUNTER_MAX  999
 
 static GtkWidget *combo;
@@ -255,6 +257,7 @@ static void open_file (GtkButton *button, gpointer data)
     static int first=1;
     GtkFileFilter *filter;
     static GtkWidget *dialog;
+    char *folder_name;
 
     if (first) {
         dialog = gtk_file_chooser_dialog_new (
@@ -270,6 +273,9 @@ static void open_file (GtkButton *button, gpointer data)
 
         if (strlen (gui->cass.file) != 0)
             (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->cass.file);
+        else
+        if (strlen (gui_default_folder) != 0)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui_default_folder);
         else
         if (access("./k7/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./k7/");
@@ -289,6 +295,9 @@ static void open_file (GtkButton *button, gpointer data)
             g_signal_handler_block (combo, combo_changed_id);
 
             add_combo_entry (gui->cass.file);
+            folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
+            (void)snprintf (gui_default_folder, MAX_PATH, "%s", folder_name);
+            g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */
             g_signal_handler_unblock (combo, combo_changed_id); 
