@@ -873,7 +873,6 @@ int main(int argc, char *argv[])
 {
    int ret = 0;
    int i;
-   char *lang;
 
 #ifdef DJGPP
 #ifdef FRENCH_LANG
@@ -882,7 +881,7 @@ int main(int argc, char *argv[])
     is_fr = 0;
 #endif
 #else
-    lang=getenv("LANG");
+   char *lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "fr_FR.UTF8");    
     if (strncmp(lang,"fr",2)==0) 
