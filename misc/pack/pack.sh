@@ -24,21 +24,8 @@ gzipOptions="-9"
 
 # ----------------- Convert files from DOS to UNIX
 
-find . -type d "(" \
-   -name ".hg" -prune \
-   ")" -o \
-   -type f "(" \
-   -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
-   -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
-   -name "*.txt" -o -name "*.log" -o -name "*.htm*" \
-   ")" \
-   -exec sh -c "echo {};
-                mv {} _tmpfile;
-                tr -d \\\r < _tmpfile > {};
-                touch -r _tmpfile {};
-                rm _tmpfile" \;
-
-chmod +x *.sh misc/*.sh
+echo "Convert files from DOS to UNIX..."
+./fixunix.sh
 
 cd ..
 
@@ -54,10 +41,23 @@ echo "Creating DEBIAN package for Linux executable..."
 
 # Compile Linux DEBIAN
 cd teo
-make clean
+make veryclean
 make DEBIAN=1
 make depend
 cd ..
+cd teo/sap
+make clean
+make
+cd ../..
+cp teo/sap/sap2  teo/
+cp teo/sap/sapfs teo/
+cd teo/k7tools
+make clean
+make
+cd ../..
+cp teo/k7tools/getrom   teo/
+cp teo/k7tools/getmemo7 teo/
+cp teo/k7tools/wav2k7   teo/
 # Transfert DEBIAN file structure
 sudo rm -r -f ~/teo-$version-i586
 cp -r $packDir/debian/teo ~
@@ -71,6 +71,11 @@ mkdir ~/teo-$version-i586/usr/share/doc/teo/html
 mkdir ~/teo-$version-i586/usr/share/doc/teo/html/images
 # Copy files into file structure
 cp teo/teo      ~/teo-$version-i586/usr/games/
+cp teo/sap2     ~/teo-$version-i586/usr/games/
+cp teo/sapfs    ~/teo-$version-i586/usr/games/
+cp teo/getrom   ~/teo-$version-i586/usr/games/
+cp teo/getmemo7 ~/teo-$version-i586/usr/games/
+cp teo/wav2k7   ~/teo-$version-i586/usr/games/
 cp teo/teo.cfg  ~/teo-$version-i586/usr/share/teo
 cp teo/*-fr.txt ~/teo-$version-i586/usr/share/teo
 cp teo/*-en.txt ~/teo-$version-i586/usr/share/teo
@@ -103,7 +108,7 @@ echo "Creating TAR.GZ package for Linux executable..."
 
 # Compile Linux executable
 cd teo
-make clean
+make veryclean
 make
 make depend
 cd ..
@@ -117,6 +122,11 @@ teo/doc/images/logo*.jpg
 teo/doc/*.css
 teo/*-??.*
 teo/teo
+teo/sap2
+teo/sapfs
+teo/getrom
+teo/getmemo7
+teo/wav2k7
 teo/*.rom"
 
 tar -cf $packFile $files
@@ -141,7 +151,8 @@ $packDir/inno/*.iss
 $packDir/inno/*.bmp
 $packDir/debian
 teo/*-??.*
-teo/fix*
+teo/*.bat
+teo/*.sh
 teo/makefile*
 teo/*.diff
 teo/*.cfg
@@ -156,20 +167,8 @@ gzip $gzipOptions $packFile
 # ----------------- Convert files from UNIX to DOS
 
 cd teo
-find . -type d "(" \
-      -name ".hg" -prune \
-      ")" -o \
-      -type f "(" \
-      -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
-      -name "*.xpm" -o -name "makefile.*" -o -name "*.txt" -o \
-      -name "*.log" -o -name "*.bat" -o -name "*.htm*" \
-      ")" \
-      -exec sh -c "echo {};
-                   mv {} _tmpfile;
-                   sed 's/\x0d$//' _tmpfile > _tmpfile2;
-                   sed 's/$/\r/' _tmpfile2 > {};
-                   touch -r _tmpfile {};
-                   rm _tmpfile _tmpfile2" \;
+echo "Convert files from UNIX to DOS..."
+./fixdoscr.sh
 
 cd ..
 
@@ -244,21 +243,8 @@ cd teo
 
 # ----------------- Convert files from DOS to UNIX
 
-find . -type d "(" \
-   -name ".hg" -prune \
-   ")" -o \
-   -type f "(" \
-   -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
-   -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
-   -name "*.txt" -o -name "*.log" -o -name "*.htm*" \
-   ")" \
-   -exec sh -c "echo {};
-                mv {} _tmpfile;
-                tr -d \\\r < _tmpfile > {};
-                touch -r _tmpfile {};
-                rm _tmpfile" \;
+echo "Convert files from DOS to UNIX..."
+./fixunix.sh
 
-chmod +x *.sh misc/*.sh
-
-echo "Done!"
+echo "Packages created in ./misc/pack/!"
 

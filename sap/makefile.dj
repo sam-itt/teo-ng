@@ -33,6 +33,12 @@ else
    CFLAGS = $(WFLAGS) $(OFLAGS)
 endif
 
+ifdef EN_LANG
+    CFLAGS += -DENGLISH_LANG
+else
+    CFLAGS += -DFRENCH_LANG
+endif
+
 
 ################
 # target rules #
