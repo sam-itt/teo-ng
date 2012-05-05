@@ -8,7 +8,8 @@ Just follow this procedure:
 - connect the tape reader to the TO7, insert the BASIC cartridge.
 - switch on the TO7 and save the ROM on tape with :
     SAVEM"ROMTO7",&HE800,&HFFFF,0
-- digitize the tape to obtain a file romto7.wav (use a standard utility), sampled on 8 bits, mono, 44.1kHz.
+- digitize the tape to obtain a file romto7.wav (use a standard utility),
+  sampled to 8 bits, mono, 44.1kHz.
 - run 'wav2k7 romto7.wav'; it produces a file romto7.k7
 - run 'getrom romto7.k7'; this produces a file romto7.rom
 
