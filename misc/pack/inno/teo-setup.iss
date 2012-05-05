@@ -43,6 +43,8 @@ Source: teo.cfg; DestDir: {app}
 Source: language.dat; DestDir: {app}
 Source: keyboard.dat; DestDir: {app}
 Source: alleg40.dll; DestDir: {app}
+Source: libpng3.dll; DestDir: {app}
+Source: zlib1.dll; DestDir: {app}
 Source: b512_b0.rom; DestDir: {app}
 Source: b512_b1.rom; DestDir: {app}
 Source: basic1.rom; DestDir: {app}
