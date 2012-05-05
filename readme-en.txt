@@ -15,34 +15,31 @@
                         The Thomson TO8 emulator
                               version 1.8.1
 
-    Copyright (C) 1997-2011 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+    Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
                             Jérémie Guillaume, François Mouret,
                             Samuel Devulder
 
 
-1. Introduction
----------------
+Introduction
+------------
 Teo is an emulator of the Thomson TO8 microcomputer for PC, running on MSDOS,
 Windows and Linux. It has been initiated by Gilles Fétis and developed by
 Gilles Fétis, Eric Botcazou, Alexandre Pukall, Jérémie Guillaume,
-François Mouret and Samuel Devulder
+François Mouret and Samuel Devulder.
 
 
-2. How to get it ?
-------------------
+How to get it ?
+---------------
 Download it at the page :
 
-   http://nostalgies.thomsonistes.org/teo_home.html
+   https://sourceforge.net/projects/teoemulator/?source=directory
 
 The main archive contains the executable of the emulator and the full
-documentation; because of copyright reasons, the ROMs of the TO8 needed
-for a good working order are not included, you then have to download them
-in the form of a second archive and install them in the same folder as the
-executable file.
+documentation.
 
 
-3. Compatibility with the TO8
------------------------------
+Compatibility with the TO8
+--------------------------
 The compatibility is close to 100% for softwares which don't use non
 emulated peripherals and don't hold physical protections. In other words,
 if a software doesn't work on Teo, so probably :
@@ -51,28 +48,15 @@ if a software doesn't work on Teo, so probably :
   peripheral is not emulated),
 - or its physical protection makes it fail.
 
-I keep a list of the softwares which run on Teo; if you have one that
-causes a problem, send it to me, i'll try to identify the cause of the
+We keep a list of the softwares which run on Teo; if you have one that
+causes a problem, send it to us, we'll try to identify the cause of the
 malfunction and tell you if it's possible to remedy it.
 
 
-4. Known problems
------------------
+Known problems
+--------------
 - the automatic detection of the sound card on MSDOS version could fail;
   in this case, you can specify manually the characteristics of the card
   (kind of card, port address, DMA channel and IRQ number) by editing the
   file teo.cfg in the main folder.
-
-
-5. Conclusion
--------------
-I hope that Teo will come up to your expectations; don't hesitate to
-inform me of your remarks and suggestions.
-
-
-Eric Botcazou
-e-mail: ebotcazou@libertysurf.fr
-
-François Mouret
-e-mail: fjjm@orange.fr
 
