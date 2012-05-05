@@ -57,10 +57,9 @@ int main(int argc,char **argv)
     int i,step;
     int c,n;
     char buf[256];
-    char *lang;
 
 #ifdef linux
-    lang=getenv("LANG");
+    char *lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "fr_FR.UTF8");    
     if (strncmp(lang,"fr",2)==0) 
