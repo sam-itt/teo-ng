@@ -13,7 +13,7 @@ if [ "$1" != "--quick" ]; then
       -type f "(" \
       -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
       -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
-      -name "*.txt" -o -name "change.log" -o -name "*.htm*" \
+      -name "*.txt" -o -name "*.log" -o -name "*.htm*" \
       ")" \
       -exec sh -c "echo {};
                    mv {} _tmpfile;
