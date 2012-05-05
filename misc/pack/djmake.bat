@@ -89,6 +89,5 @@ ren misc\pack\msdos\getrom.exe getrom-fr.exe
 copy k7tools\wav2k7.exe misc\pack\msdos\wav2k7.exe
 ren misc\pack\msdos\wav2k7.exe wav2k7-fr.exe
 
-
 echo Done!
 
