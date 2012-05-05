@@ -1,7 +1,8 @@
 ========================================================================
-==== Version 1.8.1 (January 2012)                                   ====
+==== Version 1.8.1 (January-April 2012)                             ====
 ========================================================================
 - ROMs included in packages
+- Emulation of printers PR90-055, PR90-600, PR90-612
 - execution cycle by cycle of machine codes
 - emulation of non standard instructions
 - emulation of non standard postcodes for TFR/EXG
