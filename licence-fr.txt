@@ -3,7 +3,8 @@ fichiers nommés ci-après:
 
 
 * teo, teo.exe et teow.exe sont Copyright (C) 1997-2003 Gilles Fétis,
-  Eric Botcazou, Alexandre Pukall, Jérémie Guillaume.
+  Eric Botcazou, Alexandre Pukall, Jérémie Guillaume, François Mouret,
+  Samuel Devulder.
 
 Ils peuvent être librement redistribués à la condition EXPRESSE que le
 code source soit également inclus sur le support de distribution ou que
@@ -31,3 +32,18 @@ de la librairie Allegro.
 
 La libraire Allegro est disponible séparément, à la fois comme code source
 et fichier binaire, sur le site Web http://www.talula.demon.co.uk .
+
+
+* libpng est Copyright (C) Glenn Randers-Pehrson
+
+Il est disponible en package binaire sur le site
+http://gnuwin32.sourceforge.net/ et comme source sur le site
+http://sourceforge.net/projects/libpng/
+
+
+* zlib est Copyright (C) Jean-loup Gailly and Mark Adler
+
+Il est disponible en package binaire sur le site
+http://gnuwin32.sourceforge.net/ et comme source sur le site
+http://sourceforge.net/projects/libpng/
+
