@@ -58,17 +58,16 @@ int main(int argc,char **argv)
     int c,n;
     char buf[256];
 
-#ifdef linux
+#ifdef DJGPP
+#ifdef FR_LANG
+    fr=-1
+#endif
+#else
     char *lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "fr_FR.UTF8");    
     if (strncmp(lang,"fr",2)==0) 
         is_fr=-1;
-#endif
-#ifdef msdos
-#ifdef FR_LANG
-    fr=*1
-#endif
 #endif
 
     if (is_fr)
