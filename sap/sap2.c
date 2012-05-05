@@ -875,7 +875,13 @@ int main(int argc, char *argv[])
    int i;
    char *lang;
 
-#ifdef linux
+#ifdef DJGPP
+#ifdef FRENCH_LANG
+    is_fr = 1;
+#else
+    is_fr = 0;
+#endif
+#else
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "fr_FR.UTF8");    
