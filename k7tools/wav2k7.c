@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int is_fr=0;
+
 
 int mygetc(FILE *f)
 {
@@ -27,11 +29,24 @@ int main(int argc, char **argv)
   char *filename;
   char outputname[1024];
   
+#ifdef DJGPP
+#ifdef FR_LANG
+    fr=-1
+#endif
+#else
+    char *lang=getenv("LANG");
+    if (lang==NULL) lang="fr_FR";        
+    setlocale(LC_ALL, "fr_FR.UTF8");    
+    if (strncmp(lang,"fr",2)==0) 
+        is_fr=-1;
+#endif
+
   printf("conversion .wav 44,1KHz -> .k7 to7\n");
   printf("version 2.1\n");
   
   if (argc<2)
     {
+      printf(is_fr?"usage :  wav2k7 fichier.wav\n":"usage :  wav2k7 file.wav\n");
       printf("usage : wav2k7 fichier.wav\n");
       return 0;
     }
@@ -41,26 +56,39 @@ int main(int argc, char **argv)
   
   if ((l<1)||((strcmp(&filename[l],".wav"))&&(strcmp(&filename[l],".WAV"))))
     {
-      printf("usage : mauvais format\n");
+      printf(is_fr?"usage : mauvais format\n":"usage : bad format\n");
       return 0;
     }
   
-  printf("ouverture de %s\n",filename);
+    if (is_fr)
+        printf("ouverture de %s\n",filename);
+    else
+        printf("open %s\n",filename);
+
+
   fp=fopen(filename,"rb");
   if (fp==NULL)
     {
-      printf("fichier %s introuvable\n",filename);
+      printf(is_fr?"fichier introuvable\n":"file not found\n");
       return 0;
     }
   
   strcpy(outputname,filename);
   strcpy(outputname+l,".k7\0");
-  printf("creation de %s\n",outputname);
+
+    if (is_fr)
+        printf("creation de %s\n",outputname);
+    else
+        printf("creation of %s\n",outputname);
+
   fw=fopen(outputname,"wb");
   if (fw==NULL)
     {
-      printf("fichier %s impossible a ouvrir\n",outputname);
-      return 0;
+        if (is_fr)
+            printf("%scriture impossible\n",eacute);
+        else
+            printf("can't write\n");
+        return 0;
     }
   
   for(i=0;i<44;i++) fgetc(fp);
