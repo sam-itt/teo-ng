@@ -54,6 +54,7 @@
 #endif
 
 #include "intern/printer.h"
+#include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
@@ -179,6 +180,9 @@ static void RunTO8(int windowed_mode)
 
     if (!teo.sound_enabled)
         remove_int(Timer);
+
+    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
+    mc6809_FlushExec();
 }
 
 
