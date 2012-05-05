@@ -234,7 +234,6 @@ int CALLBACK CartridgeTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          /* initialisation du sélecteur de cartouches */
          if (first)
          {
-             printf ("CartridgeTabProc = %s (%d)\n", gui->memo.file, (int)&gui->memo.file);
              init_combo(hWnd);
              if (strlen(gui->memo.file) != 0)
                  add_combo_entry (hWnd, gui->memo.label, gui->memo.file);
