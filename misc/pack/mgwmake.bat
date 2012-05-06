@@ -18,6 +18,7 @@ mingw32-make FR_LANG=1
 copy teow.exe misc\pack\inno
 ren misc\pack\inno\teow.exe teow-fr.exe
 
+mingw32-make clean
 mingw32-make depend
 
 echo "Create self-install files with Inno Setup now."

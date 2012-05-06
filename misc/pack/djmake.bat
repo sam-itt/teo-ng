@@ -59,6 +59,7 @@ make clean
 make FR_LANG=1
 copy teo.exe misc\pack\msdos\teo.exe
 ren misc\pack\msdos\teo.exe teo-fr.exe
+make clean
 make depend
 
 REM ---- Compiles saptools French version ----
@@ -73,6 +74,9 @@ copy sap\sap2.exe misc\pack\msdos\sap2.exe
 ren misc\pack\msdos\sap2.exe sap2-fr.exe
 copy sap\sapfs.exe misc\pack\msdos\sapfs.exe
 ren misc\pack\msdos\sapfs.exe sapfs-fr.exe
+cd sap
+make clean
+cd ..
 
 REM ---- Compiles k7tools French version ----
 
@@ -88,6 +92,9 @@ copy k7tools\getrom.exe misc\pack\msdos\getrom.exe
 ren misc\pack\msdos\getrom.exe getrom-fr.exe
 copy k7tools\wav2k7.exe misc\pack\msdos\wav2k7.exe
 ren misc\pack\msdos\wav2k7.exe wav2k7-fr.exe
+cd k7tools
+make clean
+cd ..
 
 echo Done!
 

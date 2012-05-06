@@ -39,18 +39,20 @@ cp ./teo/misc/teo_init.cfg teo/teo.cfg
 
 echo "Creating DEBIAN package for Linux executable..."
 
-# Compile Linux DEBIAN
+# Compile Teo
 cd teo
 make veryclean
 make DEBIAN=1
 make depend
 cd ..
+# Compile saptools
 cd teo/sap
 make clean
 make
 cd ../..
 cp teo/sap/sap2  teo/
 cp teo/sap/sapfs teo/
+# Compile k7tools
 cd teo/k7tools
 make clean
 make
@@ -132,10 +134,32 @@ teo/*.rom"
 tar -cf $packFile $files
 gzip $gzipOptions $packFile
 
+# ----------------- Clean Linux executables
+
+# Clean Teo
+cd teo
+make clean
+cd ..
+# Clean saptools
+cd teo/sap
+make clean
+cd ../..
+rm teo/sap2
+rm teo/sapfs
+# Clean k7tools
+cd teo/k7tools
+make clean
+cd ../..
+rm teo/getrom
+rm teo/getmemo7
+rm teo/wav2k7
+
 # ----------------- Create TAR.GZ package for sources
 
 srcfiles="
 teo/src
+teo/sap
+teo/k7tools
 teo/include
 teo/doc/*.htm
 teo/doc/images
@@ -156,7 +180,8 @@ teo/*.sh
 teo/makefile*
 teo/*.diff
 teo/*.cfg
-teo/*.rom"
+teo/*.rom
+teo/*.dll"
 
 echo "Creating TAR.GZ package for sources..."
 
