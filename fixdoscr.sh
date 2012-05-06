@@ -10,12 +10,12 @@ find . -type d "(" \
       -name "*.xpm" -o -name "makefile.*" -o -name "*.txt" -o \
       -name "*.log" -o -name "*.bat" -o -name "*.htm*" \
       ")" \
-      -exec sh -c "echo {};
+      -exec sh -c "echo -n '.';
                    mv {} _tmpfile;
                    sed 's/\x0d$//' _tmpfile > _tmpfile2;
                    sed 's/$/\r/' _tmpfile2 > {};
                    touch -r _tmpfile {};
                    rm _tmpfile _tmpfile2" \;
-
+echo
 echo "Done!"
 

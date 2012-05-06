@@ -15,13 +15,14 @@ if [ "$1" != "--quick" ]; then
       -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
       -name "*.txt" -o -name "*.log" -o -name "*.htm*" \
       ")" \
-      -exec sh -c "echo {};
+      -exec sh -c "echo -n '.';
                    mv {} _tmpfile;
                    tr -d \\\r < _tmpfile > {};
                    touch -r _tmpfile {};
                    rm _tmpfile" \;
 
    chmod +x *.sh misc/*.sh
+   echo
 fi
 
 echo "Done!"
