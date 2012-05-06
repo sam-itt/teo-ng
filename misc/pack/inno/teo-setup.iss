@@ -8,9 +8,9 @@
 [Setup]
 AppName=Teow
 AppVersion={#APPVERSION}
-AppPublisherURL=http://nostalgies.thomsonistes.org/
-AppSupportURL=http://nostalgies.thomsonistes.org/
-AppUpdatesURL=http://nostalgies.thomsonistes.org/
+AppPublisherURL=https://sourceforge.net/projects/teoemulator/?source=directory
+AppSupportURL=https://sourceforge.net/projects/teoemulator/?source=directory
+AppUpdatesURL=https://sourceforge.net/projects/teoemulator/?source=directory
 DefaultDirName={pf}\Teow
 DefaultGroupName=Teow
 SourceDir={#SOURCEDIR}
@@ -33,6 +33,16 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 [Files]
 Source: {#OUTPUTDIR}\inno\teow-en.exe; DestDir: {app}; DestName: teow.exe; Languages: en
 Source: {#OUTPUTDIR}\inno\teow-fr.exe; DestDir: {app}; DestName: teow.exe; Languages: fr
+Source: {#OUTPUTDIR}\msdos\getmemo7-en.exe; DestDir: {app}; DestName: getmemo7.exe; Languages: en
+Source: {#OUTPUTDIR}\msdos\getmemo7-fr.exe; DestDir: {app}; DestName: getmemo7.exe; Languages: fr
+Source: {#OUTPUTDIR}\msdos\getrom-en.exe; DestDir: {app}; DestName: getrom.exe; Languages: en
+Source: {#OUTPUTDIR}\msdos\getrom-fr.exe; DestDir: {app}; DestName: getrom.exe; Languages: fr
+Source: {#OUTPUTDIR}\msdos\wav2k7-en.exe; DestDir: {app}; DestName: wav2k7.exe; Languages: en
+Source: {#OUTPUTDIR}\msdos\wav2k7-fr.exe; DestDir: {app}; DestName: wav2k7.exe; Languages: fr
+Source: {#OUTPUTDIR}\msdos\sap2-en.exe; DestDir: {app}; DestName: sap2.exe; Languages: en
+Source: {#OUTPUTDIR}\msdos\sap2-fr.exe; DestDir: {app}; DestName: sap2.exe; Languages: fr
+Source: {#OUTPUTDIR}\msdos\sapfs-en.exe; DestDir: {app}; DestName: sapfs.exe; Languages: en
+Source: {#OUTPUTDIR}\msdos\sapfs-fr.exe; DestDir: {app}; DestName: sapfs.exe; Languages: fr
 Source: readme-en.txt; DestDir: {app}; Languages: en; Flags: isreadme
 Source: readme-fr.txt; DestDir: {app}; Languages: fr; Flags: isreadme
 Source: change-en.log; DestDir: {app}; Languages: en
@@ -89,7 +99,7 @@ Name: {group}\Manuel de Teow; Filename: {app}\doc\teo_win.htm; IconIndex: 0; Lan
 Name: {group}\Teow's manual; Filename: {app}\doc\teo_win_en.htm; IconIndex: 0; Languages: en
 Name: {group}\Licence de Teow; Filename: {app}\licence-fr.txt; IconIndex: 0; Languages: fr
 Name: {group}\Teow's licence; Filename: {app}\licence-en.txt; IconIndex: 0; Languages: en
-Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: http://nostalgies.thomsonistes.org/teo_home.html; IconIndex: 0
+Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: https://sourceforge.net/projects/teoemulator/?source=directory; IconIndex: 0
 Name: {group}\{cm:UninstallProgram,Teow}; Filename: {uninstallexe}; IconIndex: 0
 Name: {commondesktop}\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: desktopicon; IconIndex: 0; Parameters: " -window -loadstate"
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: quicklaunchicon; IconIndex: 0; Parameters: " -window -loadstate"
