@@ -20,7 +20,6 @@ static char eacute[] = "é";
 static char ecirc[]  = "ê";
 #endif
 
-
 int mygetc(void)
 {
     int a=fgetc(fr);

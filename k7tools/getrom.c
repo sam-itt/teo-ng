@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef DJGPP
+#    include <locale.h>
+#endif
+
+/* ugly hack to support French accents */
+#ifdef DJGPP
+static char eacute[] = "";
+static char ecirc[]  = "";
+static char agrave[] = "";
+#else
+static char eacute[] = "Ã©";
+static char ecirc[]  = "Ãª";
+static char agrave[] = "Ã ";
+#endif
 
 int tab[4]={0xff,0x01,0x03c,0x01};
 

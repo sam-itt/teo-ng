@@ -1,6 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef DJGPP
+#    include <locale.h>
+#endif
+
+/* ugly hack to support French accents */
+#ifdef DJGPP
+static char eacute[] = "";
+#else
+static char eacute[] = "Ã©";
+#endif
 
 static int is_fr=0;
 
