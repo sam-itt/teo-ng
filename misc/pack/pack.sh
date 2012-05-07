@@ -13,7 +13,7 @@
 
 if [ `expr match $PWD '.*/teo$'` = 0 ]
    then
-      echo "Usage: ./misc/pack/pack.sh"
+      echo "Usage: ./misc/pack/pack.sh from teo/ folder"
       exit
 fi
 
