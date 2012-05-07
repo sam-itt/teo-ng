@@ -1,0 +1,95 @@
+\[[Page d'accueil](/indexfr/)\]\[[Page in English](/teoen/)\]
+
+###Survol de Teo
+
+* <a href="#options">Les options de lancement</a><br>
+* <a href="#control_panel">Le panneau de contr&ocirc;le</a><br>
+* <a href="#keyboard">Le clavier</a><br>
+* <a href="#joysticks">Les joysticks</a><br>
+* <a href="#disks">Les disquettes</a><br>
+* <a href="#tapes">Les cassettes</a><br>
+* <a href="#cartridges">Les cartouches</a><br>
+* <a href="#printers">Les imprimantes</a><br>
+* <a href="#misc">Commandes diverses</a><br>
+
+#####Les options de lancement<a name="options"></a>
+
+Teo accepte ces principaux param&egrave;tres en ligne de commande:
+<table width="100%" border="1">
+<tr><td>\[-m file.m7\]</td><td>place la cartouche file.m7 dans le lecteur</td></tr>
+<tr><td>\[-fast\]</td><td>active la vitesse rapide de l'&eacute;mulateur</td></tr>
+<tr><td>\[-nosound\]</td><td>supprime le son de l'&eacute;mulateur</td></tr>
+<tr><td>\[-loadstate\]</td><td>charge le dernier &eacute;tat sauvegard&eacute; de l'&eacute;mulateur</td></tr>
+</table>
+
+#####Le panneau de contr&ocirc;le<a name="control_panel"></a>
+
+L'appui sur la touche \[ESC\] ouvre le Panneau de contr&ocirc;le. Vous pouvez alors effectuer les op&eacute;rations d&eacute;sir&eacute;es.
+
+#####Le clavier<a name="keyboard"></a>
+
+Le caract&egrave;re affich&eacute; sur l'&eacute;cran est celui inscrit sur la touche PC frapp&eacute;e, pourvu qu'il existe sur le clavier de l'ordinateur Thomson. Les autres touches sont accessibles diff&eacute;remment :
+
+<table width="100%" border="1">
+<tr><td>STOP</td><td>TAB</td></tr>
+<tr><td>CNT</td><td>CTRL gauche</td></tr>
+<tr><td>ACC</td><td>ALT</td></tr>
+<tr><td>DEL</td><td>BACKSPACE</td></tr>
+<tr><td>F6</td><td>F6 ou SHIFT+F1</td></tr>
+<tr><td>F7</td><td>F7 ou SHIFT+F2</td></tr>
+<tr><td>F8</td><td>F8 ou SHIFT+F3</td></tr>
+<tr><td>F9</td><td>F9 ou SHIFT+F4</td></tr>
+<tr><td>F10</td><td>F10 ou SHIFT+F5</td></tr>
+</table>
+
+#####Les joysticks<a name="joysticks"></a>
+
+En plus d'&ecirc;tre &eacute;ventuellement reconnus mat&eacute;riellement, il peuvent &ecirc;tre contr&ocirc;l&eacute;s au clavier, *`Verr. Num.`* ou *`NumLock`* &eacute;teint :
+
+<table width="100%" border="1">
+<tr><td>Directions joystick 0</td><td>Pav&eacute; num&eacute;rique 7, 8, 9, 4, 5, 6, 1, 2, 3</td></tr>
+<tr><td>Bouton joystick 0</td><td>Ctrl droit</td></tr>
+<tr><td>Directions joystick 1</td><td>A, Z, E, Q, S, D, W, X, C</td></tr>
+<tr><td>Bouton joystick 1</td><td>Ctrl gauche</td></tr>
+</table>
+
+#####Le crayon optique ou la souris<a name="mouse"></a>
+
+Chacun de ces deux p&eacute;riph&eacute;riques sera s&eacute;lectionn&eacute; dans le menu R&eacute;glage et Pr&eacute;f&eacute;rences du TO8. Ils sont tous les deux &eacute;mul&eacute;s par la souris PC.
+
+#####Les disquettes<a name="disks"></a>
+
+Les fichiers avec l'extension *`sap`* sont les disquettes virtuelles utilis&eacute;es par Teo. Vous pouvez importer ou exporter vos disquettes avec le logiciel [Sap2](/sap2fr/).
+
+Vous pouvez aussi (selon le syst&egrave;me) acc&eacute;der directement &agrave; un floppy si vous avez un lecteur. Mais il est fortement recommand&eacute; de ne pas faire d'acc&egrave;s en &eacute;criture sur des disquettes auxquelles vous tenez. Formatez plut&ocirc;t des disquettes 3"5 avec **Teo** lui-m&ecirc;me et copiez-y vos originaux. Vous pourrez alors utiliser ces copies en toute s&eacute;curit&eacute;.
+
+Il est possible de se servir de disquettes 3"5 Haute Densit&eacute; Double Face (1.44 Mo - 2HD) en occultant par un simple morceau de scotch l'encoche de haute capacit&eacute; de la disquette.
+
+#####Les cassettes<a name="tapes"></a>
+
+Les fichiers avec l'extension *`k7`* sont les cassettes virtuelles utilis&eacute;es par Teo. Vous pouvez importer ou exporter vos cassettes avec le logiciel [Wav2k7](/wav2k7fr/).
+
+#####Les cartouches<a name="cartridges"></a>
+
+Les fichiers avec l'extension *`m7`* sont les cartouches virtuelles utilis&eacute;es par Teo.
+
+Par d&eacute;faut, chaque bo&icirc;te de dialogue de fichier cherchera &agrave; s'ouvrir dans les r&eacute;pertoires *`disks`* pour les disquettes, *`k7`* pour les cassettes et *`memo7`* pour les cartouches.
+
+#####Les imprimantes<a name="printers"></a>
+
+Teo contient un module d'&eacute;mulation des imprimantes matricielles Thomson PR90-055, PR90-600 et PR90-612 qui sait g&eacute;rer &agrave; la fois la sortie brute, la sortie texte et la sortie graphique.
+
+#####Commandes diverses<a name="misc"></a>
+
+\[F11\] enregistre une capture d'&eacute;cran (Windows)<br>
+\[F12\] affiche le d&eacute;bogueur (Linux et MSDOS)
+
+#####Plus d'informations ?
+
+* [Informations suppl&eacute;mentaires sur Teo MS-DOS/DPMI](/teodosfr/)
+* [Informations suppl&eacute;mentaires sur Teo Windows/DirectX](/teowinfr/)
+* [Informations suppl&eacute;mentaires sur Teo Linux/X11](/teolnxfr/)
+
+-----
+
+<center><p>Teo developers &copy; 1997-2012</p></center>

@@ -1,0 +1,186 @@
+\[[Page d'accueil](/indexfr/)\]\[[Page in English](/libsapen/)\]
+
+###LibSAP
+
+LibSAP est une librarie de manipulation des archives SAP &eacute;crite en ANSI C. Elle fournit &agrave; la fois des routines de manipulation bas\-niveau des archives SAP consid&eacute;r&eacute;es comme format physique (images de disquettes) et des routines de manipulation haut\-niveau des archives SAP consid&eacute;r&eacute;es comme format logique (compatible avec le DOS BASIC Thomson).
+
+* <a href="#open_archive">Ouverture d'une archive SAP</a><br>
+* <a href="#create_archive">Cr&eacute;ation d'une archive SAP</a><br>
+* <a href="#close_archive">Fermeture d'une archive SAP</a><br>
+* <a href="#fill_archive">Remplissage une archive SAP</a><br>
+* <a href="#read_sector">Lecture d'un secteur SAP</a><br>
+* <a href="#read_sectors">Lecture d'une s&eacute;rie de secteurs SAP</a><br>
+* <a href="#write_sector">Ecriture d'un secteur SAP</a><br>
+* <a href="#write_sectors">Ecriture d'une s&eacute;rie de secteurs SAP</a><br>
+* <a href="#format_archive">Formatage d'une archive SAP</a><br>
+* <a href="#list_archive">Récup&eacute;ration d'un répertoire SAP</a><br>
+* <a href="#add_file">Ajout d'un fichier &agrave; l'archive SAP</a><br>
+* <a href="#delete_file">Effacement de fichier(s) de l'archive SAP</a><br>
+* <a href="#extract_file">Extraction de fichier(s) de l'archive SAP</a><br>
+* <a href="#read_informations">Lecture des informations de fichier</a>
+
+#####Ouverture d'une archive SAP<a name="open_archive"></a>
+
+**sapID sap\_OpenArchive(const char filename\[\], int \*format);**<br>
+<span style="padding-left:30px">*filename : nom de l\'archive SAP*</span><br>
+<span style="padding-left:30px">*format : retour du format de l'archive SAP (sap_FORMAT1 ou sap_FORMAT2)*</span><br><br>
+Retourne l'identificateur de l'archive SAP. En cas d'erreur, `sap_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_ETOOMANY` : trop d'archives SAP sont ouvertes simultan&eacute;ment.<br>
+`SAP_ENOENT` : l'archive SAP sp&eacute;cifi&eacute;e n'existe pas.<br>
+`SAP_EBADF` : le fichier sp&eacute;cifi&eacute; n'est pas une archive SAP.
+
+#####Cr&eacute;ation d'une archive SAP<a name="create_archive"></a>
+
+**sapID sap\_CreateArchive(const char filename\[\], int format);**<br>
+<span style="padding-left:30px">*filename : nom de l'archive SAP*</span><br>
+<span style="padding-left:30px">*format : format de l'archive SAP (sap_FORMAT1 ou sap_FORMAT2)*</span><br><br>
+Retourne l'identificateur de l'archive SAP. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_ETOOMANY` : trop d'archives SAP sont ouvertes simultan&eacute;ment.<br>
+`SAP_EPERM` : impossible de cr&eacute;er le fichier sur le support d'enregistrement.
+
+#####Fermeture d'une archive SAP<a name="close_archive"></a>
+
+**int sap\_CloseArchive(sapID id);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br><br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.
+
+#####Remplissage une archive SAP<a name="fill_archive"></a>
+
+**int sap\_FillArchive(sapID id, sapsector\_t \*sapsector);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*sapsector : pointeur sur la structure de secteur*</span><br><br>
+Cette routine remplie une archive cr&eacute;&eacute;e par sap_CreateArchive() secteur par secteur, en commen&ccedil;ant par le secteur 1 de la piste 0. A chaque appel le num&eacute;ro de secteur est incr&eacute;ment&eacute; de 1 et, si la piste courante devient pleine, la piste suivante est s&eacute;lectionn&eacute;e.<br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_ENOSPC` : l'archive SAP est pleine.
+
+#####Lecture d'un secteur SAP<a name="read_sector"></a>
+
+**int sap\_ReadSector(sapID id, int track, int sect, sapsector\_t \*sapsector);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*track : num&eacute;ro de piste*</span><br>
+<span style="padding-left:30px">*sect : num&eacute;ro de secteur*</span><br>
+<span style="padding-left:30px">*sapsector : pointeur sur la structure de secteur*</span><br><br>
+Le r&eacute;sultat de la lecture est dans la structure d&eacute;sign&eacute;e par *'sapsector'*.
+Retourne `SAP_OK` ou une combinaison des flags suivants:<br>
+`SAP_NO_STD_FMT` : le format du secteur est non standard.<br>
+`SAP_PROTECTED` : le secteur est prot&eacute;g&eacute; en &eacute;criture.<br>
+`SAP_BAD_SECTOR` : le secteur a de mauvais identificateurs (piste, secteur)<br>
+`SAP_CRC_ERROR` : erreur de CRC sur les donn&eacute;es du secteur.<br>
+En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()
+
+#####Lecture d'une s&eacute;rie de secteurs SAP<a name="read_sectors"></a>
+
+**int sap\_ReadSectorEx(sapID id, int track, int sect, int nsects, unsigned char data\[\]);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*track : num&eacute;ro de piste de d&eacute;part*</span><br>
+<span style="padding-left:30px">*sect : num&eacute;ro de secteur de d&eacute;part*</span><br>
+<span style="padding-left:30px">*nsect : nombre de secteurs &agrave; lire*</span><br>
+<span style="padding-left:30px">*data : pointeur sur le buffer de secteurs*</span><br><br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()
+
+#####Ecriture d'un secteur SAP<a name="write_sector"></a>
+
+**int sap\_WriteSector(sapID id, int track, int sect, sapsector\_t \*sapsector);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*track : num&eacute;ro de piste*</span><br>
+<span style="padding-left:30px">*sect : num&eacute;ro de secteur*</span><br>
+<span style="padding-left:30px">*sapsector : pointeur sur la structure de secteur*</span><br><br>
+Tous les champs du secteur doivent &ecirc;tre sp&eacute;cifi&eacute;s, except&eacute;s les deux champs relatifs au CRC qui seront calcul&eacute;s par la routine elle-m&ecirc;me.<br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()
+
+#####Ecriture d'une s&eacute;rie de secteurs SAP<a name="write_sectors"></a>
+
+**int sap\_WriteSectorEx(sapID id, int track, int sect, int nsects, const unsigned char data\[\]);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*track : num&eacute;ro de piste de d&eacute;part*</span><br>
+<span style="padding-left:30px">*sect : num&eacute;ro de secteur de d&eacute;part*</span><br>
+<span style="padding-left:30px">*nsect : nombre de secteurs &agrave; &eacute;crire*</span><br>
+<span style="padding-left:30px">*data : pointeur sur le buffer de secteurs*</span><br><br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()
+
+#####Formatage d'une archive SAP<a name="format_archive"></a>
+
+**int sap\_FormatArchive(sapID id, int capacity);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*capacity : sap_TRK80 (80 pistes) ou sap_TRK40 (40 pistes)*</span><br><br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) ou le format est invalide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()
+
+#####R&eacute;cup&eacute;ration d'un r&eacute;pertoire SAP<a name="list_archive"></a>
+
+**int sap\_ListArchive(sapID id, char buffer\[\], int buffer\_size);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*buffer : buffer de r&eacute;pertoire*</span><br>
+<span style="padding-left:30px">*buffer_size : taille du buffer de r&eacute;pertoire*</span><br><br>
+Retourne le nombre de lignes de la liste. En cas d'erreur, 0 est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()
+
+#####Ajout d'un fichier &agrave; l'archive SAP<a name="add_file"></a>
+
+**int sap\_AddFile(sapID id, const char filename\[\]);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*filename : nom du fichier &agrave; ajouter*</span><br><br>
+Retourne la taille du fichier en octets. En cas d'erreur, 0 est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()<br>
+`SAP_ENOENT` : le fichier n'existe pas.<br>
+`SAP_ENFILE` : le fichier est vide.<br>
+`SAP_ENOSPC` : le r&eacute;pertoire de l'archive SAP est plein.<br>
+`SAP_EFBIG` : le fichier est trop gros pour l'espace libre de l'archive SAP.
+
+#####Effacement de fichier(s) de l'archive SAP<a name="delete_file"></a>
+
+**int sap\_DeleteFile(sapID id, const char pattern\[\]);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*pattern : pattern des fichiers &agrave; effacer ('\*' et '?' sont support&eacute;s)*</span><br><br>
+Retourne la taille du (des) fichier(s) en octets. En cas d'erreur, 0 est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()<br>
+`SAP_ENOENT` : le fichier n'existe pas dans l'archive SAP (erreur non valide lorsque `pattern` contient au moins une wilcard).
+
+#####Extraction de fichier(s) de l'archive SAP<a name="extract_file"></a>
+
+**int sap\_ExtractFile(sapID id, const char pattern\[\]);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*pattern : pattern des fichiers &agrave; extraire ('\*' et '?' sont support&eacute;s)*</span><br><br>
+Retourne la taille du (des) fichier(s) en octets. En cas d'erreur, 0 est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()<br>
+`SAP_ENOENT` : le fichier n'existe pas dans l'archive SAP (erreur non valide lorsque 'pattern' contient au moins une wilcard).<br>
+`SAP_EPERM` : impossible d'&eacute;crire le ou les fichiers sur le support.
+
+#####Lecture des informations de fichier<a name="read_informations"></a>
+
+**int sap\_GetFileInfo(sapID id, const char filename\[\], sapfileinfo\_t \*info);**<br>
+<span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
+<span style="padding-left:30px">*filename : nom du fichier &agrave; examiner*</span><br>
+<span style="padding-left:30px">*info : pointeur sur la structure d'information*</span><br><br>
+Retourne `SAP_OK`. En cas d'erreur, `SAP_ERROR` est retourn&eacute; et `sap_errno` contient l'un des codes d'erreur suivants:<br>
+`SAP_EINVAL` : le num&eacute;ro d'identification (sapID) est invalide.<br>
+`SAP_EEMPTY` : l'archive SAP est vide.<br>
+`SAP_EBUSY` : l'archive SAP est en train d'&ecirc;tre remplie par sap_FillArchive()<br>
+`SAP_ENOENT` : le fichier n'existe pas dans l'archive SAP.
+
+-----
+
+<center><p>Teo developers &copy; 1997-2012</p></center>

@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Teo</title>
+<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+<body>
+<table width="100%"><tr><td>
+
+<p>[<a href="index.htm">Home</a>][<a href="teofr.htm">Page en Fran&ccedil;ais</a>]</p>
+
+<h3>Overview of Teo</h3>
+
+<ul>
+<li><a href="#options">Launching options</a><br></li>
+<li><a href="#control_panel">Control panel</a><br></li>
+<li><a href="#keyboard">Keyboard</a><br></li>
+<li><a href="#joysticks">Joysticks</a><br></li>
+<li><a href="#mouse">Light-pen and mouse</a><br></li>
+<li><a href="#disks">Disks</a><br></li>
+<li><a href="#tapes">Tapes</a><br></li>
+<li><a href="#cartridges">Cartridges</a><br></li>
+<li><a href="#printers">Printers</a><br></li>
+<li><a href="#misc">Miscellaneous commands</a><br></li>
+</ul>
+
+<h5>Launching options<a name="options"></a></h5>
+
+<p>Teo accepts the following options on command line:</p>
+
+<table width="100%" border="1">
+<tr><td>[-m file.m7]</td><td>uses file.m7 as ROM cartridge</td></tr>
+<tr><td>[-fast]</td><td>runs the emulator at fast-speed</td></tr>
+<tr><td>[-nosound]</td><td>disables sound emulation</td></tr>
+<tr><td>[-loadstate]</td><td>loads the last saved emulator state</td></tr>
+</table>
+
+<h5>Control panel<a name="control_panel"></a></h5>
+
+<p>Pressing the [ESC] key on the PC opens the control panel.</p>
+
+<h5>Keyboard<a name="keyboard"></a></h5>
+
+<p>A key pressed on a French keyboard should display the same character in the emulator, provided the same key exists on the TO8 keyboard. The other keys can be accessed differently :</p>
+
+<table width="100%" border="1">
+<tr><td>STOP</td><td>TAB</td></tr>
+<tr><td>CNT</td><td>Left CTRL</td></tr>
+<tr><td>ACC</td><td>ALT</td></tr>
+<tr><td>DEL</td><td>BACKSPACE</td></tr>
+<tr><td>F6</td><td>F6 or SHIFT+F1</td></tr>
+<tr><td>F7</td><td>F7 or SHIFT+F2</td></tr>
+<tr><td>F8</td><td>F8 or SHIFT+F3</td></tr>
+<tr><td>F9</td><td>F9 or SHIFT+F4</td></tr>
+<tr><td>F10</td><td>F10 or SHIFT+F5</td></tr>
+</table>
+
+<h5>Joysticks<a name="joysticks"></a></h5>
+
+<p>In addition to being possibly detected materially, they can be controlled from the keyboard, <code>Lock. Num.</code> or <code>NumLock</code> off:</p>
+
+<table width="100%" border="1">
+<tr><td>Directions joystick 0</td><td>Key pad 7, 8, 9, 4, 5, 6, 1, 2, 3</td></tr>
+<tr><td>Button joystick 0</td><td>Ctrl right</td></tr>
+<tr><td>Directions joystick 1</td><td>A, Z, E, Q, S, D, W, X, C (French keyboard)</td></tr>
+<tr><td>Button joystick 1</td><td>Ctrl left</td></tr>
+</table>
+
+<h5>Light-pen and mouse<a name="mouse"></a></h5>
+
+<p>Each of these two devices will be selected with the menu 'R&eacute;glage et Pr&eacute;f&eacute;rences' of the TO8. They are both emulated by the PC mouse.</p>
+
+<h5>Disks<a name="disks"></a></h5>
+
+<p>The files with the <em><code>sap</code></em> extension are virtual disks used by Teo. You can import or export your disks with software <a href="sap2en.htm">Sap2</a>.</p>
+
+<p>You can also (depending on the system) access directly to a floppy if you have a drive. But it is strongly recommended not to do write access to floppy disk which have price to you. Format instead 3"5 floppy disk with Teo itself and copy your original disk onto it. You can then use that copy safely.</p>
+
+<p>It is possible to use disk 3"5 high density double side (1.44MB - 2HD) by obstructing the high capacity hole of the floppy disk with a simple piece of tape.</p>
+
+<h5>Tapes<a name="tapes"></a></h5>
+
+<p>Files with the extension <em><code>k7</code></em> are the virtual tapes used by Teo. You can import or export your tapes with the software <a href="wav2k7en.htm">Wav2k7</a>.</p>
+
+<h5>Cartridges<a name="cartridges"></a></h5>
+
+<p>Files with the extension <em><code>m7</code></em> are the virtual cartridges used by Teo.</p>
+
+<p>By default, each file dialog will try to open in the directories <em><code>disks</code></em> for floppy, <em><code>k7</code></em> for tapes and <em><code>memo7</code></em> for cartridges.</p>
+
+<h5>Printers<a name="printers"></a></h5>
+
+<p>Teo contains an emulation module of the Thomson dot-matrix printers PR90-055, PR90-600 and PR90-612 which can handle at the same time raw output, text output and graphical output.</p>
+
+<h5>Miscellaneous commands<a name="misc"></a></h5>
+
+<p>[F11] saves a screen-shot (Windows)<br>
+[F12] displays the debugger (Linux and MSDOS)</p>
+
+<h5>More ?</h5>
+
+<ul>
+<li><a href="teodosen.htm">Additional informations about Teo MS-DOS/DPMI</a></li>
+<li><a href="teowinen.htm">Additional informations about Teo Windows/DirectX</a></li>
+<li><a href="teolnxen.htm">Additional informations about Teo Linux/X11</a></li>
+</ul>
+
+<hr />
+
+<p><center><p>Teo developers &copy; 1997-2012</p></center></p>
+
+</td></tr></table>
+</body>
+</html>

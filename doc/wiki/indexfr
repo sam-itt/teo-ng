@@ -1,0 +1,19 @@
+\[[Page in English](/index/)\]
+
+###Bienvenue &agrave; la page Wiki de Teo !
+
+Teo est un &eacute;mulateur TO8 pour PC, c'est-&agrave;-dire qu'il reproduit aussi fid&egrave;lement que possible sur PC le fonctionnement d'un autre micro-ordinateur: le Thomson TO8. Il &eacute;mule les p&eacute;riph&eacute;riques clavier, joysticks, souris, crayon optique, son, cartouches, disquettes, cassettes et optionnellement imprimante.
+
+* [Survol de Teo](/teofr/)
+* [Informations suppl&eacute;mentaires sur Teo MS-DOS/DPMI](/teodosfr/)
+* [Informations suppl&eacute;mentaires sur Teo Windows/DirectX](/teowinfr/)
+* [Informations suppl&eacute;mentaires sur Teo Linux/X11](/teolnxfr/)
+* [Sap2](/sap2fr/) pour importer/exporter des disquettes
+* [Sapfs](/sapfsfr/) pour g&eacute;rer les disquettes SAP
+* [Wav2k7](/wav2k7fr/) pour importer/exporter une cassette
+* [LibSap](/libsapfr/) une librairie de fonctions C pour d&eacute;velopper avec le format SAP
+
+-----
+
+<center><p>Teo developers &copy; 1997-2012</p></center>
+

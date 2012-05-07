@@ -1,0 +1,47 @@
+\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/teodosfr/)\]
+
+###Additional informations about Teo  MS-DOS/DPMI
+
+#####Installation<a name="install"></a>
+
+To run the emulator, you need at least a 80386 with 2MB of RAM, a VGA card, and MS-DOS version 5.0 or greater or Windows version 3.1 or greater (Windows 95/98/Me). A Sound Blaster compatible sound-card is necessary to emulate sound.
+To install the emulator, you just have to unzip *`teo-1.8.1-dosexe.zip`*. The executable will be *`teo.exe`*.
+The file *`cwsdpmi.exe`* is only useful for running in protected mode under MS-DOS.
+
+#####Lauching<a name="launch"></a>
+
+When the program is stated, headers and initialization messages are printed, then the user is asked to choose a graphic mode if it hasn't been specified on the command-line. Then the emulation starts.
+TEO accepts the following parameters on the command line:
+
+<table border="1" width="100%">
+<tr><td>[-help]</td><td>Prints on-line help</td></tr>
+<tr><td>[-nojoy]</td><td>do not use native PC joysticks</td></tr>
+<tr><td>[-mode40]</td><td>starts the emulator in 40 columns, 16 colors and full-screen mode</td></tr>
+<tr><td>[-mode80]</td><td>starts the emulator in 80 columns, 16 colors and full-screen mode</td></tr>
+<tr><td>[-truecolor]</td><td>starts the emulator in 80 columns, 4096 colors and full-screen mode</td></tr>
+</table>
+
+Note that you can also load the last saved emulator state by pressing the left or right CTRL key while choosing the graphic mode.
+
+#####Graphic modes<a name="gfx_modes"></a>
+
+Teo can use the graphical modes 320x200x8 VGA, 640x400x8 VESA and 640x400x16 VESA.
+
+If VESA modes aren't available on your graphic board, you can use the utility SciTech Display Doctor (previously known as UniVBE) from <a href="http://www.scitechsoft.com">SciTech Software</a> to help correcting the problem.
+
+#####Joystick<a name="joysticks"></a>
+
+Teo uses available PC joysticks to emulate both TO8 joysticks. When there aren't enough PC joysticks, the missing joystick(s) is (are) emulated using the keyboard.
+
+#####Sound generator<a name="sound_generator"></a>
+
+The TO8 sound is emulated using the sound-card of the PC. Both the 1-bit (TO7) and the 6-bits (Music and games interface) generators are emulated.
+Any compatible SoundBlaster card is supported, as well as few other cards (Ensoniq Soundscape, ESS AudioDrive et Windows Sound System).
+
+#####Commands and Settings
+
+It is possible to save and load "images" that contain the state of the emulator at a time. These images are somehow snapshots of a running TO8 and allow the emulator to restart in a previously saved state. However, as the image only contains the internal state of the emulator, external peripheral devices (floppy drives, etc) are not handled.
+
+-----
+
+<center><p>Teo developers &copy; 1997-2012</p></center>

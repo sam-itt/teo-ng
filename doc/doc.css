@@ -1,59 +1,27 @@
-
 BODY {
-	COLOR: #333333;
-	FONT-FAMILY: Verdana,Geneva,Arial,Helvetica,sans-serif;
-	FONT-SIZE: 75%;	PADDING: 0px;
-	MARGIN: 0px;
-	TEXT-ALIGN: left;
+ COLOR: #333333;
+ FONT-FAMILY: Verdana,Geneva,Arial,Helvetica,sans-serif;
+ FONT-SIZE: 100%;
+ PADDING: 0px;
+ MARGIN: 20px;
+ TEXT-ALIGN: left;
 }
 
-H1 {
-	FONT-WEIGHT: bold;
-	COLOR: #000000;
-}
+H1 { FONT-SIZE: 200%; }
+H2 { FONT-SIZE: 180%; }
+H3 { FONT-SIZE: 160%; }
+H4 { FONT-SIZE: 140%; }
+H5 { FONT-SIZE: 120%; }
+H6 { FONT-SIZE: 100%; }
+P { FONT-SIZE: 95%; }
+LI { FONT-SIZE: 95%; }
+TD { FONT-SIZE: 95%; }
+CODE { FONT-SIZE: 120%; }
 
-H2 {
-	FONT-WEIGHT: bold;
-	COLOR: #3e4380;
-}
+A { COLOR: #0066cc; }
 
-H3 {
-	FONT-WEIGHT: bold;
-	COLOR: #444444;
-}
-
-P {
-	FONT-WEIGHT: normal;
-	TEXT-INDENT: 20px;
-	TEXT-ALIGN: justify;
-}
-
-CODE {
-	BACKGROUND-COLOR: #dddddd;
-	COLOR: #000000;
-	PADDING-LEFT: 4px;
-	PADDING-RIGHT: 4px;
-	PADDING-TOP: 1px;
-	PADDING-BOTTOM: 1px;
-}
-
-TD.ttitre {
-	BACKGROUND: url(images/logoblank.jpg) repeat top;
-}
-
-TD.ttexte {
-	PADDING: 20px;
-}
-
-A {
-	FONT-WEIGHT: bold;
-	COLOR: #7171b1;
-	LETTER-SPACING: 0px;
-	TEXT-DECORATION: underline;
-}
-
-A:link {}
-A:visited {}
-A:hover {}
-A:active {}
+A:link { TEXT-DECORATION: none; }
+A:visited { TEXT-DECORATION: none;}
+A:hover { TEXT-DECORATION: underline;}
+A:active { TEXT-DECORATION: none; }
 

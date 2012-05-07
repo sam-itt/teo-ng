@@ -1,0 +1,75 @@
+\[[Page d'accueil](/indexfr/)\]\[[Page in English](/teolnxen/)\]
+
+###Informations suppl&eacute;mentaires sur Teo Linux/X11
+
+#####Installation
+
+La configuration n&eacute;cessaire pour faire tourner l'&eacute;mulateur est la configuration standard des distributions r&eacute;centes; seule la pr&eacute;sence obligatoire de la version 2.12 ou sup&eacute;rieure du toolkit GTK+ peut n&eacute;cessiter une mise &agrave; jour du syst&egrave;me (RedHat 5.x, SuSE 5.x), disponible <a href="http://www.gtk.org">ici</a>.
+
+Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
+
+* Ex&eacute;cuter *`teo-1.8.1-i586.deb`*. Le lancement de *`Teo`* se fera par le menu *`Application/Jeux/Emulateur Teo`*.
+* Extraire *`teo-1.8.1-i586.tar.gz`*. Le programme &eacute;x&eacute;cutable se nomme *`teo`*.
+
+#####Lancement
+
+Teo accepte les param&egrave;tres suppl&eacute;mentaires suivants sur la ligne de commande:
+
+<table border="1" width="100%">
+<tr><td>[-help]</td><td>affiche l'aide en ligne</td></tr>
+<tr><td>[-geometry +x+y]</td><td>sp&eacute;cifie la position de la fen&ecirc;tre</td></tr>
+<tr><td>[-noshm]</td><td>d&eacute;sactive l'utilisation de l'extension MIT-SHM</td></tr>
+<tr><td>[-display displayname]</td><td>sp&eacute;cifie le nom du serveur X &agrave; utiliser</td></tr>
+<tr><td>[xxxxx]</td><td>charge un (des) fichier(s) SAP, K7, M7</td></tr>
+</TABLE>
+
+L'installation par les paquets *`.deb`* lance Teo avec l'option *`-loadstate`* par d&eacute;faut. Pour d&eacute;sactiver cette option ou en ajouter d'autres, choisir *`Syst&egrave;me/Pr&eacute;f&eacute;rences/Menu principal`*, s&eacute;lectionner alors *`Jeux/Emulateur Teo`*, cliquer sur *`Propri&eacute;t&eacute;s`* et changer les options par d&eacute;faut de l'ex&eacute;cutable.
+
+#####Clavier
+
+Si la touche ALTGR reste sans effet, v&eacute;rifez vos r&eacute;glages pour l'agencement du clavier en ce qui concerne les touches de 3&egrave;me niveau: *`Syst&egrave;me/Pr&eacute;f&eacute;rences/Clavier/Agencement/Options de l'agencement.../Touche s&eacute;lectionnant le 3&egrave;me niveau`*.<br><br>
+
+#####G&eacute;n&eacute;rateur sonore
+
+Teo utilise le p&eacute;riph&eacute;rique sonore par d&eacute;faut du syst&egrave;me (via ALSA).
+
+#####Activer l'acc&egrave;s direct aux disquettes sur les syst&egrave;mes Linux r&eacute;cents
+
+Sur les syst&egrave;mes r&eacute;cents, les lecteurs de disquette ne sont pas actifs &agrave; l'installation. Il est n&eacute;cessaire de proc&eacute;der &agrave; quelques ajustements &agrave; partir d'un Terminal :
+
+<u>Cr&eacute;er l'entr&eacute;e pour le premier lecteur (si vous en avez un) :</u>
+
+* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy0</span>
+* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
+* Ajouter la ligne <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</span> si aucune ligne ne commence par *`/dev/fd0`*
+* Enregistrer le fichier et quitter GEdit
+
+<u>Cr&eacute;er l'entr&eacute;e pour le deuxi&egrave;me lecteur (si vous en avez un) :</u>
+
+* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy1</span>
+* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
+* Ajouter la ligne <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</span> si aucune ligne ne commence par *`/dev/fd1`*
+* Enregistrer le fichier et quitter GEdit
+
+<u>D&eacute;clarer les acc&egrave;s disquette :</u>
+
+* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/modules</span>
+* Ajouter la ligne <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">floppy</span> si elle n'existe pas
+* Enregistrer le fichier et quitter GEdit
+* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER floppy</span>
+
+<u>Et pour finir, activer Le tout :</u>
+
+* Red&eacute;marrer l'ordinateur
+
+Si toutefois la lecture directe a des difficult&eacute;s &agrave; fonctionner (erreurs d'entr&eacute;e/sortie, par exemple), cliquez avec le bouton droit sur *`Lecteur de disquettes`* dans votre navigateur de fichiers et s&eacute;lectionnez *`D&eacute;tecter le m&eacute;dia`*.
+
+#####D&eacute;sinstallation
+
+Si l'installation a &eacute;t&eacute; faite avec les fichiers *`tar.gz`*, il suffit d'&eacute;liminer le r&eacute;pertoire *`teo`* racine.
+
+Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal. Il se peut que l'entr&eacute;e dans le menu *`Applications/Jeux/Emulateur Teo`* ne disparaisse pas. Ex&eacute;cuter alors <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm ~/.local/share/applications/teo.desktop</span>. Et pour vraiment tout nettoyer, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.teo</span>, qui est le r&eacute;pertoire contenant les fichiers *`teo.cfg`* et *`autosave.img`*.
+
+-----
+
+<center><p>Teo developers &copy; 1997-2012</p></center>

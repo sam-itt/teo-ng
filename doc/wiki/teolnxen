@@ -1,0 +1,75 @@
+\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/teolnxfr/)\]
+
+###Additional informations about Teo Linux/X11
+
+#####Installation
+
+The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 2.12 and later of the GTK+ toolkit is required and might require a system update (RedHat 5.x, SuSE 5.x). It is available <a href="http://www.gtk.org">here</a>.
+
+You can install the emulator in two ways:
+
+* Launch *`teo-1.8.1-i586.deb`*. The launch of *`Teo`* will be done through the *`Applications/Games/Teo emulator`* shortcut menu.
+* Unzip *`teo-1.8.1-i586.tar.gz`*. The executable is named *`teo`*.
+
+#####Launching
+
+TEO accepts the following additional options on the command line:
+
+<table border="1" width="100%">
+<tr><td>[-help]</td><td>prints on-line help</td></tr>
+<tr><td>[-geometry +x+y]</td><td>specify the window position</td></tr>
+<tr><td>[-noshm]</td><td>disable the use of the MIT-SHM extension</td></tr>
+<tr><td>[-display displayname]</td><td>indicates the name of the X server to use</td></tr>
+<tr><td>[xxxxx]</td><td>loads SAP, K7, M7 file(s)</td></tr>
+</table>
+
+The installation with the packages *`.deb`* launches Teo with the option *`-loadstate`* by default. To deactivate this option or add some more, choose *`System/Preferences/Main menu`*, then select *`Games/Teo emulator`*, click on *`Properties`* and change the options by default of the executable.
+
+#####Keyboard
+
+If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: *`System/Preferences/Keyboard/Layouts/Options/Key`* to chose 3rd level options.<br><br>
+
+#####Sound generator
+
+Teo uses the default sound device (via ALSA).
+
+#####Activating disk direct access on new Linux systems
+
+On new Linux systems, floppy drives are not activated at installation. It's necessary to make some adjustments from a Terminal:
+
+<U>Creating the entry for the first drive (if you have one) :</U>
+
+* Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy0</span>
+* Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
+* Add the line <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</span> if no line begins with *`/dev/fd0`*
+* Save the file and quit GEdit
+
+<U>Creating the entry for the second drive (if you have one) :</U>
+
+* Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy1</span>
+* Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
+* Add the line <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</span> if no line begins with *`/dev/fd1`*
+* Save the file and quit GEdit
+
+<U>Declaring the disks access :</U>
+
+* Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/modules</span>
+* Add the line <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">floppy</span> if it doesn't exist
+* Save the file and quit GEdit
+* Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER floppy</span>
+
+<U>And finally, activating everything :</U>
+
+* Restart computer
+
+If the direct access has still difficulties to work (like I/O errors, for example), right click on the *`Floppy Drive`* in your file browser and select *`Detect Media`*.
+
+#####Uninstallation
+
+If installation has been made with *`tar.gz`* packages, just remove the root folder *`teo`*.
+
+If installation has been made with *`.deb`* packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal. The menu shortcut *`Applications/Games/Teo emulator`* might not disappear. Then execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm ~/.local/share/applications/teo.desktop</span>. And to clean everything, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.teo</span>, which is the folder that contains *`teo.cfg`* and *`autosave.img*` files.
+
+-----
+
+<center><p>Teo developers &copy; 1997-2012</p></center>
