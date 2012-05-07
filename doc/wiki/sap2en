@@ -15,7 +15,7 @@ The SAP archiving system, designed by Alexander Pukall, is the tool used by Thom
 
 This system allows to easily copy disks, to spread any digital medium and ultimately ensures the preservation of their data beyond the life of the physical medium.
 
-The utility SAP is the bridge to make the connection between the two storage modes. The original version was written by Alexander Pukall itself, the extended version SAP2 shown below, available for MSDOS and Linux, includes all features.
+The utility SAP is the bridge to make the connection between the two storage modes. The original version was written by Alexander Pukall itself, the extended version SAP2 shown below, available for MS-DOS and Linux, includes all features.
 
 #####How the program works<a name="how_works"></a>
 
@@ -113,10 +113,10 @@ ex: sap2 --format 1<br>
 
 #####Known problems<a name="kown_problems"></a>
 
-* MSDOS version can run on Windows 95 and 98; however, especially if an anti-virus software is running in the background, it may be necessary to restart the computer and log on pure MS-DOS.
-* The MSDOS version of SAP does not archive or unarchive with the head 1 of a Thomson floppy disk, it is ultimately impossible due to an incompatibility between the PC BIOS and DOS TO. In contrary, Linux is not affected by this problem.
-* The MSDOS version of SAP does not provide access to floppies 5 "25 single density, this is still a definite impossibility due to PC BIOS limitations. In the contrary, Linux is not affected by this problem.
-* MSDOS may no longer reformat a Thomson formatted floppy to a standard format.
+* MS-DOS version can run on Windows 95 and 98; however, especially if an anti-virus software is running in the background, it may be necessary to restart the computer and log on pure MS-DOS.
+* The MS-DOS version of SAP does not archive or unarchive with the head 1 of a Thomson floppy disk, it is ultimately impossible due to an incompatibility between the PC BIOS and DOS TO. In contrary, Linux is not affected by this problem.
+* The MS-DOS version of SAP does not provide access to floppies 5 "25 single density, this is still a definite impossibility due to PC BIOS limitations. In the contrary, Linux is not affected by this problem.
+* MS-DOS may no longer reformat a Thomson formatted floppy to a standard format.
 
 -----
 
