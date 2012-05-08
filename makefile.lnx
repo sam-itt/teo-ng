@@ -62,7 +62,7 @@ endif
 CFLAGS += `pkg-config gtk+-2.0 --cflags`
 LIB = `pkg-config gtk+-2.0 --libs`
 
-LIB += -lasound
+LIB += -lasound -lpng
 
 # ------ plateform-dependant objects and executables ------
 
