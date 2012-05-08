@@ -62,7 +62,6 @@ struct CFG_LIST {
 static struct CFG_LIST *list_start = NULL;
 
 
-
 /* unload_cfg:
  *  Lib�re toute la m�moire de la liste.
  */
@@ -384,53 +383,65 @@ static void save_cfg(char *filename)
 /* LoadStateFirst:
  *  Charge l'�tat sauvegard� de l'�mulateur.
  */
-void to8_LoadState(char *filename)
+int to8_LoadState(char *filename)
 {
     char *p;
+    int load_error = 0;
 
     load_cfg(filename);
     
-    gui->loadstate_error = 0;
-
+    /* settings */
     gui->setting.exact_speed =  get_bool ("teo", "exact_speed", FALSE);
     gui->setting.interlaced_video =  get_bool ("teo", "interlaced_video", FALSE);
-    if ((p = get_string ("teo", "memo_file", NULL)) != NULL)
-        gui->loadstate_error += (to8_LoadMemo7(p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "k7_file", NULL)) != NULL)
-        gui->loadstate_error += (to8_LoadK7(p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_0_file", NULL)) != NULL)
-        gui->loadstate_error += (to8_LoadDisk(0, p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_1_file", NULL)) != NULL)
-        gui->loadstate_error += (to8_LoadDisk(1, p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_2_file", NULL)) != NULL)
-        gui->loadstate_error += (to8_LoadDisk(2, p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_3_file", NULL)) != NULL)
-        gui->loadstate_error += (to8_LoadDisk(3, p) == TO8_ERROR) ? 1 : 0;
-#ifdef DJGPP
-    (void)sprintf (gui->lprt.folder, "%s", get_string ("teo", "printer_folder", ""));
-#else
-    (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", get_string ("teo", "printer_folder", ""));
-#endif
-
     gui->setting.sound_volume  = get_int ("teo", "sound_vol", 128);
 
+    /* cartridge */
+    if ((p = get_string ("teo", "memo_file", NULL)) != NULL)
+        load_error += (to8_LoadMemo7(p) == TO8_ERROR) ? 1 : 0;
+
+    /* tape */
     gui->cass.write_protect = get_bool ("teo", "k7_write_protect", TRUE);
+    if ((p = get_string ("teo", "k7_file", NULL)) != NULL)
+        load_error += (to8_LoadK7(p) == TO8_ERROR) ? 1 : 0;
+
+    /* disk */
     gui->disk[0].write_protect = get_bool ("teo", "disk_0_write_protect", FALSE);
     gui->disk[1].write_protect = get_bool ("teo", "disk_1_write_protect", FALSE);
     gui->disk[2].write_protect = get_bool ("teo", "disk_2_write_protect", FALSE);
     gui->disk[3].write_protect = get_bool ("teo", "disk_3_write_protect", FALSE);
+    if ((p = get_string ("teo", "disk_0_file", NULL)) != NULL)
+        load_error += (to8_LoadDisk(0, p) == TO8_ERROR) ? 1 : 0;
+    if ((p = get_string ("teo", "disk_1_file", NULL)) != NULL)
+        load_error += (to8_LoadDisk(1, p) == TO8_ERROR) ? 1 : 0;
+    if ((p = get_string ("teo", "disk_2_file", NULL)) != NULL)
+        load_error += (to8_LoadDisk(2, p) == TO8_ERROR) ? 1 : 0;
+    if ((p = get_string ("teo", "disk_3_file", NULL)) != NULL)
+        load_error += (to8_LoadDisk(3, p) == TO8_ERROR) ? 1 : 0;
 
+    /* printer */
     gui->lprt.number     = get_int  ("teo", "printer_number", 55);
     gui->lprt.dip        = get_bool ("teo", "printer_dip", FALSE);
     gui->lprt.nlq        = get_bool ("teo", "printer_nlq", FALSE);
     gui->lprt.raw_output = get_bool ("teo", "printer_raw_output", FALSE);
     gui->lprt.txt_output = get_bool ("teo", "printer_txt_output", FALSE);
     gui->lprt.gfx_output = get_bool ("teo", "printer_gfx_output", TRUE);
+#ifdef DJGPP
+    (void)sprintf (gui->lprt.folder, "%s", get_string ("teo", "printer_folder", ""));
+#else
+    (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", get_string ("teo", "printer_folder", ""));
+#endif
 
+    /* load_error */
+    if (load_error)
+        to8_Reset();
+
+    /* image */
     if (access("autosave.img", F_OK) >= 0)
         to8_LoadImage("autosave.img");
 
     unload_cfg();
+
+    return load_error;
 }
 
 
@@ -442,14 +453,19 @@ void to8_SaveState (char *filename)
 {
     load_cfg (filename);
 
+    /* settings */
     set_bool   ("teo", "exact_speed", gui->setting.exact_speed);
     set_bool   ("teo", "interlaced_video", gui->setting.interlaced_video);
+    set_int    ("teo", "sound_vol", gui->setting.sound_volume);
 
+    /* cartridge */
     set_string ("teo", "memo_file", gui->memo.file);
 
+    /* tape */
     set_string ("teo", "k7_file", gui->cass.file);
     set_bool   ("teo", "k7_write_protect", gui->cass.write_protect);
 
+    /* disk */
     set_string ("teo", "disk_0_file", gui->disk[0].file);
     set_string ("teo", "disk_1_file", gui->disk[1].file);
     set_string ("teo", "disk_2_file", gui->disk[2].file);
@@ -459,8 +475,7 @@ void to8_SaveState (char *filename)
     set_bool   ("teo", "disk_2_write_protect", gui->disk[2].write_protect);
     set_bool   ("teo", "disk_3_write_protect", gui->disk[3].write_protect);
 
-    set_int    ("teo", "sound_vol", gui->setting.sound_volume);
-
+    /* printer */
     set_string ("teo", "printer_folder", gui->lprt.folder);
     set_int    ("teo", "printer_number", gui->lprt.number);
     set_bool   ("teo", "printer_dip", gui->lprt.dip);
@@ -469,42 +484,11 @@ void to8_SaveState (char *filename)
     set_bool   ("teo", "printer_txt_output", gui->lprt.txt_output);
     set_bool   ("teo", "printer_gfx_output", gui->lprt.gfx_output);
 
+    /* image */
     to8_SaveImage ("autosave.img");
 
     save_cfg (filename);
 
     unload_cfg();
 }
-
-
-#if 0
-    to8_SaveImage(get_string("teo", "autosave", "autosave.img"));
-
-
-    delete_key ("teo", "load_error");
-    if (load_error != 0)
-        set_string("teo", "load_error", "yes");
-#endif
-
-
-#if 0
-    str_p = get_string("teo", "load_error", "no");
-    if (strcmp(str_p, "yes") == 0)
-        to8_Reset();
-
-    if (load_error != 0) {
-        dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-                 is_fr?"Un fichier de configuration n'a pas pu être " \
-                       "chargé. Vérifiez qu'il n'a pas été déplacé, " \
-                       "détruit et que le périphérique a bien été monté."
-                      :"A configuration file was unable to be loaded. " \
-                       "Check if this file has been moved, deleted and that " \
-                       "the device has been successfully mounted."
-                 );
-        gtk_window_set_title (GTK_WINDOW(dialog), is_fr?"Teo - Message":"Teo - Warning");
-        gtk_dialog_run (GTK_DIALOG (dialog));
-        gtk_widget_destroy (dialog);
-    }
-#endif
-
 

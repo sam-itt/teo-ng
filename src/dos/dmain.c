@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
     InitPrinter();
 
     if (load_state)
-        to8_LoadState(TEO_CONFIG_FILE);
+        (void)to8_LoadState(TEO_CONFIG_FILE);
 
     /* et c'est parti !!! */
     RunTO8();

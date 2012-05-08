@@ -563,7 +563,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     xargs_start(&xargs);
 	
     if (load_state)
-        to8_LoadState(TEO_CONFIG_FILE);
+        (void)to8_LoadState(TEO_CONFIG_FILE);
 
     /* et c'est parti !!! */
     RunTO8(windowed_mode);
