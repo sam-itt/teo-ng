@@ -51,7 +51,6 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
 #include "alleg/gfxdrv.h"
 #include "to8.h"
 
@@ -262,7 +261,7 @@ static void k7_ticker(void)
 void MenuK7(void)
 {
     static int first=1;
-    static char filename[FILENAME_LENGTH];
+    static char filename[MAX_PATH];
     int ret;
 
     if (first)
@@ -319,7 +318,7 @@ void MenuK7(void)
 
             case K7DIAL_BUTTON:
                 if (file_select_ex(is_fr?"Choisissez votre cassette:":"Choose your tape:", filename, "k7", 
-                                   FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                                   MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     ret=to8_LoadK7(filename);
 

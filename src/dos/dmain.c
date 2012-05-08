@@ -57,7 +57,6 @@
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
 #include "alleg/keybint.h"
-#include "alleg/main.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
 #include "dos/disk.h"
@@ -92,7 +91,6 @@ END_MIDI_DRIVER_LIST
 
 
 struct EmuTO teo={
-    TRUE,
     TRUE,
     NONE
 };
@@ -224,7 +222,7 @@ static void ExitMessage(const char msg[])
 int main(int argc, char *argv[])
 {
     char version_name[]="Teo "TO8_VERSION_STR" (MSDOS/DPMI)";
-    char memo_name[FILENAME_LENGTH]="\0";
+    char memo_name[MAX_PATH]="\0";
 #ifdef FRENCH_LANG
     char *mode_desc[3]= {
         " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
@@ -445,7 +443,19 @@ int main(int argc, char *argv[])
     InitPrinter();
 
     if (load_state)
-        (void)to8_LoadState(TEO_CONFIG_FILE);
+        if (to8_LoadState(TEO_CONFIG_FILE) != 0)
+#ifdef FRENCH_LANG
+            alert ("Un fichier de configuration n'a",
+                   "pas pu être chargé (fichier déplacé,",
+                   "détruit ou périphérique non monté).",
+                   "Ok", NULL, 0, 0);
+                   
+#else
+            alert ("A configuration file was unable to",
+                   "be loaded (file moved, deleted or",
+                   "media not mounted).",
+                   "Ok", NULL, 0, 0);
+#endif
 
     /* et c'est parti !!! */
     RunTO8();

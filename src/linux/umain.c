@@ -220,7 +220,7 @@ static void RunTO8(void)
  */
 static XrmDatabase GetUserInput(int *argc, char *argv[])
 {
-    char file_name[FILENAME_LENGTH+1];
+    char file_name[MAX_PATH+1];
     char *str_type[20];
     XrmDatabase commandline_db=NULL, user_db;
     XrmValue value;
@@ -492,7 +492,7 @@ int main(int argc, char *argv[])
 {
     int i, x=0, y=0, user_flags=0;
     char version_name[]="Teo "TO8_VERSION_STR" (Linux/X11)";
-    char memo_name[FILENAME_LENGTH+1]="\0";
+    char memo_name[MAX_PATH+1]="\0";
     int direct_support = 0, direct_write_support = FALSE;
     int drive_type[4];
     char *lang;

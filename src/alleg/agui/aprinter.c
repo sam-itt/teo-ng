@@ -51,7 +51,6 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
 #include "alleg/gfxdrv.h"
 #include "to8.h"
 

@@ -122,6 +122,15 @@
 
 #define TO8_TRAP_CODE          0xCD   /* code pour le trap */
 
+#define FILENAME_LENGTH  128
+
+enum _command { NONE, CONTROL_PANEL, SCREENSHOT, DEBUGGER, RESET, COLD_RESET, QUIT };
+
+struct EmuTO {
+    int sound_enabled;
+    volatile enum _command command;
+};
+
 enum {
     TO8_ERROR,
     TO8_OK,
@@ -184,6 +193,8 @@ struct THOMSON_GUI {
 };
 
 extern struct THOMSON_GUI *gui;
+extern struct EmuTO teo;
+extern int frame;
 
 /* fonctions importables requises */
 extern void (*to8_SetColor)(int index, int r, int g, int b);

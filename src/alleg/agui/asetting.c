@@ -51,7 +51,6 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
 #include "alleg/gfxdrv.h"
 #include "to8.h"
 
@@ -115,7 +114,7 @@ static DIALOG commdial[]={
 void MenuComm(void)
 {
     int first = 1;
-    static char filename[FILENAME_LENGTH];
+    static char filename[MAX_PATH];
 
     if (gui->setting.exact_speed)
     {
@@ -152,7 +151,7 @@ void MenuComm(void)
 
         case COMMDIAL_LOAD:
             if (file_select_ex(is_fr?"Choisissez votre image:":"Choose your image:", filename, "img",
-                               FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                               MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
             {
                 if (to8_LoadImage(filename) == TO8_ERROR)
                     PopupMessage(to8_error_msg);
@@ -161,7 +160,7 @@ void MenuComm(void)
         
         case COMMDIAL_SAVE:
             if (file_select_ex(is_fr?"Spécifiez un nom pour votre image:":"Specify a name for your image:", filename, "img",
-                               FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                               MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
             {
                 if (to8_SaveImage(filename) == TO8_ERROR)
                     PopupMessage(to8_error_msg);

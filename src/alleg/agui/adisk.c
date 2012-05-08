@@ -51,7 +51,6 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
 #include "alleg/gfxdrv.h"
 #include "to8.h"
 
@@ -141,7 +140,7 @@ static DIALOG diskdial[]={
 void MenuDisk(void)
 {
     static int first=1;
-    static char filename[FILENAME_LENGTH+1];
+    static char filename[MAX_PATH+1];
     int drive, ret, ret2;
     
     if (first)
@@ -151,7 +150,7 @@ void MenuDisk(void)
 #ifdef DJGPP
 	        (void)sprintf (filename, "./disks/");
 #else
-	        (void)snprintf (filename, FILENAME_LENGTH, "./disks/");
+	        (void)snprintf (filename, MAX_PATH, "./disks/");
 #endif
 	
         centre_dialog(diskdial);
@@ -204,7 +203,7 @@ void MenuDisk(void)
                 drive=(ret-6)/5;
             
                 if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:", filename, "sap",
-                                   FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                                   MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     ret2=to8_LoadDisk(drive, filename);
 

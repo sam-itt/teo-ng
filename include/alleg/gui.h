@@ -51,4 +51,5 @@ extern void InitGUI(char [], int, int);
 extern void SetGUIColors(int, int, int);
 extern void ControlPanel(void);
 
+extern void PopupMessage(const char message[]);
 #endif

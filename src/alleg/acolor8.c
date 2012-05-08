@@ -49,7 +49,6 @@
 #include "alleg/color8.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h" 
-#include "alleg/main.h"
 #include "to8.h"
 
 

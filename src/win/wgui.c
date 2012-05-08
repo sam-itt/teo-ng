@@ -209,9 +209,11 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
                break;
 
             case QUIT_BUTTON:
+               /*
                if (MessageBox(hDlg, is_fr?"Voulez-vous vraiment quitter l'émulateur ?"
                                          :"Do you really want to quit the emulator ?", "Teo - confirmation",
                         MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 | MB_SYSTEMMODAL) == IDYES)
+               */
                   EndDialog(hDlg, IDCANCEL);
                break; 
 

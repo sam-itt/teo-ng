@@ -433,7 +433,8 @@ int to8_LoadState(char *filename)
 
     /* load_error */
     if (load_error)
-        to8_Reset();
+        teo.command=COLD_RESET;
+/*        to8_Reset(); */
 
     /* image */
     if (access("autosave.img", F_OK) >= 0)

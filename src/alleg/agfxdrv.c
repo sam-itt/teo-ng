@@ -52,7 +52,6 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/mouse.h"
-#include "alleg/main.h"
 #include "to8.h"
 
 
@@ -111,7 +110,7 @@ int InitGraphic(int mode, int depth, int allegro_driver, int border_support)
 void Screenshot(void)
 {
     static int count;
-    char filename[FILENAME_LENGTH];
+    char filename[MAX_PATH];
     BITMAP *bmp;
     PALETTE palette;
 

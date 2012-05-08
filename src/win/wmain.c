@@ -335,7 +335,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 {
     register int i;
     char version_name[]="Teo "TO8_VERSION_STR" (Windows/DirectX)";
-    char memo_name[FILENAME_LENGTH+1]="\0";
+    char memo_name[MAX_PATH+1]="\0";
     int alleg_depth, argc=0;
 #ifndef __MINGW32__
     char *argv[16];

@@ -51,7 +51,6 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
 #include "alleg/gfxdrv.h"
 #include "to8.h"
 
@@ -91,7 +90,7 @@ static DIALOG m7dial[]={
 void MenuMemo7(void)
 {
     static int first=1;
-    static char filename[FILENAME_LENGTH];
+    static char filename[MAX_PATH];
     int ret;
 
     if (first)
@@ -141,7 +140,7 @@ void MenuMemo7(void)
 
             case M7DIAL_BUTTON:
                 if (file_select_ex(is_fr?"Choisissez votre cartouche:":"Choose your cartridge", filename, "m7",
-                                   FILENAME_LENGTH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                                   MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     if (to8_LoadMemo7(filename) == TO8_ERROR)
                         PopupMessage(to8_error_msg);

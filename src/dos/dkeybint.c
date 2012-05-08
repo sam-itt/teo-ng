@@ -47,7 +47,6 @@
    #include <allegro/internal/aintern.h>
 #endif
 
-#include "alleg/main.h"
 #include "to8.h"
 
 

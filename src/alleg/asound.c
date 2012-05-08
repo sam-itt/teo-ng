@@ -50,7 +50,6 @@
    #include <allegro.h>
 #endif
 
-#include "alleg/main.h"
 #include "to8.h"
 
 

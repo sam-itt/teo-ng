@@ -120,8 +120,10 @@ static int do_hide(GtkWidget *widget, GdkEvent *event, gpointer user_data)
  */
 static void ask_to_quit(GtkWidget *button, gpointer unused)
 {
+/*
     if (ask_box (is_fr?"Voulez-vous vraiment quitter l'Ã©mulateur ?"
                       :"Do you really want to quit the emulator ?", wdControl) == TRUE)
+*/
         do_exit (NULL, QUIT);
     (void) button;
     (void) unused;
@@ -144,7 +146,7 @@ static void iconify_window (GtkWidget *widget, GdkEvent *event, void *user_data)
 
 /* --------------------------- Partie publique ----------------------------- */
 
-
+#if 0
 /* ask_box:
  *  Affiche une boîte de confirmation
  */
@@ -160,7 +162,7 @@ int ask_box (const gchar *message, GtkWidget *parent_window)
     gtk_widget_destroy (dialog);
     return (response == GTK_RESPONSE_YES) ? TRUE : FALSE;
 }
-
+#endif
 
 
 /* error_box:

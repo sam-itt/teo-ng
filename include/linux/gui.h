@@ -57,7 +57,7 @@ extern void FreeGUI (void);
 extern void ControlPanel(void);
 
 /* boxes */
-extern int  ask_box (const gchar *message, GtkWidget *parent_window);
+/* extern int  ask_box (const gchar *message, GtkWidget *parent_window); */
 extern void error_box (const gchar *message, GtkWidget *parent_window);
 
 /* sub panels */

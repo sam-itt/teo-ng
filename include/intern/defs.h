@@ -105,9 +105,6 @@
 #define BOTTOM_BORDER          2   
 
 
-#define FILENAME_LENGTH  127
-
-
 struct GATE_ARRAY {
     int p_data;
     int p_addr;

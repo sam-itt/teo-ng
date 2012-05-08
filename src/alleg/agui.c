@@ -51,7 +51,6 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
 #include "alleg/gfxdrv.h"
 #include "to8.h"
 
@@ -75,7 +74,7 @@ extern void InitPrinterGUI(char *title);
 #define BUTTON_FIX 6
 
 /* Titre commun des boîtes de dialogue. */
-#define TEXT_LENGTH  35
+#define TEXT_LENGTH  200
 static char title[TEXT_LENGTH+1] = "";
 
 /* Message affiché dans la boîte de dialogue. */
@@ -95,6 +94,7 @@ static DIALOG mesgdial[]={
 #define MESGDIAL_MESG     1
 #define MESGDIAL_OK       2
 
+#if 0
 /* Question posée dans la boîte de dialogue. */
 static char quest[TEXT_LENGTH+1] = "";
 
@@ -147,7 +147,7 @@ static int PopupQuestion(const char question[], int focus)
 
     return (popup_dialog(questdial, focus) == QUESTDIAL_YES ? TRUE : FALSE);
 }
-
+#endif
 
 /* Boîte de dialogue. */
 static DIALOG controldial[]={
@@ -223,11 +223,15 @@ void ControlPanel(void)
                 return;
 
             case CONTROLDIAL_QUIT:
+                /*
                 if (PopupQuestion(is_fr?"Voulez-vous vraiment quitter ?":"Do you really want to quit ?", FOCUS_NO))
                 {
+                */
                     teo.command=QUIT;
                     return;
+                /*
                 }
+                */
         }
 }
 
@@ -239,7 +243,7 @@ void ControlPanel(void)
 void SetGUIColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(mesgdial, fg_color, bg_color);
-    set_dialog_color(questdial, fg_color, bg_color);
+/*    set_dialog_color(questdial, fg_color, bg_color); */
     
     SetCommGUIColors(fg_color, bg_color, bg_entry_color);
     SetDiskGUIColors(fg_color, bg_color, bg_entry_color);
