@@ -1,5 +1,5 @@
 ========================================================================
-=== Version 1.8.1 (Janvier-Février 2012)                             ===
+=== Version 1.8.1 (Janvier-Mai 2012)                                 ===
 ========================================================================
 - to8.h : création de la variable TO8_TRAP_CODE
           le code de trap passe de 0x02 à 0xCD
