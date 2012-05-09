@@ -52,6 +52,7 @@
 
 #include "intern/defs.h"
 #include "intern/printer.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 struct CFG_LIST {
@@ -283,7 +284,7 @@ static int get_int (char *section, char *key, int value)
  */
 static void set_bool (char *section, char *key, int value)
 {
-    set_string(section, key, (value == TRUE) ? "yes" : "no");
+    set_string(section, key, (value) ? "yes" : "no");
 }
 
 
@@ -385,6 +386,7 @@ static void save_cfg(char *filename)
  */
 int to8_LoadState(char *filename)
 {
+    struct stat st;
     char *p;
     int load_error = 0;
 
@@ -430,15 +432,22 @@ int to8_LoadState(char *filename)
 #else
     (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", get_string ("teo", "printer_folder", ""));
 #endif
-
-    /* load_error */
-    if (load_error)
-        teo.command=COLD_RESET;
-/*        to8_Reset(); */
+    if((stat(gui->lprt.folder, &st) < 0) || (S_ISDIR(st.st_mode) == 0))
+       *gui->lprt.folder = '\0';
+#ifdef DJGPP
+    (void)sprintf (gui->default_folder, "%s", get_string ("teo", "default_folder", ""));
+#else
+    (void)snprintf (gui->default_folder, MAX_PATH, "%s", get_string ("teo", "default_folder", ""));
+#endif
+    if((stat(gui->default_folder, &st) < 0) || (S_ISDIR(st.st_mode) == 0))
+       *gui->default_folder = '\0';
 
     /* image */
-    if (access("autosave.img", F_OK) >= 0)
-        to8_LoadImage("autosave.img");
+    if (load_error)
+        to8_ColdReset();
+    else
+        if (access("autosave.img", F_OK) >= 0)
+            to8_LoadImage("autosave.img");
 
     unload_cfg();
 
@@ -453,6 +462,9 @@ int to8_LoadState(char *filename)
 void to8_SaveState (char *filename)
 {
     load_cfg (filename);
+
+    /* default */
+    set_string ("teo", "default_folder", gui->default_folder);
 
     /* settings */
     set_bool   ("teo", "exact_speed", gui->setting.exact_speed);
