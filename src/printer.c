@@ -55,6 +55,7 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "intern/hardware.h"
+#include "intern/gui.h"
 
 #ifdef UNIX_TOOL
 #   define SLASH "/"

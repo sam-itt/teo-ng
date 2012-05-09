@@ -55,6 +55,7 @@
 #include "intern/defs.h"
 #include "intern/hardware.h"
 #include "intern/errors.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 
