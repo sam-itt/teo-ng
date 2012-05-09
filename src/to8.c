@@ -62,6 +62,7 @@
 #include "intern/k7.h"
 #include "intern/mouse.h"
 #include "intern/printer.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 int is_fr=0;
@@ -590,7 +591,7 @@ void to8_Exit(void)
             free(mem.cart.bank[i]);
 
     /* libère les parties communes de la GUI */
-    to8_FreeGUI ();
+    gui_Free ();
 
     to8_alive = FALSE;
 }
@@ -608,7 +609,7 @@ int to8_Init(int num_joy)
 
     InitHardware();
 
-    if (to8_InitGUI() == TO8_ERROR)
+    if (gui_Init() == TO8_ERROR)
     {
         to8_Exit();
         return TO8_ERROR;
