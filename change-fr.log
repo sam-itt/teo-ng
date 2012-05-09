@@ -10,6 +10,7 @@
 - émulation des postcodes non standard pour indexé
 - émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
 - ajout et internationalisation des saptools et des k7tools
+- plus de message de confirmation à la sortie de Teo
 - sous Linux :
   - passage à GTK+ 2.12
   - réduction du temps de ralentissement usleep()
