@@ -54,12 +54,12 @@
 #endif
 
 #include "intern/printer.h"
+#include "intern/gui.h"
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
 #include "alleg/keybint.h"
-#include "alleg/main.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
 #include "win/gui.h"
@@ -68,7 +68,6 @@
 
 
 struct EmuTO teo={
-    TRUE,
     TRUE,
     NONE
 };
@@ -563,7 +562,46 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     xargs_start(&xargs);
 	
     if (load_state)
-        (void)to8_LoadState(TEO_CONFIG_FILE);
+    {
+        if (to8_LoadState(TEO_CONFIG_FILE) != 0)
+        {
+#ifdef FRENCH_LANG
+            if (windowed_mode)
+            {
+                MessageBox (NULL,
+                  "Un fichier de configuration n'a pas pu être\n" \
+                  "chargé. Vérifiez qu'il n'a pas été déplacé,\n" \
+                  "détruit et que le périphérique a bien été monté.",
+                  "Teo - Attention!", MB_OK | MB_ICONWARNING);
+            }
+            else
+            {
+                alert (
+                   "Un fichier de configuration n'a",
+                   "pas pu être chargé (fichier déplacé,",
+                   "détruit ou périphérique non monté).",
+                   "Ok", NULL, 0, 0);
+            }
+#else
+            if (windowed_mode)
+            {
+                MessageBox (NULL,
+                  "A configuration file was unable to be loaded.\n" \
+                  "Check if this file has been moved, deleted and\n" \
+                  "that the media has been successfully mounted.",
+                  "Teo - Warning!", MB_OK | MB_ICONWARNING);
+            }
+            else
+            {
+                alert (
+                   "A configuration file was unable to",
+                   "be loaded (file moved, deleted or",
+                   "media not mounted).",
+                   "Ok", NULL, 0, 0);
+            }
+#endif
+        }
+    }
 
     /* et c'est parti !!! */
     RunTO8(windowed_mode);

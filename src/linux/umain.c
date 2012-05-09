@@ -64,11 +64,11 @@
 
 #include "intern/defs.h"
 #include "intern/printer.h"
+#include "intern/gui.h"
 #include "linux/disk.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
 #include "linux/gui.h"
-#include "linux/main.h"
 #include "linux/sound.h"
 #include "to8.h"
 #include "xargs.h"
@@ -585,12 +585,12 @@ int main(int argc, char *argv[])
 #endif
     if (load_state == TRUE)
         if (to8_LoadState(TEO_CONFIG_FILE) != 0)
-            error_box (is_fr?"Un fichier de configuration n'a pas pu être " \
-                       "chargé. Vérifiez qu'il n'a pas été déplacé, " \
-                       "détruit et que le périphérique a bien été monté."
-                      :"A configuration file was unable to be loaded. " \
-                       "Check if this file has been moved, deleted and that " \
-                       "the media has been successfully mounted.", NULL);
+            warning_box (is_fr?"Un fichier de configuration n'a pas pu être " \
+                               "chargé. Vérifiez qu'il n'a pas été déplacé, " \
+                               "détruit et que le périphérique a bien été monté."
+                              :"A configuration file was unable to be loaded. " \
+                               "Check if this file has been moved, deleted and that " \
+                               "the media has been successfully mounted.", NULL);
 
     /* arguments supplementaires  */
     xargs_start(&xargs);
