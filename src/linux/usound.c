@@ -55,7 +55,6 @@
    #include <alsa/asoundlib.h>
 #endif
 
-#include "linux/main.h"
 #include "to8.h"
 #include "intern/hardware.h"
 
