@@ -53,7 +53,6 @@
 #endif
 
 #include "alleg/gfxdrv.h"
-#include "alleg/main.h"
 #include "win/dialog.rh"
 #include "win/gui.h"
 #include "to8.h"
@@ -70,19 +69,6 @@ HWND hTab[NBTABS_MASTER];
 #define CHUNK_SIZE   5
 
 static int nCurrentTab = 0;
-
-
-
-/* stringlist_last:
- *  Renvoit le pointeur sur le dernier élément de la stringlist.
- */
-static struct STRING_LIST *stringlist_last (struct STRING_LIST *p)
-{
-    for (; p!=NULL; p=p->next)
-        if (p->next==NULL)
-            break;
-    return p;
-}
 
 
 
@@ -247,116 +233,6 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
       default:
          return FALSE;
    }
-}
-
-
-
-/* stringlist_index:
- *  Renvoit l'index de l'élément de la stringlist.
- */
-int stringlist_index (struct STRING_LIST *p, char *str)
-{
-    int index;
-
-    for (index=0; p!=NULL; p=p->next,index++)
-        if (p->str!=NULL)
-            if (strcmp (p->str, str) == 0)
-                break;
-    return (p==NULL)?-1:index;
-}
-
-
-
-/* stringlist_text:
- *  Renvoit le pointeur du texte de l'élément de la stringlist.
- */
-char *stringlist_text (struct STRING_LIST *p, int index)
-{
-    for (;index>0;index--)
-    {
-        if (p!=NULL)
-            p=p->next;
-    }
-    return (p!=NULL)?p->str:NULL;
-}
-
-
-
-/* stringlist_append:
- *  Ajoute un élément à la stringlist.
- */
-struct STRING_LIST *stringlist_append (struct STRING_LIST *p, char *str)
-{
-    struct STRING_LIST *last_str = stringlist_last (p);
-    struct STRING_LIST *new_str = calloc (1, sizeof (struct STRING_LIST));
-
-    if (new_str!=NULL)
-    {
-        new_str->str=malloc (strlen (str)+1);
-        if (new_str->str!=NULL)
-        {
-            *new_str->str='\0';
-            strcpy (new_str->str, str);
-        }
-    }
-    if ((last_str!=NULL) && (last_str->str!=NULL))
-        last_str->next=new_str;
-
-    return (p==NULL)?new_str:p;
-}
-
-
-
-/* stringlist_free:
- *  Libère la mémoire de la stringlist.
- */
-void stringlist_free (struct STRING_LIST *p)
-{
-    struct STRING_LIST *next;
-
-    while (p!=NULL)
-    {
-        next=p->next;
-        if (p->str!=NULL)
-            free (p->str);
-        free (p);
-        p=next;
-    }
-}
-
-
-
-/* basename_ptr:
- *  Retourne le nom du fichier à partir du nom complet du fichier spécifié.
- */
-const char* basename_ptr(const char fullname[])
-{
-   int len = strlen(fullname);
-
-   while (--len > 0)
-      if (fullname[len] == '\\')
-         return fullname + len + 1;
-
-   return fullname;
-}
-
-
-
-/* basedir_ptr:
- *  Retourne le nom du dernier répertoire à partir du nom complet du fichier spécifié.
- */
-char* basedir_ptr(char fullname[])
-{
-   int len = strlen(fullname);
-
-   while ((len > 0) && ((fullname[len-1] == '\\') || (fullname[len-1] == '/')))
-       fullname[--len] = '\0';
-
-   while (--len > 0)
-      if (fullname[len] == '\\')
-         return fullname + len + 1;
-
-   return fullname;
 }
 
 

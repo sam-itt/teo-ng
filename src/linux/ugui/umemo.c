@@ -51,8 +51,8 @@
    #include <gtk/gtk.h>
 #endif
 
+#include "intern/gui.h"
 #include "linux/gui.h"
-#include "linux/main.h"
 #include "to8.h"
 
 static GtkWidget *combo;
@@ -61,7 +61,7 @@ static gulong combo_changed_id;
 static GList *name_list = NULL;
 static GList *path_list = NULL;
 
-extern char gui_default_folder[];
+
 
 /* add_combo_entry:
  *  Ajoute une entrée dans le combobox si inexistante.
@@ -169,8 +169,8 @@ static void open_file (GtkButton *button, gpointer data)
         if (strlen (gui->memo.file) != 0)
             (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->memo.file);
         else
-        if (strlen (gui_default_folder) != 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui_default_folder);
+        if (strlen (gui->default_folder) != 0)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->default_folder);
         else
         if (access("./memo7/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./memo7/");
@@ -193,7 +193,7 @@ static void open_file (GtkButton *button, gpointer data)
 
             add_combo_entry (gui->memo.label, gui->memo.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
-            (void)snprintf (gui_default_folder, MAX_PATH, "%s", folder_name);
+            (void)snprintf (gui->default_folder, MAX_PATH, "%s", folder_name);
             g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */

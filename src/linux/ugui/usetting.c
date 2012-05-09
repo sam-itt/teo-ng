@@ -52,8 +52,8 @@
    #include <gtk/gtk.h>
 #endif
 
+#include "intern/gui.h"
 #include "linux/gui.h"
-#include "linux/main.h"
 #include "to8.h"
 
 

@@ -55,8 +55,8 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
+#include "intern/gui.h"
 #include "to8.h"
-#include "alleg/main.h"
 
 #define PRINTER_NUMBER 3
 
@@ -106,7 +106,7 @@ static void open_folder (HWND hWnd)
     pidl = SHBrowseForFolder(&bi);
     if (SHGetPathFromIDList(pidl, (LPTSTR)folder) == TRUE)
     {
-        SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basedir_ptr(folder));
+        SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), gui_LastDir(folder));
         (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", folder);
     }
 }
@@ -169,7 +169,7 @@ int CALLBACK PrinterTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(GetDlgItem(hWnd, PRINTER_RAW_CHECK), is_fr?"brute":"raw");
          SetWindowText(GetDlgItem(hWnd, PRINTER_TXT_CHECK), is_fr?"texte":"text");
          SetWindowText(GetDlgItem(hWnd, PRINTER_GFX_CHECK), is_fr?"graphique":"graphic");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), basedir_ptr(gui->lprt.folder));
+         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), gui_LastDir(gui->lprt.folder));
 
          /* initialisation des info-bulles */
          create_tooltip (hWnd, PRINTER_MORE_BUTTON, is_fr?"Choisir un répertoire de sauvegarde":"Choose a save folder");

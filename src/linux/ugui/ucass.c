@@ -52,11 +52,9 @@
    #include <gtk/gtk.h>
 #endif
 
+#include "intern/gui.h"
 #include "linux/gui.h"
-#include "linux/main.h"
 #include "to8.h"
-
-extern char gui_default_folder[];
 
 #define COUNTER_MAX  999
 
@@ -274,8 +272,8 @@ static void open_file (GtkButton *button, gpointer data)
         if (strlen (gui->cass.file) != 0)
             (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->cass.file);
         else
-        if (strlen (gui_default_folder) != 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui_default_folder);
+        if (strlen (gui->default_folder) != 0)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->default_folder);
         else
         if (access("./k7/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./k7/");
@@ -296,7 +294,7 @@ static void open_file (GtkButton *button, gpointer data)
 
             add_combo_entry (gui->cass.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
-            (void)snprintf (gui_default_folder, MAX_PATH, "%s", folder_name);
+            (void)snprintf (gui->default_folder, MAX_PATH, "%s", folder_name);
             g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */

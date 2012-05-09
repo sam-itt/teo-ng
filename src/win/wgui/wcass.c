@@ -46,6 +46,7 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
+   #include <unistd.h>
    #include <string.h>
    #include <windows.h>
    #include <shellapi.h>
@@ -54,6 +55,7 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 #define COUNTER_MAX  999
@@ -61,7 +63,6 @@
 static int entry_max = 0;
 static int combo_index = 0;
 static struct STRING_LIST *path_list = NULL;
-static char current_dir[BUFFER_SIZE] = "";
 
 
 
@@ -165,12 +166,12 @@ static void toggle_check_cass (HWND hWnd)
  */
 static void add_combo_entry (HWND hWnd, const char *path)
 {
-    int index = stringlist_index (path_list, (char *)path);
+    int index = gui_StringListIndex (path_list, (char *)path);
 
     if (index<0)
     {
-        path_list = stringlist_append (path_list, (char *)path);
-        SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0, (LPARAM) basename_ptr(path));
+        path_list = gui_StringListAppend (path_list, (char *)path);
+        SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0, (LPARAM) gui_BaseName((char *)path));
         SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, entry_max, 0);
         entry_max++;
     }
@@ -179,7 +180,7 @@ static void add_combo_entry (HWND hWnd, const char *path)
         SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, index, 0);
         if (index != combo_index)
         {
-            (void)load_cass (hWnd, stringlist_text (path_list, index));
+            (void)load_cass (hWnd, gui_StringListText (path_list, index));
         }
     }
 }
@@ -224,7 +225,7 @@ static void combo_changed (HWND hWnd)
         }
         else
         {
-            (void)load_cass(hWnd, stringlist_text (path_list, index));
+            (void)load_cass(hWnd, gui_StringListText (path_list, index));
         }
         update_params(hWnd);
     }
@@ -237,29 +238,39 @@ static void combo_changed (HWND hWnd)
  */
 static void open_file (HWND hWnd)
 {
-    char current_file[BUFFER_SIZE+1]="";
-    OPENFILENAME openfilename;
+    char current_file[MAX_PATH+1]="";
+    char def_folder[] = ".\\k7";
+    OPENFILENAME ofn;
 
-    memset(&openfilename, 0, sizeof(OPENFILENAME));
-    openfilename.lStructSize = sizeof(OPENFILENAME);
-    openfilename.hwndOwner = hWnd;
-    openfilename.lpstrFilter = is_fr?"Fichiers K7\0*.k7\0":"K7 files\0*.k7\0";
-    openfilename.nFilterIndex = 1;
-    openfilename.lpstrFile = current_file;
-    openfilename.lpstrInitialDir = (current_dir[0]=='\0')?".\\k7":current_dir;
-    openfilename.nMaxFile = BUFFER_SIZE;
-    openfilename.lpstrTitle = is_fr?"Choisissez votre cassette:":"Choose your tape";
-    openfilename.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
-    openfilename.lpstrDefExt ="k7";
+    memset(&ofn, 0, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = is_fr?"Fichiers K7\0*.k7\0":"K7 files\0*.k7\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = current_file;
+    ofn.nMaxFile = BUFFER_SIZE;
+    ofn.lpstrTitle = is_fr?"Choisissez votre cassette:":"Choose your tape";
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
+    ofn.lpstrDefExt ="k7";
 
-    if (GetOpenFileName(&openfilename))
+    if (strlen (gui->cass.file) != 0)
+        ofn.lpstrInitialDir = gui->cass.file;
+    else
+    if (strlen (gui->default_folder) != 0)
+        ofn.lpstrInitialDir = gui->default_folder;
+    else
+    if (access(def_folder, F_OK) == 0)
+        ofn.lpstrInitialDir = def_folder;
+      
+    if (GetOpenFileName(&ofn))
     {
-         if (load_cass (hWnd, openfilename.lpstrFile) != TO8_ERROR)
+         if (load_cass (hWnd, ofn.lpstrFile) != TO8_ERROR)
          {
              add_combo_entry (hWnd, gui->cass.file);
+            (void)snprintf (gui->default_folder, MAX_PATH, "%s", gui->cass.file);
+            (void)snprintf (current_file, MAX_PATH, "%s", gui->cass.file);
              update_params(hWnd);
          }
-         (void)snprintf (current_dir, BUFFER_SIZE, "%s", current_file);
     }
 }
 
@@ -272,7 +283,7 @@ static void open_file (HWND hWnd)
  */
 void free_cass_list (void)
 {
-    stringlist_free (path_list);
+    gui_StringListFree (path_list);
     path_list=NULL;
     entry_max=0;
     combo_index=0;
@@ -309,7 +320,7 @@ int CALLBACK CassetteTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          /* initialisation du combo */
          SendDlgItemMessage(hWnd, K7_COMBO, CB_RESETCONTENT, 0, 0);
          for (slist=path_list; slist!=NULL; slist=slist->next)
-             SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0, (LPARAM) basename_ptr(slist->str));
+             SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0, (LPARAM) gui_BaseName(slist->str));
          SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, combo_index, 0);
 
          /* initialisation de la protection */

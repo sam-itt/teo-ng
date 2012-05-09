@@ -52,9 +52,13 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 extern void PopupMessage(const char message[]);
+
+/* Chemin du fichier de la cartouche. */
+static char filename[MAX_PATH+1] = "";
 
 /* Nom du fichier utilisé comme cartouche. */
 static char m7_label[TO8_MEMO7_LABEL_LENGTH+1];
@@ -84,27 +88,51 @@ static DIALOG m7dial[]={
 #define M7DIAL_OK      7
 
 
+/* init_filename:
+ *  Initialise le répertoire d'appel pour le fileselect.
+ */
+static void init_filename(void)
+{
+    *filename = '\0';
+
+    if (strlen (gui->memo.file) != 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s", gui->memo.file);
+#else
+        (void)snprintf (filename, MAX_PATH, "%s", gui->memo.file);
+#endif
+    else
+    if (strlen (gui->default_folder) != 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s\\", gui->default_folder);
+#else
+        (void)snprintf (filename, MAX_PATH, "%s\\", gui->default_folder);
+#endif
+    else
+      if (file_exists(".\\memo7", FA_DIREC, NULL))
+//    if (access(def_folder, F_OK) == 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s", ".\\memo7\\");
+#else
+        (void)snprintf (filename, MAX_PATH, "%s", ".\\memo7\\");
+#endif
+}
+
+
+
 /* MenuMemo7:
  *  Affiche le menu de gestion du lecteur de cartouches.
  */
 void MenuMemo7(void)
 {
     static int first=1;
-    static char filename[MAX_PATH];
     int ret;
 
     if (first)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
-	if ((strlen (gui->memo.file) == 0) && (file_exists("./memo7", FA_DIREC, NULL)))
-#ifdef DJGPP
-	        (void)sprintf (filename, "./memo7/");
-#else
-	        (void)snprintf (filename, MAX_PATH, "./memo7/");
-#endif
-	
+        init_filename();
         centre_dialog(m7dial);
-
 #ifdef DJGPP
         (void)sprintf (m7_label, "%s", gui->memo.label);
 #else
@@ -139,6 +167,9 @@ void MenuMemo7(void)
                 break;
 
             case M7DIAL_BUTTON:
+                init_filename();
+                gui_CleanPath (filename);
+                strcat (filename, "\\");
                 if (file_select_ex(is_fr?"Choisissez votre cartouche:":"Choose your cartridge", filename, "m7",
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
@@ -148,9 +179,12 @@ void MenuMemo7(void)
                     {
 #ifdef DJGPP
                         (void)sprintf (m7_label, "%s", gui->memo.label);
+                        (void)sprintf (gui->default_folder, "%s", filename);
 #else
                         (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.label);
+                        (void)snprintf (gui->default_folder, MAX_PATH, "%s", filename);
 #endif
+                        gui_CleanPath (gui->default_folder);
                         teo.command=COLD_RESET;
                     }   
                 }

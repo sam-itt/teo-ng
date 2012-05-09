@@ -56,15 +56,12 @@
 #include "linux/display.h"
 #include "linux/gui.h"
 #include "linux/graphic.h"
-#include "linux/main.h"
 #include "to8.h"
 #include "commands.xpm"
 
 /* fenêtre de l'interface utilisateur */
 GtkWidget *wdControl;
 
-/* répertoire par défaut pour l'ouverture à froid des file choosers */
-char gui_default_folder[MAX_PATH] = "";
 
 
 /* retrace_callback:
@@ -144,6 +141,22 @@ static void iconify_window (GtkWidget *widget, GdkEvent *event, void *user_data)
 }
 
 
+/* display_box:
+ *  Affiche une boîte à message
+ */
+void display_box (const gchar *message, GtkWidget *parent_window, int dialog_flag)
+{
+    GtkWidget *dialog = gtk_message_dialog_new  (
+                          (GtkWindow *)parent_window,
+                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                          dialog_flag, GTK_BUTTONS_OK,
+                          "%s", message);
+    gtk_window_set_title ((GtkWindow *)dialog, "Teo");
+    (void)gtk_dialog_run ((GtkDialog *)dialog);
+    gtk_widget_destroy ((GtkWidget *)dialog);
+}
+
+
 /* --------------------------- Partie publique ----------------------------- */
 
 #if 0
@@ -170,14 +183,17 @@ int ask_box (const gchar *message, GtkWidget *parent_window)
  */
 void error_box (const gchar *message, GtkWidget *parent_window)
 {
-    GtkWidget *dialog = gtk_message_dialog_new  (
-                          (GtkWindow *)parent_window,
-                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                          GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-                          "%s", message);
-    gtk_window_set_title ((GtkWindow *)dialog, "Teo");
-    (void)gtk_dialog_run ((GtkDialog *)dialog);
-    gtk_widget_destroy ((GtkWidget *)dialog);
+    display_box (message, parent_window, GTK_MESSAGE_ERROR);
+}
+
+
+
+/* warning_box:
+ *  Affiche une boîte de prévention
+ */
+void warning_box (const gchar *message, GtkWidget *parent_window)
+{
+    display_box (message, parent_window, GTK_MESSAGE_WARNING);
 }
 
 

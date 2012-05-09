@@ -53,7 +53,7 @@
 #endif
 
 #include "alleg/sound.h"
-#include "alleg/main.h"
+#include "intern/gui.h"
 #include "win/dialog.rh"
 #include "win/gui.h"
 #include "to8.h"

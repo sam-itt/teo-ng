@@ -52,6 +52,7 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 
@@ -136,7 +137,7 @@ void MenuPrinter(void)
     static int first = 1;
     static char printer_folder[MAX_PATH+1] = "";
 
-
+    centre_dialog(printerdial);
     if (first)
     {
         if (strlen(gui->lprt.folder) == 0)
@@ -145,15 +146,15 @@ void MenuPrinter(void)
             (void)sprintf (gui->lprt.folder, "%s", printer_folder);
         }
         (void)sprintf (foldername, "%s", get_filename(gui->lprt.folder));
-        if (gui->lprt.dip == TRUE)
+        if (gui->lprt.dip)
             printerdial[PRINTERDIAL_DIP].flags|=D_SELECTED;
-        if (gui->lprt.nlq == TRUE)
+        if (gui->lprt.nlq)
             printerdial[PRINTERDIAL_NLQ].flags|=D_SELECTED;
-        if (gui->lprt.raw_output == TRUE)
+        if (gui->lprt.raw_output)
             printerdial[PRINTERDIAL_RAW_OUTPUT].flags|=D_SELECTED;
-        if (gui->lprt.txt_output == TRUE)
+        if (gui->lprt.txt_output)
             printerdial[PRINTERDIAL_TXT_OUTPUT].flags|=D_SELECTED;
-        if (gui->lprt.gfx_output == TRUE)
+        if (gui->lprt.gfx_output)
             printerdial[PRINTERDIAL_GFX_OUTPUT].flags|=D_SELECTED;
         for (i=0; i<PRINTER_NUMBER; i++)
         {
@@ -163,7 +164,6 @@ void MenuPrinter(void)
         first = 0;
     }
 
-    centre_dialog(printerdial);
     clear_keybuf();
 
     while (TRUE)
@@ -216,4 +216,3 @@ void InitPrinterGUI(char *title)
     /* Définit le titre de la fenêtre */
     printerdial[1].dp = title;
 }
-

@@ -51,9 +51,9 @@
 #endif
 
 #include "intern/printer.h"
+#include "intern/gui.h"
 #include "linux/gui.h"
 #include "to8.h"
-#include "linux/main.h"
 
 #define PRINTER_NUMBER 3
 

@@ -46,6 +46,7 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
+   #include <unistd.h>
    #include <string.h>
    #include <windows.h>
    #include <shellapi.h>
@@ -54,6 +55,7 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 #define NDISKS 4
@@ -143,7 +145,7 @@ static void combo_changed (HWND hWnd, struct FILE_VECTOR *vector)
         else
         {
             if ((index!=1) || (vector->direct!=1))
-                (void)load_disk (hWnd, stringlist_text (vector->path_list, index), vector);
+                (void)load_disk (hWnd, gui_StringListText (vector->path_list, index), vector);
         }
         update_params (hWnd, vector);
         set_access_mode (hWnd, vector);
@@ -180,12 +182,12 @@ static void toggle_check_disk(HWND hWnd, struct FILE_VECTOR *vector)
  */
 static void add_combo_entry (HWND hWnd, const char *path, struct FILE_VECTOR *vector)
 {
-    int index = stringlist_index (vector->path_list, (char *)path);
+    int index = gui_StringListIndex (vector->path_list, (char *)path);
 
     if (index<0)
     {
-        vector->path_list = stringlist_append (vector->path_list, (char *)path);
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_ADDSTRING, 0, (LPARAM) basename_ptr(path));
+        vector->path_list = gui_StringListAppend (vector->path_list, (char *)path);
+        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_ADDSTRING, 0, (LPARAM) gui_BaseName((char *)path));
         SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL, vector->entry_max, 0);
         vector->entry_max++;
     }
@@ -194,7 +196,7 @@ static void add_combo_entry (HWND hWnd, const char *path, struct FILE_VECTOR *ve
         SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL, index, 0);
         if (index != vector->combo_index)
         {
-            (void)load_disk (hWnd, stringlist_text (vector->path_list, index), vector);
+            (void)load_disk (hWnd, gui_StringListText (vector->path_list, index), vector);
         }
     }
 }
@@ -206,7 +208,7 @@ static void add_combo_entry (HWND hWnd, const char *path, struct FILE_VECTOR *ve
  */
 static void free_disk_entry (struct FILE_VECTOR *vector)
 {
-    stringlist_free (vector->path_list);
+    gui_StringListFree (vector->path_list);
     vector->path_list=NULL;
     vector->entry_max=0;
     vector->combo_index=0;
@@ -246,31 +248,39 @@ static void clear_combo (HWND hWnd, struct FILE_VECTOR *vector)
  */
 static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
 {
-    static char last_dir[BUFFER_SIZE]=".\\disks";
-    char current_file[BUFFER_SIZE]="";
-    OPENFILENAME openfilename;
+    char current_file[MAX_PATH+1]="";
+    char def_folder[] = ".\\disks";
+    OPENFILENAME ofn;
 
-    memset(&openfilename, 0, sizeof(OPENFILENAME));
-    openfilename.lStructSize = sizeof(OPENFILENAME);
-    openfilename.hwndOwner = hWnd;
-    openfilename.lpstrFilter = is_fr?"Fichiers SAP\0*.sap\0":"SAP files\0*.sap\0";
-    openfilename.nFilterIndex = 1;
-    openfilename.lpstrFile = current_file;
-    openfilename.lpstrInitialDir = (vector->current_dir[0]=='\0')?last_dir:vector->current_dir;
-    openfilename.nMaxFile = BUFFER_SIZE;
-    openfilename.lpstrTitle = is_fr?"Choisissez votre disquette:":"Choose your disk:";
-    openfilename.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
-    openfilename.lpstrDefExt ="sap";
+    memset(&ofn, 0, sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = is_fr?"Fichiers SAP\0*.sap\0":"SAP files\0*.sap\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = current_file;
+    ofn.nMaxFile = BUFFER_SIZE;
+    ofn.lpstrTitle = is_fr?"Choisissez votre disquette:":"Choose your disk:";
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
+    ofn.lpstrDefExt ="sap";
 
-    if (GetOpenFileName(&openfilename))
+    if (strlen (gui->disk[vector->id].file) != 0)
+        ofn.lpstrInitialDir = gui->disk[vector->id].file;
+    else
+    if (strlen (gui->default_folder) != 0)
+        ofn.lpstrInitialDir = gui->default_folder;
+    else
+    if (access(def_folder, F_OK) == 0)
+        ofn.lpstrInitialDir = def_folder;
+
+    if (GetOpenFileName(&ofn))
     {
-        if (load_disk (hWnd, openfilename.lpstrFile, vector) != TO8_ERROR)
+        if (load_disk (hWnd, ofn.lpstrFile, vector) != TO8_ERROR)
         {
             add_combo_entry (hWnd, gui->disk[vector->id].file, vector);
+            (void)snprintf (gui->default_folder, MAX_PATH, "%s", gui->disk[vector->id].file);
+            (void)snprintf (current_file, MAX_PATH, "%s", gui->disk[vector->id].file);
             update_params (hWnd, vector);
         }
-        strcpy(vector->current_dir, current_file);
-        strcpy(last_dir, current_file);
     }
 }
 
@@ -326,7 +336,7 @@ int CALLBACK DiskTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              /* initialisation du combo */
              SendDlgItemMessage(hWnd, DISK0_COMBO+drive, CB_RESETCONTENT, 0, 0);
              for (slist=vector[drive].path_list; slist!=NULL; slist=slist->next)
-                 SendDlgItemMessage(hWnd, DISK0_COMBO+drive, CB_ADDSTRING, 0, (LPARAM) basename_ptr(slist->str));
+                 SendDlgItemMessage(hWnd, DISK0_COMBO+drive, CB_ADDSTRING, 0, (LPARAM) gui_BaseName(slist->str));
              SendDlgItemMessage(hWnd, DISK0_COMBO+drive, CB_SETCURSEL, vector[drive].combo_index, 0);
 
              /* initialisation de la protection */

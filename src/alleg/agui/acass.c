@@ -52,9 +52,13 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 extern void PopupMessage(const char message[]);
+
+/* Chemin du fichier de la cassette. */
+static char filename[MAX_PATH+1] = "";
 
 /* Nom du fichier utilisé comme cassette. */
 #define LABEL_LENGTH     20
@@ -255,31 +259,58 @@ static void k7_ticker(void)
 }
 
 
+
+/* init_filename:
+ *  Initialise le répertoire d'appel pour le fileselect.
+ */
+static void init_filename(void)
+{
+    *filename = '\0';
+
+    if (strlen (gui->cass.file) != 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s", gui->cass.file);
+#else
+        (void)snprintf (filename, MAX_PATH, "%s", gui->cass.file);
+#endif
+    else
+    if (strlen (gui->default_folder) != 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s\\", gui->default_folder);
+#else
+        (void)snprintf (filename, MAX_PATH, "%s\\", gui->default_folder);
+#endif
+    else
+      if (file_exists(".\\k7", FA_DIREC, NULL))
+//    if (access(def_folder, F_OK) == 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s", ".\\k7\\");
+#else
+        (void)snprintf (filename, MAX_PATH, "%s", ".\\k7\\");
+#endif
+}
+
+
+
 /* MenuK7:
  *  Affiche le menu de gestion du lecteur de cassettes.
  */
 void MenuK7(void)
 {
     static int first=1;
-    static char filename[MAX_PATH];
     int ret;
 
     if (first)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
-    	if ((strlen (gui->cass.file) == 0) && (file_exists("./k7", FA_DIREC, NULL)))
-#ifdef DJGPP
-	        (void)sprintf (filename, "./k7/");
-#else
-	        (void)snprintf (filename, MAX_PATH, "./k7/");
-#endif
+        init_filename();
 
         centre_dialog(k7dial);
 
 #ifdef DJGPP
-        (void)sprintf (k7_label, "%s", get_filename(gui->cass.file));
+        (void)sprintf (k7_label, "%s", get_filename(filename));
 #else
-        (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(gui->cass.file));
+        (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(filename));
 #endif
         if (k7_label[0] == '\0')
 #ifdef DJGPP
@@ -317,6 +348,9 @@ void MenuK7(void)
                 break;
 
             case K7DIAL_BUTTON:
+                init_filename();
+                gui_CleanPath (filename);
+                strcat (filename, "\\");
                 if (file_select_ex(is_fr?"Choisissez votre cassette:":"Choose your tape:", filename, "k7", 
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
@@ -328,11 +362,12 @@ void MenuK7(void)
                     {
 #ifdef DJGPP
                         (void)sprintf (k7_label, "%s", get_filename(filename));
-                        (void)sprintf (gui->cass.file, "%s", filename);
+                        (void)sprintf (gui->default_folder, "%s", filename);
 #else
                         (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(filename));
-                        (void)snprintf (gui->cass.file, MAX_PATH, "%s", filename);
+                        (void)snprintf (gui->default_folder, MAX_PATH, "%s", filename);
 #endif
+                        gui_CleanPath (gui->default_folder);
 
                         if ((ret==TO8_READ_ONLY) && !(k7dial[6].d2))
                         {

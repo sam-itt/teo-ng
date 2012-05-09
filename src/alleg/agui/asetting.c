@@ -52,6 +52,7 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 extern void PopupMessage(const char message[]);

@@ -53,7 +53,6 @@
 #include "linux/display.h"
 #include "linux/gui.h"
 #include "linux/graphic.h"
-#include "linux/main.h"
 #include "to8.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"

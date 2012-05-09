@@ -299,3 +299,4 @@ void PopupMessage(const char message[])
 
     popup_dialog(mesgdial, MESGDIAL_OK);
 }
+

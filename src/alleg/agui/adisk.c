@@ -52,10 +52,13 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 extern void PopupMessage(const char message[]);
 
+/* Chemin du fichier de la disquette. */
+static char filename[MAX_PATH+1] = "";
 
 /* Noms des fichiers utilisés comme disquettes. */
 #define LABEL_LENGTH     20
@@ -134,33 +137,58 @@ static DIALOG diskdial[]={
 #define DISKDIAL_OK        25
 
 
+
+/* init_filename:
+ *  Initialise le répertoire d'appel pour le fileselect.
+ */
+static void init_filename(int drive)
+{
+    *filename = '\0';
+
+    if (strlen (gui->disk[drive].file) != 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s", gui->disk[drive].file);
+#else
+        (void)snprintf (filename, MAX_PATH, "%s", gui->disk[drive].file);
+#endif
+    else
+    if (strlen (gui->default_folder) != 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s\\", gui->default_folder);
+#else
+        (void)snprintf (filename, MAX_PATH, "%s\\", gui->default_folder);
+#endif
+    else
+      if (file_exists(".\\disks", FA_DIREC, NULL))
+//    if (access(def_folder, F_OK) == 0)
+#ifdef DJGPP
+        (void)sprintf (filename, "%s", ".\\disks\\");
+#else
+        (void)snprintf (filename, MAX_PATH, "%s", ".\\disks\\");
+#endif
+}
+
+
+
 /* MenuDisk:
  *  Affiche le menu de gestion des lecteurs de disquettes.
  */
 void MenuDisk(void)
 {
     static int first=1;
-    static char filename[MAX_PATH+1];
     int drive, ret, ret2;
     
     if (first)
     {
-        /* La première fois on tente d'ouvrir le répertoire par défaut. */
-        if ((strlen (gui->cass.file) == 0) && (file_exists("./disks", FA_DIREC, NULL)))
-#ifdef DJGPP
-	        (void)sprintf (filename, "./disks/");
-#else
-	        (void)snprintf (filename, MAX_PATH, "./disks/");
-#endif
-	
         centre_dialog(diskdial);
 
         for (drive=0; drive<4; drive++)
         {
+            init_filename(drive);
 #ifdef DJGPP
-            (void)sprintf (disk_label[drive], "%s", get_filename(gui->disk[drive].file));
+            (void)sprintf (disk_label[drive], "%s", get_filename(filename));
 #else
-            (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(gui->disk[drive].file));
+            (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(filename));
 #endif
             if (disk_label[drive][0] == '\0')
 #ifdef DJGPP
@@ -168,7 +196,7 @@ void MenuDisk(void)
 #else
                 (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
 #endif
-            if (gui->disk[drive].write_protect == TRUE)
+            if (gui->disk[drive].write_protect)
                 diskdial[DISKDIAL_CHECK0+5*drive].flags |= D_SELECTED;
         }
 
@@ -201,7 +229,10 @@ void MenuDisk(void)
             case DISKDIAL_BUTTON2:
             case DISKDIAL_BUTTON3:
                 drive=(ret-6)/5;
-            
+
+                init_filename(drive);
+                gui_CleanPath (filename);
+                strcat (filename, "\\");
                 if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:", filename, "sap",
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
@@ -214,11 +245,13 @@ void MenuDisk(void)
                         diskdial[DISKDIAL_EJECT0+5*drive].flags &= ~D_DISABLED;
 #ifdef DJGPP
                         (void)sprintf (disk_label[drive], "%s", get_filename(filename));
-                        (void)sprintf (gui->disk[drive].file, "%s", filename);
+                        (void)sprintf (gui->default_folder, "%s", filename);
 #else
                         (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(filename));
-                        (void)snprintf (gui->disk[drive].file, MAX_PATH, "%s", filename);
+                        (void)snprintf (gui->default_folder, MAX_PATH, "%s", filename);
 #endif
+                        gui_CleanPath (gui->default_folder);
+
                         if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
                         {
                             PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
