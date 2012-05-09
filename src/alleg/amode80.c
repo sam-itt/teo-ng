@@ -53,6 +53,7 @@
 
 #include "alleg/color8.h"
 #include "alleg/gfxdrv.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 

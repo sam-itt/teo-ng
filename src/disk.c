@@ -52,6 +52,7 @@
 #include "intern/disk.h"
 #include "intern/errors.h"
 #include "intern/hardware.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 

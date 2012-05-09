@@ -57,6 +57,7 @@
 #endif
 
 #include "linux/display.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 

@@ -52,6 +52,7 @@
 #include "intern/errors.h"
 #include "intern/hardware.h"
 #include "intern/k7.h"  /* MacOS */
+#include "intern/gui.h"
 #include "to8.h"
 
 

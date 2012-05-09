@@ -57,7 +57,6 @@
 #include "linux/gui.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
-#include "linux/main.h"
 #include "to8keys.h"
 #include "to8.h"
 #include "thomson.xpm"

@@ -52,6 +52,7 @@
 #endif
 
 #include "intern/printer.h"
+#include "intern/gui.h"
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"

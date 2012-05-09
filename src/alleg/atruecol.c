@@ -52,6 +52,7 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
+#include "intern/gui.h"
 #include "to8.h"
 
 
