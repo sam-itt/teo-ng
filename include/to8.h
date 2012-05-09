@@ -124,7 +124,16 @@
 
 #define FILENAME_LENGTH  128
 
-enum _command { NONE, CONTROL_PANEL, SCREENSHOT, DEBUGGER, RESET, COLD_RESET, QUIT };
+enum _command {
+  NONE,
+  CONTROL_PANEL,
+  SCREENSHOT,
+  DEBUGGER,
+  BREAKPOINT,
+  RESET,
+  COLD_RESET,
+  QUIT
+};
 
 struct EmuTO {
     int sound_enabled;
@@ -145,54 +154,7 @@ enum {
 
 extern int is_fr;
 
-struct LPRT_GUI {
-    int  number;
-    int  nlq;
-    int  dip;
-    int  raw_output;
-    int  txt_output;
-    int  gfx_output;
-    char *folder;
-};
 
-struct DISK_GUI {
-    int  write_protect;
-    char *file;
-};
-
-struct CASS_GUI  {
-    int  write_protect;
-    char *file;
-};
-
-struct MEMO_GUI {
-    char *file;
-    char *label;
-};
-
-struct SETTING_GUI {
-    int  exact_speed;
-    int  sound_volume;
-    int  interlaced_video;
-};
-
-struct IMAGE_GUI {
-    char *file;
-};
-
-#define NBDRIVE    4
-
-struct THOMSON_GUI {
-    int loadstate_error;
-    struct SETTING_GUI setting;
-    struct DISK_GUI disk[NBDRIVE];
-    struct CASS_GUI cass;
-    struct MEMO_GUI memo;
-    struct LPRT_GUI lprt;
-    struct IMAGE_GUI imag;
-};
-
-extern struct THOMSON_GUI *gui;
 extern struct EmuTO teo;
 extern int frame;
 

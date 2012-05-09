@@ -54,11 +54,6 @@
 #define BUFFER_SIZE  512
 #define NOT_FOUND   -1
 
-struct STRING_LIST {
-    char *str;
-    struct STRING_LIST *next;
-};
-
 extern HINSTANCE prog_inst;
 extern HWND prog_win;
 extern HICON prog_icon;
@@ -79,13 +74,6 @@ extern void free_memo_list (void);
 extern void free_disk_list (void);
 extern void FreeGUI (void);
 
-extern int  stringlist_index (struct STRING_LIST *p, char *str);
-extern char *stringlist_text (struct STRING_LIST *p, int index);
-extern struct STRING_LIST *stringlist_append (struct STRING_LIST *p, char *str);
-extern void stringlist_free (struct STRING_LIST *p);
-
-extern const char* basename_ptr(const char fullname[]);
-extern char* basedir_ptr(char fullname[]);
 extern void create_tooltip (HWND hWnd, WORD id, char *text);
 
 #endif
