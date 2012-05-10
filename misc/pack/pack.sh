@@ -56,8 +56,6 @@ teo/disks
 teo/memo7
 teo/k7
 teo/fonts
-teo/language.dat
-teo/keyboard.dat
 teo/teo.cfg
 teo/doc/*.htm
 teo/doc/*.css
@@ -204,6 +202,8 @@ cd ..
 # ----------------- MSDOS executable packages
 
 msdos_exec="
+teo/language.dat
+teo/keyboard.dat
 teo/teo.exe
 teo/sap2.exe
 teo/sapfs.exe
@@ -233,6 +233,8 @@ rm teo/teo.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 # ----------------- Windows executable packages
 
 windows_exec="
+teo/language.dat
+teo/keyboard.dat
 teo/teow.exe
 teo/sap2.exe
 teo/sapfs.exe
