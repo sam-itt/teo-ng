@@ -84,7 +84,6 @@ make veryclean
 make DEBIAN=1
 make depend
 cd ..
-cp teo/teo teo/
 # Compile saptools
 cd teo/sap
 make clean
