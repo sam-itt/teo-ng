@@ -2,6 +2,7 @@
 #
 # Convert files from UNIX to DOS
 
+echo "Convert files from UNIX to DOS..."
 find . -type d "(" \
       -name ".hg" -prune \
       ")" -o \
