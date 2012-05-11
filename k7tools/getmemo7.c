@@ -13,9 +13,13 @@ static int is_fr=0;
 
 /* ugly hack to support French accents */
 #ifdef DJGPP
+static char ucirc[] = "–";
+static char agrave[] = "…";
 static char eacute[] = "‚";
-static char ecirc[]  = "Š";
+static char ecirc[]  = "ˆ";
 #else
+static char ucirc[] = "Ã»";
+static char agrave[] = "Ã ";
 static char eacute[] = "Ã©";
 static char ecirc[]  = "Ãª";
 #endif
@@ -58,8 +62,10 @@ int main(int argc,char **argv)
     char buf[256];
 
 #ifdef DJGPP
-#ifdef FR_LANG
-    fr=-1
+#ifdef FRENCH_LANG
+    is_fr = 1;
+#else
+    is_fr = 0;
 #endif
 #else
     char *lang=getenv("LANG");
@@ -72,8 +78,8 @@ int main(int argc,char **argv)
     if (is_fr)
     {
         printf("GetMemo7 1.0 par Sylvain HUET\n");
-        printf("R%scuperation d'une cartouche Memo7 a partir d'un fichier .k7\n",eacute);
-        printf("La cartouche a du %stre sauvegard%se par : SAVEM\"MEMO7\",0,&H3FFF,0\n\n",ecirc,eacute);
+        printf("R%scuperation d'une cartouche Memo7 %s partir d'un fichier .k7\n",eacute,agrave);
+        printf("La cartouche a d%s %stre sauvegard%se par : SAVEM\"MEMO7\",0,&H3FFF,0\n\n",ucirc,ecirc,eacute);
     }
     else
     {
