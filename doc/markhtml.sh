@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Convert wiki files into html files
+# Convert wiki files into html doc files
+# 'markdown' should be installed : sudo apt-get install markdown
 
 if [ `expr match $PWD '.*/doc$'` = 0 ]
    then
