@@ -12,8 +12,10 @@ Teo is a TO8 emulator for Personal Computers. It tries to mimic as closely as po
 * [Sapfs](/sapfsen/) to manage the SAP file system
 * [Wav2k7](/wav2k7en/) to import/export tapes
 * [LibSap](/libsapen/) a library of C functions to develop in C with SAP format
+* [Changes](/changeen/)
+* [Licence](/licencen/)
 
 -----
 
-<center><p>Teo developers &copy; 1997-2012</p></center>
+<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 
