@@ -7,13 +7,15 @@
 
 /* ugly hack to support French accents */
 #ifdef DJGPP
-static char eacute[] = "";
-static char ecirc[]  = "";
-static char agrave[] = "";
+static char ucirc[] = "�";
+static char agrave[] = "�";
+static char eacute[] = "�";
+static char ecirc[]  = "�";
 #else
-static char eacute[] = "Ã©";
-static char ecirc[]  = "Ãª";
-static char agrave[] = "Ã ";
+static char ucirc[] = "û";
+static char agrave[] = "à";
+static char eacute[] = "é";
+static char ecirc[]  = "ê";
 #endif
 
 int tab[4]={0xff,0x01,0x03c,0x01};
@@ -61,8 +63,10 @@ int main(int argc,char **argv)
     char buf[256];
 
 #ifdef DJGPP
-#ifdef FR_LANG
-    fr=-1
+#ifdef FRENCH_LANG
+    is_fr = 1;
+#else
+    is_fr = 0;
 #endif
 #else
     char *lang=getenv("LANG");
@@ -76,7 +80,7 @@ int main(int argc,char **argv)
     {
         printf("GetROM 1.0 par Sylvain HUET\n");
         printf("R%scuperation de la ROM du TO7 %s partir d'un fichier .k7\n",eacute,agrave);
-        printf("La ROM a du %stre sauvegard%se par : SAVEM\"ROM\",&HE800,&HFFFF,0\n\n",ecirc,eacute);
+        printf("La ROM a d%s %stre sauvegard%se par : SAVEM\"ROM\",&HE800,&HFFFF,0\n\n",ucirc,ecirc,eacute);
     }
     else
     {
@@ -150,5 +154,3 @@ int main(int argc,char **argv)
 
     exit(EXIT_SUCCESS);
 }
-
-
