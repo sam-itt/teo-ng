@@ -1,0 +1,166 @@
+\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/libsapfr/)\]
+
+###Changes
+
+#####Version 1.8.1 (January-May 2012)
+
+- ROMs included in packages
+- Emulation of printers PR90-055, PR90-600, PR90-612
+- execution cycle by cycle of machine codes
+- emulation of non standard instructions
+- emulation of non standard postcodes for TFR/EXG
+- emulation of non standard postcodes for indexed
+- emulation of postcode 0x00 for PSHS/PSHU/PULS/PULU
+- add and internationalization of saptools and k7tools
+- no more confirmation message when quitting
+- on Linux:
+    - transition to GTK+ 2.12
+    - reduction of slowdown cpu time with usleep()
+    - configuration management when the involved device is not mounted
+    - warm reset if configuration error
+    - sound processing with ALSA rather than OSS
+    - transition to combobox for files and add emptying buttons
+    - F12 to call the debugger
+
+#####Version 1.8.0 (July-September 2011)
+
+- display exact name of a cartridge
+- options added:
+    - SAP, M7 and K7 files can be specified as command line argument
+    - interlaced : activates the interlaced video mode
+- reduction of CPU process time 
+- French and English version
+- on Linux:
+    - porting to GTK+ 2.x/3.x (automatic detection of the version at compilation, old versions of GTK then still work)
+    - reactivation of the AltGr key effect for new versions of Linux (you have to adjust eventually the settings of keyboard layout (System/Preferences/Keyboard/Layout/Compose key position options.../Key to chose 3rd level options)
+    - backup of the last state of the emulator
+    - adding GTK debugger
+    - correction of the front behavior of GTK windows
+    - the closing of the emulator window no longer bugs X11
+- disk command $01 is working for the boot of the side 1 (thanks to Daniel Coulom)
+
+#####Version 1.7.6 (September-November 2006)
+
+- update the date each reset
+- correction of the tape recorder detection (thanks to Yves Charriau)
+- protection of the ROM while loading a sector through the monitor
+- finer management of the screen spot: Chinese Stack works well
+- correction of the cartridge space switching
+- on Windows: display the name of of the 4 disks in the dialog box after loading an image file
+- on Linux: porting to GTK+ 2.x
+- François Mouret, aka Prehisto, becomes co-maintainer
+
+#####Version 1.7.5 (November-December 2003)
+
+- minor corrections and update of the links in the documentation
+
+#####Version 1.7.4 (Oct. 2001-November 2003)
+
+- stronger cold reset (thanks to Prehisto)
+- support of multiple PC floppy drives
+- emulation of tape counter
+- on MSDOS and Windows: loading/saving of the emulator state accessible from user interface
+
+#####Version 1.7 (May-September 2001)
+
+- regression correction for sound emulation
+- regression correction for keyboard repeat  (thanks to Prehisto)
+- on MSDOS and Windows: loading/saving of emulator state (Prehisto's idea)
+- on MSDOS and Windows: graphic driver is user-definable (teo.cfg)
+- on MSDOS: the sound volume is higher by default
+- on MSDOS: back to the PC format floppy drive output
+- on Windows: regression correction for some keys detection after an Alt+TAB (thanks to Prehisto to inform us)
+
+#####Version 1.6 (March-May 2001)
+
+- preliminary support of PR 90-612 dot-matrix printer (only MSDOS and Windows full screen yet)
+- on MSDOS and Windows: bug correction for the interaction between mouse and PC joysticks
+- on MSDOS and Windows: adding of a deactivation option for joysticks
+- on Linux: new Thomson icon for user interface
+
+#####Version 1.5 (December 2000-March 2001)
+
+- bug correction for some TO7-70 games (especialy Eliminator, thanks J-F Guerrero to inform us)
+- on MSDOS and Windows: support of PC joysticks
+- on Windows: new volume track bar control for native interface work improvement on Windows NT4 and 2000
+- on Linux: minor correction of a keyboard bug
+
+#####Version 1.4 (November-December 2000)
+
+- reduction of memory usage
+- improvement of graphic performances
+- on MSDOS and Linux: support of direct writing/formating
+- on Windows: native user interface in windowed mode
+- on Linux: better integration of the user interface
+- update of MacOS port (Richard Bannister)
+
+#####Version 1.3 (September-October 2000)
+
+- detection of SAP bad file format
+- bug correction for acrtridge loading
+- bug correction for the screen edge (Bob Morane SF)
+- on MSDOS:
+    - bug correction for a 80 columns dialog box display
+    - support of Windows Sound System sound cards
+    - support of VESA 640x400x15 mode
+    - suppressing of VESA 640x480x8 and 640x480x16 modes
+- support of Windows/DirectX plateforms: Windows 95,98,Me,NT4,2000 DirectX 3.0 or later
+
+#####Version 1.2 (July 2000)
+
+- disks module:
+    - new type of protection (Bob Winner)
+    - support of the write protection
+    - formating of SAP archives
+- support cartridges from 16 to 64 ko with getting label
+- loading a cartridge causes a cold reset
+- on MSDOS:
+    - modification of cartridge/tape/disk menus
+    - write-protect option for disks
+    - new colors for dialog boxes
+- on Linux: support of direct access (sides 0 and 1)
+- on Linux:
+    - modification of cartridge/tape/disk menus
+    - write-protect option for disks
+
+#####Version 1.1 (June 2000)
+
+- bug correction for drive controller (La Geste d'Artillac)
+- on MSDOS: bug correction for sound card autodetecion
+
+#####Version 1.1beta (June 2000)
+
+- palette setting correction
+- support of 32ko cartridges (ColorPaint)
+- full support of PC numeric keypad (keys /, *, -, +)
+- improving of sound emulation (Les Cavernes de Thénébé, FBI)
+- on Linux: X cursor is invisible in emulator screen
+- on Linux: bug correction for windows closing
+
+#####Version 1.0.96 (May 2000)
+
+- bug correction in Bob Morane SF
+- on MSDOS: screen capture with \[F11\] (Louis Progeas idea)
+
+#####Version 1.0.94 (May 2000)
+
+- bug correction of memory card: the Pascal UCSD works (thanks to Daniel Smague to inform us)
+- on MSDOS:
+    - 3 graphical modes
+    - selection by the menu
+    - selection by option (-mode40 -mode80 -truecolor)
+- on MSDOS: the keyboard is upper-case by default at start
+- on Linux:
+    - suppressing of option -fake
+    - geometry specify the window size as well
+
+#####Version 1.0beta2 (March 2000)
+
+- on Linux:
+    - bug correction of 32-bit displaying
+    - deactivation option of MIT-SHM extension
+
+#####version 1.0beta
+
+- first version
+
