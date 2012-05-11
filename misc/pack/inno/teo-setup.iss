@@ -4,7 +4,7 @@
 #define OUTPUTDIR  'misc\pack'
 #define SOURCEDIR  '..\..\..'
 #define APPVERSION  '1.8.1'
-#define WEBSITE "https://sourceforge.net/projects/teoemulator/?source=directory"
+#define WEBSITE "https://sourceforge.net/projects/teoemulator/"
 
 [Setup]
 AppName=Teow
@@ -74,10 +74,14 @@ Source: fonts\picas055.txt; DestDir: {app}\fonts;
 Source: fonts\picas600.txt; DestDir: {app}\fonts;
 Source: fonts\picas612.txt; DestDir: {app}\fonts;
 Source: fonts\tiny.txt; DestDir: {app}\fonts;
+Source: doc\changefr.htm; DestDir: {app}\doc;
+Source: doc\changeen.htm; DestDir: {app}\doc;
 Source: doc\indexfr.htm; DestDir: {app}\doc;
 Source: doc\index.htm; DestDir: {app}\doc;
 Source: doc\libsapfr.htm; DestDir: {app}\doc;
 Source: doc\libsapen.htm; DestDir: {app}\doc;
+Source: doc\licencfr.htm; DestDir: {app}\doc;
+Source: doc\licencen.htm; DestDir: {app}\doc;
 Source: doc\sap2fr.htm; DestDir: {app}\doc;
 Source: doc\sap2en.htm; DestDir: {app}\doc;
 Source: doc\sapfsfr.htm; DestDir: {app}\doc;
