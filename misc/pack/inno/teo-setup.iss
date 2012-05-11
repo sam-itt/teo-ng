@@ -4,13 +4,14 @@
 #define OUTPUTDIR  'misc\pack'
 #define SOURCEDIR  '..\..\..'
 #define APPVERSION  '1.8.1'
+#define WEBSITE "https://sourceforge.net/projects/teoemulator/?source=directory"
 
 [Setup]
 AppName=Teow
 AppVersion={#APPVERSION}
-AppPublisherURL=https://sourceforge.net/projects/teoemulator/?source=directory
-AppSupportURL=https://sourceforge.net/projects/teoemulator/?source=directory
-AppUpdatesURL=https://sourceforge.net/projects/teoemulator/?source=directory
+AppPublisherURL={#WEBSITE}
+AppSupportURL={#WEBSITE}
+AppUpdatesURL={#WEBSITE}
 DefaultDirName={pf}\Teow
 DefaultGroupName=Teow
 SourceDir={#SOURCEDIR}
@@ -33,23 +34,19 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 [Files]
 Source: {#OUTPUTDIR}\inno\teow-en.exe; DestDir: {app}; DestName: teow.exe; Languages: en
 Source: {#OUTPUTDIR}\inno\teow-fr.exe; DestDir: {app}; DestName: teow.exe; Languages: fr
-Source: {#OUTPUTDIR}\msdos\getmemo7-en.exe; DestDir: {app}; DestName: getmemo7.exe; Languages: en
-Source: {#OUTPUTDIR}\msdos\getmemo7-fr.exe; DestDir: {app}; DestName: getmemo7.exe; Languages: fr
-Source: {#OUTPUTDIR}\msdos\getrom-en.exe; DestDir: {app}; DestName: getrom.exe; Languages: en
-Source: {#OUTPUTDIR}\msdos\getrom-fr.exe; DestDir: {app}; DestName: getrom.exe; Languages: fr
 Source: {#OUTPUTDIR}\msdos\wav2k7-en.exe; DestDir: {app}; DestName: wav2k7.exe; Languages: en
 Source: {#OUTPUTDIR}\msdos\wav2k7-fr.exe; DestDir: {app}; DestName: wav2k7.exe; Languages: fr
 Source: {#OUTPUTDIR}\msdos\sap2-en.exe; DestDir: {app}; DestName: sap2.exe; Languages: en
 Source: {#OUTPUTDIR}\msdos\sap2-fr.exe; DestDir: {app}; DestName: sap2.exe; Languages: fr
 Source: {#OUTPUTDIR}\msdos\sapfs-en.exe; DestDir: {app}; DestName: sapfs.exe; Languages: en
 Source: {#OUTPUTDIR}\msdos\sapfs-fr.exe; DestDir: {app}; DestName: sapfs.exe; Languages: fr
-Source: readme-en.txt; DestDir: {app}; Languages: en; Flags: isreadme
-Source: readme-fr.txt; DestDir: {app}; Languages: fr; Flags: isreadme
-Source: change-en.log; DestDir: {app}; Languages: en
-Source: change-fr.log; DestDir: {app}; Languages: fr
-Source: licence-en.txt; DestDir: {app}; Languages: en
-Source: licence-fr.txt; DestDir: {app}; Languages: fr
-Source: teo.cfg; DestDir: {app}
+Source: readme-en.txt; DestDir: {app}; DestName: readme.txt; Languages: en; Flags: isreadme
+Source: readme-fr.txt; DestDir: {app}; DestName: readme.txt; Languages: fr; Flags: isreadme
+Source: change-en.log; DestDir: {app}; DestName: change.log; Languages: en
+Source: change-fr.log; DestDir: {app}; DestName: change.log; Languages: fr
+Source: licence-en.txt; DestDir: {app}; DestName: license.txt; Languages: en
+Source: licence-fr.txt; DestDir: {app}; DestName: license.txt; Languages: fr
+Source: misc\teo_init.cfg; DestDir: {app}; DestName: teo.cfg;
 Source: language.dat; DestDir: {app}
 Source: keyboard.dat; DestDir: {app}
 Source: alleg40.dll; DestDir: {app}
@@ -62,44 +59,48 @@ Source: fichier.rom; DestDir: {app}
 Source: to8mon1.rom; DestDir: {app}
 Source: to8mon2.rom; DestDir: {app}
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: doc\images\home.gif; DestDir: {app}\doc\images
-Source: doc\images\logo.jpg; DestDir: {app}\doc\images
-Source: doc\images\logoblank.jpg; DestDir: {app}\doc\images
-Source: doc\images\teo_w0fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_w0en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_w1fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_w1en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_w2fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_w2en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_w3fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_w3en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_w4fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_w4en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_w5fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_w5en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_v1fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_v1en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_v2fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_v2en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_v3fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_v3en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_v4fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_v4en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_v5fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_v5en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\images\teo_v6fr.gif; DestDir: {app}\doc\images; Languages: fr
-Source: doc\images\teo_v6en.gif; DestDir: {app}\doc\images; Languages: en
-Source: doc\teo_win.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\teo_win_en.htm; DestDir: {app}\doc; Languages: en
+Source: fonts\condc600.txt; DestDir: {app}\fonts;
+Source: fonts\condc612.txt; DestDir: {app}\fonts;
+Source: fonts\elitc600.txt; DestDir: {app}\fonts;
+Source: fonts\elitc612.txt; DestDir: {app}\fonts;
+Source: fonts\elits600.txt; DestDir: {app}\fonts;
+Source: fonts\elits612.txt; DestDir: {app}\fonts;
+Source: fonts\elons055.txt; DestDir: {app}\fonts;
+Source: fonts\elons600.txt; DestDir: {app}\fonts;
+Source: fonts\elons612.txt; DestDir: {app}\fonts;
+Source: fonts\picac600.txt; DestDir: {app}\fonts;
+Source: fonts\picac612.txt; DestDir: {app}\fonts;
+Source: fonts\picas055.txt; DestDir: {app}\fonts;
+Source: fonts\picas600.txt; DestDir: {app}\fonts;
+Source: fonts\picas612.txt; DestDir: {app}\fonts;
+Source: fonts\tiny.txt; DestDir: {app}\fonts;
+Source: doc\indexfr.htm; DestDir: {app}\doc;
+Source: doc\index.htm; DestDir: {app}\doc;
+Source: doc\libsapfr.htm; DestDir: {app}\doc;
+Source: doc\libsapen.htm; DestDir: {app}\doc;
+Source: doc\sap2fr.htm; DestDir: {app}\doc;
+Source: doc\sap2en.htm; DestDir: {app}\doc;
+Source: doc\sapfsfr.htm; DestDir: {app}\doc;
+Source: doc\sapfsen.htm; DestDir: {app}\doc;
+Source: doc\teodosfr.htm; DestDir: {app}\doc;
+Source: doc\teodosen.htm; DestDir: {app}\doc;
+Source: doc\teofr.htm; DestDir: {app}\doc;
+Source: doc\teoen.htm; DestDir: {app}\doc;
+Source: doc\teolnxfr.htm; DestDir: {app}\doc;
+Source: doc\teolnxen.htm; DestDir: {app}\doc;
+Source: doc\teowinfr.htm; DestDir: {app}\doc;
+Source: doc\teowinen.htm; DestDir: {app}\doc;
+Source: doc\wav2k7fr.htm; DestDir: {app}\doc;
+Source: doc\wav2k7en.htm; DestDir: {app}\doc;
 Source: doc\doc.css; DestDir: {app}\doc
 
 [Icons]
 Name: {group}\Teow; Filename: {app}\teow.exe; IconIndex: 0; Parameters: " -window -loadstate"
-Name: {group}\Manuel de Teow; Filename: {app}\doc\teo_win.htm; IconIndex: 0; Languages: fr
-Name: {group}\Teow's manual; Filename: {app}\doc\teo_win_en.htm; IconIndex: 0; Languages: en
-Name: {group}\Licence de Teow; Filename: {app}\licence-fr.txt; IconIndex: 0; Languages: fr
-Name: {group}\Teow's licence; Filename: {app}\licence-en.txt; IconIndex: 0; Languages: en
-Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: https://sourceforge.net/projects/teoemulator/?source=directory; IconIndex: 0
+Name: {group}\Manuel de Teow; Filename: {app}\doc\indexfr.htm; IconIndex: 0; Languages: fr
+Name: {group}\Teow's manual; Filename: {app}\doc\index.htm; IconIndex: 0; Languages: en
+Name: {group}\Licence de Teow; Filename: {app}\license.txt; IconIndex: 0; Languages: fr
+Name: {group}\Teow's licence; Filename: {app}\license.txt; IconIndex: 0; Languages: en
+Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: {#WEBSITE}; IconIndex: 0
 Name: {group}\{cm:UninstallProgram,Teow}; Filename: {uninstallexe}; IconIndex: 0
 Name: {commondesktop}\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: desktopicon; IconIndex: 0; Parameters: " -window -loadstate"
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: quicklaunchicon; IconIndex: 0; Parameters: " -window -loadstate"
