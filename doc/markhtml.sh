@@ -9,15 +9,14 @@ if [ `expr match $PWD '.*/doc$'` = 0 ]
       exit
 fi
 
-echo "Convert Markdown to HTML..."
-
+echo -n "Convert Markdown to HTML"
 
 rm *.htm
 cd wiki
 
 for i in *;
 {
-   echo "$i";
+   echo -n ".";
    echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">" > _tmpfile;
    echo "<html>" >> _tmpfile;
    echo "<head>" >> _tmpfile;
