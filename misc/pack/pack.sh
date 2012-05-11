@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # - Compiles the executable Linux for DEBIAN
 # - Creates the distribuable DEBIAN for the executable
@@ -17,12 +17,17 @@ if [ `expr match $PWD '.*/teo$'` = 0 ]
       exit
 fi
 
+# always set TMPDIR to something writable into!
+if [ -z $TMPDIR ]; then
+   TMPDIR=/tmp
+fi
+
 version='1.8.1'
 packDir="teo/misc/pack"
 zipOptions="-q -9"
 gzipOptions="-9"
 
-# List of source files
+# list of source files
 source_files="
 teo/src
 teo/sap
@@ -50,7 +55,7 @@ teo/*.cfg
 teo/*.rom
 teo/*.dll"
 
-# List of common files for executable packages
+# list of common files for executable packages
 common_exec="
 teo/disks
 teo/memo7
@@ -61,14 +66,25 @@ teo/doc/*.htm
 teo/doc/*.css
 teo/*.rom"
 
-# ----------------- Convert files from DOS to UNIX
+# copy to temporary folder
+cd ..
+current_folder=$PWD
+cp -r ./teo $TMPDIR
+cd $TMPDIR
 
+
+# ----------------- convert files from DOS to UNIX
+
+cd teo
 ./fixunix.sh
 cd ..
 
-# ----------------- Clean all
+# ----------------- clean all
 
-rm -f $packDir/teo-*.tar* $packDir/teo-*.zip $packDir/teo-*.deb
+rm -r -f ./disks
+rm -r -f ./memo7
+rm -r -f ./k7
+rm -f $current_folder/$packDir/teo-*.tar* $current_folder/$packDir/teo-*.zip $current_folder/$packDir/teo-*.deb
 rm ./teo/teo.cfg
 cp ./teo/misc/teo_init.cfg teo/teo.cfg
 
@@ -129,10 +145,16 @@ sudo chown $USER   ~/teo-$version-i586
 sudo chgrp $USER   ~/teo-$version-i586
 # Create DEBIAN package
 sudo dpkg-deb --build ~/teo-$version-i586
-sudo cp ~/teo-$version-i586.deb $packDir
+sudo cp ~/teo-$version-i586.deb $current_folder/$packDir
 # Clean DEBIAN file and DEBIAN folder
 sudo rm -r -f ~/teo-$version-i586
 sudo rm -r -f ~/teo-$version-i586.deb
+
+# ----------------- Create media folders
+
+mkdir teo/disks
+mkdir teo/memo7
+mkdir teo/k7
 
 # ----------------- Linux executable package
 
@@ -163,11 +185,11 @@ teo/teo
 teo/sap2
 teo/sapfs
 teo/wav2k7"
-packFile="$packDir/teo-$version-i586.tar"
+packFile="$current_folder/$packDir/teo-$version-i586.tar"
 tar -cf $packFile $common_exec $linux_exec teo/*-??.*
 gzip $gzipOptions $packFile
 
-# ----------------- Clean Linux executables
+# ----------------- clean Linux executables
 
 # Clean Teo
 cd teo
@@ -185,21 +207,21 @@ make clean
 cd ../..
 rm teo/wav2k7
 
-# ----------------- Create TAR.GZ package for sources
+# ----------------- create TAR.GZ package for sources
 
 echo "Creating TAR.GZ package for sources..."
 
-packFile="$packDir/teo-$version-src.tar"
+packFile="$current_folder/$packDir/teo-$version-src.tar"
 tar -cf $packFile $source_files
 gzip $gzipOptions $packFile
 
-# ----------------- Convert files from UNIX to DOS
+# ----------------- convert files from UNIX to DOS
 
 cd teo
 ./fixdoscr.sh
 cd ..
 
-# ----------------- MSDOS executable packages
+# ----------------- MS-DOS executable packages
 
 msdos_exec="
 teo/language.dat
@@ -212,7 +234,7 @@ teo/cwsdpmi.exe"
 
 echo "Creating ZIP packages for MSDOS executables in French..."
 
-packFile="$packDir/teo-$version-dosexe-fr.zip"
+packFile="$current_folder/$packDir/teo-$version-dosexe-fr.zip"
 cp $packDir/msdos/teo-fr.exe teo/teo.exe
 cp $packDir/msdos/sap2-fr.exe teo/sap2.exe
 cp $packDir/msdos/sapfs-fr.exe teo/sapfs.exe
@@ -222,7 +244,7 @@ rm teo/teo.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 
 echo "Creating ZIP packages for MSDOS executables in English..."
 
-packFile="$packDir/teo-$version-dosexe-en.zip"
+packFile="$current_folder/$packDir/teo-$version-dosexe-en.zip"
 cp $packDir/msdos/teo-en.exe teo/teo.exe
 cp $packDir/msdos/sap2-en.exe teo/sap2.exe
 cp $packDir/msdos/sapfs-en.exe teo/sapfs.exe
@@ -243,7 +265,7 @@ teo/*.dll"
 
 echo "Creating ZIP packages for Windows executables in French..."
 
-packFile="$packDir/teo-$version-winexe-fr.zip"
+packFile="$current_folder/$packDir/teo-$version-winexe-fr.zip"
 cp $packDir/inno/teow-fr.exe teo/teow.exe
 cp $packDir/msdos/sap2-fr.exe teo/sap2.exe
 cp $packDir/msdos/sapfs-fr.exe teo/sapfs.exe
@@ -253,7 +275,7 @@ rm teo/teow.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 
 echo "Creating ZIP packages for Windows executables in English..."
 
-packFile="$packDir/teo-$version-winexe-en.zip"
+packFile="$current_folder/$packDir/teo-$version-winexe-en.zip"
 cp $packDir/inno/teow-en.exe teo/teow.exe
 cp $packDir/msdos/sap2-en.exe teo/sap2.exe
 cp $packDir/msdos/sapfs-en.exe teo/sapfs.exe
@@ -261,18 +283,20 @@ cp $packDir/msdos/wav2k7-en.exe teo/wav2k7.exe
 zip -r $zipOptions $packFile $common_exec $windows_exec teo/*-en.*
 rm teo/teow.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 
-# ----------------- Create ZIP package for sources
+# ----------------- create ZIP package for sources
 
 echo "Creating ZIP package for sources..."
 
-packFile="$packDir/teo-$version-src.zip"
+packFile="$current_folder/$packDir/teo-$version-src.zip"
 zip -r $zipOptions $packFile $source_files
 
-cd teo
+# ----------------- delete temporary folders and files
 
-# ----------------- Convert files from DOS to UNIX
+rm -r ./teo
 
-./fixunix.sh
+# ----------------- return to current folder
+
+cd $current_folder/teo
 
 echo "Packages created in ./misc/pack/!"
 
