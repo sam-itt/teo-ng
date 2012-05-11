@@ -7,7 +7,7 @@
 
 /* ugly hack to support French accents */
 #ifdef DJGPP
-static char eacute[] = "";
+static char eacute[] = "‚";
 #else
 static char eacute[] = "Ã©";
 #endif
@@ -40,8 +40,10 @@ int main(int argc, char **argv)
   char outputname[1024];
   
 #ifdef DJGPP
-#ifdef FR_LANG
-    fr=-1
+#ifdef FRENCH_LANG
+    is_fr = 1;
+#else
+    is_fr = 0;
 #endif
 #else
     char *lang=getenv("LANG");
@@ -87,7 +89,7 @@ int main(int argc, char **argv)
   strcpy(outputname+l,".k7\0");
 
     if (is_fr)
-        printf("creation de %s\n",outputname);
+        printf("cr%sation de %s\n",eacute,outputname);
     else
         printf("creation of %s\n",outputname);
 
