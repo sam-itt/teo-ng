@@ -32,6 +32,7 @@
           Ajout des icônes pour les boutons
 - fixunix.sh : le répertoire de Mercurial n'est plus affecté par le
           traitement
+- fixdoscr.sh : script pour passer les fichiers du mode UNIX vers DOS
 - dasm6809.c : syntaxe d'affichage plus fidèle pour le désassemblage
 - linux/udebug.c : utilisation de fontes à taille fixe
           agrandissement de la fenêtre de sortie
