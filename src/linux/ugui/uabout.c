@@ -417,7 +417,7 @@ void run_about_window (GtkWidget *button, gpointer user_data)
     gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dialog), "Copyright © 1997-2012");
     gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG(about_dialog), "Linux/X11");
     gtk_about_dialog_set_license (GTK_ABOUT_DIALOG(about_dialog), linux_license);
-    gtk_about_dialog_set_website (GTK_ABOUT_DIALOG(about_dialog), "https://sourceforge.net/projects/teoemulator/?source=directory");
+    gtk_about_dialog_set_website (GTK_ABOUT_DIALOG(about_dialog), "http://sourceforge.net/projects/teoemulator/");
     gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG(about_dialog), is_fr?"Teo sur Sourceforge"
                                                                              :"Teo on Sourceforge");
     gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG(about_dialog), (const gchar **)&authors_list);

@@ -485,7 +485,7 @@ int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                break;
 
             case ABOUT_STATIC_LINK :
-               ShellExecute(NULL, "open", "https://sourceforge.net/projects/teoemulator/?source=directory", 0, 0, SW_SHOWNORMAL);
+               ShellExecute(NULL, "open", "http://sourceforge.net/projects/teoemulator/", 0, 0, SW_SHOWNORMAL);
                break;
 
          }

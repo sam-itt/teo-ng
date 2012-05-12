@@ -32,7 +32,7 @@ Comment l'obtenir ?
 -------------------
 En le téléchargeant depuis la page:
 
-   https://sourceforge.net/projects/teoemulator/?source=directory
+   http://sourceforge.net/projects/teoemulator/
 
 L'archive principale contient le programme éxécutable de l'émulateur et la
 documentation complète.
