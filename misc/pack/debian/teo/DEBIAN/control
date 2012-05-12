@@ -4,7 +4,7 @@ Architecture: i386
 Section: base
 Priority: optional
 Maintainer: Gilles Fétis <gilles504@gmail.com>
-Homepage: http://nostalgies.thomsonistes.org/teo_home.html
+Homepage: http://sourceforge.net/projects/teoemulator/
 Description: Teo, a thomson TO8D microcomputer emulator
  Teo is an emulator of the Thomson TO8 microcomputer for PC, running on MSDOS,
  Windows and Linux.
