@@ -2,7 +2,14 @@
 
 ###Informations suppl&eacute;mentaires sur Teo Linux/X11
 
-#####Installation
+* <a href="#installation">Installation</a>
+* <a href="#launching">Lancement</a>
+* <a href="#keyboard">Clavier</a>
+* <a href="#sound">G&eacute;n&eacute;rateur sonore</a>
+* <a href="#direct">Activer l'acc&egrave;s direct aux disquettes sur les syst&egrave;mes Linux r&eacute;cents</a>
+* <a href="#deinstallation">D&eacute;sinstallation</a>
+
+#####Installation<a name="installation"></a>
 
 La configuration n&eacute;cessaire pour faire tourner l'&eacute;mulateur est la configuration standard des distributions r&eacute;centes; seule la pr&eacute;sence obligatoire de la version 2.12 ou sup&eacute;rieure du toolkit GTK+ peut n&eacute;cessiter une mise &agrave; jour du syst&egrave;me (RedHat 5.x, SuSE 5.x), disponible <a href="http://www.gtk.org">ici</a>.
 
@@ -11,7 +18,7 @@ Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 * Ex&eacute;cuter *`teo-1.8.1-i586.deb`*. Le lancement de *`Teo`* se fera par le menu *`Application/Jeux/Emulateur Teo`*.
 * Extraire *`teo-1.8.1-i586.tar.gz`*. Le programme &eacute;x&eacute;cutable se nomme *`teo`*.
 
-#####Lancement
+#####Lancement<a name="launching"></a>
 
 Teo accepte les param&egrave;tres suppl&eacute;mentaires suivants sur la ligne de commande:
 
@@ -25,15 +32,15 @@ Teo accepte les param&egrave;tres suppl&eacute;mentaires suivants sur la ligne d
 
 L'installation par les paquets *`.deb`* lance Teo avec l'option *`-loadstate`* par d&eacute;faut. Pour d&eacute;sactiver cette option ou en ajouter d'autres, choisir *`Syst&egrave;me/Pr&eacute;f&eacute;rences/Menu principal`*, s&eacute;lectionner alors *`Jeux/Emulateur Teo`*, cliquer sur *`Propri&eacute;t&eacute;s`* et changer les options par d&eacute;faut de l'ex&eacute;cutable.
 
-#####Clavier
+#####Clavier<a name="keyboard"></a>
 
 Si la touche ALTGR reste sans effet, v&eacute;rifez vos r&eacute;glages pour l'agencement du clavier en ce qui concerne les touches de 3&egrave;me niveau: *`Syst&egrave;me/Pr&eacute;f&eacute;rences/Clavier/Agencement/Options de l'agencement.../Touche s&eacute;lectionnant le 3&egrave;me niveau`*.
 
-#####G&eacute;n&eacute;rateur sonore
+#####G&eacute;n&eacute;rateur sonore<a name="sound"></a>
 
 Teo utilise le p&eacute;riph&eacute;rique sonore par d&eacute;faut du syst&egrave;me (via ALSA).
 
-#####Activer l'acc&egrave;s direct aux disquettes sur les syst&egrave;mes Linux r&eacute;cents
+#####Activer l'acc&egrave;s direct aux disquettes sur les syst&egrave;mes Linux r&eacute;cents<a name="direct"></a>
 
 Sur les syst&egrave;mes r&eacute;cents, les lecteurs de disquette ne sont pas actifs &agrave; l'installation. Il est n&eacute;cessaire de proc&eacute;der &agrave; quelques ajustements &agrave; partir d'un Terminal :
 
@@ -64,7 +71,7 @@ Sur les syst&egrave;mes r&eacute;cents, les lecteurs de disquette ne sont pas ac
 
 Si toutefois la lecture directe a des difficult&eacute;s &agrave; fonctionner (erreurs d'entr&eacute;e/sortie, par exemple), cliquez avec le bouton droit sur *`Lecteur de disquettes`* dans votre navigateur de fichiers et s&eacute;lectionnez *`D&eacute;tecter le m&eacute;dia`*.
 
-#####D&eacute;sinstallation
+#####D&eacute;sinstallation<a name="deinstallation"></a>
 
 Si l'installation a &eacute;t&eacute; faite avec les fichiers *`tar.gz`*, il suffit d'&eacute;liminer le r&eacute;pertoire *`teo`* racine.
 

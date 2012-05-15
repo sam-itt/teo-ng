@@ -2,17 +2,19 @@
 
 ###SAP2
 
-* <a href="#introduction">Introduction</a><br>
-* <a href="#how_works">Fonctionnement du programme</a><br>
-* <a href="#interactive_mode">Commandes du programme en mode interactif</a><br>
-* <a href="#batch_mode">Commandes du programme en mode batch</a><br>
-* <a href="#kown_problems">Probl&egrave;mes connus</a><br>
-* <a href="#conclusion">Conclusion</a><br>
+* <a href="#introduction">Introduction</a>
+* <a href="#how_works">Fonctionnement du programme</a>
+* <a href="#interactive_mode">Commandes du programme en mode interactif</a>
+* <a href="#batch_mode">Commandes du programme en mode batch</a>
+* <a href="#kown_problems">Probl&egrave;mes connus</a>
+* <a href="#conclusion">Conclusion</a>
 
 #####Introduction<a name="introduction"></a>
 
-Le syst&egrave;me d'archivage SAP, con&ccedil;u par Alexandre Pukall, est l'outil utilis&eacute; par les &eacute;mulateurs Thomson pour manipuler de fa&ccedil;on souple et s&eacute;curis&eacute;e les disquettes 3"5 ou 5"25 au format Thomson. L'id&eacute;e directrice de SAP est de reproduire les disquettes physiques Thomson sous forme de fichiers "images", stockables sur disque dur et lisibles directement par les &eacute;mulateurs: toutes les op&eacute;rations de lecture/&eacute;criture sont ainsi r&eacute;alis&eacute;es sur ces images et non pas sur les disquettes originales.<br><br>
-Ce syst&egrave;me permet de copier facilement les disquettes, de les diffuser par tout moyen num&eacute;rique et assure in fine la pr&eacute;servation de leurs donn&eacute;es au del&agrave; de la dur&eacute;e de vie du support physique.<br><br>
+Le syst&egrave;me d'archivage SAP, con&ccedil;u par Alexandre Pukall, est l'outil utilis&eacute; par les &eacute;mulateurs Thomson pour manipuler de fa&ccedil;on souple et s&eacute;curis&eacute;e les disquettes 3"5 ou 5"25 au format Thomson. L'id&eacute;e directrice de SAP est de reproduire les disquettes physiques Thomson sous forme de fichiers "images", stockables sur disque dur et lisibles directement par les &eacute;mulateurs: toutes les op&eacute;rations de lecture/&eacute;criture sont ainsi r&eacute;alis&eacute;es sur ces images et non pas sur les disquettes originales.
+
+Ce syst&egrave;me permet de copier facilement les disquettes, de les diffuser par tout moyen num&eacute;rique et assure in fine la pr&eacute;servation de leurs donn&eacute;es au del&agrave; de la dur&eacute;e de vie du support physique.
+
 L'utilitaire SAP est le pont qui permet de faire le lien entre les deux modes de stockage. La version originale en a &eacute;t&eacute; &eacute;crite par Alexandre Pukall lui-m&ecirc;me; la version &eacute;tendue SAP2 pr&eacute;sent&eacute;e ci-dessous, disponible pour MS-DOS et Linux, en reprend int&eacute;gralement les fonctionnalit&eacute;s.
 
 #####Fonctionnement du programme<a name="how_works"></a>

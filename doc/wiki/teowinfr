@@ -2,7 +2,13 @@
 
 ###Informations suppl&eacute;mentaires sur Teo Windows/DirectX
 
-#####Installation
+* <a href="#installation">Installation</a>
+* <a href="#launching">Lancement</a>
+* <a href="#joysticks">Joysticks</a>
+* <a href="#sound">G&eacute;n&eacute;rateur sonore</a>
+* <a href="#images">Images</a>
+
+#####Installation<a name="installation"></a>
 
 Pour faire fonctionner l'&eacute;mulateur, vous devez disposer au minimum d'un 80486 muni de 8 Mo de RAM, tournant sous Windows 95, Windows 98, Windows Millenium edition, Windows NT4, Windows 2000 ou Windows XP; les composants redistribuables DirectX version 3.0 ou sup&eacute;rieure doivent &ecirc;tre install&eacute;s. Une carte son compatible DirectSound est n&eacute;cessaire pour l'&eacute;mulation sonore.
 
@@ -11,7 +17,7 @@ Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 * Ex&eacute;cutez *`teow-1.8.1-setup.exe`*.
 * D&eacute;sarchivez *`teo-1.8.1-winexe.zip`*. Le programme &eacute;x&eacute;cutable se nomme *`teow.exe`*.
 
-#####Lancement
+#####Lancement<a name="launching"></a>
 
 Le lancement du programme &eacute;x&eacute;cutable provoque l'affichage d'une fen&ecirc;tre de s&eacute;lection du mode graphique s'il n'a pas d&eacute;j&agrave; &eacute;t&eacute; sp&eacute;cifi&eacute; sur la ligne de commande, puis le d&eacute;marrage de l'&eacute;mulation.
 
@@ -27,15 +33,15 @@ Teo accepte les param&egrave;tres suivants suppl&eacute;mentaires sur la ligne d
 
 A noter que le chargement du dernier &eacute;tat sauvegard&eacute; de l'&eacute;mulateur peut aussi &ecirc;tre obtenu en maintenant la touche CTRL (gauche ou droite) appuy&eacute;e au moment de la s&eacute;lection du mode graphique.
 
-#####Joysticks
+#####Joysticks<a name="joysticks"></a>
 
 Teo utilise les joysticks PC disponibles pour &eacute;muler les 2 joysticks du TO8. Dans le cas o&ugrave; le nombre de joysticks d&eacute;tect&eacute;s est inf&eacute;rieur &agrave; 2, le(s) joystick(s) manquant(s) est (sont) &eacute;mul&eacute;(s) par le clavier.
 
-#####G&eacute;n&eacute;rateur sonore
+#####G&eacute;n&eacute;rateur sonore<a name="sound"></a>
 
 Teo utilise le p&eacute;riph&eacute;rique sonore par d&eacute;faut du syst&egrave;me (via DirectSound).
 
-#####Images
+#####Images<a name="images"></a>
 
 Il est possible de charger et de sauvegarder des "images" de l'&eacute;tat de l'&eacute;mulateur &agrave; un instant donn&eacute;; ces images sont en quelque sorte des instantan&eacute;s d'un TO8 en fonctionnement et permettent de faire revenir l'&eacute;mulateur &agrave; un &eacute;tat pr&eacute;alablement sauvegard&eacute;. Cependant, comme elles ne contiennent que l'&eacute;tat interne du TO8 &eacute;mul&eacute;, elles ne prennent pas en compte les p&eacute;riph&eacute;riques (lecteurs de disquettes, etc).
 

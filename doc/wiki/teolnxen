@@ -2,7 +2,14 @@
 
 ###Additional informations about Teo Linux/X11
 
-#####Installation
+* <a href="#installation">Installation</a>
+* <a href="#launching">Launching</a>
+* <a href="#keyboard">Keyboard</a>
+* <a href="#sound">Sound generator</a>
+* <a href="#direct">Activating disk direct access on new Linux systems</a>
+* <a href="#deinstallation">Deinstallation</a>
+
+#####Installation<a name="installation"></a>
 
 The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 2.12 and later of the GTK+ toolkit is required and might require a system update (RedHat 5.x, SuSE 5.x). It is available <a href="http://www.gtk.org">here</a>.
 
@@ -11,7 +18,7 @@ You can install the emulator in two ways:
 * Launch *`teo-1.8.1-i586.deb`*. The launch of *`Teo`* will be done through the *`Applications/Games/Teo emulator`* shortcut menu.
 * Unzip *`teo-1.8.1-i586.tar.gz`*. The executable is named *`teo`*.
 
-#####Launching
+#####Launching<a name="launching"></a>
 
 TEO accepts the following additional options on the command line:
 
@@ -25,15 +32,15 @@ TEO accepts the following additional options on the command line:
 
 The installation with the packages *`.deb`* launches Teo with the option *`-loadstate`* by default. To deactivate this option or add some more, choose *`System/Preferences/Main menu`*, then select *`Games/Teo emulator`*, click on *`Properties`* and change the options by default of the executable.
 
-#####Keyboard
+#####Keyboard<a name="keyboard"></a>
 
 If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: *`System/Preferences/Keyboard/Layouts/Options/Key`* to chose 3rd level options.
 
-#####Sound generator
+#####Sound generator<a name="sound"></a>
 
 Teo uses the default sound device (via ALSA).
 
-#####Activating disk direct access on new Linux systems
+#####Activating disk direct access on new Linux systems<a name="direct"></a>
 
 On new Linux systems, floppy drives are not activated at installation. It's necessary to make some adjustments from a Terminal:
 
@@ -64,7 +71,7 @@ On new Linux systems, floppy drives are not activated at installation. It's nece
 
 If the direct access has still difficulties to work (like I/O errors, for example), right click on the *`Floppy Drive`* in your file browser and select *`Detect Media`*.
 
-#####Uninstallation
+#####Deinstallation<a name="deinstallation"></a>
 
 If installation has been made with *`tar.gz`* packages, just remove the root folder *`teo`*.
 

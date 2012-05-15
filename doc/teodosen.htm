@@ -12,16 +12,28 @@
 
 <h3>Additional informations about Teo  MS-DOS/DPMI</h3>
 
-<h5>Installation<a name="install"></a></h5>
+<ul>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#launching">Launching</a></li>
+<li><a href="#gfx_modes">Graphic modes</a></li>
+<li><a href="#joysticks">Joysticks</a></li>
+<li><a href="#sound">Sound generator</a></li>
+<li><a href="#images">Images</a></li>
+</ul>
 
-<p>To run the emulator, you need at least a 80386 with 2MB of RAM, a VGA card, and MS-DOS version 5.0 or greater or Windows version 3.1 or greater (Windows 95/98/Me). A Sound Blaster compatible sound-card is necessary to emulate sound.
-To install the emulator, you just have to unzip <em><code>teo-1.8.1-dosexe.zip</code></em>. The executable will be <em><code>teo.exe</code></em>.
-The file <em><code>cwsdpmi.exe</code></em> is only useful for running in protected mode under MS-DOS.</p>
+<h5>Installation<a name="installation"></a></h5>
 
-<h5>Lauching<a name="launch"></a></h5>
+<p>To run the emulator, you need at least a 80386 with 2MB of RAM, a VGA card, and MS-DOS version 5.0 or greater or Windows version 3.1 or greater (Windows 95/98/Me). A Sound Blaster compatible sound-card is necessary to emulate sound.</p>
 
-<p>When the program is stated, headers and initialization messages are printed, then the user is asked to choose a graphic mode if it hasn't been specified on the command-line. Then the emulation starts.
-TEO accepts the following parameters on the command line:</p>
+<p>To install the emulator, you just have to unzip <em><code>teo-1.8.1-dosexe.zip</code></em>. The executable will be <em><code>teo.exe</code></em>.</p>
+
+<p>The file <em><code>cwsdpmi.exe</code></em> is only useful for running in protected mode under MS-DOS.</p>
+
+<h5>Launching<a name="launching"></a></h5>
+
+<p>When the program is stated, headers and initialization messages are printed, then the user is asked to choose a graphic mode if it hasn't been specified on the command-line. Then the emulation starts.</p>
+
+<p>TEO accepts the following parameters on the command line:</p>
 
 <table border="1" width="100%">
 <tr><td>[-help]</td><td>Prints on-line help</td></tr>
@@ -43,12 +55,13 @@ TEO accepts the following parameters on the command line:</p>
 
 <p>Teo uses available PC joysticks to emulate both TO8 joysticks. When there aren't enough PC joysticks, the missing joystick(s) is (are) emulated using the keyboard.</p>
 
-<h5>Sound generator<a name="sound_generator"></a></h5>
+<h5>Sound generator<a name="sound"></a></h5>
 
-<p>The TO8 sound is emulated using the sound-card of the PC. Both the 1-bit (TO7) and the 6-bits (Music and games interface) generators are emulated.
-Any compatible SoundBlaster card is supported, as well as few other cards (Ensoniq Soundscape, ESS AudioDrive et Windows Sound System).</p>
+<p>The TO8 sound is emulated using the sound-card of the PC. Both the 1-bit (TO7) and the 6-bits (Music and games interface) generators are emulated.</p>
 
-<h5>Commands and Settings</h5>
+<p>Any compatible SoundBlaster card is supported, as well as few other cards (Ensoniq Soundscape, ESS AudioDrive, Windows Sound System, etc...).</p>
+
+<h5>Images<a name="images"></a></h5>
 
 <p>It is possible to save and load "images" that contain the state of the emulator at a time. These images are somehow snapshots of a running TO8 and allow the emulator to restart in a previously saved state. However, as the image only contains the internal state of the emulator, external peripheral devices (floppy drives, etc) are not handled.</p>
 
