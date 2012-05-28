@@ -447,6 +447,18 @@ int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          return TRUE;
 
       case WM_CTLCOLORSTATIC :
+          if ((HWND)lParam == aboutCopyright)
+          {
+              SetTextColor((HDC)wParam, RGB(0, 0, 0));
+              SetBkMode((HDC)wParam, TRANSPARENT);
+              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+          }
+          if ((HWND)lParam == aboutTitle)
+          {
+              SetTextColor((HDC)wParam, RGB(0, 0, 0));
+              SetBkMode((HDC)wParam, TRANSPARENT);
+              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+          }
           if ((HWND)lParam == aboutLink)
           {
               SetTextColor((HDC)wParam, RGB(0, 0, 255));
@@ -456,9 +468,8 @@ int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           if ((HWND)lParam == aboutLicense)
           {
               SetTextColor((HDC)wParam, RGB(0, 0, 0));
-              SetBkMode((HDC)wParam, OPAQUE);
-              SetBkColor((HDC)wParam, RGB(255, 255, 255));
-              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+              SetBkMode((HDC)wParam, TRANSPARENT);
+              return (BOOL)GetStockObject(WHITE_BRUSH);
           }
           return TRUE;
 
