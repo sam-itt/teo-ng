@@ -99,15 +99,15 @@ Source: doc\wav2k7en.htm; DestDir: {app}\doc;
 Source: doc\doc.css; DestDir: {app}\doc
 
 [Icons]
-Name: {group}\Teow; Filename: {app}\teow.exe; IconIndex: 0; Parameters: " -window -loadstate"
+Name: {group}\Teow; Filename: {app}\teow.exe; IconIndex: 0; Parameters: -loadstate -window
 Name: {group}\Manuel de Teow; Filename: {app}\doc\indexfr.htm; IconIndex: 0; Languages: fr
 Name: {group}\Teow's manual; Filename: {app}\doc\index.htm; IconIndex: 0; Languages: en
 Name: {group}\Licence de Teow; Filename: {app}\license.txt; IconIndex: 0; Languages: fr
 Name: {group}\Teow's licence; Filename: {app}\license.txt; IconIndex: 0; Languages: en
 Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: {#WEBSITE}; IconIndex: 0
 Name: {group}\{cm:UninstallProgram,Teow}; Filename: {uninstallexe}; IconIndex: 0
-Name: {commondesktop}\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: desktopicon; IconIndex: 0; Parameters: " -window -loadstate"
-Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: quicklaunchicon; IconIndex: 0; Parameters: " -window -loadstate"
+Name: {commondesktop}\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: desktopicon; IconIndex: 0; Parameters: -loadstate -window
+Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#APPVERSION}; Filename: {app}\teow.exe; Tasks: quicklaunchicon; IconIndex: 0; Parameters: -loadstate -window
 
 [UninstallDelete]
 Name: {app}; Type: filesandordirs
