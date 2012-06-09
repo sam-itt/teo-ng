@@ -64,7 +64,7 @@ static volatile int kb_data;
 static int njoy;
 static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 
-static unsigned char key_code[KEY_MAX]={
+static unsigned char key_code[TEO_KEY_MAX]={
   0,253, 16,253,253,253, 20, 12,  4, 59, 52, 60, 68, 56,  8, 67,
  75,253, 19,253, 11, 51, 24,253,253,  3,253, 74, 42, 34, 26, 18,
  10,  2, 50, 58, 66, 31,254,254,254,254,254,254,254,254,254, 33,
@@ -82,7 +82,7 @@ static unsigned char key_code[KEY_MAX]={
      - 255 désigne une touche spéciale du PC (shift, altgr, ...) mais n'a pas
        d'utilisation dans le traitement */
 
-static unsigned char key_altgr_code[KEY_MAX]={
+static unsigned char key_altgr_code[TEO_KEY_MAX]={
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,169,  0,  0, 41,173,
  45,  0,  0,197,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -264,7 +264,7 @@ void to8_HandleKeyPress(int key, int release)
 
     switch (key)
     {
-        case KEY_LCONTROL:  /* le contrôle gauche émule la touche CNT
+        case TEO_KEY_LCONTROL:  /* le contrôle gauche émule la touche CNT
                                 et le bouton joystick 1 (NUMLOCK éteint) */
             if ((njoy>1) && !(kb_state&TO8_NUMLOCK_FLAG))
                 to8_HandleJoystickFire(njoy-1, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
@@ -272,18 +272,18 @@ void to8_HandleKeyPress(int key, int release)
             kb_state=(release ? kb_state&~TO8_CTRL_FLAG : kb_state|TO8_CTRL_FLAG);
             break;
 
-        case KEY_RCONTROL:  /* le contrôle droit émule le bouton joystick 0 ou 1
+        case TEO_KEY_RCONTROL:  /* le contrôle droit émule le bouton joystick 0 ou 1
                                 en mode manette (NUMLOCK éteint) */
             if ((njoy>0) && !(kb_state&TO8_NUMLOCK_FLAG))
                 to8_HandleJoystickFire(TO8_NJOYSTICKS-njoy, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
 
             break;
 
-        case KEY_ALTGR:
+        case TEO_KEY_ALTGR:
             kb_state=(release ? kb_state&~TO8_ALTGR_FLAG : kb_state|TO8_ALTGR_FLAG);
             break;
 
-        case KEY_NUMLOCK:
+        case TEO_KEY_NUMLOCK:
             if (!release)
             {
                 kb_state^=TO8_NUMLOCK_FLAG;
@@ -296,13 +296,13 @@ void to8_HandleKeyPress(int key, int release)
             }
             break;
 
-        case KEY_LSHIFT:
-        case KEY_RSHIFT:
+        case TEO_KEY_LSHIFT:
+        case TEO_KEY_RSHIFT:
 #ifdef TO8_DOUBLE_CAPSLOCK
-        case KEY_CAPSLOCK:
-            if ( ((key == KEY_CAPSLOCK) && !(kb_state&TO8_CAPSLOCK_FLAG)) ||
-                 (((key == KEY_LSHIFT) || (key == KEY_RSHIFT)) && (kb_state&TO8_CAPSLOCK_FLAG)) )
-                key = KEY_CAPSLOCK;
+        case TEO_KEY_CAPSLOCK:
+            if ( ((key == TEO_KEY_CAPSLOCK) && !(kb_state&TO8_CAPSLOCK_FLAG)) ||
+                 (((key == TEO_KEY_LSHIFT) || (key == TEO_KEY_RSHIFT)) && (kb_state&TO8_CAPSLOCK_FLAG)) )
+                key = TEO_KEY_CAPSLOCK;
             else
             {
                 kb_state=(release ? kb_state&~TO8_SHIFT_FLAG : kb_state|TO8_SHIFT_FLAG);
@@ -312,7 +312,7 @@ void to8_HandleKeyPress(int key, int release)
             kb_state=(release ? kb_state&~TO8_SHIFT_FLAG : kb_state|TO8_SHIFT_FLAG);
             break;
 
-        case KEY_CAPSLOCK:
+        case TEO_KEY_CAPSLOCK:
 #endif
             if (!release)
             {
@@ -331,7 +331,7 @@ void to8_HandleKeyPress(int key, int release)
             {
                 if ((njoy>1) && !(kb_state&TO8_NUMLOCK_FLAG))
 		{
-		    code=key_lpd_code[key-KEY_A][1];
+		    code=key_lpd_code[key-TEO_KEY_A][1];
 
                     if (release)
                     {
@@ -352,16 +352,16 @@ void to8_HandleKeyPress(int key, int release)
                     to8_HandleJoystickMove(njoy-1, j1_dir[0]);
                 }
 
-		code=key_lpd_code[key-KEY_A][0];
+		code=key_lpd_code[key-TEO_KEY_A][0];
                 /* pas de break */
             }
             else if (code==254)  /* touche du pave numérique */
             {
                 if (kb_state&TO8_NUMLOCK_FLAG)
-                    code=key_pad_code[key-KEY_1_PAD][0];
+                    code=key_pad_code[key-TEO_KEY_1_PAD][0];
                 else if (njoy>0) /* mode manette */
                 {
-                    code=key_pad_code[key-KEY_1_PAD][1];
+                    code=key_pad_code[key-TEO_KEY_1_PAD][1];
 
                     if (release)
                     {

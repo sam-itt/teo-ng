@@ -215,7 +215,7 @@ static void SetPointer(int pointer)
  */
 void InitDisplay(void)
 {
-    register int i;
+//    register int i;
     int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
@@ -251,7 +251,7 @@ gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int value = 0;
-    int key = 0;
+    int teo_key = 0;
 
     if (need_modifiers_reset)
     {
@@ -266,11 +266,11 @@ gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data
 
     teo_key = keyval_to_teo_key (event->key.keyval);
 
-    switch (key)
+    switch (teo_key)
     {
-        case KEY_ESC : teo.command=CONTROL_PANEL; break;
-        case KEY_F12 : teo.command=DEBUGGER; break;
-        default :      to8_HandleKeyPress (key, FALSE); break;
+        case TEO_KEY_ESC : teo.command=CONTROL_PANEL; break;
+        case TEO_KEY_F12 : teo.command=DEBUGGER; break;
+        default :      to8_HandleKeyPress (teo_key, FALSE); break;
     }
 
     return FALSE;
@@ -516,11 +516,6 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 
     /* Lie la fenêtre créée par XCreateSimpleWindow */
 //    gtk_widget_set_window (widget_win, gwindow_win);
-
-    int i;
-    for (i=0; i<KB_SIZE; i++)
-         printf ("%8x ", keyconv[i].keysym);
-    printf ("\n");
 
     /* Attend que la GtkWindow ait tout enregistré */
     while (gtk_events_pending ())
