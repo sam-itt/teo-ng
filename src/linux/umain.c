@@ -206,6 +206,7 @@ static void RunTO8(void)
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
+
 }
 
 
@@ -432,6 +433,8 @@ static void sysExec(char *cmd, const char *dir) {
     i = chdir(dir);
     i = system(cmd);
     i = chdir(cwd);
+    (void)i;
+    (void)tmp;
 }
 
 
@@ -457,6 +460,7 @@ static char *tmpFile(char *buf, int maxlen) {
     strcat(buf, ".sap");
     return buf;
     (void)maxlen;
+    (void)tmp;
 }
 
 
@@ -601,6 +605,7 @@ int main(int argc, char *argv[])
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
     RunTO8();
+//    add_gtkmain_idle (
 
     /* Mise au repos de l'interface d'accès direct */
     ExitDirectDisk();

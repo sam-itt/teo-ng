@@ -65,7 +65,7 @@ extern void warning_box (const gchar *message, GtkWidget *parent_window);
 extern void DebugPanel(void);
 extern void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support);
 extern void free_disk_list (void);
-extern void run_about_window (GtkWidget *button, gpointer user_data);
+extern void run_about_window (GtkButton *button, gpointer user_data);
 extern void init_memo_notebook_frame (GtkWidget *notebook);
 extern void free_memo_list (void);
 extern void init_cass_notebook_frame (GtkWidget *notebook);

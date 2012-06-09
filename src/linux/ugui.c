@@ -59,6 +59,9 @@
 #include "to8.h"
 #include "commands.xpm"
 
+#define TEO_RESPONSE_ABOUT  1
+#define TEO_RESPONSE_QUIT   2
+
 /* fenêtre de l'interface utilisateur */
 GtkWidget *wdControl;
 
@@ -89,14 +92,14 @@ static void do_exit(GtkWidget *button, int command)
     if (command != NONE)
         teo.command=command;
 
-    gtk_widget_hide(wdControl);
-    gtk_main_quit();
+//    gtk_widget_hide(wdControl);
+//    gtk_main_quit();
 
     (void) button;
 }
 
 
-
+#if 0
 /* do_hide:
  *  Quitte le panneau de contrôle par le gadget de fermeture.
  */
@@ -109,9 +112,10 @@ static int do_hide(GtkWidget *widget, GdkEvent *event, gpointer user_data)
     (void) event;
     (void) user_data;
 }
+#endif
 
 
-
+#if 0
 /* ask_to_quit:
  *  Demande à quitter Teo.
  */
@@ -125,20 +129,22 @@ static void ask_to_quit(GtkWidget *button, gpointer unused)
     (void) button;
     (void) unused;
 }
+#endif
 
-
-
+#if 0
 /* iconify_window:
  *  Iconification de la fenêtre principale.
  */
 static void iconify_window (GtkWidget *widget, GdkEvent *event, void *user_data)
 {
-    if (event->window_state.new_window_state == GDK_WINDOW_STATE_ICONIFIED) {
+    if ((event->window_state.new_window_state & GDK_WINDOW_STATE_ICONIFIED) != 0)
+    {
         gtk_window_iconify (GTK_WINDOW(widget_win));
     }
     (void)widget;
     (void)user_data;
 }
+#endif
 
 
 /* display_box:
@@ -215,36 +221,57 @@ void FreeGUI (void)
  */
 void InitGUI(int direct_disk_support)
 {
-    GtkWidget *main_vbox;
+    GtkWidget *content_area;
+//    GtkWidget *action_area;
+
     GtkWidget *notebook;
     GtkWidget *widget;
     GtkWidget *hbox, *vbox;
     GdkPixbuf *pixbuf;
+//    GtkWidget *about_button;
+//    GdkWindow *childGdkWindow;
+//    GdkGeometry geometry;
 
     printf("Initialisation de l'interface..."); fflush (stdout);
 
     /* fenêtre d'affichage */
+    wdControl = gtk_dialog_new_with_buttons (
+                    is_fr?"Teo - Panneau de contrÃ´le":"Teo - Control panel",
+                    GTK_WINDOW(widget_win),
+                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                    GTK_STOCK_QUIT, TEO_RESPONSE_QUIT,
+                    NULL);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG(wdControl));
+
+//    action_area = gtk_dialog_get_content_area (GTK_DIALOG(wdControl));
+
+//    about_button = gtk_dialog_get_widget_for_response (GTK_DIALOG(wdControl), TEO_RESPONSE_ABOUT);
+    
+#if 0    
     wdControl=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_resizable (GTK_WINDOW(wdControl), FALSE);
+    gtk_window_set_title(GTK_WINDOW(wdControl), (is_fr?"Teo - Panneau de contrÃ´le":"Teo - Control panel"));
     gtk_window_set_transient_for (GTK_WINDOW(wdControl), GTK_WINDOW(widget_win));
     gtk_window_set_position(GTK_WINDOW(wdControl), GTK_WIN_POS_CENTER_ON_PARENT);
     gtk_window_set_destroy_with_parent (GTK_WINDOW(wdControl), TRUE);
     gtk_window_set_modal (GTK_WINDOW(wdControl), TRUE);
+    gtk_window_set_attached_to (GTK_WINDOW (wdControl), widget_win);
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW(wdControl), TRUE);
-    gtk_window_set_resizable (GTK_WINDOW(wdControl), FALSE);
-    gtk_window_set_title(GTK_WINDOW(wdControl), (is_fr?"Teo - Panneau de contrÃ´le":"Teo - Control panel"));
-    g_signal_connect(G_OBJECT(wdControl), "window-state-event", G_CALLBACK(iconify_window), (gpointer)NULL);
+//    g_signal_connect(G_OBJECT(wdControl), "window-state-event", G_CALLBACK(iconify_window), (gpointer)NULL);
     g_signal_connect(G_OBJECT(wdControl), "delete-event", G_CALLBACK(do_hide), (gpointer)NULL);
-    gtk_widget_realize(wdControl); /* nécessaire pour charger le pixmap */
+#endif
 
+#if 0
     /* boîte verticale associée à la fenêtre */
-    main_vbox=gtk_vbox_new(FALSE,5);
+    main_vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_container_set_border_width( GTK_CONTAINER(main_vbox), 5);
     gtk_container_add( GTK_CONTAINER(wdControl), main_vbox);
-
+#endif
     /* crée toutes les widgets de la fenêtre */
     /* boîte horizontale du titre */
-    hbox=gtk_hbox_new(TRUE,0);
-    gtk_box_pack_start( GTK_BOX(main_vbox), hbox, TRUE, FALSE, 0);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_pack_start( GTK_BOX(content_area), hbox, TRUE, FALSE, 0);
 
     /* création du pixbuf */
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)commands_xpm);
@@ -252,9 +279,9 @@ void InitGUI(int direct_disk_support)
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte verticale associée à la frame des commandes et réglages */
-    vbox=gtk_vbox_new(FALSE,5);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
-    gtk_container_add( GTK_CONTAINER(main_vbox), vbox);
+    gtk_container_add( GTK_CONTAINER(content_area), vbox);
 
     /* bouton de réinitialisation */
     widget=gtk_button_new_with_label((is_fr?"RÃ©initialiser le TO8":"TO8 warm reset"));
@@ -268,26 +295,26 @@ void InitGUI(int direct_disk_support)
 
     /* notebook */
     notebook=gtk_notebook_new();
-    gtk_box_pack_start( GTK_BOX(main_vbox), notebook, TRUE, FALSE, 0);
+    gtk_box_pack_start( GTK_BOX(content_area), notebook, TRUE, FALSE, 0);
     init_setting_notebook_frame (notebook);
     init_disk_notebook_frame (notebook, direct_disk_support);
     init_cass_notebook_frame (notebook);
     init_memo_notebook_frame (notebook);
     init_printer_notebook_frame (notebook);
-    gtk_notebook_set_page( GTK_NOTEBOOK(notebook), 0);
+    gtk_notebook_set_current_page( GTK_NOTEBOOK(notebook), 0);
     
+#if 0
     /* boîte horizontale des boutons de sortie */
-    hbox=gtk_hbutton_box_new();
+    hbox=gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_set_spacing ( GTK_BOX(hbox), 7);
     gtk_box_pack_start( GTK_BOX(main_vbox), hbox, TRUE, FALSE, 10);
     gtk_button_box_set_layout ((GtkButtonBox *)hbox, GTK_BUTTONBOX_END);
-
+#endif
     /* bouton à propos */
-    widget=gtk_button_new_from_stock (GTK_STOCK_ABOUT);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(run_about_window), (gpointer) NULL);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-    gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, TRUE);
+//    g_signal_connect(G_OBJECT(about_button), "clicked", G_CALLBACK(run_about_window), (gpointer) NULL);
+//    gtk_button_box_set_child_secondary  ((GtkButtonBox *)action_area, about_button, TRUE);
     
+#if 0
     /* bouton quitter */
     widget=gtk_button_new_from_stock (GTK_STOCK_QUIT);
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(ask_to_quit), (gpointer)NULL);
@@ -299,13 +326,13 @@ void InitGUI(int direct_disk_support)
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) NONE);
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     gtk_button_box_set_child_secondary  ((GtkButtonBox *)hbox, widget, FALSE);
-
-    /* affiche tout */
-    gtk_widget_show_all(main_vbox);
+#endif
+    /* affiche tout l'intérieur */
+    gtk_widget_show_all(content_area);
 
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
        principale de l'émulateur */
-    gdk_window_add_filter(GTK_WIDGET(widget_win)->window, retrace_callback, NULL);
+    gdk_window_add_filter(gwindow_win, retrace_callback, NULL);
 
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())
@@ -321,16 +348,26 @@ void InitGUI(int direct_disk_support)
  */
 void ControlPanel(void)
 {
+    gint response;
+
     /* Mise à jour du compteur de cassettes */
     update_counter_cass ();
-
-    /* affichage de la fenêtre principale et de ses éléments */
-    gtk_widget_show(wdControl);
 
     /* initialisation de la commande */
     teo.command = NONE;
     
     /* boucle de gestion des évènements */
-    gtk_main();
+    response = gtk_dialog_run (GTK_DIALOG(wdControl));
+    switch (response)
+    {
+        case GTK_RESPONSE_ACCEPT:
+            teo.command=NONE;
+            break;
+            
+        case TEO_RESPONSE_QUIT:
+            teo.command=QUIT;
+            break;
+   }
+   gtk_widget_hide (wdControl);
 }
 

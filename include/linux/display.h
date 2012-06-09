@@ -37,7 +37,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/10/2003
- *               François Mouret 30/07/2011
+ *               François Mouret 30/07/2011 02/06/2012
  *
  *  Module d'interface avec le serveur X.
  */
@@ -60,6 +60,7 @@ extern GdkWindow *gwindow_win;
 extern Display *display;
 extern int screen;
 extern Window screen_win;
+extern Window window_win;
 extern int mit_shm_enabled;
 
 extern void InitDisplay(void);

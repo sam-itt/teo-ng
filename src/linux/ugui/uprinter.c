@@ -118,12 +118,12 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
-    vbox=gtk_vbox_new(FALSE, 5);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
     /* boîte horizontale */
-    hbox=gtk_hbox_new(FALSE, 2);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* label pour le répertoire */
@@ -142,7 +142,7 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte horizontale */
-    hbox=gtk_hbox_new(FALSE, 2);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* label pour l'imprimante */
@@ -150,10 +150,10 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
     /* combo pour les imprimantes */
-    widget=gtk_combo_box_new_text();
+    widget=gtk_combo_box_text_new();
     for (i=0; i<PRINTER_NUMBER; i++)
     {
-        gtk_combo_box_append_text (GTK_COMBO_BOX(widget), prt_list[i].name);
+        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(widget), NULL, prt_list[i].name);
         if (gui->lprt.number == prt_list[i].number)
             combo_index = i;
     }
@@ -176,11 +176,11 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     
     /* boîte horizontale */
-    hbox=gtk_hbox_new(FALSE, 8);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* boîte de centrage */
-    widget=gtk_hbox_new(FALSE, 2);
+    widget=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* label pour le type de sortie */
@@ -206,7 +206,7 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 
     /* boîte de centrage */
-    widget=gtk_hbox_new(FALSE, 2);
+    widget=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 }
 

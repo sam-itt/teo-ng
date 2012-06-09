@@ -103,7 +103,7 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
  */
 static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
 {
-    if (GTK_TOGGLE_BUTTON (button)->active)
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
     {
         to8_SetDiskMode (vector->id, TO8_READ_ONLY);
         gui->disk[vector->id].write_protect = TRUE;
@@ -131,7 +131,7 @@ static void add_combo_entry (const char *path, struct FILE_VECTOR *vector)
     else
     {
         vector->path_list = g_list_append (vector->path_list, (gpointer)(g_strdup_printf (path,"%s")));
-        gtk_combo_box_append_text (GTK_COMBO_BOX(vector->combo), basename((char *)path));
+        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(vector->combo), NULL, basename((char *)path));
         gtk_combo_box_set_active (GTK_COMBO_BOX(vector->combo), vector->entry_max);
         vector->entry_max++;
     }
@@ -190,8 +190,7 @@ static void reset_combo (GtkButton *button, struct FILE_VECTOR *vector)
     g_signal_handler_block (vector->combo, vector->combo_changed_id);
 
     free_disk_entry (vector);
-    for (; vector->entry_max>0; vector->entry_max--)
-        gtk_combo_box_remove_text (GTK_COMBO_BOX(vector->combo), (gint)(vector->entry_max-1));
+    gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(vector->combo));
     to8_EjectDisk(vector->id);
     init_combo (vector);
     set_access_mode (vector);
@@ -317,7 +316,7 @@ void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support)
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
-    vbox=gtk_vbox_new(FALSE, 5);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
@@ -328,7 +327,7 @@ void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support)
         vector[i].first=1;
 
         /* boîte horizontale */
-        hbox=gtk_hbox_new(FALSE, 2);
+        hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
         gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
         /* label */
@@ -351,7 +350,7 @@ void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support)
         gtk_box_pack_end( GTK_BOX(hbox), vector[i].check_prot, FALSE, TRUE,0);
 
         /* combobox pour le rappel de disquette */
-        vector[i].combo=gtk_combo_box_new_text();
+        vector[i].combo=gtk_combo_box_text_new();
         gtk_box_pack_start( GTK_BOX(hbox), vector[i].combo, TRUE, TRUE,0);
         vector[i].direct=(direct_disk_support>>i)&1;
         init_combo (&vector[i]);

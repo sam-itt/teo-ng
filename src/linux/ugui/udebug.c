@@ -352,12 +352,12 @@ static void InitDEBUG(void)
     gtk_widget_realize(window_debug);
 
     /* boîte verticale associée à la fenêtre */
-    vbox_window=gtk_vbox_new(FALSE,10);
+    vbox_window=gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
     gtk_container_set_border_width( GTK_CONTAINER(vbox_window), DEBUG_SPACE);
     gtk_container_add( GTK_CONTAINER(window_debug), vbox_window);
 
     /* boîte horizontale de la barre de boutons */
-    hbox=gtk_hbutton_box_new ();
+    hbox=gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_box_set_spacing ( GTK_BOX(hbox), 10);
     gtk_button_box_set_layout ((GtkButtonBox *)hbox, GTK_BUTTONBOX_START);
     gtk_box_pack_start( GTK_BOX(vbox_window), hbox, FALSE, FALSE, 0);
@@ -387,11 +387,11 @@ static void InitDEBUG(void)
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_REMBKPT);
     
     /* boîte verticale des textes */
-    vbox=gtk_vbox_new(FALSE,0);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_pack_start( GTK_BOX(vbox_window), vbox, FALSE, FALSE, DEBUG_SPACE);
 
     /* label des registres */
-    hbox=gtk_hbox_new(FALSE,0);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
     widget=gtk_label_new("");
     markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>%s</b></span>",
@@ -401,13 +401,13 @@ static void InitDEBUG(void)
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     
     /* widget pour les registres 6809 */
-    hbox=gtk_hbox_new(FALSE,0);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
     label_6809regs=gtk_label_new("");
     gtk_box_pack_start( GTK_BOX(hbox), label_6809regs, FALSE, FALSE, 0);
     
     /* label pour lecontenu de la pile S */
-    hbox=gtk_hbox_new(FALSE,0);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, TRUE, FALSE, 0);
     label_sr_list=gtk_label_new("");
     markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>S</b>:</span>");
@@ -416,7 +416,7 @@ static void InitDEBUG(void)
     gtk_box_pack_start( GTK_BOX(hbox), label_sr_list, FALSE, FALSE, 0);
     
     /* boîte horizontale du milieu */
-    hbox=gtk_hbox_new(FALSE,DEBUG_SPACE);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,DEBUG_SPACE);
     gtk_box_pack_start( GTK_BOX(vbox_window), hbox, TRUE, FALSE, DEBUG_SPACE);
 
     label_middle_left=gtk_label_new("dasm");
@@ -431,7 +431,7 @@ static void InitDEBUG(void)
     gtk_box_pack_start( GTK_BOX(hbox), label_middle_right, TRUE, FALSE, DEBUG_SPACE);
 
     /* boîte horizontale des boutons du bas */
-    hbox=gtk_hbutton_box_new ();
+    hbox=gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_box_set_spacing ( GTK_BOX(hbox), 7);
     gtk_box_pack_start( GTK_BOX(vbox_window), hbox, TRUE, FALSE, 10);
     gtk_button_box_set_layout ((GtkButtonBox *)hbox, GTK_BUTTONBOX_END);
@@ -454,7 +454,7 @@ static void InitDEBUG(void)
 
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
        principale de l'émulateur */
-    gdk_window_add_filter(GTK_WIDGET(widget_win)->window, retrace_callback, NULL);
+    gdk_window_add_filter(gtk_widget_get_window (GTK_WIDGET(widget_win)), retrace_callback, NULL);
 }
 
 

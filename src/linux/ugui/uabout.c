@@ -403,15 +403,14 @@
 /* run_about_window:
  *  Affiche le panneau "A propos"
  */
-void run_about_window (GtkWidget *button, gpointer user_data)
+void run_about_window (GtkButton *button, gpointer user_data)
 {
     GtkWidget *about_dialog;
     const gchar *authors_list[] = { "Gilles Fétis", "Eric Botcazou", "Alexandre Pukall",
                                     "Jérémie Guillaume", "François Mouret",
                                     "Samuel Devulder", NULL };
-
     about_dialog=gtk_about_dialog_new ();
-    gtk_window_set_transient_for (GTK_WINDOW(about_dialog), GTK_WINDOW(wdControl));
+//    gtk_window_set_transient_for (GTK_WINDOW(about_dialog), GTK_WINDOW(wdControl));
     gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG(about_dialog), "Teo");
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(about_dialog), TO8_VERSION_STR);
     gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dialog), "Copyright © 1997-2012");
@@ -421,6 +420,18 @@ void run_about_window (GtkWidget *button, gpointer user_data)
     gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG(about_dialog), is_fr?"Teo sur Sourceforge"
                                                                              :"Teo on Sourceforge");
     gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG(about_dialog), (const gchar **)&authors_list);
+#if 0
+    gtk_show_about_dialog (GTK_WINDOW(wdControl),
+                           "program-name", "Teo",
+                           "version", TO8_VERSION_STR,
+                           "copyright", "Copyright © 1997-2012",
+                           "comments", "Linux/X11",
+                           "website", "http://sourceforge.net/projects/teoemulator/",
+                           "website-label", is_fr?"Teo sur Sourceforge":"Teo on Sourceforge",
+                           "authors", authors_list,
+                           NULL);
+#endif
+
     (void)gtk_dialog_run (GTK_DIALOG(about_dialog));
     gtk_widget_destroy (about_dialog);
     (void)button;

@@ -1103,6 +1103,7 @@ static void load_font (char *filename, int face)
     }
     font.height += yp;
     fclose(file);
+    res = res;
 }
 
 

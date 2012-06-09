@@ -141,7 +141,7 @@ static int load_cass (gchar *filename)
  */
 static void toggle_check_cass (GtkWidget *button, gpointer data)
 {
-    if ( GTK_TOGGLE_BUTTON(button)->active)
+    if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
     {
         to8_SetK7Mode(TO8_READ_ONLY);
         gui->cass.write_protect = TRUE;
@@ -188,7 +188,7 @@ static void add_combo_entry (const char *path)
     else
     {
         path_list = g_list_append (path_list, (gpointer)(g_strdup_printf (path,"%s")));
-        gtk_combo_box_append_text (GTK_COMBO_BOX(combo), (gchar *)basename((char *)path));
+        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (gchar *)basename((char *)path));
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
         entry_max++;
     }
@@ -215,8 +215,7 @@ static void reset_combo (GtkButton *button, gpointer data)
     g_signal_handler_block (combo, combo_changed_id);
 
     free_cass_list ();
-    for (; entry_max>0; entry_max--)
-        gtk_combo_box_remove_text (GTK_COMBO_BOX(combo), (gint)(entry_max-1));
+    gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     eject_cass ();
     init_combo ();
 
@@ -342,7 +341,7 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     GtkWidget *widget;
     GtkWidget *image;
     GtkWidget *frame;
-    GtkObject *adjustment;
+    GtkAdjustment *adjustment;
 
     /* frame de la cartouche */
     frame=gtk_frame_new("");
@@ -352,12 +351,12 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
-    vbox=gtk_vbox_new(FALSE, 5);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
     /* boîte horizontale */
-    hbox=gtk_hbox_new(FALSE, 2);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* bouton de vidange */
@@ -369,7 +368,7 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(reset_combo), (gpointer) NULL);
 
     /* combobox pour le rappel de cassette */
-    combo=gtk_combo_box_new_text();
+    combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
     init_combo ();
     if (strlen(gui->cass.file) != 0)
@@ -392,10 +391,10 @@ void init_cass_notebook_frame (GtkWidget *notebook)
 
     /* molette du compteur de cassette */
     adjustment = gtk_adjustment_new (0, 0, COUNTER_MAX, 1, 10, 0);
-    spinner_cass = gtk_spin_button_new ( GTK_ADJUSTMENT(adjustment), 0.5, 0);
+    spinner_cass = gtk_spin_button_new (adjustment, 0.5, 0);
 
     /* seconde boîte horizontale de la cassette */
-    hbox=gtk_hbox_new(FALSE, 2);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* molette du compteur de cassette */

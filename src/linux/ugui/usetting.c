@@ -100,12 +100,12 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
     
     /* boîte verticale associée à la frame des commandes et réglages */
-    vbox=gtk_vbox_new(FALSE,5);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
     /* boîte horizontale de la vitesse */
-    hbox=gtk_hbox_new(FALSE,2);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* label de la vitesse */
@@ -123,7 +123,7 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte horizontale du mode entrelacé */
-    hbox=gtk_hbox_new(FALSE,2);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* checkbox du mode entrelacé */
