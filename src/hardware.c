@@ -811,15 +811,15 @@ void InitHardware(void)
         mem.rom.bank[i] = NULL;
 
 #ifdef DEBIAN_BUILD
-    strcpy(mem.rom.filename[0], "/usr/share/teo/b512_b0.rom");
-    strcpy(mem.rom.filename[1], "/usr/share/teo/b512_b1.rom");
-    strcpy(mem.rom.filename[2], "/usr/share/teo/basic1.rom");
-    strcpy(mem.rom.filename[3], "/usr/share/teo/fichier.rom");
+    strcpy(mem.rom.filename[0], "/usr/share/teo/system/rom/basic512.rom");
+    strcpy(mem.rom.filename[1], "/usr/share/teo/system/rom/extram.rom");
+    strcpy(mem.rom.filename[2], "/usr/share/teo/system/rom/basic1.rom");
+    strcpy(mem.rom.filename[3], "/usr/share/teo/system/rom/expl.rom");
 #else
-    strcpy(mem.rom.filename[0], "b512_b0.rom");
-    strcpy(mem.rom.filename[1], "b512_b1.rom");
-    strcpy(mem.rom.filename[2], "basic1.rom");
-    strcpy(mem.rom.filename[3], "fichier.rom");
+    strcpy(mem.rom.filename[0], "system/rom/basic512.rom");
+    strcpy(mem.rom.filename[1], "system/rom/extram.rom");
+    strcpy(mem.rom.filename[2], "system/rom/basic1.rom");
+    strcpy(mem.rom.filename[3], "system/rom/expl.rom");
 #endif
 
     /* 512ko de RAM */
@@ -835,11 +835,11 @@ void InitHardware(void)
         mem.mon.bank[i] = NULL;
 
 #ifdef DEBIAN_BUILD
-    strcpy(mem.mon.filename[0], "/usr/share/teo/to8mon1.rom");
-    strcpy(mem.mon.filename[1], "/usr/share/teo/to8mon2.rom");
+    strcpy(mem.mon.filename[0], "/usr/share/teo/system/rom/mponitor1.rom");
+    strcpy(mem.mon.filename[1], "/usr/share/teo/system/rom/monitor2.rom");
 #else
-    strcpy(mem.mon.filename[0], "to8mon1.rom");
-    strcpy(mem.mon.filename[1], "to8mon2.rom");
+    strcpy(mem.mon.filename[0], "system/rom/monitor1.rom");
+    strcpy(mem.mon.filename[1], "system/rom/monitor2.rom");
 #endif
 
     /* définition de la carte mémoire logique */
