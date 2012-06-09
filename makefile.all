@@ -36,20 +36,20 @@ _default: default
 
 # ------ sources files ------
 
-TEO_SRC_FILES =   \
-   src/disk.c     \
-   src/errors.c   \
-   src/hardware.c \
-   src/image.c    \
-   src/joystick.c \
-   src/k7.c       \
-   src/memo7.c    \
-   src/keyboard.c \
-   src/mouse.c    \
-   src/printer.c  \
-   src/xargs.c    \
-   src/state.c    \
-   src/gui.c      \
+TEO_SRC_FILES =         \
+   src/media/disk.c     \
+   src/media/joystick.c \
+   src/media/k7.c       \
+   src/media/memo7.c    \
+   src/media/keyboard.c \
+   src/media/mouse.c    \
+   src/media/printer.c  \
+   src/errors.c         \
+   src/hardware.c       \
+   src/image.c          \
+   src/xargs.c          \
+   src/state.c          \
+   src/gui.c            \
    src/to8.c
 
 TEO_SRC_ALLEG_FILES =        \
@@ -113,7 +113,7 @@ TEO_SRC_WIN_FILES =    \
 
 # ------ object files ------
 
-VPATH = src src/mc68xx
+VPATH = src src/mc68xx src/media
 
 COMMON_OBJ_LIST = $(basename $(notdir $(TEO_SRC_FILES) $(TEO_SRC_MC68XX_FILES)))
 
