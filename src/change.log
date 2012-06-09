@@ -1,4 +1,11 @@
 ========================================================================
+=== Version 1.8.2 (Juin 2012)                                        ===
+========================================================================
+- passage à GTK+3.0 pour Linux
+- création du répertoire system/, dans lequel se trouvent désormais les
+  roms et les jeux de caractères pour l'imprimante
+
+========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
 ========================================================================
 - to8.h : création de la variable TO8_TRAP_CODE
