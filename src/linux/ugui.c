@@ -232,8 +232,6 @@ void InitGUI(int direct_disk_support)
 //    GdkWindow *childGdkWindow;
 //    GdkGeometry geometry;
 
-    printf("Initialisation de l'interface..."); fflush (stdout);
-
     /* fenêtre d'affichage */
     wdControl = gtk_dialog_new_with_buttons (
                     is_fr?"Teo - Panneau de contrÃ´le":"Teo - Control panel",
@@ -337,8 +335,6 @@ void InitGUI(int direct_disk_support)
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())
         gtk_main_iteration ();
-
-    printf("ok\n");
 }
 
 
@@ -348,7 +344,12 @@ void InitGUI(int direct_disk_support)
  */
 void ControlPanel(void)
 {
+    static int first = 1;
     gint response;
+
+    if (first != 0)
+    {
+        InitGUI (
 
     /* Mise à jour du compteur de cassettes */
     update_counter_cass ();

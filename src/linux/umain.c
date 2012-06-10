@@ -38,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 26/01/2010 08/2011 23/03i/2012
+ *               François Mouret 26/01/2010 08/2011 23/03/2012 09/06/2012
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -77,6 +77,8 @@ struct EmuTO teo={
     True,
     NONE
 };
+
+int idle_data = 0;
 
 int frame;           /* compteur de frame vidéo */
 static volatile int tick;   /* compteur du timer */
@@ -127,88 +129,53 @@ void to8_StopTimer (void) {
 
 
 
+
+int debug_run = FALSE;
+
 /* RunTO8:
  *  Boucle principale de l'émulateur.
  */
-static void RunTO8(void)
+static gboolean RunTO8 (gpointer user_data)
 {
-    to8_StartTimer();
-    frame=1;
-
-    do   /* boucle principale de l'émulateur */
+    if (debug_run)
     {
-        teo.command=NONE;
-        tick=frame;
-
-        do  /* boucle d'émulation */
-        {
-            to8_DoFrame();
-
-            RefreshScreen();
-
-            HandleEvents();
-
-            if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
-            {
-                if (teo.sound_enabled) {
-                    if (PlaySoundBuffer()==0)
-                        pause();
-                }
-                else
-                if (frame==tick)
-                    pause();  /* on attend le SIGALARM du timer */
-            }
-            else
-                usleep(300);
-            frame++;
-        }
-        while (teo.command==NONE);  /* fin de la boucle d'émulation */
-
-        if (teo.command==CONTROL_PANEL)
-            ControlPanel();
-
-        if (teo.command==DEBUGGER)
-        {
-            do {
-                teo.command=NONE;
-                DebugPanel();
-                /* cas particulier, en sortie de debugger si on est en attente de breakpoint */
-                if (teo.command==BREAKPOINT) {
-//                  fprintf(stderr,"In breakpoint\n");
-                    teo.command=NONE;
-                    /* on passe à la boucle breakpoint */
-                    while (teo.command==NONE) {
-                        if (to8_DoFrame_debug()==0) teo.command=BREAKPOINT;
-                        RefreshScreen();
-                        if (teo.command==NONE)
-                            HandleEvents();
-                        if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
-                        {
-                            if (teo.sound_enabled)
-                                PlaySoundBuffer();
-                            else if (frame==tick)
-                                pause();  /* on attend le SIGALARM du timer */
-                        }
-                        frame++;
-                    } // of teo.command==NONE
-                } // of if BREAKPOINT
-            } while (teo.command==BREAKPOINT);
-//          fprintf(stderr,"leaving breakpoint\n");
-        }
-
-        if (teo.command==RESET)
-            to8_Reset();
-
-        if (teo.command==COLD_RESET)
-            to8_ColdReset();
+        if (to8_DoFrame_debug() == 0)
+            teo.command = BREAKPOINT;
     }
-    while (teo.command != QUIT);  /* fin de la boucle principale */
+    else
+        to8_DoFrame();
+        
+    RefreshScreen();
+#if 0
+    if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
+    {
+        if (teo.sound_enabled)
+        {
+            if (PlaySoundBuffer()==0)
+                pause();
+        }
+        else
+        if (frame==tick)
+            pause();  /* on attend le SIGALARM du timer */
+    }
+    frame++;
+#endif
 
-    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
-    mc6809_FlushExec();
-
+    switch (teo.command)
+    {
+        case BREAKPOINT    :
+        case DEBUGGER      : DebugPanel(); break;
+        case RESET         : to8_Reset()    ; break;
+        case COLD_RESET    : to8_ColdReset(); break;
+        case CONTROL_PANEL : ControlPanel() ; break;
+        case QUIT          : mc6809_FlushExec();
+                             gtk_main_quit();
+                             return FALSE;
+        default            : break;
+    }
+    return TRUE;
+    (void)user_data;
 }
-
 
 
 /* GetUserInput:
@@ -554,8 +521,6 @@ int main(int argc, char *argv[])
     if ( to8_Init(TO8_NJOYSTICKS) == TO8_ERROR )
         ExitMessage(to8_error_msg);
 
-    printf("ok\n");
-
     /* Chargement de la cartouche */
     if (memo_name[0])
         to8_LoadMemo7(memo_name);
@@ -600,12 +565,15 @@ int main(int argc, char *argv[])
     xargs_start(&xargs);
 
     /* Initialisation de l'interface utilisateur */
-    InitGUI(direct_support);
+//    InitGUI(direct_support);
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    RunTO8();
-//    add_gtkmain_idle (
+    frame=1;
+    teo.command=NONE;
+    tick=frame;
+    g_idle_add (RunTO8, &idle_data);
+    gtk_main ();
 
     /* Mise au repos de l'interface d'accès direct */
     ExitDirectDisk();

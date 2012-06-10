@@ -215,7 +215,6 @@ static void SetPointer(int pointer)
  */
 void InitDisplay(void)
 {
-//    register int i;
     int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
@@ -237,18 +236,18 @@ void DestroyWindow (void)
 
 
 
-gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     teo.command = QUIT;
 
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)event;
     (void)user_data;
 }
 
 
-gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int value = 0;
     int teo_key = 0;
@@ -273,25 +272,25 @@ gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data
         default :      to8_HandleKeyPress (teo_key, FALSE); break;
     }
 
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
 
 
 
-gboolean key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     to8_HandleKeyPress (keyval_to_teo_key (event->key.keyval), TRUE);
 
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
 
 
 
-gboolean button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     switch (event->button.button)
     {
@@ -308,21 +307,21 @@ gboolean button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_d
                 */
                 break;
     }
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
 
 
 
-gboolean button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     switch (event->button.button)
     {
         case 1 : to8_HandleMouseClick (1, TRUE); break;
         case 3 : to8_HandleMouseClick (2, TRUE); break;
     }
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
@@ -332,25 +331,25 @@ gboolean button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user
 /* motion_notify_event:
  *  Gestion des mouvements de la souris.
  */
-gboolean motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     to8_HandleMouseMotion ((int)event->button.x/2, (int)event->button.y/2);
 
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
 
 
 
-gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if (event->focus_change.in == TRUE)
     {
         to8_InputReset(0, 0);
         need_modifiers_reset = TRUE;
     }
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
@@ -367,73 +366,6 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
     GdkColor color;
-#if 0
-    XSizeHints *size_hints;
-    XWMHints *wm_hints;
-    XClassHint *class_hints;
-    XTextProperty windowName;
-    XSetWindowAttributes win_attrb;
-    GtkWidget *plug;
-    GtkWidget *socket;
-    GtkWidget *drawing_area;
-
-    if ( !(size_hints=XAllocSizeHints()) || !(wm_hints = XAllocWMHints()) ||
-	                                  !(class_hints = XAllocClassHint()) )
-    {
-        fprintf(stderr,"erreur d'allocation mémoire X\n");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Création de la fenêtre principale */
-    screen_win=XCreateSimpleWindow(display, RootWindow(display,screen), x, y,
-      TO8_SCREEN_W*2, TO8_SCREEN_H*2, 4, WhitePixel(display, screen),
-        BlackPixel(display,screen));
-
-    XSelectInput(display, screen_win, ExposureMask | FocusChangeMask | KeyPressMask | KeyReleaseMask);
-
-    to8_SetPointer=SetPointer;
-
-    /* Création de la fenêtre de l'écran */
-    win_attrb.win_gravity=CenterGravity;
-    win_attrb.event_mask=ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
-    window_win=XCreateWindow(display, screen_win, TO8_BORDER_W*2, TO8_BORDER_H*2, TO8_WINDOW_W*2, TO8_WINDOW_H*2, 0, CopyFromParent, InputOnly, CopyFromParent, CWWinGravity|CWEventMask, &win_attrb);
-
-    /* Dimensionnement de la fenêtre */
-    size_hints->min_width=TO8_SCREEN_W*2;
-    size_hints->min_height=TO8_SCREEN_H*2;
-    size_hints->max_width=TO8_SCREEN_W*2;
-    size_hints->max_height=TO8_SCREEN_H*2;
-    size_hints->flags=PPosition | PSize | PMinSize | PMaxSize | user_flags;
-
-    /* Formatage du nom de la fenêtre */
-
-    if (!XStringListToTextProperty(&window_name, 1, &windowName))
-    {
-        fprintf(stderr,"erreur d'allocation de structure X\n");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Renseignement du Window Manager */
-    wm_hints->initial_state = NormalState;
-    wm_hints->input = True;
-    wm_hints->flags = StateHint | InputHint;
-
-    class_hints->res_name=PROG_NAME;
-    class_hints->res_class=PROG_CLASS;
-
-    XSetWMProperties(display, screen_win, &windowName, NULL, argv, argc, size_hints, wm_hints, class_hints);
-
-    /* Connecte le callback pour le gadget de fermeture */
-    atomDeleteScreen = XInternAtom(display, "WM_DELETE_WINDOW", FALSE);
-    XSetWMProtocols(display, screen_win, &atomDeleteScreen, 1);
-    
-    XMapWindow(display, window_win);
-    XMapWindow(display, screen_win);
-
-    /* wraps an Xlib window in a GdkWindow */
-    gwindow_win = gdk_x11_window_foreign_new_for_display(gdk_x11_lookup_xdisplay(display), screen_win);
-#endif
-
     int event_mask = GDK_FOCUS_CHANGE_MASK
                    | GDK_KEY_RELEASE_MASK
                    | GDK_KEY_PRESS_MASK
@@ -444,16 +376,7 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 
     /* Crée la fenêtre GTK */
     widget_win=gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    hints.min_width = TO8_SCREEN_W*2;
-    hints.max_width = TO8_SCREEN_W*2;
-    hints.min_height = TO8_SCREEN_H*2;
-    hints.max_height = TO8_SCREEN_H*2;
-    gtk_window_set_geometry_hints (GTK_WINDOW(widget_win), widget_win, &hints,
-                                   GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
-
-    gtk_widget_set_can_focus (widget_win, TRUE);
-    gtk_widget_set_events (GTK_WIDGET(widget_win), event_mask);
-
+    gtk_widget_add_events (GTK_WIDGET(widget_win), event_mask);
     g_signal_connect (G_OBJECT (widget_win), "delete-event", G_CALLBACK (delete_event), NULL);
     g_signal_connect (G_OBJECT (widget_win), "key-press-event", G_CALLBACK (key_press_event), NULL);
     g_signal_connect (G_OBJECT (widget_win), "key-release-event", G_CALLBACK (key_release_event), NULL);
@@ -461,7 +384,12 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     g_signal_connect (G_OBJECT (widget_win), "button-release-event", G_CALLBACK (button_release_event), NULL);
     g_signal_connect (G_OBJECT (widget_win), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
     g_signal_connect (G_OBJECT (widget_win), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
-
+    hints.min_width = TO8_SCREEN_W*2;
+    hints.max_width = TO8_SCREEN_W*2;
+    hints.min_height = TO8_SCREEN_H*2;
+    hints.max_height = TO8_SCREEN_H*2;
+    gtk_window_set_geometry_hints (GTK_WINDOW(widget_win), widget_win, &hints,
+                                   GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
     gtk_window_set_resizable (GTK_WINDOW(widget_win), FALSE);
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
     gtk_window_set_icon (GTK_WINDOW(widget_win),pixbuf);
@@ -471,51 +399,17 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     color.blue = 0;
     gtk_widget_modify_bg (widget_win, GTK_STATE_NORMAL, &color);
     gtk_window_set_title (GTK_WINDOW(widget_win), window_name);
-    gtk_widget_show (widget_win);
 
+    gtk_widget_set_can_focus (widget_win, TRUE);
 
-
+    gtk_widget_show_all (widget_win);
 
     to8_SetPointer=SetPointer;
 
-/*
-    drawing_area = gtk_drawing_area_new ();
-    gtk_widget_set_size_request (drawing_area, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
-    gtk_container_add( GTK_CONTAINER(widget_win), drawing_area);
-    g_signal_connect (G_OBJECT (drawing_area), "draw", G_CALLBACK (draw_callback), NULL);
-    gtk_widget_add_events (drawing_area, GDK_KEY_PRESS | GDK_KEY_RELEASE | GDK_MOTION_NOTIFY | GDK_FOCUS_CHANGE | GDK_EXPOSE);
-    gtk_widget_show (drawing_area);
-*/
+    gtk_widget_realize (widget_win);
     gwindow_win = gtk_widget_get_window (widget_win);
     window_win = GDK_WINDOW_XID (gwindow_win);
-//    display = GDK_DISPLAY_XDISPLAY(gdk_window_get_display (gwindow_win));
-//    screen = GDK_SCREEN_XSCREEN(gdk_window_get_screen (gwindow_win));
     screen_win = window_win;
-
-#if 0
-    socket = gtk_socket_new ();
-    gtk_widget_set_size_request (GTK_WIDGET(socket), TO8_SCREEN_W*2, TO8_SCREEN_H*2);
-    gtk_container_add( GTK_CONTAINER(widget_win), socket);
-//    gtk_socket_add_id (GTK_SOCKET(socket), window_win);
-    gtk_widget_show (socket);
-
-//    plug = gtk_plug_new (gtk_socket_get_id(GTK_SOCKET(socket)));
-    plug = gtk_plug_new_for_display (gtk_widget_get_display (widget_win), screen_win);
-    gtk_widget_show (plug);
-#endif
-
-//    plug = gtk_plug_new (0);
-/*
-    plug = gtk_plug_new_for_display (gtk_widget_get_display (widget_win), window_win);
-    gtk_widget_show (plug);
-    socket = gtk_socket_new ();
-    gtk_container_add( GTK_CONTAINER(widget_win), socket);
-    gtk_socket_add_id (GTK_SOCKET(socket), gtk_plug_get_id(GTK_PLUG(plug)));
-    gtk_widget_show (socket);
-*/
-
-    /* Lie la fenêtre créée par XCreateSimpleWindow */
-//    gtk_widget_set_window (widget_win, gwindow_win);
 
     /* Attend que la GtkWindow ait tout enregistré */
     while (gtk_events_pending ())
@@ -528,251 +422,4 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     (void)y;
     (void)user_flags;
 }
-
-
-
-/* HandleEvents:
- *  Lit et traite les évènements envoyés par le serveur X.
- */
-void HandleEvents(void)
-{
-    printf ("*"); fflush (stdout);
-    while (gtk_events_pending ())
-        gtk_main_iteration_do (TRUE);
-//        gtk_main_iteration ();
-}
-
-
-#if 0
-/* HandleEvents:
- *  Lit et traite les évènements envoyés par le serveur X.
- */
-void HandleEvents(void)
-{
-//    static int need_modifiers_reset = FALSE;
-//    static int key;
-//    static int pointer_on;
-//    int value = 0;
-    GdkEvent *ev;
-
-
-    if (gtk_events_pending())
-    {
-        printf ("-"); fflush (stdout);
-        ev = gtk_get_current_event();
-
-        if (ev != NULL)
-        {
-            printf ("event = %d\n", (int)ev->type); fflush (stdout);
-            switch ((int)ev->type)
-            {
-                case GDK_FOCUS_CHANGE :
-                        if (ev->focus_change.in == TRUE)
-                        {
-                            to8_InputReset(0, 0);
-                            need_modifiers_reset = TRUE;
-                        }
-                        break;
-
-#if 0
-                case GDK_KEY_RELEASE :
-                        key = x11_to_dos[ev.xkey.keycode];
-                        if (!key)
-                            /* Cas spécial du ALTGR à partir de Ubuntu 8.04 */
-                            if (XkbKeycodeToKeysym(display,ev.xkey.keycode,0,0) == (KeySym)XK_ISO_Level3_Shift)
-                                    key=KEY_ALTGR;
-                        to8_HandleKeyPress (key, TRUE);
-                        
-                        break;
-
-                case GDK_KEY_PRESS :
-                        if (need_modifiers_reset)
-                        {
-                            if (ev->key.state & GDK_SHIFT_MASK)   value |= TO8_SHIFT_FLAG;
-                            if (ev->key.state & GDK_CONTROL_MASK) value |= TO8_CTRL_FLAG;
-                            if (ev->key.state & GDK_MOD3_MASK)    value |= TO8_ALTGR_FLAG;
-                            if (ev->key.state & GDK_MOD2_MASK)    value |= TO8_NUMLOCK_FLAG;
-                            if (ev->key.state & GDK_LOCK_MASK)    value |= TO8_CAPSLOCK_FLAG;
-                            to8_InputReset ((1<<TO8_MAX_FLAG)-1, value); 
-                            need_modifiers_reset = FALSE;
-                        }
-
-                        key=x11_to_dos[ev.xkey.keycode];
-
-                        if (!key)
-                            /* Cas spécial du ALTGR à partir de Ubuntu 8.04 */
-                            if (XkbKeycodeToKeysym(display,ev.xkey.keycode,0,0) == (KeySym)XK_ISO_Level3_Shift)
-                                    key=KEY_ALTGR;
-
-                        switch (key)
-                        {
-                            case KEY_ESC : teo.command=CONTROL_PANEL; break;
-                            case KEY_F12 : teo.command=DEBUGGER; break;
-                            default :      to8_HandleKeyPress (key, FALSE); break;
-                        }
-                        to8_HandleKeyPress (key, FALSE); break;
-                        break;
-#endif
-                case GDK_EXPOSE:
-                        RetraceScreen(ev->expose.area.x,
-                                          ev->expose.area.y,
-                                          ev->expose.area.width,
-                                          ev->expose.area.height);
-                        break;
-
-                case GDK_BUTTON_RELEASE :
-                        switch (ev->button.button)
-                        {
-                            case 1 : to8_HandleMouseClick (1, TRUE); break;
-                            case 3 : to8_HandleMouseClick (2, TRUE); break;
-                        }
-                        break;
-
-                case GDK_BUTTON_PRESS :
-                        switch (ev->button.button)
-                        {
-                            case 1 : to8_HandleMouseClick(1, FALSE); break;
-#if 0
-                            case 3 :
-                                    if (installed_pointer == TO8_MOUSE)
-                                        to8_HandleMouseClick (2, FALSE);
-                                    else 
-                                    {
-                                        pointer_on^=1;
-                                        XDefineCursor (display,screen_win, pointer_on ? None : null_cursor);
-                                    }
-                                    break;
-#endif
-                        }
-                        break;
-
-                case GDK_MOTION_NOTIFY :
-                        to8_HandleMouseMotion((int)ev->button.x/2, (int)ev->button.y/2);
-                        break;
-
-                case GDK_DELETE :
-                        printf ("Quit !! ");
-                        teo.command = QUIT;
-                        break;
-
-            } /* end of switch(ev.type) */
-//            printf ("b\n"); fflush (stdout);
-            gdk_event_free (ev);
-        }
-    } /* end of while gtk_events_pending() */
-    gtk_main_iteration_do (FALSE);
-}
-#endif
-
-#if 0
-
-    XEvent ev;
-    static int need_modifiers_reset;
-           int key;
-
-    while (XPending(display))
-    {
-        XNextEvent(display, &ev);
-        printf ("%d ", ev.type); fflush (stdout);
-
-        switch (ev.type)
-        {
-            case ClientMessage:  /* screen_win */
-                if (atomDeleteScreen == (Atom)ev.xclient.data.l[0])
-                        teo.command = QUIT;
-                break;
-
-            case FocusIn:  /* screen_win */
-                to8_InputReset(0, 0);
-                need_modifiers_reset=True;
-                break;
-
-            case KeyRelease:  /* screen_win */
-                key = x11_to_dos[ev.xkey.keycode];
-                if (!key)
-                    /* Cas spécial du ALTGR à partir de Ubuntu 8.04 */
-                    if (XkbKeycodeToKeysym(display,ev.xkey.keycode,0,0) == (KeySym)XK_ISO_Level3_Shift)
-                        key=KEY_ALTGR;
-                to8_HandleKeyPress(key, True);
-                break;
-              
-            case KeyPress:  /* screen_win */
-                if (need_modifiers_reset)
-                {
-                    int value = 0;
-
-                    if (ev.xkey.state&ShiftMask)
-                        value |= TO8_SHIFT_FLAG;
-
-                    if (ev.xkey.state&ControlMask)
-                        value |= TO8_CTRL_FLAG;
-
-                    if (ev.xkey.state&(1<<13))  /* should be Mod3Mask */
-                        value |= TO8_ALTGR_FLAG;
-
-                    if (ev.xkey.state&Mod2Mask)
-                        value |= TO8_NUMLOCK_FLAG;
-
-                    if (ev.xkey.state&LockMask)
-                        value |= TO8_CAPSLOCK_FLAG;
-
-                    to8_InputReset((1<<TO8_MAX_FLAG)-1, value); 
-                    need_modifiers_reset=False;
-                }
-
-                key=x11_to_dos[ev.xkey.keycode];
-
-                if (!key)
-                    /* Cas spécial du ALTGR à partir de Ubuntu 8.04 */
-                    if (XkbKeycodeToKeysym(display,ev.xkey.keycode,0,0) == (KeySym)XK_ISO_Level3_Shift)
-                        key=KEY_ALTGR;
-
-                if (key==KEY_ESC)
-                    teo.command=CONTROL_PANEL;
-                else if (key==KEY_F12)
-                    teo.command=DEBUGGER;
-                else   
-                    to8_HandleKeyPress(key, False);
-
-                break;
-
-            case Expose:  /* screen_win */
-                RetraceScreen(ev.xexpose.x, ev.xexpose.y, ev.xexpose.width, ev.xexpose.height);
-#ifdef DEBUG
-                fprintf(stderr, "Expose event: x=%d, y=%d, w=%d, h=%d\n", ev.xexpose.x, ev.xexpose.y, ev.xexpose.width, ev.xexpose.height);
-#endif     
-                break;
-
-            case ButtonRelease:  /* window_win */
-                if (ev.xbutton.button==Button1)
-                    to8_HandleMouseClick(1, True);
-                else if (ev.xbutton.button==Button3)
-                    to8_HandleMouseClick(2, True);
-                break;
-                                             
-            case ButtonPress:  /* window_win */
-                if (ev.xbutton.button==Button1)
-                    to8_HandleMouseClick(1, False);
-                else if (ev.xbutton.button==Button3)
-                {
-                    static int pointer_on;
-
-                    if (installed_pointer==TO8_MOUSE)
-                        to8_HandleMouseClick(2, False);
-                    else 
-                    {
-                        pointer_on^=1;
-                        XDefineCursor(display,screen_win, pointer_on ? None : null_cursor);
-                    }
-                }
-                break;
-
-            case MotionNotify:  /* window_win */
-                to8_HandleMouseMotion(ev.xbutton.x/2, ev.xbutton.y/2);
-                break;
-
-        } /* end of switch(ev.type) */
-    }  /* end of while XPending */
-}
-#endif
 
