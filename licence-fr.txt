@@ -45,5 +45,5 @@ http://sourceforge.net/projects/libpng/
 
 Il est disponible en package binaire sur le site
 http://gnuwin32.sourceforge.net/ et comme source sur le site
-http://sourceforge.net/projects/libpng/
+http://www.zlib.net/
 

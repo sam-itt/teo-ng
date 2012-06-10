@@ -43,5 +43,5 @@ as source code at http://sourceforge.net/projects/libpng/
 * zlib is Copyright (C) Jean-loup Gailly and Mark Adler
 
 It is available as binary files at http://gnuwin32.sourceforge.net/ and
-as source code at http://sourceforge.net/projects/libpng/
+as source code at http://www.zlib.net/
 
