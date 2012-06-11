@@ -61,6 +61,7 @@ struct LPRT_GUI {
 };
 
 struct DISK_GUI {
+    int  direct_access_allowed;
     int  write_protect;
     char *file;
 };

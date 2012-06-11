@@ -54,7 +54,7 @@
 #include <X11/Xlib.h>
 #include "../to8.h"
 
-extern GtkWidget *widget_win;
+extern GtkWidget *wMain;
 extern GdkWindow *gscreen_win;
 extern GdkWindow *gwindow_win;
 extern Display *display;

@@ -49,10 +49,9 @@
 
 #define FILENT_LENGTH  127
 
-extern GtkWidget *wdControl;
+extern GtkWidget *wControl;
 
 /* main panel */
-extern void InitGUI(int);
 extern void FreeGUI (void);
 extern void ControlPanel(void);
 
@@ -63,7 +62,7 @@ extern void warning_box (const gchar *message, GtkWidget *parent_window);
 
 /* sub panels */
 extern void DebugPanel(void);
-extern void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support);
+extern void init_disk_notebook_frame (GtkWidget *notebook);
 extern void free_disk_list (void);
 extern void run_about_window (GtkButton *button, gpointer user_data);
 extern void init_memo_notebook_frame (GtkWidget *notebook);
