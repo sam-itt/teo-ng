@@ -130,46 +130,33 @@ void to8_StopTimer (void) {
 
 
 
-int debug_run = FALSE;
-
 /* RunTO8:
  *  Boucle principale de l'émulateur.
  */
 static gboolean RunTO8 (gpointer user_data)
 {
-    if (debug_run)
-    {
-        if (to8_DoFrame_debug() == 0)
-            teo.command = BREAKPOINT;
-    }
-    else
-        to8_DoFrame();
-        
+    to8_DoFrame();
+//  if (to8_DoFrame_debug()==0) teo.command=BREAKPOINT;
     RefreshScreen();
-#if 0
     if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
     {
         if (teo.sound_enabled)
-        {
-            if (PlaySoundBuffer()==0)
-                pause();
-        }
-        else
-        if (frame==tick)
-            pause();  /* on attend le SIGALARM du timer */
+           if (PlaySoundBuffer()==0)
+               pause();
     }
+    else
+        usleep(300);
     frame++;
-#endif
 
     switch (teo.command)
     {
         case BREAKPOINT    :
-        case DEBUGGER      : DebugPanel(); break;
+        case DEBUGGER      : DebugPanel()   ; break;
+        case CONTROL_PANEL : ControlPanel() ; break;
         case RESET         : to8_Reset()    ; break;
         case COLD_RESET    : to8_ColdReset(); break;
-        case CONTROL_PANEL : ControlPanel() ; break;
         case QUIT          : mc6809_FlushExec();
-                             gtk_main_quit();
+                             gtk_main_quit ();
                              return FALSE;
         default            : break;
     }
@@ -464,7 +451,7 @@ int main(int argc, char *argv[])
     int i, x=0, y=0, user_flags=0;
     char version_name[]="Teo "TO8_VERSION_STR" (Linux/X11)";
     char memo_name[MAX_PATH+1]="\0";
-    int direct_support = 0, direct_write_support = FALSE;
+    int direct_write_support = FALSE;
     int drive_type[4];
     char *lang;
     int load_state = FALSE;
@@ -530,10 +517,7 @@ int main(int argc, char *argv[])
 
     /* Détection des lecteurs supportés (3"5 seulement) */
     for (i=0; i<4; i++)
-    {
-         if (IS_3_INCHES(i))
-             direct_support |= (1<<i);
-    }
+        gui->disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
     /* Création de la fenêtre principale de l'émulateur */
     InitWindow(argc, argv, x, y, user_flags);
@@ -564,15 +548,10 @@ int main(int argc, char *argv[])
     /* arguments supplementaires  */
     xargs_start(&xargs);
 
-    /* Initialisation de l'interface utilisateur */
-//    InitGUI(direct_support);
-
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    frame=1;
-    teo.command=NONE;
-    tick=frame;
     g_idle_add (RunTO8, &idle_data);
+    teo.command=NONE;
     gtk_main ();
 
     /* Mise au repos de l'interface d'accès direct */
