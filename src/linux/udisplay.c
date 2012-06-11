@@ -64,7 +64,7 @@
 #include "thomson.xpm"
 
 
-GtkWidget *widget_win;
+GtkWidget *wMain;
 GdkWindow *gwindow_win;
 Display *display;
 int screen;
@@ -73,121 +73,119 @@ Window screen_win;
 Window window_win;
 Atom atomDeleteScreen;
 
-
 static int need_modifiers_reset = FALSE;
-
 
 // static int installed_pointer;
 // static Cursor null_cursor;
 
+static int x11_to_dos[256];
 
-int keyval_to_teo_key (int keyval)
-{
-    switch (keyval)
-    {
-        case GDK_KEY_Escape          : return TEO_KEY_ESC;
-        case GDK_KEY_1               : return TEO_KEY_1;
-        case GDK_KEY_2               : return TEO_KEY_2;
-        case GDK_KEY_3               : return TEO_KEY_3;
-        case GDK_KEY_4               : return TEO_KEY_4;
-        case GDK_KEY_5               : return TEO_KEY_5;
-        case GDK_KEY_6               : return TEO_KEY_6;
-        case GDK_KEY_7               : return TEO_KEY_7;
-        case GDK_KEY_8               : return TEO_KEY_8;
-        case GDK_KEY_9               : return TEO_KEY_9;
-        case GDK_KEY_0               : return TEO_KEY_0;
-        case GDK_KEY_parenright      : return TEO_KEY_MINUS;
-        case GDK_KEY_equal           : return TEO_KEY_EQUALS;
-        case GDK_KEY_BackSpace       : return TEO_KEY_BACKSPACE;
-        case GDK_KEY_Tab             : return TEO_KEY_TAB;
-        case GDK_KEY_A               : return TEO_KEY_Q;
-        case GDK_KEY_Z               : return TEO_KEY_W;
-        case GDK_KEY_E               : return TEO_KEY_E;
-        case GDK_KEY_R               : return TEO_KEY_R;
-        case GDK_KEY_T               : return TEO_KEY_T;
-        case GDK_KEY_Y               : return TEO_KEY_Y;
-        case GDK_KEY_U               : return TEO_KEY_U;
-        case GDK_KEY_I               : return TEO_KEY_I;
-        case GDK_KEY_O               : return TEO_KEY_O;
-        case GDK_KEY_P               : return TEO_KEY_P;
-        case GDK_KEY_dead_circumflex : return TEO_KEY_OPENBRACE;
-        case GDK_KEY_dollar          : return TEO_KEY_CLOSEBRACE;
-        case GDK_KEY_Return          : return TEO_KEY_ENTER;
-        case GDK_KEY_Control_L       : return TEO_KEY_LCONTROL;
-        case GDK_KEY_Q               : return TEO_KEY_A;
-        case GDK_KEY_S               : return TEO_KEY_S;
-        case GDK_KEY_D               : return TEO_KEY_D;
-        case GDK_KEY_F               : return TEO_KEY_F;
-        case GDK_KEY_G               : return TEO_KEY_G;
-        case GDK_KEY_H               : return TEO_KEY_H;
-        case GDK_KEY_J               : return TEO_KEY_J;
-        case GDK_KEY_K               : return TEO_KEY_K;
-        case GDK_KEY_L               : return TEO_KEY_L;
-        case GDK_KEY_M               : return TEO_KEY_COLON;
-        case GDK_KEY_percent         : return TEO_KEY_QUOTE;
-        case GDK_KEY_twosuperior     : return TEO_KEY_TILDE;
-        case GDK_KEY_Shift_L         : return TEO_KEY_LSHIFT;
-        case GDK_KEY_asterisk        : return TEO_KEY_ASTERISK;
-        case GDK_KEY_W               : return TEO_KEY_Z;
-        case GDK_KEY_X               : return TEO_KEY_X;
-        case GDK_KEY_C               : return TEO_KEY_C;
-        case GDK_KEY_V               : return TEO_KEY_V;
-        case GDK_KEY_B               : return TEO_KEY_B;
-        case GDK_KEY_N               : return TEO_KEY_N;
-        case GDK_KEY_comma           : return TEO_KEY_M;
-        case GDK_KEY_semicolon       : return TEO_KEY_COMMA;
-        case GDK_KEY_colon           : return TEO_KEY_STOP ;
-        case GDK_KEY_exclam          : return TEO_KEY_SLASH;
-        case GDK_KEY_Shift_R         : return TEO_KEY_RSHIFT;
-        case GDK_KEY_KP_Multiply     : return TEO_KEY_ASTERISK;
-        case GDK_KEY_Alt_L           : return TEO_KEY_ALT;
-        case GDK_KEY_space           : return TEO_KEY_SPACE;
-        case GDK_KEY_Caps_Lock       : return TEO_KEY_CAPSLOCK;
-        case GDK_KEY_F1              : return TEO_KEY_F1;
-        case GDK_KEY_F2              : return TEO_KEY_F2;
-        case GDK_KEY_F3              : return TEO_KEY_F3;
-        case GDK_KEY_F4              : return TEO_KEY_F4;
-        case GDK_KEY_F5              : return TEO_KEY_F5;
-        case GDK_KEY_F6              : return TEO_KEY_F6;
-        case GDK_KEY_F7              : return TEO_KEY_F7;
-        case GDK_KEY_F8              : return TEO_KEY_F8;
-        case GDK_KEY_F9              : return TEO_KEY_F9;
-        case GDK_KEY_F10             : return TEO_KEY_F10;
-        case GDK_KEY_Num_Lock        : return TEO_KEY_NUMLOCK;
-        case GDK_KEY_Scroll_Lock     : return TEO_KEY_SCRLOCK;
-        case GDK_KEY_KP_7            : return TEO_KEY_7_PAD;
-        case GDK_KEY_KP_8            : return TEO_KEY_8_PAD;
-        case GDK_KEY_KP_9            : return TEO_KEY_9_PAD;
-        case GDK_KEY_KP_Subtract     : return TEO_KEY_MINUS_PAD;
-        case GDK_KEY_KP_4            : return TEO_KEY_4_PAD;
-        case GDK_KEY_KP_5            : return TEO_KEY_5_PAD;
-        case GDK_KEY_KP_6            : return TEO_KEY_6_PAD;
-        case GDK_KEY_KP_Add          : return TEO_KEY_PLUS_PAD;
-        case GDK_KEY_KP_1            : return TEO_KEY_1_PAD;
-        case GDK_KEY_KP_2            : return TEO_KEY_2_PAD;
-        case GDK_KEY_KP_3            : return TEO_KEY_3_PAD;
-        case GDK_KEY_KP_0            : return TEO_KEY_0_PAD;
-        case GDK_KEY_KP_Decimal      : return TEO_KEY_DEL_PAD;
-        case GDK_KEY_less            : return TEO_KEY_BACKSLASH2;
-        case GDK_KEY_F11             : return TEO_KEY_F11;
-        case GDK_KEY_F12             : return TEO_KEY_F12;
-        case GDK_KEY_KP_Enter        : return TEO_KEY_ENTER_PAD;
-        case GDK_KEY_Control_R       : return TEO_KEY_RCONTROL;
-        case GDK_KEY_KP_Divide       : return TEO_KEY_SLASH_PAD;
-        case GDK_KEY_ISO_Level3_Shift: return TEO_KEY_ALTGR;
-        case GDK_KEY_Home            : return TEO_KEY_HOME;
-        case GDK_KEY_Up              : return TEO_KEY_UP;
-        case GDK_KEY_Page_Up         : return TEO_KEY_PGUP;
-        case GDK_KEY_Left            : return TEO_KEY_LEFT;
-        case GDK_KEY_Right           : return TEO_KEY_RIGHT;
-        case GDK_KEY_End             : return TEO_KEY_END;
-        case GDK_KEY_Down            : return TEO_KEY_DOWN;
-        case GDK_KEY_Page_Down       : return TEO_KEY_PGDN;
-        case GDK_KEY_Insert          : return TEO_KEY_INSERT;
-        case GDK_KEY_Delete          : return TEO_KEY_DEL;
-    }
-    return 0;
-}
+#define KB_SIZE  101
+static struct {
+    int keysym;
+    int keycode;
+} keyconv[KB_SIZE]={
+    { XK_Escape          , TEO_KEY_ESC        },
+    { XK_1               , TEO_KEY_1          },
+    { XK_2               , TEO_KEY_2          },
+    { XK_3               , TEO_KEY_3          },
+    { XK_4               , TEO_KEY_4          },
+    { XK_5               , TEO_KEY_5          },
+    { XK_6               , TEO_KEY_6          },
+    { XK_7               , TEO_KEY_7          },
+    { XK_8               , TEO_KEY_8          },
+    { XK_9               , TEO_KEY_9          },
+    { XK_0               , TEO_KEY_0          },
+    { XK_parenright      , TEO_KEY_MINUS      },
+    { XK_equal           , TEO_KEY_EQUALS     },
+    { XK_BackSpace       , TEO_KEY_BACKSPACE  },
+    { XK_Tab             , TEO_KEY_TAB        },
+    { XK_A               , TEO_KEY_Q          },
+    { XK_Z               , TEO_KEY_W          },
+    { XK_E               , TEO_KEY_E          },
+    { XK_R               , TEO_KEY_R          },
+    { XK_T               , TEO_KEY_T          },
+    { XK_Y               , TEO_KEY_Y          },
+    { XK_U               , TEO_KEY_U          },
+    { XK_I               , TEO_KEY_I          },
+    { XK_O               , TEO_KEY_O          },
+    { XK_P               , TEO_KEY_P          },
+    { XK_dead_circumflex , TEO_KEY_OPENBRACE  },
+    { XK_dollar          , TEO_KEY_CLOSEBRACE },
+    { XK_Return          , TEO_KEY_ENTER      },
+    { XK_Control_L       , TEO_KEY_LCONTROL   },
+    { XK_Q               , TEO_KEY_A          },
+    { XK_S               , TEO_KEY_S          },
+    { XK_D               , TEO_KEY_D          },
+    { XK_F               , TEO_KEY_F          },
+    { XK_G               , TEO_KEY_G          },
+    { XK_H               , TEO_KEY_H          },
+    { XK_J               , TEO_KEY_J          },
+    { XK_K               , TEO_KEY_K          },
+    { XK_L               , TEO_KEY_L          },
+    { XK_M               , TEO_KEY_COLON      },
+    { XK_percent         , TEO_KEY_QUOTE      },
+    { XK_twosuperior     , TEO_KEY_TILDE      },
+    { XK_Shift_L         , TEO_KEY_LSHIFT     },
+    { XK_asterisk        , TEO_KEY_ASTERISK   },
+    { XK_W               , TEO_KEY_Z          },
+    { XK_X               , TEO_KEY_X          },
+    { XK_C               , TEO_KEY_C          },
+    { XK_V               , TEO_KEY_V          },
+    { XK_B               , TEO_KEY_B          },
+    { XK_N               , TEO_KEY_N          },
+    { XK_comma           , TEO_KEY_M          },
+    { XK_semicolon       , TEO_KEY_COMMA      },
+    { XK_colon           , TEO_KEY_STOP       },
+    { XK_exclam          , TEO_KEY_SLASH      },
+    { XK_Shift_R         , TEO_KEY_RSHIFT     },
+    { XK_KP_Multiply     , TEO_KEY_ASTERISK   },
+    { XK_Alt_L           , TEO_KEY_ALT        },
+    { XK_space           , TEO_KEY_SPACE      },
+    { XK_Caps_Lock       , TEO_KEY_CAPSLOCK   },
+    { XK_F1              , TEO_KEY_F1         },
+    { XK_F2              , TEO_KEY_F2         },
+    { XK_F3              , TEO_KEY_F3         },
+    { XK_F4              , TEO_KEY_F4         },
+    { XK_F5              , TEO_KEY_F5         },
+    { XK_F6              , TEO_KEY_F6         },
+    { XK_F7              , TEO_KEY_F7         },
+    { XK_F8              , TEO_KEY_F8         },
+    { XK_F9              , TEO_KEY_F9         },
+    { XK_F10             , TEO_KEY_F10        },
+    { XK_Num_Lock        , TEO_KEY_NUMLOCK    },
+    { XK_Scroll_Lock     , TEO_KEY_SCRLOCK    },
+    { XK_KP_7            , TEO_KEY_7_PAD      },
+    { XK_KP_8            , TEO_KEY_8_PAD      },
+    { XK_KP_9            , TEO_KEY_9_PAD      },
+    { XK_KP_Subtract     , TEO_KEY_MINUS_PAD  },
+    { XK_KP_4            , TEO_KEY_4_PAD      },
+    { XK_KP_5            , TEO_KEY_5_PAD      },
+    { XK_KP_6            , TEO_KEY_6_PAD      },
+    { XK_KP_Add          , TEO_KEY_PLUS_PAD   },
+    { XK_KP_1            , TEO_KEY_1_PAD      },
+    { XK_KP_2            , TEO_KEY_2_PAD      },
+    { XK_KP_3            , TEO_KEY_3_PAD      },
+    { XK_KP_0            , TEO_KEY_0_PAD      },
+    { XK_KP_Decimal      , TEO_KEY_DEL_PAD    },
+    { XK_less            , TEO_KEY_BACKSLASH2 },
+    { XK_F11             , TEO_KEY_F11        },
+    { XK_F12             , TEO_KEY_F12        },
+    { XK_KP_Enter        , TEO_KEY_ENTER_PAD  },
+    { XK_Control_R       , TEO_KEY_RCONTROL   },
+    { XK_KP_Divide       , TEO_KEY_SLASH_PAD  },
+    { XK_ISO_Level3_Shift, TEO_KEY_ALTGR      },
+    { XK_Home            , TEO_KEY_HOME       },
+    { XK_Up              , TEO_KEY_UP         },
+    { XK_Page_Up         , TEO_KEY_PGUP       },
+    { XK_Left            , TEO_KEY_LEFT       },
+    { XK_Right           , TEO_KEY_RIGHT      },
+    { XK_End             , TEO_KEY_END        },
+    { XK_Down            , TEO_KEY_DOWN       },
+    { XK_Page_Down       , TEO_KEY_PGDN       },
+    { XK_Insert          , TEO_KEY_INSERT     },
+    { XK_Delete          , TEO_KEY_DEL        }
+};
 
 
 
@@ -215,11 +213,16 @@ static void SetPointer(int pointer)
  */
 void InitDisplay(void)
 {
+    int i;
     int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
     display=gdk_x11_get_default_xdisplay();
     screen=DefaultScreen(display);
+
+    /* Calcul de la table de conversion des keycodes */
+    for (i=0; i<KB_SIZE; i++)
+        x11_to_dos[XKeysymToKeycode(display,keyconv[i].keysym)]=keyconv[i].keycode;
 
     /* Test de présence de l'extension MIT-SHM */
     mit_shm_enabled = XQueryExtension(display, "MIT-SHM", &ret1, &ret2, &ret3);
@@ -240,7 +243,7 @@ static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_
 {
     teo.command = QUIT;
 
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)event;
     (void)user_data;
@@ -263,7 +266,10 @@ static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer us
         need_modifiers_reset = FALSE;
     }
 
-    teo_key = keyval_to_teo_key (event->key.keyval);
+    teo_key = x11_to_dos[event->key.hardware_keycode];
+    if (teo_key == 0)
+        if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
+            teo_key = TEO_KEY_ALTGR;
 
     switch (teo_key)
     {
@@ -272,7 +278,7 @@ static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer us
         default :      to8_HandleKeyPress (teo_key, FALSE); break;
     }
 
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
@@ -281,9 +287,17 @@ static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer us
 
 static gboolean key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    to8_HandleKeyPress (keyval_to_teo_key (event->key.keyval), TRUE);
+//    printf ("[releas %x]", (int)event->key.hardware_keycode); fflush (stdout);
 
-    return TRUE;
+    int teo_key = x11_to_dos[event->key.hardware_keycode];
+
+    if (teo_key == 0)
+        if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
+            teo_key = TEO_KEY_ALTGR;
+
+    to8_HandleKeyPress (teo_key, TRUE);
+
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
@@ -307,21 +321,25 @@ static gboolean button_press_event (GtkWidget *widget, GdkEvent *event, gpointer
                 */
                 break;
     }
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
 
 
 
-static gboolean button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+/* button_release_event:
+ *  Gestion des touches relachées.
+ */
+static gboolean
+button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     switch (event->button.button)
     {
         case 1 : to8_HandleMouseClick (1, TRUE); break;
         case 3 : to8_HandleMouseClick (2, TRUE); break;
     }
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
@@ -331,11 +349,15 @@ static gboolean button_release_event (GtkWidget *widget, GdkEvent *event, gpoint
 /* motion_notify_event:
  *  Gestion des mouvements de la souris.
  */
-static gboolean motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean
+motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    to8_HandleMouseMotion ((int)event->button.x/2, (int)event->button.y/2);
+    if (((int)event->button.x > (TO8_BORDER_W*2))
+     && ((int)event->button.y > (TO8_BORDER_H*2)))
+        to8_HandleMouseMotion ((int)event->button.x/2-TO8_BORDER_W,
+                               (int)event->button.y/2-TO8_BORDER_H);
 
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
@@ -349,7 +371,7 @@ static gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer use
         to8_InputReset(0, 0);
         need_modifiers_reset = TRUE;
     }
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
@@ -366,6 +388,7 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
     GdkColor color;
+    
     int event_mask = GDK_FOCUS_CHANGE_MASK
                    | GDK_KEY_RELEASE_MASK
                    | GDK_KEY_PRESS_MASK
@@ -375,39 +398,38 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
                    | GDK_POINTER_MOTION_MASK;
 
     /* Crée la fenêtre GTK */
-    widget_win=gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_widget_add_events (GTK_WIDGET(widget_win), event_mask);
-    g_signal_connect (G_OBJECT (widget_win), "delete-event", G_CALLBACK (delete_event), NULL);
-    g_signal_connect (G_OBJECT (widget_win), "key-press-event", G_CALLBACK (key_press_event), NULL);
-    g_signal_connect (G_OBJECT (widget_win), "key-release-event", G_CALLBACK (key_release_event), NULL);
-    g_signal_connect (G_OBJECT (widget_win), "button-press-event", G_CALLBACK (button_press_event), NULL);
-    g_signal_connect (G_OBJECT (widget_win), "button-release-event", G_CALLBACK (button_release_event), NULL);
-    g_signal_connect (G_OBJECT (widget_win), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
-    g_signal_connect (G_OBJECT (widget_win), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
+    wMain=gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_widget_add_events (GTK_WIDGET(wMain), event_mask);
+    g_signal_connect (G_OBJECT (wMain), "delete-event", G_CALLBACK (delete_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "key-press-event", G_CALLBACK (key_press_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "key-release-event", G_CALLBACK (key_release_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "button-press-event", G_CALLBACK (button_press_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "button-release-event", G_CALLBACK (button_release_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
     hints.min_width = TO8_SCREEN_W*2;
     hints.max_width = TO8_SCREEN_W*2;
     hints.min_height = TO8_SCREEN_H*2;
     hints.max_height = TO8_SCREEN_H*2;
-    gtk_window_set_geometry_hints (GTK_WINDOW(widget_win), widget_win, &hints,
+    gtk_window_set_geometry_hints (GTK_WINDOW(wMain), wMain, &hints,
                                    GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
-    gtk_window_set_resizable (GTK_WINDOW(widget_win), FALSE);
+    gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
-    gtk_window_set_icon (GTK_WINDOW(widget_win),pixbuf);
+    gtk_window_set_icon (GTK_WINDOW(wMain),pixbuf);
     gtk_window_set_default_icon(pixbuf);
     color.red = 0;
     color.green = 0;
     color.blue = 0;
-    gtk_widget_modify_bg (widget_win, GTK_STATE_NORMAL, &color);
-    gtk_window_set_title (GTK_WINDOW(widget_win), window_name);
+    gtk_widget_modify_bg (wMain, GTK_STATE_NORMAL, &color);
+    gtk_window_set_title (GTK_WINDOW(wMain), window_name);
 
-    gtk_widget_set_can_focus (widget_win, TRUE);
+    gtk_widget_set_can_focus (wMain, TRUE);
 
-    gtk_widget_show_all (widget_win);
+    gtk_widget_show_all (wMain);
 
     to8_SetPointer=SetPointer;
 
-    gtk_widget_realize (widget_win);
-    gwindow_win = gtk_widget_get_window (widget_win);
+    gwindow_win = gtk_widget_get_window (wMain);
     window_win = GDK_WINDOW_XID (gwindow_win);
     screen_win = window_win;
 
