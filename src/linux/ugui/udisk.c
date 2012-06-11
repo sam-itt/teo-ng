@@ -83,7 +83,7 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
     switch (ret)
     {
         case TO8_ERROR :
-            error_box (to8_error_msg, wdControl);
+            error_box (to8_error_msg, wControl);
             break;
 
         case TO8_READ_ONLY :
@@ -111,7 +111,7 @@ static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
     else if (to8_SetDiskMode (vector->id, TO8_READ_WRITE)==TO8_READ_ONLY)
     {
         error_box(is_fr?"Ecriture impossible sur ce support."
-                       :"Writing unavailable on this device.", wdControl);
+                       :"Writing unavailable on this device.", wControl);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
         gui->disk[vector->id].write_protect = TRUE;
     }
@@ -233,7 +233,7 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
     if (vector->first) {
         dialog = gtk_file_chooser_dialog_new (
                  is_fr?"Sélectionner une disquette":"Select a disk",
-                 (GtkWindow *) wdControl, GTK_FILE_CHOOSER_ACTION_OPEN,
+                 (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_OPEN,
                  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
@@ -298,7 +298,7 @@ void free_disk_list (void)
 /* init_disk_notebook_frame:
  *  Initialise la frame du notebook pour les disquettes.
  */
-void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support)
+void init_disk_notebook_frame (GtkWidget *notebook)
 {
     int i;
     GtkWidget *vbox;
@@ -352,7 +352,7 @@ void init_disk_notebook_frame (GtkWidget *notebook, int direct_disk_support)
         /* combobox pour le rappel de disquette */
         vector[i].combo=gtk_combo_box_text_new();
         gtk_box_pack_start( GTK_BOX(hbox), vector[i].combo, TRUE, TRUE,0);
-        vector[i].direct=(direct_disk_support>>i)&1;
+        vector[i].direct=gui->disk[i].direct_access_allowed;
         init_combo (&vector[i]);
         if (strlen (gui->disk[i].file) != 0)
         {

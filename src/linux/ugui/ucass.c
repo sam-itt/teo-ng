@@ -121,7 +121,7 @@ static int load_cass (gchar *filename)
     switch (ret)
     {
         case TO8_ERROR :
-            error_box (to8_error_msg, wdControl);
+            error_box (to8_error_msg, wControl);
             break;
 
         case TO8_READ_ONLY :
@@ -153,7 +153,7 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
         if (to8_SetK7Mode(TO8_READ_WRITE)==TO8_READ_ONLY)
         {
             error_box((is_fr?"Ecriture impossible sur ce support."
-                            :"Writing unavailable on this device."), wdControl);
+                            :"Writing unavailable on this device."), wControl);
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
             gui->cass.write_protect = TRUE;
         }
@@ -259,7 +259,7 @@ static void open_file (GtkButton *button, gpointer data)
     if (first) {
         dialog = gtk_file_chooser_dialog_new (
                  is_fr?"Sélectionner une cassette":"Select a tape",
-                 (GtkWindow *) wdControl, GTK_FILE_CHOOSER_ACTION_OPEN,
+                 (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_OPEN,
                  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();

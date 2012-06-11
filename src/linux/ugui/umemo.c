@@ -134,7 +134,7 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
         to8_EjectMemo7();
     else
     if (to8_LoadMemo7(filename) == TO8_ERROR)
-        error_box(to8_error_msg, wdControl);
+        error_box(to8_error_msg, wControl);
 
     teo.command=COLD_RESET;
 
@@ -156,7 +156,7 @@ static void open_file (GtkButton *button, gpointer data)
     if (first) {
         dialog = gtk_file_chooser_dialog_new (
                  is_fr?"Sélectionner une cartouche":"Select a cartridge",
-                 (GtkWindow *) wdControl, GTK_FILE_CHOOSER_ACTION_OPEN,
+                 (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_OPEN,
                  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
@@ -184,7 +184,7 @@ static void open_file (GtkButton *button, gpointer data)
     if (gtk_dialog_run ((GtkDialog *)dialog) == GTK_RESPONSE_ACCEPT)
     {
         if (to8_LoadMemo7(gtk_file_chooser_get_filename((GtkFileChooser *)dialog)) == TO8_ERROR)
-            error_box(to8_error_msg, wdControl);
+            error_box(to8_error_msg, wControl);
         else
         {
             /* Bloque l'intervention de combo_changed */

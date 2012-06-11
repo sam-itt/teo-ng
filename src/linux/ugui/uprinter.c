@@ -133,7 +133,7 @@ void init_printer_notebook_frame (GtkWidget *notebook)
     /* Dialog pour le r�pertoire */
     dialog = gtk_file_chooser_dialog_new (
              is_fr?"Sélectionner un répertoire de sauvegarde":"Select the folder to save in",
-             (GtkWindow *) wdControl, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+             (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
              GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
              GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
     gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->lprt.folder);

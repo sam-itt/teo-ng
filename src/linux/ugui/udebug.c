@@ -323,7 +323,7 @@ static void do_command_debug (GtkWidget *button, int command)
 static void iconify_teo_window (GtkWidget *widget, GdkEvent *event, void *user_data)
 {
     if (event->window_state.new_window_state == GDK_WINDOW_STATE_ICONIFIED) {
-        gtk_window_iconify (GTK_WINDOW(widget_win));
+        gtk_window_iconify (GTK_WINDOW(wMain));
     }
     (void)widget;
     (void)user_data;
@@ -340,7 +340,7 @@ static void InitDEBUG(void)
 
     /* fenêtre d'affichage */
     window_debug=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_transient_for (GTK_WINDOW(window_debug), GTK_WINDOW(widget_win));
+    gtk_window_set_transient_for (GTK_WINDOW(window_debug), GTK_WINDOW(wMain));
     gtk_window_set_position(GTK_WINDOW(window_debug), GTK_WIN_POS_CENTER_ON_PARENT);
     gtk_window_set_destroy_with_parent (GTK_WINDOW(window_debug), TRUE);
     gtk_window_set_modal (GTK_WINDOW(window_debug), TRUE);
@@ -454,7 +454,7 @@ static void InitDEBUG(void)
 
     /* mise en place d'un hook pour assurer le retraçage de la fenêtre
        principale de l'émulateur */
-    gdk_window_add_filter(gtk_widget_get_window (GTK_WIDGET(widget_win)), retrace_callback, NULL);
+    gdk_window_add_filter(gtk_widget_get_window (GTK_WIDGET(wMain)), retrace_callback, NULL);
 }
 
 
