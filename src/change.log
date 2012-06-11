@@ -1,9 +1,19 @@
 ========================================================================
 === Version 1.8.2 (Juin 2012)                                        ===
 ========================================================================
-- passage à GTK+3.0 pour Linux
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
+- passage à GTK+3.0 pour Linux
+- linux/display.h
+          ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
+- linux/udisplay.c
+          fenêtre principale en GtkWindow
+          changement de widget_win en wMain
+          les events sont traités en callbacks
+- linux/ugui.c
+          fenêtre de contrôle en GtkDialog
+- linux/umain.c
+          boucle principale de l'émulation mise en idle
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
