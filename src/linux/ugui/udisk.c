@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
- *               François Mouret 07/08/2011 24/03/2012
+ *               François Mouret 07/08/2011 24/03/2012 12/06/2012
  *
  *  Gestion des disquettes.
  */
@@ -147,6 +147,7 @@ static void free_disk_entry (struct FILE_VECTOR *vector)
     g_list_foreach (vector->path_list, (GFunc)g_free, (gpointer) NULL);
     g_list_free (vector->path_list);
     vector->path_list=NULL;
+    vector->entry_max = 0;
 }
 
 
@@ -312,7 +313,7 @@ void init_disk_notebook_frame (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Disq.":"Disks"));
+    widget=gtk_label_new((is_fr?"Disquettes":"Disks"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
