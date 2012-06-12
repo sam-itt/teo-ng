@@ -76,6 +76,7 @@ void to8_EjectMemo7(void)
         }
     }
     mem.cart.nbank = 0;
+    gui->memo.file[0] = '\0';
 }
 
 
