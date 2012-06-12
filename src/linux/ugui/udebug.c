@@ -394,7 +394,7 @@ void DebugPanel(void)
     response = gtk_dialog_run (GTK_DIALOG(wDebug));
     switch (response)
     {
-        case GTK_RESPONSE_ACCEPT: teo.command=BREAKPOINT; break; /* ????????? */
+        case GTK_RESPONSE_ACCEPT: teo.command=BREAKPOINT; break;
         case GTK_RESPONSE_CANCEL: teo.command=NONE      ; break;
    }
    gtk_widget_destroy (wDebug);
