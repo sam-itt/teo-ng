@@ -1,13 +1,12 @@
-\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/sap2fr/)\]
+\[[Home](../index)\]\[[Page en Fran&ccedil;ais](../sap2fr)\]
 
 ###SAP2
 
-* <a href="#introduction">Introduction</a><br>
-* <a href="#how_works">How the program works</a><br>
-* <a href="#interactive_mode">Program commands in interactive mode</a><br>
-* <a href="#batch_mode">Program commands in batch mode</a><br>
-* <a href="#kown_problems">Known problems</a><br>
-* <a href="#conclusion">Conclusion</a><br>
+* <a href="./#introduction">Introduction</a><br>
+* <a href="./#how_works">How the program works</a><br>
+* <a href="./#interactive_mode">Program commands in interactive mode</a><br>
+* <a href="./#batch_mode">Program commands in batch mode</a><br>
+* <a href="./#kown_problems">Known problems</a><br>
 
 #####Introduction<a name="introduction"></a>
 
@@ -68,7 +67,7 @@ ex: sap2 --version
 Display the directory of the SAP archive.<br>
 <span style="padding-left:30px">*`archive`* : full name of the SAP archive</span><br>
 ex: sap2 --list foo.sap<br>
-<a href="#command4">See command 4 of interactive mode</a>
+<a href="./#command4">See command 4 of interactive mode</a>
 
 **-p, --pack archive drive \[density\]**<br>
 Archives a Thomson floppy to a SAP archive. If the drive is a 5"25, the density can be specified.<br>
@@ -76,7 +75,7 @@ Archives a Thomson floppy to a SAP archive. If the drive is a 5"25, the density 
 <span style="padding-left:30px">*`drive`* : from 0 to 3</span><br>
 <span style="padding-left:30px">*`density`* : 1 = simple density, 2 = double density (default)</span><br>
 ex: sap2 --pack foo.sap 0<br>
-<a href="#command3">See command 3 of interactive mode</a>
+<a href="./#command3">See command 3 of interactive mode</a>
 
 **-u, --unpack archive drive \[density\]**<br>
 Unarchives a SAP archive. If the drive is a 5"25, the density can be specified.<br>
@@ -84,7 +83,7 @@ Unarchives a SAP archive. If the drive is a 5"25, the density can be specified.<
 <span style="padding-left:30px">*`drive`* : from 0 to 3</span><br>
 <span style="padding-left:30px">*`density`* : 1 = simple density, 2 = double density (default)</span><br>
 ex:  sap2 --unpack foo.sap 0<br>
-<a href="#command6">See command 6 of interactive mode</a>
+<a href="./#command6">See command 6 of interactive mode</a>
 
 **-c, --create archive \[nb of tracks\] \[density\]**<br>
 Create a SAP archive.<br>
@@ -93,14 +92,14 @@ Create a SAP archive.<br>
 <span style="padding-left:30px">*`density`* : 1 = simple density, 2 = double density (default)</span><br>
 ex: sap2 --create foo.sap<br>
 ex: sap2 --create foo.sap 40<br>
-<a href="#command2">See command 2 of interactive mode</a>
+<a href="./#command2">See command 2 of interactive mode</a>
 
 **-d, --dir drive \[density\]**<br>
 Display the directory of the formatted Thomson floppy disk inserted in the floppy drive. If the drive is a 5"25, the density can be specified.<br>
 <span style="padding-left:30px">*`drive`* : from 0 to 3</span><br>
 <span style="padding-left:30px">*`density`* : 1 = simple density, 2 = double density (default)</span><br>
 ex:  sap2 --dir 0<br>
-<a href="#command1">See command 1 of interactive mode</a>
+<a href="./#command1">See command 1 of interactive mode</a>
 
 **-f, --format drive \[density\] \[interleave\]**<br>
 Formats the 3"5 or 5"25 floppy disk inserted in the floppy drive. If the drive is a 5"25, the density can be specified.<br>
@@ -109,7 +108,7 @@ Formats the 3"5 or 5"25 floppy disk inserted in the floppy drive. If the drive i
 <span style="padding-left:30px">*`interleave`* : from 1 to 15 (default 7)</span><br>
 ex: sap2 --format 0 6<br>
 ex: sap2 --format 1<br>
-<a href="#command5">See command 5 of interactive mode</a>
+<a href="./#command5">See command 5 of interactive mode</a>
 
 #####Known problems<a name="kown_problems"></a>
 
@@ -117,8 +116,4 @@ ex: sap2 --format 1<br>
 * The MS-DOS version of SAP does not archive or unarchive with the head 1 of a Thomson floppy disk, it is ultimately impossible due to an incompatibility between the PC BIOS and DOS TO. In contrary, Linux is not affected by this problem.
 * The MS-DOS version of SAP does not provide access to floppies 5 "25 single density, this is still a definite impossibility due to PC BIOS limitations. In the contrary, Linux is not affected by this problem.
 * MS-DOS may no longer reformat a Thomson formatted floppy to a standard format.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

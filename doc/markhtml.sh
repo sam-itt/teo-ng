@@ -29,12 +29,15 @@ for i in *;
    echo "" >> _tmpfile;
    markdown $i >> _tmpfile
    echo "" >> _tmpfile;
+   echo "<hr>" >> _tmpfile;
+   echo "<center><p>Teo developers &copy; 1997-2012 on <a href=\"https://sourceforge.net/projects/teoemulator/\">SourceForge</a></p></center>" >> _tmpfile;
    echo "</td></tr></table>" >> _tmpfile;
    echo "</body>" >> _tmpfile;
    echo "</html>" >> _tmpfile;
    sed 's/\\//g' _tmpfile > _tmpfile2;
    sed 's/\&amp\;/\&/g' _tmpfile2 > _tmpfile;
-   sed 's/href=\"\/\([a-zA-Z0-9]*\)\/\">/href=\"\1.htm\">/g' _tmpfile > ../$i.htm;
+   sed 's/href=\"\.\.\/\([a-zA-Z0-9]*\)\">/href=\"\1.htm\">/g' _tmpfile > _tmpfile2;
+   sed 's/href=\"\.\/#/href=\"\#/g' _tmpfile2 > ../$i.htm;
    rm _tmpfile _tmpfile2;
 }
 cd ..

@@ -1,4 +1,4 @@
-\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/teofr/)\]
+\[[Home](../index)\]\[[Page en Fran&ccedil;ais](../teofr)\]
 
 ###Overview of Teo
 
@@ -6,16 +6,16 @@ The original version of the Teo emulator was developed in 1994 for MSDos with th
 
 Besides, <a href="http://www.bannister.org/software/teo.htm">a native MacOS and now MacOSX porting</a> is managed by R. Bannister since the very first versions of Teo.
 
-* <a href="#options">Launching options</a>
-* <a href="#control_panel">Control panel</a>
-* <a href="#keyboard">Keyboard</a>
-* <a href="#joysticks">Joysticks</a>
-* <a href="#mouse">Light-pen and mouse</a>
-* <a href="#disks">Disks</a>
-* <a href="#tapes">Tapes</a>
-* <a href="#cartridges">Cartridges</a>
-* <a href="#printers">Printers</a>
-* <a href="#misc">Miscellaneous commands</a>
+* <a href="./#options">Launching options</a>
+* <a href="./#control_panel">Control panel</a>
+* <a href="./#keyboard">Keyboard</a>
+* <a href="./#joysticks">Joysticks</a>
+* <a href="./#mouse">Light-pen and mouse</a>
+* <a href="./#disks">Disks</a>
+* <a href="./#tapes">Tapes</a>
+* <a href="./#cartridges">Cartridges</a>
+* <a href="./#printers">Printers</a>
+* <a href="./#misc">Miscellaneous commands</a>
 
 #####Launching options<a name="options"></a>
 
@@ -67,7 +67,7 @@ Each of these two devices will be selected with the menu 'R&eacute;glage et Pr&e
 
 #####Disks<a name="disks"></a>
 
-The files with the *`sap`* extension are virtual disks used by Teo. You can import or export your disks with software [Sap2](/sap2en/).
+The files with the *`sap`* extension are virtual disks used by Teo. You can import or export your disks with software [Sap2](../sap2en).
 
 You can also (depending on the system) access directly to a floppy if you have a drive. But it is strongly recommended not to do write access to floppy disk which have price to you. Format instead 3"5 floppy disk with Teo itself and copy your original disk onto it. You can then use that copy safely.
 
@@ -75,7 +75,7 @@ It is possible to use disk 3"5 high density double side (1.44MB - 2HD) by obstru
 
 #####Tapes<a name="tapes"></a>
 
-Files with the extension *`k7`* are the virtual tapes used by Teo. You can import or export your tapes with the software [Wav2k7](/wav2k7en/).
+Files with the extension *`k7`* are the virtual tapes used by Teo. You can import or export your tapes with the software [Wav2k7](../wav2k7en).
 
 #####Cartridges<a name="cartridges"></a>
 
@@ -89,16 +89,12 @@ Teo contains an emulation module of the Thomson dot-matrix printers PR90-055, PR
 
 #####Miscellaneous commands<a name="misc"></a>
 
-\[F11\] saves a screen-shot (Windows)<br>
+\[F11\] saves a screen-shot (Windows)
 \[F12\] displays the debugger (Linux and MS-DOS)
 
 #####More ?
 
-* [Additional informations about Teo MS-DOS/DPMI](/teodosen/)
-* [Additional informations about Teo Windows/DirectX](/teowinen/)
-* [Additional informations about Teo Linux/X11](/teolnxen/)
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+* [Additional informations about Teo MS-DOS/DPMI](../teodosen)
+* [Additional informations about Teo Windows/DirectX](../teowinen)
+* [Additional informations about Teo Linux/X11](../teolnxen)
 

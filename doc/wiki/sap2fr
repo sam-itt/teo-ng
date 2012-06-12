@@ -1,13 +1,12 @@
-\[[Page d'accueil](/indexfr/)\]\[[Page in English](/sap2en/)\]
+\[[Page d'accueil](../indexfr)\]\[[Page in English](../sap2en)\]
 
 ###SAP2
 
-* <a href="#introduction">Introduction</a>
-* <a href="#how_works">Fonctionnement du programme</a>
-* <a href="#interactive_mode">Commandes du programme en mode interactif</a>
-* <a href="#batch_mode">Commandes du programme en mode batch</a>
-* <a href="#kown_problems">Probl&egrave;mes connus</a>
-* <a href="#conclusion">Conclusion</a>
+* <a href="./#introduction">Introduction</a>
+* <a href="./#how_works">Fonctionnement du programme</a>
+* <a href="./#interactive_mode">Commandes du programme en mode interactif</a>
+* <a href="./#batch_mode">Commandes du programme en mode batch</a>
+* <a href="./#kown_problems">Probl&egrave;mes connus</a>
 
 #####Introduction<a name="introduction"></a>
 
@@ -67,7 +66,7 @@ ex: sap2 --version
 Affiche la liste des fichiers de l'archive SAP.<br>
 <span style="padding-left:30px">*`archive`* : nom complet de l'archive SAP<br>
 ex: sap2 --list foo.sap<br>
-<a href="#dir_sap">voir la commande 4 du mode interactif</a>
+<a href="./#dir_sap">voir la commande 4 du mode interactif</a>
 
 **-p, --pack archive lecteur \[densit&eacute;\]**<br>
 Archive une disquette Thomson vers une archive SAP. Si le lecteur est un 5"25, la densit&eacute; peut &ecirc;tre sp&eacute;cifi&eacute;e.<br>
@@ -75,7 +74,7 @@ Archive une disquette Thomson vers une archive SAP. Si le lecteur est un 5"25, l
 <span style="padding-left:30px">*`lecteur`* : de 0 &agrave; 3</span><br>
 <span style="padding-left:30px">*`densit&eacute;`* : 1 = simple densit&eacute;, 2 = double densit&eacute; (par d&eacute;faut)</span><br>
 ex: sap2 --pack foo.sap 0<br>
-<a href="#archive_sap">voir la commande 3 du mode interactif</a>
+<a href="./#archive_sap">voir la commande 3 du mode interactif</a>
 
 **-u, --unpack archive lecteur \[densit&eacute;\]**<br>
 D&eacute;sarchive une archive SAP vers une disquette Thomson. Si le lecteur est un 5"25, la densit&eacute; peut &ecirc;tre sp&eacute;cifi&eacute;e.<br>
@@ -83,7 +82,7 @@ D&eacute;sarchive une archive SAP vers une disquette Thomson. Si le lecteur est 
 <span style="padding-left:30px">*`lecteur`* : de 0 &agrave; 3</span><br>
 <span style="padding-left:30px">*`densit&eacute;`* : 1 = simple densit&eacute;, 2 = double densit&eacute; (par d&eacute;faut)</span><br>
 ex: sap2 --unpack foo.sap 0<br>
-<a href="#unarchive_sap">voir la commande 6 du mode interactif</a>
+<a href="./#unarchive_sap">voir la commande 6 du mode interactif</a>
 
 **-c, --create archive.sap \[nb pistes\] \[densit&eacute;\]**<br>
 Cr&eacute;e une archive SAP vide.<br>
@@ -92,14 +91,14 @@ Cr&eacute;e une archive SAP vide.<br>
 <span style="padding-left:30px">*`densit&eacute;`* : 1 = simple densit&eacute;, 2 = double densit&eacute; (par d&eacute;faut)</span><br>
 ex: sap2 --create foo.sap<br>
 ex: sap2 --create foo.sap 40<br>
-<a href="#create_sap">voir la commande 2 du mode interactif</a>
+<a href="./#create_sap">voir la commande 2 du mode interactif</a>
 
 **-d, --dir lecteur \[densit&eacute;\]**<br>
 Affiche le contenu de la disquette Thomson. Si le lecteur est un 5"25, la densit&eacute; peut &ecirc;tre sp&eacute;cifi&eacute;e.<br>
 <span style="padding-left:30px">*`lecteur`* : de 0 &agrave; 3</span><br>
 <span style="padding-left:30px">*`densit&eacute;`* : 1 = simple densit&eacute;, 2 = double densit&eacute; (par d&eacute;faut)</span><br>
 ex: sap2 --dir 0<br>
-<a href="#dir_floppy">voir la commande 1 du mode interactif</a>
+<a href="./#dir_floppy">voir la commande 1 du mode interactif</a>
 
 **-f, --format lecteur \[densit&eacute;\] \[entrelacement\]**<br>
 Formate une disquette 3"5 ou 5"25 au format Thomson.<br>
@@ -108,7 +107,7 @@ Formate une disquette 3"5 ou 5"25 au format Thomson.<br>
 <span style="padding-left:30px">*`entrelacement`* : de 1 &agrave; 15 (7 par d&eacute;faut)</span><br>
 ex: sap2 --format 0 6<br>
 ex: sap2 --format 1<br>
-<a href="#format_floppy">voir la commande 5 du mode interactif</a>
+<a href="./#format_floppy">voir la commande 5 du mode interactif</a>
 
 #####Probl&egrave;mes connus<a name="kown_problems"></a>
 
@@ -116,8 +115,4 @@ ex: sap2 --format 1<br>
 * la version MS-DOS de SAP ne permet pas d'archiver &agrave; partir ou de d&eacute;sarchiver vers la face 1 d'une disquette Thomson; il s'agit d'une impossibilit&eacute; d&eacute;finitive due &agrave; une incompatibilit&eacute; entre le DOS TO et le BIOS PC. A contrario, la version Linux n'est pas concern&eacute;e par ce probl&egrave;me.
 * la version MS-DOS de SAP ne permet pas d'acc&eacute;der aux disquettes 5"25 simple densit&eacute;; il s'agit l&agrave; encore d'une impossibilit&eacute; d&eacute;finitive due aux limitations du BIOS PC. A contrario, la version Linux n'est pas concern&eacute;e par ce probl&egrave;me.
 * il se peut que MS-DOS ne puisse plus reformater au format standard une disquette format&eacute;e au format Thomson.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

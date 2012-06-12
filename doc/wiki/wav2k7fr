@@ -1,4 +1,4 @@
-\[[Page d'accueil](/indexfr/)\]\[[Page in English](/wav2k7en/)\]
+\[[Page d'accueil](../indexfr)\]\[[Page in English](../wav2k7en)\]
 
 ###Wav2K7
 
@@ -10,8 +10,4 @@ Il suffit de proc&eacute;der ainsi:
 * lancer l'utilitaire de conversion par: wav2k7 toto.wav
 * le fichier toto.k7 est produit, qui doit marcher si votre cassette est encore en bon &eacute;tat.
 * en cas de probl&egrave;me, s'assurer que le volume d'enregistrement du .wav est suffisant; utiliser &eacute;ventuellement un &eacute;qualiseur, en poussant la bande 4,5kHz - 6,3kHz.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

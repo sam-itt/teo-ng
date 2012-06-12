@@ -1,4 +1,4 @@
-\[[Page d'accueil](/indexfr/)\]\[[Page in English](/teoen/)\]
+\[[Page d'accueil](../indexfr)\]\[[Page in English](../teoen)\]
 
 ###Survol de Teo
 
@@ -6,15 +6,15 @@ La version originale de l'&eacute;mulateur Teo a &eacute;t&eacute; d&eacute;velo
 
 Par ailleurs, <a href="http://www.bannister.org/software/teo.htm">un portage natif MacOS puis MacOSX</a> est g&eacute;r&eacute; par R. Bannister depuis les toutes premi&egrave;res versions de TEO.
 
-* <a href="#options">Les options de lancement</a>
-* <a href="#control_panel">Le panneau de contr&ocirc;le</a>
-* <a href="#keyboard">Le clavier</a>
-* <a href="#joysticks">Les joysticks</a>
-* <a href="#disks">Les disquettes</a>
-* <a href="#tapes">Les cassettes</a>
-* <a href="#cartridges">Les cartouches</a>
-* <a href="#printers">Les imprimantes</a>
-* <a href="#misc">Commandes diverses</a>
+* <a href="./#options">Les options de lancement</a>
+* <a href="./#control_panel">Le panneau de contr&ocirc;le</a>
+* <a href="./#keyboard">Le clavier</a>
+* <a href="./#joysticks">Les joysticks</a>
+* <a href="./#disks">Les disquettes</a>
+* <a href="./#tapes">Les cassettes</a>
+* <a href="./#cartridges">Les cartouches</a>
+* <a href="./#printers">Les imprimantes</a>
+* <a href="./#misc">Commandes diverses</a>
 
 #####Les options de lancement<a name="options"></a>
 
@@ -65,7 +65,7 @@ Chacun de ces deux p&eacute;riph&eacute;riques sera s&eacute;lectionn&eacute; da
 
 #####Les disquettes<a name="disks"></a>
 
-Les fichiers avec l'extension *`sap`* sont les disquettes virtuelles utilis&eacute;es par Teo. Vous pouvez importer ou exporter vos disquettes avec le logiciel [Sap2](/sap2fr/).
+Les fichiers avec l'extension *`sap`* sont les disquettes virtuelles utilis&eacute;es par Teo. Vous pouvez importer ou exporter vos disquettes avec le logiciel [Sap2](../sap2fr).
 
 Vous pouvez aussi (selon le syst&egrave;me) acc&eacute;der directement &agrave; un floppy si vous avez un lecteur. Mais il est fortement recommand&eacute; de ne pas faire d'acc&egrave;s en &eacute;criture sur des disquettes auxquelles vous tenez. Formatez plut&ocirc;t des disquettes 3"5 avec **Teo** lui-m&ecirc;me et copiez-y vos originaux. Vous pourrez alors utiliser ces copies en toute s&eacute;curit&eacute;.
 
@@ -73,7 +73,7 @@ Il est possible de se servir de disquettes 3"5 Haute Densit&eacute; Double Face 
 
 #####Les cassettes<a name="tapes"></a>
 
-Les fichiers avec l'extension *`k7`* sont les cassettes virtuelles utilis&eacute;es par Teo. Vous pouvez importer ou exporter vos cassettes avec le logiciel [Wav2k7](/wav2k7fr/).
+Les fichiers avec l'extension *`k7`* sont les cassettes virtuelles utilis&eacute;es par Teo. Vous pouvez importer ou exporter vos cassettes avec le logiciel [Wav2k7](../wav2k7fr).
 
 #####Les cartouches<a name="cartridges"></a>
 
@@ -92,11 +92,7 @@ Teo contient un module d'&eacute;mulation des imprimantes matricielles Thomson P
 
 #####Plus d'informations ?
 
-* [Informations suppl&eacute;mentaires sur Teo MS-DOS/DPMI](/teodosfr/)
-* [Informations suppl&eacute;mentaires sur Teo Windows/DirectX](/teowinfr/)
-* [Informations suppl&eacute;mentaires sur Teo Linux/X11](/teolnxfr/)
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+* [Informations suppl&eacute;mentaires sur Teo MS-DOS/DPMI](../teodosfr)
+* [Informations suppl&eacute;mentaires sur Teo Windows/DirectX](../teowinfr)
+* [Informations suppl&eacute;mentaires sur Teo Linux/X11](../teolnxfr)
 

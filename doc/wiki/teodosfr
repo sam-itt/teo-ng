@@ -1,13 +1,13 @@
-\[[Page d'accueil](/indexfr/)\]\[[Page in English](/teodosen/)\]
+\[[Page d'accueil](../indexfr)\]\[[Page in English](../teodosen)\]
 
 ###Informations suppl&eacute;mentaires sur Teo MS-DOS/DPMI
 
-* <a href="#installation">Installation</a>
-* <a href="#launching">Lancement</a>
-* <a href="#gfx_modes">Modes graphiques</a>
-* <a href="#joysticks">Joysticks</a>
-* <a href="#sound">Sound generator</a>
-* <a href="#images">Images</a>
+* <a href="./#installation">Installation</a>
+* <a href="./#launching">Lancement</a>
+* <a href="./#gfx_modes">Modes graphiques</a>
+* <a href="./#joysticks">Joysticks</a>
+* <a href="./#sound">G&eacute;n&eacute;rateur sonore</a>
+* <a href="./#images">Images</a>
 
 #####Installation<a name="installation"></a>
 
@@ -50,8 +50,4 @@ Toutes les cartes SoundBlaster et compatibles sont support&eacute;es, plus quelq
 #####Images<a name="images"></a>
 
 Il est possible de charger et de sauvegarder des "images" de l'&eacute;tat de l'&eacute;mulateur &agrave; un instant donn&eacute;; ces images sont en quelque sorte des instantan&eacute;s d'un TO8 en fonctionnement et permettent de faire revenir l'&eacute;mulateur &agrave; un &eacute;tat pr&eacute;alablement sauvegard&eacute;.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

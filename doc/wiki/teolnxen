@@ -1,13 +1,13 @@
-\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/teolnxfr/)\]
+\[[Home](../index)\]\[[Page en Fran&ccedil;ais](../teolnxfr)\]
 
 ###Additional informations about Teo Linux/X11
 
-* <a href="#installation">Installation</a>
-* <a href="#launching">Launching</a>
-* <a href="#keyboard">Keyboard</a>
-* <a href="#sound">Sound generator</a>
-* <a href="#direct">Activating disk direct access on new Linux systems</a>
-* <a href="#deinstallation">Deinstallation</a>
+* <a href="./#installation">Installation</a>
+* <a href="./#launching">Launching</a>
+* <a href="./#keyboard">Keyboard</a>
+* <a href="./#sound">Sound generator</a>
+* <a href="./#direct">Activating disk direct access on new Linux systems</a>
+* <a href="./#deinstallation">Deinstallation</a>
 
 #####Installation<a name="installation"></a>
 
@@ -76,8 +76,4 @@ If the direct access has still difficulties to work (like I/O errors, for exampl
 If installation has been made with *`tar.gz`* packages, just remove the root folder *`teo`*.
 
 If installation has been made with *`.deb`* packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal. The menu shortcut *`Applications/Games/Teo emulator`* might not disappear. Then execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm ~/.local/share/applications/teo.desktop</span>. And to clean everything, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.teo</span>, which is the folder that contains *`teo.cfg`* and *`autosave.img*` files.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

@@ -1,13 +1,13 @@
-\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/teodosfr/)\]
+\[[Home](../index)\]\[[Page en Fran&ccedil;ais](../teodosfr)\]
 
 ###Additional informations about Teo  MS-DOS/DPMI
 
-* <a href="#installation">Installation</a>
-* <a href="#launching">Launching</a>
-* <a href="#gfx_modes">Graphic modes</a>
-* <a href="#joysticks">Joysticks</a>
-* <a href="#sound">Sound generator</a>
-* <a href="#images">Images</a>
+* <a href="./#installation">Installation</a>
+* <a href="./#launching">Launching</a>
+* <a href="./#gfx_modes">Graphic modes</a>
+* <a href="./#joysticks">Joysticks</a>
+* <a href="./#sound">Sound generator</a>
+* <a href="./#images">Images</a>
 
 #####Installation<a name="installation"></a>
 
@@ -52,8 +52,4 @@ Any compatible SoundBlaster card is supported, as well as few other cards (Enson
 #####Images<a name="images"></a>
 
 It is possible to save and load "images" that contain the state of the emulator at a time. These images are somehow snapshots of a running TO8 and allow the emulator to restart in a previously saved state. However, as the image only contains the internal state of the emulator, external peripheral devices (floppy drives, etc) are not handled.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

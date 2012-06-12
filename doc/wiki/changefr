@@ -1,4 +1,4 @@
-\[[Page d'accueil](/indexfr/)\]\[[Page in English](/changeen/)\]
+\[[Page d'accueil](../indexfr)\]\[[Page in English](../changeen)\]
 
 ###Changements
 
@@ -142,7 +142,7 @@
 #####Version 1.0.96 (Mai 2000)
 
 - correction d'un bug dans Bob Morane SF
-- sous MSDOS: copie d'&eacute;cran command&eacute;e par [F11] (sur une id&eacute;e de Louis Progeas)
+- sous MSDOS: copie d'&eacute;cran command&eacute;e par \[F11\] (sur une id&eacute;e de Louis Progeas)
 
 #####Version 1.0.94 (Mai 2000)
 
@@ -164,8 +164,4 @@
 #####Version 1.0beta
 
 - premi&egrave;re version
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

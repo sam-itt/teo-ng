@@ -1,25 +1,25 @@
-\[[Page d'accueil](/indexfr/)\]\[[Page in English](/libsapen/)\]
+\[[Page d'accueil](../indexfr)\]\[[Page in English](../libsapen)\]
 
 ###LibSAP
 
 LibSAP est une librarie de manipulation des archives SAP &eacute;crite en ANSI C. Elle fournit &agrave; la fois des routines de manipulation bas\-niveau des archives SAP consid&eacute;r&eacute;es comme format physique (images de disquettes) et des routines de manipulation haut\-niveau des archives SAP consid&eacute;r&eacute;es comme format logique (compatible avec le DOS BASIC Thomson).
 
-* <a href="#open\_archive">Ouverture d'une archive SAP</a>
-* <a href="#create\_archive">Cr&eacute;ation d'une archive SAP</a>
-* <a href="#close\_archive">Fermeture d'une archive SAP</a>
-* <a href="#fill\_archive">Remplissage une archive SAP</a>
-* <a href="#read\_sector">Lecture d'un secteur SAP</a>
-* <a href="#read\_sectors">Lecture d'une s&eacute;rie de secteurs SAP</a>
-* <a href="#write\_sector">Ecriture d'un secteur SAP</a>
-* <a href="#write\_sectors">Ecriture d'une s&eacute;rie de secteurs SAP</a>
-* <a href="#format\_archive">Formatage d'une archive SAP</a>
-* <a href="#list\_archive">Récup&eacute;ration d'un répertoire SAP</a>
-* <a href="#add\_file">Ajout d'un fichier &agrave; l'archive SAP</a>
-* <a href="#delete\_file">Effacement de fichier(s) de l'archive SAP</a>
-* <a href="#extract\_file">Extraction de fichier(s) de l'archive SAP</a>
-* <a href="#read\_informations">Lecture des informations de fichier</a>
+* <a href="./#open_archive">Ouverture d'une archive SAP</a>
+* <a href="./#create_archive">Cr&eacute;ation d'une archive SAP</a>
+* <a href="./#close_archive">Fermeture d'une archive SAP</a>
+* <a href="./#fill_archive">Remplissage une archive SAP</a>
+* <a href="./#read_sector">Lecture d'un secteur SAP</a>
+* <a href="./#read_sectors">Lecture d'une s&eacute;rie de secteurs SAP</a>
+* <a href="./#write_sector">Ecriture d'un secteur SAP</a>
+* <a href="./#write_sectors">Ecriture d'une s&eacute;rie de secteurs SAP</a>
+* <a href="./#format_archive">Formatage d'une archive SAP</a>
+* <a href="./#list_archive">Récup&eacute;ration d'un répertoire SAP</a>
+* <a href="./#add_file">Ajout d'un fichier &agrave; l'archive SAP</a>
+* <a href="./#delete_file">Effacement de fichier(s) de l'archive SAP</a>
+* <a href="./#extract_file">Extraction de fichier(s) de l'archive SAP</a>
+* <a href="./#read_informations">Lecture des informations de fichier</a>
 
-#####Ouverture d'une archive SAP<a name="open\_archive"></a>
+#####Ouverture d'une archive SAP<a name="open_archive"></a>
 
 <b><i>sapID sap\_OpenArchive(const char filename\[\], int \*format);</i></b><br>
 <span style="padding-left:30px">*filename : nom de l'archive SAP*</span><br>
@@ -30,7 +30,7 @@ SAP\_ETOOMANY : trop d'archives SAP sont ouvertes simultan&eacute;ment.<br>
 SAP\_ENOENT : l'archive SAP sp&eacute;cifi&eacute;e n'existe pas.<br>
 SAP\_EBADF : le fichier sp&eacute;cifi&eacute; n'est pas une archive SAP.
 
-#####Cr&eacute;ation d'une archive SAP<a name="create\_archive"></a>
+#####Cr&eacute;ation d'une archive SAP<a name="create_archive"></a>
 
 <b><i>sapID sap\_CreateArchive(const char filename\[\], int format);</i></b><br>
 <span style="padding-left:30px">*filename : nom de l'archive SAP*</span><br>
@@ -40,7 +40,7 @@ Retourne l'identificateur de l'archive SAP. En cas d'erreur, SAP\_ERROR est reto
 SAP\_ETOOMANY : trop d'archives SAP sont ouvertes simultan&eacute;ment.<br>
 SAP\_EPERM : impossible de cr&eacute;er le fichier sur le support d'enregistrement.
 
-#####Fermeture d'une archive SAP<a name="close\_archive"></a>
+#####Fermeture d'une archive SAP<a name="close_archive"></a>
 
 <b><i>int sap\_CloseArchive(sapID id);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span>
@@ -48,7 +48,7 @@ SAP\_EPERM : impossible de cr&eacute;er le fichier sur le support d'enregistreme
 Retourne SAP\_OK. En cas d'erreur, SAP\_ERROR est retourn&eacute; et 'sap\_errno' contient l'un des codes d'erreur suivants:<br>
 SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.
 
-#####Remplissage une archive SAP<a name="fill\_archive"></a>
+#####Remplissage une archive SAP<a name="fill_archive"></a>
 
 <b><i>int sap\_FillArchive(sapID id, sapsector\_t \*sapsector);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -59,7 +59,7 @@ Retourne SAP\_OK. En cas d'erreur, SAP\_ERROR est retourn&eacute; et 'sap\_errno
 SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_ENOSPC : l'archive SAP est pleine.
 
-#####Lecture d'un secteur SAP<a name="read\_sector"></a>
+#####Lecture d'un secteur SAP<a name="read_sector"></a>
 
 <b><i>int sap\_ReadSector(sapID id, int track, int sect, sapsector\_t \*sapsector);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -79,7 +79,7 @@ SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()
 
-#####Lecture d'une s&eacute;rie de secteurs SAP<a name="read\_sectors"></a>
+#####Lecture d'une s&eacute;rie de secteurs SAP<a name="read_sectors"></a>
 
 <b><i>int sap\_ReadSectorEx(sapID id, int track, int sect, int nsects, unsigned char data\[\]);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -93,7 +93,7 @@ SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()
 
-#####&Eacute;criture d'un secteur SAP<a name="write\_sector"></a>
+#####&Eacute;criture d'un secteur SAP<a name="write_sector"></a>
 
 <b><i>int sap\_WriteSector(sapID id, int track, int sect, sapsector\_t \*sapsector);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -107,7 +107,7 @@ SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()
 
-#####&Eacute;criture d'une s&eacute;rie de secteurs SAP<a name="write\_sectors"></a>
+#####&Eacute;criture d'une s&eacute;rie de secteurs SAP<a name="write_sectors"></a>
 
 <b><i>int sap\_WriteSectorEx(sapID id, int track, int sect, int nsects, const unsigned char data\[\]);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -121,7 +121,7 @@ SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()
 
-#####Formatage d'une archive SAP<a name="format\_archive"></a>
+#####Formatage d'une archive SAP<a name="format_archive"></a>
 
 <b><i>int sap\_FormatArchive(sapID id, int capacity);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -131,7 +131,7 @@ Retourne SAP\_OK. En cas d'erreur, SAP\_ERROR est retourn&eacute; et 'sap\_errno
 SAP\_EINVAL : le num&eacute;ro d'identification (sapID) ou le format est invalide.<br>
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()
 
-#####R&eacute;cup&eacute;ration d'un r&eacute;pertoire SAP<a name="list\_archive"></a>
+#####R&eacute;cup&eacute;ration d'un r&eacute;pertoire SAP<a name="list_archive"></a>
 
 <b><i>int sap\_ListArchive(sapID id, char buffer\[\], int buffer\_size);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -143,7 +143,7 @@ SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()
 
-#####Ajout d'un fichier &agrave; l'archive SAP<a name="add\_file"></a>
+#####Ajout d'un fichier &agrave; l'archive SAP<a name="add_file"></a>
 
 <b><i>int sap\_AddFile(sapID id, const char filename\[\]);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -158,7 +158,7 @@ SAP\_ENFILE : le fichier est vide.
 SAP\_ENOSPC : le r&eacute;pertoire de l'archive SAP est plein.<br>
 SAP\_EFBIG : le fichier est trop gros pour l'espace libre de l'archive SAP.
 
-#####Effacement de fichier(s) de l'archive SAP<a name="delete\_file"></a>
+#####Effacement de fichier(s) de l'archive SAP<a name="delete_file"></a>
 
 <b><i>int sap\_DeleteFile(sapID id, const char pattern\[\]);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -170,7 +170,7 @@ SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()<br>
 SAP\_ENOENT : le fichier n'existe pas dans l'archive SAP (erreur non valide lorsque pattern contient au moins une wilcard).
 
-#####Extraction de fichier(s) de l'archive SAP<a name="extract\_file"></a>
+#####Extraction de fichier(s) de l'archive SAP<a name="extract_file"></a>
 
 <b><i>int sap\_ExtractFile(sapID id, const char pattern\[\]);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -183,7 +183,7 @@ SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchiv
 SAP\_ENOENT : le fichier n'existe pas dans l'archive SAP (erreur non valide lorsque 'pattern' contient au moins une wilcard).
 SAP\_EPERM : impossible d'&eacute;crire le ou les fichiers sur le support.
 
-#####Lecture des informations de fichier<a name="read\_informations"></a>
+#####Lecture des informations de fichier<a name="read_informations"></a>
 
 <b><i>int sap\_GetFileInfo(sapID id, const char filename\[\], sapfileinfo\_t \*info);</i></b><br>
 <span style="padding-left:30px">*id : identificateur de l'archive SAP*</span><br>
@@ -195,8 +195,4 @@ SAP\_EINVAL : le num&eacute;ro d'identification (sapID) est invalide.<br>
 SAP\_EEMPTY : l'archive SAP est vide.
 SAP\_EBUSY : l'archive SAP est en train d'&ecirc;tre remplie par sap\_FillArchive()<br>
 SAP\_ENOENT : le fichier n'existe pas dans l'archive SAP.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

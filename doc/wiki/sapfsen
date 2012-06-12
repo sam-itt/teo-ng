@@ -1,10 +1,10 @@
-\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/sapfsfr/)\]
+\[[Home](../index)\]\[[Page en Fran&ccedil;ais](../sapfsfr)\]
 
 ###SAPfs
 
-* <a href="#introduction">Introduction</a><br>
-* <a href="#how_works">How the program works</a><br>
-* <a href="#program_commands">Program commands</a><br>
+* <a href="./#introduction">Introduction</a><br>
+* <a href="./#how_works">How the program works</a><br>
+* <a href="./#program_commands">Program commands</a><br>
 
 #####Introduction<a name="introduction"></a>
 
@@ -117,8 +117,4 @@ Copy the contents of a sector.<br>
 <span style="padding-left:30px">*`track`* : track number</span><br>
 <span style="padding-left:30px">*`sector`* : sector number (from 1 to 16)</span><br>
 ex:  sapfs --move foo.sap 12 4 bar.sap 26 16
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 

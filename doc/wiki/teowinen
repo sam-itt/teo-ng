@@ -1,16 +1,16 @@
-\[[Home](/index/)\]\[[Page en Fran&ccedil;ais](/teowinfr/)\]
+\[[Home](../index)\]\[[Page en Fran&ccedil;ais](../teowinfr)\]
 
 ###Additional informations about Teo Windows/DirectX
 
-* <a href="#installation">Installation</a>
-* <a href="#launching">Launching</a>
-* <a href="#joysticks">Joysticks</a>
-* <a href="#sound">Sound generator</a>
-* <a href="#images">Images</a>
+* <a href="./#installation">Installation</a>
+* <a href="./#launching">Launching</a>
+* <a href="./#joysticks">Joysticks</a>
+* <a href="./#sound">Sound generator</a>
+* <a href="./#images">Images</a>
 
 #####Installation<a name="installation"></a>
 
-To run the emulator, you need at least a 80486 with 8MB of RAM running under Windows 95, Windows 98, Windows %e, Windows NT4, Windows 2000 or Windows XP. The redistributable component DirectX version 3.0 or higher must be installed. A DirectSound compatible card is required to emulate sound.
+To run the emulator, you need at least a 80486 with 8MB of RAM running under Windows 95, Windows 98, Windows Millenium edition, Windows NT4, Windows 2000 or Windows XP. The redistributable component DirectX version 3.0 or higher must be installed. A DirectSound compatible card is required to emulate sound.
 
 You can install the emulator in two ways:
 
@@ -43,8 +43,4 @@ Teo uses the default sound peripheral (via DirectSound).
 #####Images<a name="images"></a>
 
 It is possible to save and load "images" that contain the state of the emulator at a time. These images are somehow snapshots of a running TO8 and allow the emulator to restart in a previously saved state. However, as the image only contains the internal state of the emulator, external peripheral devices (floppy drives, etc) are not handled.
-
------
-
-<center><p>Teo developers &copy; 1997-2012 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
 
