@@ -148,13 +148,14 @@ static gboolean RunTO8 (gpointer user_data)
         usleep(300);
     frame++;
 
+    printf ("%d ", teo.command); fflush (stdout);
     switch (teo.command)
     {
         case BREAKPOINT    :
         case DEBUGGER      : DebugPanel()   ; break;
         case CONTROL_PANEL : ControlPanel() ; break;
-        case RESET         : to8_Reset()    ; break;
-        case COLD_RESET    : to8_ColdReset(); break;
+        case RESET         : to8_Reset()    ; teo.command = NONE; break;
+        case COLD_RESET    : to8_ColdReset(); teo.command = NONE; break;
         case QUIT          : mc6809_FlushExec();
                              gtk_main_quit ();
                              return FALSE;

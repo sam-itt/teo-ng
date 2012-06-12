@@ -61,8 +61,8 @@
 #include "intern/gui.h"
 
 enum {
-   TEO_RESPONSE_QUIT = 1,
-   TEO_RESPONSE_END
+   TEO_RESPONSE_END = 1,
+   TEO_RESPONSE_QUIT
 };
 
 /* fenêtre de l'interface utilisateur */
@@ -72,12 +72,11 @@ static GtkWidget *notebook;
 
 
 /* do_exit:
- *  Quitte le panneau de contrôle avec une commande.
+ *  Sort avec une commande.
  */
-static void do_exit(GtkWidget *button, int command)
+static void do_exit (GtkWidget *button, gpointer user_data)
 {
-    if (command != NONE)
-        teo.command=command;
+    teo.command = (volatile enum _command)user_data;
     gtk_dialog_response (GTK_DIALOG(wControl), TEO_RESPONSE_END);
 
     (void) button;
@@ -99,26 +98,6 @@ void display_box (const gchar *message, GtkWidget *parent_window, int dialog_fla
     gtk_widget_destroy ((GtkWidget *)dialog);
 }
 
-
-/* --------------------------- Partie publique ----------------------------- */
-
-#if 0
-/* ask_box:
- *  Affiche une boîte de confirmation
- */
-int ask_box (const gchar *message, GtkWidget *parent_window)
-{
-    GtkResponseType response;
-    GtkWidget *dialog = gtk_message_dialog_new ((GtkWindow*)parent_window,
-                                 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                 GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
-                                 "%s", message);
-    gtk_window_set_title ((GtkWindow *)dialog, "Teo - confirmation");
-    response = gtk_dialog_run (GTK_DIALOG(wControl);
-    gtk_widget_destroy (dialog);
-    return (response == GTK_RESPONSE_YES) ? TRUE : FALSE;
-}
-#endif
 
 
 /* error_box:
@@ -241,9 +220,9 @@ void ControlPanel(void)
     response = gtk_dialog_run (GTK_DIALOG(wControl));
     switch (response)
     {
-        case TEO_RESPONSE_END   : break;
-        case GTK_RESPONSE_ACCEPT: teo.command=NONE; break;
-        case TEO_RESPONSE_QUIT  : teo.command=QUIT; break;
+        case TEO_RESPONSE_END    : break;
+        case GTK_RESPONSE_ACCEPT : teo.command=NONE; break;
+        case TEO_RESPONSE_QUIT   : teo.command=QUIT; break;
    }
    notebook_selected = gtk_notebook_get_current_page (GTK_NOTEBOOK(notebook));
    gtk_widget_destroy (wControl);
