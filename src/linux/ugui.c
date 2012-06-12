@@ -67,6 +67,8 @@ enum {
 
 /* fenêtre de l'interface utilisateur */
 GtkWidget *wControl;
+static gint notebook_selected = 0;
+static GtkWidget *notebook;
 
 
 /* do_exit:
@@ -156,7 +158,6 @@ void FreeGUI (void)
  */
 void InitGUI(void)
 {
-    GtkWidget *notebook;
     GtkWidget *content_area;
     GtkWidget *widget;
     GtkWidget *hidden_button;
@@ -165,7 +166,7 @@ void InitGUI(void)
 
     /* fenêtre d'affichage */
     wControl = gtk_dialog_new_with_buttons (
-                    is_fr?"Teo - Panneau de contrÃ´le":"Teo - Control panel",
+                    is_fr?"Panneau de contrÃ´le":"Control panel",
                     GTK_WINDOW(wMain),
                     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
@@ -208,11 +209,12 @@ void InitGUI(void)
     init_cass_notebook_frame (notebook);
     init_memo_notebook_frame (notebook);
     init_printer_notebook_frame (notebook);
-    gtk_notebook_set_current_page( GTK_NOTEBOOK(notebook), 0);
     
     /* affiche tout l'intérieur */
     gtk_widget_show_all(content_area);
     gtk_widget_hide (hidden_button);
+
+    gtk_notebook_set_current_page( GTK_NOTEBOOK(notebook), notebook_selected);
 
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())
@@ -243,6 +245,7 @@ void ControlPanel(void)
         case GTK_RESPONSE_ACCEPT: teo.command=NONE; break;
         case TEO_RESPONSE_QUIT  : teo.command=QUIT; break;
    }
+   notebook_selected = gtk_notebook_get_current_page (GTK_NOTEBOOK(notebook));
    gtk_widget_destroy (wControl);
 }
 
