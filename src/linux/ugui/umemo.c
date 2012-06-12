@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
- *               François Mouret 07/08/2011 24/03/2012
+ *               François Mouret 07/08/2011 24/03/2012 12/06/2012
  *
  *  Gestion des cartouches.
  */
@@ -57,6 +57,7 @@
 
 static GtkWidget *combo;
 static int entry_max=0;
+static int entry_selected=0;
 static gulong combo_changed_id;
 static GList *name_list = NULL;
 static GList *path_list = NULL;
@@ -75,16 +76,28 @@ static void add_combo_entry (const char *name, const char *path)
     gint name_index = g_list_position (name_list, name_node);
 
     if ((path_node != NULL) && (name_index == path_index))
-        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), name_index);
+    {
+        entry_selected = name_index;
+        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
+    }
     else
     {
         name_list = g_list_append (name_list, (gpointer)(g_strdup_printf (name,"%s")));
         path_list = g_list_append (path_list, (gpointer)(g_strdup_printf (path,"%s")));
         gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, name);
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
+        entry_selected = entry_max;
         entry_max++;
     }
     teo.command = COLD_RESET;
+}
+
+
+
+static void populate_combo_entry (gpointer data, gpointer user_data)
+{
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (char *)data);
+    (void)user_data;
 }
 
 
@@ -128,7 +141,8 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
 {
     char *filename;
     
-    filename = (char *) g_list_nth_data (path_list, (guint)gtk_combo_box_get_active (combo_box));
+    entry_selected = gtk_combo_box_get_active (combo_box);
+    filename = (char *) g_list_nth_data (path_list, entry_selected);
 
     if (*filename == '\0')
         to8_EjectMemo7();
@@ -219,6 +233,7 @@ void free_memo_list (void)
     g_list_free (path_list);
     name_list=NULL;
     path_list=NULL;
+    entry_max = 0;
 }
 
 
@@ -238,7 +253,7 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Memo7":"Cartridge"));
+    widget=gtk_label_new((is_fr?"Cartouche":"Cartridge"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
@@ -261,9 +276,17 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     /* combobox pour le rappel de cartouche */
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
-    init_combo();
-    if (strlen (gui->memo.label) != 0)
-        add_combo_entry (gui->memo.label, gui->memo.file);
+    if (name_list == NULL)
+    {
+        init_combo();
+        if (strlen (gui->memo.label) != 0)
+            add_combo_entry (gui->memo.label, gui->memo.file);
+    }
+    else
+    {
+        g_list_foreach (name_list, (GFunc)populate_combo_entry, (gpointer)NULL);
+        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
+    }
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton d'ouverture de fichier */

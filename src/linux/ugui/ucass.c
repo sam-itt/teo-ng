@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
- *               François Mouret 07/08/2011 24/03/2012
+ *               François Mouret 07/08/2011 24/03/2012 12/06/2012
  *
  *  Gestion des cassettes.
  */
@@ -60,11 +60,11 @@
 
 static GtkWidget *combo;
 static int entry_max=0;
+static int entry_selected=0;
 static gulong combo_changed_id;
 static GtkWidget *check_prot;
 static GtkWidget *spinner_cass;
 static GList *path_list = NULL;
-
 
 
 /* set_counter_cass:
@@ -184,15 +184,28 @@ static void add_combo_entry (const char *path)
     GList *path_node = g_list_find_custom (path_list, (gconstpointer)path, (GCompareFunc)g_strcmp0);
 
     if (path_node != NULL)
-        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), g_list_position (path_list, path_node));
+    {
+        entry_selected = g_list_position (path_list, path_node);
+        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
+    }   
     else
     {
         path_list = g_list_append (path_list, (gpointer)(g_strdup_printf (path,"%s")));
         gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (gchar *)basename((char *)path));
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
+        entry_selected = entry_max;
         entry_max++;
     }
 }
+
+
+
+static void populate_combo_entry (gpointer data, gpointer user_data)
+{
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (gchar *)basename((char *)data));
+    (void)user_data;
+}
+
 
 
 
@@ -233,14 +246,16 @@ static void reset_combo (GtkButton *button, gpointer data)
  */
 static void combo_changed (GtkComboBox *combo_box, gpointer data)
 {
-    if (gtk_combo_box_get_active (combo_box) == 0)
+    entry_selected = gtk_combo_box_get_active (combo_box);
+    if (entry_selected == 0)
     {
         eject_cass ();
     }
     else
     {
-        (void)load_cass((char *)g_list_nth_data (path_list, (guint)gtk_combo_box_get_active (combo_box)));
+        (void)load_cass((char *)g_list_nth_data (path_list, (guint)entry_selected));
     }
+    
     (void)data;
 }
 
@@ -317,6 +332,7 @@ void free_cass_list (void)
     g_list_foreach (path_list, (GFunc)g_free, (gpointer) NULL);
     g_list_free (path_list);
     path_list=NULL;
+    entry_max = 0;
 }
 
 
@@ -347,7 +363,7 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Cass.":"Tape"));
+    widget=gtk_label_new((is_fr?"Cassette":"Tape"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
@@ -370,9 +386,17 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     /* combobox pour le rappel de cassette */
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
-    init_combo ();
-    if (strlen(gui->cass.file) != 0)
-        add_combo_entry (gui->cass.file);
+    if (path_list == NULL)
+    {
+        init_combo ();
+        if (strlen(gui->cass.file) != 0)
+             add_combo_entry (gui->cass.file);
+    }
+    else
+    {
+        g_list_foreach (path_list, (GFunc)populate_combo_entry, (gpointer)NULL);
+        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
+    }
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton protection de la cassette */
