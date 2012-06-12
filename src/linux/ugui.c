@@ -60,29 +60,13 @@
 #include "commands.xpm"
 #include "intern/gui.h"
 
-#define TEO_RESPONSE_ABOUT  1
-#define TEO_RESPONSE_QUIT   2
+enum {
+   TEO_RESPONSE_QUIT = 1,
+   TEO_RESPONSE_END
+};
 
 /* fenêtre de l'interface utilisateur */
 GtkWidget *wControl;
-
-
-#if 0
-/* retrace_callback:
- *  Callback de retraçage de la fenêtre principale.
- */
-static GdkFilterReturn retrace_callback(GdkXEvent *xevent, GdkEvent *event, gpointer data)
-{
-    XEvent *ev = (XEvent *) xevent;
-
-    if (ev->type == Expose)
-        RetraceScreen(ev->xexpose.x, ev->xexpose.y, ev->xexpose.width, ev->xexpose.height);
-
-    return GDK_FILTER_REMOVE;
-    (void) event;
-    (void) data;
-}
-#endif
 
 
 /* do_exit:
@@ -92,7 +76,7 @@ static void do_exit(GtkWidget *button, int command)
 {
     if (command != NONE)
         teo.command=command;
-    gtk_dialog_response (GTK_DIALOG(wControl), GTK_RESPONSE_CANCEL);
+    gtk_dialog_response (GTK_DIALOG(wControl), TEO_RESPONSE_END);
 
     (void) button;
 }
@@ -187,7 +171,7 @@ void InitGUI(void)
                     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                     GTK_STOCK_QUIT, TEO_RESPONSE_QUIT,
                     NULL);
-    hidden_button = gtk_dialog_add_button (GTK_DIALOG(wControl),"", GTK_RESPONSE_CANCEL);
+    hidden_button = gtk_dialog_add_button (GTK_DIALOG(wControl),"", TEO_RESPONSE_END);
     gtk_window_set_resizable (GTK_WINDOW(wControl), FALSE);
     content_area = gtk_dialog_get_content_area (GTK_DIALOG(wControl));
 
@@ -230,10 +214,6 @@ void InitGUI(void)
     gtk_widget_show_all(content_area);
     gtk_widget_hide (hidden_button);
 
-    /* mise en place d'un hook pour assurer le retraçage de la fenêtre
-       principale de l'émulateur */
-//    gdk_window_add_filter(gwindow_win, retrace_callback, NULL);
-
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())
         gtk_main_iteration ();
@@ -256,11 +236,11 @@ void ControlPanel(void)
     /* initialisation de la commande */
     teo.command = NONE;
 
-    /* boucle de gestion des évènements */
+    /* gestion des évènements */
     response = gtk_dialog_run (GTK_DIALOG(wControl));
     switch (response)
     {
-        case GTK_RESPONSE_CANCEL: break;
+        case TEO_RESPONSE_END   : break;
         case GTK_RESPONSE_ACCEPT: teo.command=NONE; break;
         case TEO_RESPONSE_QUIT  : teo.command=QUIT; break;
    }
