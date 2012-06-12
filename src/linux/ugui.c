@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 07/2011
- *               François Mouret 08/2011 26/03/2012
+ *               François Mouret 08/2011 26/03/2012 12/06/2012
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 2.x .
  */
@@ -218,7 +218,6 @@ void InitGUI(void)
     while (gtk_events_pending ())
         gtk_main_iteration ();
 }
-
 
 
 /* ControlPanel:
