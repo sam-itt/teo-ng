@@ -377,8 +377,9 @@ static void InitDEBUG(void)
 /* DebugPanel:
  *  Affiche le panneau du debug.
  */
-void DebugPanel(void)
+int DebugPanel(void)
 {
+    int debug = FALSE;
     gint response;
 
     /* Initialise la fenêtre */
@@ -394,10 +395,11 @@ void DebugPanel(void)
     response = gtk_dialog_run (GTK_DIALOG(wDebug));
     switch (response)
     {
-        case GTK_RESPONSE_ACCEPT: teo.command=BREAKPOINT; break;
-        case GTK_RESPONSE_CANCEL: teo.command=NONE      ; break;
+        case GTK_RESPONSE_ACCEPT: debug = TRUE     ; break;
+        case GTK_RESPONSE_CANCEL: teo.command=NONE ; break;
    }
    gtk_widget_destroy (wDebug);
+   return debug;
 }
 
 
