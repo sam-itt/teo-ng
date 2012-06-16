@@ -78,7 +78,7 @@ struct EmuTO teo={
     NONE
 };
 
-int idle_data = 0;
+char *idle_data = NULL;
 
 int frame;           /* compteur de frame vidéo */
 static volatile int tick;   /* compteur du timer */
@@ -129,14 +129,13 @@ void to8_StopTimer (void) {
 
 
 
-
 /* RunTO8:
  *  Boucle principale de l'émulateur.
  */
 static gboolean RunTO8 (gpointer user_data)
 {
     static int debug = 0;
-    int test;
+//    int test;
 
     if (to8_DoFrame(debug) == 0)
         teo.command=BREAKPOINT;
@@ -144,7 +143,7 @@ static gboolean RunTO8 (gpointer user_data)
     switch (teo.command)
     {
         case BREAKPOINT    :
-        case DEBUGGER      : debug = DebugPanel() ; break;
+        case DEBUGGER      : debug = DebugPanel(); teo.command = NONE; break;
         case CONTROL_PANEL : ControlPanel() ; debug = 0; break;
         case RESET         : to8_Reset()    ; teo.command = NONE; debug = 0; break;
         case COLD_RESET    : to8_ColdReset(); teo.command = NONE; debug = 0; break;
@@ -159,21 +158,16 @@ static gboolean RunTO8 (gpointer user_data)
     {
         if (teo.sound_enabled)
         {
-            test = PlaySoundBuffer();
-//            printf ("%d", test); fflush (stdout);
-            if (test == 0)
-//            if (PlaySoundBuffer()==0)
-                pause();  /* on attend le SIGALARM du timer */
+            /* on attend le SIGALARM du timer
+               si le son n'est pas sollicité */
+            if (PlaySoundBuffer()==0)
+                pause();
         }
         else
-//           if (frame==tick)
-               pause();  /* on attend le SIGALARM du timer */
+            pause();  /* on attend le SIGALARM du timer */
     }
-    else
-        usleep(300);
 
     frame++;
-
     return TRUE;
     (void)user_data;
 }
@@ -564,11 +558,11 @@ int main(int argc, char *argv[])
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    g_idle_add (RunTO8, &idle_data);
     teo.command=NONE;
     frame = 0;
     tick = 0;
     to8_StartTimer ();
+    g_timeout_add (4, RunTO8, idle_data);
     gtk_main ();
 
     /* Mise au repos de l'interface d'accès direct */
