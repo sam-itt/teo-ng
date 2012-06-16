@@ -135,32 +135,45 @@ void to8_StopTimer (void) {
  */
 static gboolean RunTO8 (gpointer user_data)
 {
-    to8_DoFrame();
-//  if (to8_DoFrame_debug()==0) teo.command=BREAKPOINT;
-    RefreshScreen();
-    if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
-    {
-        if (teo.sound_enabled)
-           if (PlaySoundBuffer()==0)
-               pause();
-    }
-    else
-        usleep(300);
-    frame++;
+    static int debug = 0;
+    int test;
 
-    printf ("%d ", teo.command); fflush (stdout);
+    if (to8_DoFrame(debug) == 0)
+        teo.command=BREAKPOINT;
+
     switch (teo.command)
     {
         case BREAKPOINT    :
-        case DEBUGGER      : DebugPanel()   ; break;
-        case CONTROL_PANEL : ControlPanel() ; break;
-        case RESET         : to8_Reset()    ; teo.command = NONE; break;
-        case COLD_RESET    : to8_ColdReset(); teo.command = NONE; break;
+        case DEBUGGER      : debug = DebugPanel() ; break;
+        case CONTROL_PANEL : ControlPanel() ; debug = 0; break;
+        case RESET         : to8_Reset()    ; teo.command = NONE; debug = 0; break;
+        case COLD_RESET    : to8_ColdReset(); teo.command = NONE; debug = 0; break;
         case QUIT          : mc6809_FlushExec();
                              gtk_main_quit ();
                              return FALSE;
         default            : break;
     }
+
+    RefreshScreen();
+    if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
+    {
+        if (teo.sound_enabled)
+        {
+            test = PlaySoundBuffer();
+//            printf ("%d", test); fflush (stdout);
+            if (test == 0)
+//            if (PlaySoundBuffer()==0)
+                pause();  /* on attend le SIGALARM du timer */
+        }
+        else
+//           if (frame==tick)
+               pause();  /* on attend le SIGALARM du timer */
+    }
+    else
+        usleep(300);
+
+    frame++;
+
     return TRUE;
     (void)user_data;
 }
@@ -553,6 +566,9 @@ int main(int argc, char *argv[])
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
     g_idle_add (RunTO8, &idle_data);
     teo.command=NONE;
+    frame = 0;
+    tick = 0;
+    to8_StartTimer ();
     gtk_main ();
 
     /* Mise au repos de l'interface d'accès direct */
