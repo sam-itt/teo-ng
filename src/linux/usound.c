@@ -162,7 +162,6 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_period_size())");
     period_size = size;
     threshold = (buffer_size / period_size) * period_size;
-    printf ("threshold = %d, period_size = %d\n", threshold, (int)period_size);
 
     /* Actualise des paramètres hardware */
     if ((err = snd_pcm_hw_params (handle, params)) < 0)
@@ -376,7 +375,6 @@ int PlaySoundBuffer(void)
             break;
     }
     last_index=0;
-//    printf ("[%d %d]", play_mode, size); fflush (stdout);
 
     return play_mode;
 }
