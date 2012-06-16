@@ -3,7 +3,7 @@
 ========================================================================
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
-- passage à GTK+3.0 pour Linux
+- linux : passage à GTK+3.0
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
@@ -14,6 +14,11 @@
           fenêtre de contrôle en GtkDialog
 - linux/umain.c
           boucle principale de l'émulation mise en idle
+          teo.command traité en switch dans la boucle principale
+- media/memo7.c
+          correction de bug : nom de cartouche désormais effacé au reset
+          de combo (sinon il réapparait au lancement suivant en
+          -loadstate)
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
