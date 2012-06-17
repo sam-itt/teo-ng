@@ -13,7 +13,7 @@
 - linux/ugui.c
           fenêtre de contrôle en GtkDialog
 - linux/umain.c
-          boucle principale de l'émulation mise en idle
+          boucle principale de l'émulation mise en idle avec timeout
           teo.command traité en switch dans la boucle principale
 - media/memo7.c
           correction de bug : nom de cartouche désormais effacé au reset
