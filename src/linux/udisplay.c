@@ -229,15 +229,6 @@ void InitDisplay(void)
 }
 
 
-/* DestroyWindow:
- *  Elimine la fenêtre principale
- */
-void DestroyWindow (void)
-{
-    XDestroyWindow(display, window_win);
-}
-
-
 
 static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -287,8 +278,6 @@ static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer us
 
 static gboolean key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-//    printf ("[releas %x]", (int)event->key.hardware_keycode); fflush (stdout);
-
     int teo_key = x11_to_dos[event->key.hardware_keycode];
 
     if (teo_key == 0)
@@ -378,6 +367,36 @@ static gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer use
 
 
 
+static gboolean draw_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+#if 0
+    cairo_rectangle_int_t rectangle;
+
+    printf ("%d\n", cairo_region_num_rectangles (event->expose.region));
+    cairo_region_get_rectangle (event->expose.region, 0, &rectangle);
+                                                         
+    printf ("%d %d %d %d\n", rectangle.x, rectangle.y, rectangle.width, rectangle.height); fflush (stdout);
+#endif
+
+/*
+    printf ("%d %d %d %d\n", event->expose.area.x, event->expose.area.y,
+                             event->expose.area.width, event->expose.area.height); fflush (stdout);
+*/
+    printf ("%d %d\n",gtk_widget_get_allocated_width (widget),
+                        gtk_widget_get_allocated_height (widget)); fflush (stdout);
+
+    RetraceScreen(0, 0, gtk_widget_get_allocated_width (widget),
+                        gtk_widget_get_allocated_height (widget));
+//    RefreshScreen();
+
+    return FALSE;
+    (void)event;
+    (void)widget;
+    (void)user_data;
+}
+
+
+
 /* InitWindow:
  *  Met en place les propriétés et crée la fenêtre principale,
  *  calcule la position et crée la fenêtre de l'écran.
@@ -400,13 +419,6 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     /* Crée la fenêtre GTK */
     wMain=gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_widget_add_events (GTK_WIDGET(wMain), event_mask);
-    g_signal_connect (G_OBJECT (wMain), "delete-event", G_CALLBACK (delete_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "key-press-event", G_CALLBACK (key_press_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "key-release-event", G_CALLBACK (key_release_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "button-press-event", G_CALLBACK (button_press_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "button-release-event", G_CALLBACK (button_release_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
     hints.min_width = TO8_SCREEN_W*2;
     hints.max_width = TO8_SCREEN_W*2;
     hints.min_height = TO8_SCREEN_H*2;
@@ -424,8 +436,22 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     gtk_window_set_title (GTK_WINDOW(wMain), window_name);
 
     gtk_widget_set_can_focus (wMain, TRUE);
+    gtk_widget_grab_focus (wMain);
 
     gtk_widget_show_all (wMain);
+
+    /* Attend que la GtkWindow ait tout enregistré */
+    while (gtk_events_pending ())
+        gtk_main_iteration ();
+
+    g_signal_connect (G_OBJECT (wMain), "delete-event", G_CALLBACK (delete_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "key-press-event", G_CALLBACK (key_press_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "key-release-event", G_CALLBACK (key_release_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "button-press-event", G_CALLBACK (button_press_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "button-release-event", G_CALLBACK (button_release_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "visibility-notify-event", G_CALLBACK (draw_event), NULL);
 
     to8_SetPointer=SetPointer;
 
@@ -433,11 +459,9 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     window_win = GDK_WINDOW_XID (gwindow_win);
     screen_win = window_win;
 
-    /* Attend que la GtkWindow ait tout enregistré */
-    while (gtk_events_pending ())
-        gtk_main_iteration ();
-
     printf("ok\n");
+    g_return_if_fail (0);
+    
     (void)argc;
     (void)argv;
     (void)x;

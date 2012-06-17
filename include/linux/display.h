@@ -66,7 +66,6 @@ extern int mit_shm_enabled;
 extern void InitDisplay(void);
 extern void InitWindow(int, char *[], int, int, int);
 extern void HandleEvents(void);
-extern void DestroyWindow (void);
 
 #endif
 

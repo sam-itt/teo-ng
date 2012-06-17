@@ -574,9 +574,6 @@ int main(int argc, char *argv[])
     /* Libère la mémoire utilisée par la GUI */
     FreeGUI ();
 
-    /* Détruit la fenêtre principale */
-    DestroyWindow();
-
     /* Referme le périphérique audio*/
     CloseSound();
 
