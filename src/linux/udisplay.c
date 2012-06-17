@@ -73,7 +73,7 @@ Window screen_win;
 Window window_win;
 Atom atomDeleteScreen;
 
-static int need_modifiers_reset = FALSE;
+static int need_modifiers_reset = TRUE;
 
 // static int installed_pointer;
 // static Cursor null_cursor;
