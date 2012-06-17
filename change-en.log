@@ -8,7 +8,7 @@
 - emulation of non standard postcodes for TFR/EXG
 - emulation of non standard postcodes for indexed
 - emulation of postcode 0x00 for PSHS/PSHU/PULS/PULU
-- add and internationalization of saptools and k7tools
+- adding and internationalization of saptools and k7tools
 - no more confirmation message when quitting
 - on Linux:
   - transition to GTK+ 2.12
