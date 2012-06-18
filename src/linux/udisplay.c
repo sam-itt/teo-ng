@@ -367,30 +367,16 @@ static gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer use
 
 
 
-static gboolean draw_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+extern void RedrawScreen(int x, int y, int w, int h);
+
+static gboolean draw_event (GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
-#if 0
-    cairo_rectangle_int_t rectangle;
+    GdkRectangle rect;
 
-    printf ("%d\n", cairo_region_num_rectangles (event->expose.region));
-    cairo_region_get_rectangle (event->expose.region, 0, &rectangle);
-                                                         
-    printf ("%d %d %d %d\n", rectangle.x, rectangle.y, rectangle.width, rectangle.height); fflush (stdout);
-#endif
-
-/*
-    printf ("%d %d %d %d\n", event->expose.area.x, event->expose.area.y,
-                             event->expose.area.width, event->expose.area.height); fflush (stdout);
-*/
-    printf ("%d %d\n",gtk_widget_get_allocated_width (widget),
-                        gtk_widget_get_allocated_height (widget)); fflush (stdout);
-
-    RetraceScreen(0, 0, gtk_widget_get_allocated_width (widget),
-                        gtk_widget_get_allocated_height (widget));
-//    RefreshScreen();
+    if (gdk_cairo_get_clip_rectangle (cr, &rect) == TRUE)
+        RetraceScreen(rect.x, rect.y, rect.width, rect.height);
 
     return FALSE;
-    (void)event;
     (void)widget;
     (void)user_data;
 }
@@ -406,7 +392,7 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     char *window_name=(is_fr?"Teo - l'émulateur TO8 (menu:ESC)":"Teo - thomson TO8 emulator (menu:ESC)");
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
-    GdkColor color;
+    GdkRGBA rgba;
     
     int event_mask = GDK_FOCUS_CHANGE_MASK
                    | GDK_KEY_RELEASE_MASK
@@ -429,14 +415,18 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
     gtk_window_set_icon (GTK_WINDOW(wMain),pixbuf);
     gtk_window_set_default_icon(pixbuf);
-    color.red = 0;
-    color.green = 0;
-    color.blue = 0;
-    gtk_widget_modify_bg (wMain, GTK_STATE_NORMAL, &color);
+    rgba.red = 0;
+    rgba.green = 0;
+    rgba.blue = 0;
+    rgba.alpha = 1;
+    gtk_widget_override_background_color (wMain, GTK_STATE_NORMAL, &rgba);
     gtk_window_set_title (GTK_WINDOW(wMain), window_name);
 
     gtk_widget_set_can_focus (wMain, TRUE);
     gtk_widget_grab_focus (wMain);
+
+    /* only one buffer for drawing */
+    gtk_widget_set_double_buffered (wMain, FALSE);
 
     gtk_widget_show_all (wMain);
 
@@ -451,7 +441,7 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     g_signal_connect (G_OBJECT (wMain), "button-release-event", G_CALLBACK (button_release_event), NULL);
     g_signal_connect (G_OBJECT (wMain), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
     g_signal_connect (G_OBJECT (wMain), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "visibility-notify-event", G_CALLBACK (draw_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "draw", G_CALLBACK (draw_event), NULL);
 
     to8_SetPointer=SetPointer;
 
@@ -460,7 +450,6 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     screen_win = window_win;
 
     printf("ok\n");
-    g_return_if_fail (0);
     
     (void)argc;
     (void)argv;

@@ -206,8 +206,6 @@ extern int   to8_DirectSetDrive(int drive);
 extern int   to8_VirtualSetDrive(int drive);
 extern int   to8_LoadImage(const char filename[]);
 extern int   to8_SaveImage(const char finename[]);
-extern void  to8_StartTimer (void);
-extern void  to8_StopTimer (void);
 extern int   to8_LoadState (char *filename);
 extern void  to8_SaveState (char *filename);
 #endif

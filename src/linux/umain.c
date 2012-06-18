@@ -80,9 +80,6 @@ struct EmuTO teo={
 
 char *idle_data = NULL;
 
-int frame;           /* compteur de frame vidéo */
-static volatile int tick;   /* compteur du timer */
-
 #define OP_TABLE_SIZE  10
 static XrmOptionDescRec op_table[OP_TABLE_SIZE]={
 {"-help"                , ".help"     , XrmoptionIsArg , NULL  },
@@ -97,36 +94,7 @@ static XrmOptionDescRec op_table[OP_TABLE_SIZE]={
 {"-xrm"                 , NULL        , XrmoptionResArg, NULL  }
 };
 
-
-static void Timer(int sigtype)
-{
-    tick++;
-    signal(SIGALRM,Timer);
-    (void) sigtype;
-}
-
-
-/* to8_StartTimer:
- *  Démarrage du timer.
- */
-void to8_StartTimer (void) {
-    const struct itimerval timer_value={ {0,1e6/TO8_FRAME_FREQ},
-                                {0,1e6/TO8_FRAME_FREQ} };
-    signal(SIGALRM,Timer);
-    setitimer(ITIMER_REAL, &timer_value, NULL);
-}
-
-
-
-/* to8_StopTimer:
- *  Arrêt du timer.
- */
-void to8_StopTimer (void) {
-    const struct itimerval timer_value={ {0,0}, {0,0} };
-
-    setitimer(ITIMER_REAL, &timer_value, NULL);
-}
-
+GTimer *timer;
 
 
 /* RunTO8:
@@ -135,8 +103,18 @@ void to8_StopTimer (void) {
 static gboolean RunTO8 (gpointer user_data)
 {
     static int debug = 0;
-//    int test;
+    static gulong microseconds;
+    static int wait_flag = 0;
+    
+    if ((gui->setting.exact_speed)
+     && (teo.sound_enabled)
+     && (wait_flag == 0)
+     && (g_timer_elapsed (timer, &microseconds) < 0.02))
+        return TRUE;
 
+    g_timer_stop (timer);
+    g_timer_start (timer);
+        
     if (to8_DoFrame(debug) == 0)
         teo.command=BREAKPOINT;
 
@@ -154,23 +132,14 @@ static gboolean RunTO8 (gpointer user_data)
     }
 
     RefreshScreen();
-    if (gui->setting.exact_speed)  /* synchronisation sur fréquence réelle */
-    {
-        if (teo.sound_enabled)
-        {
-            /* on attend le SIGALARM du timer
-               si le son n'est pas sollicité */
-            if (PlaySoundBuffer()==0)
-                pause();
-        }
-        else
-            pause();  /* on attend le SIGALARM du timer */
-    }
+    if ((gui->setting.exact_speed)
+     && (teo.sound_enabled))
+        wait_flag = PlaySoundBuffer();
 
-    frame++;
     return TRUE;
     (void)user_data;
 }
+
 
 
 /* GetUserInput:
@@ -559,10 +528,8 @@ int main(int argc, char *argv[])
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
     teo.command=NONE;
-    frame = 0;
-    tick = 0;
-    to8_StartTimer ();
-    g_timeout_add (4, RunTO8, idle_data);
+    timer = g_timer_new ();
+    g_timeout_add (2, RunTO8, idle_data);
     gtk_main ();
 
     /* Mise au repos de l'interface d'accès direct */

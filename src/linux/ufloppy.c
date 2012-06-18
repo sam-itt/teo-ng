@@ -172,17 +172,11 @@ static int ExecDiskCommand(int drive, struct floppy_raw_cmd *fd_cmd)
 {
     int i,ret=-1;
 
-    /* Conflict with timer : timer is stopped */
-    to8_StopTimer();
-    
     for (i=0;(i<RESET_RETRY)&&(ret!=0);i++)
     {
         if (i) ResetFloppyDrive(drive);
         ret = ExecCommand (drive,fd_cmd);
     }
-    
-    /* Conflict with timer : timer is restarted */
-    to8_StartTimer();
     
     return ret;
 }
