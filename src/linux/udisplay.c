@@ -376,7 +376,7 @@ static gboolean draw_event (GtkWidget *widget, cairo_t *cr, gpointer user_data)
     if (gdk_cairo_get_clip_rectangle (cr, &rect) == TRUE)
         RetraceScreen(rect.x, rect.y, rect.width, rect.height);
 
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)user_data;
 }
