@@ -265,8 +265,6 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
     init_combo();
-    printf ("'%s'\n", gui->memo.label);
-
     if (strlen (gui->memo.label) != 0)
         add_combo_entry (gui->memo.label, gui->memo.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);

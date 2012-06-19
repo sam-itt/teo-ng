@@ -375,9 +375,7 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     /* combobox pour le rappel de cassette */
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
-
     init_combo ();
-    printf ("'%s'\n", gui->cass.file);
     if (strlen(gui->cass.file) != 0)
         add_combo_entry (gui->cass.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
