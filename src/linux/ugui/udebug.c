@@ -78,7 +78,7 @@ static char string_buffer[MAX(MC6809_DASM_BUFFER_SIZE,128)]="";
 static char text_buffer[MAX(MC6809_DASM_BUFFER_SIZE*DASM_NLINES,2048)]="";
 
 /* fenêtre de l'interface utilisateur */
-static GtkWidget * wDebug;
+static GtkWidget * wDebug = NULL;
 // static GtkEntryBuffer * address_buf;
 static GtkWidget *entry_address;
 static GtkWidget *label_middle_left,*label_middle_right;
@@ -383,22 +383,21 @@ int DebugPanel(void)
     gint response;
 
     /* Initialise la fenêtre */
-    InitDEBUG();
+    if (wDebug == NULL)
+        InitDEBUG();
 
     /* actualise le texte à afficher */
     update_debug_text ();
     
-    /* affichage de la fenêtre principale et de ses éléments */
-    gtk_widget_show(wDebug);
-
     /* gestion des évènements */
     response = gtk_dialog_run (GTK_DIALOG(wDebug));
+    debug = FALSE;
     switch (response)
     {
         case GTK_RESPONSE_ACCEPT: debug = TRUE     ; break;
         case GTK_RESPONSE_CANCEL: teo.command=NONE ; break;
    }
-   gtk_widget_destroy (wDebug);
+   gtk_widget_hide (wDebug);
    return debug;
 }
 
