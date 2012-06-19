@@ -525,6 +525,9 @@ int main(int argc, char *argv[])
     /* arguments supplementaires  */
     xargs_start(&xargs);
 
+    /* Initialise l'interface graphique */
+    InitGUI ();
+
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'émulation...\n":"Launching emulation...\n"));
     teo.command=NONE;

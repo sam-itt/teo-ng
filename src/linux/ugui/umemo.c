@@ -57,7 +57,6 @@
 
 static GtkWidget *combo;
 static int entry_max=0;
-static int entry_selected=0;
 static gulong combo_changed_id;
 static GList *name_list = NULL;
 static GList *path_list = NULL;
@@ -77,8 +76,7 @@ static void add_combo_entry (const char *name, const char *path)
 
     if ((path_node != NULL) && (name_index == path_index))
     {
-        entry_selected = name_index;
-        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
+        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), name_index);
     }
     else
     {
@@ -86,18 +84,9 @@ static void add_combo_entry (const char *name, const char *path)
         path_list = g_list_append (path_list, (gpointer)(g_strdup_printf (path,"%s")));
         gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, name);
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
-        entry_selected = entry_max;
         entry_max++;
     }
     teo.command = COLD_RESET;
-}
-
-
-
-static void populate_combo_entry (gpointer data, gpointer user_data)
-{
-    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (char *)data);
-    (void)user_data;
 }
 
 
@@ -141,8 +130,7 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
 {
     char *filename;
     
-    entry_selected = gtk_combo_box_get_active (combo_box);
-    filename = (char *) g_list_nth_data (path_list, entry_selected);
+    filename = (char *) g_list_nth_data (path_list, gtk_combo_box_get_active (combo_box));
 
     if (*filename == '\0')
         to8_EjectMemo7();
@@ -276,17 +264,11 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     /* combobox pour le rappel de cartouche */
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
-    if (name_list == NULL)
-    {
-        init_combo();
-        if (strlen (gui->memo.label) != 0)
-            add_combo_entry (gui->memo.label, gui->memo.file);
-    }
-    else
-    {
-        g_list_foreach (name_list, (GFunc)populate_combo_entry, (gpointer)NULL);
-        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
-    }
+    init_combo();
+    printf ("'%s'\n", gui->memo.label);
+
+    if (strlen (gui->memo.label) != 0)
+        add_combo_entry (gui->memo.label, gui->memo.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton d'ouverture de fichier */

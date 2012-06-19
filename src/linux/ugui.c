@@ -66,8 +66,7 @@ enum {
 };
 
 /* fenêtre de l'interface utilisateur */
-GtkWidget *wControl;
-static gint notebook_selected = 0;
+GtkWidget *wControl = NULL;
 static GtkWidget *notebook;
 
 
@@ -193,11 +192,9 @@ void InitGUI(void)
     gtk_widget_show_all(content_area);
     gtk_widget_hide (hidden_button);
 
-    gtk_notebook_set_current_page( GTK_NOTEBOOK(notebook), notebook_selected);
-
     /* Attend la fin du travail de GTK */
-    while (gtk_events_pending ())
-        gtk_main_iteration ();
+//    while (gtk_events_pending ())
+//        gtk_main_iteration ();
 }
 
 
@@ -207,8 +204,6 @@ void InitGUI(void)
 void ControlPanel(void)
 {
     gint response;
-
-    InitGUI ();
 
     /* Mise à jour du compteur de cassettes */
     update_counter_cass ();
@@ -224,7 +219,6 @@ void ControlPanel(void)
         case GTK_RESPONSE_ACCEPT : teo.command=NONE; break;
         case TEO_RESPONSE_QUIT   : teo.command=QUIT; break;
    }
-   notebook_selected = gtk_notebook_get_current_page (GTK_NOTEBOOK(notebook));
-   gtk_widget_destroy (wControl);
+   gtk_widget_hide (wControl);
 }
 

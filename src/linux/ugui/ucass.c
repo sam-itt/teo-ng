@@ -60,7 +60,6 @@
 
 static GtkWidget *combo;
 static int entry_max=0;
-static int entry_selected=0;
 static gulong combo_changed_id;
 static GtkWidget *check_prot;
 static GtkWidget *spinner_cass;
@@ -185,27 +184,16 @@ static void add_combo_entry (const char *path)
 
     if (path_node != NULL)
     {
-        entry_selected = g_list_position (path_list, path_node);
-        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
+        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), g_list_position (path_list, path_node));
     }   
     else
     {
         path_list = g_list_append (path_list, (gpointer)(g_strdup_printf (path,"%s")));
         gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (gchar *)basename((char *)path));
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
-        entry_selected = entry_max;
         entry_max++;
     }
 }
-
-
-
-static void populate_combo_entry (gpointer data, gpointer user_data)
-{
-    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, (gchar *)basename((char *)data));
-    (void)user_data;
-}
-
 
 
 
@@ -246,7 +234,8 @@ static void reset_combo (GtkButton *button, gpointer data)
  */
 static void combo_changed (GtkComboBox *combo_box, gpointer data)
 {
-    entry_selected = gtk_combo_box_get_active (combo_box);
+    int entry_selected = gtk_combo_box_get_active (combo_box);
+
     if (entry_selected == 0)
     {
         eject_cass ();
@@ -386,17 +375,11 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     /* combobox pour le rappel de cassette */
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
-    if (path_list == NULL)
-    {
-        init_combo ();
-        if (strlen(gui->cass.file) != 0)
-             add_combo_entry (gui->cass.file);
-    }
-    else
-    {
-        g_list_foreach (path_list, (GFunc)populate_combo_entry, (gpointer)NULL);
-        gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_selected);
-    }
+
+    init_combo ();
+    printf ("'%s'\n", gui->cass.file);
+    if (strlen(gui->cass.file) != 0)
+        add_combo_entry (gui->cass.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton protection de la cassette */

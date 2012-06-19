@@ -52,6 +52,7 @@
 extern GtkWidget *wControl;
 
 /* main panel */
+extern void InitGUI(void);
 extern void FreeGUI (void);
 extern void ControlPanel(void);
 
