@@ -33,7 +33,7 @@ teo/src
 teo/sap
 teo/k7tools/
 teo/include
-teo/fonts
+teo/system
 teo/doc
 teo/tests
 teo/obj/linux/*.dep
@@ -52,7 +52,8 @@ teo/*.sh
 teo/makefile*
 teo/*.diff
 teo/*.cfg
-teo/*.rom
+teo/system/rom/*.rom
+teo/system/printer/*.txt
 teo/*.dll"
 
 # list of common files for executable packages
@@ -60,11 +61,12 @@ common_exec="
 teo/disks
 teo/memo7
 teo/k7
-teo/fonts
+teo/system
 teo/teo.cfg
 teo/doc/*.htm
 teo/doc/*.css
-teo/*.rom"
+teo/system/rom/*.rom
+teo/system/printer/*.txt"
 
 # copy to temporary folder
 cd ..
@@ -118,7 +120,6 @@ mv -f ~/teo ~/teo-$version-i586
 # Create missing folders
 mkdir ~/teo-$version-i586/usr/games/
 mkdir ~/teo-$version-i586/usr/share/teo
-mkdir ~/teo-$version-i586/usr/share/teo/fonts
 mkdir ~/teo-$version-i586/usr/share/doc
 mkdir ~/teo-$version-i586/usr/share/doc/teo
 mkdir ~/teo-$version-i586/usr/share/doc/teo/html
@@ -128,10 +129,9 @@ cp teo/sap2     ~/teo-$version-i586/usr/games/
 cp teo/sapfs    ~/teo-$version-i586/usr/games/
 cp teo/wav2k7   ~/teo-$version-i586/usr/games/
 cp teo/teo.cfg  ~/teo-$version-i586/usr/share/teo
-cp teo/fonts/*.txt ~/teo-$version-i586/usr/share/teo/fonts
+cp -r teo/system   ~/teo-$version-i586/usr/share/teo/system
 cp teo/*-fr.txt ~/teo-$version-i586/usr/share/teo
 cp teo/*-en.txt ~/teo-$version-i586/usr/share/teo
-cp teo/*.rom    ~/teo-$version-i586/usr/share/teo
 cp teo/doc/doc.css ~/teo-$version-i586/usr/share/doc/teo/html
 cp teo/doc/*.htm ~/teo-$version-i586/usr/share/doc/teo/html
 # Update permissions
