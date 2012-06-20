@@ -309,6 +309,7 @@ static void do_read_sector(sapID id, sapsector_t *sapsector)
 
    sapsector->data[SAP_SECTSIZE(format)] = buffer[4+i];
    sapsector->data[SAP_SECTSIZE(format)+1] = buffer[4+i+1];
+   (void)unused_size_t;
 }
 
 
@@ -907,6 +908,7 @@ static void do_add_file(sapID id, FILE *file, int file_size, unsigned char entry
 
    /* write the new entry into the directory */
    memcpy(trk20_data + TO_DIR_START(ID_FORMAT(id)) + n*TO_DIRENTRY_LENGTH, entry_data, TO_DIRENTRY_LENGTH);
+   (void)unused_size_t;
 }
 
 
@@ -1165,6 +1167,7 @@ sapID sap_OpenArchive(const char filename[], int *format)
    ID_NTRACKS(id) = SAP_NTRACKS(*format);
 
    return id;
+   (void)unused_size_t;
 }
 
 
@@ -1693,6 +1696,7 @@ int sap_AddFile(sapID id, const char filename[])
    fclose(file);
 
    return file_size;
+   (void)fat_data;
 }
 
 
@@ -1798,5 +1802,6 @@ int sap_GetFileInfo(sapID id, const char filename[], sapfileinfo_t *info)
       strncat(info->comment, (const char *)(entry_data+TO_COMMENT), TO_COMMENT_LENGTH);
 
    return SAP_OK;
+   (void)fat_data;
 }
 

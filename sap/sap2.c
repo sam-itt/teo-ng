@@ -110,6 +110,7 @@ static void term_puts(const char buffer[], int lines, int page_height)
    }
 
    puts(end_cur);
+   (void)unused_char;
 }
 
 
@@ -522,6 +523,7 @@ static void get_drive(int *drive, int *density)
    }
    else
       *density = 2;
+   (void)unused_char;
 }
 
 
@@ -844,6 +846,8 @@ static void interactive_main(void)
       getchar();
       printf("\n");
    }
+   (void)unused_char;
+   (void)unused_int;
 }
 
 
