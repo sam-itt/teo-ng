@@ -835,7 +835,7 @@ void InitHardware(void)
         mem.mon.bank[i] = NULL;
 
 #ifdef DEBIAN_BUILD
-    strcpy(mem.mon.filename[0], "/usr/share/teo/system/rom/mponitor1.rom");
+    strcpy(mem.mon.filename[0], "/usr/share/teo/system/rom/monitor1.rom");
     strcpy(mem.mon.filename[1], "/usr/share/teo/system/rom/monitor2.rom");
 #else
     strcpy(mem.mon.filename[0], "system/rom/monitor1.rom");
