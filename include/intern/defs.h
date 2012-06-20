@@ -155,7 +155,7 @@ struct MEMORY {
         int nbank;
         int size;
         uint8 *bank[4];
-        char filename[4][32];
+        char filename[4][64];
     } rom;
     struct {
         int nbank;
@@ -166,7 +166,7 @@ struct MEMORY {
         int nbank;
         int size;
         uint8 *bank[2];
-        char filename[2][32];
+        char filename[2][64];
     } mon;
 };
         
