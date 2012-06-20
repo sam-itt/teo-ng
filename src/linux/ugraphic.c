@@ -391,9 +391,25 @@ void RefreshScreen(void)
     if (gui->setting.interlaced_video)
     {
         odd ^= 1;
-        for(j=odd; j<TO8_SCREEN_CH*TO8_CHAR_SIZE<<1; j+=2)
-            RetraceScreen(0, j, TO8_SCREEN_CW*TO8_CHAR_SIZE<<1, 1);
-    }        
+        dirty_cell_row = (odd == 0) ? dirty_cell : dirty_cell + TO8_SCREEN_CW;
+        /* on groupe les dirty rectangles ligne par ligne */
+        for (j=odd; j<TO8_SCREEN_CH; j+=2)
+        {
+            for (i=0; i<TO8_SCREEN_CW; i++)
+                if (dirty_cell_row[i])
+	        {
+                    cell_start=i;
+
+                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
+                        dirty_cell_row[i++]=False;
+
+                    RetraceScreen(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
+                }
+
+            /* ligne suivante */
+            dirty_cell_row += (TO8_SCREEN_CW<<1);
+        }
+    }
     else
     {
         /* on groupe les dirty rectangles ligne par ligne */
