@@ -359,6 +359,9 @@ void init_disk_notebook_frame (GtkWidget *notebook)
         {
             add_combo_entry (gui->disk[i].file, &vector[i]);
         }
+        else
+           gtk_combo_box_set_active (GTK_COMBO_BOX(vector[i].combo), 0);
+
         if (vector[i].direct)
             set_access_mode (&vector[i]);
         vector[i].combo_changed_id = g_signal_connect (G_OBJECT(vector[i].combo), "changed",
