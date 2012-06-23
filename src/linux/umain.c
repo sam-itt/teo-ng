@@ -103,8 +103,8 @@ GTimer *timer;
 static gboolean RunTO8 (gpointer user_data)
 {
     static int debug = 0;
-    static gulong microseconds;
     static int wait_flag = 0;
+    static gulong microseconds;
     
     if ((gui->setting.exact_speed)
      && (teo.sound_enabled)
@@ -114,7 +114,7 @@ static gboolean RunTO8 (gpointer user_data)
 
     g_timer_stop (timer);
     g_timer_start (timer);
-        
+   
     if (to8_DoFrame(debug) == 0)
         teo.command=BREAKPOINT;
 
@@ -132,8 +132,7 @@ static gboolean RunTO8 (gpointer user_data)
     }
 
     RefreshScreen();
-    if ((gui->setting.exact_speed)
-     && (teo.sound_enabled))
+    if ((gui->setting.exact_speed) && (teo.sound_enabled))
         wait_flag = PlaySoundBuffer();
 
     return TRUE;
