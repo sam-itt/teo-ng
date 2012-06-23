@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/ugui/uprinter.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : François Mouret 18/04/2012
  *  Modifié par: 
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/sound.h
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou août 1999
  *  Modifié par: Eric Botcazou 4/12/2000
  *               François Mouret 08/2011 24/02/2012

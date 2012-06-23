@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/ugui.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 07/2011

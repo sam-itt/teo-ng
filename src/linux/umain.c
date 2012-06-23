@@ -35,7 +35,7 @@
 
 /*
  *  Module     : linux/main.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 26/01/2010 08/2011 23/03/2012 09/06/2012

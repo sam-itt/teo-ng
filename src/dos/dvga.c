@@ -35,7 +35,7 @@
 
 /*
  *  Module     : dos/vga.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 22/09/2001
  *               Samuel Devulder 07/2011

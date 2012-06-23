@@ -9,6 +9,7 @@ if [ `expr match $PWD '.*/doc$'` = 0 ]
       exit
 fi
 
+todayYear=$(date +%Y)
 echo -n "Convert Markdown to HTML"
 
 rm *.htm
@@ -30,7 +31,7 @@ for i in *;
    markdown $i >> _tmpfile
    echo "" >> _tmpfile;
    echo "<hr>" >> _tmpfile;
-   echo "<center><p>Teo developers &copy; 1997-2012 on <a href=\"https://sourceforge.net/projects/teoemulator/\">SourceForge</a></p></center>" >> _tmpfile;
+   echo "<center><p>Teo developers &copy; 1997-$todayYear on <a href=\"https://sourceforge.net/projects/teoemulator/\">SourceForge</a></p></center>" >> _tmpfile;
    echo "</td></tr></table>" >> _tmpfile;
    echo "</body>" >> _tmpfile;
    echo "</html>" >> _tmpfile;

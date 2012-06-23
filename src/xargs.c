@@ -35,7 +35,7 @@
 
 /*
  *  Module     : xargs.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Samuel Devulder 30/07/2011
  *  Modifié par: François Mouret 25/04/2012
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : dos/debug.h
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou octobre 1999
  *

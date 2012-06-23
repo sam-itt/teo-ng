@@ -34,7 +34,7 @@
 
 /*
  *  Module     : state.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : François Mouret 27/01/2010
  *  Modifié par: François Mouret 14/09/2011 17/01/2012 25/04/2012
  *

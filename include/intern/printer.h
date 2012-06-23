@@ -34,7 +34,7 @@
 
 /*
  *  Module     : printer.h
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 24/03/2001
  *               François Mouret 18/04/2012

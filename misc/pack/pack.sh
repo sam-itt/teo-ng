@@ -22,7 +22,7 @@ if [ -z $TMPDIR ]; then
    TMPDIR=/tmp
 fi
 
-version='1.8.1'
+version='1.8.2'
 packDir="teo/misc/pack"
 zipOptions="-q -9"
 gzipOptions="-9"

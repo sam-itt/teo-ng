@@ -34,7 +34,7 @@
 
 /*
  *  Module     : joystick.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 12/02/2001
  *  Modifié par: Eric Botcazou 06/03/2001
  *

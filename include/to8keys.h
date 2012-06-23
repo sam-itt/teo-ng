@@ -34,7 +34,7 @@
 
 /*
  *  Module     : to8keys.h
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou
  *  Modifié par: Eric Botcazou 13/02/2001
  *

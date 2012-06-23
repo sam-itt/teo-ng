@@ -34,7 +34,7 @@
 
 /*
  *  Module     : printer.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 30/03/2001
  *               François Mouret 14/04/2012

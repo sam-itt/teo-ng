@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/display.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
  *               François Mouret 26/01/2010 08/2011 02/06/2012

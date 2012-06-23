@@ -35,7 +35,7 @@
 
 /*
  *  Module     : to8.h
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
@@ -54,7 +54,7 @@
 #endif
 
 /* paramètres et symboles de l'émulation */
-#define TO8_VERSION_STR "1.8.1"
+#define TO8_VERSION_STR "1.8.2"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/dialog.rc
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 14/09/2000
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 27/09/2006 26/01/2010 10/08/2011 17/03/2012
@@ -63,8 +63,8 @@ to8_bmp     BITMAP "src/win/to8.bmp"
 
 
 1 VERSIONINFO 
-FILEVERSION 1, 8, 1, 0
-PRODUCTVERSION 1, 8, 1, 0
+FILEVERSION 1, 8, 2, 0
+PRODUCTVERSION 1, 8, 2, 0
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
 {

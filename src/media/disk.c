@@ -35,7 +35,7 @@
 
 /*
  *  Module     : disk.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012

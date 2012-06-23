@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/joyint.c
- *  Version    : 1.8.1
+ *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 14/02/2001
  *  Modifié par: Eric Botcazou 22/03/2001
  *               François Mouret 08/2011
