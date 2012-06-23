@@ -119,6 +119,23 @@ static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
 
 
 
+/* set_access_mode:
+ *  Positionne le checkbox de protection de disquette.
+ */
+static void set_access_mode (struct FILE_VECTOR *vector)
+{
+    int ret;
+
+    (void)to8_VirtualSetDrive(vector->id);
+    ret = TO8_READ_WRITE;
+    if ((vector->direct) && (gtk_combo_box_get_active (GTK_COMBO_BOX(vector->combo)) == 1))
+        ret = to8_DirectSetDrive(vector->id);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vector->check_prot), (ret==TO8_READ_ONLY) ? TRUE : FALSE);
+    gui->disk[vector->id].write_protect = (ret==TO8_READ_ONLY) ? TRUE : FALSE;
+}
+
+
+
 /* add_combo_entry
  *  Ajoute une entrée dans le combobox si inexistante.
  */
@@ -135,6 +152,7 @@ static void add_combo_entry (const char *path, struct FILE_VECTOR *vector)
         gtk_combo_box_set_active (GTK_COMBO_BOX(vector->combo), vector->entry_max);
         vector->entry_max++;
     }
+    set_access_mode (vector);
 }
 
 
@@ -152,23 +170,6 @@ static void free_disk_entry (struct FILE_VECTOR *vector)
 
 
 
-/* set_access_mode:
- *  Positionne le checkbox de protection de disquette.
- */
-static void set_access_mode (struct FILE_VECTOR *vector)
-{
-    int ret;
-
-    (void)to8_VirtualSetDrive(vector->id);
-    ret = (gui->disk[vector->id].write_protect == TRUE) ? TO8_READ_ONLY : TO8_READ_WRITE;
-    if ((vector->direct) && (gtk_combo_box_get_active (GTK_COMBO_BOX(vector->combo)) == 1))
-        ret = to8_DirectSetDrive(vector->id);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vector->check_prot), (ret==TO8_READ_ONLY) ? TRUE : FALSE);
-    gui->disk[vector->id].write_protect = (ret==TO8_READ_ONLY) ? TRUE : FALSE;
-}
-
-
-
 /* init_combo:
  *  Remplit un combo vide.
  */
@@ -177,6 +178,7 @@ static void init_combo (struct FILE_VECTOR *vector)
     add_combo_entry (is_fr?"(Aucun)":"(None)", vector);
     if (vector->direct)
         add_combo_entry (is_fr?"(AccÃ¨s Direct)":"(Direct Access)", vector);
+    gtk_combo_box_set_active (GTK_COMBO_BOX(vector->combo), 0);
 }
 
 
@@ -194,7 +196,6 @@ static void reset_combo (GtkButton *button, struct FILE_VECTOR *vector)
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(vector->combo));
     to8_EjectDisk(vector->id);
     init_combo (vector);
-    set_access_mode (vector);
 
     /* Débloque l'intervention de combo_changed */
     g_signal_handler_unblock (vector->combo, vector->combo_changed_id);
@@ -356,14 +357,10 @@ void init_disk_notebook_frame (GtkWidget *notebook)
         vector[i].direct=gui->disk[i].direct_access_allowed;
         init_combo (&vector[i]);
         if (strlen (gui->disk[i].file) != 0)
-        {
             add_combo_entry (gui->disk[i].file, &vector[i]);
-        }
         else
-           gtk_combo_box_set_active (GTK_COMBO_BOX(vector[i].combo), 0);
+            add_combo_entry (is_fr?"(Aucun)":"(None)", &vector[i]);
 
-        if (vector[i].direct)
-            set_access_mode (&vector[i]);
         vector[i].combo_changed_id = g_signal_connect (G_OBJECT(vector[i].combo), "changed",
                                                        G_CALLBACK(combo_changed), (gpointer)&vector[i]);
         /* bouton d'ouverture de fichier */
@@ -373,7 +370,6 @@ void init_disk_notebook_frame (GtkWidget *notebook)
         gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier disquette":"Open a disk file");
         gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
         (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer)&vector[i]);
-
     }
 }
 
