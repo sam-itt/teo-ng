@@ -68,7 +68,6 @@ enum {
 };
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
-//#define ALSA_DEVNAME "plughw:0,0"      /* nom du périphérique */
 #define ALSA_SOUND_FREQ  44100         /* débit */
 #define ALSA_CHANNELS 1                            /* nombre de canaux */
 #define ALSA_RESAMPLE 1                            /* enable alsa-lib resampling */
@@ -79,6 +78,7 @@ static int last_index = 0;
 static unsigned char last_data = 0x00;
 static int end_data = 0;
 static unsigned char *sound_buffer = NULL;
+static int sound_buffer_size = 0;
 
 static int play_mode = ALSA_PLAY_NONE;
 
@@ -92,6 +92,7 @@ static int threshold;
 static int period_table [TO8_CYCLES_PER_FRAME];
 
 void CloseSound (void);
+
 
 
 /* InitSoundError:
@@ -286,15 +287,17 @@ int InitSound(void)
         snd_pcm_hw_params_alloca (&hwparams);
         if (set_hwparams (hwparams) != 0)
             return TO8_ERROR;
-            
+
+        snd_pcm_prepare (handle);
+
         /* Initialise les paramètres software */
         snd_pcm_sw_params_alloca (&swparams);
         if (set_swparams (swparams) != 0)
             return TO8_ERROR;
 
         /* Alloue le buffer de son */
-        sound_buffer = (unsigned char *)calloc (period_size * ALSA_CHANNELS
-                            * (snd_pcm_format_physical_width(ALSA_FORMAT) >> 3), sizeof(char));
+        sound_buffer_size = period_size * ALSA_CHANNELS * (snd_pcm_format_physical_width(ALSA_FORMAT) >> 3);
+        sound_buffer = (unsigned char *)calloc (sound_buffer_size, sizeof(unsigned char));
         if (sound_buffer == NULL)
             return Error (is_fr?"Erreur audio":"Audio error",
                             is_fr?"MÃ©moire insuffisante pour le buffer"
@@ -313,15 +316,35 @@ int InitSound(void)
 
 
 
-#define DELTA_TO_0_VALUE 1
+static int play_stream (void)
+{
+    int err;
+
+    while ((err = snd_pcm_writei (handle, sound_buffer, period_size)) < 0)
+    {
+        if (err == -EAGAIN)
+            continue;
+
+        if (err == -EPIPE)
+        {
+            snd_pcm_prepare(handle);
+            break;
+        }
+    }
+        
+    return (err > 0) ? err : period_size;
+}
+
+
+
 /* PlaySoundBuffer:
  *  Envoie le tampon de streaming audio à la carte son.
  */
 int PlaySoundBuffer(void)
 {
-    int frames = 0;
     register int i;
     static int size = 0;
+    int start_data;
 
     if ((sound_buffer == NULL) || (handle == NULL))
         return ALSA_PLAY_NONE;
@@ -332,11 +355,9 @@ int PlaySoundBuffer(void)
         case ALSA_PLAY_SOUND :
             for (i=last_index; i<period_size; i++)
                 sound_buffer[(i<<1)+1]=last_data-128;
-            if ((frames = snd_pcm_writei (handle, sound_buffer, period_size)) < 0)
-                frames = snd_pcm_recover(handle, frames, 0);
-            memset(sound_buffer, 0x00, (period_size * snd_pcm_format_physical_width(ALSA_FORMAT)) >> 3);
-            size += frames;
-            if (size >= threshold) size = 0;
+            size += play_stream ();
+            if (size >= threshold)
+                size = 0;
             end_data = (last_data-128)<<8;
             play_mode = ALSA_PLAY_CUT;
             break;
@@ -345,25 +366,18 @@ int PlaySoundBuffer(void)
         case ALSA_PLAY_CUT  :
         case ALSA_PLAY_RAMP :
             play_mode = ALSA_PLAY_RAMP;
-            for (i=0; (i<period_size) && (end_data != 0); i++)
+            start_data = end_data;
+            for (i=0; i<period_size; i++)
             {
+                if (end_data<0) end_data++;
+                if (end_data>0) end_data--;
                 sound_buffer[i<<1]=end_data;
                 sound_buffer[(i<<1)+1]=end_data>>8;
-
-                if (end_data<0)
-                    if ((end_data+=DELTA_TO_0_VALUE)>0)
-                         end_data=0;
-                if (end_data>0)
-                    if ((end_data-=DELTA_TO_0_VALUE)<0)
-                         end_data=0;
             }
-            if ((frames = snd_pcm_writei (handle, sound_buffer, period_size)) < 0)
-                frames = snd_pcm_recover(handle, frames, 0);
-            memset(sound_buffer, 0x00, (period_size * snd_pcm_format_physical_width(ALSA_FORMAT)) >> 3);
-            size += frames;
+            size += play_stream ();
             if (size >= threshold) 
             {
-                if (end_data == 0)
+                if (start_data == 0)
                     play_mode = ALSA_PLAY_END;
                 size = 0;
             }
@@ -374,6 +388,7 @@ int PlaySoundBuffer(void)
             play_mode=ALSA_PLAY_NONE;
             break;
     }
+    memset (sound_buffer, 0x00, sound_buffer_size); 
     last_index=0;
 
     return play_mode;
