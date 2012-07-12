@@ -71,7 +71,6 @@ int screen;
 int mit_shm_enabled;
 Window screen_win;
 Window window_win;
-Atom atomDeleteScreen;
 
 static int need_modifiers_reset = TRUE;
 
@@ -229,8 +228,8 @@ void InitDisplay(void)
 }
 
 
-
-static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean
+delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     teo.command = QUIT;
 
@@ -241,7 +240,8 @@ static gboolean delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_
 }
 
 
-static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean
+key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int value = 0;
     int teo_key = 0;
@@ -268,7 +268,6 @@ static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer us
         case TEO_KEY_F12 : teo.command=DEBUGGER; break;
         default :      to8_HandleKeyPress (teo_key, FALSE); break;
     }
-
     return FALSE;
     (void)widget;
     (void)user_data;
@@ -276,7 +275,8 @@ static gboolean key_press_event (GtkWidget *widget, GdkEvent *event, gpointer us
 
 
 
-static gboolean key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean
+key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int teo_key = x11_to_dos[event->key.hardware_keycode];
 
@@ -285,15 +285,14 @@ static gboolean key_release_event (GtkWidget *widget, GdkEvent *event, gpointer 
             teo_key = TEO_KEY_ALTGR;
 
     to8_HandleKeyPress (teo_key, TRUE);
-
     return FALSE;
     (void)widget;
     (void)user_data;
 }
 
 
-
-static gboolean button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean
+button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     switch (event->button.button)
     {
@@ -334,7 +333,6 @@ button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
-
 /* motion_notify_event:
  *  Gestion des mouvements de la souris.
  */
@@ -345,15 +343,14 @@ motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
      && ((int)event->button.y > (TO8_BORDER_H*2)))
         to8_HandleMouseMotion ((int)event->button.x/2-TO8_BORDER_W,
                                (int)event->button.y/2-TO8_BORDER_H);
-
     return FALSE;
     (void)widget;
     (void)user_data;
 }
 
 
-
-static gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean
+focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if (event->focus_change.in == TRUE)
     {
@@ -366,21 +363,17 @@ static gboolean focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer use
 }
 
 
-
-extern void RedrawScreen(int x, int y, int w, int h);
-
-static gboolean draw_event (GtkWidget *widget, cairo_t *cr, gpointer user_data)
+static gboolean 
+window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    GdkRectangle rect;
+    if ((event->window_state.changed_mask & GDK_WINDOW_STATE_ICONIFIED) != 0)
+        if ((event->window_state.new_window_state & GDK_WINDOW_STATE_ICONIFIED) == 0)
+            RetraceScreen(0, 0, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
 
-    if (gdk_cairo_get_clip_rectangle (cr, &rect) == TRUE)
-        RetraceScreen(rect.x, rect.y, rect.width, rect.height);
-
-    return TRUE;
+    return FALSE;
     (void)widget;
     (void)user_data;
 }
-
 
 
 /* InitWindow:
@@ -389,59 +382,66 @@ static gboolean draw_event (GtkWidget *widget, cairo_t *cr, gpointer user_data)
  */
 void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 {
-    char *window_name=(is_fr?"Teo - l'Ã©mulateur TO8 (menu:ESC)":"Teo - thomson TO8 emulator (menu:ESC)");
+    char *window_name=(is_fr?"Teo - l'Ã©mulateur TO8 (menu:ESC)"
+                            :"Teo - thomson TO8 emulator (menu:ESC)");
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
     GdkRGBA rgba;
     
-    int event_mask = GDK_FOCUS_CHANGE_MASK
+    wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    gtk_widget_set_size_request (wMain, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
+    gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
+    gtk_window_set_title (GTK_WINDOW(wMain), window_name);
+
+    gtk_widget_add_events (wMain,
+                     GDK_FOCUS_CHANGE_MASK
                    | GDK_KEY_RELEASE_MASK
                    | GDK_KEY_PRESS_MASK
-                   | GDK_EXPOSURE_MASK
+                   | GDK_STRUCTURE_MASK
                    | GDK_BUTTON_RELEASE_MASK
                    | GDK_BUTTON_PRESS_MASK
-                   | GDK_POINTER_MOTION_MASK;
+                   | GDK_POINTER_MOTION_MASK);
 
-    /* Crée la fenêtre GTK */
-    wMain=gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_widget_add_events (GTK_WIDGET(wMain), event_mask);
+    g_signal_connect (G_OBJECT (wMain), "delete-event",
+                      G_CALLBACK (delete_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "key-press-event",
+                      G_CALLBACK (key_press_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "key-release-event",
+                      G_CALLBACK (key_release_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "button-press-event",
+                      G_CALLBACK (button_press_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "button-release-event",
+                      G_CALLBACK (button_release_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "motion-notify-event",
+                      G_CALLBACK (motion_notify_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "focus-in-event",
+                      G_CALLBACK (focus_in_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "window-state-event",
+                      G_CALLBACK (window_state_event), NULL);
+
     hints.min_width = TO8_SCREEN_W*2;
     hints.max_width = TO8_SCREEN_W*2;
     hints.min_height = TO8_SCREEN_H*2;
     hints.max_height = TO8_SCREEN_H*2;
     gtk_window_set_geometry_hints (GTK_WINDOW(wMain), wMain, &hints,
                                    GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
-    gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
+
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
     gtk_window_set_icon (GTK_WINDOW(wMain),pixbuf);
     gtk_window_set_default_icon(pixbuf);
-    rgba.red = 0;
+
+    rgba.red   = 0;
     rgba.green = 0;
-    rgba.blue = 0;
+    rgba.blue  = 0;
     rgba.alpha = 1;
     gtk_widget_override_background_color (wMain, GTK_STATE_NORMAL, &rgba);
-    gtk_window_set_title (GTK_WINDOW(wMain), window_name);
 
+    gtk_widget_set_double_buffered (wMain, FALSE);  /* only one buffer for drawing */
+    gtk_widget_set_app_paintable (wMain, TRUE);
     gtk_widget_set_can_focus (wMain, TRUE);
-    gtk_widget_grab_focus (wMain);
-
-    /* only one buffer for drawing */
-    gtk_widget_set_double_buffered (wMain, FALSE);
 
     gtk_widget_show_all (wMain);
-
-    /* Attend que la GtkWindow ait tout enregistré */
-    while (gtk_events_pending ())
-        gtk_main_iteration ();
-
-    g_signal_connect (G_OBJECT (wMain), "delete-event", G_CALLBACK (delete_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "key-press-event", G_CALLBACK (key_press_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "key-release-event", G_CALLBACK (key_release_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "button-press-event", G_CALLBACK (button_press_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "button-release-event", G_CALLBACK (button_release_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "motion-notify-event", G_CALLBACK (motion_notify_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "focus-in-event", G_CALLBACK (focus_in_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "draw", G_CALLBACK (draw_event), NULL);
 
     to8_SetPointer=SetPointer;
 
