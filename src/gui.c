@@ -51,6 +51,7 @@
    #include <unistd.h>
 #endif
 
+#include "intern/defs.h"
 #include "intern/errors.h"
 #include "intern/gui.h"
 #include "to8.h"
@@ -153,7 +154,7 @@ int gui_Init (void)
 
     if ((gui = (struct THOMSON_GUI *)calloc (sizeof(struct THOMSON_GUI), 1)) == NULL)
         return (bad_alloc());
-    
+
     if ((gui->default_folder = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
         return (bad_alloc());
 
@@ -176,6 +177,8 @@ int gui_Init (void)
     if ((gui->imag.file = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
         return (bad_alloc());
 
+    gui->setting.exact_speed = TRUE;
+    
     return TO8_OK;
 }
 
