@@ -78,7 +78,7 @@ struct EmuTO teo={
     NONE
 };
 
-char *idle_data = NULL;
+static int idle_data = 0;
 
 #define OP_TABLE_SIZE  10
 static XrmOptionDescRec op_table[OP_TABLE_SIZE]={
@@ -94,7 +94,7 @@ static XrmOptionDescRec op_table[OP_TABLE_SIZE]={
 {"-xrm"                 , NULL        , XrmoptionResArg, NULL  }
 };
 
-GTimer *timer;
+static GTimer *timer;
 
 
 /* RunTO8:
@@ -103,42 +103,57 @@ GTimer *timer;
 static gboolean RunTO8 (gpointer user_data)
 {
     static int debug = 0;
-    static int wait_flag = 0;
     static gulong microseconds;
-    
+
     if ((gui->setting.exact_speed)
-     && (teo.sound_enabled)
-     && (wait_flag == 0)
+     && (teo.sound_enabled == 0)
      && (g_timer_elapsed (timer, &microseconds) < 0.02))
         return TRUE;
 
     g_timer_stop (timer);
     g_timer_start (timer);
-   
+
     if (to8_DoFrame(debug) == 0)
         teo.command=BREAKPOINT;
+    debug=debug;
 
-    switch (teo.command)
+    if ((teo.command == BREAKPOINT)
+     || (teo.command == DEBUGGER))
+        debug = DebugPanel();
+
+    if (teo.command == CONTROL_PANEL)
     {
-        case BREAKPOINT    :
-        case DEBUGGER      : debug = DebugPanel(); teo.command = NONE; break;
-        case CONTROL_PANEL : ControlPanel() ; debug = 0; break;
-        case RESET         : to8_Reset()    ; teo.command = NONE; debug = 0; break;
-        case COLD_RESET    : to8_ColdReset(); teo.command = NONE; debug = 0; break;
-        case QUIT          : mc6809_FlushExec();
-                             gtk_main_quit ();
-                             return FALSE;
-        default            : break;
+        ControlPanel();
+        debug = 0;
     }
+
+    if (teo.command == RESET)
+    {
+        to8_Reset();
+        debug = 0;
+    }
+
+    if (teo.command == COLD_RESET)
+    {
+        to8_ColdReset();
+        debug = 0;
+    }
+    if (teo.command == QUIT)
+    {
+        mc6809_FlushExec();
+        gtk_main_quit ();
+        return FALSE;
+    }
+
+    teo.command = NONE;
 
     RefreshScreen();
     if ((gui->setting.exact_speed) && (teo.sound_enabled))
-        wait_flag = PlaySoundBuffer();
+        PlaySoundBuffer();
 
     return TRUE;
     (void)user_data;
 }
-
 
 
 /* GetUserInput:
@@ -424,7 +439,9 @@ static int unknownArg(char *arg) {
  */
 int main(int argc, char *argv[])
 {
-    int i, x=0, y=0, user_flags=0;
+    int x=0, y=0, user_flags=0;
+
+    int i;
     char version_name[]="Teo "TO8_VERSION_STR" (Linux/X11)";
     char memo_name[MAX_PATH+1]="\0";
     int direct_write_support = FALSE;
@@ -436,7 +453,6 @@ int main(int argc, char *argv[])
 #ifdef DEBIAN_BUILD
     char fname[MAX_PATH+1] = "";
 #endif
-
     /* Initialisation du serveur X */ 
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
@@ -531,8 +547,10 @@ int main(int argc, char *argv[])
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
     teo.command=NONE;
     timer = g_timer_new ();
-    g_timeout_add (2, RunTO8, idle_data);
+    g_timeout_add (2, RunTO8, &idle_data);
     gtk_main ();
+    g_idle_remove_by_data (&idle_data);
+    g_timer_destroy (timer);
 
     /* Mise au repos de l'interface d'accès direct */
     ExitDirectDisk();
