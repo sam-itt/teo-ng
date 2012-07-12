@@ -47,7 +47,7 @@
 #define LINUX_SOUND_H
 
 extern int InitSound(void);
-extern int PlaySoundBuffer(void);
+extern void PlaySoundBuffer(void);
 extern void CloseSound (void);
 
 #endif
