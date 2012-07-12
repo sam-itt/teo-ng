@@ -1039,9 +1039,9 @@ static void load_font (char *filename, int face)
     (void)sprintf (str, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
 #else
 #ifdef DEBIAN_BUILD
-    (void)snprintf (str, FONT_STR_LENGTH, "/usr/share/teo/fonts/%s%03d.txt", filename, lprt.number);
+    (void)snprintf (str, FONT_STR_LENGTH, "/usr/share/teo/system/printer/%s%03d.txt", filename, lprt.number);
 #else
-    (void)snprintf (str, FONT_STR_LENGTH, "fonts%s%s%03d.txt", SLASH, filename, lprt.number);
+    (void)snprintf (str, FONT_STR_LENGTH, "system%sprinter%s%s%03d.txt", SLASH, SLASH, filename, lprt.number);
 #endif
 #endif
     
@@ -1051,9 +1051,9 @@ static void load_font (char *filename, int face)
         (void)sprintf (str, "fonts%s%s.txt", SLASH, filename);
 #else
 #ifdef DEBIAN_BUILD
-        (void)snprintf (str, FONT_STR_LENGTH, "/usr/share/teo/fonts/%s.txt", filename);
+        (void)snprintf (str, FONT_STR_LENGTH, "/usr/share/teo/system/printer/%s.txt", filename);
 #else
-        (void)snprintf (str, FONT_STR_LENGTH, "fonts%s%s.txt", SLASH, filename);
+        (void)snprintf (str, FONT_STR_LENGTH, "system%sprinter%s%s.txt", SLASH, SLASH, filename);
 #endif
 #endif
     
