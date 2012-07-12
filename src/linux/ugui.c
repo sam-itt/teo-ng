@@ -40,7 +40,7 @@
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 26/03/2012 12/06/2012
  *
- *  Interface utilisateur de l'émulateur basée sur GTK+ 2.x .
+ *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
 
 
@@ -193,8 +193,8 @@ void InitGUI(void)
     gtk_widget_hide (hidden_button);
 
     /* Attend la fin du travail de GTK */
-//    while (gtk_events_pending ())
-//        gtk_main_iteration ();
+    while (gtk_events_pending ())
+        gtk_main_iteration ();
 }
 
 
@@ -216,7 +216,7 @@ void ControlPanel(void)
     switch (response)
     {
         case TEO_RESPONSE_END    : break;
-        case GTK_RESPONSE_ACCEPT : teo.command=NONE; break;
+        case GTK_RESPONSE_ACCEPT : break;
         case TEO_RESPONSE_QUIT   : teo.command=QUIT; break;
    }
    gtk_widget_hide (wControl);
