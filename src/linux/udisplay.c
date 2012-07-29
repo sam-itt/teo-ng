@@ -228,6 +228,9 @@ void InitDisplay(void)
 }
 
 
+/* button_release_event:
+ *  Gestion des touches enfoncées.
+ */
 static gboolean
 delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -240,6 +243,9 @@ delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
+/* key_press_event:
+ *  Gestion des touches enfoncées.
+ */
 static gboolean
 key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -274,7 +280,9 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
-
+/* key_release_event:
+ *  Gestion des touches relachées.
+ */
 static gboolean
 key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -291,6 +299,9 @@ key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
+/* button_press_event:
+ *  Gestion des boutons de souris enfoncés.
+ */
 static gboolean
 button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -315,9 +326,8 @@ button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
-
 /* button_release_event:
- *  Gestion des touches relachées.
+ *  Gestion des boutons de souris relachés.
  */
 static gboolean
 button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
@@ -349,6 +359,9 @@ motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
+/* focus_in_event:
+ *  Gestion des activations de fenêtres.
+ */
 static gboolean
 focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -363,6 +376,9 @@ focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
+/* window_state_event:
+ *  Gestion du retraçage de l'écran.
+ */
 static gboolean 
 window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -390,7 +406,6 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     
     wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
-    gtk_widget_set_size_request (wMain, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
     gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
     gtk_window_set_title (GTK_WINDOW(wMain), window_name);
 
@@ -401,7 +416,8 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
                    | GDK_STRUCTURE_MASK
                    | GDK_BUTTON_RELEASE_MASK
                    | GDK_BUTTON_PRESS_MASK
-                   | GDK_POINTER_MOTION_MASK);
+                   | GDK_POINTER_MOTION_MASK
+                   | GDK_POINTER_MOTION_HINT_MASK);
 
     g_signal_connect (G_OBJECT (wMain), "delete-event",
                       G_CALLBACK (delete_event), NULL);
@@ -420,6 +436,7 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     g_signal_connect (G_OBJECT (wMain), "window-state-event",
                       G_CALLBACK (window_state_event), NULL);
 
+    /* Set window size */
     hints.min_width = TO8_SCREEN_W*2;
     hints.max_width = TO8_SCREEN_W*2;
     hints.min_height = TO8_SCREEN_H*2;
@@ -427,10 +444,12 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     gtk_window_set_geometry_hints (GTK_WINDOW(wMain), wMain, &hints,
                                    GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
 
+    /* Set program icon */
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
     gtk_window_set_icon (GTK_WINDOW(wMain),pixbuf);
     gtk_window_set_default_icon(pixbuf);
 
+    /* Set black background */
     rgba.red   = 0;
     rgba.green = 0;
     rgba.blue  = 0;
