@@ -74,8 +74,7 @@ Window window_win;
 
 static int need_modifiers_reset = TRUE;
 
-// static int installed_pointer;
-// static Cursor null_cursor;
+static int installed_pointer = TO8_MOUSE;
 
 static int x11_to_dos[256];
 
@@ -193,18 +192,19 @@ static struct {
  */
 static void SetPointer(int pointer)
 {
-#if 0
-    if (pointer==TO8_MOUSE)
+    switch (pointer)
     {
-        XDefineCursor(display, screen_win, null_cursor);
-        installed_pointer=TO8_MOUSE;
-    }
-    else if (pointer==TO8_LIGHTPEN)
-        installed_pointer=TO8_LIGHTPEN;
-#endif
-    (void)pointer;
-}
+        case TO8_MOUSE :
+            gdk_window_set_cursor (gwindow_win, NULL);
+            installed_pointer=TO8_MOUSE;
+            break;
 
+        case TO8_LIGHTPEN :
+            gdk_window_set_cursor (gwindow_win, gdk_cursor_new (GDK_PENCIL));
+            installed_pointer=TO8_LIGHTPEN;
+            break;
+    }
+}
 
 
 /* InitDisplay:
@@ -272,7 +272,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     {
         case TEO_KEY_ESC : teo.command=CONTROL_PANEL; break;
         case TEO_KEY_F12 : teo.command=DEBUGGER; break;
-        default :      to8_HandleKeyPress (teo_key, FALSE); break;
+        default          : to8_HandleKeyPress (teo_key, FALSE); break;
     }
     return FALSE;
     (void)widget;
@@ -308,17 +308,9 @@ button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     switch (event->button.button)
     {
         case 1 : to8_HandleMouseClick(1, FALSE); break;
-        case 3 :
-/*
-                if (installed_pointer == TO8_MOUSE)
-                    to8_HandleMouseClick (2, FALSE);
-                else 
-                {
-                    pointer_on^=1;
-                    XDefineCursor (display,screen_win, pointer_on ? None : null_cursor);
-                }
-                */
-                break;
+        case 3 : if (installed_pointer == TO8_MOUSE)
+                     to8_HandleMouseClick (2, FALSE);
+                 break;
     }
     return FALSE;
     (void)widget;
@@ -398,8 +390,6 @@ window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
  */
 void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 {
-    char *window_name=(is_fr?"Teo - l'émulateur TO8 (menu:ESC)"
-                            :"Teo - thomson TO8 emulator (menu:ESC)");
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
     GdkRGBA rgba;
@@ -407,7 +397,9 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
-    gtk_window_set_title (GTK_WINDOW(wMain), window_name);
+    gtk_window_set_title (GTK_WINDOW(wMain),
+                          is_fr?"Teo - l'émulateur TO8 (menu:ESC)"
+                               :"Teo - thomson TO8 emulator (menu:ESC)");
 
     gtk_widget_add_events (wMain,
                      GDK_FOCUS_CHANGE_MASK
@@ -462,11 +454,11 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 
     gtk_widget_show_all (wMain);
 
-    to8_SetPointer=SetPointer;
-
     gwindow_win = gtk_widget_get_window (wMain);
     window_win = GDK_WINDOW_XID (gwindow_win);
     screen_win = window_win;
+
+    to8_SetPointer=SetPointer;
 
     printf("ok\n");
     
