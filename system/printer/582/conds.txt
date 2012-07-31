@@ -1,4 +1,4 @@
-# Matrice Condensé Correspondance pour imprimante PR90-582
+# Matrice Condensé Standard pour imprimante PR90-582
 
 96 7 9 7 2 2
 7
