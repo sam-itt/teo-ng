@@ -55,7 +55,7 @@
 #include "linux/gui.h"
 #include "to8.h"
 
-#define PRINTER_NUMBER 3
+#define PRINTER_NUMBER 4
 
 struct PRINTER_CODE_LIST {
     char name[9];
@@ -64,6 +64,7 @@ struct PRINTER_CODE_LIST {
 
 static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
     { "PR90-055",  55 },
+    { "PR90-582", 582 },
     { "PR90-600", 600 },
     { "PR90-612", 612 }
 };

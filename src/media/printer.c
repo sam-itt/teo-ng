@@ -68,6 +68,12 @@
 #define FONT_BUFFER_SIZE (FONT_CHAR_MAX*sizeof(int)*FONT_WIDTH_MAX)
 
 enum {
+    ONE_DIGIT = 1,
+    TWO_DIGITS,
+    THREE_DIGITS
+};
+
+enum {
     FACE_NORMAL = 0,
     FACE_ITALIC,
     FACE_PROPORTIONAL,
@@ -204,10 +210,6 @@ static void print_text_char (int c)
     fputc (c, fp_text);
     fflush (fp_text);
 }
-
-
-
-
 
 
 
@@ -586,7 +588,7 @@ static void print_drawable_char (void)
 
     /* char filtering */
     if (((c & 0x7f) < 32)
-     || ((c >= 0xa0) && (lprt.number != 612)))
+     || ((c >= 0xa0) && (lprt.number != 612) && (lprt.number != 582)))
         return;
 
     if (c == 0x7f)
@@ -1045,20 +1047,8 @@ static void load_font (char *filename, int face)
 #endif
 #endif
     
-    if ((face == FACE_SUBSCRIPT) || (face == FACE_SUPERSCRIPT))
-    {
-#ifdef DJGPP
-        (void)sprintf (str, "fonts%s%s.txt", SLASH, filename);
-#else
-#ifdef DEBIAN_BUILD
-        (void)snprintf (str, FONT_STR_LENGTH, "/usr/share/teo/system/printer/%s.txt", filename);
-#else
-        (void)snprintf (str, FONT_STR_LENGTH, "system%sprinter%s%s.txt", SLASH, SLASH, filename);
-#endif
-#endif
-    
-        if (face == FACE_SUBSCRIPT) yp = 7;
-    }
+    if (face == FACE_SUBSCRIPT) yp = 7;
+
     file = fopen (str, "rb");
     if (file == NULL)
         return;
@@ -1283,7 +1273,7 @@ static void pr906xx_escape (void)
 {
     switch (data)
     {
-        case 16 : set_read_counter (BINARY_VALUE, 2, PR_print_position); return;
+        case 16 : set_read_counter (BINARY_VALUE, TWO_DIGITS, PR_print_position); return;
     }
 
     clear_gfx_mode7();
@@ -1301,26 +1291,26 @@ static void pr906xx_escape (void)
         case 'Q': PR_load_font("elitc", FACE_NORMAL); break;
         case 'B': PR_load_font("picac", FACE_ITALIC); break;
         case 'P': PR_load_font("picac", FACE_PROPORTIONAL); break;
-        case 'U': PR_load_font("tiny" , FACE_SUPERSCRIPT); break;
-        case 'D': PR_load_font("tiny" , FACE_SUBSCRIPT); break;
+        case 'U': PR_load_font("scrpt", FACE_SUPERSCRIPT); break;
+        case 'D': PR_load_font("scrpt", FACE_SUBSCRIPT); break;
         case '6': PR_line_feed_per_inch(6); break;
         case '8': PR_line_feed_per_inch(8); break;
         case '9': PR_line_feed_per_inch(9); break;
         case '7': PR_line_feed_per_inch(12); break;
-        case 'T': set_read_counter (DIGIT_VALUE, 2, PR_line_feed_144); break;
-        case 'Z': set_read_counter (DIGIT_VALUE, 3, PR_page_length); break;
+        case 'T': set_read_counter (DIGIT_VALUE, TWO_DIGITS, PR_line_feed_144); break;
+        case 'Z': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_page_length); break;
         case 'X': PR_underline(); break;
         case 'Y': PR_no_underline(); break;
         case '#': PR_bold(); break;
         case '$': PR_thin(); break;
-        case 'G': set_read_counter (DIGIT_VALUE, 3, PR_gfx8); break;
-        case 'I': set_read_counter (DIGIT_VALUE, 3, PR_gfx16); break;
-        case 'V': set_read_counter (DIGIT_VALUE, 3, PR_repeat_gfx8); break;
-        case 'W': set_read_counter (DIGIT_VALUE, 3, PR_repeat_gfx16); break;
+        case 'G': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_gfx8); break;
+        case 'I': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_gfx16); break;
+        case 'V': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_repeat_gfx8); break;
+        case 'W': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_repeat_gfx16); break;
         case '@': PR_reset(); break;
-        case 'L': set_read_counter (DIGIT_VALUE , 3, PR_left_margin); break;
-        case 'F': set_read_counter (DIGIT_VALUE , 3, PR_dot_print_position); break;
-        case 'S': set_read_counter (DIGIT_VALUE , 1, PR_space_dot); break;
+        case 'L': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_left_margin); break;
+        case 'F': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_dot_print_position); break;
+        case 'S': set_read_counter (DIGIT_VALUE, ONE_DIGIT, PR_space_dot); break;
         default : PR_forget(); break;
     }
 }
@@ -1340,8 +1330,8 @@ static void pr906xx_first (void)
         case 10 : PR_line_feed(); return;
         case 13 : PR_line_start_dip(); return;
         case 20 : PR_line_start(); return;
-        case 16 : set_read_counter (DIGIT_VALUE, 2, PR_pica_positionning); return;
-        case 28 : set_read_counter (BINARY_VALUE, 1, PR_repeat_gfx7); return;
+        case 16 : set_read_counter (DIGIT_VALUE, TWO_DIGITS, PR_pica_positionning); return;
+        case 28 : set_read_counter (BINARY_VALUE, ONE_DIGIT, PR_repeat_gfx7); return;
         case 27 : prog = pr906xx_escape; return;
     }
 
@@ -1354,7 +1344,84 @@ static void pr906xx_first (void)
         case 15 : PR_simple_width(); break;
         case 24 : break;
         case 7  : PR_screenprint(); break;
-        case 18 : set_read_counter (DIGIT_VALUE, 3, PR_char_positionning); break;
+        case 18 : set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_char_positionning); break;
+        default : print_drawable_char (); break;
+    }
+}
+
+
+/* ---------------------------- PR90-582 ---------------------------- */
+
+
+/* pr90582_escape:
+ *  Traite le code introduit par ESC pour la PR90-582
+ */
+static void pr90582_escape (void)
+{
+    switch (data)
+    {
+        case 16 : set_read_counter (BINARY_VALUE, TWO_DIGITS, PR_print_position); return;
+    }
+
+    clear_gfx_mode7();
+
+    switch ((char)data)
+    {
+        case 14 : PR_double_width(); break;
+        case 15 : PR_simple_width(); break;
+        case 'N': PR_load_font((lprt.nlq) ? "picac" : "picas", FACE_NORMAL); break;
+        case 'E': PR_load_font((lprt.nlq) ? "elitc" : "elits", FACE_NORMAL); break;
+        case 'C': PR_load_font("condc", FACE_NORMAL); break;
+        case 'H': PR_load_font("picac", FACE_NORMAL); break;
+        case 'Q': PR_load_font("elitc", FACE_NORMAL); break;
+        case 'B': PR_load_font("picac", FACE_ITALIC); break;
+        case 'P': PR_load_font("picac", FACE_PROPORTIONAL); break;
+        case 'U': PR_load_font("scrpt", FACE_SUPERSCRIPT); break;
+        case 'D': PR_load_font("scrpt", FACE_SUBSCRIPT); break;
+        case '6': PR_line_feed_per_inch(6); break;
+        case '8': PR_line_feed_per_inch(8); break;
+        case '9': PR_line_feed_per_inch(9); break;
+        case '7': PR_line_feed_per_inch(12); break;
+        case 'T': set_read_counter (DIGIT_VALUE, TWO_DIGITS, PR_line_feed_144); break;
+        case 'Z': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_page_length); break;
+        case 'X': PR_underline(); break;
+        case 'Y': PR_no_underline(); break;
+        case '#': PR_bold(); break;
+        case '$': PR_thin(); break;
+        case 'G': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_gfx8); break;
+        case 'I': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_gfx16); break;
+        case 'V': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_repeat_gfx8); break;
+        case 'W': set_read_counter (DIGIT_VALUE, THREE_DIGITS, PR_repeat_gfx16); break;
+        default : PR_forget(); break;
+    }
+}
+
+
+
+/* pr90582_first:
+ *  Traite le code de tête pour la PR90-582.
+ */
+static void pr90582_first (void)
+{
+    gfx.mode7 <<= 1;
+
+    switch (data)
+    {
+        case 10 : PR_line_feed(); return;
+        case 13 : PR_line_start_dip(); return;
+        case 16 : set_read_counter (DIGIT_VALUE, TWO_DIGITS, PR_pica_positionning); return;
+        case 27 : prog = pr90582_escape; return;
+    }
+
+    clear_gfx_mode7();
+
+    switch (data)
+    {
+        case 12 : PR_form_feed(); break;
+        case 14 : PR_double_width(); break;
+        case 15 : PR_simple_width(); break;
+        case 24 : break;
+        case 7  : PR_screenprint(); break;
         default : print_drawable_char (); break;
     }
 }
@@ -1415,7 +1482,7 @@ static void pr90055_first (void)
 }
 
 
-/* --------------------- */
+/* ------------------------------------------------------------------ */
 
 /* printer_Open:
  *  Ouvre l'imprimante.
@@ -1428,6 +1495,11 @@ static void printer_Open (void)
         case  55 : paper.chars_per_line = 40;
                    screenprint_data_delay = 100;
                    restart_prog = pr90055_first;
+                   break;
+
+        case 582 : paper.chars_per_line = 80;
+                   screenprint_data_delay = 100;
+                   restart_prog = pr90582_first;
                    break;
 
         case 600 : paper.chars_per_line = 80;
