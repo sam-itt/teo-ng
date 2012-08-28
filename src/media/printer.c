@@ -450,7 +450,7 @@ static void draw_pixel (int y, int width, int height)
 
     if (paper.buffer == NULL)
     {
-        paper.buffer = calloc (1, (paper.width/8)*paper.height);
+        paper.buffer = calloc ((paper.width/8)*paper.height, sizeof(char));
         if (paper.buffer == NULL)
             return;
     }

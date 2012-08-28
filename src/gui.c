@@ -152,7 +152,7 @@ int gui_Init (void)
 {
     int i;
 
-    if ((gui = (struct THOMSON_GUI *)calloc (sizeof(struct THOMSON_GUI), 1)) == NULL)
+    if ((gui = (struct THOMSON_GUI *)calloc (1, sizeof(struct THOMSON_GUI))) == NULL)
         return (bad_alloc());
 
     if ((gui->default_folder = (char *)calloc (MAX_PATH + 1, sizeof(char))) == NULL)
