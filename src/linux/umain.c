@@ -115,7 +115,6 @@ static gboolean RunTO8 (gpointer user_data)
 
     if (to8_DoFrame(debug) == 0)
         teo.command=BREAKPOINT;
-    debug=debug;
 
     if ((teo.command == BREAKPOINT)
      || (teo.command == DEBUGGER))
