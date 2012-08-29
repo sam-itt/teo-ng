@@ -474,10 +474,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
-
+    if (gui_Init() == TO8_ERROR)
+        ExitMessage(to8_error_msg);
     if (to8_Init(TO8_NJOYSTICKS-njoy) == TO8_ERROR)
         ExitMessage(to8_error_msg);
-
     printf("ok\n");
 
     /* initialisation du son */

@@ -701,12 +701,6 @@ int to8_Init(int num_joy)
 
     InitHardware();
 
-    if (gui_Init() == TO8_ERROR)
-    {
-        to8_Exit();
-        return TO8_ERROR;
-    }
-
     if (InitMemory() == TO8_ERROR)
     {
         to8_Exit();

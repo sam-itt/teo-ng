@@ -484,6 +484,9 @@ int main(int argc, char *argv[])
     xargs_parse(&xargs, argc-1, argv+1);
 
     /* Mise en place des paramètres de l'émulation */
+
+    if (gui_Init() == TO8_ERROR)
+        ExitMessage(to8_error_msg);
     load_state = SetParameters(memo_name, &x, &y, &user_flags, &direct_write_support, user_db);
     XrmDestroyDatabase(user_db);
 
