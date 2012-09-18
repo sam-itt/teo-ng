@@ -1,5 +1,5 @@
 ========================================================================
-=== Version 1.8.2 (Juin 2012)                                        ===
+=== Version 1.8.2 (Juin-septembre 2012)                              ===
 ========================================================================
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
@@ -10,6 +10,9 @@
           fenêtre principale en GtkWindow
           changement de widget_win en wMain
           les events sont traités en callbacks
+- linux/usound.c
+          restauration du son en génération continue (la génération
+          "utile" est un échec)
 - linux/ugui.c
           fenêtre de contrôle en GtkDialog
 - linux/umain.c
