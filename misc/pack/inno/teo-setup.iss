@@ -46,7 +46,7 @@ Source: change-en.log; DestDir: {app}; DestName: change.log; Languages: en
 Source: change-fr.log; DestDir: {app}; DestName: change.log; Languages: fr
 Source: licence-en.txt; DestDir: {app}; DestName: license.txt; Languages: en
 Source: licence-fr.txt; DestDir: {app}; DestName: license.txt; Languages: fr
-Source: misc\teo_init.cfg; DestDir: {app}; DestName: teo.cfg;
+Source: allegro.cfg; DestDir: {app};
 Source: language.dat; DestDir: {app}
 Source: keyboard.dat; DestDir: {app}
 Source: alleg40.dll; DestDir: {app}

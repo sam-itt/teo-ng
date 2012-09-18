@@ -62,7 +62,7 @@ teo/disks
 teo/memo7
 teo/k7
 teo/system
-teo/teo.cfg
+teo/allegro.cfg
 teo/doc/*.htm
 teo/doc/*.css
 teo/system/rom/*.rom
@@ -87,8 +87,6 @@ rm -r -f ./disks
 rm -r -f ./memo7
 rm -r -f ./k7
 rm -f $current_folder/$packDir/teo-*.tar* $current_folder/$packDir/teo-*.zip $current_folder/$packDir/teo-*.deb
-rm ./teo/teo.cfg
-cp ./teo/misc/teo_init.cfg teo/teo.cfg
 
 # ----------------- Linux DEBIAN package for executable
 
@@ -128,7 +126,7 @@ cp teo/teo      ~/teo-$version-i586/usr/games/
 cp teo/sap2     ~/teo-$version-i586/usr/games/
 cp teo/sapfs    ~/teo-$version-i586/usr/games/
 cp teo/wav2k7   ~/teo-$version-i586/usr/games/
-cp teo/teo.cfg  ~/teo-$version-i586/usr/share/teo
+cp teo/allegro.cfg  ~/teo-$version-i586/usr/share/teo
 cp -r teo/system   ~/teo-$version-i586/usr/share/teo/system
 cp teo/*-fr.txt ~/teo-$version-i586/usr/share/teo
 cp teo/*-en.txt ~/teo-$version-i586/usr/share/teo

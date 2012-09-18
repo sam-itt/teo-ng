@@ -37,10 +37,6 @@ sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > src/readme.txt
 cp src/license.txt $TMPDIR/fixver.tmp
 sed -f $TMPDIR/fixver.sed $TMPDIR/fixver.tmp > src/license.txt
 
-# reset teo.cfg
-echo "Reset teo.cfg ..."
-cp misc/teo_init.cfg teo.cfg
-
 # clean up after ourselves
 rm $TMPDIR/fixver.sed $TMPDIR/fixver.tmp
 
