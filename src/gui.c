@@ -65,9 +65,9 @@ struct THOMSON_GUI *gui = NULL;
  */
 static struct STRING_LIST *gui_StringListLast (struct STRING_LIST *p)
 {
-    for (; p!=NULL; p=p->next)
-        if (p->next==NULL)
-            break;
+    while ((p!=NULL) && (p->next!=NULL))
+        p=p->next;
+
     return p;
 }
 
