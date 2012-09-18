@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
         (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 #endif
     if (load_state == TRUE)
-        if (to8_LoadState(TEO_CONFIG_FILE) != 0)
+        if (to8_LoadState() != 0)
             warning_box (is_fr?"Un fichier de configuration n'a pas pu être " \
                                "chargé. Vérifiez qu'il n'a pas été déplacé, " \
                                "détruit et que le périphérique a bien été monté."

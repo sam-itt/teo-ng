@@ -58,7 +58,7 @@
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 
-#define TEO_CONFIG_FILE  "teo.cfg"
+#define ALLEGRO_CONFIG_FILE  "allegro.cfg"
 
 #define TO8_FRAME_FREQ         50    /* Hz: fréquence de trame vidéo */
 #define TO8_CYCLES_PER_FRAME   19968 /* durée exacte en nb de cycles CPU d'une frame */
@@ -206,6 +206,6 @@ extern int   to8_DirectSetDrive(int drive);
 extern int   to8_VirtualSetDrive(int drive);
 extern int   to8_LoadImage(const char filename[]);
 extern int   to8_SaveImage(const char finename[]);
-extern int   to8_LoadState (char *filename);
-extern void  to8_SaveState (char *filename);
+extern int   to8_LoadState (void);
+extern void  to8_SaveState (void);
 #endif

@@ -661,7 +661,7 @@ void to8_Exit(void)
         return;
 
     /* Sauvegarde de l'état de l'émulateur */
-    to8_SaveState(TEO_CONFIG_FILE);
+    to8_SaveState();
 
     printer_Close();
 

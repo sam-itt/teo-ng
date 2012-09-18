@@ -457,7 +457,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
     allegro_init();
-    set_config_file(TEO_CONFIG_FILE);
+    set_config_file(ALLEGRO_CONFIG_FILE);
     install_keyboard();
     install_timer();
     if (njoy >= 0)
@@ -563,7 +563,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	
     if (load_state)
     {
-        if (to8_LoadState(TEO_CONFIG_FILE) != 0)
+        if (to8_LoadState() != 0)
         {
 #ifdef FRENCH_LANG
             if (windowed_mode)

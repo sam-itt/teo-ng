@@ -55,25 +55,31 @@
 #include "intern/gui.h"
 #include "to8.h"
 
-struct CFG_LIST {
+
+#define INI_FILE_NAME  "teo.ini"
+
+struct INI_LIST {
     char *line;
-    struct CFG_LIST *next;
+    struct INI_LIST *next;
 };
 
-static struct CFG_LIST *list_start = NULL;
+static struct INI_LIST *list_start = NULL;
 
 
-/* unload_cfg:
+/* unload_ini:
  *  Libère toute la mémoire de la liste.
  */
-static void unload_cfg(void)
+static void unload_ini(void)
 {
-    struct CFG_LIST *next = NULL;
+    struct INI_LIST *next = NULL;
 
-    while(list_start != NULL) {
+    while(list_start != NULL)
+    {
         next = list_start->next;
+
         if (list_start->line != NULL)
             free(list_start->line);
+
         free(list_start);
         list_start = next;
     }
@@ -81,15 +87,16 @@ static void unload_cfg(void)
 
 
 
-/* create_line:
- *  Insère une ligne dans la liste.
+/* add_line:
+ *  Ajoute une ligne dans la liste.
  */
-static struct CFG_LIST *create_line (char *line)
+static struct INI_LIST *add_line (char *line)
 {
-    struct CFG_LIST *list = NULL;
+    struct INI_LIST *list = NULL;
 
-    list = (struct CFG_LIST *)malloc (sizeof (struct CFG_LIST));
-    if (list != NULL) {
+    list = (struct INI_LIST *)malloc (sizeof (struct INI_LIST));
+    if (list != NULL)
+    {
         list->next = NULL;
         list->line = (char *)malloc (strlen(line)+1);
         if (list->line != NULL) {
@@ -124,16 +131,13 @@ static char *skpspc(char *p)
 /* key_ptr:
  *  Recherche le pointeur sur la clef de la section.
  */
-static struct CFG_LIST *key_ptr (char *section, char *key, struct CFG_LIST **pList)
+static struct INI_LIST *key_ptr (char *section, char *key, struct INI_LIST **pList)
 {
-    struct CFG_LIST *list = list_start;
+    struct INI_LIST *list = list_start;
 
     while ((list != NULL)
         && (list->line != NULL)
-        && ((*list->line != '[')
-         || (strlen(list->line) < strlen(section)+2)
-         || (list->line[strlen(section)+1] != ']')
-         || (memcmp(section, list->line+1, strlen(section)) != 0)))
+        && (memcmp(section, list->line, strlen(section)) != 0))
         list = list->next;
 
     if (list != NULL)
@@ -163,8 +167,8 @@ static char *get_string(char *section, char *key, char *init_value)
 {
     static char *value_ptr = NULL;
     static char *p = NULL;
-    struct CFG_LIST *pList = NULL;
-    struct CFG_LIST *list = NULL;
+    struct INI_LIST *pList = NULL;
+    struct INI_LIST *list = NULL;
 
     value_ptr = NULL;
     list = key_ptr (section, key, &pList);
@@ -175,86 +179,6 @@ static char *get_string(char *section, char *key, char *init_value)
             value_ptr = skpspc (p+1);
     }
     return ((value_ptr == NULL) || (*value_ptr == '\0')) ? init_value : value_ptr;
-}
-
-
-
-/* delete_key:
- *  Efface une clef.
- */
-static void delete_key(char *section, char *key)
-{
-    struct CFG_LIST *list = NULL;
-    struct CFG_LIST *pList = NULL;
-
-    list = key_ptr (section, key, &pList);
-    if ((pList != NULL) && (list != NULL)) {
-        pList->next = list->next;
-        free (list);
-    }
-}
-
-
-
-/* set_string:
- *  Enregistre une valeur selon la section et la clef.
- */
-static void set_string(char *section, char *key, const char *value)
-{
-    struct CFG_LIST *list = NULL;
-    struct CFG_LIST *pList = NULL;
-    char line[300+1] = "";
-
-    if (*value != '\0')
-    {
-#ifdef DJGPP
-        (void)sprintf (line, "%s = %s", key, value);
-#else
-        (void)snprintf (line, 300, "%s = %s", key, value);
-#endif
-        list = key_ptr (section, key, &pList);
-        if ((list != NULL) && (list->line != NULL))
-        {
-            list->line = realloc (list->line, strlen (line)+1);
-            if (list->line != NULL)
-            {
-                *(list->line) = '\0';
-#ifdef DJGPP
-                (void) sprintf (list->line, "%s", line);
-#else
-                (void) snprintf (list->line, strlen(line)+1, "%s", line);
-#endif
-            }
-        }
-        else
-        {
-            list = create_line (line);
-            if (pList != NULL)
-            {
-                pList->next = list;
-            }
-        }
-    }
-    else
-        delete_key(section, key);
-}
-
-
-
-/* set_int:
- *  Enregistre un entier selon la section et la clef.
- */
-static void set_int (char *section, char *key, int value)
-{
-    char string[10] = "";
-
-    if (value != 0)
-#ifdef DJGPP
-        (void)sprintf (string, "%d", value);
-#else
-        (void)snprintf (string, 10, "%d", value);
-#endif
-    set_string(section, key, string);
 }
 
 
@@ -279,15 +203,6 @@ static int get_int (char *section, char *key, int value)
 
 
 
-/* set_bool:
- *  Enregistre un boléen selon la section et la clef.
- */
-static void set_bool (char *section, char *key, int value)
-{
-    set_string(section, key, (value) ? "yes" : "no");
-}
-
-
 
 /* get_bool:
  *  Lit un boléen selon la section et la clef.
@@ -296,160 +211,145 @@ static int get_bool (char *section, char *key, int value)
 {
     char *string = get_string(section, key, NULL);
 
+    printf ("'%s' '%s' '%s'\n", section, key, string);
     if (string != NULL)
     {
-        if (strcmp (string, "yes") == 0) return TRUE;
-        if (strcmp (string, "no") == 0) return FALSE;
+        if (strcmp (string, "yes") == 0)
+           return TRUE;
+
+        if (strcmp (string, "no") == 0)
+           return FALSE;
     }
     return value;
 }
 
 
 
-/* load_cfg:
- *  Charge le fichier CFG.
+/* load_ini:
+ *  Charge le fichier INI.
  */
-static void load_cfg(char *filename)
+static FILE *load_ini(void)
 {
     int i;
-    struct CFG_LIST *list = NULL;
+    int stop = 0;
+    struct INI_LIST *list = NULL;
     char line[300] = "";
-    FILE *file;
+    static FILE *file;
 #ifdef DEBIAN_BUILD
     char fname[MAX_PATH+1] = "";
 
-    (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
+    (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
     file=fopen(fname, "r");
     if (file == NULL)
     {
-        (void)snprintf (fname, MAX_PATH, "/usr/share/teo/%s", filename);
+        (void)snprintf (fname, MAX_PATH, "/usr/share/teo/%s", INI_FILE_NAME);
         file=fopen(fname, "r");
     }
 #else
-    file=fopen(filename, "r");
+    file=fopen(INI_FILE_NAME, "r");
 #endif
-    while (fgets(line, 300, file) != NULL)
+    if (file != NULL)
     {
-         /* Elimine les caractères de contrôle et les espaces de fin */
-         i = strlen(line);
-         if (i > 0)
-             while ((i >= 0) && ((unsigned char)line[i] <= 0x20))
-                 line[i--] = '\0';
+        while ((stop == 0) && (fgets(line, 300, file) != NULL))
+        {    
+            /* Elimine les caractères de contrôle et les espaces de fin */
+            i = strlen(line);
+            if (i > 0)
+                while ((i >= 0) && ((unsigned char)line[i] <= 0x20))
+                    line[i--] = '\0';
 
-        /* Enregistre la chaîne */
-        if (list == NULL)
-        {
-            list_start = create_line(line);
-            list = list_start;
+            /* Enregistre la chaîne */
+            if (list == NULL)
+            {
+                list_start = add_line(line);
+                list = list_start;
+            }
+            else
+            {
+                list->next = add_line(line);
+                list = list->next;
+            }
+            if (list == NULL)
+                stop = 1;
         }
-        else
-        {
-            list->next = create_line(line);
-            list = list->next;
-        }
-        if (list == NULL)
-        {
-            fclose(file);
-            return;
-        }
+        fclose(file);
     }
-    fclose(file);
+    return file;
 }
 
 
 
-/* save_cfg:
- *  Sauve le fichier CFG.
- */
-static void save_cfg(char *filename)
-{
-    FILE *file;
-    struct CFG_LIST *list = list_start;
-#ifdef DEBIAN_BUILD
-    char fname[MAX_PATH+1] = "";
-
-    (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
-    file=fopen(fname, "w");
-#else
-    file = fopen(filename, "w");
-#endif
-    for (; list!=NULL; list=list->next)
-        fprintf(file, "%s\n", list->line);
-
-    fclose(file);
-}
-
-
-
-/* LoadStateFirst:
+/* LoadState:
  *  Charge l'état sauvegardé de l'émulateur.
  */
-int to8_LoadState(char *filename)
+int to8_LoadState(void)
 {
     struct stat st;
     char *p;
     int load_error = 0;
 
-    load_cfg(filename);
+    if (load_ini() == NULL)
+        return load_error;
     
-    /* settings */
-    gui->setting.exact_speed =  get_bool ("teo", "exact_speed", FALSE);
-    gui->setting.interlaced_video =  get_bool ("teo", "interlaced_video", FALSE);
-    gui->setting.sound_volume  = get_int ("teo", "sound_vol", 128);
+    gui->setting.exact_speed =  get_bool ("[settings]", "exact_speed", TRUE);
+    gui->setting.interlaced_video = get_bool ("[settings]", "interlaced_video", FALSE);
+    gui->setting.sound_volume = get_int ("[settings]", "sound_vol", 128);
 
-    /* cartridge */
-    if ((p = get_string ("teo", "memo_file", NULL)) != NULL)
+    if ((p = get_string ("[m7]", "file", NULL)) != NULL)
         load_error += (to8_LoadMemo7(p) == TO8_ERROR) ? 1 : 0;
 
-    /* tape */
-    gui->cass.write_protect = get_bool ("teo", "k7_write_protect", TRUE);
-    if ((p = get_string ("teo", "k7_file", NULL)) != NULL)
+    gui->cass.write_protect = get_bool ("[k7]", "write_protect", TRUE);
+    if ((p = get_string ("[k7]", "file", NULL)) != NULL)
         load_error += (to8_LoadK7(p) == TO8_ERROR) ? 1 : 0;
 
-    /* disk */
-    gui->disk[0].write_protect = get_bool ("teo", "disk_0_write_protect", FALSE);
-    gui->disk[1].write_protect = get_bool ("teo", "disk_1_write_protect", FALSE);
-    gui->disk[2].write_protect = get_bool ("teo", "disk_2_write_protect", FALSE);
-    gui->disk[3].write_protect = get_bool ("teo", "disk_3_write_protect", FALSE);
-    if ((p = get_string ("teo", "disk_0_file", NULL)) != NULL)
+    gui->disk[0].write_protect = get_bool("[disk0]", "write_protect", FALSE);
+    if ((p = get_string ("[disk0]", "file", NULL)) != NULL)
         load_error += (to8_LoadDisk(0, p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_1_file", NULL)) != NULL)
+
+    gui->disk[1].write_protect = get_bool("[disk1]", "write_protect", FALSE);
+    if ((p = get_string ("[disk1]", "file", NULL)) != NULL)
         load_error += (to8_LoadDisk(1, p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_2_file", NULL)) != NULL)
+
+    gui->disk[2].write_protect = get_bool("[disk2]", "write_protect", FALSE);
+    if ((p = get_string ("[disk2]", "file", NULL)) != NULL)
         load_error += (to8_LoadDisk(2, p) == TO8_ERROR) ? 1 : 0;
-    if ((p = get_string ("teo", "disk_3_file", NULL)) != NULL)
+
+    gui->disk[3].write_protect = get_bool("[disk3]", "write_protect", FALSE);
+    if ((p = get_string ("[disk3]", "file", NULL)) != NULL)
         load_error += (to8_LoadDisk(3, p) == TO8_ERROR) ? 1 : 0;
 
-    /* printer */
-    gui->lprt.number     = get_int  ("teo", "printer_number", 55);
-    gui->lprt.dip        = get_bool ("teo", "printer_dip", FALSE);
-    gui->lprt.nlq        = get_bool ("teo", "printer_nlq", FALSE);
-    gui->lprt.raw_output = get_bool ("teo", "printer_raw_output", FALSE);
-    gui->lprt.txt_output = get_bool ("teo", "printer_txt_output", FALSE);
-    gui->lprt.gfx_output = get_bool ("teo", "printer_gfx_output", TRUE);
+    gui->lprt.number     = get_int  ("[printer]", "number", 55);
+    gui->lprt.dip        = get_bool ("[printer]", "dip", FALSE);
+    gui->lprt.nlq        = get_bool ("[printer]", "nlq", FALSE);
+    gui->lprt.raw_output = get_bool ("[printer]", "raw_output", FALSE);
+    gui->lprt.txt_output = get_bool ("[printer]", "txt_output", FALSE);
+    gui->lprt.gfx_output = get_bool ("[printer]", "gfx_output", TRUE);
 #ifdef DJGPP
-    (void)sprintf (gui->lprt.folder, "%s", get_string ("teo", "printer_folder", ""));
+    (void)sprintf (gui->lprt.folder, "%s",
+                   get_string ("[printer]", "folder", ""));
 #else
-    (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", get_string ("teo", "printer_folder", ""));
+    (void)snprintf (gui->lprt.folder, MAX_PATH, "%s",
+                    get_string ("[printer]", "folder", ""));
 #endif
     if((stat(gui->lprt.folder, &st) < 0) || (S_ISDIR(st.st_mode) == 0))
        *gui->lprt.folder = '\0';
 #ifdef DJGPP
-    (void)sprintf (gui->default_folder, "%s", get_string ("teo", "default_folder", ""));
+    (void)sprintf (gui->default_folder, "%s",
+                   get_string ("[teo]", "folder", ""));
 #else
-    (void)snprintf (gui->default_folder, MAX_PATH, "%s", get_string ("teo", "default_folder", ""));
+    (void)snprintf (gui->default_folder, MAX_PATH, "%s",
+                    get_string ("[teo]", "folder", ""));
 #endif
     if((stat(gui->default_folder, &st) < 0) || (S_ISDIR(st.st_mode) == 0))
        *gui->default_folder = '\0';
 
-    /* image */
     if (load_error)
         to8_ColdReset();
     else
         if (access("autosave.img", F_OK) >= 0)
             to8_LoadImage("autosave.img");
 
-    unload_cfg();
+    unload_ini();
 
     return load_error;
 }
@@ -459,49 +359,72 @@ int to8_LoadState(char *filename)
 /* SaveState:
  *  Sauvegarde l'état de l'émulateur.
  */
-void to8_SaveState (char *filename)
+void to8_SaveState (void)
 {
-    load_cfg (filename);
+    FILE *file;
+#ifdef DEBIAN_BUILD
+    char fname[MAX_PATH+1] = "";
 
-    /* default */
-    set_string ("teo", "default_folder", gui->default_folder);
+    (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
+    file=fopen(fname, "w");
+#else
+    file = fopen(INI_FILE_NAME, "w");
+#endif
 
-    /* settings */
-    set_bool   ("teo", "exact_speed", gui->setting.exact_speed);
-    set_bool   ("teo", "interlaced_video", gui->setting.interlaced_video);
-    set_int    ("teo", "sound_vol", gui->setting.sound_volume);
+    if (file == NULL)
+        return;
 
-    /* cartridge */
-    set_string ("teo", "memo_file", gui->memo.file);
+    fprintf (file, "[teo]\n");
+    fprintf (file, "folder=%s\n", gui->default_folder);
+    fprintf (file, "\n");
 
-    /* tape */
-    set_string ("teo", "k7_file", gui->cass.file);
-    set_bool   ("teo", "k7_write_protect", gui->cass.write_protect);
+    fprintf (file, "[settings]\n");
+    fprintf (file, "exact_speed=%s\n", (gui->setting.exact_speed) ? "yes" : "no");
+    fprintf (file, "interlaced_video=%s\n", (gui->setting.interlaced_video) ? "yes" : "no");
+    fprintf (file, "sound_vol=%d\n", gui->setting.sound_volume);
+    fprintf (file, "\n");
 
-    /* disk */
-    set_string ("teo", "disk_0_file", gui->disk[0].file);
-    set_string ("teo", "disk_1_file", gui->disk[1].file);
-    set_string ("teo", "disk_2_file", gui->disk[2].file);
-    set_string ("teo", "disk_3_file", gui->disk[3].file);
-    set_bool   ("teo", "disk_0_write_protect", gui->disk[0].write_protect);
-    set_bool   ("teo", "disk_1_write_protect", gui->disk[1].write_protect);
-    set_bool   ("teo", "disk_2_write_protect", gui->disk[2].write_protect);
-    set_bool   ("teo", "disk_3_write_protect", gui->disk[3].write_protect);
+    fprintf (file, "[m7]\n");
+    fprintf (file, "file=%s\n", gui->memo.file);
+    fprintf (file, "\n");
 
-    /* printer */
-    set_string ("teo", "printer_folder", gui->lprt.folder);
-    set_int    ("teo", "printer_number", gui->lprt.number);
-    set_bool   ("teo", "printer_dip", gui->lprt.dip);
-    set_bool   ("teo", "printer_nlq", gui->lprt.nlq);
-    set_bool   ("teo", "printer_raw_output", gui->lprt.raw_output);
-    set_bool   ("teo", "printer_txt_output", gui->lprt.txt_output);
-    set_bool   ("teo", "printer_gfx_output", gui->lprt.gfx_output);
+    fprintf (file, "[k7]\n");
+    fprintf (file, "file=%s\n", gui->cass.file);
+    fprintf (file, "write_protect=%s\n", (gui->cass.write_protect) ? "yes" : "no");
+    fprintf (file, "\n");
 
-    /* image */
+    fprintf (file, "[disk0]\n");
+    fprintf (file, "file=%s\n", gui->disk[0].file);
+    fprintf (file, "write_protect=%s\n", (gui->disk[0].write_protect) ? "yes" : "no");
+    fprintf (file, "\n");
+    
+    fprintf (file, "[disk1]\n");
+    fprintf (file, "file=%s\n", gui->disk[1].file);
+    fprintf (file, "write_protect=%s\n", (gui->disk[1].write_protect) ? "yes" : "no");
+    fprintf (file, "\n");
+    
+    fprintf (file, "[disk2]\n");
+    fprintf (file, "file=%s\n", gui->disk[2].file);
+    fprintf (file, "write_protect=%s\n", (gui->disk[2].write_protect) ? "yes" : "no");
+    fprintf (file, "\n");
+    
+    fprintf (file, "[disk3]\n");
+    fprintf (file, "file=%s\n", gui->disk[3].file);
+    fprintf (file, "write_protect=%s\n", (gui->disk[3].write_protect) ? "yes" : "no");
+    fprintf (file, "\n");
+    
+    fprintf (file, "[printer]\n");
+    fprintf (file, "folder=%s\n", gui->lprt.folder);
+    fprintf (file, "number=%d\n", gui->lprt.number);
+    fprintf (file, "dip=%s\n", (gui->lprt.dip) ? "yes" : "no");
+    fprintf (file, "nlq=%s\n", (gui->lprt.nlq) ? "yes" : "no");
+    fprintf (file, "raw_output=%s\n", (gui->lprt.raw_output) ? "yes" : "no");
+    fprintf (file, "txt_output=%s\n", (gui->lprt.txt_output) ? "yes" : "no");
+    fprintf (file, "gfx_output=%s\n", (gui->lprt.gfx_output) ? "yes" : "no");
+    fprintf (file, "\n");
+
+    fclose (file);
+
     to8_SaveImage ("autosave.img");
-
-    save_cfg (filename);
-
-    unload_cfg();
 }
 
