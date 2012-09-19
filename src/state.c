@@ -211,7 +211,6 @@ static int get_bool (char *section, char *key, int value)
 {
     char *string = get_string(section, key, NULL);
 
-    printf ("'%s' '%s' '%s'\n", section, key, string);
     if (string != NULL)
     {
         if (strcmp (string, "yes") == 0)
