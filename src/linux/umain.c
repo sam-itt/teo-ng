@@ -318,8 +318,8 @@ static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int 
 
 
 
-/* ExitMessage:
- *  Affiche un message de sortie et sort du programme.
+/* DisplayMessage:
+ *  Affiche un message.
  */
 static void DisplayMessage(const char msg[])
 {
