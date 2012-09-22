@@ -105,7 +105,7 @@ static DIALOG diskdial[]={
 #ifdef FRENCH_LANG
 { d_button_proc,     30,  146,  250,   16,     0,     0, 'd',    D_EXIT,  0,    0,    "Accès &direct" },
 #else
-{ d_button_proc,     30,  146,  250,   16,     0,     0, 'D',    D_EXIT,  0,    0,    "&Direct access" },
+{ d_button_proc,     30,  146,  250,   16,     0,     0, 'd',    D_EXIT,  0,    0,    "&Direct access" },
 #endif
 { d_text_proc,      255,   40,    0,    0,     0,     0,   0,    0,       0,    0,    "prot." },
 { d_button_proc,     30,  170,  126,   16,     0,     0, 'o',    D_EXIT,  0,    0,    "&OK" },
