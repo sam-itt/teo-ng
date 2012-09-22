@@ -467,8 +467,7 @@ int CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           }
           if ((HWND)lParam == aboutLicense)
           {
-              SetTextColor((HDC)wParam, RGB(0, 0, 0));
-              SetBkMode((HDC)wParam, TRANSPARENT);
+              SetBkColor((HDC)wParam, RGB(255, 255, 255));
               return (BOOL)GetStockObject(WHITE_BRUSH);
           }
           return TRUE;
