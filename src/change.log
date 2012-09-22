@@ -3,6 +3,7 @@
 ========================================================================
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
+- Ajout du checkbox pour le son sur le tableau de contrôle
 - linux : passage à GTK+3.0
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)

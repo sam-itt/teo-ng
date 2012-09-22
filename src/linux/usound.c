@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 24/01/2012 15/06/2012
+ *                               19/10/2012
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -57,6 +58,7 @@
 
 #include "to8.h"
 #include "intern/hardware.h"
+#include "intern/gui.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
 #define ALSA_SOUND_FREQ  44100         /* débit */
@@ -91,6 +93,7 @@ static int Error (const char *error_name, char *error_string)
     (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
                    "%s : %s", error_name, error_string);
     CloseSound ();
+    gui->setting.sound_enabled=0;
     return TO8_ERROR;
 }
 
@@ -238,7 +241,6 @@ void CloseSound (void)
         snd_pcm_close(handle);
         handle = NULL;
     }
-    teo.sound_enabled=0;
 }
 
 
@@ -253,7 +255,7 @@ int InitSound(void)
 
     to8_PutSoundByte=PutSoundByte;
 
-    if (teo.sound_enabled)
+    if (gui->setting.sound_enabled)
     {
         printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
 

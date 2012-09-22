@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
+ *                               19/09/2012
  *
  *  Interface utilisateur Windows native.
  */
@@ -107,9 +108,9 @@ static void init_bar(HWND volume_bar)
    SendMessage(volume_bar, TBM_SETTICFREQ, PAGE_STEP, 0);
 
    SendMessage(volume_bar, TBM_SETPOS, TRUE,
-      (teo.sound_enabled && gui->setting.exact_speed) ? GetVolume()-1 : (MAX_POS-MIN_POS)/2);
+      (gui->setting.sound_enabled && gui->setting.exact_speed) ? GetVolume()-1 : (MAX_POS-MIN_POS)/2);
    
-   if (!teo.sound_enabled || !gui->setting.exact_speed)
+   if (!gui->setting.sound_enabled || !gui->setting.exact_speed)
       EnableWindow(volume_bar, FALSE);
 }
 
@@ -159,11 +160,34 @@ static void update_bar(HWND volume_bar, WPARAM wParam)
 
 
 
+static void update_sound_check(HWND hDlg, HWND volume_bar)
+{
+    int state;
+
+    if (teo.sound_enabled)
+    {
+        state = (IsDlgButtonChecked(hDlg, SOUND_CHECK) == BST_CHECKED);
+        gui->setting.sound_enabled = state ? TRUE : FALSE;
+        EnableWindow(volume_bar, state ? TRUE : FALSE);
+    }
+    else
+    {
+        MessageBox(hDlg, is_fr? "Carte son non detectée"
+                              : "Sound card not detected",
+                              PROGNAME_STR, MB_OK | MB_ICONERROR);
+        CheckDlgButton(hDlg, SOUND_CHECK, BST_UNCHECKED);
+        EnableWindow(volume_bar, FALSE);
+    }
+}
+
+
+
 /* SettingTabProc:
  * Procédure pour l'onglet des réglages
  */
 int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+   static HWND sound_check;
    static HWND volume_bar;
    char filename[BUFFER_SIZE];
 
@@ -178,7 +202,7 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Charger");
          SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Sauver");
          SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Mode vidéo entrelacé");
-         SetWindowText(GetDlgItem(hDlg, VOLUME_LTEXT), "Volume sonore:");
+         SetWindowText(GetDlgItem(hDlg, SOUND_CHECK), "Son:");
 #else
          SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "Speed:");
          SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exact");
@@ -187,17 +211,23 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Load");
          SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Save");
          SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Interlaced video");
-         SetWindowText(GetDlgItem(hDlg, VOLUME_LTEXT), "Sound volume:");
+         SetWindowText(GetDlgItem(hDlg, SOUND_CHECK), "Sound:");
 #endif
          /* initialisation des boutons radio de la vitesse */
          CheckRadioButton(hDlg, EXACT_SPEED_BUTTON, MAX_SPEED_BUTTON, 
                (gui->setting.exact_speed ? EXACT_SPEED_BUTTON : MAX_SPEED_BUTTON));
 
          /* initialisation du mode entrelacé */
-         CheckDlgButton(hDlg, INTERLACED_CHECK, gui->setting.interlaced_video ? BST_CHECKED : BST_UNCHECKED);
+         CheckDlgButton(hDlg, INTERLACED_CHECK, gui->setting.interlaced_video
+                                                ? BST_CHECKED : BST_UNCHECKED);
+
+         /* initialisation du checkbox de son */
+         CheckDlgButton(hDlg, SOUND_CHECK, gui->setting.sound_enabled
+                                                ? BST_CHECKED : BST_UNCHECKED);
 
          /* initialisation de la barre du volume */
          volume_bar = GetDlgItem(hDlg, VOLUME_BAR);
+         sound_check = GetDlgItem(hDlg, SOUND_CHECK);
          init_bar(volume_bar);
 
          return TRUE;
@@ -208,15 +238,23 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case EXACT_SPEED_BUTTON:
                gui->setting.exact_speed = TRUE;
                EnableWindow(volume_bar, TRUE);
+               EnableWindow(sound_check, TRUE);
                break;
 
             case MAX_SPEED_BUTTON:
                gui->setting.exact_speed = FALSE;
                EnableWindow(volume_bar, FALSE);
+               EnableWindow(sound_check, FALSE);
                break;
 
             case INTERLACED_CHECK:
-               gui->setting.interlaced_video = (IsDlgButtonChecked(hDlg, INTERLACED_CHECK) == BST_CHECKED) ? TRUE : FALSE;
+               gui->setting.interlaced_video =
+                  (IsDlgButtonChecked(hDlg, INTERLACED_CHECK) == BST_CHECKED)
+                      ? TRUE : FALSE;
+               break;
+               
+            case SOUND_CHECK:
+               update_sound_check(hDlg, volume_bar);
                break;
                
             case LOAD_BUTTON:
@@ -240,7 +278,7 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_HSCROLL:
          if ((HWND)lParam == volume_bar)
          {
-            if (teo.sound_enabled && gui->setting.exact_speed)
+            if (gui->setting.sound_enabled && gui->setting.exact_speed)
                update_bar(volume_bar, wParam);
          }
          return TRUE;

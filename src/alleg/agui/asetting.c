@@ -39,6 +39,7 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
+ *                               19/09/2012
  *
  *  Gestion des réglages.
  */
@@ -65,12 +66,12 @@ static DIALOG commdial[]={
 #ifdef FRENCH_LANG
 { d_ctext_proc,      160,  30,     0,    0,     0,     0,      0,   0,       0,    0,    "Commandes et Réglages" },
 { d_button_proc,      30,  45,   260,   16,     0,     0,    'r',  D_EXIT,   0,    0,    "&Réinitialiser le TO8" },
-{ d_button_proc,      30,  68,   260,   16,     0,     0,    'f',  D_EXIT,   0,    0,    "&Redémarrer à &froid le TO8" },
+{ d_button_proc,      30,  68,   260,   16,     0,     0,    'f',  D_EXIT,   0,    0,    "Redémarrer à &froid le TO8" },
 { d_text_proc,        32,  94,     0,    0,     0,     0,      0,   0,       0,    0,    "Vitesse:" },
 { d_radio_proc,      107,  94,   126,    8,     0,     0,    'e',   0,       1,    0,    "&exacte" },
 { d_radio_proc,      107, 108,   126,    8,     0,     0,    'p',   0,       1,    0,    "ra&pide" },
-{ d_text_proc,        32, 124,     0,    0,     0,     0,      0,   0,       0,    0,    "&Volume:" },
-{ d_slider_proc,      92, 122,   100,   15,     0,     0,    'v',   0,     254,    0,    NULL },
+{ d_check_proc,       32, 122,   120,   14,     0,     0,    's',   0,       0,    0,    "&Son" },
+{ d_slider_proc,      92, 122,   100,   15,     0,     0,      0,   0,     254,    0,    NULL },
 { d_check_proc,       30, 142,   148,   14,     0,     0,    't',   0,       0,    0,    "Vidéo en&trelacée" },
 { d_box_proc,        209,  94,    80,   74,     0,     0,      0,   0,       0,    0,    NULL },
 { d_ctext_proc,      248, 100,     0,    0,     0,     0,      0,   0,       0,    0,    "Images:" },
@@ -83,8 +84,8 @@ static DIALOG commdial[]={
 { d_text_proc,        32,  94,     0,    0,     0,     0,      0,   0,       0,    0,    "  Speed:" },
 { d_radio_proc,      107,  94,   126,    8,     0,     0,    'e',   0,       1,    0,    "&exact" },
 { d_radio_proc,      107, 108,   126,    8,     0,     0,    'f',   0,       1,    0,    "&fast" },
-{ d_text_proc,        32, 124,     0,    0,     0,     0,      0,   0,       0,    0,    "&Volume:" },
-{ d_slider_proc,      92, 122,   100,   15,     0,     0,    'v',   0,     254,    0,    NULL },
+{ d_check_proc,       32, 122,   120,   14,     5,     0,    's',   0,       0,    0,    "&Sound" },
+{ d_slider_proc,      96, 122,   100,   15,     0,     0,      0,   0,     254,    0,    NULL },
 { d_check_proc,       30, 142,   147,   14,     5,     0,    't',   0,       0,    0,    "In&terlaced video" },
 { d_box_proc,        209,  94,    80,   74,     0,     0,      0,   0,       0,    0,    NULL },
 { d_ctext_proc,      248, 100,     0,    0,     0,     0,      0,   0,       0,    0,    "Images:" },
@@ -100,7 +101,7 @@ static DIALOG commdial[]={
 #define COMMDIAL_COLDINIT    4
 #define COMMDIAL_EXACTSPEED  6
 #define COMMDIAL_MAXSPEED    7
-#define COMMDIAL_VOLUME      8
+#define COMMDIAL_SOUND       8
 #define COMMDIAL_SLIDER      9
 #define COMMDIAL_INTERLACE   10
 #define COMMDIAL_SPAN        11
@@ -117,16 +118,9 @@ void MenuComm(void)
     int first = 1;
     static char filename[MAX_PATH];
 
-    if (gui->setting.exact_speed)
-    {
-        commdial[COMMDIAL_EXACTSPEED].flags=D_SELECTED;
-        commdial[COMMDIAL_MAXSPEED].flags=0;
-    }
-    else
-    {
-        commdial[COMMDIAL_EXACTSPEED].flags=0;
-        commdial[COMMDIAL_MAXSPEED].flags=D_SELECTED;
-    }
+    commdial[COMMDIAL_EXACTSPEED].flags=(gui->setting.exact_speed) ? D_SELECTED : 0;
+    commdial[COMMDIAL_MAXSPEED].flags=(gui->setting.exact_speed) ? 0 : D_SELECTED;
+    commdial[COMMDIAL_SOUND].flags=(gui->setting.sound_enabled) ? D_SELECTED : 0;
 
     if (first)
     {
@@ -171,6 +165,7 @@ void MenuComm(void)
     gui->setting.interlaced_video = (commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) ? TRUE : FALSE;
     SetVolume(commdial[COMMDIAL_SLIDER].d2+1);
     gui->setting.sound_volume = GetVolume();
+    gui->setting.sound_enabled = (commdial[COMMDIAL_SOUND].flags&D_SELECTED ? TRUE : FALSE);
     gui->setting.exact_speed=(commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED ? TRUE : FALSE);
 }
 
@@ -194,8 +189,8 @@ void InitCommGUI(char version_name[], int gfx_mode, char *title)
     if ((strstr (version_name, "MSDOS") != NULL) && (gfx_mode == GFX_MODE40))
         commdial[COMMDIAL_INTERLACE].flags |= D_DISABLED;
 
-    if (!teo.sound_enabled)
-        commdial[COMMDIAL_VOLUME].flags=commdial[COMMDIAL_SPAN].flags=commdial[COMMDIAL_SLIDER].flags=D_DISABLED;
+    if (!gui->setting.sound_enabled)
+        commdial[COMMDIAL_SOUND].flags=commdial[COMMDIAL_SPAN].flags=commdial[COMMDIAL_SLIDER].flags=D_DISABLED;
 
     /* Définit le titre de la fenêtre */
     commdial[1].dp = title;

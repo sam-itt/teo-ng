@@ -38,7 +38,8 @@
  *  Version    : 1.8.2
  *  CrÈÈ par   : Eric Botcazou octobre 1999
  *  ModifiÈ par: Eric Botcazou 19/11/2006
- *               FranÁois Mouret 26/01/2010 08/2011 23/03/2012 09/06/2012
+ *               FranÁois Mouret 26/01/2010 08/2011 23/03/2012
+                                 09/06/2012 19/10/2012
  *               Samuel Devulder 07/2011
  *               Gilles FÈtis 07/2011
  *
@@ -74,7 +75,6 @@
 #include "xargs.h"
 
 struct EmuTO teo={
-    True,
     NONE
 };
 
@@ -106,7 +106,7 @@ static gboolean RunTO8 (gpointer user_data)
     static gulong microseconds;
 
     if ((gui->setting.exact_speed)
-     && (teo.sound_enabled == 0)
+     && (gui->setting.sound_enabled == 0)
      && (g_timer_elapsed (timer, &microseconds) < 0.02))
         return TRUE;
 
@@ -147,7 +147,7 @@ static gboolean RunTO8 (gpointer user_data)
     teo.command = NONE;
 
     RefreshScreen();
-    if ((gui->setting.exact_speed) && (teo.sound_enabled))
+    if ((gui->setting.exact_speed) && (gui->setting.sound_enabled))
         PlaySoundBuffer();
 
     return TRUE;
@@ -255,7 +255,7 @@ static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int 
     if (XrmGetResource(user_db,PROG_NAME".sound",PROG_CLASS".Sound", str_type, &value))
     {
         if (!strncmp(value.addr,"off",value.size))
-            teo.sound_enabled=False;
+            gui->setting.sound_enabled=FALSE;
         else if (strncmp(value.addr,"on",value.size))
         {
             fprintf(stderr,is_fr?"%s: sp√©cification de l'Èmulation sonore invalide (voir %s -help)\n"

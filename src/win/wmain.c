@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou septembre 2000
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011
+ *               François Mouret 19/10/2012
  *
  *  Boucle principale de l'émulateur.
  */
@@ -100,28 +101,32 @@ static void RetraceCallback(void)
  */
 static void RunTO8(int windowed_mode)
 {
-    if (!teo.sound_enabled)
-        install_int_ex(Timer, BPS_TO_TIMER(TO8_FRAME_FREQ));
-
-    frame=1;
     InstallPointer(TO8_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
     do  /* boucle principale de l'émulateur */
     {
         teo.command=NONE;
-        tick=frame;
 
         /* installation des handlers clavier, souris et son */ 
         InstallKeybint();
         InstallPointer(LAST_POINTER);
 
-        if (teo.sound_enabled && gui->setting.exact_speed)
-            StartSound();
+        if (gui->setting.exact_speed)
+        {
+            if (gui->setting.sound_enabled)
+                StartSound();
+            else
+            {
+                install_int_ex(Timer, BPS_TO_TIMER(TO8_FRAME_FREQ));
+                frame=1;
+                tick=frame;
+            }
+        }
 
         do  /* boucle d'émulation */
         {
-            to8_DoFrame();
+            to8_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */
             if (need_palette_refresh)
@@ -136,7 +141,7 @@ static void RunTO8(int windowed_mode)
             /* synchronisation sur fréquence réelle */
             if (gui->setting.exact_speed)
             {
-                if (teo.sound_enabled)
+                if (gui->setting.sound_enabled)
                     PlaySoundBuffer();
                 else
                     while (frame==tick)
@@ -148,9 +153,13 @@ static void RunTO8(int windowed_mode)
         while (teo.command==NONE);  /* fin de la boucle d'émulation */
 
         /* désinstallation des handlers clavier, souris et son */
-        if (teo.sound_enabled && gui->setting.exact_speed)
-            StopSound();
-
+        if (gui->setting.exact_speed)
+        {
+            if (gui->setting.sound_enabled)
+                StopSound();
+            else
+                remove_int(Timer);
+        }
         ShutDownPointer();
         ShutDownKeybint();
 
@@ -176,9 +185,6 @@ static void RunTO8(int windowed_mode)
         }
     }
     while (teo.command != QUIT);  /* fin de la boucle principale */
-
-    if (!teo.sound_enabled)
-        remove_int(Timer);
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
@@ -415,7 +421,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
         else if (!strcmp(argv[i],"-fast"))
             gui->setting.exact_speed=FALSE;
         else if (!strcmp(argv[i],"-nosound"))
-            teo.sound_enabled=FALSE;
+            gui->setting.sound_enabled=FALSE;
         else if (!strcmp(argv[i],"-nojoy"))
             njoy = -1;
         else if (!strcmp(argv[i],"-mode40"))

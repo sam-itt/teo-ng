@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
+ *                               21/09/2012
  *
  *  Interface utilisateur Windows native.
  */
@@ -136,41 +137,23 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
    {
       case WM_INITDIALOG:
 #ifdef FRENCH_LANG
-         SetWindowText(hDlg, "Teo - Panneau de contrôle");
-         SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quitter");
-         SetWindowText(GetDlgItem(hDlg, COMMANDS_LTEXT), "Commandes et Réglages");
+         SetWindowText(hDlg, "Panneau de contrôle");
          SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Réinitialiser le TO8");
          SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Redémarrer à froid le TO8");
-         SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "Vitesse:");
-         SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exacte");
-         SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "maximale");
-         SetWindowText(GetDlgItem(hDlg, IMAGE_GROUP), "Images");
-         SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Charger");
-         SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Sauver");
-         SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Mode vidéo entrelacé");
-         SetWindowText(GetDlgItem(hDlg, VOLUME_LTEXT), "Volume sonore:");
          SetWindowText(GetDlgItem(hDlg, ABOUT_BUTTON), "A propos");
+         SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quitter");
 #else
-         SetWindowText(hDlg, "Teo - Control panel");
-         SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quit");
-         SetWindowText(GetDlgItem(hDlg, COMMANDS_LTEXT), "Commands and Settings");
+         SetWindowText(hDlg, "Control panel");
          SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "TO8 warm reset");
          SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "TO8 cold reset");
-         SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "  Speed:");
-         SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exact");
-         SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "fastest");
-         SetWindowText(GetDlgItem(hDlg, IMAGE_GROUP), "Images");
-         SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Load");
-         SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Save");
-         SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Interlaced video");
-         SetWindowText(GetDlgItem(hDlg, VOLUME_LTEXT), " Sound volume:");
          SetWindowText(GetDlgItem(hDlg, ABOUT_BUTTON), "About");
+         SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quit");
 #endif
          /* Crée les onglets */
          hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting", SETTING_TAB, SettingTabProc);
          hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk", DISK_TAB, DiskTabProc);
-         hTab[2] = CreateTab(hDlg, 2, is_fr?"K7":"Tape", K7_TAB, CassetteTabProc);
-         hTab[3] = CreateTab(hDlg, 3, is_fr?"Memo7":"Cartridge", MEMO7_TAB, CartridgeTabProc);
+         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, CassetteTabProc);
+         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, CartridgeTabProc);
          hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer", PRINTER_TAB, PrinterTabProc);
          SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, nCurrentTab, 0);
          ShowTab(hDlg);
@@ -195,16 +178,12 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
                break;
 
             case QUIT_BUTTON:
-               /*
-               if (MessageBox(hDlg, is_fr?"Voulez-vous vraiment quitter l'émulateur ?"
-                                         :"Do you really want to quit the emulator ?", "Teo - confirmation",
-                        MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 | MB_SYSTEMMODAL) == IDYES)
-               */
-                  EndDialog(hDlg, IDCANCEL);
+               EndDialog(hDlg, IDCANCEL);
                break; 
 
             case ABOUT_BUTTON:
-               (void)DialogBox (prog_inst, MAKEINTRESOURCE(ABOUT_DIALOG), hDlg, (DLGPROC)AboutProc);
+               (void)DialogBox (prog_inst, MAKEINTRESOURCE(ABOUT_DIALOG),
+                                hDlg, (DLGPROC)AboutProc);
                break;
 
             case RESET_BUTTON:

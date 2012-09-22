@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 24/09/2001
  *               Samuel Devulder 23/03/2010
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 19/10/2012
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -51,6 +51,7 @@
 #endif
 
 #include "to8.h"
+#include "intern/gui.h"
 
 
 static AUDIOSTREAM *stream;
@@ -59,7 +60,6 @@ static int sound_buffer_size;
 static unsigned char *sound_buffer;
 static int last_index;
 static unsigned char last_data;
-
 
 
 /* StartSound:
@@ -169,9 +169,6 @@ void InitSound(int freq)
 
     to8_PutSoundByte=PutSoundByte;
 
-    if (!teo.sound_enabled)
-        return;
-
     teo.sound_enabled=FALSE;
 
     printf(is_fr?"Initialisation du son...":"Sound initialization...");
@@ -189,4 +186,3 @@ void InitSound(int freq)
 
     printf(teo.sound_enabled ? "ok\n" : (is_fr?"erreur\n":"error\n"));
 }
-

@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
- *               François Mouret 07/08/2011 24/03/2012
+ *               François Mouret 07/08/2011 24/03/2012 19/10/2012
  *
  *  Gestion des préférences.
  */
@@ -75,6 +75,16 @@ static void toggle_speed (GtkWidget *button, gpointer data)
 static void toggle_interlace (GtkWidget *button, gpointer data)
 {
     gui->setting.interlaced_video = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+    (void)data;
+}
+
+
+/* toggle_sound:
+ *  Positionne l'activation du son
+ */
+static void toggle_sound (GtkWidget *button, gpointer data)
+{
+    gui->setting.sound_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
     (void)data;
 }
 
@@ -121,6 +131,16 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_speed), (gpointer)NULL);
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.exact_speed ? TRUE : FALSE);
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+
+    /* boîte horizontale du checkbox de son */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    /* checkbox du son */
+    widget=gtk_check_button_new_with_label((is_fr?"Son":"Sound"));
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.sound_enabled);
+    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_sound), (gpointer)NULL);
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte horizontale du mode entrelacé */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);

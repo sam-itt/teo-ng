@@ -292,7 +292,8 @@ int to8_LoadState(void)
     
     gui->setting.exact_speed =  get_bool ("[settings]", "exact_speed", TRUE);
     gui->setting.interlaced_video = get_bool ("[settings]", "interlaced_video", FALSE);
-    gui->setting.sound_volume = get_int ("[settings]", "sound_vol", 128);
+    gui->setting.sound_volume = get_int ("[settings]", "sound_volume", 128);
+    gui->setting.sound_enabled = get_bool ("[settings]", "sound_enabled", TRUE);
 
     if ((p = get_string ("[m7]", "file", NULL)) != NULL)
         load_error += (to8_LoadMemo7(p) == TO8_ERROR) ? 1 : 0;
@@ -380,7 +381,8 @@ void to8_SaveState (void)
     fprintf (file, "[settings]\n");
     fprintf (file, "exact_speed=%s\n", (gui->setting.exact_speed) ? "yes" : "no");
     fprintf (file, "interlaced_video=%s\n", (gui->setting.interlaced_video) ? "yes" : "no");
-    fprintf (file, "sound_vol=%d\n", gui->setting.sound_volume);
+    fprintf (file, "sound_volume=%d\n", gui->setting.sound_volume);
+    fprintf (file, "sound_enabled=%s\n", (gui->setting.sound_enabled) ? "yes" : "no");
     fprintf (file, "\n");
 
     fprintf (file, "[m7]\n");

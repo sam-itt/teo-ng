@@ -79,6 +79,7 @@ struct MEMO_GUI {
 struct SETTING_GUI {
     int  exact_speed;
     int  sound_volume;
+    int  sound_enabled;
     int  interlaced_video;
 };
 

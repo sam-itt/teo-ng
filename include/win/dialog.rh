@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 14/09/2000
  *  Modifié par: Eric Botcazou 26/10/2003
- *               François Mouret 10/08/2011 17/03/2012
+ *               François Mouret 10/08/2011 17/03/2012 20/09/2012
  *
  *  Définition des boîtes de dialogue.
  */
@@ -54,18 +54,17 @@
 #define WINDOWED_BUTTON         2106
 
 #define RESET_BUTTON            2120
-#define ABOUT_BUTTON            2121
-#define COMMANDS_LTEXT          2122
-#define COLDRESET_BUTTON        2123
-#define CONTROL_TAB             2124
-#define QUIT_BUTTON             2125
+#define COLDRESET_BUTTON        2121
+#define CONTROL_TAB             2122
+#define ABOUT_BUTTON            2123
+#define QUIT_BUTTON             2124
 
 #define SETTING_TAB             2140
 #define SPEED_LTEXT             2141
 #define EXACT_SPEED_BUTTON      2142
 #define MAX_SPEED_BUTTON        2143
 #define INTERLACED_CHECK        2144
-#define VOLUME_LTEXT            2145
+#define SOUND_CHECK             2145
 #define VOLUME_BAR              2146
 #define IMAGE_GROUP             2147
 #define LOAD_BUTTON             2148

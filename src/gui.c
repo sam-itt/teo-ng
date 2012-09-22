@@ -178,6 +178,7 @@ int gui_Init (void)
         return (bad_alloc());
 
     gui->setting.exact_speed = TRUE;
+    gui->setting.sound_enabled = TRUE;
     
     return TO8_OK;
 }
