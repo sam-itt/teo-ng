@@ -56,6 +56,7 @@
 #include "linux/gui.h"
 #include "to8.h"
 
+static GtkWidget *sound_widget = NULL;
 
 
 /* toggle_speed:
@@ -64,6 +65,8 @@
 static void toggle_speed (GtkWidget *button, gpointer data)
 {
     gui->setting.exact_speed=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+    if (sound_widget != NULL)
+        gtk_widget_set_sensitive (sound_widget, gui->setting.exact_speed ? TRUE : FALSE);
     (void)data;
 }
 
@@ -137,10 +140,11 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* checkbox du son */
-    widget=gtk_check_button_new_with_label((is_fr?"Son":"Sound"));
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.sound_enabled);
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_sound), (gpointer)NULL);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    sound_widget=gtk_check_button_new_with_label((is_fr?"Son":"Sound"));
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(sound_widget), gui->setting.sound_enabled);
+    g_signal_connect(G_OBJECT(sound_widget), "toggled", G_CALLBACK(toggle_sound), (gpointer)NULL);
+    gtk_box_pack_start( GTK_BOX(hbox), sound_widget, TRUE, FALSE, 0);
+    gtk_widget_set_sensitive (sound_widget, gui->setting.exact_speed ? TRUE : FALSE);
 
     /* boîte horizontale du mode entrelacé */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
