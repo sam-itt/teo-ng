@@ -137,8 +137,8 @@ static char *cat(xargs *xargs, char *s1, const char *s2) {
 
 /* xargs_parse:
  *  parse argc, argv et rempli la structure xargs. Les pointeurs
- *  sur fonctions doivent avoir étés remplis si on veut avoir acces
- *  a certaines fonctionnalités.
+ *  sur fonctions doivent avoir été remplis si on veut avoir accès
+ *  à certaines fonctionnalités.
  */
 void xargs_parse(xargs *xargs, int argc, char **argv) {
     int i;
