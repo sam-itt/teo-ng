@@ -21,7 +21,7 @@ if [ "$1" != "--quick" ]; then
                    touch -r _tmpfile {};
                    rm _tmpfile" \;
 
-   chmod +x *.sh misc/*.sh
+   chmod +x *.sh misc/*.sh doc/*.sh misc/pack/*.sh
    echo
 fi
 
