@@ -137,6 +137,7 @@ void FreeGUI (void)
 void InitGUI(void)
 {
     GtkWidget *content_area;
+    GtkWidget *action_area;
     GtkWidget *widget;
     GtkWidget *hidden_button;
     GtkWidget *hbox, *vbox;
@@ -153,6 +154,7 @@ void InitGUI(void)
     hidden_button = gtk_dialog_add_button (GTK_DIALOG(wControl),"", TEO_RESPONSE_END);
     gtk_window_set_resizable (GTK_WINDOW(wControl), FALSE);
     content_area = gtk_dialog_get_content_area (GTK_DIALOG(wControl));
+    action_area = gtk_dialog_get_action_area (GTK_DIALOG(wControl));
 
     /* crée toutes les widgets de la fenêtre */
     /* boîte horizontale du titre */
@@ -179,6 +181,11 @@ void InitGUI(void)
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) COLD_RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
 
+    /* bouton de "A Propos" */
+    widget=gtk_button_new_from_stock(GTK_STOCK_ABOUT);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(run_about_window), (gpointer)NULL);
+    gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
+
     /* notebook */
     notebook=gtk_notebook_new();
     gtk_box_pack_start( GTK_BOX(content_area), notebook, TRUE, FALSE, 0);
@@ -187,7 +194,7 @@ void InitGUI(void)
     init_cass_notebook_frame (notebook);
     init_memo_notebook_frame (notebook);
     init_printer_notebook_frame (notebook);
-    
+
     /* affiche tout l'intérieur */
     gtk_widget_show_all(content_area);
     gtk_widget_hide (hidden_button);
