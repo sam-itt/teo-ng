@@ -75,6 +75,7 @@
 #include "xargs.h"
 
 struct EmuTO teo={
+    TRUE,
     NONE
 };
 
@@ -326,7 +327,9 @@ static void DisplayMessage(const char msg[])
     GtkWidget *dialog;
 
     fprintf(stderr, "%s\n", msg);
-    dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", msg);
+    dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL,
+                                           GTK_MESSAGE_ERROR,
+                                           GTK_BUTTONS_OK, "%s", msg);
     gtk_window_set_title (GTK_WINDOW(dialog), is_fr?"Teo - Erreur":"Teo - Error");
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
