@@ -129,9 +129,6 @@ void PlaySoundBuffer(void)
 {
     char *buffer_ptr;
 
-    /* Pour éviter les "clac" si ralentissement */
-    if (last_index==0) last_data=0;
-
     /* on remplit la fin du buffer avec le dernier byte déposé */
     memset (&sound_buffer[last_index], last_data, sound_buffer_size-last_index);
 
