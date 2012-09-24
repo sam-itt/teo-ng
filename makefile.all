@@ -61,6 +61,7 @@ TEO_SRC_ALLEG_FILES =        \
    src/alleg/agui/acass.c    \
    src/alleg/agui/amemo.c    \
    src/alleg/agui/aprinter.c \
+   src/alleg/agui/aabout.c   \
    src/alleg/ajoyint.c       \
    src/alleg/amode40.c       \
    src/alleg/amode80.c       \

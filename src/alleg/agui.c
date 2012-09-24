@@ -59,16 +59,19 @@ extern void SetDiskGUIColors(int fg_color, int bg_color, int bg_entry_color);
 extern void SetCassGUIColors(int fg_color, int bg_color, int bg_entry_color);
 extern void SetMemoGUIColors(int fg_color, int bg_color, int bg_entry_color);
 extern void SetCommGUIColors(int fg_color, int bg_color, int bg_entry_color);
+extern void SetAboutGUIColors(int fg_color, int bg_color, int bg_entry_color);
 extern void MenuComm(void);
 extern void MenuDisk(void);
 extern void MenuK7(void);
 extern void MenuMemo7(void);
 extern void MenuPrinter(void);
+extern void MenuAbout(void);
 extern void InitCommGUI(char version_name[], int gfx_mode, char *title);
 extern void InitDiskGUI(int direct_disk_support, char *title);
 extern void InitMemoGUI(char *title);
 extern void InitCassGUI(char *title);
 extern void InitPrinterGUI(char *title);
+extern void InitAboutGUI(char *title);
 
 /* Facteur de correction pour la taille des boutons. */
 #define BUTTON_FIX 6
@@ -151,31 +154,33 @@ static int PopupQuestion(const char question[], int focus)
 
 /* Boîte de dialogue. */
 static DIALOG controldial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg) (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc,  20,  10,  280,  180,     0,     0,   0,    0,       0,    0,    NULL },
-{ d_ctext_proc,      160,  20,    0,    0,     0,     0,   0,    0,       0,    0,    title },
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,   0,    0,       0,    0,    "Gilles Fétis - Eric Botcazou" },
-{ d_ctext_proc,      160,  40,    0,    0,     0,     0,   0,    0,       0,    0,    "Alex Pukall - Jérémie Guillaume" },
-{ d_ctext_proc,      160,  50,    0,    0,     0,     0,   0,    0,       0,    0,    "François Mouret - Samuel Devulder" },
+/* (dialog proc)     (x)   (y)  (w)  (h) (fg) (bg) (key) (flags) (d1) (d2) (dp) */
+{ d_shadow_box_proc,  20,  10, 280, 180,  0,   0,   0,     0,     0,   0,   NULL },
+{ d_ctext_proc,      160,  20,   0,   0,  0,   0,   0,     0,     0,   0,   title },
+{ d_ctext_proc,      160,  30,   0,   0,  0,   0,   0,     0,     0,   0,   "Gilles Fétis - Eric Botcazou" },
+{ d_ctext_proc,      160,  40,   0,   0,  0,   0,   0,     0,     0,   0,   "Alex Pukall - Jérémie Guillaume" },
+{ d_ctext_proc,      160,  50,   0,   0,  0,   0,   0,     0,     0,   0,   "François Mouret - Samuel Devulder" },
 #ifdef FRENCH_LANG
-{ d_button_proc,      30,  66,  260,   16,     0,     0,   'c',  D_EXIT,  0,    0,    "&Commandes et Réglages..." },
-{ d_button_proc,      30,  86,  260,   16,     0,     0,   't',  D_EXIT,  0,    0,    "Lecteur de car&touches..." },
-{ d_button_proc,      30, 106,  260,   16,     0,     0,   's',  D_EXIT,  0,    0,    "Lecteur de ca&ssettes..." },
-{ d_button_proc,      30, 126,  260,   16,     0,     0,   'd',  D_EXIT,  0,    0,    "Lecteurs de &disquettes..." },
-{ d_button_proc,      30, 146,  260,   16,     0,     0,   'i',  D_EXIT,  0,    0,    "&Imprimante matricielle..." },
-{ d_button_proc,      30, 170,  126,   16,     0,     0,   'o',  D_EXIT,  0,    0,    "&OK" },
-{ d_button_proc,     164, 170,  126,   16,     0,     0,   'q',  D_EXIT,  0,    0,    "&Quitter" },
+{ d_button_proc,      30,  66, 260,  16,  0,   0,  'c',  D_EXIT,  0,   0,   "&Commandes et Réglages..." },
+{ d_button_proc,      30,  86, 260,  16,  0,   0,  't',  D_EXIT,  0,   0,   "Lecteur de car&touches..." },
+{ d_button_proc,      30, 106, 260,  16,  0,   0,  's',  D_EXIT,  0,   0,   "Lecteur de ca&ssettes..." },
+{ d_button_proc,      30, 126, 260,  16,  0,   0,  'd',  D_EXIT,  0,   0,   "Lecteurs de &disquettes..." },
+{ d_button_proc,      30, 146, 260,  16,  0,   0,  'i',  D_EXIT,  0,   0,   "&Imprimante matricielle..." },
+{ d_button_proc,      30, 170,  80,  16,  0,   0,  'a',  D_EXIT,  0,   0,   "&A Propos" },
+{ d_button_proc,     120, 170,  80,  16,  0,   0,  'o',  D_EXIT,  0,   0,   "&OK" },
+{ d_button_proc,     210, 170,  80,  16,  0,   0,  'q',  D_EXIT,  0,   0,   "&Quitter" },
 #else
-{ d_button_proc,      30,  66,  260,   16,     0,     0,   'c',  D_EXIT,  0,    0,    "&Commands and Settings..." },
-{ d_button_proc,      30,  86,  260,   16,     0,     0,   'r',  D_EXIT,  0,    0,    "&Cartridge reader..." },
-{ d_button_proc,      30, 106,  260,   16,     0,     0,   't',  D_EXIT,  0,    0,    "&Tape recorder..." },
-{ d_button_proc,      30, 126,  260,   16,     0,     0,   'd',  D_EXIT,  0,    0,    "&Disk drives..." },
-{ d_button_proc,      30, 146,  260,   16,     0,     0,   'p',  D_EXIT,  0,    0,    "Dot-matrix &printer..." },
-{ d_button_proc,      30, 170,  126,   16,     0,     0,   'o',  D_EXIT,  0,    0,    "&OK" },
-{ d_button_proc,     164, 170,  126,   16,     0,     0,   'q',  D_EXIT,  0,    0,    "&Quit" },
+{ d_button_proc,      30,  66, 260,  16,  0,   0,  'c',  D_EXIT,  0,   0,   "&Commands and Settings..." },
+{ d_button_proc,      30,  86, 260,  16,  0,   0,  'r',  D_EXIT,  0,   0,   "Ca&rtridge reader..." },
+{ d_button_proc,      30, 106, 260,  16,  0,   0,  't',  D_EXIT,  0,   0,   "&Tape recorder..." },
+{ d_button_proc,      30, 126, 260,  16,  0,   0,  'd',  D_EXIT,  0,   0,   "&Disk drives..." },
+{ d_button_proc,      30, 146, 260,  16,  0,   0,  'p',  D_EXIT,  0,   0,   "Dot-matrix &printer..." },
+{ d_button_proc,      30, 170,  80,  16,  0,   0,  'a',  D_EXIT,  0,   0,   "&About" },
+{ d_button_proc,     120, 170,  80,  16,  0,   0,  'o',  D_EXIT,  0,   0,   "&OK" },
+{ d_button_proc,     210, 170,  80,  16,  0,   0,  'q',  D_EXIT,  0,   0,   "&Quit" },
 #endif
-{ d_yield_proc,       20,  10,    0,    0,     0,     0,   0,    0,       0,    0,    NULL },
-{ NULL,                0,   0,    0,    0,     0,     0,   0,    0,       0,    0,    NULL }
+{ d_yield_proc,       20,  10,   0,   0,  0,   0,   0,     0,     0,   0,   NULL },
+{ NULL,                0,   0,   0,   0,  0,   0,   0,     0,     0,   0,   NULL }
 };
 
 #define CONTROLDIAL_COMMAND   5
@@ -183,8 +188,9 @@ static DIALOG controldial[]={
 #define CONTROLDIAL_CASS      7
 #define CONTROLDIAL_DISK      8
 #define CONTROLDIAL_PRINTER   9
-#define CONTROLDIAL_OK        10
-#define CONTROLDIAL_QUIT      11
+#define CONTROLDIAL_ABOUT     10
+#define CONTROLDIAL_OK        11
+#define CONTROLDIAL_QUIT      12
 
 
 /* ControlPanel:
@@ -216,6 +222,10 @@ void ControlPanel(void)
 
             case CONTROLDIAL_PRINTER:
                 MenuPrinter();
+                break;
+
+            case CONTROLDIAL_ABOUT:
+                MenuAbout();
                 break;
 
             case -1:  /* ESC */
@@ -250,6 +260,7 @@ void SetGUIColors(int fg_color, int bg_color, int bg_entry_color)
     SetCassGUIColors(fg_color, bg_color, bg_entry_color);
     SetMemoGUIColors(fg_color, bg_color, bg_entry_color);
     SetPrinterGUIColors(fg_color, bg_color, bg_entry_color);
+    SetAboutGUIColors(fg_color, bg_color, bg_entry_color);
 
     set_dialog_color(controldial, fg_color, bg_color);
 
@@ -276,6 +287,7 @@ void InitGUI(char version_name[], int gfx_mode, int direct_disk_support)
     InitMemoGUI(title);
     InitCassGUI(title);
     InitPrinterGUI(title);
+    InitAboutGUI(title);
 }
 
 
