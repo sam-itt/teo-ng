@@ -65,27 +65,26 @@ static char m7_label[TO8_MEMO7_LABEL_LENGTH+1];
 
 /* Boîte de dialogue. */
 static DIALOG m7dial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg)  (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc,  20,  10,  280,  180,     0,     0,    0,    0,       0,    0,    NULL },
-{ d_ctext_proc,      160,  20,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
+/*  dialog proc        x    y    w    h  fg bg  key flags  d1 d2  dp */
+{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL },
 #ifdef FRENCH_LANG
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Lecteur de cartouches" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Lecteur de cartouches" },
 #else
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Cartridge reader" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Cartridge reader" },
 #endif
-{ d_text_proc,        30,  54,    0,    0,     0,     0,    0,    0,       0,    0,    "m7" },
-{ d_button_proc,      47,  52,   15,   12,     0,     0,    0,    D_EXIT,  0,    0,    "x" },
-{ d_textbox_proc,     64,  50,  191,   16,     0,     0,    0,    0,       0,    0,    m7_label },
-{ d_button_proc,     260,  50,   30,   16,     0,     0,  'm',    D_EXIT,  0,    0,    "..." },
-{ d_button_proc,      30, 170,  126,   16,     0,     0,  'o',    D_EXIT,  0,    0,    "&OK" },
-{ d_yield_proc,       20,  10,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
-{ NULL,                0,   0,    0,    0,     0,     0,    0,    0,       0,    0,    NULL }
+{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "m7" },
+{ d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
+{ d_textbox_proc,     64,  40, 191,  16, 0, 0,   0,   0,    0, 0, m7_label },
+{ d_button_proc,     260,  40,  30,  16, 0, 0, 'm', D_EXIT, 0, 0, "..." },
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
+{ NULL,                0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
 };
 
-#define M7DIAL_EJECT   4
-#define M7DIAL_LABEL   5
-#define M7DIAL_BUTTON  6
-#define M7DIAL_OK      7
+#define M7DIAL_EJECT   3
+#define M7DIAL_LABEL   4
+#define M7DIAL_BUTTON  5
+#define M7DIAL_OK      6
 
 
 /* init_filename:
@@ -222,6 +221,6 @@ void InitMemoGUI(char *title)
         (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.file);
 #endif
     /* Définit le titre de la fenêtre */
-    m7dial[1].dp = title;
+//    m7dial[1].dp = title;
 }
 

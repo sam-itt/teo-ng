@@ -69,72 +69,71 @@ static int direct_disk;
 
 /* Boîte de dialogue. */
 static DIALOG diskdial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg)  (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc, 20,   10,  280,  180,     0,     0,   0,    0,       0,    0,    NULL },
-{ d_ctext_proc,     160,   20,    0,    0,     0,     0,   0,    0,       0,    0,    NULL },
+/*  dialog proc       x    y    w    h  fg bg  key flags  d1  d2 dp */
+{ d_shadow_box_proc, 20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL },
 #ifdef FRENCH_LANG
-{ d_ctext_proc,     160,   30,    0,    0,     0,     0,   0,    0,       0,    0,    "Lecteurs de disquettes" },
+{ d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Lecteurs de disquettes" },
 #else
-{ d_ctext_proc,     160,   30,    0,    0,     0,     0,   0,    0,       0,    0,    "Disk drives" },
+{ d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Disk drives" },
 #endif
   /* disk 0 */
-{ d_text_proc,       30,   54,    0,    0,     0,     0,   0,    0,       0,    0,    "0:" },
-{ d_button_proc,     47,   52,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
-{ d_textbox_proc,    64,   50,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[0] },
-{ d_button_proc,    220,   50,   30,   16,     0,     0, '0',    D_EXIT,  0,    0,    "..." },
-{ d_check_proc,     260,   50,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
+{ d_text_proc,       30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "0:" },
+{ d_button_proc,     47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
+{ d_textbox_proc,    64,  40, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[0] },
+{ d_button_proc,    220,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
+{ d_check_proc,     260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 1 */
-{ d_text_proc,       30,   78,    0,    0,     0,     0,   0,    0,       0,    0,    "1:" },
-{ d_button_proc,     47,   76,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
-{ d_textbox_proc,    64,   74,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[1] },
-{ d_button_proc,    220,   74,   30,   16,     0,     0, '1',    D_EXIT,  0,    0,    "..." },
-{ d_check_proc,     260,   74,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
+{ d_text_proc,       30,  68,   0,   0, 0, 0,   0,   0,    0, 0, "1:" },
+{ d_button_proc,     47,  66,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
+{ d_textbox_proc,    64,  64, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[1] },
+{ d_button_proc,    220,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
+{ d_check_proc,     260,  64,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 2 */
-{ d_text_proc,       30,  102,    0,    0,     0,     0,   0,    0,       0,    0,    "2:" },
-{ d_button_proc,     47,  100,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
-{ d_textbox_proc,    64,   98,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[2] },
-{ d_button_proc,    220,   98,   30,   16,     0,     0, '2',    D_EXIT,  0,    0,    "..." },
-{ d_check_proc,     260,   98,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
+{ d_text_proc,       30,  92,   0,   0, 0, 0,   0,   0,    0, 0, "2:" },
+{ d_button_proc,     47,  90,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
+{ d_textbox_proc,    64,  88, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[2] },
+{ d_button_proc,    220,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
+{ d_check_proc,     260,  88,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 3 */
-{ d_text_proc,       30,  126,    0,    0,     0,     0,   0,    0,       0,    0,    "3:" },
-{ d_button_proc,     47,  124,   15,   12,     0,     0,   0,    D_EXIT,  0,    0,    "x" },
-{ d_textbox_proc,    64,  122,  150,   16,     0,     0,   0,    0,       0,    0,    disk_label[3] },
-{ d_button_proc,    220,  122,   30,   16,     0,     0, '3',    D_EXIT,  0,    0,    "..." },
-{ d_check_proc,     260,  122,   15,   15,     0,     0,   0,    D_EXIT,  0,    0,    "" },
+{ d_text_proc,       30, 116,   0,   0, 0, 0,   0,   0,    0, 0, "3:" },
+{ d_button_proc,     47, 114,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
+{ d_textbox_proc,    64, 112, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[3] },
+{ d_button_proc,    220, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
+{ d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* direct disk */
 #ifdef FRENCH_LANG
-{ d_button_proc,     30,  146,  250,   16,     0,     0, 'd',    D_EXIT,  0,    0,    "Accès &direct" },
+{ d_button_proc,     30, 136, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "Accès &direct" },
 #else
-{ d_button_proc,     30,  146,  250,   16,     0,     0, 'd',    D_EXIT,  0,    0,    "&Direct access" },
+{ d_button_proc,     30, 146, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Direct access" },
 #endif
-{ d_text_proc,      255,   40,    0,    0,     0,     0,   0,    0,       0,    0,    "prot." },
-{ d_button_proc,     30,  170,  126,   16,     0,     0, 'o',    D_EXIT,  0,    0,    "&OK" },
-{ d_yield_proc,      20,   10,    0,    0,     0,     0,   0,    0,       0,    0,    NULL },
-{ NULL,               0,    0,    0,    0,     0,     0,   0,    0,       0,    0,    NULL }
+{ d_text_proc,      255,  30,   0,   0, 0, 0,   0,   0,    0, 0, "prot." },
+{ d_button_proc,     30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,      20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
+{ NULL,               0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
 };
 
-#define DISKDIAL_EJECT0    4
-#define DISKDIAL_LABEL0    5
-#define DISKDIAL_BUTTON0   6
-#define DISKDIAL_CHECK0    7
+#define DISKDIAL_EJECT0    3
+#define DISKDIAL_LABEL0    4
+#define DISKDIAL_BUTTON0   5
+#define DISKDIAL_CHECK0    6
 
-#define DISKDIAL_EJECT1    9
-#define DISKDIAL_LABEL1    10
-#define DISKDIAL_BUTTON1   11
-#define DISKDIAL_CHECK1    12
+#define DISKDIAL_EJECT1    8
+#define DISKDIAL_LABEL1    9
+#define DISKDIAL_BUTTON1   10
+#define DISKDIAL_CHECK1    11
 
-#define DISKDIAL_EJECT2    14
-#define DISKDIAL_LABEL2    15
-#define DISKDIAL_BUTTON2   16
-#define DISKDIAL_CHECK2    17
+#define DISKDIAL_EJECT2    13
+#define DISKDIAL_LABEL2    14
+#define DISKDIAL_BUTTON2   15
+#define DISKDIAL_CHECK2    16
 
-#define DISKDIAL_EJECT3    19
-#define DISKDIAL_LABEL3    20
-#define DISKDIAL_BUTTON3   21
-#define DISKDIAL_CHECK3    22
-#define DISKDIAL_DIRECT    23
+#define DISKDIAL_EJECT3    18
+#define DISKDIAL_LABEL3    19
+#define DISKDIAL_BUTTON3   20
+#define DISKDIAL_CHECK3    21
+#define DISKDIAL_DIRECT    22
 
-#define DISKDIAL_OK        25
+#define DISKDIAL_OK        24
 
 
 
@@ -352,5 +351,5 @@ void InitDiskGUI(int direct_disk_support, char *title)
     direct_disk = direct_disk_support;
 
     /* Définit le titre de la fenêtre */
-    diskdial[1].dp = title;
+//    diskdial[1].dp = title;
 }

@@ -60,29 +60,29 @@ extern void PopupMessage(const char message[]);
 
 /* Boîte de dialogue. */
 static DIALOG aboutdial[]={
-/* (dialog proc)     (x)   (y) (w)  (h) (fg) (bg) (key) (flags) (d1) (d2) (dp) */
-{ d_shadow_box_proc,  20,  10, 280, 180, 0,   0,   0,     0,     0,   0,   NULL },
-{ d_ctext_proc,      160,  20,   0,   0, 0,   0,   0,     0,     0,   0,   NULL },
-{ d_ctext_proc,      160,  40,   0,   0, 0,   0,   0,     0,     0,   0,   "Copyright (c) 1997-2012" },
+/*  dialog proc       x    y    w    h  fg bg  key flags    d1 d2 dp */
+{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
+{ d_ctext_proc,      160,  40,   0,   0, 0, 0,   0,  0,     0, 0, "Copyright (c) 1997-2012" },
 #ifdef FRENCH_LANG
-{ d_text_proc,        30,  60,   0,   0, 0,   0,   0,     0,     0,   0,   "Auteurs:" },
+{ d_text_proc,        30,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Auteurs:" },
 #else
-{ d_text_proc,        30,  60,   0,   0, 0,   0,   0,     0,     0,   0,   "Authors:" },
+{ d_text_proc,        30,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Authors:" },
 #endif
-{ d_ctext_proc,      160,  70,   0,   0, 0,   0,   0,     0,     0,   0,   "Gilles Fétis - Eric Botcazou" },
-{ d_ctext_proc,      160,  80,   0,   0, 0,   0,   0,     0,     0,   0,   "Alex Pukall - Jérémie Guillaume" },
-{ d_ctext_proc,      160,  90,   0,   0, 0,   0,   0,     0,     0,   0,   "François Mouret - Samuel Devulder" },
+{ d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "Gilles Fétis - Eric Botcazou" },
+{ d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "Alex Pukall - Jérémie Guillaume" },
+{ d_ctext_proc,      160,  90,   0,   0, 0, 0,   0,  0,     0, 0, "François Mouret - Samuel Devulder" },
 #ifdef FRENCH_LANG
-{ d_text_proc,        30, 110,   0,   0, 0,   0,   0,     0,     0,   0,   "Teo sur SourceForge:" },
+{ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "Teo sur SourceForge:" },
 #else
-{ d_text_proc,        30, 110,   0,   0, 0,   0,   0,     0,     0,   0,   "Teo on SourceForge:" },
+{ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "Teo on SourceForge:" },
 #endif
-{ d_text_proc,        30, 120,   0,   0, 0,   0,   0,     0,     0,   0,   "http://sourceforge.net/projects/" },
-{ d_text_proc,        30, 130,   0,   0, 0,   0,   0,     0,     0,   0,   "                     teoemulator/" },
-{ d_ctext_proc,      160, 150,   0,   0, 0,   0,   0,     0,     0,   0,   "Licence: GPL 2.0" },
-{ d_button_proc,     120, 170,  80,  16, 0,   0, 'o',  D_EXIT,   0,   0,   "&OK" },
-{ d_yield_proc,       20,  10,   0,   0, 0,   0,   0,     0,     0,   0,   NULL },
-{ NULL,                0,   0,   0,   0, 0,   0,   0,     0,     0,   0,   NULL }
+{ d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "http://sourceforge.net/projects/" },
+{ d_text_proc,        30, 130,   0,   0, 0, 0,   0,  0,     0, 0, "                     teoemulator/" },
+{ d_ctext_proc,      160, 150,   0,   0, 0, 0,   0,  0,     0, 0, "Licence: GPL 2.0" },
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
+{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
 
 #define ABOUTDIAL_OK  11

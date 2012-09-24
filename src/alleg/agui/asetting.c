@@ -60,54 +60,45 @@ extern void PopupMessage(const char message[]);
 
 /* Boîte de dialogue. */
 static DIALOG commdial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)    (fg)   (bg)   (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc,  20,  10,   280,  180,     0,     0,      0,   0,       0,    0,    NULL },
-{ d_ctext_proc,      160,  20,     0,    0,     0,     0,      0,   0,       0,    0,    NULL },
+/*  dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
+{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
 #ifdef FRENCH_LANG
-{ d_ctext_proc,      160,  30,     0,    0,     0,     0,      0,   0,       0,    0,    "Commandes et Réglages" },
-{ d_button_proc,      30,  45,   260,   16,     0,     0,    'r',  D_EXIT,   0,    0,    "&Réinitialiser le TO8" },
-{ d_button_proc,      30,  68,   260,   16,     0,     0,    'f',  D_EXIT,   0,    0,    "Redémarrer à &froid le TO8" },
-{ d_text_proc,        32,  94,     0,    0,     0,     0,      0,   0,       0,    0,    "Vitesse:" },
-{ d_radio_proc,      107,  94,   126,    8,     0,     0,    'e',   0,       1,    0,    "&exacte" },
-{ d_radio_proc,      107, 108,   126,    8,     0,     0,    'p',   0,       1,    0,    "ra&pide" },
-{ d_check_proc,       32, 122,   120,   14,     0,     0,    's',   0,       0,    0,    "&Son" },
-{ d_slider_proc,      92, 122,   100,   15,     0,     0,      0,   0,     254,    0,    NULL },
-{ d_check_proc,       30, 142,   148,   14,     0,     0,    't',   0,       0,    0,    "Vidéo en&trelacée" },
-{ d_box_proc,        209,  94,    80,   74,     0,     0,      0,   0,       0,    0,    NULL },
-{ d_ctext_proc,      248, 100,     0,    0,     0,     0,      0,   0,       0,    0,    "Images:" },
-{ d_button_proc,     217, 117,    64,   15,     0,     0,      0,  D_EXIT,   0,    0,    "Charger" },
-{ d_button_proc,     217, 142,    64,   15,     0,     0,      0,  D_EXIT,   0,    0,    "Sauver" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Réglages" },
+{ d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
+{ d_radio_proc,      135,  44, 126,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },
+{ d_radio_proc,      205,  44, 126,   8, 0, 0, 'p',  0,     1, 0, "ra&pide" },
+{ d_check_proc,       78,  62, 120,  14, 0, 0, 's',  0,     0, 0, "&Son" },
+{ d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
+{ d_check_proc,       88,  82, 148,  14, 0, 0, 't',  0,     0, 0, "Vidéo en&trelacée" },
+{ d_text_proc,        56, 105,  0,   0, 0, 0,   0,  0,     0, 0, "Images:" },
+{ d_button_proc,     120, 102, 64,  15, 0, 0,   0, D_EXIT, 0, 0, "Charger" },
+{ d_button_proc,     194, 102, 64,  15, 0, 0,   0, D_EXIT, 0, 0, "Sauver" },
 #else
-{ d_ctext_proc,      160,  30,     0,    0,     0,     0,      0,   0,       0,    0,    "Commands and Settings" },
-{ d_button_proc,      30,  45,   260,   16,     0,     0,    'w',  D_EXIT,   0,    0,    "TO8 &warm reset" },
-{ d_button_proc,      30,  68,   260,   16,     0,     0,    'c',  D_EXIT,   0,    0,    "TO8 &cold reset" },
-{ d_text_proc,        32,  94,     0,    0,     0,     0,      0,   0,       0,    0,    "  Speed:" },
-{ d_radio_proc,      107,  94,   126,    8,     0,     0,    'e',   0,       1,    0,    "&exact" },
-{ d_radio_proc,      107, 108,   126,    8,     0,     0,    'f',   0,       1,    0,    "&fast" },
-{ d_check_proc,       32, 122,   120,   14,     5,     0,    's',   0,       0,    0,    "&Sound" },
-{ d_slider_proc,      96, 122,   100,   15,     0,     0,      0,   0,     254,    0,    NULL },
-{ d_check_proc,       30, 142,   147,   14,     5,     0,    't',   0,       0,    0,    "In&terlaced video" },
-{ d_box_proc,        209,  94,    80,   74,     0,     0,      0,   0,       0,    0,    NULL },
-{ d_ctext_proc,      248, 100,     0,    0,     0,     0,      0,   0,       0,    0,    "Images:" },
-{ d_button_proc,     217, 117,    64,   15,     0,     0,      0,  D_EXIT,   0,    0,    "Load" },
-{ d_button_proc,     217, 142,    64,   15,     0,     0,      0,  D_EXIT,   0,    0,    "Save" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Settings" },
+{ d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, " Speed:" },
+{ d_radio_proc,      135,  44, 126,   8, 0, 0, 'e',  0,     1, 0, "&exact" },
+{ d_radio_proc,      205,  44, 126,   8, 0, 0, 'f',  0,     1, 0, "&fast" },
+{ d_check_proc,       78,  62, 120,  14, 5, 0, 's',  0,     0, 0, "&Sound" },
+{ d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
+{ d_check_proc,       88,  82, 147,  14, 5, 0, 't',  0,     0, 0, "In&terlaced video" },
+{ d_text_proc,        56, 105,   0,   0, 0, 0,   0,  0,     0, 0, "Images:" },
+{ d_button_proc,     120, 102,  64,  15, 0, 0,   0, D_EXIT, 0, 0, "Load" },
+{ d_button_proc,     194, 102,  64,  15, 0, 0,   0, D_EXIT, 0, 0, "Save" },
 #endif
-{ d_button_proc,      30, 170,   126,   16,     0,     0,    'o',  D_EXIT,   0,    0,    "&OK" },
-{ d_yield_proc,       20,  10,     0,    0,     0,     0,      0,   0,       0,    0,    NULL },
-{ NULL,                0,   0,     0,    0,     0,     0,      0,   0,       0,    0,    NULL }
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
+{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
 
-#define COMMDIAL_INIT        3
-#define COMMDIAL_COLDINIT    4
-#define COMMDIAL_EXACTSPEED  6
-#define COMMDIAL_MAXSPEED    7
-#define COMMDIAL_SOUND       8
-#define COMMDIAL_SLIDER      9
-#define COMMDIAL_INTERLACE   10
-#define COMMDIAL_SPAN        11
-#define COMMDIAL_LOAD        13
-#define COMMDIAL_SAVE        14
-#define COMMDIAL_OK          15
+#define COMMDIAL_EXACTSPEED  3
+#define COMMDIAL_MAXSPEED    4
+#define COMMDIAL_SOUND       5
+#define COMMDIAL_SLIDER      6
+#define COMMDIAL_INTERLACE   7
+#define COMMDIAL_SPAN        8
+#define COMMDIAL_LOAD        9
+#define COMMDIAL_SAVE        10
+#define COMMDIAL_OK          11
 
 
 /* MenuComm:
@@ -136,14 +127,6 @@ void MenuComm(void)
 
     switch (popup_dialog(commdial, COMMDIAL_OK))
     {
-        case COMMDIAL_INIT:
-            teo.command=RESET;
-            break;
-
-        case COMMDIAL_COLDINIT:
-            teo.command=COLD_RESET;
-            break;
-
         case COMMDIAL_LOAD:
             if (file_select_ex(is_fr?"Choisissez votre image:":"Choose your image:", filename, "img",
                                MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
@@ -191,7 +174,4 @@ void InitCommGUI(char version_name[], int gfx_mode, char *title)
 
     if (!gui->setting.sound_enabled)
         commdial[COMMDIAL_SOUND].flags=commdial[COMMDIAL_SPAN].flags=commdial[COMMDIAL_SLIDER].flags=D_DISABLED;
-
-    /* Définit le titre de la fenêtre */
-    commdial[1].dp = title;
 }

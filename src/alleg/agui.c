@@ -85,12 +85,12 @@ static char mesg[TEXT_LENGTH+1] = "";
 
 /* Boîte de dialogue. */
 static DIALOG mesgdial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg)  (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc, 10,   10,    0,   50,     0,     0,   0,    0,       0,    0,    NULL },
-{ d_ctext_proc,      10,   20,    0,    0,     0,     0,   0,    0,       0,    0,    mesg },
-{ d_button_proc,     30,   40,   32,   16,     0,     0, 'o',    D_EXIT,  0,    0,    "&OK" },
-{ d_yield_proc,      10,   10,    0,    0,     0,     0,   0,    0,       0,    0,    NULL },
-{ NULL,               0,    0,    0,    0,     0,     0,   0,    0,       0,    0,    NULL }
+/*  dialog proc       x    y    w    h  fg bg  key  flags d1  d2 dp */
+{ d_shadow_box_proc, 10,  10,   0,  50, 0, 0,   0,    0,   0, 0, NULL },
+{ d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,    0,   0, 0, mesg },
+{ d_button_proc,     30,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,      10,  10,   0,   0, 0, 0,   0,    0,   0, 0, NULL },
+{ NULL,               0,   0,   0,   0, 0, 0,   0,    0,   0, 0, NULL }
 };
 
 #define MESGDIAL_SHADOW   0
@@ -103,18 +103,18 @@ static char quest[TEXT_LENGTH+1] = "";
 
 /* Boîte de dialogue. */
 static DIALOG questdial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg)  (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc, 10,   10,    0,   50,     0,     0,   0,    0,       0,    0,    NULL },
-{ d_ctext_proc,      10,   20,    0,    0,     0,     0,   0,    0,       0,    0,    quest },
+/*  dialog proc      x    y    w    h  fg bg  key  flags  d1  d2 dp */
+{ d_shadow_box_proc, 10,  10,   0,  50, 0, 0,   0,   0,    0, 0, NULL },
+{ d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,   0,    0, 0, quest },
 #ifdef FRENCH_LANG
-{ d_button_proc,     30,   40,   32,   16,     0,     0, 'o',    D_EXIT,  0,    0,    "&Oui" },
-{ d_button_proc,    130,   40,   32,   16,     0,     0, 'n',    D_EXIT,  0,    0,    "&Non" },
+{ d_button_proc,     30,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&Oui" },
+{ d_button_proc,    130,  40,  32,  16, 0, 0, 'n', D_EXIT, 0, 0, "&Non" },
 #else
-{ d_button_proc,     30,   40,   32,   16,     0,     0, 'y',    D_EXIT,  0,    0,    "&Yes" },
-{ d_button_proc,    130,   40,   32,   16,     0,     0, 'n',    D_EXIT,  0,    0,    "&No" },
+{ d_button_proc,     30,  40,  32,  16, 0, 0, 'y', D_EXIT, 0, 0, "&Yes" },
+{ d_button_proc,    130,  40,  32,  16, 0, 0, 'n', D_EXIT, 0, 0, "&No" },
 #endif
-{ d_yield_proc,      10,   10,    0,    0,     0,     0,   0,    0,       0,    0,    NULL },
-{ NULL,               0,    0,    0,    0,     0,     0,   0,    0,       0,    0,    NULL }
+{ d_yield_proc,      10,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
+{ NULL,               0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
 };
 
 #define QUESTDIAL_SHADOW  0
@@ -154,43 +154,47 @@ static int PopupQuestion(const char question[], int focus)
 
 /* Boîte de dialogue. */
 static DIALOG controldial[]={
-/* (dialog proc)     (x)   (y)  (w)  (h) (fg) (bg) (key) (flags) (d1) (d2) (dp) */
-{ d_shadow_box_proc,  20,  10, 280, 180,  0,   0,   0,     0,     0,   0,   NULL },
-{ d_ctext_proc,      160,  20,   0,   0,  0,   0,   0,     0,     0,   0,   title },
-{ d_ctext_proc,      160,  30,   0,   0,  0,   0,   0,     0,     0,   0,   "Gilles Fétis - Eric Botcazou" },
-{ d_ctext_proc,      160,  40,   0,   0,  0,   0,   0,     0,     0,   0,   "Alex Pukall - Jérémie Guillaume" },
-{ d_ctext_proc,      160,  50,   0,   0,  0,   0,   0,     0,     0,   0,   "François Mouret - Samuel Devulder" },
+/*  dialog proc       x    y    w    h  fg bg  key  flags  d1 d2  dp  */
+{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,  0,    0,    0, 0, NULL },
 #ifdef FRENCH_LANG
-{ d_button_proc,      30,  66, 260,  16,  0,   0,  'c',  D_EXIT,  0,   0,   "&Commandes et Réglages..." },
-{ d_button_proc,      30,  86, 260,  16,  0,   0,  't',  D_EXIT,  0,   0,   "Lecteur de car&touches..." },
-{ d_button_proc,      30, 106, 260,  16,  0,   0,  's',  D_EXIT,  0,   0,   "Lecteur de ca&ssettes..." },
-{ d_button_proc,      30, 126, 260,  16,  0,   0,  'd',  D_EXIT,  0,   0,   "Lecteurs de &disquettes..." },
-{ d_button_proc,      30, 146, 260,  16,  0,   0,  'i',  D_EXIT,  0,   0,   "&Imprimante matricielle..." },
-{ d_button_proc,      30, 170,  80,  16,  0,   0,  'a',  D_EXIT,  0,   0,   "&A Propos" },
-{ d_button_proc,     120, 170,  80,  16,  0,   0,  'o',  D_EXIT,  0,   0,   "&OK" },
-{ d_button_proc,     210, 170,  80,  16,  0,   0,  'q',  D_EXIT,  0,   0,   "&Quitter" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Panneau de contrôle" },
+{ d_button_proc,      30,  35, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "Redémarrer à &chaud le TO8" },
+{ d_button_proc,      30,  53, 260,  16, 0, 0, 'f', D_EXIT, 0, 0, "Redémarrer à &froid le TO8" },
+{ d_button_proc,      40,  75, 240,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Réglages..." },
+{ d_button_proc,      40,  93, 240,  16, 0, 0, 't', D_EXIT, 0, 0, "Lecteur de car&touches..." },
+{ d_button_proc,      40, 111, 240,  16, 0, 0, 's', D_EXIT, 0, 0, "Lecteur de ca&ssettes..." },
+{ d_button_proc,      40, 129, 240,  16, 0, 0, 'd', D_EXIT, 0, 0, "Lecteurs de &disquettes..." },
+{ d_button_proc,      40, 147, 240,  16, 0, 0, 'i', D_EXIT, 0, 0, "&Imprimante matricielle..." },
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, "&A Propos" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quitter" },
 #else
-{ d_button_proc,      30,  66, 260,  16,  0,   0,  'c',  D_EXIT,  0,   0,   "&Commands and Settings..." },
-{ d_button_proc,      30,  86, 260,  16,  0,   0,  'r',  D_EXIT,  0,   0,   "Ca&rtridge reader..." },
-{ d_button_proc,      30, 106, 260,  16,  0,   0,  't',  D_EXIT,  0,   0,   "&Tape recorder..." },
-{ d_button_proc,      30, 126, 260,  16,  0,   0,  'd',  D_EXIT,  0,   0,   "&Disk drives..." },
-{ d_button_proc,      30, 146, 260,  16,  0,   0,  'p',  D_EXIT,  0,   0,   "Dot-matrix &printer..." },
-{ d_button_proc,      30, 170,  80,  16,  0,   0,  'a',  D_EXIT,  0,   0,   "&About" },
-{ d_button_proc,     120, 170,  80,  16,  0,   0,  'o',  D_EXIT,  0,   0,   "&OK" },
-{ d_button_proc,     210, 170,  80,  16,  0,   0,  'q',  D_EXIT,  0,   0,   "&Quit" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Control panel" },
+{ d_button_proc,      30,  35, 260,  16, 0, 0, 'w', D_EXIT, 0, 0, "TO8 &warm reset" },
+{ d_button_proc,      30,  53, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "TO8 &cold reset" },
+{ d_button_proc,      40,  75, 240,  16, 0, 0, 's', D_EXIT, 0, 0, "&Settings..." },
+{ d_button_proc,      40,  93, 240,  16, 0, 0, 'r', D_EXIT, 0, 0, "Ca&rtridge reader..." },
+{ d_button_proc,      40, 111, 240,  16, 0, 0, 't', D_EXIT, 0, 0, "&Tape recorder..." },
+{ d_button_proc,      40, 129, 240,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Disk drives..." },
+{ d_button_proc,      40, 147, 240,  16, 0, 0, 'p', D_EXIT, 0, 0, "Dot-matrix &printer..." },
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, "&About" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quit" },
 #endif
-{ d_yield_proc,       20,  10,   0,   0,  0,   0,   0,     0,     0,   0,   NULL },
-{ NULL,                0,   0,   0,   0,  0,   0,   0,     0,     0,   0,   NULL }
+{ d_yield_proc,       20,  10,   0,   0, 0, 0,  0,    0,    0, 0, NULL },
+{ NULL,                0,   0,   0,   0, 0, 0,  0,    0,    0, 0, NULL }
 };
 
-#define CONTROLDIAL_COMMAND   5
-#define CONTROLDIAL_CART      6
-#define CONTROLDIAL_CASS      7
-#define CONTROLDIAL_DISK      8
-#define CONTROLDIAL_PRINTER   9
+#define CONTROLDIAL_WARMRESET 2
+#define CONTROLDIAL_COLDRESET 3
+#define CONTROLDIAL_COMMAND   4
+#define CONTROLDIAL_CART      5
+#define CONTROLDIAL_CASS      6
+#define CONTROLDIAL_DISK      7
+#define CONTROLDIAL_PRINTER   8
+#define CONTROLDIAL_OK        9
 #define CONTROLDIAL_ABOUT     10
-#define CONTROLDIAL_OK        11
-#define CONTROLDIAL_QUIT      12
+#define CONTROLDIAL_QUIT      11
 
 
 /* ControlPanel:
@@ -204,6 +208,14 @@ void ControlPanel(void)
     while (TRUE)
         switch (popup_dialog(controldial, CONTROLDIAL_OK))
         {
+            case CONTROLDIAL_WARMRESET:
+                teo.command=RESET;
+                return;
+
+            case CONTROLDIAL_COLDRESET:
+                teo.command=COLD_RESET;
+                return;
+
             case CONTROLDIAL_COMMAND:
                 MenuComm();
                 break;

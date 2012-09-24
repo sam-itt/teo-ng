@@ -82,50 +82,49 @@ static char *listbox_getter(int index, int *list_size)
 
 /* Boîte de dialogue. */
 static DIALOG printerdial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg)  (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc,  20,  10,  280,  180,     0,     0,    0,    0,       0,    0,    NULL },
-{ d_ctext_proc,      160,  20,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
+/*  dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
+{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
 #ifdef FRENCH_LANG
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Imprimantes matricielles" },
-{ d_text_proc,        30,  54,    0,    0,     0,     0,    0,    0,       0,    0,    "Sauver dans:" },
-{ d_textbox_proc,    132,  50,  116,   16,     0,     0,    0,    0,       0,    0,    foldername },
-{ d_button_proc,     258,  50,   30,   16,     0,     0,  '0',    D_EXIT,  0,    0,    "..." },
-{ d_text_proc,        50,  84,    0,    0,     0,     0,    0,    0,       0,    0,    "Imprimante:" },
-{ d_list_proc,        50, 100,  100,   30,     0,     0,    0,    0,       0,    0,    (void *)listbox_getter},
-{ d_button_proc,      50, 140,   44,   16,     0,     0,  'd',    0,       0,    0,    "&Dip" },
-{ d_button_proc,     106, 140,   44,   16,     0,     0,  'n',    0,       0,    0,    "&Nlq" },
-{ d_text_proc,       200,  84,    0,    0,     0,     0,    0,    0,       0,    0,    "Sortie:" },
-{ d_check_proc,      210, 100,   60,   14,     0,     0,  'b',    0,       0,    0,    "&brute" },
-{ d_check_proc,      210, 120,   60,   14,     0,     0,  't',    0,       0,    0,    "&texte" },
-{ d_check_proc,      178, 140,   94,   14,     0,     0,  'g',    0,       0,    0,    "&graphique" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimantes matricielles" },
+{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Sauver dans:" },
+{ d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, foldername },
+{ d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
+{ d_text_proc,        50,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimante:" },
+{ d_list_proc,        50,  90, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
+{ d_button_proc,      50, 130,  44,  16, 0, 0, 'd',  0,     0, 0, "&Dip" },
+{ d_button_proc,     106, 130,  44,  16, 0, 0, 'n',  0,     0, 0, "&Nlq" },
+{ d_text_proc,       200,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Sortie:" },
+{ d_check_proc,      210,  90,  60,  14, 0, 0, 'b',  0,     0, 0, "&brute" },
+{ d_check_proc,      210, 110,  60,  14, 0, 0, 't',  0,     0, 0, "&texte" },
+{ d_check_proc,      178, 130,  94,  14, 0, 0, 'g',  0,     0, 0, "&graphique" },
 #else
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Dot-matrix printers" },
-{ d_text_proc,        30,  54,    0,    0,     0,     0,    0,    0,       0,    0,    "Save in:" },
-{ d_textbox_proc,    100,  50,  148,   16,     0,     0,    0,    0,       0,    0,    foldername },
-{ d_button_proc,     258,  50,   30,   16,     0,     0,  '0',    D_EXIT,  0,    0,    "..." },
-{ d_text_proc,        50,  84,    0,    0,     0,     0,    0,    0,       0,    0,    "Printer:" },
-{ d_list_proc,        50, 100,  100,   30,     0,     0,    0,    0,       0,    0,    (void *)listbox_getter},
-{ d_button_proc,      50, 140,   44,   16,     0,     0,  'd',    0,       0,    0,    "&Dip" },
-{ d_button_proc,     106, 140,   44,   16,     0,     0,  'n',    0,       0,    0,    "&Nlq" },
-{ d_text_proc,       206,  84,    0,    0,     0,     0,    0,    0,       0,    0,    "Output:" },
-{ d_check_proc,      226, 100,   42,   14,     0,     0,  'r',    0,       0,    0,    "&raw" },
-{ d_check_proc,      218, 120,   50,   14,     0,     0,  't',    0,       0,    0,    "&text" },
-{ d_check_proc,      194, 140,   76,   14,     0,     0,  'g',    0,       0,    0,    "&graphic" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Dot-matrix printers" },
+{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Save in:" },
+{ d_textbox_proc,    100,  40, 148,  16, 0, 0,   0,  0,     0, 0, foldername },
+{ d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
+{ d_text_proc,        50,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Printer:" },
+{ d_list_proc,        50,  90, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
+{ d_button_proc,      50, 130,  44,  16, 0, 0, 'd',  0,     0, 0, "&Dip" },
+{ d_button_proc,     106, 130,  44,  16, 0, 0, 'n',  0,     0, 0, "&Nlq" },
+{ d_text_proc,       206,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Output:" },
+{ d_check_proc,      226,  90,  42,  14, 0, 0, 'r',  0,     0, 0, "&raw" },
+{ d_check_proc,      218, 110,  50,  14, 0, 0, 't',  0,     0, 0, "&text" },
+{ d_check_proc,      194, 130,  76,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
 #endif
-{ d_button_proc,     30,  170,  126,   16,     0,     0,   'o',   D_EXIT,  0,    0,    "&OK" },
-{ d_yield_proc,      20,   10,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
-{ NULL,               0,    0,    0,    0,     0,     0,    0,    0,       0,    0,    NULL }
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
+{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
 
-#define PRINTERDIAL_FOLDER      4
-#define PRINTERDIAL_MORE        5
-#define PRINTERDIAL_LIST        7
-#define PRINTERDIAL_DIP         8
-#define PRINTERDIAL_NLQ         9
-#define PRINTERDIAL_RAW_OUTPUT  11
-#define PRINTERDIAL_TXT_OUTPUT  12
-#define PRINTERDIAL_GFX_OUTPUT  13
-#define PRINTERDIAL_OK          14
+#define PRINTERDIAL_FOLDER      3
+#define PRINTERDIAL_MORE        4
+#define PRINTERDIAL_LIST        6
+#define PRINTERDIAL_DIP         7
+#define PRINTERDIAL_NLQ         8
+#define PRINTERDIAL_RAW_OUTPUT  10
+#define PRINTERDIAL_TXT_OUTPUT  11
+#define PRINTERDIAL_GFX_OUTPUT  12
+#define PRINTERDIAL_OK          13
 
 
 /* MenuPrinter:
@@ -214,5 +213,5 @@ void SetPrinterGUIColors(int fg_color, int bg_color, int bg_entry_color)
 void InitPrinterGUI(char *title)
 {
     /* Définit le titre de la fenêtre */
-    printerdial[1].dp = title;
+//    printerdial[1].dp = title;
 }

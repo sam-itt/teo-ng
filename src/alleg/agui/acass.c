@@ -78,47 +78,46 @@ static int down_button_proc(int msg, DIALOG *d, int c);
 
 /* Boîte de dialogue. */
 static DIALOG k7dial[]={
-/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)   (bg)  (key) (flags)  (d1)  (d2)  (dp) */
-{ d_shadow_box_proc,  20,  10,  280,  180,     0,     0,    0,    0,       0,    0,    NULL },
-{ d_ctext_proc,      160,  20,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
+/* (dialog proc)      x    y    w    h   fg bg key flags   d1 d2  dp */
+{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
 #ifdef FRENCH_LANG
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Lecteur de cassettes" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Lecteur de cassettes" },
 #else
-{ d_ctext_proc,      160,  30,    0,    0,     0,     0,    0,    0,       0,    0,    "Tape recorder" },
+{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Tape recorder" },
 #endif
-{ d_text_proc,        30,  54,    0,    0,     0,     0,    0,    0,       0,    0,    "k7" },
-{ d_button_proc,      47,  52,   15,   12,     0,     0,    0,    D_EXIT,  0,    0,    "x" },
-{ d_textbox_proc,     64,  50,  150,   16,     0,     0,    0,    0,       0,    0,    k7_label },
-{ d_button_proc,     220,  50,   30,   16,     0,     0,  'k',    D_EXIT,  0,    0,    "..." },
-{ d_check_proc,      260,  50,   15,   15,     0,     0,    0,    D_EXIT,  0,    1,    "" },
-{ d_text_proc,       255,  40,    0,    0,     0,     0,    0,    0,       0,    0,    "prot." },
+{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "k7" },
+{ d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
+{ d_textbox_proc,     64,  40, 150,  16, 0, 0,   0,  0,     0, 0, k7_label },
+{ d_button_proc,     220,  40,  30,  16, 0, 0, 'k', D_EXIT, 0, 0, "..." },
+{ d_check_proc,      260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 1, "" },
+{ d_text_proc,       255,  30,   0,   0, 0, 0,   0,  0,     0, 0, "prot." },
 #ifdef FRENCH_LANG
-{ d_text_proc,        30,  79,    0,    0,     0,     0,    0,    0,       0,    0,    "Compteur:" },
+{ d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Compteur:" },
 #else
-{ d_text_proc,        30,  79,    0,    0,     0,     0,    0,    0,       0,    0,    "Counter:" },
+{ d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Counter:" },
 #endif
-{ d_box_proc,        106,  77,   36,   12,     0,     0,    0,    0,       0,    0,    NULL },
-{ updown_edit_proc,  108,  79,   32,   10,     0,     0,    0,    0,       3,    3,    k7_counter_str },
-{ up_button_proc,    145,  73,   19,   10,     0,     0,    0,    D_EXIT,  0,    0,    "+" },
-{ down_button_proc,  145,  84,   19,   10,     0,     0,    0,    0,       0,    0,    "-" },
+{ d_box_proc,        106,  67,  36,  12, 0, 0,   0,  0,     0, 0, NULL },
+{ updown_edit_proc,  108,  69,  32,  10, 0, 0,   0,  0,     3, 3, k7_counter_str },
+{ up_button_proc,    145,  63,  19,  10, 0, 0,   0, D_EXIT, 0, 0, "+" },
+{ down_button_proc,  145,  74,  19,  10, 0, 0,   0,  0,     0, 0, "-" },
 #ifdef FRENCH_LANG
-{ d_button_proc,     174,  75,  106,   16,     0,     0,  'r',    D_EXIT,  0,    0,    "&Rembobiner" },
+{ d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rembobiner" },
 #else
-{ d_button_proc,     174,  75,  106,   16,     0,     0,  'r',    D_EXIT,  0,    0,    "&Rewind" },
+{ d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rewind" },
 #endif
-{ d_button_proc,      30, 170,  126,   16,     0,     0,  'o',    D_EXIT,  0,    0,    "&OK" },
-{ d_yield_proc,       20,  10,    0,    0,     0,     0,    0,    0,       0,    0,    NULL },
-{ NULL,                0,   0,    0,    0,     0,     0,    0,    0,       0,    0,    NULL }
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
+{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
 
-#define K7DIAL_EJECT    4
-#define K7DIAL_LABEL    5
-#define K7DIAL_BUTTON   6
-#define K7DIAL_CHECK    7
-#define K7DIAL_BOXEDIT  10
-#define K7DIAL_EDIT     11
-#define K7DIAL_REWIND   14
-#define K7DIAL_OK       15
+#define K7DIAL_EJECT    3
+#define K7DIAL_LABEL    4
+#define K7DIAL_BUTTON   5
+#define K7DIAL_CHECK    6
+#define K7DIAL_BOXEDIT  9
+#define K7DIAL_EDIT     10
+#define K7DIAL_REWIND   13
+#define K7DIAL_OK       14
 
 
 /* updown_edit_proc:
@@ -434,8 +433,5 @@ void SetCassGUIColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void InitCassGUI(char *title)
 {
-    /* Définit le titre de la fenêtre */
-    k7dial[1].dp = title;
+    (void)title;
 }
-
-
