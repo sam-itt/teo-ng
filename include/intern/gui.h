@@ -50,53 +50,41 @@ struct STRING_LIST {
     struct STRING_LIST *next;
 };
 
-struct LPRT_GUI {
-    int  number;
-    int  nlq;
-    int  dip;
-    int  raw_output;
-    int  txt_output;
-    int  gfx_output;
-    char *folder;
-};
-
-struct DISK_GUI {
-    int  direct_access_allowed;
-    int  write_protect;
-    char *file;
-};
-
-struct CASS_GUI  {
-    int  write_protect;
-    char *file;
-};
-
-struct MEMO_GUI {
-    char *file;
-    char *label;
-};
-
-struct SETTING_GUI {
-    int  exact_speed;
-    int  sound_volume;
-    int  sound_enabled;
-    int  interlaced_video;
-};
-
-struct IMAGE_GUI {
-    char *file;
-};
-
 #define NBDRIVE    4
 
 struct THOMSON_GUI {
     char *default_folder;
-    struct SETTING_GUI setting;
-    struct DISK_GUI disk[NBDRIVE];
-    struct CASS_GUI cass;
-    struct MEMO_GUI memo;
-    struct LPRT_GUI lprt;
-    struct IMAGE_GUI imag;
+    struct SETTING_GUI {
+        int  exact_speed;
+        int  sound_volume;
+        int  sound_enabled;
+        int  interlaced_video;
+        } setting;
+    struct DISK_GUI {
+        int  direct_access_allowed;
+        int  write_protect;
+        char *file;
+        } disk[NBDRIVE];
+    struct CASS_GUI  {
+        int  write_protect;
+        char *file;
+        } cass;
+    struct MEMO_GUI {
+        char *file;
+        char *label;
+        } memo;
+    struct LPRT_GUI {
+        int  number;
+        int  nlq;
+        int  dip;
+        int  raw_output;
+        int  txt_output;
+        int  gfx_output;
+        char *folder;
+        } lprt;
+    struct IMAGE_GUI {
+        char *file;
+        } imag;
 };
 
 extern struct THOMSON_GUI *gui;
