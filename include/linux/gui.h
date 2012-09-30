@@ -40,7 +40,7 @@
  *               Gilles Fétis 30/07/2011
  *               François Mouret 21/03/2012
  *
- *  Interface utilisateur de l'émulateur basée sur GTK+ 2.x .
+ *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
 
 
