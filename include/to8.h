@@ -135,11 +135,6 @@ enum _command {
   QUIT
 };
 
-struct EmuTO {
-    int sound_enabled;
-    volatile enum _command command;
-};
-
 enum {
     TO8_ERROR,
     TO8_OK,
@@ -154,8 +149,46 @@ enum {
 
 extern int is_fr;
 
+#define NBDRIVE    4
 
-extern struct EmuTO teo;
+struct EMUTEO {
+    int sound_enabled;
+    volatile enum _command command;
+    char *default_folder;
+    struct EMUTEO_SETTINGS {
+        int  exact_speed;
+        int  sound_volume;
+        int  sound_enabled;
+        int  interlaced_video;
+        } setting;
+    struct EMUTEO_DISK {
+        int  direct_access_allowed;
+        int  write_protect;
+        char *file;
+        } disk[NBDRIVE];
+    struct EMUTEO_CASS  {
+        int  write_protect;
+        char *file;
+        } cass;
+    struct EMUTEO_MEMO {
+        char *file;
+        char *label;
+        } memo;
+    struct EMUTEO_LPRT {
+        int  number;
+        int  nlq;
+        int  dip;
+        int  raw_output;
+        int  txt_output;
+        int  gfx_output;
+        char *folder;
+        } lprt;
+    struct EMUTEO_IMAGE {
+        char *file;
+        } imag;
+};
+
+extern struct EMUTEO teo;
 extern int frame;
 
 /* fonctions importables requises */
@@ -192,13 +225,13 @@ extern void  to8_HandleMouseMotion(int xpos, int ypos);
 extern void  to8_HandleMouseClick(int button, int release);
 extern void  to8_HandleJoystickMove(int joy, int pos);
 extern void  to8_HandleJoystickFire(int joy, int button, int state);
-extern void  to8_EjectMemo7(void);
-extern int   to8_LoadMemo7(const char filename[]);
-extern void  to8_EjectK7(void);
-extern int   to8_LoadK7(const char filename[]);
-extern int   to8_SetK7Mode(int mode);
-extern int   to8_GetK7Counter(void);
-extern void  to8_SetK7Counter(int counter);
+extern void  to8_EjectMemo(void);
+extern int   to8_LoadMemo(const char filename[]);
+extern void  to8_EjectCass(void);
+extern int   to8_LoadCass(const char filename[]);
+extern int   to8_SetCassMode(int mode);
+extern int   to8_GetCassCounter(void);
+extern void  to8_SetCassCounter(int counter);
 extern void  to8_EjectDisk(int drive);
 extern int   to8_LoadDisk(int drive, const char filename[]);
 extern int   to8_SetDiskMode(int drive, int mode);
@@ -206,6 +239,4 @@ extern int   to8_DirectSetDrive(int drive);
 extern int   to8_VirtualSetDrive(int drive);
 extern int   to8_LoadImage(const char filename[]);
 extern int   to8_SaveImage(const char finename[]);
-extern int   to8_LoadState (void);
-extern void  to8_SaveState (void);
 #endif
