@@ -57,7 +57,6 @@
 #endif
 
 #include "linux/display.h"
-#include "intern/gui.h"
 #include "to8.h"
 
 
@@ -388,7 +387,7 @@ void RefreshScreen(void)
     int *dirty_cell_row = dirty_cell;
     static int odd = 1;
 
-    if (gui->setting.interlaced_video)
+    if (teo.setting.interlaced_video)
     {
         odd ^= 1;
         dirty_cell_row = (odd == 0) ? dirty_cell : dirty_cell + TO8_SCREEN_CW;
