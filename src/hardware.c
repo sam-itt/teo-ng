@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
- *               François Mouret 18/09/2006 02/02/2012
+ *               François Mouret 18/09/2006 02/02/2012 29/09/2012
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -60,7 +60,7 @@
 #include "intern/errors.h"
 #include "intern/hardware.h"
 #include "intern/keyboard.h"
-#include "intern/k7.h"
+#include "intern/cass.h"
 #include "intern/mouse.h"
 #include "intern/printer.h"
 #include "to8.h"
@@ -746,7 +746,7 @@ static int BiosCall(struct MC6809_REGS *regs)
             break;
 
         case 0xFA5A:  /* routine CASS */
-            DoK7Stuff(&regs->br,&regs->cc);
+            DoCassStuff(&regs->br,&regs->cc);
             break;
 
  	/* Contrôleur de disquettes */
