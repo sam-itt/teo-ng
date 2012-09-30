@@ -39,6 +39,7 @@
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
+ *                               29/09/2012
  *               Samuel Devulder 05/02/2012
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
  */
@@ -52,7 +53,7 @@
 #include "intern/disk.h"
 #include "intern/errors.h"
 #include "intern/hardware.h"
-#include "intern/gui.h"
+#include "intern/std.h"
 #include "to8.h"
 
 
@@ -299,7 +300,8 @@ static int sap_get_sector(int drive, sapsector_t *sapsector)
     FILE *file;
 
     /* lecture du secteur dans le fichier */
-    if ((file=fopen(gui->disk[drive].file, "rb")) == NULL)
+    if ((teo.disk[drive].file == NULL)
+     || (file=fopen(teo.disk[drive].file, "rb")) == NULL)
         return 4;
              
     pos = SAP_HEADER_SIZE + (sapsector->track*NBSECT+(sapsector->sector-1))*SAP_SECT_SIZE;
@@ -355,7 +357,8 @@ static int sap_put_sector(int drive, sapsector_t *sapsector)
    buffer[4+i+1]=sapsector->crc2sect;
 				
    /* écriture du secteur dans le fichier */
-   if ((file=fopen(gui->disk[drive].file,"rb+"))==NULL)
+    if ((teo.disk[drive].file == NULL)
+     || (file=fopen(teo.disk[drive].file,"rb+")) == NULL)
        return 4;
 
    pos = SAP_HEADER_SIZE + (sapsector->track*NBSECT+(sapsector->sector-1))*SAP_SECT_SIZE;
@@ -385,7 +388,7 @@ static int sap_format_track(int drive, int track, unsigned char filler_byte)
     for (i=0; i<SECTSIZE; i++)
         sapsector.data[i]=filler_byte;
 
-    for (sect=1; sect<NBSECT+1; sect++)
+    for (sect=1; (sect<NBSECT+1)&&(err==0); sect++)
     {
         sapsector.track = track;
         sapsector.sector = sect;
@@ -395,9 +398,6 @@ static int sap_format_track(int drive, int track, unsigned char filler_byte)
             
         if (err==0)
             err=sap_put_sector(drive, &sapsector);
-
-        if (err)
-            break;
     }
 
     return err;
@@ -798,7 +798,6 @@ void InitDisk(void)
     {
         disk[drive].state=NO_DISK;
         disk[drive].mode=TO8_READ_WRITE;
-        gui->disk[drive].file[0] = '\0';
     }
 }
 
@@ -861,10 +860,10 @@ int to8_DirectSetDrive(int drive)
  */
 int to8_VirtualSetDrive(int drive)
 { 
-    if ((disk[drive].state != NORMAL_ACCESS) &&
-        (disk[drive].state != NO_DISK))
+    if ((disk[drive].state != NORMAL_ACCESS)
+     && (disk[drive].state != NO_DISK))
     {
-        disk[drive].state = (gui->disk[drive].file[0] == '\0') ? NO_DISK : NORMAL_ACCESS;
+        disk[drive].state = (teo.disk[drive].file == NULL) ? NO_DISK : NORMAL_ACCESS;
             
         /* premier accès en lecture seule */
         disk[drive].mode=TO8_READ_WRITE;
@@ -880,7 +879,7 @@ int to8_VirtualSetDrive(int drive)
  */
 void to8_EjectDisk(int drive)
 {
-    gui->disk[drive].file[0]='\0';
+    teo.disk[drive].file = std_free (teo.disk[drive].file);
     disk[drive].state = NO_DISK;
 }
     
@@ -908,11 +907,8 @@ int to8_LoadDisk(int drive, const char filename[])
         if (strncmp(header, sap_header, SAP_HEADER_SIZE))
             return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
 
-#ifdef DJGPP
-        strncpy(gui->disk[drive].file, filename, MAX_PATH);
-#else
-        (void) snprintf (gui->disk[drive].file, MAX_PATH, "%s", filename);
-#endif
+        teo.disk[drive].file = std_free (teo.disk[drive].file);
+        teo.disk[drive].file = std_strdup_printf ("%s", filename);
         disk[drive].state = NORMAL_ACCESS;
         disk[drive].mode = ret;
     }
@@ -948,7 +944,7 @@ int to8_SetDiskMode(int drive, int mode)
 
         case NORMAL_ACCESS:
         default:
-            ret=CheckFile(gui->disk[drive].file, mode);
+            ret=CheckFile(teo.disk[drive].file, mode);
 
             if (ret != TO8_ERROR)
                 disk[drive].mode = ret;
