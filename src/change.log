@@ -1,10 +1,14 @@
 ========================================================================
-=== Version 1.8.2 (Juin-septembre 2012)                              ===
+=== Version 1.8.2 (Juin-octobre 2012)                              ===
 ========================================================================
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
 - Ajout du checkbox pour le son sur le tableau de contrôle
 - linux : passage à GTK+3.0
+- Fusion de gui.c dans state.c et changement de state.c en ini.c
+- Fusion de gui.h dans to8.h
+- Changement du nom de la structure 'gui' en 'teo' et inclusion de
+  teo.command et teo.sound_enabled
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
