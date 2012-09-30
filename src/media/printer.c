@@ -55,7 +55,6 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "intern/hardware.h"
-#include "intern/gui.h"
 
 #ifdef UNIX_TOOL
 #   define SLASH "/"
@@ -150,7 +149,7 @@ static int screenprint_data_delay = 0;
 static struct LPRT_PAPER paper;
 static struct LPRT_FONT font;
 static struct LPRT_COUNTER counter;
-static struct LPRT_GUI lprt;
+static struct EMUTEO_LPRT lprt;
 static struct LPRT_GFX gfx;
 
 static int  printer_open_state = FALSE;
@@ -1489,7 +1488,7 @@ static void pr90055_first (void)
  */
 static void printer_Open (void)
 {
-    memcpy (&lprt, &gui->lprt, sizeof (struct LPRT_GUI));
+    memcpy (&lprt, &teo.lprt, sizeof (struct EMUTEO_LPRT));
     switch (lprt.number)
     {
         case  55 : paper.chars_per_line = 40;
@@ -1608,8 +1607,6 @@ void InitPrinter(void)
     memset (&paper, 0x00, sizeof (struct LPRT_PAPER));
     memset (&font, 0x00, sizeof (struct LPRT_FONT));
     memset (&gfx, 0x00, sizeof (struct LPRT_GFX));
-    gui->lprt.number = 55;
-    gui->lprt.gfx_output = TRUE;
     mc6846.prc &= 0xBF;  /* BUSY à 0 */
 }
 
