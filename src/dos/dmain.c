@@ -221,6 +221,86 @@ static void ExitMessage(const char msg[])
 
 
 
+/* isDir:
+ *  Retourne vrai si le fichier est un répertoire.
+ */
+static int isDir(char *path) {
+    struct stat buf;
+    int ret = 0;
+    if(!stat(path, &buf)) ret = S_ISDIR(buf.st_mode);
+    return ret;
+}
+
+/* isFile:
+ *  Retourne vrai si le fichier est un fichier.
+ */
+static int isFile(char *path) {
+    struct stat buf;
+    int ret = 0;
+    if(!stat(path, &buf)) ret = S_ISREG(buf.st_mode);
+    return ret;
+}
+
+/* sysexec:
+ *  Demande à l'OS d'executer une cmd dans un dossier précis.
+ */
+static void sysExec(char *cmd, const char *dir) {
+    char cwd[MAX_PATH]="";
+    char *tmp;
+    int i;
+    
+    tmp = getcwd(cwd, MAX_PATH);
+    i = chdir(dir);
+    i = system(cmd);
+    i = chdir(cwd);
+    (void)i;
+    (void)tmp;
+}
+
+
+/* rmFile:
+ *   Efface un fichier.
+ */
+static void rmFile(char *path) {
+    unlink(path);
+}
+
+
+/* tmpFile:
+ *   Cree un fichier temporaire.
+ */
+static char *tmpFile(char *buf, int maxlen) {
+    char *tmp;
+    tmp = tmpnam(buf);
+    strcat(buf, ".sap");
+    return buf;
+}
+
+
+/* unknownArg:
+ *  traite les arguments inconnus.
+ */
+static int unknownArg(char *arg) {
+    char buf[256];
+        
+    if(!strcmp(arg,"-help")      ||
+       !strcmp(arg,"-m")         ||
+       !strcmp(arg,"-fast")      ||
+       !strcmp(arg,"-nosound")   ||
+       !strcmp(arg,"-geometry")  ||
+       !strcmp(arg,"-noshm")     ||
+       !strcmp(arg,"-display")   ||
+       !strcmp(arg,"-loadstate"))
+            return 1;
+
+    sprintf(buf, is_fr?"Argument inconnu: %s\n":"Unknown arg: %s\n", arg);
+    ExitMessage(buf);
+    
+    return 0;
+}
+
+
+
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
 
 /* main:
@@ -252,6 +332,15 @@ int main(int argc, char *argv[])
 #else
     is_fr = 0;
 #endif
+
+    /* Retrouve sapfs.exe dans le PATH */
+    do {
+        int len = SearchPath(NULL, "sapfs", ".exe", sizeof(sapfs_exe)/sizeof(TCHAR), sapfs_exe, NULL);
+        if(len==0) {
+            fprintf(stderr, is_fr?"sapfs.exe introuvable":"Cannot find sapfs.exe\n"); fflush(stderr);
+            sapfs_exe[0] = '\0'; /* c'est pas grave, on peut faire sans */
+        }
+    } while(0);
 
     /* traitement des paramètres */
     for (i=1;i<argc;i++)
