@@ -59,10 +59,10 @@
 #include "intern/hardware.h"
 #include "intern/joystick.h"
 #include "intern/keyboard.h"
-#include "intern/k7.h"
+#include "intern/cass.h"
 #include "intern/mouse.h"
 #include "intern/printer.h"
-#include "intern/gui.h"
+#include "intern/ini.h"
 #include "to8.h"
 
 int is_fr=0;
@@ -661,7 +661,8 @@ void to8_Exit(void)
         return;
 
     /* Sauvegarde de l'état de l'émulateur */
-    to8_SaveState();
+    ini_Save();
+    to8_SaveImage ("autosave.img");
 
     printer_Close();
 
@@ -681,9 +682,6 @@ void to8_Exit(void)
     for (i=0; i<mem.cart.nbank; i++)
         if (mem.cart.bank[i])
             free(mem.cart.bank[i]);
-
-    /* libère les parties communes de la GUI */
-    gui_Free ();
 
     to8_alive = FALSE;
 }
@@ -716,7 +714,7 @@ int to8_Init(int num_joy)
     InitJoystick();
     InitMouse();
     InitDisk();
-    InitK7();
+    InitCass();
     InitPrinter();
 
     to8_alive = TRUE;
