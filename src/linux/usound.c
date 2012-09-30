@@ -56,9 +56,8 @@
    #include <alsa/asoundlib.h>
 #endif
 
-#include "to8.h"
 #include "intern/hardware.h"
-#include "intern/gui.h"
+#include "to8.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
 #define ALSA_SOUND_FREQ  44100         /* débit */
@@ -93,7 +92,7 @@ static int Error (const char *error_name, char *error_string)
     (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
                    "%s : %s", error_name, error_string);
     CloseSound ();
-    gui->setting.sound_enabled=0;
+    teo.setting.sound_enabled=0;
     return TO8_ERROR;
 }
 
@@ -255,7 +254,7 @@ int InitSound(void)
 
     to8_PutSoundByte=PutSoundByte;
 
-    if (gui->setting.sound_enabled)
+    if (teo.setting.sound_enabled)
     {
         printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
 
