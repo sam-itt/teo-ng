@@ -58,7 +58,6 @@
 #include "linux/graphic.h"
 #include "to8.h"
 #include "commands.xpm"
-#include "intern/gui.h"
 
 enum {
    TEO_RESPONSE_END = 1,
@@ -88,10 +87,10 @@ static void do_exit (GtkWidget *button, gpointer user_data)
 void display_box (const gchar *message, GtkWidget *parent_window, int dialog_flag)
 {
     GtkWidget *dialog = gtk_message_dialog_new  (
-                          (GtkWindow *)parent_window,
-                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                          dialog_flag, GTK_BUTTONS_OK,
-                          "%s", message);
+                    (GtkWindow *)parent_window,
+                    GTK_DIALOG_MODAL 
+                     | ((parent_window!=NULL)?GTK_DIALOG_DESTROY_WITH_PARENT:0),
+                    dialog_flag, GTK_BUTTONS_OK, "%s", message);
     gtk_window_set_title (GTK_WINDOW(dialog), "Teo");
     (void)gtk_dialog_run (GTK_DIALOG(dialog));
     gtk_widget_destroy ((GtkWidget *)dialog);
