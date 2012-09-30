@@ -65,37 +65,26 @@
 
 #include "intern/defs.h"
 #include "intern/printer.h"
-#include "intern/gui.h"
+#include "intern/xargs.h"
+#include "intern/std.h"
+#include "intern/ini.h"
 #include "linux/disk.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
-#include "linux/gui.h"
 #include "linux/sound.h"
+#include "linux/gui.h"
 #include "to8.h"
-#include "xargs.h"
 
-struct EmuTO teo={
-    TRUE,
-    NONE
-};
+struct EMUTEO teo;
 
 static int idle_data = 0;
-
-#define OP_TABLE_SIZE  10
-static XrmOptionDescRec op_table[OP_TABLE_SIZE]={
-{"-help"                , ".help"     , XrmoptionIsArg , NULL  },
-{"-m"                   , ".memo7"    , XrmoptionSepArg, NULL  },
-{"-fast"                , ".speed"    , XrmoptionNoArg , "fast"},
-{"-nosound"             , ".sound"    , XrmoptionNoArg , "off" },
-{"-geometry"            , ".geometry" , XrmoptionSepArg, NULL  },
-{"-noshm"               , ".shm"      , XrmoptionNoArg , "off" },
-{"-display"             , ".display"  , XrmoptionSepArg, NULL  },
-{"--enable-direct-write", ".direct"   , XrmoptionNoArg , "on"  },
-{"-loadstate"           , ".loadstate", XrmoptionIsArg , NULL  },
-{"-xrm"                 , NULL        , XrmoptionResArg, NULL  }
-};
-
 static GTimer *timer;
+
+static gboolean reset = FALSE;
+static gchar *cass_name = NULL;
+static gchar *memo_name = NULL;
+static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
+static gchar **remain_name = NULL;
 
 
 /* RunTO8:
@@ -106,8 +95,8 @@ static gboolean RunTO8 (gpointer user_data)
     static int debug = 0;
     static gulong microseconds;
 
-    if ((gui->setting.exact_speed)
-     && (gui->setting.sound_enabled == 0)
+    if ((teo.setting.exact_speed)
+     && (teo.setting.sound_enabled == 0)
      && (g_timer_elapsed (timer, &microseconds) < 0.02))
         return TRUE;
 
@@ -121,25 +110,21 @@ static gboolean RunTO8 (gpointer user_data)
      || (teo.command == DEBUGGER))
         debug = DebugPanel();
 
-    if (teo.command == CONTROL_PANEL)
-    {
+    if (teo.command == CONTROL_PANEL) {
         ControlPanel();
         debug = 0;
     }
 
-    if (teo.command == RESET)
-    {
+    if (teo.command == RESET) {
         to8_Reset();
         debug = 0;
     }
 
-    if (teo.command == COLD_RESET)
-    {
+    if (teo.command == COLD_RESET) {
         to8_ColdReset();
         debug = 0;
     }
-    if (teo.command == QUIT)
-    {
+    if (teo.command == QUIT) {
         mc6809_FlushExec();
         gtk_main_quit ();
         return FALSE;
@@ -148,173 +133,12 @@ static gboolean RunTO8 (gpointer user_data)
     teo.command = NONE;
 
     RefreshScreen();
-    if ((gui->setting.exact_speed) && (gui->setting.sound_enabled))
+    if ((teo.setting.exact_speed)
+     && (teo.setting.sound_enabled))
         PlaySoundBuffer();
 
     return TRUE;
     (void)user_data;
-}
-
-
-/* GetUserInput:
- *  Lit toutes les options spécifiées par l'utilisateur dans
- *  l'ordre de priorité décroissante suivant:
- *    - ligne de commande,
- *    - ressource de l'écran mise en place par xrdb,
- *    - fichier .Xdefaults dans le répertoire utilisateur,
- *  et les fusionne dans la base de données user_db.
- */
-static XrmDatabase GetUserInput(int *argc, char *argv[])
-{
-    char file_name[MAX_PATH+1];
-    char *str_type[20];
-    XrmDatabase commandline_db=NULL, user_db;
-    XrmValue value;
-
-    XrmParseCommand(&commandline_db,op_table,OP_TABLE_SIZE,PROG_NAME,argc,argv);
-
-    /* Demande d'aide ? */
-    if (XrmGetResource(commandline_db,PROG_NAME".help",PROG_CLASS".Help",str_type, &value))
-    {
-    if (is_fr) {
-        printf("Usage:\n");
-        printf("           %s [options...]\n",argv[0]);
-        printf("oÃ¹ les options sont prises parmi les suivantes:\n");
-        printf("    -help                   affiche cette aide\n");
-        printf("    -m file.m7              place la cartouche file.m7 dans le lecteur\n");
-        printf("    -fast                   active la pleine vitesse de l'Ã©mulateur\n");
-        printf("    -nosound                supprime le son de l'Ã©mulateur\n");
-        printf("    -geometry +x+y          spÃ©cifie la position de la fenÃªtre\n");
-        printf("    -noshm                  dÃ©sactive l'utilisation de l'extension MIT-SHM\n");
-        printf("    -display displayname    spÃ©cifie le serveur X Ã  utiliser\n");
-        printf("    -loadstate              charge le dernier Ã©tat sauvegardÃ© de l'Ã©mulateur\n");
-    } else {
-        printf("Usage:\n");
-        printf("           %s [options...]\n",argv[0]);
-        printf("Where options are:\n");
-        printf("    -help                   this help message\n");
-        printf("    -m file.m7              loads a ROM cart from file.m7\n");
-        printf("    -fast                   fastest speed of emulation\n");
-        printf("    -nosound                disable sound support\n");
-        printf("    -geometry +x+y          set absolute position of window\n");
-        printf("    -noshm                  disable MIT-SHM extension\n");
-        printf("    -display displayname    set another X server\n");
-        printf("    -loadstate              loads last state of emulation\n");
-    }    
-        exit(EXIT_SUCCESS);
-    }
-
-    /* On a besoin de display pour accéder à la configuration utilisateur */
-    InitDisplay();
-
-    if (XScreenResourceString(DefaultScreenOfDisplay(display)) != NULL)
-        user_db=XrmGetStringDatabase(XScreenResourceString(DefaultScreenOfDisplay(display)));
-    else if (XResourceManagerString(display) != NULL)
-        user_db=XrmGetStringDatabase(XResourceManagerString(display));
-    else
-    {
-        strcat(strcpy(file_name,getenv("HOME")),"./Xdefaults");
-        user_db=XrmGetFileDatabase(file_name);
-    }
-
-    XrmMergeDatabases(commandline_db, &user_db);
-
-    return user_db;
-}
-
-
-
-/* SetParameters:
- *  Fixe les paramètres de l'émulation, à partir des options de
- *  l'utilisateur ou par défaut.
- */
-static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int *direct_write_support, XrmDatabase user_db)
-{
-    char *str_type[20], buffer[20];
-    int flags;
-    XrmValue value;
-    unsigned int w,h;
-
-    /* Fichier qui décrit la cartouche placée dans le lecteur */
-    if (XrmGetResource(user_db,PROG_NAME".memo7",PROG_CLASS".Memo7", str_type, &value))
-        strncpy(memo_name, value.addr, value.size);
-
-    /* Vitesse de l'émulation: réelle (celle du TO8) ou rapide (celle du PC) */
-    if (XrmGetResource(user_db,PROG_NAME".speed",PROG_CLASS".Speed", str_type, &value))
-    {
-        if (!strncmp(value.addr,"fast",value.size))
-            gui->setting.exact_speed=FALSE;
-        else if (strncmp(value.addr,"true",value.size))
-        {
-            fprintf(stderr,is_fr?"%s: spÃ©cification de vitesse invalide (voir %s -help)\n"
-                                :"%s: invalid speed parameter (see %s -help)\n", PROG_NAME, PROG_NAME);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    /* Activation de l'émulation sonore */
-    if (XrmGetResource(user_db,PROG_NAME".sound",PROG_CLASS".Sound", str_type, &value))
-    {
-        if (!strncmp(value.addr,"off",value.size))
-            gui->setting.sound_enabled=FALSE;
-        else if (strncmp(value.addr,"on",value.size))
-        {
-            fprintf(stderr,is_fr?"%s: spÃ©cification de l'émulation sonore invalide (voir %s -help)\n"
-                                :"%s: invalid sound parameter (see %s -help)\n", PROG_NAME, PROG_NAME);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    /* Géométrie de la fenêtre */
-    if (XrmGetResource(user_db,PROG_NAME".geometry",PROG_CLASS".Geometry",str_type, &value))
-    {
-        strncpy(buffer, value.addr, value.size);
-        flags=XParseGeometry(buffer, x, y, &w, &h);
-
-    /* position x */
-        if (flags&XValue)
-        {
-            *user_flags|=USPosition;
-
-            if (flags&XNegative)
-                *x=DisplayWidth(display,screen)+*x-TO8_SCREEN_W*2;
-        }
-
-    /* position y */
-        if (flags&YValue)
-        {
-            *user_flags|=USPosition;
-
-            if (flags&YNegative)
-                *y=DisplayHeight(display,screen)+*y-TO8_SCREEN_H*2;
-        }
-    }
-
-    /* Activation de l'extension MIT-SHM */
-    if (XrmGetResource(user_db,PROG_NAME".shm",PROG_CLASS".Shm",str_type, &value))
-    {
-        if (!strncmp(value.addr,"off",value.size))
-            mit_shm_enabled=False;
-        else if (strncmp(value.addr,"on",value.size))
-        {
-            fprintf(stderr,is_fr?"%s: spÃ©cification de l'extension MIT-SHM invalide\n"
-                                :"%s: invalid MIT-SHM extension\n",PROG_NAME);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    /* Autorisation d'écriture directe */
-    if (XrmGetResource(user_db,PROG_NAME".direct",PROG_CLASS".direct",str_type, &value))
-    {
-        if (!strncmp(value.addr,"on",value.size))
-            *direct_write_support = True;
-    }
-
-    /* Chargement du dernier état sauvegardé de l'émulateur */
-    if (XrmGetResource(user_db,PROG_NAME".loadstate",PROG_CLASS".loadstate",str_type, &value))
-        return TRUE;
-
-    return FALSE;
 }
 
 
@@ -324,15 +148,8 @@ static int SetParameters(char memo_name[], int *x, int *y, int *user_flags, int 
  */
 static void DisplayMessage(const char msg[])
 {
-    GtkWidget *dialog;
-
     fprintf(stderr, "%s\n", msg);
-    dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL,
-                                           GTK_MESSAGE_ERROR,
-                                           GTK_BUTTONS_OK, "%s", msg);
-    gtk_window_set_title (GTK_WINDOW(dialog), is_fr?"Teo - Erreur":"Teo - Error");
-    gtk_dialog_run (GTK_DIALOG (dialog));
-    gtk_widget_destroy (dialog);
+    error_box (msg, NULL);
 }
 
 
@@ -348,25 +165,69 @@ static void ExitMessage(const char msg[])
 
 
 
-/* isDir:
- *  Retourne vrai si le fichier est un répertoire.
+/* ReadCommandLine:
+ *  Lit la ligne de commande
  */
-static int isDir(char *path) {
-    struct stat buf;
-    int ret = 0;
-    if(!stat(path, &buf)) ret = S_ISDIR(buf.st_mode);
-    return ret;
+static int ReadCommandLine(int argc, char *argv[])
+{
+    GError *error = NULL;
+    GOptionContext *context;
+    GOptionEntry entries[] = {
+        { "reset", 'r', 0, G_OPTION_ARG_NONE, &reset,
+           is_fr?"Reset Ã  froid de l'Ã©mulateur"
+                :"Cold-reset emulator", NULL },
+        { "disk0", '0', 0, G_OPTION_ARG_FILENAME, &disk_name[0],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)",
+           is_fr?"CHEMIN":"PATH" },
+        { "disk1", '1', 0, G_OPTION_ARG_FILENAME, &disk_name[1],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)",
+           is_fr?"CHEMIN":"PATH" },
+        { "disk2", '2', 0, G_OPTION_ARG_FILENAME, &disk_name[2],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)",
+           is_fr?"CHEMIN":"PATH" },
+        { "disk3", '3', 0, G_OPTION_ARG_FILENAME, &disk_name[3],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)",
+           is_fr?"CHEMIN":"PATH" },
+        { "cass", 0, 0, G_OPTION_ARG_FILENAME, &cass_name,
+           is_fr?"Charge une cassette":"Load a tape",
+           is_fr?"FICHIER":"FILE" },
+        { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
+           is_fr?"Charge une cartouche":"Load a cartridge",
+           is_fr?"FICHIER":"FILE" },
+        { G_OPTION_REMAINING, 0, G_OPTION_FLAG_IN_MAIN,
+          G_OPTION_ARG_FILENAME_ARRAY, &remain_name, "", NULL },
+        { NULL, 0, 0, 0, NULL, NULL, NULL }
+    };
+
+    context = g_option_context_new ("- test tree model performance");
+    g_option_context_add_main_entries (context, entries, NULL);
+    g_option_context_set_ignore_unknown_options (context, FALSE);
+//    g_option_context_set_description (context, "description");
+//    g_option_context_set_summary (context, "summary");
+    if (g_option_context_parse (context, &argc, &argv, &error) == FALSE)
+        ExitMessage (error->message);
+
+
+    /* Lecture des arguments supplémentaires */
+    xargs_init(&xargs);
+    xargs.tmpFile    = tmpFile;
+    xargs.sysExec    = sysExec;
+    xargs.rmFile     = rmFile;
+    xargs.sapfs      = "sapfs";
+    xargs.exitMsg = (void*)ExitMessage;
+//    xargs_parse(&xargs, argc-1, argv+1);
+    if (
+
+
+    
+    return 0;
 }
 
-/* isFile:
- *  Retourne vrai si le fichier est un fichier.
- */
-static int isFile(char *path) {
-    struct stat buf;
-    int ret = 0;
-    if(!stat(path, &buf)) ret = S_ISREG(buf.st_mode);
-    return ret;
-}
+
 
 /* sysexec:
  *  Demande à l'OS d'executer une cmd dans un dossier précis.
@@ -411,28 +272,6 @@ static char *tmpFile(char *buf, int maxlen) {
 }
 
 
-/* unknownArg:
- *  traite les arguments inconnus.
- */
-static int unknownArg(char *arg) {
-    char buf[256];
-        
-    if(!strcmp(arg,"-help")      ||
-       !strcmp(arg,"-m")         ||
-       !strcmp(arg,"-fast")      ||
-       !strcmp(arg,"-nosound")   ||
-       !strcmp(arg,"-geometry")  ||
-       !strcmp(arg,"-noshm")     ||
-       !strcmp(arg,"-display")   ||
-       !strcmp(arg,"-loadstate"))
-            return 1;
-
-    sprintf(buf, is_fr?"Argument inconnu: %s\n":"Unknown arg: %s\n", arg);
-    ExitMessage(buf);
-    
-    return 0;
-}
-
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
 
 
@@ -441,109 +280,124 @@ static int unknownArg(char *arg) {
  */
 int main(int argc, char *argv[])
 {
-    int x=0, y=0, user_flags=0;
-
     int i;
-    char version_name[]="Teo "TO8_VERSION_STR" (Linux/X11)";
-    char memo_name[MAX_PATH+1]="\0";
     int direct_write_support = FALSE;
     int drive_type[4];
     char *lang;
-    int load_state = FALSE;
-    XrmDatabase user_db;
+    int reset = FALSE;
+    int ini_load_error = 0;
     xargs xargs;
 #ifdef DEBIAN_BUILD
     char fname[MAX_PATH+1] = "";
 #endif
-    /* Initialisation du serveur X */ 
+
+    /* Repérage du language utilisée */
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
-    setlocale(LC_ALL, "fr_FR.UTF8");    
-    if (strncmp(lang,"fr",2)==0) 
-        is_fr=-1;
-    else
-        is_fr=0;
-         
+    setlocale(LC_ALL, "");
+    is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
+
+#ifdef DEBIAN_BUILD
+    /* Création du répertoire pour Teo (tous les droits) */
+    (void)snprintf (fname, MAX_PATH, "%s/.teo", getenv("HOME"));
+    if (access (fname, F_OK) < 0)
+        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+#endif
+ 
+    /* Initialisation gtk */
     gtk_init(&argc, &argv);
 
-    /* Initialisation du module de gestion des ressources */
-    XrmInitialize();
+    /* Charge les paramètres par défaut */
+    ini_load_error = ini_Load();
 
-    /* Mise en commun dans user_db toutes les commandes et options spécifiées
-       par l'utilisateur */
-    user_db = GetUserInput(&argc, argv);
+    /* Lit la ligne de commande */
+    ini_load_error += ReadCommandLine (argc, argv);
 
-    /* Lecture des arguments supplémentaires */
-    xargs_init(&xargs);
-    xargs.tmpFile    = tmpFile;
-    xargs.sysExec    = sysExec;
-    xargs.isFile     = isFile;
-    xargs.isDir      = isDir;
-    xargs.rmFile     = rmFile;
-    xargs.unknownArg = unknownArg;
-    xargs.sapfs      = "sapfs";
-    xargs.exitMsg = (void*)ExitMessage;
-    xargs_parse(&xargs, argc-1, argv+1);
-
-    /* Mise en place des paramètres de l'émulation */
-
-    if (gui_Init() == TO8_ERROR)
-        ExitMessage(to8_error_msg);
-    load_state = SetParameters(memo_name, &x, &y, &user_flags, &direct_write_support, user_db);
-    XrmDestroyDatabase(user_db);
+/*
+        warning_box (is_fr?"Un fichier de configuration n'a pas pu Ãªtre " \
+                           "chargÃ©. VÃ©rifiez qu'il n'a pas Ã©tÃ© dÃ©placÃ©, " \
+                           "dÃ©truit et que le pÃ©riphÃ©rique a bien Ã©tÃ© montÃ©."
+                          :"A configuration file was unable to be loaded. " \
+                           "Check if this file has been moved, deleted and that " \
+                           "the media has been successfully mounted.", NULL);
+*/
 
     /* Affichage du message de bienvenue du programme */
-    printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n":"Here's %s the thomson TO8 emulator.\n"),version_name);
-    printf("Copyright (C) 1997-2012 Gilles FÃ©tis, Eric Botcazou, Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
-    printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n":"Keys : [ESC] Control pannel\n"));
-    printf((is_fr?"         [F12] DÃ©bogueur\n\n":"     : [F12] Debugger\n\n"));
+    printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
+                 :"Here's %s the thomson TO8 emulator.\n"),
+                 "Teo "TO8_VERSION_STR" (Linux/X11)");
+    printf("Copyright (C) 1997-2012 Gilles FÃ©tis, Eric Botcazou, \
+            Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
+    printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n"
+                 :"Keys : [ESC] Control pannel\n"));
+    printf((is_fr?"         [F12] DÃ©bogueur\n\n"
+                 :"       [F12] Debugger\n\n"));
 
     /* Initialisation du TO8 */
-    printf((is_fr?"Initialisation de l'Ã©mulateur...":"Initialization of the emulator..."));
+    printf((is_fr?"Initialisation de l'Ã©mulateur..."
+                 :"Initialization of the emulator..."));
     fflush(stdout);
 
     if ( to8_Init(TO8_NJOYSTICKS) == TO8_ERROR )
         ExitMessage(to8_error_msg);
 
-    /* Chargement de la cartouche */
-    if (memo_name[0])
-        to8_LoadMemo7(memo_name);
-
     /* Initialisation de l'interface d'accès direct */
-    InitDirectDisk(drive_type, direct_write_support);
+    InitDirectDisk (drive_type, direct_write_support);
 
     /* Détection des lecteurs supportés (3"5 seulement) */
     for (i=0; i<4; i++)
-        gui->disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
+        teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
     /* Création de la fenêtre principale de l'émulateur */
-    InitWindow(argc, argv, x, y, user_flags);
+    InitWindow ();
+
+    /* Initialisation du serveur X */
+    InitDisplay();
 
     /* Initialisation des modules graphique, sonore et disquette */
     InitGraphic();
+
     if (InitSound() == TO8_ERROR)
         DisplayMessage(to8_error_msg);
 
-    /* Initialisation de l'imprimante */
-    InitPrinter();
-
     to8_ColdReset();
-#ifdef DEBIAN_BUILD
-    (void)snprintf (fname, MAX_PATH, "%s/.teo", getenv("HOME"));
-    if (access (fname, F_OK) < 0)
-        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-#endif
-    if (load_state == TRUE)
-        if (to8_LoadState() != 0)
-            warning_box (is_fr?"Un fichier de configuration n'a pas pu Ãªtre " \
-                               "chargÃ©. VÃ©rifiez qu'il n'a pas Ã©tÃ© dÃ©placÃ©, " \
-                               "dÃ©truit et que le pÃ©riphÃ©rique a bien Ã©tÃ© montÃ©."
-                              :"A configuration file was unable to be loaded. " \
-                               "Check if this file has been moved, deleted and that " \
-                               "the media has been successfully mounted.", NULL);
 
-    /* arguments supplementaires  */
-    xargs_start(&xargs);
+#if 0
+    if (!reset)
+    {
+        /* Charge les disquettes */
+        for (i=0;i<NBDRIVE;i++)
+        {
+            if (disk_name[i] !=NULL)
+            {
+                if (std_isdir (disk_name[i]))
+                     xargs_parse (&xargs, disk_name[i]);
+              
+                to8_LoadDisk(i, disk_name[i]);
+            }
+        }
+        /* Charge la cartouche */
+        if (memo_name !=NULL)
+            to8_LoadMemo(memo_name);
+
+        /* Charge la cassette */
+        if (cass_name !=NULL)
+            to8_LoadCass(cass_name);
+
+        /* Charge l'image de sauvegarde */
+        if (access("autosave.img", F_OK) >= 0)
+            to8_LoadImage("autosave.img");
+
+        /* Charge les options non définies */
+        for (i=0;remain_name[i]!=NULL;i++)
+        {
+            if (std_isdir (disk_name[i]))
+                xargs_parse (&xargs, disk_name[i]);
+                to8_LoadDisk(i, disk_name[i]);
+            }
+        }
+    }
+#endif
 
     /* Initialise l'interface graphique */
     InitGUI ();
