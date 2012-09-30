@@ -52,7 +52,7 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "intern/gui.h"
+#include "intern/std.h"
 #include "linux/gui.h"
 #include "to8.h"
 
@@ -71,7 +71,7 @@ static GList *path_list = NULL;
  */
 static void set_counter_cass (void)
 {
-   gtk_spin_button_set_value((GtkSpinButton *)spinner_cass, to8_GetK7Counter());
+   gtk_spin_button_set_value((GtkSpinButton *)spinner_cass, to8_GetCassCounter());
 }
 
 
@@ -81,7 +81,7 @@ static void set_counter_cass (void)
  */
 static void rewind_cass (void)
 {
-   to8_SetK7Counter(0);
+   to8_SetCassCounter(0);
    set_counter_cass ();
 }
 
@@ -93,7 +93,7 @@ static void rewind_cass (void)
 static void eject_cass (void)
 {
     rewind_cass ();
-    to8_EjectK7();
+    to8_EjectCass();
 }
 
 
@@ -114,7 +114,7 @@ static void eject_cass (void)
  */
 static int load_cass (gchar *filename)
 {
-    int ret = to8_LoadK7 (filename);
+    int ret = to8_LoadCass (filename);
 
     rewind_cass();
     switch (ret)
@@ -125,7 +125,7 @@ static int load_cass (gchar *filename)
 
         case TO8_READ_ONLY :
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(check_prot), TRUE);
-            gui->cass.write_protect = TRUE;
+            teo.cass.write_protect = TRUE;
             break;
 
         default : break;
@@ -142,19 +142,19 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
 {
     if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
     {
-        to8_SetK7Mode(TO8_READ_ONLY);
-        gui->cass.write_protect = TRUE;
+        to8_SetCassMode(TO8_READ_ONLY);
+        teo.cass.write_protect = TRUE;
     }
     else
     {
-        gui->cass.write_protect = FALSE;
+        teo.cass.write_protect = FALSE;
 
-        if (to8_SetK7Mode(TO8_READ_WRITE)==TO8_READ_ONLY)
+        if (to8_SetCassMode(TO8_READ_WRITE)==TO8_READ_ONLY)
         {
             error_box((is_fr?"Ecriture impossible sur ce support."
                             :"Writing unavailable on this device."), wControl);
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
-            gui->cass.write_protect = TRUE;
+            teo.cass.write_protect = TRUE;
         }
     }
     set_counter_cass ();
@@ -168,7 +168,7 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
  */
 static void change_counter_cass (GtkWidget *widget, gpointer data)
 {
-   to8_SetK7Counter(gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinner_cass)));
+   to8_SetCassCounter(gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinner_cass)));
    (void)widget;
    (void)data;
 }
@@ -272,11 +272,11 @@ static void open_file (GtkButton *button, gpointer data)
         gtk_file_filter_add_pattern (filter, "*.K7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if (strlen (gui->cass.file) != 0)
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->cass.file);
+        if (teo.cass.file != NULL)
+            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, teo.cass.file);
         else
-        if (strlen (gui->default_folder) != 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->default_folder);
+        if (teo.default_folder != NULL)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
         else
         if (access("./k7/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./k7/");
@@ -295,9 +295,10 @@ static void open_file (GtkButton *button, gpointer data)
             /* Bloque l'intervention de combo_changed */
             g_signal_handler_block (combo, combo_changed_id);
 
-            add_combo_entry (gui->cass.file);
+            add_combo_entry (teo.cass.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
-            (void)snprintf (gui->default_folder, MAX_PATH, "%s", folder_name);
+            teo.default_folder = std_free(teo.default_folder);
+            teo.default_folder = std_strdup_printf ("%s", folder_name);
             g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */
@@ -376,13 +377,13 @@ void init_cass_notebook_frame (GtkWidget *notebook)
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
     init_combo ();
-    if (strlen(gui->cass.file) != 0)
-        add_combo_entry (gui->cass.file);
+    if (teo.cass.file != NULL)
+        add_combo_entry (teo.cass.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton protection de la cassette */
     check_prot=gtk_check_button_new_with_label("prot.");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_prot), gui->cass.write_protect);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_prot), teo.cass.write_protect);
     g_signal_connect(G_OBJECT(check_prot), "toggled", G_CALLBACK(toggle_check_cass), (gpointer)NULL);
     gtk_box_pack_end( GTK_BOX(hbox), check_prot, FALSE, TRUE, 0);
 

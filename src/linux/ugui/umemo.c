@@ -51,7 +51,7 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "intern/gui.h"
+#include "intern/std.h"
 #include "linux/gui.h"
 #include "to8.h"
 
@@ -112,7 +112,7 @@ static void reset_combo (GtkButton *button, gpointer data)
     free_memo_list ();
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     init_combo();
-    to8_EjectMemo7();
+    to8_EjectMemo();
 
     /* Débloque l'intervention de combo_changed */
     g_signal_handler_unblock (combo, combo_changed_id);
@@ -133,9 +133,9 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
     filename = (char *) g_list_nth_data (path_list, gtk_combo_box_get_active (combo_box));
 
     if (*filename == '\0')
-        to8_EjectMemo7();
+        to8_EjectMemo();
     else
-    if (to8_LoadMemo7(filename) == TO8_ERROR)
+    if (to8_LoadMemo(filename) == TO8_ERROR)
         error_box(to8_error_msg, wControl);
 
     teo.command=COLD_RESET;
@@ -167,14 +167,14 @@ static void open_file (GtkButton *button, gpointer data)
         gtk_file_filter_add_pattern (filter, "*.M7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if (strlen (gui->memo.file) != 0)
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->memo.file);
+        if ((teo.memo.file != NULL) && (teo.memo.label != NULL))
+            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, teo.memo.file);
         else
-        if (strlen (gui->default_folder) != 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->default_folder);
+        if (teo.default_folder != NULL)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
         else
-        if (access("./memo7/", F_OK) == 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./memo7/");
+        if (access("./memo/", F_OK) == 0)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./memo/");
 
         /* Attend que le dialog ait tout assimilé */
         while (gtk_events_pending ())
@@ -185,16 +185,17 @@ static void open_file (GtkButton *button, gpointer data)
 
     if (gtk_dialog_run ((GtkDialog *)dialog) == GTK_RESPONSE_ACCEPT)
     {
-        if (to8_LoadMemo7(gtk_file_chooser_get_filename((GtkFileChooser *)dialog)) == TO8_ERROR)
+        if (to8_LoadMemo(gtk_file_chooser_get_filename((GtkFileChooser *)dialog)) == TO8_ERROR)
             error_box(to8_error_msg, wControl);
         else
         {
             /* Bloque l'intervention de combo_changed */
             g_signal_handler_block (combo, combo_changed_id);
 
-            add_combo_entry (gui->memo.label, gui->memo.file);
+            add_combo_entry (teo.memo.label, teo.memo.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
-            (void)snprintf (gui->default_folder, MAX_PATH, "%s", folder_name);
+            teo.default_folder = std_free(teo.default_folder);
+            teo.default_folder = std_strdup_printf ("%s", folder_name);
             g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */
@@ -265,8 +266,8 @@ void init_memo_notebook_frame (GtkWidget *notebook)
     combo=gtk_combo_box_text_new();
     gtk_box_pack_start( GTK_BOX(hbox), combo, TRUE, TRUE,0);
     init_combo();
-    if (strlen (gui->memo.label) != 0)
-        add_combo_entry (gui->memo.label, gui->memo.file);
+    if ((teo.memo.label != NULL) && (teo.memo.file != NULL))
+        add_combo_entry (teo.memo.label, teo.memo.file);
     combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton d'ouverture de fichier */

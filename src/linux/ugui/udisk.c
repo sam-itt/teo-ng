@@ -52,9 +52,9 @@
    #include <gtk/gtk.h>
 #endif
 
+#include "intern/std.h"
 #include "linux/gui.h"
 #include "to8.h"
-#include "intern/gui.h"
 
 #define NDISKS 4
 
@@ -88,7 +88,7 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
 
         case TO8_READ_ONLY :
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(vector->check_prot), TRUE);
-            gui->disk[vector->id].write_protect = TRUE;
+            teo.disk[vector->id].write_protect = TRUE;
             break;
 
         default : break;
@@ -106,14 +106,14 @@ static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
     {
         to8_SetDiskMode (vector->id, TO8_READ_ONLY);
-        gui->disk[vector->id].write_protect = TRUE;
+        teo.disk[vector->id].write_protect = TRUE;
     }
     else if (to8_SetDiskMode (vector->id, TO8_READ_WRITE)==TO8_READ_ONLY)
     {
         error_box(is_fr?"Ecriture impossible sur ce support."
                        :"Writing unavailable on this device.", wControl);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
-        gui->disk[vector->id].write_protect = TRUE;
+        teo.disk[vector->id].write_protect = TRUE;
     }
 }
 
@@ -131,7 +131,7 @@ static void set_access_mode (struct FILE_VECTOR *vector)
     if ((vector->direct) && (gtk_combo_box_get_active (GTK_COMBO_BOX(vector->combo)) == 1))
         ret = to8_DirectSetDrive(vector->id);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vector->check_prot), (ret==TO8_READ_ONLY) ? TRUE : FALSE);
-    gui->disk[vector->id].write_protect = (ret==TO8_READ_ONLY) ? TRUE : FALSE;
+    teo.disk[vector->id].write_protect = (ret==TO8_READ_ONLY) ? TRUE : FALSE;
 }
 
 
@@ -245,11 +245,11 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
         gtk_file_filter_add_pattern (filter, "*.SAP");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if (strlen (gui->disk[vector->id].file) != 0)
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, gui->disk[vector->id].file);
+        if (teo.disk[vector->id].file != NULL)
+            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, teo.disk[vector->id].file);
         else
-        if (strlen (gui->default_folder) != 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, gui->default_folder);
+        if (teo.default_folder != NULL)
+            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
         else
         if (access("./disks/", F_OK) == 0)
             (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./disks/");
@@ -268,9 +268,10 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
             /* Bloque l'intervention de combo_changed */
             g_signal_handler_block (vector->combo, vector->combo_changed_id);
 
-            add_combo_entry (gui->disk[vector->id].file, vector);
+            add_combo_entry (teo.disk[vector->id].file, vector);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
-            (void)snprintf (gui->default_folder, MAX_PATH, "%s", folder_name);
+            teo.default_folder = std_free(teo.default_folder);
+            teo.default_folder = std_strdup_printf ("%s", folder_name);
             g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */
@@ -348,17 +349,17 @@ void init_disk_notebook_frame (GtkWidget *notebook)
 
         /* boutons protection de la disquette */
         vector[i].check_prot=gtk_check_button_new_with_label("prot.");
-        gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(vector[i].check_prot), gui->disk[i].write_protect);
+        gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(vector[i].check_prot), teo.disk[i].write_protect);
         g_signal_connect(G_OBJECT(vector[i].check_prot), "toggled", G_CALLBACK(toggle_check_disk), (gpointer)&vector[i]);
         gtk_box_pack_end( GTK_BOX(hbox), vector[i].check_prot, FALSE, TRUE,0);
 
         /* combobox pour le rappel de disquette */
         vector[i].combo=gtk_combo_box_text_new();
         gtk_box_pack_start( GTK_BOX(hbox), vector[i].combo, TRUE, TRUE,0);
-        vector[i].direct=gui->disk[i].direct_access_allowed;
+        vector[i].direct=teo.disk[i].direct_access_allowed;
         init_combo (&vector[i]);
-        if (strlen (gui->disk[i].file) != 0)
-            add_combo_entry (gui->disk[i].file, &vector[i]);
+        if (teo.disk[i].file != NULL)
+            add_combo_entry (teo.disk[i].file, &vector[i]);
         else
             add_combo_entry (is_fr?"(Aucun)":"(None)", &vector[i]);
 
