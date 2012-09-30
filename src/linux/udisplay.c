@@ -388,7 +388,7 @@ window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
  *  Met en place les propriétés et crée la fenêtre principale,
  *  calcule la position et crée la fenêtre de l'écran.
  */
-void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
+void InitWindow(void)
 {
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
@@ -461,11 +461,5 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
     to8_SetPointer=SetPointer;
 
     printf("ok\n");
-    
-    (void)argc;
-    (void)argv;
-    (void)x;
-    (void)y;
-    (void)user_flags;
 }
 
