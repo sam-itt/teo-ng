@@ -52,7 +52,6 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "intern/gui.h"
 #include "linux/gui.h"
 #include "to8.h"
 
@@ -64,9 +63,9 @@ static GtkWidget *sound_widget = NULL;
  */
 static void toggle_speed (GtkWidget *button, gpointer data)
 {
-    gui->setting.exact_speed=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+    teo.setting.exact_speed=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
     if (sound_widget != NULL)
-        gtk_widget_set_sensitive (sound_widget, gui->setting.exact_speed ? TRUE : FALSE);
+        gtk_widget_set_sensitive (sound_widget, teo.setting.exact_speed ? TRUE : FALSE);
     (void)data;
 }
 
@@ -77,7 +76,7 @@ static void toggle_speed (GtkWidget *button, gpointer data)
  */
 static void toggle_interlace (GtkWidget *button, gpointer data)
 {
-    gui->setting.interlaced_video = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+    teo.setting.interlaced_video = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
     (void)data;
 }
 
@@ -87,7 +86,7 @@ static void toggle_interlace (GtkWidget *button, gpointer data)
  */
 static void toggle_sound (GtkWidget *button, gpointer data)
 {
-    gui->setting.sound_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+    teo.setting.sound_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
     (void)data;
 }
 
@@ -132,7 +131,7 @@ void init_setting_notebook_frame (GtkWidget *notebook)
     /* bouton de vitesse exacte */
     widget=gtk_radio_button_new_with_label_from_widget((GtkRadioButton *) widget, (is_fr?"exacte":"exact"));
     g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_speed), (gpointer)NULL);
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.exact_speed ? TRUE : FALSE);
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.setting.exact_speed ? TRUE : FALSE);
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte horizontale du checkbox de son */
@@ -141,10 +140,10 @@ void init_setting_notebook_frame (GtkWidget *notebook)
 
     /* checkbox du son */
     sound_widget=gtk_check_button_new_with_label((is_fr?"Son":"Sound"));
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(sound_widget), gui->setting.sound_enabled);
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(sound_widget), teo.setting.sound_enabled);
     g_signal_connect(G_OBJECT(sound_widget), "toggled", G_CALLBACK(toggle_sound), (gpointer)NULL);
     gtk_box_pack_start( GTK_BOX(hbox), sound_widget, TRUE, FALSE, 0);
-    gtk_widget_set_sensitive (sound_widget, gui->setting.exact_speed ? TRUE : FALSE);
+    gtk_widget_set_sensitive (sound_widget, teo.setting.exact_speed ? TRUE : FALSE);
 
     /* boîte horizontale du mode entrelacé */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
@@ -152,7 +151,7 @@ void init_setting_notebook_frame (GtkWidget *notebook)
 
     /* checkbox du mode entrelacé */
     widget=gtk_check_button_new_with_label((is_fr?"Affichage vidÃ©o entrelacÃ©":"Interlaced video display"));
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), gui->setting.interlaced_video);
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.setting.interlaced_video);
     g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_interlace), (gpointer)NULL);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 }
