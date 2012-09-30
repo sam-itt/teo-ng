@@ -54,7 +54,7 @@
 
 
 static const char *default_error_table_fr[TO8_ERROR_MAX]= {
-#ifdef OS_LINUX
+#ifdef UNIX_TOOL
     "Erreur: initialisation multiple de l'émulateur."
     "Erreur: allocation d'espace impossible.",
     "Erreur: impossible de trouver ",
