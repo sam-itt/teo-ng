@@ -39,18 +39,18 @@ _default: default
 TEO_SRC_FILES =         \
    src/media/disk.c     \
    src/media/joystick.c \
-   src/media/k7.c       \
-   src/media/memo7.c    \
+   src/media/cass.c     \
+   src/media/memo.c     \
    src/media/keyboard.c \
    src/media/mouse.c    \
    src/media/printer.c  \
    src/errors.c         \
    src/hardware.c       \
    src/image.c          \
-   src/xargs.c          \
-   src/state.c          \
-   src/gui.c            \
-   src/to8.c
+   src/ini.c            \
+   src/std.c            \
+   src/to8.c            \
+   src/xargs.c
 
 TEO_SRC_ALLEG_FILES =        \
    src/alleg/acolor8.c       \
