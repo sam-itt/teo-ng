@@ -39,6 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
+ *                               02/11/2012
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -59,10 +60,12 @@
 #include "intern/hardware.h"
 #include "intern/joystick.h"
 #include "intern/keyboard.h"
+#include "intern/image.h"
 #include "intern/cass.h"
 #include "intern/mouse.h"
 #include "intern/printer.h"
 #include "intern/ini.h"
+#include "intern/std.h"
 #include "to8.h"
 
 int is_fr=0;
@@ -98,15 +101,15 @@ static int LoadFile(const char filename[], unsigned char dest[], int size)
     FILE *file;
 
     if ((file=fopen(filename,"rb")) == NULL)
-        return ErrorMessage(TO8_CANNOT_FIND_FILE, filename);
+        return error_Message(TO8_CANNOT_FIND_FILE, filename);
 
     if (fread(dest, sizeof(char), size, file) != (size_t)size) {
         fclose(file);
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, filename);
+        return error_Message(TO8_CANNOT_OPEN_FILE, filename);
     }
     fclose(file);
 
-    return TO8_OK;
+    return 0;
 }
 
 
@@ -121,25 +124,25 @@ static int InitMemory(void)
     /* 64 ko de ROM logiciels */
     for (i=0; i<mem.rom.nbank; i++)
         if ((mem.rom.bank[i] = malloc(mem.rom.size*sizeof(uint8))) == NULL)
-            return ErrorMessage(TO8_BAD_ALLOC, NULL); 
+            return error_Message(TO8_BAD_ALLOC, NULL); 
 
     /* 512 ko de RAM */
     for (i=0; i<mem.ram.nbank; i++)
         if ((mem.ram.bank[i] = calloc(mem.ram.size, sizeof(uint8))) == NULL)
-            return ErrorMessage(TO8_BAD_ALLOC, NULL);
+            return error_Message(TO8_BAD_ALLOC, NULL);
 
     /* 16 ko de ROM moniteur */
     for (i=0; i<mem.mon.nbank; i++)
         if ((mem.mon.bank[i] = malloc(mem.mon.size*sizeof(uint8))) == NULL)
-            return ErrorMessage(TO8_BAD_ALLOC, NULL);
+            return error_Message(TO8_BAD_ALLOC, NULL);
 
     for (i=0; i<mem.rom.nbank; i++)
-        if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) == TO8_ERROR)
-            return TO8_ERROR;
+        if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) < 0)
+            return ERR_ERROR;
 
     for (i=0; i<mem.mon.nbank; i++)
-        if (LoadFile(mem.mon.filename[i], mem.mon.bank[i], mem.mon.size) == TO8_ERROR)
-            return TO8_ERROR;
+        if (LoadFile(mem.mon.filename[i], mem.mon.bank[i], mem.mon.size) < 0)
+            return ERR_ERROR;
 
     /* modification de la page d'affichage de la date */
     mem.rom.bank[3][0x25D3]=TO8_TRAP_CODE;
@@ -162,7 +165,7 @@ static int InitMemory(void)
     LOCK_DATA(mem.ram.bank[3], sizeof(uint8)*mem.ram.size);
     LOCK_DATA(mem.mon.bank[1], sizeof(uint8)*mem.rom.size);
 
-    return TO8_OK;
+    return 0;
 }
 
 
@@ -430,9 +433,8 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
 
 
 
-/**********************************/
-/* partie publique                */
-/**********************************/
+/* ------------------------------------------------------------------------- */
+
 
 /* Reset:
  *  Simule un appui sur le bouton reset du TO8.
@@ -641,9 +643,9 @@ int to8_DoFrame(int debug)
  */
 void to8_InputReset(int mask, int value)
 {
-    ResetKeyboard(mask, value);
-    ResetJoystick();
-    ResetMouse();
+    keyboard_Reset(mask, value);
+    joystick_Reset();
+    mouse_Reset();
 }
 
 
@@ -662,26 +664,29 @@ void to8_Exit(void)
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save();
-    to8_SaveImage ("autosave.img");
+    image_Save ("autosave.img");
 
+    /* Referme l'imprimante */
     printer_Close();
+
+    /* Nettoyage des disquettes temporaires */
+    disk_UnloadAll();
 
     /* on libère la mémoire */
     for (i=0; i<mem.rom.nbank; i++)
-        if (mem.rom.bank[i])
-            free(mem.rom.bank[i]); 
+        mem.rom.bank[i] = std_free (mem.rom.bank[i]);
 
     for (i=0; i<mem.ram.nbank; i++)
-        if (mem.ram.bank[i])
-            free(mem.ram.bank[i]);
+        mem.ram.bank[i] = std_free (mem.ram.bank[i]);
 
     for (i=0; i<mem.mon.nbank; i++)
-        if (mem.mon.bank[i])
-            free(mem.mon.bank[i]);
+        mem.mon.bank[i] = std_free (mem.mon.bank[i]);
 
     for (i=0; i<mem.cart.nbank; i++)
-        if (mem.cart.bank[i])
-            free(mem.cart.bank[i]);
+        mem.cart.bank[i] = std_free (mem.cart.bank[i]);
+
+    /* Libère l'occupation du message d'erreur */
+    to8_error_msg = std_free (to8_error_msg);
 
     to8_alive = FALSE;
 }
@@ -695,31 +700,31 @@ int to8_Init(int num_joy)
 {
     /* on détecte les instances multiples */
     if (to8_alive)
-        return ErrorMessage(TO8_MULTIPLE_INIT, NULL);
+        return error_Message(TO8_MULTIPLE_INIT, NULL);
 
-    InitHardware();
+    hardware_Init();
 
-    if (InitMemory() == TO8_ERROR)
+    if (InitMemory() < 0)
     {
         to8_Exit();
-        return TO8_ERROR;
+        return ERR_ERROR;
     }
 
-    if (InitKeyboard(num_joy) == TO8_ERROR)
+    if (keyboard_Init(num_joy) < 0)
     {
        to8_Exit();
-       return TO8_ERROR;
+       return ERR_ERROR;
     }
 
-    InitJoystick();
-    InitMouse();
-    InitDisk();
-    InitCass();
-    InitPrinter();
+    joystick_Init();
+    mouse_Init();
+    disk_Init();
+    cass_Init();
+    printer_Init();
 
     to8_alive = TRUE;
     atexit(to8_Exit);
 
     to8_new_video_params = FALSE;
-    return TO8_OK;
+    return 0;
 }
