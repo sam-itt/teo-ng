@@ -39,10 +39,11 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
+ *                               01/11/2012
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
- *  Gestion des cartouches du TO8.
+ *  Gestion des cartouches.
  */
 
 
@@ -55,50 +56,71 @@
 #include "intern/defs.h"
 #include "intern/hardware.h"
 #include "intern/errors.h"
+#include "intern/main.h"
 #include "intern/std.h"
 #include "to8.h"
 
 
+/* ------------------------------------------------------------------------- */
 
-/* check_if_cartridge_like_file:
+
+/* memo_Check:
  *  Vérifie le format de la cartouche.
  *
- *  Renvoie la position du caractère terminateur, ou -1 si erreur.
+ *  Renvoie la position du caractère terminateur, ou une erreur.
  */
-static int is_memo_like (char *fbuf, int minVal, int maxVal)
+int memo_Check (const char filename[])
 {
-   int i;
-   char checksum = '\x55';
+    FILE *file = NULL;
+    int i;
+    size_t length = 0;
+    char checksum = '\x55';
+    char memo_header[32];
 
-    /* Vérifie checksum */
-    for (i = 0; i < 27; i++) checksum += fbuf[i];
-    if (checksum != fbuf[27])
-        return -1;
+    if ((file = fopen (filename,"rb")) == NULL)
+        return TO8_CANNOT_OPEN_FILE;
 
-    /* Vérifie reset à chaud et à froid */
-    if ((fbuf[28] < minVal) || (fbuf[28] > maxVal)
-     || (fbuf[30] < minVal) || (fbuf[30] > maxVal))
-        return -1;
+    /* on détermine la longueur du fichier, qui doit être
+       un multiple de 4096 sans excéder 65536 octets.
+       On en profite pour récupérer le header de memo.
+       La totalité du fichier est lue, donc le fichier
+       pourra être relu sans erreur */
+    while (((i=fgetc(file)) != EOF) && (length <= 65536)) {
+        if (length < 32)
+            memo_header[length] = (char)i;
+        length++;
+    }
+    (void)fclose (file);
+      
+    /* vérifie la taille du fichier */
+    if ((length > 65536) || ((length % 4096) != 0))
+        return TO8_BAD_FILE_FORMAT;
+
+    /* calcule checksum */
+    for (i = 0; i < 26; i++) checksum += memo_header[i];
+    if ((unsigned char)checksum != (unsigned char)memo_header[26])
+        return TO8_BAD_MEMO_HEADER_CHECKSUM;
 
     /* first character */
-    if (fbuf[0] != ' ') return -1;
+    if (memo_header[0] != ' ')
+        return TO8_BAD_MEMO_HEADER_NAME;
 
-    /* Vérifie la fin du nom de cartouche */
+    /* vérifie la présence du terminateur du nom de cartouche */
     for (i = 1; i < 25; i++)
-       if (fbuf[i] < ' ')
+       if (memo_header[i] < ' ')
            break;
-    if (fbuf[i] != '\x04')
-        return -1;
+    if (memo_header[i] != '\x04')
+        return TO8_BAD_MEMO_HEADER_NAME;
 
-    return i;
+    return 0;
 }
 
 
 
-/* EjectMemo:
+/* memo_Eject:
  *  Ejecte la cartouche.
  */
-void to8_EjectMemo(void)
+void memo_Eject(void)
 {
     register int i;
 
@@ -111,60 +133,69 @@ void to8_EjectMemo(void)
 
 
 
-/* LoadMemo:
+/* memo_Load:
  *  Charge une cartouche et extrait son label.
  */
-int to8_LoadMemo(const char filename[])
+int memo_Load(const char filename[])
 {
+    int err;
     register int i;
     FILE *file;
-    long int length;
-    char memo_header[32];
-    int memo_header_length;
+    size_t length;
+    char memo_name[32] = "";
 
-    /* charge le header de cartouche (32 octets) */
-    if ((file=fopen(filename,"rb")) == NULL)
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+    /* vérificiation du format de la cartouche */
+    if ((err = memo_Check(filename)) < 0)
+        return error_Message(err, filename);
 
-    if (fread (memo_header, 32, 1, file) != 32)
-        goto bad_format;
-        
-    /* test (empirique) de reconnaissance du format */
-    if ((memo_header_length = is_memo_like (memo_header, 0x00, 0x40)) > 1)
-        goto bad_format;
-    
-    /* récupération de la taille du fichier */
-    fseek(file, 0, SEEK_END);
-    length = ftell (file);
-    if ((length > 65536) || ((length % 4096) != 0))
-        goto bad_format;
-
-        
     /* chargement de la cartouche */
-    to8_EjectMemo();
-    fseek(file, 0, SEEK_SET);
-    mem.cart.nbank = ((int)length-1)/mem.cart.size + 1;
-    for (i=0; i<mem.cart.nbank; i++) {
-        if ( (mem.cart.bank[i] = calloc(sizeof(char), mem.cart.size*sizeof(char))) == NULL) {
-            to8_EjectMemo();
-            return ErrorMessage(TO8_BAD_ALLOC, NULL);
+    if ((file=fopen(filename,"rb")) == NULL)
+        return error_Message(TO8_CANNOT_OPEN_FILE, filename);
+
+    memo_Eject();
+    mem.cart.nbank = 0;
+    while (feof (file) == 0)
+    {
+        if ( (mem.cart.bank[mem.cart.nbank] = calloc(sizeof(char), mem.cart.size*sizeof(char))) == NULL)
+        {
+            fclose(file);
+            memo_Eject();
+            return error_Message(TO8_BAD_ALLOC, filename);
         }
-        length = fread(mem.cart.bank[i], sizeof(char), mem.cart.size, file);
+        length = fread(mem.cart.bank[mem.cart.nbank], sizeof(char), mem.cart.size, file);
+        length = length;
+        mem.cart.nbank++;
     }
- 
     fclose(file);
 
     /* récupération du label et du nom de fichier */
-    memo_header[memo_header_length] = '\0';
+    i = strcspn ((char*)mem.cart.bank[0]+1, "\04");
+    if (i>0)
+        strncpy (memo_name, (char*)mem.cart.bank[0]+1, i);
     teo.memo.label = std_free (teo.memo.label);
-    teo.memo.label = std_strdup_printf ("%s", memo_header+1);
+    teo.memo.label = std_strdup_printf ("%s", memo_name);
     teo.memo.file  = std_free (teo.memo.file);
     teo.memo.file  = std_strdup_printf ("%s", filename);
 
     return TO8_READ_ONLY;
+}
 
-  bad_format:
-    fclose(file);
-    return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
+
+
+/* memo_FirstLoad:
+ *  Premier chargement de la memo.
+ */
+void memo_FirstLoad (void)
+{
+    char *s;
+
+    if (teo.memo.file !=NULL) {
+        s = std_strdup_printf ("%s", teo.memo.file);
+        teo.memo.file = std_free (teo.memo.file);
+        if (s != NULL)
+            if (memo_Load(s) < 0)
+                main_DisplayMessage (to8_error_msg);
+        s = std_free (s);
+    }
 }
 
