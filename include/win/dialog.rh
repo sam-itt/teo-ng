@@ -66,9 +66,6 @@
 #define INTERLACED_CHECK        2144
 #define SOUND_CHECK             2145
 #define VOLUME_BAR              2146
-#define IMAGE_GROUP             2147
-#define LOAD_BUTTON             2148
-#define SAVE_BUTTON             2149
 
 #define MEMO7_TAB               2160
 #define MEMO7_COMBO             2161
@@ -95,32 +92,36 @@
 #define DISK1_MORE_BUTTON       2206
 #define DISK2_MORE_BUTTON       2207
 #define DISK3_MORE_BUTTON       2208
-#define DISK0_EJECT_BUTTON      2209
-#define DISK1_EJECT_BUTTON      2210
-#define DISK2_EJECT_BUTTON      2211
-#define DISK3_EJECT_BUTTON      2212
-#define DISK0_PROT_CHECK        2213
-#define DISK1_PROT_CHECK        2214
-#define DISK2_PROT_CHECK        2215
-#define DISK3_PROT_CHECK        2216
+#define DISK0_FOLDER_BUTTON     2209
+#define DISK1_FOLDER_BUTTON     2210
+#define DISK2_FOLDER_BUTTON     2211
+#define DISK3_FOLDER_BUTTON     2212
+#define DISK0_EJECT_BUTTON      2213
+#define DISK1_EJECT_BUTTON      2214
+#define DISK2_EJECT_BUTTON      2215
+#define DISK3_EJECT_BUTTON      2216
+#define DISK0_PROT_CHECK        2217
+#define DISK1_PROT_CHECK        2218
+#define DISK2_PROT_CHECK        2219
+#define DISK3_PROT_CHECK        2220
 
-#define PRINTER_TAB             2220
-#define PRINTER_MORE_RTEXT      2221
-#define PRINTER_MORE_EDIT       2222
-#define PRINTER_MORE_BUTTON     2223
-#define PRINTER_CHOOSE_RTEXT    2224
-#define PRINTER_CHOOSE_COMBO    2225
-#define PRINTER_DIP_CHECK       2226
-#define PRINTER_NLQ_CHECK       2227
-#define PRINTER_OUTPUT_RTEXT    2228
-#define PRINTER_RAW_CHECK       2229
-#define PRINTER_TXT_CHECK       2230
-#define PRINTER_GFX_CHECK       2231
+#define PRINTER_TAB             2230
+#define PRINTER_MORE_RTEXT      2231
+#define PRINTER_MORE_EDIT       2232
+#define PRINTER_MORE_BUTTON     2233
+#define PRINTER_CHOOSE_RTEXT    2234
+#define PRINTER_CHOOSE_COMBO    2235
+#define PRINTER_DIP_CHECK       2236
+#define PRINTER_NLQ_CHECK       2237
+#define PRINTER_OUTPUT_RTEXT    2238
+#define PRINTER_RAW_CHECK       2239
+#define PRINTER_TXT_CHECK       2240
+#define PRINTER_GFX_CHECK       2241
 
-#define ABOUT_DIALOG            2240
-#define ABOUT_CTEXT_TITLE       2241
-#define ABOUT_CTEXT_COPYRIGHT   2242
-#define ABOUT_STATIC_LINK       2243
-#define ABOUT_EDIT_LICENSE      2244
+#define ABOUT_DIALOG            2250
+#define ABOUT_CTEXT_TITLE       2251
+#define ABOUT_CTEXT_COPYRIGHT   2252
+#define ABOUT_STATIC_LINK       2253
+#define ABOUT_CTEXT_LICENSE     2254
 
 #endif
