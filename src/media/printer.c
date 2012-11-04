@@ -37,9 +37,9 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 30/03/2001
- *               François Mouret 14/04/2012
+ *               François Mouret 14/04/2012 02/11/2012
  *
- *  Emulation des imprimantes PR90-055, PR90-600 et PR90-612.
+ *  Emulation des imprimantes.
  */
 
 
@@ -51,10 +51,11 @@
    #include <png.h>
 #endif
 
-#include "intern/printer.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
+#include "intern/printer.h"
 #include "intern/hardware.h"
+#include "intern/std.h"
 
 #ifdef UNIX_TOOL
 #   define SLASH "/"
@@ -1115,16 +1116,12 @@ static void PR_load_font (char *filename, int face)
 static void eject_paper (void)
 {
     if (lprt.gfx_output && (fp_raw != NULL))
-    {
-        fclose (fp_raw);
-        fp_raw = NULL;
-    }
+        fp_raw = std_fclose (fp_raw);
         
     if (lprt.txt_output && (fp_text != NULL))
     {
         PR_line_feed ();
-        fclose (fp_text);
-        fp_text = NULL;
+        fp_text = std_fclose (fp_text);
     }
 
     gfx_eject();
@@ -1516,9 +1513,7 @@ static void printer_Open (void)
 }
 
 
-/**********************************/
-/******** partie publique *********/
-/**********************************/
+/* ------------------------------------------------------------------------- */
 
 
 /* printer_WriteData:
@@ -1537,11 +1532,7 @@ void printer_WriteData(int mask, int value)
 void printer_Close(void)
 {
     eject_paper ();
-    if (font.buffer != NULL)
-    {
-        free (font.buffer);
-        font.buffer = NULL;
-    }
+    font.buffer = std_free (font.buffer);
     PR_forget ();
     printer_open_state = FALSE;
     mc6846.prc &= 0xBF;  /* BUSY à 0 */
@@ -1596,10 +1587,10 @@ void printer_SetStrobe(int state)
 
 
 
-/* InitPrinter:
+/* printer_Init:
  *  Initialise l'imprimante.
  */
-void InitPrinter(void)
+void printer_Init(void)
 {
     /* trap to get RS.STA value */
     mem.mon.bank[0][0x1B65]=TO8_TRAP_CODE;
