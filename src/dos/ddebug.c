@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 27/11/2002
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 01/11/2012
  *
  *  Débogueur du TO8.
  */
@@ -83,15 +83,17 @@ static char menu_line[MENU_NLINES][50]={ "Commands:",
 
 #define BREAK_MENU_NLINES 4
 #ifdef FRENCH_LANG
-static char break_menu_line[BREAK_MENU_NLINES][32]={ "Commandes:                    ",
-                                                     " b: ajouter un point d'arrˆt  ",
-                                                     " d: supprimer un point d'arrˆt",
-                                                     " q: quitter                   "};
+static char
+break_menu_line[BREAK_MENU_NLINES][32]={ "Commandes:                    ",
+                                         " b: ajouter un point d'arrˆt  ",
+                                         " d: supprimer un point d'arrˆt",
+                                         " q: quitter                   "};
 #else
-static char break_menu_line[BREAK_MENU_NLINES][32]={ "Commands:                     ",
-                                                     " b: adding a breakpoint       ",
-                                                     " d: deleting a breakpoint     ",
-                                                     " q: quit                      "};
+static char
+break_menu_line[BREAK_MENU_NLINES][32]={ "Commands:                     ",
+                                         " b: adding a breakpoint       ",
+                                         " d: deleting a breakpoint     ",
+                                         " q: quit                      "};
 #endif
 
 #define MAX_BREAKPOINTS  16
@@ -112,14 +114,14 @@ static void DisplayRegs(void)
     cprintf("        CPU MC6809E           ");
 
     gotoxy(1,11);
-    cprintf(is_fr?"      PIA 6846 systŠme        ":"      PIA 6846 system         ");
-
+    cprintf(is_fr?"      PIA 6846 systŠme        "
+                 :"      PIA 6846 system         ");
     gotoxy(1,16);
-    cprintf(is_fr?"      PIA 6821 systŠme        ":"      PIA 6821 system         ");
-
+    cprintf(is_fr?"      PIA 6821 systŠme        "
+                 :"      PIA 6821 system         ");
     gotoxy(1,20);
-    cprintf(is_fr?"   PIA 6821 musique et jeux   ":"   PIA 6821 music and games   ");
-
+    cprintf(is_fr?"   PIA 6821 musique et jeux   "
+                 :"   PIA 6821 music and games   ");
     gotoxy(1,24);
     cprintf("    Gate Array mode_page      ");
 
@@ -127,8 +129,8 @@ static void DisplayRegs(void)
     cprintf("    Gate Array disk_ctrl      ");
 
     gotoxy(1,35);
-    cprintf(is_fr?"   Statut des pages m‚moire   ":"     Memory pages status      ");
-
+    cprintf(is_fr?"   Statut des pages m‚moire   "
+                 :"     Memory pages status      ");
     textbackground(BLACK);
     textcolor(WHITE);
 
@@ -197,15 +199,20 @@ static void DisplayRegs(void)
     cprintf(" WDATA: %02X    RDATA: %02X",disk_ctrl.wdata, disk_ctrl.rdata);
 
     gotoxy(2,36);
-    cprintf(is_fr?"page de ROM cartouche : %d":"ROM cartridge page    : %d", mempager.cart.rom_page);
+    cprintf(is_fr?"page de ROM cartouche : %d":"ROM cartridge page    : %d",
+                                                     mempager.cart.rom_page);
     gotoxy(2,37);
-    cprintf(is_fr?"page de RAM cartouche : %d":"RAM cartridge page    : %d", mempager.cart.ram_page);
+    cprintf(is_fr?"page de RAM cartouche : %d":"RAM cartridge page    : %d",
+                                                     mempager.cart.ram_page);
     gotoxy(2,38);
-    cprintf(is_fr?"page de VRAM          : %d":"VRAM page             : %d", mempager.screen.vram_page);
+    cprintf(is_fr?"page de VRAM          : %d":"VRAM page             : %d",
+                                                     mempager.screen.vram_page);
     gotoxy(2,39);
-    cprintf(is_fr?"page de RAM (registre): %d":"RAM page (register)   : %d", mempager.data.reg_page);
+    cprintf(is_fr?"page de RAM (registre): %d":"RAM page (register)   : %d",
+                                                     mempager.data.reg_page);
     gotoxy(2,40);
-    cprintf(is_fr?"page de RAM (PIA)     : %d":"RAM page (PIA)        : %d", mempager.data.pia_page);
+    cprintf(is_fr?"page de RAM (PIA)     : %d":"RAM page (PIA)        : %d",
+                                                     mempager.data.pia_page);
 }
 
 
@@ -256,7 +263,8 @@ static void SetBreakpoints(void)
             if (i < MAX_BREAKPOINTS)
             {
                 int addr;
-                ReadAddress(&addr, 2, 14+MAX_BREAKPOINTS/2+BREAK_MENU_NLINES, is_fr?"adresse: ":"address: ");
+                ReadAddress(&addr, 2, 14+MAX_BREAKPOINTS/2+BREAK_MENU_NLINES,
+                                                is_fr?"adresse: ":"address: ");
                 if ((0<=addr) && (addr<=0xFFFF))
                     breakpoint[i] = addr+1;
             }
@@ -265,7 +273,8 @@ static void SetBreakpoints(void)
 	if ((c=='d') || (c=='D'))
         {
             int n;
-            ReadByte(&n, 2, 14+MAX_BREAKPOINTS/2+BREAK_MENU_NLINES, is_fr?"num‚ro: ":"number: ");
+            ReadByte(&n, 2, 14+MAX_BREAKPOINTS/2+BREAK_MENU_NLINES,
+                             is_fr?"num‚ro: ":"number: ");
             if ((1<=n) && (n<=MAX_BREAKPOINTS))
                 breakpoint[n-1] = 0;
         }
@@ -274,7 +283,8 @@ static void SetBreakpoints(void)
         textcolor(LIGHTGRAY);
 
         gotoxy(1,11);
-        cprintf(is_fr?"       Points d'arrˆt        ":"         Breakpoint          ");
+        cprintf(is_fr?"       Points d'arrˆt        "
+                     :"         Breakpoint          ");
 
         textbackground(BLACK);
         textcolor(WHITE);
@@ -317,11 +327,13 @@ static void SetBreakpoints(void)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* Debugger:
+
+/* ddebug_Run:
  *  Fonction principale du débogueur.
  */
-void Debugger(void)
+void ddebug_Run(void)
 {
     register int i,j;
              int c=0,pc;
@@ -420,7 +432,8 @@ void Debugger(void)
 
         /* le désassembleur */
         gotoxy(33,1);
-        cprintf(is_fr?"              D‚sassembleur MC6809E             ":"               MC6809E Disassembler              ");
+        cprintf(is_fr?"              D‚sassembleur MC6809E             "
+                     :"               MC6809E Disassembler              ");
 
         textbackground(BLACK);
         textcolor(WHITE);
@@ -430,7 +443,8 @@ void Debugger(void)
             for (j=0; j<5; j++)
                 fetch_buffer[j]=LOAD_BYTE(pc+j);
 
-            pc=(pc+MC6809_Dasm(dasm_buffer,fetch_buffer,pc,MC6809_DASM_BINASM_MODE))&0xFFFF;
+            pc=(pc+MC6809_Dasm(dasm_buffer,fetch_buffer,pc,
+                               MC6809_DASM_BINASM_MODE))&0xFFFF;
             gotoxy(33,i+2);
             cputs(dasm_buffer);
         }
