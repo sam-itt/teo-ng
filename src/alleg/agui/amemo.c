@@ -39,6 +39,7 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
+ *                               24/10/2012
  *
  *  Gestion des cartouches.
  */
@@ -52,16 +53,13 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
+#include "alleg/gui.h"
+#include "intern/memo.h"
+#include "intern/std.h"
 #include "to8.h"
-
-extern void PopupMessage(const char message[]);
 
 /* Chemin du fichier de la cartouche. */
 static char filename[MAX_PATH+1] = "";
-
-/* Nom du fichier utilisé comme cartouche. */
-static char m7_label[TO8_MEMO7_LABEL_LENGTH+1];
 
 /* Boîte de dialogue. */
 static DIALOG m7dial[]={
@@ -74,7 +72,7 @@ static DIALOG m7dial[]={
 #endif
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "m7" },
 { d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,     64,  40, 191,  16, 0, 0,   0,   0,    0, 0, m7_label },
+{ d_textbox_proc,     64,  40, 191,  16, 0, 0,   0,   0,    0, 0, NULL },
 { d_button_proc,     260,  40,  30,  16, 0, 0, 'm', D_EXIT, 0, 0, "..." },
 { d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
@@ -94,57 +92,42 @@ static void init_filename(void)
 {
     *filename = '\0';
 
-    if (strlen (gui->memo.file) != 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s", gui->memo.file);
-#else
-        (void)snprintf (filename, MAX_PATH, "%s", gui->memo.file);
-#endif
+    if (teo.memo.file != NULL)
+        (void)std_snprintf (filename, MAX_PATH-1, "%s", teo.memo.file);
     else
-    if (strlen (gui->default_folder) != 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s\\", gui->default_folder);
-#else
-        (void)snprintf (filename, MAX_PATH, "%s\\", gui->default_folder);
-#endif
+    if (teo.default_folder != NULL)
+        (void)std_snprintf (filename, MAX_PATH-1,"%s\\", teo.default_folder);
     else
-      if (file_exists(".\\memo7", FA_DIREC, NULL))
-//    if (access(def_folder, F_OK) == 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s", ".\\memo7\\");
-#else
-        (void)snprintf (filename, MAX_PATH, "%s", ".\\memo7\\");
-#endif
+    if (file_exists(".\\memo7", FA_DIREC, NULL))
+        (void)std_snprintf (filename, MAX_PATH-1, "%s", ".\\memo7\\");
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* MenuMemo7:
+
+/* amemo_Panel:
  *  Affiche le menu de gestion du lecteur de cartouches.
  */
-void MenuMemo7(void)
+void amemo_Panel(void)
 {
     static int first=1;
     int ret;
+    char *name;
 
     if (first)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
         init_filename();
         centre_dialog(m7dial);
-#ifdef DJGPP
-        (void)sprintf (m7_label, "%s", gui->memo.label);
-#else
-        (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.label);
-#endif
-        if (m7_label[0] == '\0')
-#ifdef DJGPP
-            (void)sprintf (m7_label, "%s", is_fr?"(Aucun)":"(None)");
-#else
-            (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
-#endif
-
-	first=0;
+        m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", teo.memo.label);
+        name = (char *)m7dial[M7DIAL_LABEL].dp;
+        if ((name == NULL) || (*name == '\0'))
+        {
+            m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
+            m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+        }
+        first=0;
     }
 
     clear_keybuf();
@@ -156,34 +139,28 @@ void MenuMemo7(void)
         switch (ret)
         {
             case M7DIAL_EJECT:
-#ifdef DJGPP
-                (void)sprintf (m7_label, "%s", is_fr?"(Aucun)":"(None)");
-#else
-                (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
-#endif
-                to8_EjectMemo7();
+                m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
+                m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                memo_Eject();
                 teo.command=COLD_RESET;
                 break;
 
             case M7DIAL_BUTTON:
                 init_filename();
-                gui_CleanPath (filename);
+                std_CleanPath (filename);
                 strcat (filename, "\\");
                 if (file_select_ex(is_fr?"Choisissez votre cartouche:":"Choose your cartridge", filename, "m7",
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
-                    if (to8_LoadMemo7(filename) == TO8_ERROR)
-                        PopupMessage(to8_error_msg);
+                    if (memo_Load(filename) < 0)
+                        agui_PopupMessage(to8_error_msg);
                     else
                     {
-#ifdef DJGPP
-                        (void)sprintf (m7_label, "%s", gui->memo.label);
-                        (void)sprintf (gui->default_folder, "%s", filename);
-#else
-                        (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.label);
-                        (void)snprintf (gui->default_folder, MAX_PATH, "%s", filename);
-#endif
-                        gui_CleanPath (gui->default_folder);
+                        m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
+                        m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", teo.memo.label);
+                        teo.default_folder = std_free (teo.default_folder);
+                        teo.default_folder = std_strdup_printf ("%s", filename);
+                        std_CleanPath (teo.default_folder);
                         teo.command=COLD_RESET;
                     }   
                 }
@@ -198,10 +175,10 @@ void MenuMemo7(void)
 
 
 
-/* SetMemoGUIColors:
+/* amemo_SetColors:
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
-void SetMemoGUIColors(int fg_color, int bg_color, int bg_entry_color)
+void amemo_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(m7dial, fg_color, bg_color);
     m7dial[M7DIAL_LABEL].bg = bg_entry_color;
@@ -209,18 +186,20 @@ void SetMemoGUIColors(int fg_color, int bg_color, int bg_entry_color)
 
 
 
-/* InitMemoGUI:
+/* amemo_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitMemoGUI(char *title)
+void amemo_Init(void)
 {
-    if (strlen(gui->memo.file))
-#ifdef DJGPP
-        (void)sprintf (m7_label, "%s", gui->memo.file);
-#else
-        (void)snprintf (m7_label, TO8_MEMO7_LABEL_LENGTH, "%s", gui->memo.file);
-#endif
-    /* Définit le titre de la fenêtre */
-//    m7dial[1].dp = title;
+    if (teo.memo.file != NULL)
+        m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", teo.memo.file);
 }
 
+
+/* amemo_Free:
+ *  Libère le module interface utilisateur.
+ */
+void amemo_Free(void)
+{
+    m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
+}

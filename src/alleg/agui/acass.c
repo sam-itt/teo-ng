@@ -39,6 +39,7 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
+ *                               24/10/2012
  *
  *  Gestion des cassettes.
  */
@@ -52,17 +53,13 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
+#include "alleg/gui.h"
+#include "intern/cass.h"
+#include "intern/std.h"
 #include "to8.h"
-
-extern void PopupMessage(const char message[]);
 
 /* Chemin du fichier de la cassette. */
 static char filename[MAX_PATH+1] = "";
-
-/* Nom du fichier utilisé comme cassette. */
-#define LABEL_LENGTH     20
-static char k7_label[LABEL_LENGTH+1];
 
 /* Affichage du compteur. */
 #define COUNTER_MAX  999
@@ -87,7 +84,7 @@ static DIALOG k7dial[]={
 #endif
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "k7" },
 { d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,     64,  40, 150,  16, 0, 0,   0,  0,     0, 0, k7_label },
+{ d_textbox_proc,     64,  40, 150,  16, 0, 0,   0,  0,     0, 0, NULL },
 { d_button_proc,     220,  40,  30,  16, 0, 0, 'k', D_EXIT, 0, 0, "..." },
 { d_check_proc,      260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 1, "" },
 { d_text_proc,       255,  30,   0,   0, 0, 0,   0,  0,     0, 0, "prot." },
@@ -144,7 +141,7 @@ static int updown_edit_proc(int msg, DIALOG *d, int c)
         else
             counter = MID(0, counter, COUNTER_MAX);
 
-        to8_SetK7Counter(counter);
+        cass_SetCounter(counter);
     }
 
     return ret;
@@ -157,7 +154,7 @@ static int updown_edit_proc(int msg, DIALOG *d, int c)
 static void update_counter(int *counter)
 {
     *counter = MID(0, *counter, COUNTER_MAX);
-    to8_SetK7Counter(*counter);
+    cass_SetCounter(*counter);
 
     k7dial[K7DIAL_EDIT].d2 = uszprintf(k7_counter_str, sizeof(k7_counter_str), "%d", *counter);
     scare_mouse();
@@ -181,7 +178,7 @@ static int updown_button_proc(int msg, DIALOG *d, int c, int down)
         object_message(d, MSG_DRAW, 0);
         unscare_mouse();
 
-        counter = to8_GetK7Counter();
+        counter = cass_GetCounter();
 
         if (down)
            counter--;
@@ -266,38 +263,28 @@ static void init_filename(void)
 {
     *filename = '\0';
 
-    if (strlen (gui->cass.file) != 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s", gui->cass.file);
-#else
-        (void)snprintf (filename, MAX_PATH, "%s", gui->cass.file);
-#endif
+    if (teo.cass.file != NULL)
+        (void)std_snprintf (filename, MAX_PATH-1, "%s", teo.cass.file);
     else
-    if (strlen (gui->default_folder) != 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s\\", gui->default_folder);
-#else
-        (void)snprintf (filename, MAX_PATH, "%s\\", gui->default_folder);
-#endif
+    if (teo.default_folder != NULL)
+        (void)std_snprintf (filename, MAX_PATH-1, "%s\\", teo.default_folder);
     else
-      if (file_exists(".\\k7", FA_DIREC, NULL))
-//    if (access(def_folder, F_OK) == 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s", ".\\k7\\");
-#else
-        (void)snprintf (filename, MAX_PATH, "%s", ".\\k7\\");
-#endif
+    if (file_exists(".\\k7", FA_DIREC, NULL))
+        (void)std_snprintf (filename, MAX_PATH-1, "%s", ".\\k7\\");
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* MenuK7:
+
+/* acass_Panel:
  *  Affiche le menu de gestion du lecteur de cassettes.
  */
-void MenuK7(void)
+void acass_Panel(void)
 {
     static int first=1;
     int ret;
+    char *name = NULL;
 
     if (first)
     {
@@ -306,24 +293,20 @@ void MenuK7(void)
 
         centre_dialog(k7dial);
 
-#ifdef DJGPP
-        (void)sprintf (k7_label, "%s", get_filename(filename));
-#else
-        (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(filename));
-#endif
-        if (k7_label[0] == '\0')
-#ifdef DJGPP
-            (void)sprintf (k7_label, "%s", is_fr?"(Aucun)":"(None)");
-#else
-            (void)snprintf (k7_label, LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
-#endif
-        (void)to8_SetK7Mode(TO8_READ_WRITE);
+        k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", get_filename(filename));
+        name = (char *)k7dial[K7DIAL_LABEL].dp;
+        if ((name == NULL) || (name[0] == '\0'))
+        {
+            k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
+            k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+        }
+        (void)cass_SetMode(TO8_READ_WRITE);
         k7dial[K7DIAL_CHECK].d2=0;
-        if (gui->cass.write_protect)
+        if (teo.cass.write_protect)
         {
             k7dial[K7DIAL_CHECK].flags |= D_SELECTED;
             k7dial[K7DIAL_CHECK].d2=1;
-            (void)to8_SetK7Mode(TO8_READ_ONLY);
+            (void)cass_SetMode(TO8_READ_ONLY);
         }
         first=0;
     }
@@ -333,44 +316,39 @@ void MenuK7(void)
 
     while (TRUE)
     {
-        k7dial[K7DIAL_EDIT].d2 = uszprintf(k7_counter_str, sizeof(k7_counter_str), "%d", to8_GetK7Counter());
+        k7dial[K7DIAL_EDIT].d2 = uszprintf(k7_counter_str, sizeof(k7_counter_str), "%d", cass_GetCounter());
 
         switch (popup_dialog(k7dial, K7DIAL_OK))
         {
             case K7DIAL_EJECT:
-#ifdef DJGPP
-                (void)sprintf (k7_label, "%s", is_fr?"(Aucun)":"(None)");
-#else
-                (void)snprintf (k7_label, LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
-#endif
-                to8_EjectK7();
+                k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
+                k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                cass_Eject();
                 break;
 
             case K7DIAL_BUTTON:
                 init_filename();
-                gui_CleanPath (filename);
+                std_CleanPath (filename);
                 strcat (filename, "\\");
                 if (file_select_ex(is_fr?"Choisissez votre cassette:":"Choose your tape:", filename, "k7", 
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
-                    ret=to8_LoadK7(filename);
+                    ret=cass_Load(filename);
 
-                    if (ret == TO8_ERROR)
-                        PopupMessage(to8_error_msg);
+                    if (ret < 0)
+                        agui_PopupMessage(to8_error_msg);
                     else
                     {
-#ifdef DJGPP
-                        (void)sprintf (k7_label, "%s", get_filename(filename));
-                        (void)sprintf (gui->default_folder, "%s", filename);
-#else
-                        (void)snprintf (k7_label, LABEL_LENGTH, "%s", get_filename(filename));
-                        (void)snprintf (gui->default_folder, MAX_PATH, "%s", filename);
-#endif
-                        gui_CleanPath (gui->default_folder);
+                        k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
+                        k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", get_filename(filename));
+                        teo.default_folder = std_free (teo.default_folder);
+                        teo.default_folder = std_strdup_printf ("%s", filename);
+                        std_CleanPath (teo.default_folder);
 
                         if ((ret==TO8_READ_ONLY) && !(k7dial[6].d2))
                         {
-                            PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
+                            agui_PopupMessage(is_fr?"Attention: écriture impossible."
+                                                   :"Warning: writing unavailable.");
                             k7dial[K7DIAL_CHECK].flags|=D_SELECTED;
                             k7dial[K7DIAL_CHECK].d2=1;
                         }
@@ -381,9 +359,9 @@ void MenuK7(void)
             case K7DIAL_CHECK:
                 if (k7dial[K7DIAL_CHECK].d2)
                 {
-                    if (to8_SetK7Mode(TO8_READ_WRITE)==TO8_READ_ONLY)
+                    if (cass_SetMode(TO8_READ_WRITE)==TO8_READ_ONLY)
                     {
-                        PopupMessage(is_fr?"Ecriture impossible sur ce support.":"Writing unavailable on this device.");
+                        agui_PopupMessage(is_fr?"Ecriture impossible sur ce support.":"Writing unavailable on this device.");
                         k7dial[K7DIAL_CHECK].flags|=D_SELECTED;
                         k7dial[K7DIAL_CHECK].d2=1;
                     }
@@ -395,19 +373,19 @@ void MenuK7(void)
                 }
                 else
                 {
-                    to8_SetK7Mode(TO8_READ_ONLY);
+                    cass_SetMode(TO8_READ_ONLY);
                     k7dial[K7DIAL_CHECK].flags|=D_SELECTED;
                     k7dial[K7DIAL_CHECK].d2=1;
                 }
                 break;
 
             case K7DIAL_REWIND:
-                to8_SetK7Counter(0);
+                cass_SetCounter(0);
                 break;
 
             case -1:  /* ESC */
             case K7DIAL_OK:
-                gui->cass.write_protect = (k7dial[K7DIAL_CHECK].flags & D_SELECTED) ? TRUE : FALSE;
+                teo.cass.write_protect = (k7dial[K7DIAL_CHECK].flags & D_SELECTED) ? TRUE : FALSE;
                 remove_int(k7_ticker);
                 return;
         }
@@ -416,10 +394,10 @@ void MenuK7(void)
 
 
 
-/* SetCassGUIColors:
+/* acass_SetColors:
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
-void SetCassGUIColors(int fg_color, int bg_color, int bg_entry_color)
+void acass_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(k7dial, fg_color, bg_color);
     k7dial[K7DIAL_LABEL].bg = bg_entry_color;
@@ -428,10 +406,19 @@ void SetCassGUIColors(int fg_color, int bg_color, int bg_entry_color)
 }
 
 
-/* InitCassGUI:
+/* acass_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitCassGUI(char *title)
+void acass_Init(void)
 {
-    (void)title;
+}
+
+
+
+/* acass_Free:
+ *  Libère le module interface utilisateur.
+ */
+void acass_Free(void)
+{
+    k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
 }

@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : alleg/gui->c
+ *  Module     : alleg/agui.c
  *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
@@ -52,42 +52,19 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
+#include "alleg/gui.h"
+#include "intern/std.h"
 #include "to8.h"
 
-extern void SetPrinterGUIColors(int fg_color, int bg_color, int bg_entry_color);
-extern void SetDiskGUIColors(int fg_color, int bg_color, int bg_entry_color);
-extern void SetCassGUIColors(int fg_color, int bg_color, int bg_entry_color);
-extern void SetMemoGUIColors(int fg_color, int bg_color, int bg_entry_color);
-extern void SetCommGUIColors(int fg_color, int bg_color, int bg_entry_color);
-extern void SetAboutGUIColors(int fg_color, int bg_color, int bg_entry_color);
-extern void MenuComm(void);
-extern void MenuDisk(void);
-extern void MenuK7(void);
-extern void MenuMemo7(void);
-extern void MenuPrinter(void);
-extern void MenuAbout(void);
-extern void InitCommGUI(char version_name[], int gfx_mode, char *title);
-extern void InitDiskGUI(int direct_disk_support, char *title);
-extern void InitMemoGUI(char *title);
-extern void InitCassGUI(char *title);
-extern void InitPrinterGUI(char *title);
-extern void InitAboutGUI(char *title);
 
 /* Facteur de correction pour la taille des boutons. */
 #define BUTTON_FIX 6
-
-/* Titre commun des boîtes de dialogue. */
-#define TEXT_LENGTH  200
-static char title[TEXT_LENGTH+1] = "";
-
-/* Message affiché dans la boîte de dialogue. */
-static char mesg[TEXT_LENGTH+1] = "";
 
 /* Boîte de dialogue. */
 static DIALOG mesgdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key  flags d1  d2 dp */
 { d_shadow_box_proc, 10,  10,   0,  50, 0, 0,   0,    0,   0, 0, NULL },
-{ d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,    0,   0, 0, mesg },
+{ d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,    0,   0, 0, NULL },
 { d_button_proc,     30,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,      10,  10,   0,   0, 0, 0,   0,    0,   0, 0, NULL },
 { NULL,               0,   0,   0,   0, 0, 0,   0,    0,   0, 0, NULL }
@@ -98,14 +75,11 @@ static DIALOG mesgdial[]={
 #define MESGDIAL_OK       2
 
 #if 0
-/* Question posée dans la boîte de dialogue. */
-static char quest[TEXT_LENGTH+1] = "";
-
 /* Boîte de dialogue. */
 static DIALOG questdial[]={
 /*  dialog proc      x    y    w    h  fg bg  key  flags  d1  d2 dp */
 { d_shadow_box_proc, 10,  10,   0,  50, 0, 0,   0,   0,    0, 0, NULL },
-{ d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,   0,    0, 0, quest },
+{ d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
 #ifdef FRENCH_LANG
 { d_button_proc,     30,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&Oui" },
 { d_button_proc,    130,  40,  32,  16, 0, 0, 'n', D_EXIT, 0, 0, "&Non" },
@@ -132,6 +106,7 @@ static DIALOG questdial[]={
 static int PopupQuestion(const char question[], int focus)
 {
     int esp;
+    int ret;
 
     questdial[QUESTDIAL_SHADOW].w=strlen(question)*8+16;
     questdial[QUESTDIAL_QUEST].x=questdial[QUESTDIAL_SHADOW].x+questdial[QUESTDIAL_SHADOW].w/2;
@@ -140,16 +115,23 @@ static int PopupQuestion(const char question[], int focus)
     questdial[QUESTDIAL_YES].x=questdial[QUESTDIAL_SHADOW].x+esp;
     questdial[QUESTDIAL_NO].x=questdial[QUESTDIAL_YES].x+(questdial[QUESTDIAL_YES].w+BUTTON_FIX)+esp;
 
-#ifdef DJGPP
-    (void)sprintf(quest, "%s", question);
-#else
-    (void)snprintf(quest, TEXT_LENGTH, "%s", question);
-#endif
+    questdial[QUESTDIAL_QUEST].dp = stdstrdup_printf ("%s", question);
 
     centre_dialog(questdial);
 
-    return (popup_dialog(questdial, focus) == QUESTDIAL_YES ? TRUE : FALSE);
+    ret = (popup_dialog(questdial, focus) == QUESTDIAL_YES ? TRUE : FALSE);
+
+    questdial[QUESTDIAL_QUEST].dp = std_free (questdial[QUESTDIAL_QUEST].dp);
+
+    return ret;
 }
+
+/*
+if (PopupQuestion(is_fr?"Voulez-vous vraiment quitter ?":"Do you really want to quit ?", FOCUS_NO))
+{
+}
+*/
+
 #endif
 
 /* Boîte de dialogue. */
@@ -197,10 +179,13 @@ static DIALOG controldial[]={
 #define CONTROLDIAL_QUIT      11
 
 
+/* ------------------------------------------------------------------------- */
+
+
 /* ControlPanel:
  *  Affiche le panneau de contrôle.
  */
-void ControlPanel(void)
+void agui_Panel(void)
 {
     clear_keybuf();
     centre_dialog(controldial);
@@ -217,27 +202,27 @@ void ControlPanel(void)
                 return;
 
             case CONTROLDIAL_COMMAND:
-                MenuComm();
+                asetting_Panel();
                 break;
 
             case CONTROLDIAL_CART:
-                MenuMemo7();
+                amemo_Panel();
                 break;
 
             case CONTROLDIAL_CASS:
-                MenuK7();
+                acass_Panel();
                 break;
 
             case CONTROLDIAL_DISK:
-                MenuDisk();
+                adisk_Panel();
                 break;
 
             case CONTROLDIAL_PRINTER:
-                MenuPrinter();
+                aprinter_Panel();
                 break;
 
             case CONTROLDIAL_ABOUT:
-                MenuAbout();
+                aabout_Panel();
                 break;
 
             case -1:  /* ESC */
@@ -245,15 +230,8 @@ void ControlPanel(void)
                 return;
 
             case CONTROLDIAL_QUIT:
-                /*
-                if (PopupQuestion(is_fr?"Voulez-vous vraiment quitter ?":"Do you really want to quit ?", FOCUS_NO))
-                {
-                */
-                    teo.command=QUIT;
-                    return;
-                /*
-                }
-                */
+                teo.command=QUIT;
+                return;
         }
 }
 
@@ -262,17 +240,17 @@ void ControlPanel(void)
 /* SetGUIColors:
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
-void SetGUIColors(int fg_color, int bg_color, int bg_entry_color)
+void agui_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(mesgdial, fg_color, bg_color);
 /*    set_dialog_color(questdial, fg_color, bg_color); */
     
-    SetCommGUIColors(fg_color, bg_color, bg_entry_color);
-    SetDiskGUIColors(fg_color, bg_color, bg_entry_color);
-    SetCassGUIColors(fg_color, bg_color, bg_entry_color);
-    SetMemoGUIColors(fg_color, bg_color, bg_entry_color);
-    SetPrinterGUIColors(fg_color, bg_color, bg_entry_color);
-    SetAboutGUIColors(fg_color, bg_color, bg_entry_color);
+    asetting_SetColors(fg_color, bg_color, bg_entry_color);
+    adisk_SetColors   (fg_color, bg_color, bg_entry_color);
+    acass_SetColors   (fg_color, bg_color, bg_entry_color);
+    amemo_SetColors   (fg_color, bg_color, bg_entry_color);
+    aprinter_SetColors(fg_color, bg_color, bg_entry_color);
+    aabout_SetColors  (fg_color, bg_color, bg_entry_color);
 
     set_dialog_color(controldial, fg_color, bg_color);
 
@@ -284,43 +262,51 @@ void SetGUIColors(int fg_color, int bg_color, int bg_entry_color)
 
 
 
-/* InitGUI:
+/* agui_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitGUI(char version_name[], int gfx_mode, int direct_disk_support)
+void agui_Init(char version_name[], int gfx_mode, int direct_disk_support)
 {
-#ifdef DJGPP
-    (void)sprintf (title, "%s", version_name);
-#else
-    (void)snprintf (title, TEXT_LENGTH, "%s", version_name);
-#endif
-    InitCommGUI(version_name, gfx_mode, title);
-    InitDiskGUI(direct_disk_support, title);
-    InitMemoGUI(title);
-    InitCassGUI(title);
-    InitPrinterGUI(title);
-    InitAboutGUI(title);
+    asetting_Init(version_name, gfx_mode);
+    adisk_Init   (direct_disk_support);
+    acass_Init   ();
+    amemo_Init   ();
+    aprinter_Init();
+    aabout_Init  (version_name);
 }
 
 
 
-/* PopupMessage:
+/* FreeGUI:
+ *  Libère le module interface utilisateur.
+ */
+void agui_Free (void)
+{
+    asetting_Free ();
+    adisk_Free ();
+    acass_Free ();
+    amemo_Free ();
+    aprinter_Free ();
+    aabout_Free ();
+}
+
+
+
+/* agui_PopupMessage:
  *  Affiche une boîte de dialogue contenant le message et un bouton OK.
  */
-void PopupMessage(const char message[])
+void agui_PopupMessage(const char message[])
 {
     mesgdial[MESGDIAL_SHADOW].w=strlen(message)*8+16;
     mesgdial[MESGDIAL_MESG].x=mesgdial[MESGDIAL_SHADOW].x+mesgdial[MESGDIAL_SHADOW].w/2;
     mesgdial[MESGDIAL_OK].x=mesgdial[MESGDIAL_MESG].x-(mesgdial[MESGDIAL_OK].w+BUTTON_FIX)/2;
 
-#ifdef DJGPP
-    (void)sprintf (mesg, "%s", message);
-#else
-    (void)snprintf (mesg, TEXT_LENGTH, "%s", message);
-#endif
+    mesgdial[MESGDIAL_MESG].dp = std_strdup_printf ("%s", message);
 
     centre_dialog(mesgdial);
 
     popup_dialog(mesgdial, MESGDIAL_OK);
+
+    mesgdial[MESGDIAL_MESG].dp = std_free (mesgdial[MESGDIAL_MESG].dp);
 }
 

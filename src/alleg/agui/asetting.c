@@ -53,10 +53,9 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
+#include "alleg/gui.h"
+#include "intern/image.h"
 #include "to8.h"
-
-extern void PopupMessage(const char message[]);
 
 /* Boîte de dialogue. */
 static DIALOG commdial[]={
@@ -66,13 +65,10 @@ static DIALOG commdial[]={
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Réglages" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
 { d_radio_proc,      135,  44, 126,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },
-{ d_radio_proc,      205,  44, 126,   8, 0, 0, 'p',  0,     1, 0, "ra&pide" },
+{ d_radio_proc,      205,  44, 126,   8, 0, 0, 'r',  0,     1, 0, "&rapide" },
 { d_check_proc,       78,  62, 120,  14, 0, 0, 's',  0,     0, 0, "&Son" },
 { d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
-{ d_check_proc,       88,  82, 148,  14, 0, 0, 't',  0,     0, 0, "Vidéo en&trelacée" },
-{ d_text_proc,        56, 105,  0,   0, 0, 0,   0,  0,     0, 0, "Images:" },
-{ d_button_proc,     120, 102, 64,  15, 0, 0,   0, D_EXIT, 0, 0, "Charger" },
-{ d_button_proc,     194, 102, 64,  15, 0, 0,   0, D_EXIT, 0, 0, "Sauver" },
+{ d_check_proc,       88,  82, 148,  14, 0, 0, 'v',  0,     0, 0, "&Vidéo entrelacée" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Settings" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, " Speed:" },
@@ -80,10 +76,7 @@ static DIALOG commdial[]={
 { d_radio_proc,      205,  44, 126,   8, 0, 0, 'f',  0,     1, 0, "&fast" },
 { d_check_proc,       78,  62, 120,  14, 5, 0, 's',  0,     0, 0, "&Sound" },
 { d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
-{ d_check_proc,       88,  82, 147,  14, 5, 0, 't',  0,     0, 0, "In&terlaced video" },
-{ d_text_proc,        56, 105,   0,   0, 0, 0,   0,  0,     0, 0, "Images:" },
-{ d_button_proc,     120, 102,  64,  15, 0, 0,   0, D_EXIT, 0, 0, "Load" },
-{ d_button_proc,     194, 102,  64,  15, 0, 0,   0, D_EXIT, 0, 0, "Save" },
+{ d_check_proc,       88,  82, 147,  14, 5, 0, 'i',  0,     0, 0, "&Interlaced video" },
 #endif
 { d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
@@ -95,83 +88,73 @@ static DIALOG commdial[]={
 #define COMMDIAL_SOUND       5
 #define COMMDIAL_SLIDER      6
 #define COMMDIAL_INTERLACE   7
-#define COMMDIAL_SPAN        8
-#define COMMDIAL_LOAD        9
-#define COMMDIAL_SAVE        10
-#define COMMDIAL_OK          11
+#define COMMDIAL_OK          8
 
 
-/* MenuComm:
+/* ------------------------------------------------------------------------- */
+
+
+/* asetting_Panel:
  *  Affiche le menu des commandes et réglages.
  */
-void MenuComm(void)
+void asetting_Panel(void)
 {
     int first = 1;
-    static char filename[MAX_PATH];
 
-    commdial[COMMDIAL_EXACTSPEED].flags=(gui->setting.exact_speed) ? D_SELECTED : 0;
-    commdial[COMMDIAL_MAXSPEED].flags=(gui->setting.exact_speed) ? 0 : D_SELECTED;
-    commdial[COMMDIAL_SOUND].flags=(gui->setting.sound_enabled) ? D_SELECTED : 0;
+    commdial[COMMDIAL_EXACTSPEED].flags=(teo.setting.exact_speed) ? D_SELECTED : 0;
+    commdial[COMMDIAL_MAXSPEED].flags=(teo.setting.exact_speed) ? 0 : D_SELECTED;
+    commdial[COMMDIAL_SOUND].flags=(teo.setting.sound_enabled) ? D_SELECTED : 0;
 
     if (first)
     {
-        SetVolume(gui->setting.sound_volume);
-        commdial[COMMDIAL_SLIDER].d2=gui->setting.sound_volume-1;
+        asound_SetVolume(teo.setting.sound_volume);
+        commdial[COMMDIAL_SLIDER].d2=teo.setting.sound_volume-1;
         first = 0;
     }
     else
-       commdial[COMMDIAL_SLIDER].d2=GetVolume()-1;
+       commdial[COMMDIAL_SLIDER].d2=asound_GetVolume()-1;
 
     clear_keybuf();
     centre_dialog(commdial);
 
-    switch (popup_dialog(commdial, COMMDIAL_OK))
-    {
-        case COMMDIAL_LOAD:
-            if (file_select_ex(is_fr?"Choisissez votre image:":"Choose your image:", filename, "img",
-                               MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
-            {
-                if (to8_LoadImage(filename) == TO8_ERROR)
-                    PopupMessage(to8_error_msg);
-            }
-            break;
-        
-        case COMMDIAL_SAVE:
-            if (file_select_ex(is_fr?"Spécifiez un nom pour votre image:":"Specify a name for your image:", filename, "img",
-                               MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
-            {
-                if (to8_SaveImage(filename) == TO8_ERROR)
-                    PopupMessage(to8_error_msg);
-            }
-            break;
-    }
-    gui->setting.interlaced_video = (commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) ? TRUE : FALSE;
-    SetVolume(commdial[COMMDIAL_SLIDER].d2+1);
-    gui->setting.sound_volume = GetVolume();
-    gui->setting.sound_enabled = (commdial[COMMDIAL_SOUND].flags&D_SELECTED ? TRUE : FALSE);
-    gui->setting.exact_speed=(commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED ? TRUE : FALSE);
+    popup_dialog(commdial, COMMDIAL_OK);
+
+    teo.setting.interlaced_video = (commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) ? TRUE : FALSE;
+    asound_SetVolume(commdial[COMMDIAL_SLIDER].d2+1);
+    teo.setting.sound_volume = asound_GetVolume();
+    teo.setting.sound_enabled = (commdial[COMMDIAL_SOUND].flags&D_SELECTED ? TRUE : FALSE);
+    teo.setting.exact_speed=(commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED ? TRUE : FALSE);
 }
 
 
 
-/* SetCommGUIColors:
+/* asetting_SetColors:
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
-void SetCommGUIColors(int fg_color, int bg_color, int bg_entry_color)
+void asetting_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(commdial, fg_color, bg_color);
 }
 
 
 
-/* InitCommGUI:
+/* asetting_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitCommGUI(char version_name[], int gfx_mode, char *title)
+void asetting_Init(char version_name[], int gfx_mode)
 {
     if ((strstr (version_name, "MSDOS") != NULL) && (gfx_mode == GFX_MODE40))
         commdial[COMMDIAL_INTERLACE].flags |= D_DISABLED;
 
-    if (!gui->setting.sound_enabled)
-        commdial[COMMDIAL_SOUND].flags=commdial[COMMDIAL_SPAN].flags=commdial[COMMDIAL_SLIDER].flags=D_DISABLED;
+    if (!teo.setting.sound_enabled)
+        commdial[COMMDIAL_SOUND].flags=commdial[COMMDIAL_SLIDER].flags=D_DISABLED;
 }
+
+
+/* asetting_Free:
+ *  Libère le module interface utilisateur.
+ */
+void asetting_Free(void)
+{
+}
+

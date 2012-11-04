@@ -53,45 +53,48 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
+#include "alleg/gui.h"
+#include "intern/std.h"
 #include "to8.h"
-
-extern void PopupMessage(const char message[]);
 
 /* Boîte de dialogue. */
 static DIALOG aboutdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key flags    d1 d2 dp */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
-{ d_ctext_proc,      160,  40,   0,   0, 0, 0,   0,  0,     0, 0, "Copyright (c) 1997-2012" },
+{ d_ctext_proc,      160,  30,   0,   0, 0, 0,   0,  0,     0, 0, "Copyright (c) 1997-2012" },
 #ifdef FRENCH_LANG
-{ d_text_proc,        30,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Auteurs:" },
+{ d_text_proc,        30,  50,   0,   0, 0, 0,   0,  0,     0, 0, "Auteurs:" },
 #else
-{ d_text_proc,        30,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Authors:" },
+{ d_text_proc,        30,  50,   0,   0, 0, 0,   0,  0,     0, 0, "Authors:" },
 #endif
-{ d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "Gilles Fétis - Eric Botcazou" },
-{ d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "Alex Pukall - Jérémie Guillaume" },
-{ d_ctext_proc,      160,  90,   0,   0, 0, 0,   0,  0,     0, 0, "François Mouret - Samuel Devulder" },
+{ d_ctext_proc,      160,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Gilles Fétis - Eric Botcazou" },
+{ d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "Alex Pukall - Jérémie Guillaume" },
+{ d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "François Mouret - Samuel Devulder" },
 #ifdef FRENCH_LANG
-{ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "Teo sur SourceForge:" },
+{ d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, "Teo sur SourceForge:" },
 #else
-{ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "Teo on SourceForge:" },
+{ d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, "Teo on SourceForge:" },
 #endif
-{ d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "http://sourceforge.net/projects/" },
-{ d_text_proc,        30, 130,   0,   0, 0, 0,   0,  0,     0, 0, "                     teoemulator/" },
-{ d_ctext_proc,      160, 150,   0,   0, 0, 0,   0,  0,     0, 0, "Licence: GPL 2.0" },
+{ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "http://sourceforge.net/projects/" },
+{ d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "                     teoemulator/" },
+{ d_ctext_proc,      160, 140,   0,   0, 0, 0,   0,  0,     0, 0, "Licence: GPL 2.0" },
 { d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
 
-#define ABOUTDIAL_OK  11
+#define ABOUTDIAL_VERSION  1
+#define ABOUTDIAL_OK       11
 
 
-/* MenuAbout:
+/* ------------------------------------------------------------------------- */
+
+
+/* aabout_Panel:
  *  Affiche le menu des commandes et réglages.
  */
-void MenuAbout(void)
+void aabout_Panel(void)
 {
     static int first=1;
     
@@ -112,10 +115,10 @@ void MenuAbout(void)
 
 
 
-/* SetAboutGUIColors:
+/* aabout_SetColors:
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
-void SetAboutGUIColors(int fg_color, int bg_color, int bg_entry_color)
+void aabout_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(aboutdial, fg_color, bg_color);
     (void)bg_entry_color;
@@ -123,11 +126,21 @@ void SetAboutGUIColors(int fg_color, int bg_color, int bg_entry_color)
 
 
 
-/* InitAboutGUI:
+/* aabout_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitAboutGUI(char *title)
+void aabout_Init(char version_name[])
 {
     /* Définit le titre de la fenêtre */
-    aboutdial[1].dp = title;
+    aboutdial[ABOUTDIAL_VERSION].dp = std_strdup_printf ("%s", version_name);
+}
+
+
+
+/* aabout_Free:
+ *  Libère le module interface utilisateur.
+ */
+void aabout_Free(void)
+{
+    aboutdial[ABOUTDIAL_VERSION].dp = std_free (aboutdial[ABOUTDIAL_VERSION].dp);
 }
