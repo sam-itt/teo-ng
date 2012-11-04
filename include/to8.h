@@ -39,6 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
+ *                               01/11/2012
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -122,23 +123,19 @@
 
 #define TO8_TRAP_CODE          0xCD   /* code pour le trap */
 
-#define FILENAME_LENGTH  128
-
 enum _command {
-  NONE,
-  CONTROL_PANEL,
-  SCREENSHOT,
-  DEBUGGER,
-  BREAKPOINT,
-  RESET,
-  COLD_RESET,
-  QUIT
+    NONE = 1,
+    CONTROL_PANEL,
+    SCREENSHOT,
+    DEBUGGER,
+    BREAKPOINT,
+    RESET,
+    COLD_RESET,
+    QUIT
 };
 
 enum {
-    TO8_ERROR,
-    TO8_OK,
-    TO8_READ_ONLY,
+    TO8_READ_ONLY = 1,
     TO8_READ_WRITE,
     TO8_MOUSE,
     TO8_LIGHTPEN,
@@ -183,9 +180,6 @@ struct EMUTEO {
         int  gfx_output;
         char *folder;
         } lprt;
-    struct EMUTEO_IMAGE {
-        char *file;
-        } imag;
 };
 
 extern struct EMUTEO teo;
@@ -207,36 +201,16 @@ extern int  (*to8_DirectWriteSector)(int drive, int track, int sector, int nsect
 extern int  (*to8_DirectFormatTrack)(int drive, int track, const unsigned char data[]);
 
 /* variables exportables */
-#define TO8_MESSAGE_MAX_LENGTH 127
-extern char to8_error_msg[TO8_MESSAGE_MAX_LENGTH+1];
+extern char *to8_error_msg;
 extern int  to8_new_video_params;
 
 /* fonctions exportables */
 extern int   to8_Init(int num_joy);
 extern void  to8_Exit(void);
-extern int   to8_InitGUI (void);
-extern void  to8_FreeGUI (void);
 extern void  to8_Reset(void);
 extern void  to8_ColdReset(void);
 extern void  to8_InputReset(int mask, int value);
 extern int   to8_DoFrame(int debug);
-extern void  to8_HandleKeyPress(int key, int release);
-extern void  to8_HandleMouseMotion(int xpos, int ypos);
-extern void  to8_HandleMouseClick(int button, int release);
-extern void  to8_HandleJoystickMove(int joy, int pos);
-extern void  to8_HandleJoystickFire(int joy, int button, int state);
-extern void  to8_EjectMemo(void);
-extern int   to8_LoadMemo(const char filename[]);
-extern void  to8_EjectCass(void);
-extern int   to8_LoadCass(const char filename[]);
-extern int   to8_SetCassMode(int mode);
-extern int   to8_GetCassCounter(void);
-extern void  to8_SetCassCounter(int counter);
-extern void  to8_EjectDisk(int drive);
-extern int   to8_LoadDisk(int drive, const char filename[]);
-extern int   to8_SetDiskMode(int drive, int mode);
-extern int   to8_DirectSetDrive(int drive);
-extern int   to8_VirtualSetDrive(int drive);
-extern int   to8_LoadImage(const char filename[]);
-extern int   to8_SaveImage(const char finename[]);
+
 #endif
+
