@@ -1,6 +1,7 @@
 ========================================================================
 === Version 1.8.2 (Juin 2012)                                        ===
 ========================================================================
+- Emulation des imprimantes PR90-582, PR90-042
 - sous Linux :
   - passage à GTK+3.0
   - réduction de l'usage CPU avec g_timeout_add()

@@ -9,6 +9,8 @@
 - Fusion de gui.h dans to8.h
 - Changement du nom de la structure 'gui' en 'teo' et inclusion de
   teo.command et teo.sound_enabled
+- Changement de media/memo7.c en media/memo.c
+- Changement de media/k7.c en media/cass.c
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
@@ -23,10 +25,17 @@
 - linux/umain.c
           boucle principale de l'émulation mise en idle avec timeout
           teo.command traité en switch dans la boucle principale
-- media/memo7.c
+- media/memo.c
           correction de bug : nom de cartouche désormais effacé au reset
           de combo (sinon il réapparait au lancement suivant en
           -loadstate)
+          Création des fonctions memo_FirstLoad(), memo_IsMemo()
+- media/disk.c
+          Création des fonctions disk_FirstLoad(), disk_IsDisk(),
+          disk_LoadDir(), disk_UnloadAll(), disk_UnloadDir() suite
+          à la fusion de xargs de Samuel Devulder
+- media/cass.c
+          Création des fonctions cass_FirstLoad(), cass_IsCass()
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
