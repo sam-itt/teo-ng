@@ -36,7 +36,7 @@
  *  Module     : image.c
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 30/11/2000
- *  Modifié par: François Mouret 26/01/2010
+ *  Modifié par: François Mouret 26/01/2010 05/10/2012 02/11/2012
  *
  *  Gestion des fichier-images de l'état de l'émulateur.
  */
@@ -729,16 +729,13 @@ static void (*Saver[32])(int, FILE *) = {
 };
 
 
-
-/**********************************/
-/* partie publique                */
-/**********************************/
+/* ------------------------------------------------------------------------- */
 
 
-/* LoadImage:
+/* image_Load:
  *  Charge une image et modifie l'état de l'émulateur.
  */
-int to8_LoadImage(const char filename[])
+int image_Load(const char filename[])
 {
     FILE *file;
     char buffer[FORMAT_ID_SIZE];
@@ -748,22 +745,22 @@ int to8_LoadImage(const char filename[])
 
     (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
     if ((file = fopen(fname, "rb")) == NULL)
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
 #else
     if ((file = fopen(filename, "rb")) == NULL)
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
 #endif
     /* lecture de l'entête */
     if (fread(buffer, 1, FORMAT_ID_SIZE, file) != FORMAT_ID_SIZE)  /* format_id */
     {
         fclose(file);
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
     }
     
     if (strncmp(buffer, format_id, FORMAT_ID_SIZE))
     {
         fclose(file);
-        return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
+        return error_Message(TO8_BAD_FILE_FORMAT, NULL);
     }
 
     fread_int16(&value, file);  /* format_ver */
@@ -774,7 +771,7 @@ int to8_LoadImage(const char filename[])
     if ((value != thomson[THOMSON_TO8].id) && (value != thomson[THOMSON_TO8D].id))
     {
         fclose(file);
-        return ErrorMessage(TO8_UNSUPPORTED_MODEL, NULL);
+        return error_Message(TO8_UNSUPPORTED_MODEL, NULL);
     }
 
     fseek(file, 6, SEEK_CUR);  /* reserved */
@@ -791,7 +788,7 @@ int to8_LoadImage(const char filename[])
         if (chunk_id >= 0x2000)
         {
             fclose(file);
-            return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
+            return error_Message(TO8_BAD_FILE_FORMAT, NULL);
         }
 
         Loader[chunk_id>>8](chunk_id, chunk_size, file);
@@ -801,15 +798,15 @@ int to8_LoadImage(const char filename[])
 
     to8_new_video_params = TRUE;
 
-    return TO8_OK;
+    return 0;
 }
 
 
 
-/* SaveImage:
+/* Image_Save:
  *  Sauvegarde une image de l'état de l'émulateur.
  */
-int to8_SaveImage(const char filename[])
+int image_Save(const char filename[])
 {
     FILE *file;
     int chunk_id, i;
@@ -818,10 +815,10 @@ int to8_SaveImage(const char filename[])
 
     (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
     if ((file = fopen(fname, "wb")) == NULL)
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
 #else
     if ((file = fopen(filename, "wb")) == NULL)
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
 #endif
     /* écriture de l'entête */
     fwrite(format_id, 1, FORMAT_ID_SIZE, file); 
@@ -851,6 +848,6 @@ int to8_SaveImage(const char filename[])
     }
 
     fclose(file);
-    return TO8_OK;
+    return 0;
 }
 

@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 17/09/2001
+ *               François Mouret 01/11/2012
  *
  *  Interface de gestion du clavier.
  */
@@ -47,6 +48,7 @@
    #include <allegro/internal/aintern.h>
 #endif
 
+#include "intern/keyboard.h"
 #include "to8.h"
 
 
@@ -73,16 +75,18 @@ static void KeyboardHandler(int key)
             break;
 
         default:
-            to8_HandleKeyPress(key, release);
+            keyboard_Press(key, release);
     }
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InstallKeybint:
+
+/* wkeybint_Install:
  *  Installe le module de gestion bas-niveau du clavier.
  */
-void InstallKeybint(void)
+void wkeybint_Install(void)
 {
     int mask=(1<<TO8_MAX_FLAG)-1, value=0;
 
@@ -108,18 +112,18 @@ void InstallKeybint(void)
 
 
 
-/* ShutDownKeybint:
+/* wkeybint_ShutDown:
  *  Désinstalle le module de gestion bas-niveau du clavier.
  */
-void ShutDownKeybint(void)
+void wkeybint_ShutDown(void)
 {
     keyboard_lowlevel_callback=NULL;
 }
 
 
 
-/* InitKeybint:
+/* wkeybint_Init:
  *  Initialise le module de gestion bas-niveau clavier.
  */
-void InitKeybint(void) {}
+void wkeybint_Init(void) {}
 

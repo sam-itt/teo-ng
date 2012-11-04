@@ -209,7 +209,7 @@ static void SetDeviceRegister(int addr, int val)
             mempager.mon.update();
 
             /* bit 5: ACK clavier */
-            mc6804_SetACK(mc6846.prc&0x20);
+            keyboard_SetACK(mc6846.prc&0x20);
             break;
 
         case 0xE7C5:
@@ -415,22 +415,6 @@ static void SetDeviceRegister(int addr, int val)
 }
 
 
-#ifdef DEBUG  /* la fonction n'est pas inlinée */
-
-void DrawGPL(int addr)
-{ 
-    int pt,col;
-
-    if (addr>=0x1F40)
-        return;
-
-    pt =mem.ram.bank[mempager.screen.vram_page][addr];
-    col=mem.ram.bank[mempager.screen.vram_page][addr+0x2000];
-
-    to8_DrawGPL(mode_page.lgamod, addr, pt, col);
-}
-
-#endif
 
 /* GetRealValue_lp4:
  *  Récupère la valeur ajustée de mode_page.lp4
@@ -470,92 +454,13 @@ static inline int GetRealValue_lp4(void)
 }
 
 
-/* StoreByte:
- *  Ecrit un octet en mémoire.
- */
-void StoreByte(int addr, int val)
-{
-    /* masque de commutation des pages de la cartouche */
-    static const int page_mask[]={0, 0x0, 0x1, 0x2, 0x2};
-    
-    int msq=addr>>12;
-
-    switch (msq)
-    {
-        case 0x0: /* espace cartouche */
-        case 0x1:
-        case 0x2:
-        case 0x3:
-            if (mode_page.cart&0x20)  /* l'espace est mappé sur la RAM */
-            {
-                if (mode_page.cart&0x40) /* l'écriture est autorisée */
-                {
-                    STORE_BYTE(addr, val);
-
-                    if ((mempager.screen.vram_page==mempager.cart.ram_page) && mb.direct_screen_mode)
-                        DrawGPL(addr&0x1FFF);
-                }
-            }
-            else if (addr<=0x1FFF)  /* commutation par latchage */
-            {
-                if (mc6846.prc&4)
-                    mempager.cart.rom_page = addr&3;
-                else
-                    mempager.cart.page = addr&page_mask[mem.cart.nbank];
-                    
-                mempager.cart.update();
-            }
-            break;
-
-        case 0x4: /* espace écran */
-        case 0x5:
-            STORE_BYTE(addr, val);
-
-            if ((mempager.screen.vram_page==0) && mb.direct_screen_mode)
-                DrawGPL(addr&0x1FFF);
-
-            break;
-
-        case 0x6: /* espace système non commutable */
-        case 0x7:
-        case 0x8:
-        case 0x9:
-            STORE_BYTE(addr, val);
-
-            if ((mempager.screen.vram_page==1) && mb.direct_screen_mode)
-                DrawGPL(addr&0x1FFF);
-
-            break;
-
-        case 0xA: /* espace données */
-        case 0xB:
-        case 0xC:
-        case 0xD:
-            STORE_BYTE(addr, val);
-
-            if ((mempager.screen.vram_page==mempager.data.page) && mb.direct_screen_mode)
-                DrawGPL(addr&0x1FFF);
-
-            break;
-
-        case 0xE:
-        case 0xF:
-            if ((0xE7C0<=addr) && (addr<=0xE7FF))
-                SetDeviceRegister(addr,val);
-
-            break;
-    }
-}
-
-
-
 /* StoreWord:
  *  Ecrit deux octets en mémoire.
  */
 static void StoreWord(int addr, int val)
 {
-    StoreByte(addr, (val>>8));
-    StoreByte(addr+1, val&0xFF);
+    hardware_StoreByte(addr, (val>>8));
+    hardware_StoreByte(addr+1, val&0xFF);
 }
 
 
@@ -729,7 +634,7 @@ static int BiosCall(struct MC6809_REGS *regs)
 
         case 0x315A:  /* routine de sélection souris/crayon optique */
             to8_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TO8_MOUSE: TO8_LIGHTPEN);
-            ResetMouse();
+            mouse_Reset();
             return 0x8E; /* LDX immédiat */
 
         case 0x357A:  /* page de modification palette: fin */
@@ -742,11 +647,11 @@ static int BiosCall(struct MC6809_REGS *regs)
 
         case 0x337E:  /* routine GETL crayon optique   */
         case 0x3F97:  /* routine GETL crayon optique 2 */
-	    GetLightpen(&regs->xr, &regs->yr, &regs->cc);
+	    mouse_GetLightpen(&regs->xr, &regs->yr, &regs->cc);
             break;
 
         case 0xFA5A:  /* routine CASS */
-            DoCassStuff(&regs->br,&regs->cc);
+            cass_Event(&regs->br,&regs->cc);
             break;
 
  	/* Contrôleur de disquettes */
@@ -782,18 +687,118 @@ static int BiosCall(struct MC6809_REGS *regs)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InitHardware:
+
+#ifdef DEBUG  /* la fonction n'est pas inlinée */
+
+void DrawGPL(int addr)
+{ 
+    int pt,col;
+
+    if (addr>=0x1F40)
+        return;
+
+    pt =mem.ram.bank[mempager.screen.vram_page][addr];
+    col=mem.ram.bank[mempager.screen.vram_page][addr+0x2000];
+
+    to8_DrawGPL(mode_page.lgamod, addr, pt, col);
+}
+
+#endif
+
+
+
+/* hardware_StoreByte:
+ *  Ecrit un octet en mémoire.
+ */
+void hardware_StoreByte(int addr, int val)
+{
+    /* masque de commutation des pages de la cartouche */
+    static const int page_mask[]={0, 0x0, 0x1, 0x2, 0x2};
+    
+    int msq=addr>>12;
+
+    switch (msq)
+    {
+        case 0x0: /* espace cartouche */
+        case 0x1:
+        case 0x2:
+        case 0x3:
+            if (mode_page.cart&0x20)  /* l'espace est mappé sur la RAM */
+            {
+                if (mode_page.cart&0x40) /* l'écriture est autorisée */
+                {
+                    STORE_BYTE(addr, val);
+
+                    if ((mempager.screen.vram_page==mempager.cart.ram_page) && mb.direct_screen_mode)
+                        DrawGPL(addr&0x1FFF);
+                }
+            }
+            else if (addr<=0x1FFF)  /* commutation par latchage */
+            {
+                if (mc6846.prc&4)
+                    mempager.cart.rom_page = addr&3;
+                else
+                    mempager.cart.page = addr&page_mask[mem.cart.nbank];
+                    
+                mempager.cart.update();
+            }
+            break;
+
+        case 0x4: /* espace écran */
+        case 0x5:
+            STORE_BYTE(addr, val);
+
+            if ((mempager.screen.vram_page==0) && mb.direct_screen_mode)
+                DrawGPL(addr&0x1FFF);
+
+            break;
+
+        case 0x6: /* espace système non commutable */
+        case 0x7:
+        case 0x8:
+        case 0x9:
+            STORE_BYTE(addr, val);
+
+            if ((mempager.screen.vram_page==1) && mb.direct_screen_mode)
+                DrawGPL(addr&0x1FFF);
+
+            break;
+
+        case 0xA: /* espace données */
+        case 0xB:
+        case 0xC:
+        case 0xD:
+            STORE_BYTE(addr, val);
+
+            if ((mempager.screen.vram_page==mempager.data.page) && mb.direct_screen_mode)
+                DrawGPL(addr&0x1FFF);
+
+            break;
+
+        case 0xE:
+        case 0xF:
+            if ((0xE7C0<=addr) && (addr<=0xE7FF))
+                SetDeviceRegister(addr,val);
+
+            break;
+    }
+}
+
+
+
+/* hardware_Init:
  *  Initialise la carte mémoire de l'émulateur.
  */
-void InitHardware(void)
+void hardware_Init(void)
 {
     register int i;
 
     struct MC6809_INTERFACE interface={ FetchInstr,
                                         LoadByte,
                                         LoadWord,
-                                        StoreByte,
+                                        hardware_StoreByte,
                                         StoreWord,
                                         BiosCall };
     mc6809_Init(&interface);

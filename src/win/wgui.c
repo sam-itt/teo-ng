@@ -65,10 +65,6 @@ HWND prog_win;
 HICON prog_icon;
 HWND hTab[NBTABS_MASTER];
 
-/* le support des listes associées aux comboboxes de l'interface est assuré par une
-   implémentation réduite en Standard C du container vector du Standard C++ */
-#define CHUNK_SIZE   5
-
 static int nCurrentTab = 0;
 
 
@@ -89,8 +85,8 @@ ShowTab(HWND hDlg)
 /* CreateTab:
  * Crée un onglet
  */
-static HWND
-CreateTab(HWND hDlg, WORD number, char *title, WORD id, int (CALLBACK *prog)(HWND, UINT, WPARAM, LPARAM))
+static HWND CreateTab(HWND hDlg, WORD number, char *title, WORD id,
+                      int (CALLBACK *prog)(HWND, UINT, WPARAM, LPARAM))
 {
     RECT rect0;
     RECT rect1;
@@ -150,11 +146,11 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quit");
 #endif
          /* Crée les onglets */
-         hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting", SETTING_TAB, SettingTabProc);
-         hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk", DISK_TAB, DiskTabProc);
-         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, CassetteTabProc);
-         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, CartridgeTabProc);
-         hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer", PRINTER_TAB, PrinterTabProc);
+         hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting", SETTING_TAB, wsetting_TabProc);
+         hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk", DISK_TAB, wdisk_TabProc);
+         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, wcass_TabProc);
+         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, wmemo_TabProc);
+         hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer", PRINTER_TAB, wprinter_TabProc);
          SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, nCurrentTab, 0);
          ShowTab(hDlg);
 
@@ -183,7 +179,7 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 
             case ABOUT_BUTTON:
                (void)DialogBox (prog_inst, MAKEINTRESOURCE(ABOUT_DIALOG),
-                                hDlg, (DLGPROC)AboutProc);
+                                hDlg, (DLGPROC)wabout_Proc);
                break;
 
             case RESET_BUTTON:
@@ -215,11 +211,13 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* create_tooltip:
+
+/* wgui_CreateTooltip:
  *  Crée une info-bulle.
  */
-void create_tooltip (HWND hWnd, WORD id, char *text)
+void wgui_CreateTooltip (HWND hWnd, WORD id, char *text)
 {
     RECT rect;
     TOOLINFO ti;
@@ -247,22 +245,22 @@ void create_tooltip (HWND hWnd, WORD id, char *text)
 
 
 
-/* FreeGUI:
+/* wgui_Free:
  *  Libère la mémoire utilisée par l'interface
  */
-void FreeGUI (void)
+void wgui_Free (void)
 {
-    free_memo_list ();
-    free_cass_list ();
-    free_disk_list ();
+    wmemo_Free ();
+    wcass_Free ();
+    wdisk_Free ();
 }
 
 
 
-/* DisplayControlPanelWin:
+/* wgui_Panel:
  *  Affiche le panneau de contrôle natif Windows.
  */
-void DisplayControlPanelWin(void)
+void wgui_Panel(void)
 {
    static int first = 1;
    int ret;
