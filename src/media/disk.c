@@ -40,7 +40,8 @@
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
  *                               29/09/2012
- *               Samuel Devulder 05/02/2012
+ *               Samuel Devulder 05/02/2012 30/07/2011
+ *
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
  */
 
@@ -48,19 +49,30 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
+   #include <unistd.h>
+   #include <dirent.h>
 #endif
 
 #include "intern/disk.h"
 #include "intern/errors.h"
 #include "intern/hardware.h"
+#include "intern/main.h"
 #include "intern/std.h"
+#include "intern/libsap.h"
 #include "to8.h"
 
+#ifdef UNIX_TOOL
+#   define SLASH "/"
+#else
+#   define SLASH "\\"
+#endif
 
 /* paramètres physiques des lecteurs Thomson */
 #define NBTRACK   80
 #define NBSECT    16
 #define SECTSIZE 256
+
+#define SAPFS_NAME  "sapfs"
 
 /* contrôleur de disquettes */
 struct DISK_CTRL disk_ctrl;
@@ -68,11 +80,12 @@ struct DISK_CTRL disk_ctrl;
 /* type d'un lecteur */
 typedef struct {
     enum {
-        NO_DISK,
+        NO_DISK = 1,
         DIRECT_ACCESS,
         NORMAL_ACCESS
     } state;
     int mode;
+    char *tmp;
 } disk_t;
 
 static disk_t disk[NBDRIVE];
@@ -197,7 +210,7 @@ typedef struct {
     unsigned char data[SECTSIZE];
     unsigned char crc1sect;
     unsigned char crc2sect;
-} sapsector_t;
+} SAPSector_t;
 
 /* table de calcul du CRC */
 static short int crcpuk_temp;
@@ -231,7 +244,7 @@ static void crc_pukall(short int c)
 /* do_crc:
  *  Calcule le CRC d'un secteur SAP.
  */
-static void do_crc(sapsector_t *sapsector)
+static void do_crc(SAPSector_t *sapsector)
 {
     register int i;
 
@@ -251,7 +264,7 @@ static void do_crc(sapsector_t *sapsector)
 /* verify_sap_lect:
  *  Vérifie l'intégrité du secteur.
  */
-static int verify_sap_lect(sapsector_t *sapsector)
+static int verify_sap_lect(SAPSector_t *sapsector)
 {
     do_crc(sapsector);
 
@@ -269,7 +282,7 @@ static int verify_sap_lect(sapsector_t *sapsector)
 /* verify_sap_ecri:
  *  Calcule le CRC du secteur.
  */
-static int verify_sap_ecri(sapsector_t *sapsector)
+static int verify_sap_ecri(SAPSector_t *sapsector)
 {
     if ((sapsector->protection==1) || (sapsector->protection==3))
   	return 1;
@@ -291,17 +304,19 @@ static int verify_sap_ecri(sapsector_t *sapsector)
  *  Lit un secteur sur le lecteur spécifié et retourne
  *  un code d'erreur moniteur TO8.
  */
-static int sap_get_sector(int drive, sapsector_t *sapsector)
+static int sap_get_sector(int drive, SAPSector_t *sapsector)
 {
     register int i;
     unsigned char buffer[SAP_SECT_SIZE];
     long pos;
     int err=0;
+    char *fname;
     FILE *file;
 
     /* lecture du secteur dans le fichier */
-    if ((teo.disk[drive].file == NULL)
-     || (file=fopen(teo.disk[drive].file, "rb")) == NULL)
+    fname = (disk[drive].tmp == NULL) ? teo.disk[drive].file : disk[drive].tmp;
+    if ((fname == NULL)
+     || ((file=fopen(fname, "rb")) == NULL))
         return 4;
              
     pos = SAP_HEADER_SIZE + (sapsector->track*NBSECT+(sapsector->sector-1))*SAP_SECT_SIZE;
@@ -338,11 +353,12 @@ static int sap_get_sector(int drive, sapsector_t *sapsector)
  *  Ecrit un secteur sur le lecteur spécifié et retourne
  *  un code d'erreur moniteur TO8.
  */
-static int sap_put_sector(int drive, sapsector_t *sapsector)
+static int sap_put_sector(int drive, SAPSector_t *sapsector)
 {
    register int i;
    unsigned char buffer[SAP_SECT_SIZE];
    long pos;
+   char *fname;
    FILE *file;
 
    buffer[0]=sapsector->format;
@@ -357,8 +373,9 @@ static int sap_put_sector(int drive, sapsector_t *sapsector)
    buffer[4+i+1]=sapsector->crc2sect;
 				
    /* écriture du secteur dans le fichier */
-    if ((teo.disk[drive].file == NULL)
-     || (file=fopen(teo.disk[drive].file,"rb+")) == NULL)
+    fname = (disk[drive].tmp == NULL) ? teo.disk[drive].file : disk[drive].tmp;
+    if ((fname == NULL)
+     || (file=fopen(fname,"rb+")) == NULL)
        return 4;
 
    pos = SAP_HEADER_SIZE + (sapsector->track*NBSECT+(sapsector->sector-1))*SAP_SECT_SIZE;
@@ -380,7 +397,7 @@ static int sap_format_track(int drive, int track, unsigned char filler_byte)
 {
     int i, sect;
     int err=0;
-    sapsector_t sapsector;
+    SAPSector_t sapsector;
 
     sapsector.format = 0;
     sapsector.protection = 0;
@@ -403,6 +420,95 @@ static int sap_format_track(int drive, int track, unsigned char filler_byte)
     return err;
 }
 
+
+
+/* SapErrorMessage:
+ *  Returns the error message corresponding to the specified SAP error.
+ */
+static int SapErrorMessage(int sap_err, const char more[])
+{
+   switch (sap_err) {
+      case SAP_EBADF : return error_Message (TO8_SAP_NOT_VALID, more);
+      case SAP_EFBIG : return error_Message (TO8_FILE_TOO_LARGE, more);
+      case SAP_ENFILE: return error_Message (TO8_FILE_IS_EMPTY, more);
+      case SAP_ENOENT: return error_Message (TO8_CANNOT_FIND_FILE, more);
+      case SAP_ENOSPC: return error_Message (TO8_SAP_DIRECTORY_FULL, more);
+      case SAP_EPERM : return error_Message (TO8_CANNOT_CREATE_DISK, more);
+      default        : return error_Message (0, more); /* Unknown error */
+   }
+}
+
+
+
+/* ExtractFile:
+ *  Extracts one or more files from the specified archive.
+ */
+static int disk_ExtractSAP(const char sap_name[])
+{
+   int format;
+   int err = 0;
+   sapID id;
+   const char all_files[] = "*";
+
+   if ((id = sap_OpenArchive(sap_name, &format)) == SAP_ERROR)
+      return SapErrorMessage (sap_errno, sap_name);
+
+   if (sap_ExtractFile(id, all_files) == 0)
+       err = SapErrorMessage (sap_errno, sap_name);
+
+   sap_CloseArchive(id);
+
+   return err;
+}
+
+
+
+/* disk_CreateAndFillSAP:
+ *  Remplit une nouvelle archive SAP avec le contenu d'un répertoire.
+ */
+static int disk_CreateAndFillSAP (const char sap_name[], const char dir_name[],
+                                  int dformat, int capacity)
+{
+    struct dirent *entry;
+    DIR *dir;
+    char *path_name = NULL;
+    char *file_name = NULL;
+    int err = 0;
+    sapID id;
+    
+    if ((id = sap_CreateArchive(sap_name, dformat)) == SAP_ERROR)
+        return SapErrorMessage (sap_errno, sap_name);        
+
+    if ((err = sap_FormatArchive (id, capacity)) == SAP_ERROR)
+        err = SapErrorMessage (sap_errno, sap_name);
+    
+    path_name = std_strdup_printf ("%s", dir_name);
+    if (path_name != NULL)
+    {
+        std_CleanPath (path_name);
+        dir = opendir(path_name);
+        if (dir != NULL)
+        {
+            /* add every entry in turn */
+            while ((err == 0) && ((entry = readdir(dir)) != NULL))
+            {
+                if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+                {
+                    file_name = std_strdup_printf ("%s%s%s", path_name, SLASH, entry->d_name);
+                    if (sap_AddFile (id, file_name) == 0)
+                        err = SapErrorMessage (sap_errno, entry->d_name);
+                    file_name = std_free (file_name);
+                }
+            }
+            closedir(dir);
+        } else err = error_Message (TO8_CANNOT_CREATE_DISK, sap_name);
+        path_name = std_free (path_name);
+    } else err = error_Message (TO8_CANNOT_CREATE_DISK, sap_name);
+
+    sap_CloseArchive(id);
+
+    return err;
+}
 
 
 /**************************************/
@@ -430,7 +536,7 @@ void ReadSector(int *cc)
     int err = 0;
     int drive = (LOAD_BYTE(0x6048) == 1) ? 1 : LOAD_BYTE(0x6049);  /* Pour le lancement du boot sur le lecteur 1 */
     int dest_data = LOAD_WORD(0x604F);
-    sapsector_t sapsector;
+    SAPSector_t sapsector;
 
     /* Standard C: l'initialisation de structures avec des expressions non constantes n'est pas supportée */
     sapsector.format = 0;
@@ -476,7 +582,7 @@ void ReadSector(int *cc)
                 if (err==0)
                     for (i=0;i<SECTSIZE;i++)
                         /* On utilise StoreByte plutôt que STORE_BYTE pour limiter l'accès en mémoire */
-                        StoreByte(((dest_data+i)&0xFFFF), direct_buffer[i]);
+                        hardware_StoreByte(((dest_data+i)&0xFFFF), direct_buffer[i]);
             }
             else
                 err=0x10;
@@ -491,7 +597,7 @@ void ReadSector(int *cc)
             if (err==0)
                 for (i=0;i<SECTSIZE;i++)
                     /* On utilise StoreByte plutôt que STORE_BYTE pour limiter l'accès en mémoire */
-                    StoreByte(((dest_data+i)%0xFFFF), sapsector.data[i]);
+                    hardware_StoreByte(((dest_data+i)%0xFFFF), sapsector.data[i]);
             break;
     }
 
@@ -521,7 +627,7 @@ void WriteSector(int *cc)
     int err = 0;
     int drive = LOAD_BYTE(0x6049);
     int source_data = LOAD_WORD(0x604F);
-    sapsector_t sapsector;
+    SAPSector_t sapsector;
 
     /* Standard C: l'initialisation de structures avec des expressions non constantes n'est pas supportée */
     sapsector.format = 0;
@@ -755,10 +861,260 @@ void FormatDrive(int *cc)
 
 
 
-/* InitDisk:
+/* CheckFile:
+ *  Teste la présence et le mode d'accès du fichier.
+ */
+static int CheckFile(const char filename[], int mode)
+{
+    if (access (filename, F_OK) == 0)
+        mode = (access (filename, W_OK) == 0) ? mode : TO8_READ_ONLY;
+    else
+        mode = error_Message (TO8_CANNOT_OPEN_FILE, filename);
+
+    return mode;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+
+
+/* disk_SetDirect:
+ *  Déclare le lecteur spécifié en accès direct et force
+ *  le mode lecture seule pour le premier accès.
+ */
+int disk_SetDirect(int drive)
+{ 
+    if (disk[drive].state != DIRECT_ACCESS)
+    {
+        disk[drive].state = DIRECT_ACCESS;
+            
+        /* premier accès en lecture seule */
+        disk[drive].mode = TO8_READ_ONLY;
+    }
+
+    return disk[drive].mode;
+}
+
+
+
+/* disk_SetVirtual:
+ *  Déclare le lecteur spécifié en accès virtuel
+ */
+int disk_SetVirtual(int drive)
+{ 
+    if ((disk[drive].state != NORMAL_ACCESS)
+     && (disk[drive].state != NO_DISK))
+    {
+        disk[drive].state = (teo.disk[drive].file == NULL) ? NO_DISK : NORMAL_ACCESS;
+            
+        /* premier accès en lecture seule */
+        disk[drive].mode=TO8_READ_WRITE;
+    }
+
+    return disk[drive].mode;
+}
+
+
+
+/*
+ *  Libère une disquette temporaire créé avec un répertoire.
+ */
+void disk_UnloadDir (int drive)
+{
+    int err = 0;
+    char *cmd = NULL;
+    
+    /* nettoyage des fichiers d'auto-conversion directory->sap. */
+    if ((access (SAPFS_NAME, F_OK) == 0)
+     && (disk[drive].tmp != NULL))
+    {
+        main_SysExec(cmd, teo.disk[drive].file);
+        err = disk_ExtractSAP(disk[drive].tmp);
+        err = err;
+        cmd = std_free (cmd);
+        main_RmFile (disk[drive].tmp);
+        disk[drive].tmp = std_free(disk[drive].tmp);
+    }
+    teo.disk[drive].file = std_free(teo.disk[drive].file);
+}
+
+
+
+/* disk_Eject:
+ *  Ejecte l'archive SAP du le lecteur spécifié.
+ */
+void disk_Eject(int drive)
+{
+    disk_UnloadDir (drive);
+    disk[drive].state = NO_DISK;
+}
+
+
+
+/*
+ *  Libère toutes les disquettes temporaires créés avec un répertoire.
+ */
+void disk_UnloadAll (void)
+{
+    disk_UnloadDir (0);
+    disk_UnloadDir (1);
+    disk_UnloadDir (2);
+    disk_UnloadDir (3);
+}
+
+
+
+/* disk_Check:
+ *  Vérifie si le fichier est une disquette SAP.
+ */
+int disk_Check (const char filename[])
+{
+    int err = TRUE;
+    FILE *file = NULL;
+    size_t length;
+    char header[SAP_HEADER_SIZE] = "";
+
+    if (access (filename, F_OK) < 0)
+        return TO8_CANNOT_FIND_FILE;
+
+    if (std_IsFile (filename) == TRUE)
+    {
+        file=fopen(filename, "rb");
+
+        /* on vérifie le header */ 
+        length = fread(header, sizeof(char), SAP_HEADER_SIZE, file);
+        fclose(file);
+
+        if ((length != SAP_HEADER_SIZE)
+         || (strncmp(header, sap_header, SAP_HEADER_SIZE) != 0))
+             err = TO8_BAD_FILE_FORMAT;
+    }
+    else
+    if (std_IsDir (filename) != TRUE)
+        err = TO8_BAD_FILE_FORMAT;
+
+    return err;
+}
+
+
+
+/* disk_Load:
+ *  Charge l'archive SAP dans le lecteur spécifié et
+ *  force si nécessaire le mode lecture seule.
+ */
+int disk_Load(int drive, const char filename[])
+{
+    int err = 0;
+    int mode;
+    char tmp[MAX_PATH+1] = "";
+    
+    mode = CheckFile(filename, disk[drive].mode);
+
+    if (mode >= 0)
+    {
+        /* Conversion d'un dossier en fichier disquette temporaire. */
+        if (std_IsDir (filename) == TRUE)
+        {
+            if (access(SAPFS_NAME, F_OK) != 0)
+                return error_Message (TO8_CANNOT_CREATE_DISK, SAPFS_NAME);
+
+            if (main_TmpFile (tmp, MAX_PATH) == NULL)
+                return error_Message (TO8_CANNOT_CREATE_DISK, NULL);
+
+            if (disk_CreateAndFillSAP (filename, tmp, SAP_FORMAT2, SAP_TRK80) < 0)
+                return ERR_ERROR;
+
+            disk_UnloadDir (drive);
+            
+            disk[drive].tmp = std_free (disk[drive].tmp);
+            disk[drive].tmp = std_strdup_printf ("%s", tmp);
+        }
+        else
+        {
+            if ((err = disk_Check (filename)) < 0)
+                return error_Message(err, filename);
+
+            disk_UnloadDir (drive);
+        }
+
+        teo.disk[drive].file = std_free (teo.disk[drive].file);
+        teo.disk[drive].file = std_strdup_printf ("%s", filename);
+        disk[drive].state = NORMAL_ACCESS;
+        disk[drive].mode = mode;
+    }
+
+    return mode;
+}
+
+
+
+/* disk_FirstLoad:
+ *  Premier chargement des disquettes
+ */
+void disk_FirstLoad (void)
+{
+    int drive;
+    char *name = NULL;
+
+    for (drive=0; drive<NBDRIVE; drive++)
+    {
+        disk[drive].tmp = NULL;
+        if (teo.disk[drive].file !=NULL)
+        {
+            name = std_strdup_printf ("%s", teo.disk[drive].file);
+            teo.disk[drive].file = std_free (teo.disk[drive].file);
+            if (name != NULL)
+                if (disk_Load (drive, name) < 0)
+                    main_DisplayMessage (to8_error_msg);
+            name = std_free (name);
+        }
+    }
+}
+
+
+
+/* disk_SetMode:
+ *  Fixe le mode d'accès à la disquette.
+ *  (lecture seule ou lecture écriture)
+ */ 
+int disk_SetMode(int drive, int mode)
+{
+    int ret = NO_DISK;
+
+    if (disk[drive].mode == mode)
+        ret = disk[drive].mode;
+    else
+    {
+        switch (disk[drive].state)
+        {
+            case NO_DISK:
+                ret = disk[drive].mode = mode;
+                break;
+
+            case DIRECT_ACCESS:
+                if ((mode == TO8_READ_WRITE) && !to8_DirectWriteSector)
+                    mode = TO8_READ_ONLY;  
+                  ret = disk[drive].mode = mode;
+                break;
+
+            case NORMAL_ACCESS:
+            default:
+                ret=CheckFile(teo.disk[drive].file, mode);
+                if (ret >= 0)
+                    disk[drive].mode = ret;
+                break;
+        }
+
+    }
+    return ret;
+}
+
+
+/* disk_Init:
  *  Initialise le module et met en place les trappes.
  */
-void InitDisk(void)
+void disk_Init(void)
 {
     int drive;
         
@@ -800,156 +1156,3 @@ void InitDisk(void)
         disk[drive].mode=TO8_READ_WRITE;
     }
 }
-
-
-
-/* CheckFile:
- *  Teste la présence et le mode d'accès du fichier.
- */
-static int CheckFile(const char filename[], int mode)
-{
-    FILE *file;
-    
-    if (mode==TO8_READ_WRITE)
-    {
-        if ((file=fopen(filename, "rb+")))
-        {
-            fclose(file);
-            return mode;
-        }
-        else
-            mode=TO8_READ_ONLY;
-    }
-
-    if ((file=fopen(filename, "rb")))
-    {
-        fclose(file);
-        return mode;
-    }
-    else
-        return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
-}
-
-
-/**********************************/
-/* partie publique                */
-/**********************************/
-
-
-/* DirectSetDrive:
- *  Déclare le lecteur spécifié en accès direct et force
- *  le mode lecture seule pour le premier accès.
- */
-int to8_DirectSetDrive(int drive)
-{ 
-    if (disk[drive].state != DIRECT_ACCESS)
-    {
-        disk[drive].state = DIRECT_ACCESS;
-            
-        /* premier accès en lecture seule */
-        disk[drive].mode = TO8_READ_ONLY;
-    }
-
-    return disk[drive].mode;
-}
-
-
-
-/* VitualSetDrive:
- *  Déclare le lecteur spécifié en accès virtuel
- */
-int to8_VirtualSetDrive(int drive)
-{ 
-    if ((disk[drive].state != NORMAL_ACCESS)
-     && (disk[drive].state != NO_DISK))
-    {
-        disk[drive].state = (teo.disk[drive].file == NULL) ? NO_DISK : NORMAL_ACCESS;
-            
-        /* premier accès en lecture seule */
-        disk[drive].mode=TO8_READ_WRITE;
-    }
-
-    return disk[drive].mode;
-}
-
-
-
-/* EjectDisk:
- *  Ejecte l'archive SAP du le lecteur spécifié.
- */
-void to8_EjectDisk(int drive)
-{
-    teo.disk[drive].file = std_free (teo.disk[drive].file);
-    disk[drive].state = NO_DISK;
-}
-    
-
-
-/* LoadDisk:
- *  Charge l'archive SAP dans le lecteur spécifié et
- *  force si nécessaire le mode lecture seule.
- */
-int to8_LoadDisk(int drive, const char filename[])
-{
-    int ret = CheckFile(filename, disk[drive].mode);
-
-    if (ret != TO8_ERROR)
-    {
-        char header[SAP_HEADER_SIZE];
-        FILE *file=fopen(filename, "rb");
-
-        /* on vérifie le header */ 
-        if (fread(header, sizeof(char), SAP_HEADER_SIZE, file) != SAP_HEADER_SIZE) {
-            fclose(file);
-            return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL); }
-        fclose(file);
-
-        if (strncmp(header, sap_header, SAP_HEADER_SIZE))
-            return ErrorMessage(TO8_BAD_FILE_FORMAT, NULL);
-
-        teo.disk[drive].file = std_free (teo.disk[drive].file);
-        teo.disk[drive].file = std_strdup_printf ("%s", filename);
-        disk[drive].state = NORMAL_ACCESS;
-        disk[drive].mode = ret;
-    }
-
-    return ret;
-}
-
-
-
-/* SetDiskMode:
- *  Fixe le mode d'accès à la disquette.
- *  (lecture seule ou lecture écriture)
- */ 
-int to8_SetDiskMode(int drive, int mode)
-{
-    int ret;
-
-    if (disk[drive].mode == mode)
-        return disk[drive].mode;
-
-    switch (disk[drive].state)
-    {
-        case NO_DISK:
-            disk[drive].mode = mode;
-            return disk[drive].mode;
-
-        case DIRECT_ACCESS:
-            if ((mode == TO8_READ_WRITE) && !to8_DirectWriteSector)
-                mode = TO8_READ_ONLY;  
-  
-            disk[drive].mode = mode;
-            return disk[drive].mode;
-
-        case NORMAL_ACCESS:
-        default:
-            ret=CheckFile(teo.disk[drive].file, mode);
-
-            if (ret != TO8_ERROR)
-                disk[drive].mode = ret;
-
-            return ret;
-    }
-}
-
