@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
+ *                               24/10/2012
  *
  *  Gestion des cartouches.
  */
@@ -55,7 +56,9 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
-#include "intern/gui.h"
+#include "intern/memo.h"
+#include "intern/std.h"
+#include "intern/errors.h"
 #include "to8.h"
 
 static int entry_max = 0;
@@ -80,9 +83,9 @@ static void update_params (HWND hWnd)
  */
 static int load_memo (HWND hWnd, char *filename)
 {
-    int ret = to8_LoadMemo7(filename);
+    int ret = memo_Load(filename);
 
-    if (ret == TO8_ERROR)
+    if (ret < 0)
         MessageBox(hWnd, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
 
     return ret;
@@ -96,13 +99,13 @@ static int load_memo (HWND hWnd, char *filename)
  */
 static void add_combo_entry (HWND hWnd, const char *name, const char *path)
 {
-    int path_index = gui_StringListIndex (path_list, (char *)path);
-    int name_index = gui_StringListIndex (name_list, (char *)name);
+    int path_index = std_StringListIndex (path_list, (char *)path);
+    int name_index = std_StringListIndex (name_list, (char *)name);
 
     if ((path_index < 0) || (name_index != path_index))
     {
-        path_list = gui_StringListAppend (path_list, (char *)path);
-        name_list = gui_StringListAppend (name_list, (char *)name);
+        path_list = std_StringListAppend (path_list, (char *)path);
+        name_list = std_StringListAppend (name_list, (char *)name);
         SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) name);
         SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_SETCURSEL, entry_max, 0);
         entry_max++;
@@ -112,7 +115,7 @@ static void add_combo_entry (HWND hWnd, const char *name, const char *path)
         SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_SETCURSEL, path_index, 0);
         if (path_index != combo_index)
         {
-            (void)load_memo (hWnd, gui_StringListText (path_list, path_index));
+            (void)load_memo (hWnd, std_StringListText (path_list, path_index));
         }
     }
 }
@@ -134,8 +137,8 @@ static void init_combo (HWND hWnd)
  */
 static void clear_combo (HWND hWnd)
 {
-    free_memo_list ();
-    to8_EjectMemo7();
+    wmemo_Free ();
+    memo_Eject ();
     SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
     init_combo (hWnd);
     teo.command = COLD_RESET;
@@ -155,11 +158,11 @@ static void combo_changed (HWND hWnd)
     {
         if (index == 0)
         {
-            to8_EjectMemo7();
+            memo_Eject ();
         }
         else
         {
-            (void)load_memo (hWnd, gui_StringListText (path_list, index));
+            (void)load_memo (hWnd, std_StringListText (path_list, index));
         }
         teo.command = COLD_RESET;
         update_params(hWnd);
@@ -188,22 +191,23 @@ static void open_file (HWND hWnd)
    ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
    ofn.lpstrDefExt ="m7";
 
-    if (strlen (gui->memo.file) != 0)
-        ofn.lpstrInitialDir = gui->memo.file;
+    if (teo.memo.file != NULL)
+        ofn.lpstrInitialDir = teo.memo.file;
     else
-    if (strlen (gui->default_folder) != 0)
-        ofn.lpstrInitialDir = gui->default_folder;
+    if (teo.default_folder != NULL)
+        ofn.lpstrInitialDir = teo.default_folder;
     else
     if (access(def_folder, F_OK) == 0)
         ofn.lpstrInitialDir = def_folder;
 
    if (GetOpenFileName(&ofn))
    {
-      if (load_memo (hWnd, ofn.lpstrFile) != TO8_ERROR)
+      if (load_memo (hWnd, ofn.lpstrFile) < 0)
       {
-          add_combo_entry (hWnd, gui->memo.label, gui->memo.file);
-          (void)snprintf (gui->default_folder, MAX_PATH, "%s", gui->memo.file);
-          (void)snprintf (current_file, MAX_PATH, "%s", gui->memo.file);
+          add_combo_entry (hWnd, teo.memo.label, teo.memo.file);
+          teo.default_folder = std_free (teo.default_folder);
+          teo.default_folder = std_strdup_printf ("%s", teo.memo.file);
+          (void)snprintf (current_file, MAX_PATH, "%s", teo.memo.file);
           teo.command = COLD_RESET;
           update_params(hWnd);
       }
@@ -211,17 +215,17 @@ static void open_file (HWND hWnd)
 }
 
 
-/* --------------------------- Partie publique ----------------------------- */
+/* ------------------------------------------------------------------------- */
 
 
-/* free_memo_list
+/* wmemo_Free:
  *  Libère la mémoire utilisée par la liste des cartouches.
  */
-void free_memo_list (void)
+void wmemo_Free (void)
 {
-    gui_StringListFree (name_list);
+    std_StringListFree (name_list);
     name_list=NULL;
-    gui_StringListFree (path_list);
+    std_StringListFree (path_list);
     path_list=NULL;
     entry_max=0;
     combo_index=0;
@@ -229,10 +233,10 @@ void free_memo_list (void)
 
 
 
-/* CartridgeTabProc:
- * Procédure pour l'onglet des cartouches
+/* wmemo_TabProc:
+ *  Procédure pour l'onglet des cartouches
  */
-int CALLBACK CartridgeTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+int CALLBACK wmemo_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    static int first=1;
    HANDLE himg;
@@ -245,26 +249,31 @@ int CALLBACK CartridgeTabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          if (first)
          {
              init_combo(hWnd);
-             if (strlen(gui->memo.file) != 0)
-                 add_combo_entry (hWnd, gui->memo.label, gui->memo.file);
+             if (teo.memo.file != NULL)
+                 add_combo_entry (hWnd, teo.memo.label, teo.memo.file);
              update_params (hWnd);
              first=0;
          }
          /* initialisation du combo */
          SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
          for (slist=name_list; slist!=NULL; slist=slist->next)
-             SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_ADDSTRING, 0, (LPARAM) gui_BaseName(slist->str));
+             SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_ADDSTRING, 0,
+                                (LPARAM) std_BaseName(slist->str));
          SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_SETCURSEL, combo_index, 0);
 
          /* initialisation des images pour les boutons */
          himg = LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-         SendMessage(GetDlgItem(hWnd, MEMO7_EJECT_BUTTON), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
-         himg = LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-         SendMessage(GetDlgItem(hWnd, MEMO7_MORE_BUTTON), BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
+         SendMessage(GetDlgItem(hWnd, MEMO7_EJECT_BUTTON), BM_SETIMAGE,
+                                (WPARAM)IMAGE_ICON, (LPARAM)himg );
+         himg = LoadImage (prog_inst, "memo_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         SendMessage(GetDlgItem(hWnd, MEMO7_MORE_BUTTON), BM_SETIMAGE,
+                                (WPARAM)IMAGE_ICON, (LPARAM)himg );
 
          /* initialisation de l'info-bulle */
-         create_tooltip (hWnd, MEMO7_EJECT_BUTTON, is_fr?"Vider la listedes fichiers":"Empty the file list");
-         create_tooltip (hWnd, MEMO7_MORE_BUTTON, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
+         wgui_CreateTooltip (hWnd, MEMO7_EJECT_BUTTON,
+               is_fr?"Vider la liste des fichiers":"Empty the file list");
+         wgui_CreateTooltip (hWnd, MEMO7_MORE_BUTTON,
+               is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
 
          return TRUE;
 
