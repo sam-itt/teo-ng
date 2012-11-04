@@ -39,7 +39,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/09/2000
  *               Samuel Devulder 12/08/2011
- *               François Mouret 25/04/2012
+ *               François Mouret 25/04/2012 01/11/2012
  *
  *  Sélection du driver graphique.
  */
@@ -52,6 +52,7 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/mouse.h"
+#include "intern/std.h"
 #include "to8.h"
 
 
@@ -66,17 +67,19 @@ void (*RetraceScreen)(int, int, int, int);
 
 static struct GRAPHIC_DRIVER *graphic_driver_list[]={
     NULL,
-    &mod4_driver,
-    &mod8_driver,
+    &amode40_driver,
+    &amode80_driver,
     &tcol_driver,
 };
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InitGraphic:
+
+/* agfxdrv_InitGraphic:
  *  Sélectionne et initialise le mode graphique spécifié.
  */
-int InitGraphic(int mode, int depth, int allegro_driver, int border_support)
+int agfxdrv_Init(int mode, int depth, int allegro_driver, int border_support)
 {
     if (graphic_driver_list[mode]->InitGraphic(depth, allegro_driver, border_support))
     {   
@@ -94,7 +97,7 @@ int InitGraphic(int mode, int depth, int allegro_driver, int border_support)
         need_palette_refresh = FALSE;
 
         /* Initialisation de la souris */
-        InitPointer(mode, border_support);
+        amouse_Init(mode, border_support);
 
         return TRUE;
     }
@@ -104,20 +107,21 @@ int InitGraphic(int mode, int depth, int allegro_driver, int border_support)
 
 
 
-/* Screenshot:
+/* agfxdrv_Screenshot:
  *  Prend une photo d'écran de l'émulateur.
  */
-void Screenshot(void)
+void agfxdrv_Screenshot(void)
 {
     static int count;
-    char filename[MAX_PATH];
+    char *filename = NULL;
     BITMAP *bmp;
     PALETTE palette;
 
     get_palette(palette);
     bmp = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
-    sprintf(filename, "teo_%02d.bmp", count++);
+    filename = std_strdup_printf ("teo_%02d.bmp", count++);
     save_bmp(filename, bmp, palette);
+    filename = std_free (filename);
     destroy_bitmap(bmp);
 }
 

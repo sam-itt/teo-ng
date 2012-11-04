@@ -38,7 +38,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011
- *               François Mouret 25/04/2012
+ *               François Mouret 25/04/2012 24/10/2012
  *
  *  Gestion de l'affichage 80 colonnes 16-bit du TO8.
  */
@@ -52,7 +52,6 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "intern/gui.h"
 #include "to8.h"
 
 
@@ -398,7 +397,7 @@ static void tcol_RefreshScreen(void)
 
     acquire_screen();
 
-    if (gui->setting.interlaced_video)
+    if (teo.setting.interlaced_video)
     {
         odd ^= 1;
         for(j=odd; j<tcol->screen_h; j+=2)
@@ -442,13 +441,13 @@ static int tcol_SetGraphicMode(int mode)
             if (set_gfx_mode(allegro_driver, tcol->screen_w, tcol->screen_h, 0, 0))
                 return FALSE;
             
-            SetGUIColors(0x0, makecol(192, 204, 204), makecol(240, 255, 255));
+            agui_SetColors(0x0, makecol(192, 204, 204), makecol(240, 255, 255));
             graphic_mode=TRUE;
             break;
 
         case RESTORE:
             set_gfx_mode(allegro_driver, tcol->screen_w, tcol->screen_h, 0, 0);
-            SetGUIColors(0x0, makecol(192, 204, 204), makecol(240, 255, 255));
+            agui_SetColors(0x0, makecol(192, 204, 204), makecol(240, 255, 255));
             blit(screen_buffer, screen, 0, 0, 0, 0, tcol->screen_w, tcol->screen_h);
             graphic_mode=TRUE;
             break;

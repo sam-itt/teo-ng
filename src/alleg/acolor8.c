@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou mai 2000
  *  Modifié par: Eric Botcazou 24/10/2003
+ *               François Mouret 24/10/2012
  *
  *  Gestion de la palette dynamique 256 couleurs (modes 8-bit).
  */
@@ -50,6 +51,7 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h" 
 #include "to8.h"
+#include "intern/defs.h"
 
 
 #define PALETTE_START  (TO8_NCOLORS+1)
@@ -132,29 +134,34 @@ static int AllocColor(int color, RGB *rgb, int last_frame)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* SetPalette8/GetPalette8:
- *  Routines de manipulation de la palette hardware.
+
+/* acolor8_SetPalette:
+ *  Mise à jour de la palette hardware.
  */
-void SetPalette8(void)
+void acolor8_SetPalette(void)
 {
     set_palette(palette);
-    SetGUIColors(1, 2, 3);
+    agui_SetColors(1, 2, 3);
 }
 
 
-void GetPalette8(void)
+/* acolor8_GetPalette:
+ *  Récupération de la palette hardware.
+ */
+void acolor8_GetPalette(void)
 {
     get_palette(palette);
 }
 
 
 
-/* SetColor8:
+/* acolor8_SetColor:
  *  Convertit la couleur du format TO8 au format RGB et la dépose dans
  *  la palette; en mode VGA 13h, 0 est la couleur du bord de l'écran.
  */
-void SetColor8(int color, int r, int g, int b)
+void acolor8_SetColor(int color, int r, int g, int b)
 {
     RGB rgb={r>>2, g>>2, b>>2};
 
@@ -171,12 +178,12 @@ void SetColor8(int color, int r, int g, int b)
 
 
 
-/* SetBorderColor8:
+/* acolor8_SetBorderColor:
  *  Fixe la couleur du pourtour de l'écran en copiant
  *  le triplet RGB choisi sur la couleur 0.
  *  (dos/vga uniquement)
  */
-void SetBorderColor8(int mode, int color)
+void acolor8_SetBorderColor(int mode, int color)
 {
     border_color=color;
 
@@ -185,10 +192,10 @@ void SetBorderColor8(int mode, int color)
 
 
 
-/* RefreshPalette8:
+/* acolor8_RefreshPalette:
  *  Essaie de mettre à jour la palette.
  */
- void RefreshPalette8(void)
+ void acolor8_RefreshPalette(void)
 {
     register int i;
 
@@ -203,11 +210,11 @@ void SetBorderColor8(int mode, int color)
 
 
 
-/* RefreshScreen8:
+/* acolor8_RefreshScreen:
  *  Met à jour le pourtour de l'écran.
  *  (dos/vga uniquement)
  */
-void RefreshScreen8(void)
+void acolor8_RefreshScreen(void)
 {
     static RGB current_rgb = {-1, -1, -1};
     RGB new_rgb = palette[bcell[border_color].index];
@@ -221,10 +228,10 @@ void RefreshScreen8(void)
 
 
 
-/* InitColor8:
+/* acolor8_Init:
  *  Initialise la palette dynamique 256 couleurs.
  */
-void InitColor8(int _border_enabled)
+void acolor8_Init(int _border_enabled)
 {
     register int i;
 

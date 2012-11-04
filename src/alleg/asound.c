@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, Samuel Devulder
+ *                          Jérémie Guillaume, François Mouret, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,6 @@
 #endif
 
 #include "to8.h"
-#include "intern/gui.h"
 
 
 static AUDIOSTREAM *stream;
@@ -62,42 +61,13 @@ static int last_index;
 static unsigned char last_data;
 
 
-/* StartSound:
- *  Lance le streaming audio.
+/* voice_get_position_callback:
+ *  Helper pour détecter le bon fonctionnement du streaming audio.
  */
-void StartSound(void)
+static void voice_get_position_callback(void)
 {
-    voice_start(stream->voice);
-}
-
-
-
-/* StopSound:
- *  Arrête le streaming audio.
- */
-void StopSound(void)
-{
-    voice_stop(stream->voice);
-}
-
-
-
-/* GetVolume:
- *  Lit le volume du streaming audio.
- */
-int GetVolume(void)
-{
-    return voice_get_volume(stream->voice);
-}
-
-
-
-/* SetVolume:
- *  Fixe le volume du streaming audio.
- */
-void SetVolume(int val)
-{
-    voice_set_volume(stream->voice, val);
+    if (voice_get_position(stream->voice))
+        teo.sound_enabled=TRUE;
 }
 
 
@@ -121,11 +91,53 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* PlaySoundBuffer:
+
+/* asound_Start:
+ *  Lance le streaming audio.
+ */
+void asound_Start(void)
+{
+    voice_start(stream->voice);
+}
+
+
+
+/* asound_Stop:
+ *  Arrête le streaming audio.
+ */
+void asound_Stop(void)
+{
+    voice_stop(stream->voice);
+}
+
+
+
+/* asound_GetVolume:
+ *  Lit le volume du streaming audio.
+ */
+int asound_GetVolume(void)
+{
+    return voice_get_volume(stream->voice);
+}
+
+
+
+/* asound_SetVolume:
+ *  Fixe le volume du streaming audio.
+ */
+void asound_SetVolume(int val)
+{
+    voice_set_volume(stream->voice, val);
+}
+
+
+
+/* asound_Play:
  *  Echange les tampons avant et arrière du streaming audio.
  */
-void PlaySoundBuffer(void)
+void asound_Play(void)
 {
     char *buffer_ptr;
 
@@ -144,21 +156,10 @@ void PlaySoundBuffer(void)
 
 
 
-/* voice_get_position_callback:
- *  Helper pour détecter le bon fonctionnement du streaming audio.
- */
-static void voice_get_position_callback(void)
-{
-    if (voice_get_position(stream->voice))
-        teo.sound_enabled=TRUE;
-}
-
-
-
-/* InitSound:
+/* asound_Init:
  *  Initialise le module de streaming audio.
  */
-void InitSound(int freq)
+void asound_Init(int freq)
 {
     sound_freq = freq;
     sound_buffer_size = sound_freq/TO8_FRAME_FREQ;

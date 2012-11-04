@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 14/02/2001
  *  Modifié par: Eric Botcazou 22/03/2001
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 02/11/2012
  *
  *  Interface de gestion des manettes.
  */
@@ -48,6 +48,7 @@
    #include <allegro.h>
 #endif
 
+#include "intern/joystick.h"
 #include "to8.h"
 
 
@@ -55,13 +56,15 @@ static int njoy;
 static int old_pos[TO8_NJOYSTICKS];
 
 
+/* ------------------------------------------------------------------------- */
 
-/* UpdateJoystick:
+
+/* ajoyint_Update:
  *  L'interface joystick d'Allegro ne fonctionne pas selon le mode
  *  asynchrone, donc cette fonction est nécessaire pour lire pério-
  *  diquement la position des joysticks.
  */
-void UpdateJoystick(void)
+void ajoyint_Update(void)
 {
     int j, pos = TO8_JOYSTICK_CENTER;
 
@@ -86,26 +89,26 @@ void UpdateJoystick(void)
 
         if (pos != old_pos[j])
         {
-            to8_HandleJoystickMove(j, pos);
+            joystick_Move(j, pos);
             old_pos[j] = pos;
         }
 
         /* gestion des boutons */
-        to8_HandleJoystickFire(j, 0, joy[j].button[0].b ?
+        joystick_Button(j, 0, joy[j].button[0].b ?
                                TO8_JOYSTICK_FIRE_ON : TO8_JOYSTICK_FIRE_OFF);
 
         if (joy[j].num_buttons>1)
-            to8_HandleJoystickFire(j, 1, joy[j].button[1].b ?
+            joystick_Button(j, 1, joy[j].button[1].b ?
                                    TO8_JOYSTICK_FIRE_ON : TO8_JOYSTICK_FIRE_OFF);
     }
 }
 
 
 
-/* InitJoyint:
+/* ajoyint_Init:
  *  Initialise l'interface joystick.
  */
-void InitJoyint(int num_joy)
+void ajoyint_Init(int num_joy)
 {
     /* affichage du nombre de joystick(s) détecté(s) */
     if (is_fr)

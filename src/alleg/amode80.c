@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011
- *               François Mouret 25/04/2012
+ *               François Mouret 25/04/2012 24/10/2012
  *
  *  Gestion de l'affichage 80 colonnes du TO8.
  */
@@ -53,7 +53,6 @@
 
 #include "alleg/color8.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
 #include "to8.h"
 
 
@@ -87,7 +86,7 @@ static inline int gpl_need_update(const unsigned char *gpl1, const unsigned char
 /* DrawGPL:
  *  Affiche un Groupe Point Ligne (un octet de VRAM).
  */
-static void mod8_DrawGPL(int mode, int addr, int pt, int col)
+static void amode80_DrawGPL(int mode, int addr, int pt, int col)
 {
     register int i;
     unsigned int c1, c2, x, y;
@@ -246,19 +245,19 @@ static void mod8_DrawGPL(int mode, int addr, int pt, int col)
 /* RetraceScreen:
  *  Rafraîchit une portion de l'écran du TO8.
  */
-static inline void mod8_RetraceScreen(int x, int y, int width, int height)
+static inline void amode80_RetraceScreen(int x, int y, int width, int height)
 {
     blit(screen_buffer, screen, x, y, x, y, width, height);
 }
 
-END_OF_FUNCTION(mod8_RetraceScreen)
+END_OF_FUNCTION(amode80_RetraceScreen)
 
 
 
 /* RefreshScreen:
  *  Rafraîchit l'écran du TO8.
  */
-static void mod8_RefreshScreen(void)
+static void amode80_RefreshScreen(void)
 {
     register int i,j;
              int cell_start;
@@ -270,7 +269,7 @@ static void mod8_RefreshScreen(void)
 
     acquire_screen();
 
-    if (gui->setting.interlaced_video)
+    if (teo.setting.interlaced_video)
     {
         odd ^= 1;
         for(j=odd; j<TO8_WINDOW_H<<1; j+=2)
@@ -289,7 +288,7 @@ static void mod8_RefreshScreen(void)
                     while ((i<TO8_WINDOW_CW) && dirty_cell_row[i])
                         dirty_cell_row[i++]=FALSE;
 
-                    mod8_RetraceScreen(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2,
+                    amode80_RetraceScreen(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2,
                                        (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
                 }
 
@@ -306,7 +305,7 @@ static void mod8_RefreshScreen(void)
 /* SetGraphicMode:
  *  Sélectionne le mode graphique de l'émulateur.
  */
-static int mod8_SetGraphicMode(int mode)
+static int amode80_SetGraphicMode(int mode)
 {   
     switch (mode)
     {
@@ -314,19 +313,19 @@ static int mod8_SetGraphicMode(int mode)
             if (set_gfx_mode(allegro_driver, TO8_WINDOW_W*2, TO8_WINDOW_H*2, 0, 0))
                 return FALSE;
             
-            SetPalette8();
+            acolor8_SetPalette();
             graphic_mode=TRUE;
             break;
 
         case RESTORE:
             set_gfx_mode(allegro_driver, TO8_WINDOW_W*2, TO8_WINDOW_H*2, 0, 0);
-            SetPalette8();
+            acolor8_SetPalette();
             blit(screen_buffer, screen, 0, 0, 0, 0, TO8_WINDOW_W*2, TO8_WINDOW_H*2);
             graphic_mode=TRUE;
             break;
             
         case SHUTDOWN:
-            GetPalette8(); /* on sauvegarde la palette */
+            acolor8_GetPalette(); /* on sauvegarde la palette */
             set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
             graphic_mode=FALSE;
             break;
@@ -342,7 +341,7 @@ static int mod8_SetGraphicMode(int mode)
 /* SetDiskLed:
  *  Allume/éteint la Led du lecteur de disquettes.
  */
-static void mod8_SetDiskLed(int led_on)
+static void amode80_SetDiskLed(int led_on)
 {
     if (graphic_mode)
     {
@@ -361,17 +360,17 @@ static void mod8_SetDiskLed(int led_on)
 /* InitGraphic:
  *  Initialise le pilote graphique 80 colonnes.
  */
-static int mod8_InitGraphic(int depth, int _allegro_driver, int border_support)
+static int amode80_InitGraphic(int depth, int _allegro_driver, int border_support)
 {
     if (depth != 8)
         return FALSE;
     
     set_color_depth(8);
-    InitColor8(FALSE);
+    acolor8_Init(FALSE);
 
     allegro_driver = _allegro_driver;
 
-    if (!mod8_SetGraphicMode(INIT))
+    if (!amode80_SetGraphicMode(INIT))
         return FALSE;
 
     gpl_buffer = create_bitmap(TO8_GPL_SIZE*2, 1);
@@ -382,7 +381,7 @@ static int mod8_InitGraphic(int depth, int _allegro_driver, int border_support)
     /* objets touchés par l'interruption souris (djgpp) */
     LOCK_VARIABLE(screen_buffer);
     LOCK_DATA(screen_buffer, sizeof(BITMAP));
-    LOCK_FUNCTION(mod8_RetraceScreen);
+    LOCK_FUNCTION(amode80_RetraceScreen);
 
     (void) border_support;
  
@@ -391,16 +390,16 @@ static int mod8_InitGraphic(int depth, int _allegro_driver, int border_support)
 
 
 
-struct GRAPHIC_DRIVER mod8_driver={
-    mod8_InitGraphic,
-    mod8_SetGraphicMode,
-    RefreshPalette8,
-    mod8_RefreshScreen,
-    mod8_RetraceScreen,
-    mod8_DrawGPL,
+struct GRAPHIC_DRIVER amode80_driver={
+    amode80_InitGraphic,
+    amode80_SetGraphicMode,
+    acolor8_RefreshPalette,
+    amode80_RefreshScreen,
+    amode80_RetraceScreen,
+    amode80_DrawGPL,
     NULL,
-    SetColor8,
+    acolor8_SetColor,
     NULL,
-    mod8_SetDiskLed
+    amode80_SetDiskLed
 };
 

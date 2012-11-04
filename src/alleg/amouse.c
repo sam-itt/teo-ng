@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 14/10/2000
+ *               François Mouret 01/11/2012
  *
  *  Interface de la souris.
  */
@@ -48,6 +49,7 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/mouse.h"
+#include "intern/mouse.h"
 #include "to8.h"
 
 
@@ -131,17 +133,17 @@ static inline int clip_y(void)
 static void MouseCallback(int flags)
 {
     if (flags&MOUSE_FLAG_LEFT_UP)
-        to8_HandleMouseClick(1, TRUE);
+        mouse_Click(1, TRUE);
     else if (flags&MOUSE_FLAG_LEFT_DOWN)
-        to8_HandleMouseClick(1, FALSE);
+        mouse_Click(1, FALSE);
  
     if (flags&MOUSE_FLAG_RIGHT_UP)
-        to8_HandleMouseClick(2, TRUE);
+        mouse_Click(2, TRUE);
     else if (flags&MOUSE_FLAG_RIGHT_DOWN)
-        to8_HandleMouseClick(2, FALSE);
+        mouse_Click(2, FALSE);
 
     if (flags&MOUSE_FLAG_MOVE)
-        to8_HandleMouseMotion(clip_x(), clip_y());
+        mouse_Motion(clip_x(), clip_y());
 }
 
 END_OF_FUNCTION(MouseCallback)
@@ -157,9 +159,9 @@ static void LightpenCallback(int flags)
     static int pointer_on, xpos, ypos;
 
     if (flags&MOUSE_FLAG_LEFT_UP)
-        to8_HandleMouseClick(1, TRUE);
+        mouse_Click(1, TRUE);
     if (flags&MOUSE_FLAG_LEFT_DOWN)
-        to8_HandleMouseClick(1, FALSE);
+        mouse_Click(1, FALSE);
 
     if (flags&(MOUSE_FLAG_MOVE|MOUSE_FLAG_RIGHT_DOWN))
     {
@@ -173,7 +175,7 @@ static void LightpenCallback(int flags)
             release_screen();
         }
                                
-        to8_HandleMouseMotion(clip_x(), clip_y());
+        mouse_Motion(clip_x(), clip_y());
 
         if (flags&MOUSE_FLAG_RIGHT_DOWN)
             pointer_on^=1;
@@ -191,11 +193,13 @@ static void LightpenCallback(int flags)
 END_OF_FUNCTION(LightpenCallback)
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InstallPointer:
+
+/* amouse_Install:
  *  Installe le périphérique de pointage choisi.
  */
-void InstallPointer(int pointer)
+void amouse_Install(int pointer)
 {
     switch (pointer)
     {
@@ -218,20 +222,20 @@ void InstallPointer(int pointer)
 
 
 
-/* ShutDownPointer:
+/* amouse_ShutDown:
  *  Désactive le périphérique de pointage du TO8.
  */
-void ShutDownPointer(void)
+void amouse_ShutDown(void)
 {
     mouse_callback=NULL;
 }
 
 
 
-/* InitPointer:
+/* amouse_Init:
  *  Initialise le module souris/crayon optique.
  */
-void InitPointer(int gfx_mode, int bsupp)
+void amouse_Init(int gfx_mode, int bsupp)
 {
     register int i;
 
@@ -306,7 +310,7 @@ void InitPointer(int gfx_mode, int bsupp)
 
     border_supported = bsupp;
 
-    to8_SetPointer=InstallPointer;
+    to8_SetPointer=amouse_Install;
     install_mouse();
 
     lock_bitmap(pen_pointer);
