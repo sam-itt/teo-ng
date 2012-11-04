@@ -51,6 +51,7 @@
    #include <gtk/gtk.h>
 #endif
 
+#include "intern/memo.h"
 #include "intern/std.h"
 #include "linux/gui.h"
 #include "to8.h"
@@ -112,7 +113,7 @@ static void reset_combo (GtkButton *button, gpointer data)
     free_memo_list ();
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     init_combo();
-    to8_EjectMemo();
+    memo_Eject();
 
     /* Débloque l'intervention de combo_changed */
     g_signal_handler_unblock (combo, combo_changed_id);
@@ -133,9 +134,9 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
     filename = (char *) g_list_nth_data (path_list, gtk_combo_box_get_active (combo_box));
 
     if (*filename == '\0')
-        to8_EjectMemo();
+        memo_Eject();
     else
-    if (to8_LoadMemo(filename) == TO8_ERROR)
+    if (memo_Load(filename) < 0)
         error_box(to8_error_msg, wControl);
 
     teo.command=COLD_RESET;
@@ -154,6 +155,7 @@ static void open_file (GtkButton *button, gpointer data)
     GtkFileFilter *filter;
     static GtkWidget *dialog;
     char *folder_name;
+    char *file_name;
 
     if (first) {
         dialog = gtk_file_chooser_dialog_new (
@@ -185,7 +187,8 @@ static void open_file (GtkButton *button, gpointer data)
 
     if (gtk_dialog_run ((GtkDialog *)dialog) == GTK_RESPONSE_ACCEPT)
     {
-        if (to8_LoadMemo(gtk_file_chooser_get_filename((GtkFileChooser *)dialog)) == TO8_ERROR)
+        file_name = gtk_file_chooser_get_filename((GtkFileChooser *)dialog);
+        if (memo_Load(file_name) < 0)
             error_box(to8_error_msg, wControl);
         else
         {
@@ -195,12 +198,14 @@ static void open_file (GtkButton *button, gpointer data)
             add_combo_entry (teo.memo.label, teo.memo.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
             teo.default_folder = std_free(teo.default_folder);
-            teo.default_folder = std_strdup_printf ("%s", folder_name);
+            if (folder_name != NULL)
+                teo.default_folder = std_strdup_printf ("%s",folder_name);
             g_free (folder_name);
 
             /* Débloque l'intervention de combo_changed */
             g_signal_handler_unblock (combo, combo_changed_id); 
         }
+        g_free (file_name);
     }
     gtk_widget_hide(dialog);
     (void)button;

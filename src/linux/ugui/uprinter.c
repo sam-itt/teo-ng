@@ -138,7 +138,7 @@ void init_printer_notebook_frame (GtkWidget *notebook)
              (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
              GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
              GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-    gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, (teo.lprt.folder == NULL) ? "" : teo.lprt.folder);
+    gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, (teo.lprt.folder == NULL)?"":teo.lprt.folder);
     g_signal_connect(G_OBJECT(dialog), "current-folder-changed", G_CALLBACK(folder_changed), (gpointer) NULL);
     widget = gtk_file_chooser_button_new_with_dialog (dialog);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
