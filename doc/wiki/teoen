@@ -22,10 +22,14 @@ Besides, <a href="http://www.bannister.org/software/teo.htm">a native MacOS and 
 Teo accepts the following options on command line:
 
 <table width="100%" border="1">
-<tr><td>[-m file.m7]</td><td>uses file.m7 as ROM cartridge</td></tr>
-<tr><td>[-fast]</td><td>runs the emulator at fast-speed</td></tr>
-<tr><td>[-nosound]</td><td>disables sound emulation</td></tr>
-<tr><td>[-loadstate]</td><td>loads the last saved emulator state</td></tr>
+<tr><td>-r, --reset</td><td>hard reset the emulator</td></tr>
+<tr><td>-0, --disk0=PATH</td><td>uses PATH as disk for drive 0</td></tr>
+<tr><td>-1, --disk1=PATH</td><td>uses PATH as disk for drive 1</td></tr>
+<tr><td>-2, --disk2=PATH</td><td>uses PATH as disk for drive 2</td></tr>
+<tr><td>-3, --disk3=PATH</td><td>uses PATH as disk for drive 3</td></tr>
+<tr><td>--memo=FILE</td><td>uses FILE as ROM cartridge</td></tr>
+<tr><td>--cass=FILE</td><td>uses FILE as tape</td></tr>
+<tr><td>xxxxx</td><td>uses files as disk/tape/memo (depends on file format)</td></tr>
 </table>
 
 #####Control panel<a name="control_panel"></a>
@@ -85,7 +89,7 @@ By default, each file dialog will try to open in the directories *`disks`* for f
 
 #####Printers<a name="printers"></a>
 
-Teo contains an emulation module of the Thomson dot-matrix printers PR90-055, PR90-600 and PR90-612 which can handle at the same time raw output, text output and graphical output.
+Teo contains an emulation module of the Thomson dot-matrix printers which can handle at the same time raw output, text output and graphical output.
 
 #####Miscellaneous commands<a name="misc"></a>
 

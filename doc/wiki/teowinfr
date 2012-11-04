@@ -14,8 +14,8 @@ Pour faire fonctionner l'&eacute;mulateur, vous devez disposer au minimum d'un 8
 
 Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 
-* Ex&eacute;cutez *`teow-1.8.1-setup.exe`*.
-* D&eacute;sarchivez *`teo-1.8.1-winexe.zip`*. Le programme &eacute;x&eacute;cutable se nomme *`teow.exe`*.
+* Ex&eacute;cutez *`teow-1.8.2-setup.exe`*.
+* D&eacute;sarchivez *`teo-1.8.2-winexe.zip`*. Le programme &eacute;x&eacute;cutable se nomme *`teow.exe`*.
 
 #####Lancement<a name="launching"></a>
 
@@ -23,12 +23,10 @@ Le lancement du programme &eacute;x&eacute;cutable provoque l'affichage d'une fe
 
 Teo accepte les param&egrave;tres suivants suppl&eacute;mentaires sur la ligne de commande:
 <table border="1" width="100%">
-<tr><td>\[-nojoy\]</td><td>d&eacute;sactive la prise en charge des joysticks PC</td></tr>
 <tr><td>\[-mode40\]</td><td>lance l'&eacute;mulateur en mode plein &eacute;cran 40 colonnes 16 couleurs</td></tr>
 <tr><td>\[-mode80\]</td><td>lance l'&eacute;mulateur en mode plein &eacute;cran 80 colonnes 16 couleurs</td></tr>
 <tr><td>\[-truecolor\]</td><td>lance l'&eacute;mulateur en mode plein &eacute;cran 80 colonnes 4096 couleurs</td></tr>
 <tr><td>\[-window\]</td><td>lance l'&eacute;mulateur en mode fen&ecirc;tr&eacute; 80 colonnes 4096 couleurs</td></tr>
-<tr><td>\[xxxxx\]</td><td>charge un (des) fichier(s) SAP, K7, M7</td></tr>
 </table>
 
 A noter que le chargement du dernier &eacute;tat sauvegard&eacute; de l'&eacute;mulateur peut aussi &ecirc;tre obtenu en maintenant la touche CTRL (gauche ou droite) appuy&eacute;e au moment de la s&eacute;lection du mode graphique.

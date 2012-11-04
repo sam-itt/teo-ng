@@ -15,26 +15,16 @@ The required configuration to run the emulator is the standard configuration of 
 
 You can install the emulator in two ways:
 
-* Launch *`teo-1.8.1-i586.deb`*. The launch of *`Teo`* will be done through the *`Applications/Games/Teo emulator`* shortcut menu.
-* Unzip *`teo-1.8.1-i586.tar.gz`*. The executable is named *`teo`*.
+* Launch *`teo-1.8.2-i586.deb`*. The launch of *`Teo`* will be done through the *`Applications/Games/Teo emulator`* shortcut menu.
+* Unzip *`teo-1.8.2-i586.tar.gz`*. The executable is named *`teo`*.
 
 #####Launching<a name="launching"></a>
 
-TEO accepts the following additional options on the command line:
-
-<table border="1" width="100%">
-<tr><td>[-help]</td><td>prints on-line help</td></tr>
-<tr><td>[-geometry +x+y]</td><td>specify the window position</td></tr>
-<tr><td>[-noshm]</td><td>disable the use of the MIT-SHM extension</td></tr>
-<tr><td>[-display displayname]</td><td>indicates the name of the X server to use</td></tr>
-<tr><td>[xxxxx]</td><td>loads SAP, K7, M7 file(s)</td></tr>
-</table>
-
-The installation with the packages *`.deb`* launches Teo with the option *`-loadstate`* by default. To deactivate this option or add some more, choose *`System/Preferences/Main menu`*, then select *`Games/Teo emulator`*, click on *`Properties`* and change the options by default of the executable.
+To add some launching options for *`.deb`* installation, choose *`System/Preferences/Main menu`*, then select *`Games/Teo emulator`*, click on *`Properties`* and change the options by default of the executable.
 
 #####Keyboard<a name="keyboard"></a>
 
-If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: *`System/Preferences/Keyboard/Layouts/Options/Key`* to chose 3rd level options.
+If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: *`System/Preferences/Keyboard/Layouts/Options/Key`* to choose 3rd level options.
 
 #####Sound generator<a name="sound"></a>
 
