@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  *  Module     : intern/errors.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 22/11/2000
- *  Modifié par:
+ *  Modifié par: François Mouret 01/11/2012
  *
  *  Gestion des erreurs générées par l'émulateur.
  */
@@ -47,6 +47,6 @@
 
 #include "to8err.h"
 
-extern int ErrorMessage(int, const char []);
+extern int error_Message(int, const char []);
 
 #endif
