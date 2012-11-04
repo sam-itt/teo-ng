@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 23/11/2000
  *  Modifié par: Eric Botcazou 12/02/2001
+ *               François Mouret 01/11/2012
  *
  *  Déclarations des types d'erreur renvoyés par l'émulateur.
  */
@@ -46,16 +47,24 @@
 #define TO8ERR_H
 
 enum {
-    TO8_MULTIPLE_INIT,
+    TO8_MULTIPLE_INIT = -1000,
     TO8_BAD_ALLOC,
     TO8_CANNOT_FIND_FILE,
     TO8_CANNOT_OPEN_FILE,
     TO8_BAD_FILE_FORMAT,
     TO8_UNSUPPORTED_MODEL,
     TO8_BAD_JOYSTICK_NUM,
-    TO8_ERROR_MAX
+    TO8_BAD_MEMO_HEADER_CHECKSUM,
+    TO8_BAD_MEMO_HEADER_NAME,
+    TO8_MEDIA_ALREADY_SET,
+    TO8_CANNOT_CREATE_DISK,
+    TO8_SAP_NOT_VALID,
+    TO8_FILE_TOO_LARGE,
+    TO8_FILE_IS_EMPTY,
+    TO8_SAP_DIRECTORY_FULL,
+    ERR_ERROR
 };
 
-extern void to8_RegisterErrorTable(const char *table[TO8_ERROR_MAX]);
+extern int error_Message(int error, const char moreinfo[]);
 
 #endif
