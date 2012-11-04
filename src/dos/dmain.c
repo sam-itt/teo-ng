@@ -38,7 +38,7 @@
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 04/11/2003
  *               Samuel Devulder 08/2011
- *               François Mouret 08/2011 25/04/2012
+ *               François Mouret 08/2011 25/04/2012 01/11/2012
  *
  *  Boucle principale de l'émulateur.
  */
@@ -97,6 +97,7 @@ struct EmuTO teo={
 };
 
 int frame;                 /* compteur de frame vidéo */
+int direct_write_support = FALSE;
 static volatile int tick;  /* compteur du timer */
 
 
@@ -210,6 +211,61 @@ static void RunTO8(void)
 
 
 
+/* ReadCommandLine:
+ *  Lit la ligne de commande
+ */
+static void ReadCommandLine(int argc, char *argv[])
+{
+    char *message;
+    int mode40=0, mode80=0, truecolor=0;
+
+    struct OPTION_ENTRY entries[] = {
+        { "reset", 'r', OPTION_ARG_BOOL, &reset,
+           is_fr?"Reset … froid de l'‚mulateur"
+                :"Cold-reset emulator", NULL },
+        { "disk0", '0', OPTION_ARG_FILENAME, &teo.disk[0].file,
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)",
+           is_fr?"CHEMIN":"PATH" },
+        { "disk1", '1', OPTION_ARG_FILENAME, &teo.disk[1].file,
+           is_fr?"Charge un disque virtuel (lecteur 1)"
+                :"Load virtual disk (drive 1)",
+           is_fr?"CHEMIN":"PATH" },
+        { "disk2", '2', OPTION_ARG_FILENAME, &teo.disk[2].file,
+           is_fr?"Charge un disque virtuel (lecteur 2)"
+                :"Load virtual disk (drive 2)",
+           is_fr?"CHEMIN":"PATH" },
+        { "disk3", '3', OPTION_ARG_FILENAME, &teo.disk[3].file,
+           is_fr?"Charge un disque virtuel (lecteur 3)"
+                :"Load virtual disk (drive 3)",
+           is_fr?"CHEMIN":"PATH" },
+        { "cass", '\0', OPTION_ARG_FILENAME, &teo.cass.file,
+           is_fr?"Charge une cassette":"Load a tape",
+           is_fr?"FICHIER":"FILE" },
+        { "memo", '\0', OPTION_ARG_FILENAME, &teo.memo.file,
+           is_fr?"Charge une cartouche":"Load a cartridge",
+           is_fr?"FICHIER":"FILE" },
+        { "mode40", '\0', OPTION_ARG_BOOL, &mode40,
+           is_fr?"Affichage en 40 colonnes":"40 columns display", NULL},
+        { "mode80", '\0', OPTION_ARG_BOOL, &mode80,
+           is_fr?"Affichage en 80 colonnes":"80 columns display", NULL},
+        { "truecolor", '\0', OPTION_ARG_BOOL, &truecolor,
+           is_fr?"Affichage en vraies couleurs":"Truecolor display", NULL},
+        { "enable-direct-write", '\0', OPTION_ARG_BOOL, &direct_write_support,
+           is_fr?"Autorise l'‚criture en mode direct":"Enable writing in direct mode", NULL},
+        { NULL, 0, 0, NULL, NULL, NULL }
+    };
+    message = option_Parse (argc, argv, "teo", entries, &remain_name);
+    if (message != NULL)
+        main_ExitMessage(message);
+        
+    if (mode40)    gfx_mode = GFX_MODE40   ; else
+    if (mode80)    gfx_mode = GFX_MODE80   ; else
+    if (truecolor) gfx_mode = GFX_TRUECOLOR;
+}
+
+
+
 /* ExitMessage:
  *  Affiche un message de sortie et sort du programme.
  */
@@ -220,26 +276,6 @@ static void ExitMessage(const char msg[])
 }
 
 
-
-/* isDir:
- *  Retourne vrai si le fichier est un répertoire.
- */
-static int isDir(char *path) {
-    struct stat buf;
-    int ret = 0;
-    if(!stat(path, &buf)) ret = S_ISDIR(buf.st_mode);
-    return ret;
-}
-
-/* isFile:
- *  Retourne vrai si le fichier est un fichier.
- */
-static int isFile(char *path) {
-    struct stat buf;
-    int ret = 0;
-    if(!stat(path, &buf)) ret = S_ISREG(buf.st_mode);
-    return ret;
-}
 
 /* sysexec:
  *  Demande à l'OS d'executer une cmd dans un dossier précis.
@@ -277,29 +313,6 @@ static char *tmpFile(char *buf, int maxlen) {
 }
 
 
-/* unknownArg:
- *  traite les arguments inconnus.
- */
-static int unknownArg(char *arg) {
-    char buf[256];
-        
-    if(!strcmp(arg,"-help")      ||
-       !strcmp(arg,"-m")         ||
-       !strcmp(arg,"-fast")      ||
-       !strcmp(arg,"-nosound")   ||
-       !strcmp(arg,"-geometry")  ||
-       !strcmp(arg,"-noshm")     ||
-       !strcmp(arg,"-display")   ||
-       !strcmp(arg,"-loadstate"))
-            return 1;
-
-    sprintf(buf, is_fr?"Argument inconnu: %s\n":"Unknown arg: %s\n", arg);
-    ExitMessage(buf);
-    
-    return 0;
-}
-
-
 
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
 
@@ -322,10 +335,11 @@ int main(int argc, char *argv[])
         " 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)" };
 #endif
     int gfx_mode=NO_GFX;
-    int direct_support = 0, direct_write_support = FALSE;
+    int direct_support = 0;
     int drive_type[4];
     int load_state = FALSE;
-    int njoy = 0, scancode, i;
+    int njoy = 0;  /* njoy=-1 si joystick non supportés */
+    int scancode, i;
 
 #ifdef FRENCH_LANG
     is_fr = 1;
@@ -343,67 +357,8 @@ int main(int argc, char *argv[])
     } while(0);
 
     /* traitement des paramètres */
-    for (i=1;i<argc;i++)
-    {
-        if (!strcmp(argv[i],"-help") || !strcmp(argv[i],"-h"))
-        {
-            if (is_fr) {
-            printf("Usage:\n");
-            printf("           %s [options...]\n",argv[0]);
-            printf("o— les options sont prises parmi les suivantes:\n");
-            printf("    -help         affiche cette aide\n");
-            printf("    -m file.m7    place la cartouche file.m7 dans le lecteur\n");
-            printf("    -fast         active la pleine vitesse de l'‚mulateur\n");
-            printf("    -nosound      supprime le son de l'‚mulateur\n");
-            printf("    -nojoy        d‚sactive la prise en charge des joysticks PC\n");
-            printf("    -mode40       lance l'‚mulateur en mode 40 colonnes 16 couleurs\n");
-            printf("    -mode80       lance l'‚mulateur en mode 80 colonnes 16 couleurs\n");
-            printf("    -truecolor    lance l'‚mulateur en mode 80 colonnes 4096 couleurs\n");
-            printf("    -loadstate    charge le dernier ‚tat sauvegard‚ de l'‚mulateur\n");
-            printf("    xxxxxx        charge un (des) fichier(s) SAP, K7, M7\n");
-            } else {
-            printf("Usage:\n");
-            printf("           %s [options...]\n",argv[0]);
-            printf("where options are taken among the following:\n");
-            printf("    -help         this help\n");
-            printf("    -m file.m7    load the cartridge file.m7 in the drive\n");
-            printf("    -fast         activate fastest speed of emulator\n");
-            printf("    -nosound      disable the sound\n");
-            printf("    -nojoy        disable PC joysticks\n");
-            printf("    -mode40       run the emulator in 40 columns mode 16 colors\n");
-            printf("    -mode80       run the emulator in 80 columns mode 16 colors\n");
-            printf("    -truecolor    run the emulator in 80 columns mode 4096 colors\n");
-            printf("    -loadstate    load last saved state of the emulator\n");
-            printf("    xxxxxx        load SAP, K7, M7 file(s)\n");
-            }
-            exit(EXIT_SUCCESS);
-        }
-        else if (!strcmp(argv[i],"-m") && i<argc-1)
-            strcpy(memo_name, argv[++i]);
-        else if (!strcmp(argv[i],"-fast"))
-            gui->setting.exact_speed = FALSE;
-        else if (!strcmp(argv[i],"-nosound"))
-            gui->settings.sound_enabled = FALSE;
-        else if (!strcmp(argv[i],"-nojoy"))
-            njoy = -1;
-        else if (!strcmp(argv[i],"-mode40"))
-            gfx_mode = GFX_MODE40;
-        else if (!strcmp(argv[i],"-mode80"))
-            gfx_mode = GFX_MODE80;
-        else if (!strcmp(argv[i],"-truecolor"))
-            gfx_mode = GFX_TRUECOLOR;
-        else if (!strcmp(argv[i],"-loadstate"))
-            load_state = TRUE;
-        else if (!strcmp(argv[i],"--enable-direct-write"))
-            direct_write_support = TRUE;
-        else
-        {
-            char msg[128];
-
-            sprintf(msg, is_fr?"ParamŠtre inconnu: %s":"Unknown parameter: %s", argv[i]);
-            ExitMessage(msg);
-        }
-    }
+    ini_Load();                   /* Charge les paramètres par défaut */
+    ReadCommandLine (argc, argv); /* Récupération des options */
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents français */
@@ -438,9 +393,10 @@ int main(int argc, char *argv[])
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
 
-    if (gui_Init() == TO8_ERROR)
+    if (gui_Init() < 0)
         ExitMessage(to8_error_msg);
-    if (to8_Init(TO8_NJOYSTICKS-njoy) == TO8_ERROR)
+
+    if (to8_Init(TO8_NJOYSTICKS-njoy) < 0)
         ExitMessage(to8_error_msg);
 
     printf("ok\n");
@@ -529,34 +485,30 @@ int main(int argc, char *argv[])
     ExitMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
 
   driver_found:
+
     /* initialisation de l'interface utilisateur */
-    InitGUI(version_name, gfx_mode, direct_support);
+    agui_Init(version_name, gfx_mode, direct_support);
     
+    disk_FirstLoad ();  /* chargement des disquettes éventuelles */
+    cass_FirstLoad ();  /* chargement de la cassette éventuelle */
+    memo_FirstLoad ();  /* chargement de la cartouche éventuelle */
+
+    /* chargement des options non définies */
+    for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
+        option_Undefined (str_list->str);
+    std_StringListFree (remain_name);
+
+    /* reset éventuel de l'émulateur */
     to8_ColdReset();
-
-    if (memo_name[0])
-        to8_LoadMemo7(memo_name);
-
-    /* Initialisation de l'imprimante */
-    InitPrinter();
-
-    if (load_state)
-        if (to8_LoadState() != 0)
-#ifdef FRENCH_LANG
-            alert ("Un fichier de configuration n'a",
-                   "pas pu être chargé (fichier déplacé,",
-                   "détruit ou périphérique non monté).",
-                   "Ok", NULL, 0, 0);
-                   
-#else
-            alert ("A configuration file was unable to",
-                   "be loaded (file moved, deleted or",
-                   "media not mounted).",
-                   "Ok", NULL, 0, 0);
-#endif
+    if (reset == 0)
+        if (access("autosave.img", F_OK) >= 0)
+            to8_LoadImage("autosave.img");
 
     /* et c'est parti !!! */
     RunTO8();
+
+    /* libère la mémoire de la GUI */
+    agui_Free();
 
     /* sortie du mode graphique */
     SetGraphicMode(SHUTDOWN);
