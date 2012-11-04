@@ -39,6 +39,7 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
+ *                               24/10/2012
  *
  *  Gestion de l'imprimante.
  */
@@ -52,31 +53,29 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
+#include "intern/std.h"
 #include "to8.h"
 
-
-
-/* Répertoire de chemin de fichier. */
-#define FOLDER_NAME_LENGTH 40
-static char foldername[FOLDER_NAME_LENGTH+1] = "";
 /* Liste des imprimantes */
-#define PRINTER_NUMBER 3
+#define PRINTER_NUMBER 5
 struct PRINTER_CODE_LIST {
     char name[9];
     int  number;
 };
 static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
+    { "PR90-042",  42 },
     { "PR90-055",  55 },
+    { "PR90-582", 582 },
     { "PR90-600", 600 },
     { "PR90-612", 612 }
 };
+
 /* Procédure pour la text_list */
 static char *listbox_getter(int index, int *list_size)
 {
     if (index >= 0)
         return prt_list[index].name;
-    *list_size = 3;
+    *list_size = PRINTER_NUMBER;
     return NULL;
 }
 
@@ -87,7 +86,7 @@ static DIALOG printerdial[]={
 #ifdef FRENCH_LANG
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimantes matricielles" },
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Sauver dans:" },
-{ d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, foldername },
+{ d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, NULL },
 { d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
 { d_text_proc,        50,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimante:" },
 { d_list_proc,        50,  90, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
@@ -100,7 +99,7 @@ static DIALOG printerdial[]={
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Dot-matrix printers" },
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Save in:" },
-{ d_textbox_proc,    100,  40, 148,  16, 0, 0,   0,  0,     0, 0, foldername },
+{ d_textbox_proc,    100,  40, 148,  16, 0, 0,   0,  0,     0, 0, NULL },
 { d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
 { d_text_proc,        50,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Printer:" },
 { d_list_proc,        50,  90, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
@@ -127,10 +126,13 @@ static DIALOG printerdial[]={
 #define PRINTERDIAL_OK          13
 
 
-/* MenuPrinter:
+/* ------------------------------------------------------------------------- */
+
+
+/* aprinter_Panel:
  *  Affiche le panneau de commandes de l'imprimante.
  */
-void MenuPrinter(void)
+void aprinter_Panel(void)
 {
     int i;
     static int first = 1;
@@ -139,25 +141,25 @@ void MenuPrinter(void)
     centre_dialog(printerdial);
     if (first)
     {
-        if (strlen(gui->lprt.folder) == 0)
+        if (teo.lprt.folder == NULL)
         {
             (void)getcwd (printer_folder, MAX_PATH);
-            (void)sprintf (gui->lprt.folder, "%s", printer_folder);
+            teo.lprt.folder = std_strdup_printf ("%s", printer_folder);
         }
-        (void)sprintf (foldername, "%s", get_filename(gui->lprt.folder));
-        if (gui->lprt.dip)
+        printerdial[PRINTERDIAL_FOLDER].dp = std_strdup_printf ("%s", get_filename(teo.lprt.folder));
+        if (teo.lprt.dip)
             printerdial[PRINTERDIAL_DIP].flags|=D_SELECTED;
-        if (gui->lprt.nlq)
+        if (teo.lprt.nlq)
             printerdial[PRINTERDIAL_NLQ].flags|=D_SELECTED;
-        if (gui->lprt.raw_output)
+        if (teo.lprt.raw_output)
             printerdial[PRINTERDIAL_RAW_OUTPUT].flags|=D_SELECTED;
-        if (gui->lprt.txt_output)
+        if (teo.lprt.txt_output)
             printerdial[PRINTERDIAL_TXT_OUTPUT].flags|=D_SELECTED;
-        if (gui->lprt.gfx_output)
+        if (teo.lprt.gfx_output)
             printerdial[PRINTERDIAL_GFX_OUTPUT].flags|=D_SELECTED;
         for (i=0; i<PRINTER_NUMBER; i++)
         {
-             if (gui->lprt.number == prt_list[i].number)
+             if (teo.lprt.number == prt_list[i].number)
                  printerdial[PRINTERDIAL_LIST].d1 = i;
         }
         first = 0;
@@ -170,36 +172,37 @@ void MenuPrinter(void)
         switch (popup_dialog(printerdial, PRINTERDIAL_OK))
         {
             case PRINTERDIAL_MORE:
-                (void)file_select_ex(is_fr?"Choisissez un répertoire:":"Choose a folder:", printer_folder, "/+s+d",
-                               MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
+                (void)file_select_ex(is_fr?"Choisissez un répertoire:":"Choose a folder:",
+                               printer_folder, "/+s+d", MAX_PATH,
+                               OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
                 i = strlen (printer_folder) - 1;
                 if (i > 0)
                     while ((i >= 0) && (printer_folder[i] == '\\'))
                         printer_folder[i--] = '\0';
-#ifdef DJGPP
-                (void)sprintf (foldername, "%s", get_filename(printer_folder));
-                (void)sprintf (gui->lprt.folder, "%s", printer_folder);
-#else
-                (void)snprintf (foldername, FOLDER_NAME_LENGTH, "%s", get_filename(printer_folder));
-                (void)snprintf (gui->lprt.folder, MAX_PATH, "%s", printer_folder);
-#endif
+                printerdial[PRINTERDIAL_FOLDER].dp = std_free (printerdial[PRINTERDIAL_FOLDER].dp);
+                printerdial[PRINTERDIAL_FOLDER].dp = std_strdup_printf ("%s", get_filename(printer_folder));
+                teo.lprt.folder = std_free (teo.lprt.folder);
+                teo.lprt.folder = std_strdup_printf ("%s", printer_folder);
                 break;
 
             case -1:  /* ESC */
             case PRINTERDIAL_OK:
-                gui->lprt.number = prt_list[printerdial[PRINTERDIAL_LIST].d1].number;
-                gui->lprt.dip = (printerdial[PRINTERDIAL_DIP].flags & D_SELECTED) ? TRUE : FALSE;
-                gui->lprt.nlq = (printerdial[PRINTERDIAL_NLQ].flags & D_SELECTED) ? TRUE : FALSE;
-                gui->lprt.raw_output = (printerdial[PRINTERDIAL_RAW_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;
-                gui->lprt.txt_output = (printerdial[PRINTERDIAL_TXT_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;
-                gui->lprt.gfx_output = (printerdial[PRINTERDIAL_GFX_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;
+                teo.lprt.number = prt_list[printerdial[PRINTERDIAL_LIST].d1].number;
+                teo.lprt.dip = (printerdial[PRINTERDIAL_DIP].flags & D_SELECTED) ? TRUE : FALSE;
+                teo.lprt.nlq = (printerdial[PRINTERDIAL_NLQ].flags & D_SELECTED) ? TRUE : FALSE;
+                teo.lprt.raw_output = (printerdial[PRINTERDIAL_RAW_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;
+                teo.lprt.txt_output = (printerdial[PRINTERDIAL_TXT_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;
+                teo.lprt.gfx_output = (printerdial[PRINTERDIAL_GFX_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;
                 return;
         }
     }
 }
 
 
-void SetPrinterGUIColors(int fg_color, int bg_color, int bg_entry_color)
+/* aprinter_SetColors:
+ *  Fixe les couleurs de l'interface utilisateur.
+ */
+void aprinter_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(printerdial, fg_color, bg_color);
     printerdial[PRINTERDIAL_FOLDER].bg = bg_entry_color;
@@ -207,11 +210,19 @@ void SetPrinterGUIColors(int fg_color, int bg_color, int bg_entry_color)
 
 
 
-/* InitPrinterGUI:
+/* aprinter_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitPrinterGUI(char *title)
+void aprinter_Init(void)
 {
-    /* Définit le titre de la fenêtre */
-//    printerdial[1].dp = title;
+}
+
+
+
+/* aprinter_Free:
+ *  Libère le module interface utilisateur.
+ */
+void aprinter_Free(void)
+{
+     printerdial[PRINTERDIAL_FOLDER].dp = std_free (printerdial[PRINTERDIAL_FOLDER].dp);
 }
