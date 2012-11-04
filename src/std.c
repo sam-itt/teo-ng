@@ -99,6 +99,68 @@ static char *std_strdup_printf_add (char *p0, char *p1, int length)
 
 
 
+/* std_strdup_printf_run:
+ *  Strings concatenation.
+ *
+ *  String memory is dynamically allocated.
+ *  Must be MSDOS compatible, that's why vsnprintf isn't used.
+ *  Only for char*, char, and int.
+ */
+static char *std_strdup_printf_run (char *fmt, va_list ap) 
+{
+    int  i;
+    int  d;
+    char c;
+    char *s;
+    char *buf = calloc(1,33);
+    char *ptr = calloc(1,1);
+    
+    while ((ptr != NULL)
+        && (buf != NULL)
+        && (fmt != NULL)
+        && (*fmt != '\0')
+        && ((ptr = std_strdup_printf_add(ptr, fmt, strcspn (fmt, "%"))) != NULL))
+    {
+        fmt += strcspn (fmt, "%");
+        if (*fmt == '%')
+        {
+            switch (*(++fmt))
+            {
+                /* Chaîne */
+                case 's': s = va_arg (ap, char *);
+                          ptr = std_strdup_printf_add(ptr, s, (s)?strlen(s):0);
+                          break;
+
+                /* Entier */
+                case 'd': d = va_arg (ap, int);
+                          i = sprintf (buf, "%d", d);
+                          ptr = std_strdup_printf_add(ptr, buf, i);
+                          break;
+
+                /* Caractère, % */
+                case '%':
+                case 'c': c = va_arg (ap, int);
+                          buf[0] = (char)c;
+                          buf[1] = '\0';
+                          ptr = std_strdup_printf_add(ptr, buf, 1);
+                          break;
+
+                /* Passe */
+                default : break;
+            }
+            fmt++;
+        }
+    }
+    buf = std_free (buf);
+    if (ptr == NULL)
+        ptr = calloc(1,1);
+
+    return ptr;
+}
+
+/* ------------------------------------------------------------------------- */
+
+
 /* std_free:
  *  Libère une mémoire.
  */
@@ -136,26 +198,28 @@ FILE *std_fclose (FILE *fp)
 
 
 
-/* std_isfile:
+/* std_IsFile:
  *  Vérifie si le chemin est un fichier.
  */
-int std_isfile (char *fname)
+int std_IsFile (const char filename[])
 {
     struct stat st;
 
-    return ((stat(fname, &st)==0) && (S_ISREG(st.st_mode)!=0)) ? TRUE : FALSE;
+    return ((stat(filename, &st) == 0)
+         && (S_ISREG(st.st_mode) != 0)) ? TRUE : FALSE;
 }
 
 
 
-/* std_isdir:
+/* std_IsDir:
  *  Vérifie si le chemin est un répertoire.
  */
-int std_isdir (char *fname)
+int std_IsDir (const char filename[])
 {
     struct stat st;
 
-    return ((stat(fname, &st)==0) && (S_ISDIR(st.st_mode)!=0)) ? TRUE : FALSE;
+    return ((stat(filename, &st) == 0)
+         && (S_ISDIR(st.st_mode) != 0)) ? TRUE : FALSE;
 }
 
 
@@ -165,8 +229,12 @@ int std_isdir (char *fname)
  */
 void std_rtrim (char *s)
 {
-    while ((unsigned char)*s >= 0x20) s++;
-    *s ='\0';
+    if (s != NULL)
+    {
+        while ((unsigned char)*s >= 0x20)
+            s++;
+        *s ='\0';
+    }
 }
 
 
@@ -176,8 +244,9 @@ void std_rtrim (char *s)
  */
 char *std_skpspc(char *p)
 {
-    while (((unsigned int)*p <= 0x20) && (*p!=0))
-        p++;
+    if (p != NULL)
+        while (((unsigned int)*p <= 0x20) && (*p!=0))
+            p++;
     return p;
 }
 
@@ -185,62 +254,36 @@ char *std_skpspc(char *p)
 
 /* std_strdup_printf:
  *  Strings concatenation.
- *
- *  String memory is dynamically allocated.
- *  Must be MSDOS compatible, that's why vsnprintf isn't used.
- *  Only for char*, char, and int.
- *  Return pointer to the concatenated string (must be freed
- *         when no longer needed).
  */
 char *std_strdup_printf (char *fmt, ...)
 {
+    char *ptr = NULL;
     va_list ap;
-    int  d;
-    char c;
-    char *s;
-    char *buf = calloc(1,33);
-    char *ptr = calloc(1,1);
-
+    
     va_start (ap, fmt);
-    while ((ptr != NULL)
-        && (buf != NULL)
-        && (fmt != NULL)
-        && (*fmt != '\0')
-        && ((ptr = std_strdup_printf_add(ptr, fmt, strcspn (fmt, "%"))) != NULL))
-    {
-        fmt += strcspn (fmt, "%");
-        if (*fmt == '%')
-        {
-            switch (*(++fmt))
-            {
-                /* Chaîne */
-                case 's': s = va_arg (ap, char *);
-                          ptr = std_strdup_printf_add(ptr, s, strlen(s));
-                          break;
-
-                /* Entier */
-                case 'd': d = va_arg (ap, int);
-                          sprintf (buf, "%d", d);
-                          ptr = std_strdup_printf_add(ptr, buf, strlen(buf));
-                          break;
-
-                /* Caractère, % */
-                case '%':
-                case 'c': c = va_arg (ap, int);
-                          buf[0] = (char)c;
-                          buf[1] = '\0';
-                          ptr = std_strdup_printf_add(ptr, buf, 1);
-                          break;
-
-                /* Passe */
-                default : break;
-            }
-            fmt++;
-        }
-    }
-    buf = std_free (buf);
-
+    ptr = std_strdup_printf_run ((char *)fmt, ap);
     return ptr;
+}
+
+
+
+/* std_snprintf:
+ *  Strings concatenation.
+ */
+size_t std_snprintf (char *dest, size_t size, const char *fmt, ...)
+{
+    char *ptr = NULL;
+    va_list ap;
+    
+    va_start (ap, fmt);
+    ptr = std_strdup_printf_run ((char *)fmt, ap);
+    if (ptr != NULL)
+    {
+        *dest = '\0';
+        strncat (dest, ptr, size);
+        ptr = std_free (ptr);
+    }
+    return strlen (dest);
 }
 
 
@@ -280,14 +323,18 @@ char *std_StringListText (struct STRING_LIST *p, int index)
 struct STRING_LIST *std_StringListAppend (struct STRING_LIST *p, char *str)
 {
     struct STRING_LIST *last_str = std_StringListLast (p);
-    struct STRING_LIST *new_str = calloc (1, sizeof (struct STRING_LIST));
+    struct STRING_LIST *new_str = NULL;
+    
+    if (str != NULL)
+    {
+        new_str = calloc (1, sizeof (struct STRING_LIST));
 
-    if (new_str!=NULL)
-        new_str->str = std_strdup_printf ("%s", str);
+        if (new_str!=NULL)
+            new_str->str = std_strdup_printf ("%s", str);
 
-    if ((last_str!=NULL) && (last_str->str!=NULL))
-        last_str->next=new_str;
-
+        if ((last_str!=NULL) && (last_str->str!=NULL))
+            last_str->next=new_str;
+    }
     return (p==NULL)?new_str:p;
 }
 
@@ -354,10 +401,13 @@ void std_CleanPath (char *fname)
 {
    char *p;
 
-   if ((p = strrchr (fname, '\\')) == NULL)
-       p = strrchr (fname, '/');
+   if (fname != NULL)
+   {
+       if ((p = strrchr (fname, '\\')) == NULL)
+           p = strrchr (fname, '/');
 
-   if (p != NULL)
-       *p = '\0';
+       if (p != NULL)
+           *p = '\0';
+   }
 }
 
