@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
  *               François Mouret 26/01/2010 08/2011 02/06/2012
- *               Gille Fétis 07/2011
+ *               Gilles Fétis 07/2011
  *
  *  Module d'interface avec le serveur X.
  */
@@ -59,6 +59,8 @@
 #include "linux/gui.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
+#include "intern/keyboard.h"
+#include "intern/mouse.h"
 #include "to8keys.h"
 #include "to8.h"
 #include "thomson.xpm"
@@ -259,7 +261,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
         if (event->key.state & GDK_MOD3_MASK)    value |= TO8_ALTGR_FLAG;
         if (event->key.state & GDK_MOD2_MASK)    value |= TO8_NUMLOCK_FLAG;
         if (event->key.state & GDK_LOCK_MASK)    value |= TO8_CAPSLOCK_FLAG;
-        to8_InputReset ((1<<TO8_MAX_FLAG)-1, value);
+        keyboard_Reset ((1<<TO8_MAX_FLAG)-1, value);
         need_modifiers_reset = FALSE;
     }
 
@@ -272,7 +274,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     {
         case TEO_KEY_ESC : teo.command=CONTROL_PANEL; break;
         case TEO_KEY_F12 : teo.command=DEBUGGER; break;
-        default          : to8_HandleKeyPress (teo_key, FALSE); break;
+        default          : keyboard_Press (teo_key, FALSE); break;
     }
     return FALSE;
     (void)widget;
@@ -292,7 +294,7 @@ key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
         if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
             teo_key = TEO_KEY_ALTGR;
 
-    to8_HandleKeyPress (teo_key, TRUE);
+    keyboard_Press (teo_key, TRUE);
     return FALSE;
     (void)widget;
     (void)user_data;
@@ -307,9 +309,9 @@ button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     switch (event->button.button)
     {
-        case 1 : to8_HandleMouseClick(1, FALSE); break;
+        case 1 : mouse_Click(1, FALSE); break;
         case 3 : if (installed_pointer == TO8_MOUSE)
-                     to8_HandleMouseClick (2, FALSE);
+                     mouse_Click (2, FALSE);
                  break;
     }
     return FALSE;
@@ -326,8 +328,8 @@ button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     switch (event->button.button)
     {
-        case 1 : to8_HandleMouseClick (1, TRUE); break;
-        case 3 : to8_HandleMouseClick (2, TRUE); break;
+        case 1 : mouse_Click (1, TRUE); break;
+        case 3 : mouse_Click (2, TRUE); break;
     }
     return FALSE;
     (void)widget;
@@ -343,8 +345,8 @@ motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if (((int)event->button.x > (TO8_BORDER_W*2))
      && ((int)event->button.y > (TO8_BORDER_H*2)))
-        to8_HandleMouseMotion ((int)event->button.x/2-TO8_BORDER_W,
-                               (int)event->button.y/2-TO8_BORDER_H);
+        mouse_Motion ((int)event->button.x/2-TO8_BORDER_W,
+                      (int)event->button.y/2-TO8_BORDER_H);
     return FALSE;
     (void)widget;
     (void)user_data;
@@ -359,7 +361,7 @@ focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if (event->focus_change.in == TRUE)
     {
-        to8_InputReset(0, 0);
+        keyboard_Reset (0, 0);
         need_modifiers_reset = TRUE;
     }
     return FALSE;
@@ -385,8 +387,7 @@ window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
 
 /* InitWindow:
- *  Met en place les propriétés et crée la fenêtre principale,
- *  calcule la position et crée la fenêtre de l'écran.
+ *   Crée la fenêtre principale.
  */
 void InitWindow(void)
 {
