@@ -52,6 +52,7 @@
 
 #include "intern/errors.h"
 #include "intern/hardware.h"
+#include "intern/main.h"
 #include "intern/std.h"
 #include "intern/cass.h"  /* MacOS */
 #include "to8.h"
@@ -86,7 +87,7 @@ static int DoLoadCass(const char filename[], int mode)
    if ((new_cass=fopen(filename, "rb")) != NULL)
       goto Success;
 
-   return ErrorMessage(TO8_CANNOT_OPEN_FILE, NULL);
+   return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
 
  Success:
    if (cass)
@@ -99,11 +100,13 @@ static int DoLoadCass(const char filename[], int mode)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* DoCassStuff:
+
+/* cass_Event:
  *  Emule le contrôleur du lecteur de cassettes.
  */
-void DoCassStuff(int *br, int *cc)
+void cass_Event (int *br, int *cc)
 {
    switch (LOAD_BYTE(0x6029)&0x1F) {
 
@@ -183,10 +186,10 @@ void DoCassStuff(int *br, int *cc)
 
 
 
-/* InitCass:
+/* cass_Init:
  *  Initialise le module Cass.
  */
-void InitCass(void)
+void cass_Init(void)
 {
     /* Appel routine de gestion Cass. */
     mem.mon.bank[0][0x1A59] = TO8_TRAP_CODE;
@@ -200,15 +203,20 @@ void InitCass(void)
 
 
 
-/**********************************/
-/* partie publique                */
-/**********************************/
+/* cass_Check:
+ *  Vérifie la validité du fichier cassette.
+ */
+int cass_Check (const char filename[])
+{
+    return std_IsFile (filename);
+}
 
 
-/* EjectCass:
+
+/* cass_Eject:
  *  Ejecte la cassette.
  */
-void to8_EjectCass(void)
+void cass_Eject(void)
 {
     cass = std_fclose(cass);
     teo.cass.file = std_free (teo.cass.file);
@@ -217,16 +225,17 @@ void to8_EjectCass(void)
 }
 
 
-/* LoadCass:
+
+/* cass_Load:
  *  Charge une cassette dans le lecteur et retourne le mode d'ouverture.
  *  Retourne TO8_ERROR en cas d'échec et préserve la cassette précédemment
  *  chargée.
  */
-int to8_LoadCass(const char filename[])
+int cass_Load(const char filename[])
 {
    int ret = DoLoadCass(filename, cass_mode);
 
-   if (ret != TO8_ERROR) {
+   if (ret >= 0) {
       teo.cass.file = std_free (teo.cass.file);
       teo.cass.file = std_strdup_printf ("%s", filename);
       cass_mode = ret;
@@ -237,11 +246,28 @@ int to8_LoadCass(const char filename[])
 
 
 
-/* SetCassMode:
+/* Premier chargement de la cassette */
+void cass_FirstLoad (void)
+{
+    char *s = NULL;
+
+    if (teo.cass.file !=NULL) {
+        s = std_strdup_printf ("%s", teo.cass.file);
+        teo.cass.file = std_free (teo.cass.file);
+        if (s != NULL)
+            if (cass_Load (s) < 0)
+                main_DisplayMessage (to8_error_msg);
+        s = std_free (s);
+    }
+}
+
+
+
+/* cass_SetMode:
  *  Fixe le mode d'accès à la cassette. Retourne le mode en cas de succès
  *  ou TO8_ERROR en case d'échec.
  */
-int to8_SetCassMode(int mode)
+int cass_SetMode(int mode)
 {
    if (cass_mode == mode)
       return cass_mode;
@@ -249,7 +275,7 @@ int to8_SetCassMode(int mode)
    if (cass) {
       int ret = DoLoadCass(teo.cass.file, mode);
 
-      if (ret != TO8_ERROR)
+      if (ret >= 0)
 	 cass_mode = ret;
 
       return ret;
@@ -262,10 +288,10 @@ int to8_SetCassMode(int mode)
 
 
 
-/* GetCassCounter:
+/* cass_GetCounter:
  *  Retourne la valeur du compteur du lecteur.
  */
-int to8_GetCassCounter(void)
+int cass_GetCounter(void)
 {
    cass_counter = (cass ? ftell(cass)/COUNTER_RATIO : 0);
    return cass_counter;
@@ -273,10 +299,10 @@ int to8_GetCassCounter(void)
 
 
 
-/* SetCassCounter:
+/* cass_SetCounter:
  *  Fixe la valeur du compteur du lecteur.
  */
-void to8_SetCassCounter(int counter)
+void cass_SetCounter(int counter)
 {
    if (cass) {
       /* Vérifie que le compteur a réellement changé avant de repositionner
