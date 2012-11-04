@@ -39,6 +39,7 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
+ *                               24/10/2012
  *
  *  Gestion des disquettes.
  */
@@ -52,20 +53,16 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/gui.h"
+#include "alleg/gui.h"
+#include "intern/disk.h"
+#include "intern/std.h"
 #include "to8.h"
-
-extern void PopupMessage(const char message[]);
 
 /* Chemin du fichier de la disquette. */
 static char filename[MAX_PATH+1] = "";
 
-/* Noms des fichiers utilisés comme disquettes. */
-#define LABEL_LENGTH     20
-static char disk_label[4][LABEL_LENGTH+1];
-
 /* Masque de bits décrivant les lecteurs supportant la lecture directe. */
-static int direct_disk;
+static int direct_disk = 0;
 
 /* Boîte de dialogue. */
 static DIALOG diskdial[]={
@@ -79,26 +76,30 @@ static DIALOG diskdial[]={
   /* disk 0 */
 { d_text_proc,       30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "0:" },
 { d_button_proc,     47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  40, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[0] },
-{ d_button_proc,    220,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
+{ d_textbox_proc,    64,  40, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    188,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
+{ d_button_proc,    222,  40,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
 { d_check_proc,     260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 1 */
 { d_text_proc,       30,  68,   0,   0, 0, 0,   0,   0,    0, 0, "1:" },
 { d_button_proc,     47,  66,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  64, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[1] },
-{ d_button_proc,    220,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
+{ d_textbox_proc,    64,  64, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    188,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
+{ d_button_proc,    222,  64,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
 { d_check_proc,     260,  64,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 2 */
 { d_text_proc,       30,  92,   0,   0, 0, 0,   0,   0,    0, 0, "2:" },
 { d_button_proc,     47,  90,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  88, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[2] },
-{ d_button_proc,    220,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
+{ d_textbox_proc,    64,  88, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    188,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
+{ d_button_proc,    222,  88,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
 { d_check_proc,     260,  88,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 3 */
 { d_text_proc,       30, 116,   0,   0, 0, 0,   0,   0,    0, 0, "3:" },
 { d_button_proc,     47, 114,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64, 112, 150,  16, 0, 0,   0,   0,    0, 0, disk_label[3] },
-{ d_button_proc,    220, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
+{ d_textbox_proc,    64, 112, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    188, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
+{ d_button_proc,    222, 112,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
 { d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* direct disk */
 #ifdef FRENCH_LANG
@@ -115,25 +116,30 @@ static DIALOG diskdial[]={
 #define DISKDIAL_EJECT0    3
 #define DISKDIAL_LABEL0    4
 #define DISKDIAL_BUTTON0   5
-#define DISKDIAL_CHECK0    6
+#define DISKDIAL_DIR0      6
+#define DISKDIAL_CHECK0    7
 
-#define DISKDIAL_EJECT1    8
-#define DISKDIAL_LABEL1    9
-#define DISKDIAL_BUTTON1   10
-#define DISKDIAL_CHECK1    11
+#define DISKDIAL_EJECT1    9
+#define DISKDIAL_LABEL1    10
+#define DISKDIAL_BUTTON1   11
+#define DISKDIAL_DIR1      12
+#define DISKDIAL_CHECK1    13
 
-#define DISKDIAL_EJECT2    13
-#define DISKDIAL_LABEL2    14
-#define DISKDIAL_BUTTON2   15
-#define DISKDIAL_CHECK2    16
+#define DISKDIAL_EJECT2    15
+#define DISKDIAL_LABEL2    16
+#define DISKDIAL_BUTTON2   17
+#define DISKDIAL_DIR2      18
+#define DISKDIAL_CHECK2    19
 
-#define DISKDIAL_EJECT3    18
-#define DISKDIAL_LABEL3    19
-#define DISKDIAL_BUTTON3   20
-#define DISKDIAL_CHECK3    21
-#define DISKDIAL_DIRECT    22
+#define DISKDIAL_EJECT3    21
+#define DISKDIAL_LABEL3    22
+#define DISKDIAL_BUTTON3   23
+#define DISKDIAL_DIR3      24
+#define DISKDIAL_CHECK3    25
 
-#define DISKDIAL_OK        24
+#define DISKDIAL_DIRECT    26
+
+#define DISKDIAL_OK        28
 
 
 
@@ -144,38 +150,30 @@ static void init_filename(int drive)
 {
     *filename = '\0';
 
-    if (strlen (gui->disk[drive].file) != 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s", gui->disk[drive].file);
-#else
-        (void)snprintf (filename, MAX_PATH, "%s", gui->disk[drive].file);
-#endif
+    if (teo.disk[drive].file != NULL)
+        (void)std_snprintf (filename, MAX_PATH-1, "%s", teo.disk[drive].file);
     else
-    if (strlen (gui->default_folder) != 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s\\", gui->default_folder);
-#else
-        (void)snprintf (filename, MAX_PATH, "%s\\", gui->default_folder);
-#endif
+    if (teo.default_folder != NULL)
+        (void)std_snprintf (filename, MAX_PATH-1, "%s\\", teo.default_folder);
     else
       if (file_exists(".\\disks", FA_DIREC, NULL))
-//    if (access(def_folder, F_OK) == 0)
-#ifdef DJGPP
-        (void)sprintf (filename, "%s", ".\\disks\\");
-#else
-        (void)snprintf (filename, MAX_PATH, "%s", ".\\disks\\");
-#endif
+        (void)std_snprintf (filename, MAX_PATH-1, "%s", ".\\disks\\");
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* MenuDisk:
+
+/* adisk_Panel:
  *  Affiche le menu de gestion des lecteurs de disquettes.
  */
-void MenuDisk(void)
+void adisk_Panel(void)
 {
     static int first=1;
+    int i;
     int drive, ret, ret2;
+    int dial_nbr;
+    char *name = NULL;
     
     if (first)
     {
@@ -184,22 +182,18 @@ void MenuDisk(void)
         for (drive=0; drive<4; drive++)
         {
             init_filename(drive);
-#ifdef DJGPP
-            (void)sprintf (disk_label[drive], "%s", get_filename(filename));
-#else
-            (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(filename));
-#endif
-            if (disk_label[drive][0] == '\0')
-#ifdef DJGPP
-                (void)sprintf (disk_label[drive], "%s", is_fr?"(Aucun)":"(None)");
-#else
-                (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
-#endif
-            if (gui->disk[drive].write_protect)
-                diskdial[DISKDIAL_CHECK0+5*drive].flags |= D_SELECTED;
-        }
 
-	first=0;
+            dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+            if (*filename != '\0')
+                diskdial[dial_nbr].dp = std_strdup_printf ("%s" , get_filename(filename));
+            name = (char *)diskdial[dial_nbr].dp;
+            if ((name == NULL) || (*name == '\0'))
+                diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+            dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
+            if (teo.disk[drive].write_protect)
+                diskdial[dial_nbr].flags |= D_SELECTED;
+        }
+	    first=0;
     }
 
     clear_keybuf();
@@ -214,46 +208,92 @@ void MenuDisk(void)
             case DISKDIAL_EJECT1:
             case DISKDIAL_EJECT2:
             case DISKDIAL_EJECT3:
-                drive=(ret-4)/5;
-#ifdef DJGPP
-                (void)sprintf (disk_label[drive], "%s", is_fr?"(Aucun)":"(None)");
-#else
-                (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", is_fr?"(Aucun)":"(None)");
-#endif
-                to8_EjectDisk(drive);
+                drive=(ret-DISKDIAL_EJECT0)/(DISKDIAL_EJECT1-DISKDIAL_EJECT0);
+                dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+                diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+                diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                disk_Eject(drive);
                 break;
 
             case DISKDIAL_BUTTON0:
             case DISKDIAL_BUTTON1:
             case DISKDIAL_BUTTON2:
             case DISKDIAL_BUTTON3:
-                drive=(ret-6)/5;
-
+                drive=(ret-DISKDIAL_BUTTON0)/(DISKDIAL_BUTTON1-DISKDIAL_BUTTON0);
                 init_filename(drive);
-                gui_CleanPath (filename);
+                std_CleanPath (filename);
                 strcat (filename, "\\");
-                if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:", filename, "sap",
-                                   MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:",
+                                   filename, "sap", MAX_PATH,
+                                   OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
-                    ret2=to8_LoadDisk(drive, filename);
+                    ret2=disk_Load (drive, filename);
 
-                    if (ret2 == TO8_ERROR)
-                        PopupMessage(to8_error_msg);
+                    if (ret2 < 0)
+                        agui_PopupMessage(to8_error_msg);
                     else
                     {
-                        diskdial[DISKDIAL_EJECT0+5*drive].flags &= ~D_DISABLED;
-#ifdef DJGPP
-                        (void)sprintf (disk_label[drive], "%s", get_filename(filename));
-                        (void)sprintf (gui->default_folder, "%s", filename);
-#else
-                        (void)snprintf (disk_label[drive], LABEL_LENGTH, "%s", get_filename(filename));
-                        (void)snprintf (gui->default_folder, MAX_PATH, "%s", filename);
-#endif
-                        gui_CleanPath (gui->default_folder);
+                        dial_nbr = DISKDIAL_EJECT0+(DISKDIAL_EJECT1-DISKDIAL_EJECT0)*drive;
+                        diskdial[dial_nbr].flags &= ~D_DISABLED;
+
+                        dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+                        diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+                        diskdial[dial_nbr].dp = std_strdup_printf ("%s", get_filename(filename));
+                        teo.default_folder = std_free (teo.default_folder);
+                        teo.default_folder = std_strdup_printf ("%s", filename);
+
+                        std_CleanPath (teo.default_folder);
 
                         if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
                         {
-                            PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
+                            agui_PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
+                            diskdial[ret+1].flags|=D_SELECTED;
+                            diskdial[ret+1].d2=1;
+                        }
+                    }
+                }
+                break;
+
+
+
+            case DISKDIAL_DIR0:
+            case DISKDIAL_DIR1:
+            case DISKDIAL_DIR2:
+            case DISKDIAL_DIR3:
+                drive=(ret-DISKDIAL_BUTTON0)/(DISKDIAL_BUTTON1-DISKDIAL_BUTTON0);
+                init_filename(drive);
+                std_CleanPath (filename);
+                strcat (filename, "\\");
+                if (file_select_ex(is_fr?"Choisissez un répertoire:":"Choose a folder:",
+                               filename, "/+s+d", MAX_PATH,
+                               OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
+                {
+                    printf ("%s\n", filename);
+                    i = strlen (filename) - 1;
+                    if (i > 0)
+                        while ((i >= 0) && (filename[i] == '\\'))
+                            filename[i--] = '\0';
+
+                    ret2=disk_Load (drive, filename);
+
+                    if (ret2 < 0)
+                        agui_PopupMessage(to8_error_msg);
+                    else
+                    {
+                        dial_nbr = DISKDIAL_EJECT0+(DISKDIAL_EJECT1-DISKDIAL_EJECT0)*drive;
+                        diskdial[dial_nbr].flags &= ~D_DISABLED;
+
+                        dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+                        diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+                        diskdial[dial_nbr].dp = std_strdup_printf ("%s", get_filename(filename));
+                        teo.default_folder = std_free (teo.default_folder);
+                        teo.default_folder = std_strdup_printf ("%s", filename);
+
+                        std_CleanPath (teo.default_folder);
+
+                        if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
+                        {
+                            agui_PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
                             diskdial[ret+1].flags|=D_SELECTED;
                             diskdial[ret+1].d2=1;
                         }
@@ -265,13 +305,13 @@ void MenuDisk(void)
             case DISKDIAL_CHECK1:
             case DISKDIAL_CHECK2:
             case DISKDIAL_CHECK3:
-                drive=(ret-7)/5;
+                drive=(ret-DISKDIAL_CHECK0)/(DISKDIAL_CHECK1-DISKDIAL_CHECK0);
             
                 if (diskdial[ret].d2)
                 {
-                    if (to8_SetDiskMode(drive, TO8_READ_WRITE)==TO8_READ_ONLY)
+                    if (disk_SetMode(drive, TO8_READ_WRITE)==TO8_READ_ONLY)
                     {
-                        PopupMessage(is_fr?"Ecriture impossible sur ce support.":"Writing unavailable on this device.");
+                        agui_PopupMessage(is_fr?"Ecriture impossible sur ce support.":"Writing unavailable on this device.");
                         diskdial[ret].flags|=D_SELECTED;
                         diskdial[ret].d2=1;
                     }
@@ -283,7 +323,7 @@ void MenuDisk(void)
                 }
                 else
                 {
-                    to8_SetDiskMode(drive, TO8_READ_ONLY);
+                    disk_SetMode(drive, TO8_READ_ONLY);
                     diskdial[ret].flags|=D_SELECTED;
                     diskdial[ret].d2=1;
                 }
@@ -294,23 +334,24 @@ void MenuDisk(void)
                 {
                     if (direct_disk & (1<<drive))
                     {
-                        diskdial[DISKDIAL_EJECT0+5*drive].flags |= D_DISABLED;
-#ifdef DJGPP
-                        (void)sprintf(disk_label[drive], "%s", is_fr?"Accès Direct":"Direct Access");
-#else
-                        (void)snprintf(disk_label[drive], LABEL_LENGTH, "%s", is_fr?"Accès Direct":"Direct Access");
-#endif
-                        gui->disk[drive].file[0] = '\0';
+                        dial_nbr = DISKDIAL_EJECT0+(DISKDIAL_EJECT1-DISKDIAL_EJECT0)*drive;
+                        diskdial[dial_nbr].flags |= D_DISABLED;
 
-                        if (to8_DirectSetDrive(drive) == TO8_READ_ONLY)
+                        dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+                        diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+                        diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"Accès Direct":"Direct Access");
+                        teo.disk[drive].file = std_free (teo.disk[drive].file);
+
+                        dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
+                        if (disk_SetDirect(drive) == TO8_READ_ONLY)
                         {
-                            diskdial[DISKDIAL_CHECK0+5*drive].flags|=D_SELECTED;
-                            diskdial[DISKDIAL_CHECK0+5*drive].d2=1;
+                            diskdial[dial_nbr].flags|=D_SELECTED;
+                            diskdial[dial_nbr].d2=1;
                         }
                         else
                         {
-                            diskdial[DISKDIAL_CHECK0+5*drive].flags&=~D_SELECTED;
-                            diskdial[DISKDIAL_CHECK0+5*drive].d2=0;
+                            diskdial[dial_nbr].flags&=~D_SELECTED;
+                            diskdial[dial_nbr].d2=0;
                         }
                     }
                 }
@@ -319,17 +360,20 @@ void MenuDisk(void)
             case -1:  /* ESC */
             case DISKDIAL_OK:
                 for (drive=0; drive<4; drive++)
-                    gui->disk[drive].write_protect = (diskdial[DISKDIAL_CHECK0+5*drive].flags & D_SELECTED) ? TRUE : FALSE;
+                {
+                    dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
+                    teo.disk[drive].write_protect = (diskdial[dial_nbr].flags & D_SELECTED) ? TRUE : FALSE;
+                }
                 return;
         }
     }
 }
 
 
-/* SetDiskGUIColors:
+/* adisk_SetColors:
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
-void SetDiskGUIColors(int fg_color, int bg_color, int bg_entry_color)
+void adisk_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
     set_dialog_color(diskdial, fg_color, bg_color);
     diskdial[DISKDIAL_LABEL0].bg = bg_entry_color;
@@ -340,16 +384,30 @@ void SetDiskGUIColors(int fg_color, int bg_color, int bg_entry_color)
 
 
 
-/* InitDiskGUI:
+/* adisk_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitDiskGUI(int direct_disk_support, char *title)
+void adisk_Init(int direct_disk_support)
 {
     if (!direct_disk_support)
         diskdial[DISKDIAL_DIRECT].flags=D_HIDDEN;
 
     direct_disk = direct_disk_support;
+}
 
-    /* Définit le titre de la fenêtre */
-//    diskdial[1].dp = title;
+
+
+/* adisk_Free:
+ *  Libère le module interface utilisateur.
+ */
+void adisk_Free(void)
+{
+    int drive;
+    int dial_nbr;
+
+    for (drive=0; drive<NBDRIVE; drive++)
+    {
+        dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+        diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+    }
 }
