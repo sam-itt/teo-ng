@@ -44,79 +44,107 @@
 
 
 #ifndef SCAN_DEPEND
+   #include <stdio.h>
    #include <stddef.h>
    #include <string.h>
 #endif
 
+#include "intern/std.h"
 #include "intern/errors.h"  /* MacOS */
 #include "to8err.h"
 #include "to8.h"
 
+char *to8_error_msg = NULL;
 
-static const char *default_error_table_fr[TO8_ERROR_MAX]= {
+struct ERROR_TABLE {
+    int   err;
+    char  *str;
+};
+
+static const struct ERROR_TABLE error_table_fr[]= {
 #ifdef UNIX_TOOL
-    "Erreur: initialisation multiple de l'Ã©mulateur."
-    "Erreur: allocation d'espace impossible.",
-    "Erreur: impossible de trouver ",
-    "Erreur: ouverture impossible.",  
-    "Erreur: mauvais format de fichier.",
-    "Erreur: image d'un modÃ¨le non supportÃ©.",
-    "Erreur: nombre de joysticks incorrect."
+    { TO8_MULTIPLE_INIT           , "Initialisation multiple de l'Ã©mulateur." },
+    { TO8_BAD_ALLOC               , "Allocation d'espace impossible."          },
+    { TO8_CANNOT_FIND_FILE        , "Impossible de trouver "                   },
+    { TO8_CANNOT_OPEN_FILE        , "Ouverture impossible."                    },
+    { TO8_BAD_FILE_FORMAT         , "Mauvais format de fichier."               },
+    { TO8_UNSUPPORTED_MODEL       , "Image d'un modÃ¨le non supportÃ©."        },
+    { TO8_BAD_JOYSTICK_NUM        , "Nombre de joysticks incorrect."           },
+    { TO8_BAD_MEMO_HEADER_CHECKSUM, "Checksum d'en-tÃªte de memo erronÃ©."     },
+    { TO8_BAD_MEMO_HEADER_NAME    , "Nom d'en-tÃªte de memo incorrect."        },
+    { TO8_MEDIA_ALREADY_SET       , "Plus de media libre."                     },
+    { TO8_CANNOT_CREATE_DISK      , "Impossible de crÃ©er la disquette."       },
+    { TO8_SAP_NOT_VALID           , "Archive SAP invalide."                    },
+    { TO8_FILE_TOO_LARGE          , "Fichier trop important."                  },
+    { TO8_FILE_IS_EMPTY           , "Fichier vide."                            },
+    { TO8_SAP_DIRECTORY_FULL      , "RÃ©pertoire SAP plein"                    },
+    { 0                           , "Erreur inconnue."                         }
 #else
-    "Erreur: initialisation multiple de l'émulateur."
-    "Erreur: allocation d'espace impossible.",
-    "Erreur: impossible de trouver ",
-    "Erreur: ouverture impossible.",  
-    "Erreur: mauvais format de fichier.",
-    "Erreur: image d'un modèle non supporté.",
-    "Erreur: nombre de joysticks incorrect."
+    { TO8_MULTIPLE_INIT           , "Initialisation multiple de l'émulateur."  },
+    { TO8_BAD_ALLOC               , "Allocation d'espace impossible."          },
+    { TO8_CANNOT_FIND_FILE        , "Impossible de trouver "                   },
+    { TO8_CANNOT_OPEN_FILE        , "Ouverture impossible."                    },
+    { TO8_BAD_FILE_FORMAT         , "Mauvais format de fichier."               },
+    { TO8_UNSUPPORTED_MODEL       , "Image d'un modèle non supporté."          },
+    { TO8_BAD_JOYSTICK_NUM        , "Nombre de joysticks incorrect."           },
+    { TO8_BAD_MEMO_HEADER_CHECKSUM, "Checksum d'en-tête de memo erroné."       },
+    { TO8_BAD_MEMO_HEADER_NAME    , "Nom d'en-tête de memo incorrect."         },
+    { TO8_MEDIA_ALREADY_SET       , "Plus de media libre."                     },
+    { TO8_CANNOT_CREATE_DISK      , "Impossible de créer la disquette."        },
+    { TO8_SAP_NOT_VALID           , "Archive SAP invalide."                    },
+    { TO8_FILE_TOO_LARGE          , "Fichier trop important."                  },
+    { TO8_FILE_IS_EMPTY           , "Fichier vide."                            },
+    { TO8_SAP_DIRECTORY_FULL      , "Répertoire SAP plein"                     },
+    { 0                           , "Erreur inconnue."                         }
 #endif
 };
 
-static const char *default_error_table_en[TO8_ERROR_MAX]= {
-    "Error: multiple initialization of the emulator.",
-    "Error: cannot allocate space.",
-    "Error: unable to find ",
-    "Error: unable to open.",  
-    "Error: bad file format.",
-    "Error: unsupported image format.",
-    "Error: bad count of joysticks."
+static const struct ERROR_TABLE error_table_en[]= {
+    { TO8_MULTIPLE_INIT           , "Multiple initialization of the emulator." },
+    { TO8_BAD_ALLOC               , "Cannot allocate space."                   },
+    { TO8_CANNOT_FIND_FILE        , "Unable to find "                          },
+    { TO8_CANNOT_OPEN_FILE        , "Unable to open."                          },
+    { TO8_BAD_FILE_FORMAT         , "Bad file format."                         },
+    { TO8_UNSUPPORTED_MODEL       , "Unsupported image format."                },
+    { TO8_BAD_JOYSTICK_NUM        , "Bad count of joysticks."                  },
+    { TO8_BAD_MEMO_HEADER_CHECKSUM, "Bad checksum for memo header."            },
+    { TO8_BAD_MEMO_HEADER_NAME    , "Bad name for memo header."                },
+    { TO8_MEDIA_ALREADY_SET       , "Media not free."                          },
+    { TO8_CANNOT_CREATE_DISK      , "Cannot create disk."                      },
+    { TO8_SAP_NOT_VALID           , "SAP archive not valid."                   },
+    { TO8_FILE_TOO_LARGE          , "File toot large."                         },
+    { TO8_FILE_IS_EMPTY           , "File is empty."                           },
+    { TO8_SAP_DIRECTORY_FULL      , "Directory SAP full."                      },
+    { 0                           , "Unknown error."                           }
 };
 
-static const char **custom_error_table = NULL;
 
 
-
-/* ErrorMessage:
+/* error_Message:
  *  Renvoie une erreur générée par l'émulateur.
  */
-int ErrorMessage(int error, const char moreinfo[])
+int error_Message(int error, const char moreinfo[])
 {
-    if (custom_error_table)
-        strcpy(to8_error_msg, custom_error_table[error]);
-    else
-        strcpy(to8_error_msg, is_fr?default_error_table_fr[error]:default_error_table_en[error]);
-
-    if (moreinfo)
-        strcat(to8_error_msg, moreinfo);
- 
-    return TO8_ERROR;
-}
-
-
-
-/**********************************/
-/* partie publique                */
-/**********************************/
-
-
-char to8_error_msg[TO8_MESSAGE_MAX_LENGTH+1] = "";  /* 127 caractères au maximum */
-
-/* RegisterErrorTable:
- *  Inscrit une table d'erreur personnalisée.
- */
-void to8_RegisterErrorTable(const char *table[])
-{
-    custom_error_table = table;
+    int i = 0;
+    const struct ERROR_TABLE *err_table = is_fr? error_table_fr
+                                               : error_table_en;
+    if (error < ERR_ERROR)
+    {
+        while ((err_table[i].err != 0)
+           && (err_table[i].err != error))
+            i++;
+    
+        to8_error_msg = std_free (to8_error_msg);
+        
+#ifdef DJGPP
+        to8_error_msg = std_strdup_printf ("%s.", err_table[i].str);
+#else
+        if (moreinfo == NULL)
+            to8_error_msg = std_strdup_printf ("%s.", err_table[i].str);
+        else
+            to8_error_msg = std_strdup_printf ("%s : %s", err_table[i].str, moreinfo);
+#endif
+    }
+    return ERR_ERROR;
 }
 
