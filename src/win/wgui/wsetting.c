@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : win/gui->c
+ *  Module     : wsetting.c
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
@@ -53,44 +53,11 @@
    #include <commctrl.h>
 #endif
 
+#include "intern/image.h"
 #include "alleg/sound.h"
-#include "intern/gui.h"
 #include "win/dialog.rh"
 #include "win/gui.h"
 #include "to8.h"
-
-
-
-static int get_open_image_name(HWND hDlg, char filename[BUFFER_SIZE], int must_exist)
-{
-   OPENFILENAME openfilename;
-
-   /* initialisation du sélecteur de fichiers */
-   memset(&openfilename, 0, sizeof(OPENFILENAME));
-
-   openfilename.lStructSize = sizeof(OPENFILENAME);
-   openfilename.hwndOwner = hDlg;
-   openfilename.lpstrFilter = is_fr?"Fichiers IMG\0*.img\0":"IMG files\0*.img\0";
-   openfilename.nFilterIndex = 1;
-   openfilename.lpstrFile = filename;
-   openfilename.nMaxFile = BUFFER_SIZE;
-   openfilename.lpstrInitialDir = ".";
-
-   if (must_exist)
-      openfilename.lpstrTitle = is_fr?"Choisissez votre image:":"Choose your image:";
-   else
-      openfilename.lpstrTitle = is_fr?"Spécifiez un nom pour votre image:":"Specify a name for your image";
-
-   openfilename.Flags = OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
-   if (must_exist)
-      openfilename.Flags |= OFN_FILEMUSTEXIST;
-
-   openfilename.lpstrDefExt = "img";
-
-   filename[0] = '\0';
-
-   return GetOpenFileName(&openfilename);
-}
 
 
 
@@ -108,16 +75,17 @@ static void init_bar(HWND volume_bar)
    SendMessage(volume_bar, TBM_SETTICFREQ, PAGE_STEP, 0);
 
    SendMessage(volume_bar, TBM_SETPOS, TRUE,
-      (gui->setting.sound_enabled && gui->setting.exact_speed) ? GetVolume()-1 : (MAX_POS-MIN_POS)/2);
+      (teo.setting.sound_enabled && teo.setting.exact_speed)
+                     ? asound_GetVolume()-1 : (MAX_POS-MIN_POS)/2);
    
-   if (!gui->setting.sound_enabled || !gui->setting.exact_speed)
+   if (!teo.setting.sound_enabled || !teo.setting.exact_speed)
       EnableWindow(volume_bar, FALSE);
 }
 
 
 static void update_bar(HWND volume_bar, WPARAM wParam)
 {
-   int pos = GetVolume()-1;
+   int pos = asound_GetVolume()-1;
 
    switch(LOWORD(wParam))
    {
@@ -155,7 +123,7 @@ static void update_bar(HWND volume_bar, WPARAM wParam)
          break;
    }
 
-   SetVolume(pos+1);
+   asound_SetVolume(pos+1);
 }
 
 
@@ -167,7 +135,7 @@ static void update_sound_check(HWND hDlg, HWND volume_bar)
     if (teo.sound_enabled)
     {
         state = (IsDlgButtonChecked(hDlg, SOUND_CHECK) == BST_CHECKED);
-        gui->setting.sound_enabled = state ? TRUE : FALSE;
+        teo.setting.sound_enabled = state ? TRUE : FALSE;
         EnableWindow(volume_bar, state ? TRUE : FALSE);
     }
     else
@@ -181,15 +149,16 @@ static void update_sound_check(HWND hDlg, HWND volume_bar)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* SettingTabProc:
- * Procédure pour l'onglet des réglages
+
+/* wsetting_TabProc:
+ *  Procédure pour l'onglet des réglages
  */
-int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    static HWND sound_check;
    static HWND volume_bar;
-   char filename[BUFFER_SIZE];
 
    switch(uMsg)
    {
@@ -198,31 +167,25 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "Vitesse:");
          SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exacte");
          SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "rapide");
-         SetWindowText(GetDlgItem(hDlg, IMAGE_GROUP), "Images:");
-         SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Charger");
-         SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Sauver");
          SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Mode vidéo entrelacé");
          SetWindowText(GetDlgItem(hDlg, SOUND_CHECK), "Son:");
 #else
          SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "Speed:");
          SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exact");
          SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "fast");
-         SetWindowText(GetDlgItem(hDlg, IMAGE_GROUP), "Images:");
-         SetWindowText(GetDlgItem(hDlg, LOAD_BUTTON), "Load");
-         SetWindowText(GetDlgItem(hDlg, SAVE_BUTTON), "Save");
          SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Interlaced video");
          SetWindowText(GetDlgItem(hDlg, SOUND_CHECK), "Sound:");
 #endif
          /* initialisation des boutons radio de la vitesse */
          CheckRadioButton(hDlg, EXACT_SPEED_BUTTON, MAX_SPEED_BUTTON, 
-               (gui->setting.exact_speed ? EXACT_SPEED_BUTTON : MAX_SPEED_BUTTON));
+               (teo.setting.exact_speed ? EXACT_SPEED_BUTTON : MAX_SPEED_BUTTON));
 
          /* initialisation du mode entrelacé */
-         CheckDlgButton(hDlg, INTERLACED_CHECK, gui->setting.interlaced_video
+         CheckDlgButton(hDlg, INTERLACED_CHECK, teo.setting.interlaced_video
                                                 ? BST_CHECKED : BST_UNCHECKED);
 
          /* initialisation du checkbox de son */
-         CheckDlgButton(hDlg, SOUND_CHECK, gui->setting.sound_enabled
+         CheckDlgButton(hDlg, SOUND_CHECK, teo.setting.sound_enabled
                                                 ? BST_CHECKED : BST_UNCHECKED);
 
          /* initialisation de la barre du volume */
@@ -236,19 +199,19 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          switch(LOWORD(wParam))
          {
             case EXACT_SPEED_BUTTON:
-               gui->setting.exact_speed = TRUE;
+               teo.setting.exact_speed = TRUE;
                EnableWindow(volume_bar, TRUE);
                EnableWindow(sound_check, TRUE);
                break;
 
             case MAX_SPEED_BUTTON:
-               gui->setting.exact_speed = FALSE;
+               teo.setting.exact_speed = FALSE;
                EnableWindow(volume_bar, FALSE);
                EnableWindow(sound_check, FALSE);
                break;
 
             case INTERLACED_CHECK:
-               gui->setting.interlaced_video =
+               teo.setting.interlaced_video =
                   (IsDlgButtonChecked(hDlg, INTERLACED_CHECK) == BST_CHECKED)
                       ? TRUE : FALSE;
                break;
@@ -256,29 +219,13 @@ int CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case SOUND_CHECK:
                update_sound_check(hDlg, volume_bar);
                break;
-               
-            case LOAD_BUTTON:
-               if (get_open_image_name(hDlg, filename, TRUE))
-               {
-                  if (to8_LoadImage(filename) == TO8_ERROR)
-                     MessageBox(hDlg, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONERROR);
-               }
-               break;
-
-            case SAVE_BUTTON:
-               if (get_open_image_name(hDlg, filename, FALSE))
-               {
-                  if (to8_SaveImage(filename) == TO8_ERROR)
-                     MessageBox(hDlg, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONERROR);
-               }
-               break;
          }
          return TRUE;
 
       case WM_HSCROLL:
          if ((HWND)lParam == volume_bar)
          {
-            if (gui->setting.sound_enabled && gui->setting.exact_speed)
+            if (teo.setting.sound_enabled && teo.setting.exact_speed)
                update_bar(volume_bar, wParam);
          }
          return TRUE;
