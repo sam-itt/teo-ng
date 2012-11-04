@@ -57,6 +57,8 @@
 #endif
 
 #include "intern/hardware.h"
+#include "intern/std.h"
+#include "to8err.h"
 #include "to8.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
@@ -83,17 +85,19 @@ void CloseSound (void);
 
 
 
-/* InitSoundError:
+/* Error:
  *  Erreur d'initialisation du module de streaming audio.
  */
 static int Error (const char *error_name, char *error_string)
 {
     perror(error_name);
-    (void)snprintf(to8_error_msg + strlen(to8_error_msg), TO8_MESSAGE_MAX_LENGTH,
-                   "%s : %s", error_name, error_string);
+
+    to8_error_msg = std_free (to8_error_msg);
+    to8_error_msg = std_strdup_printf ("%s : %s", error_name, error_string);
+    
     CloseSound ();
     teo.setting.sound_enabled=0;
-    return TO8_ERROR;
+    return ERR_ERROR;
 }
 
 
@@ -157,7 +161,7 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
     if ((err = snd_pcm_hw_params (handle, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params())");
 
-    return TO8_OK;
+    return 0;
 }
 
 
@@ -183,7 +187,7 @@ static int set_swparams (snd_pcm_sw_params_t *params)
     if ((err = snd_pcm_sw_params (handle, params)) < 0)
         return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params()");
 
-    return TO8_OK;
+    return 0;
 }
 
 
@@ -258,8 +262,6 @@ int InitSound(void)
     {
         printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
 
-        to8_error_msg[0] = '\0';
-
         /* Open PCM device for playback. */
         if ((err = snd_pcm_open(&handle, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
             return Error (snd_strerror(err),
@@ -268,13 +270,13 @@ int InitSound(void)
 
         /* Initialise les paramètres hardware */
         snd_pcm_hw_params_alloca (&hwparams);
-        if (set_hwparams (hwparams) != TO8_OK)
-            return TO8_ERROR;
+        if (set_hwparams (hwparams) < 0)
+            return ERR_ERROR;
 
         /* Initialise les paramètres software */
         snd_pcm_sw_params_alloca (&swparams);
-        if (set_swparams (swparams) != TO8_OK)
-            return TO8_ERROR;
+        if (set_swparams (swparams) < 0)
+            return ERR_ERROR;
 
         /* Alloue le buffer de son */
         sound_buffer_size = period_size * ALSA_CHANNELS * (snd_pcm_format_physical_width(data_type) >> 3);
@@ -288,7 +290,7 @@ int InitSound(void)
 
         printf("ok\n");
     }
-    return TO8_OK;
+    return 0;
 }
 
 
