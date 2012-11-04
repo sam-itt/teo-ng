@@ -65,15 +65,21 @@
 
 #include "intern/defs.h"
 #include "intern/printer.h"
-#include "intern/xargs.h"
+#include "intern/option.h"
+#include "intern/image.h"
+#include "intern/main.h"
 #include "intern/std.h"
 #include "intern/ini.h"
+#include "intern/disk.h"
+#include "intern/cass.h"
+#include "intern/memo.h"
 #include "linux/disk.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
 #include "linux/sound.h"
 #include "linux/gui.h"
 #include "to8.h"
+
 
 struct EMUTEO teo;
 
@@ -143,10 +149,139 @@ static gboolean RunTO8 (gpointer user_data)
 
 
 
+/* ReadCommandLine:
+ *  Lit la ligne de commande
+ */
+static void ReadCommandLine(int argc, char *argv[])
+{
+    int i;
+    GError *error = NULL;
+    GOptionContext *context;
+    GOptionEntry entries[] = {
+        { "reset", 'r', 0, G_OPTION_ARG_NONE, &reset,
+           is_fr?"Reset Ã  froid de l'Ã©mulateur"
+                :"Cold-reset emulator", NULL },
+        { "disk0", '0', 0, G_OPTION_ARG_FILENAME, &disk_name[0],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+        { "disk1", '1', 0, G_OPTION_ARG_FILENAME, &disk_name[1],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+        { "disk2", '2', 0, G_OPTION_ARG_FILENAME, &disk_name[2],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+        { "disk3", '3', 0, G_OPTION_ARG_FILENAME, &disk_name[3],
+           is_fr?"Charge un disque virtuel (lecteur 0)"
+                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+        { "cass", 0, 0, G_OPTION_ARG_FILENAME, &cass_name,
+           is_fr?"Charge une cassette":"Load a tape", is_fr?"FICHIER":"FILE" },
+        { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
+           is_fr?"Charge une cartouche":"Load a cartridge",
+           is_fr?"FICHIER":"FILE" },
+        { G_OPTION_REMAINING, 0, G_OPTION_FLAG_IN_MAIN, 
+          G_OPTION_ARG_FILENAME_ARRAY, &remain_name, "", NULL },
+        { NULL, 0, 0, 0, NULL, NULL, NULL }
+    };
+
+    /* Lit la ligne de commande */
+    context = g_option_context_new (is_fr?"[FICHIER...] [REPERTOIRE...]"
+                                         :"[FILE...] [FOLDER...]");
+    g_option_context_add_main_entries (context, entries, NULL);
+    g_option_context_set_ignore_unknown_options (context, FALSE);
+    g_option_context_set_description (context, is_fr
+         ?"Options non dÃ©finies :\n  Charge cassette, disquette et cartouche\n"
+         :"Undefined options :\n  load tape, disk and cartridge\n");
+    if (g_option_context_parse (context, &argc, &argv, &error) == FALSE)
+        main_ExitMessage (error->message);
+   
+    /* Transfert des chaînes dans la structure générale */
+    /* Obligé de faire comme ça : les chaînes de la structure
+       générale peuvent avoir été initialisées par la lecture
+       du fichier de configuration, et malheureusement
+       g_option_context_parse() ne libère pas la mémoire avant
+       de l'allouer pour une nouvelle chaîne */
+    for (i=0;i<NBDRIVE;i++) {
+        if (disk_name[i] != NULL) {
+            teo.disk[i].file = std_free (teo.disk[i].file);
+            teo.disk[i].file = std_strdup_printf ("%s", disk_name[i]);
+            g_free (disk_name[i]);
+        }
+    }
+    if (cass_name != NULL) {
+        teo.cass.file = std_free (teo.cass.file);
+        teo.cass.file = std_strdup_printf ("%s", cass_name);
+        g_free (cass_name);
+    }
+    if (memo_name != NULL) {
+        teo.memo.file = std_free (teo.memo.file);
+        teo.memo.file = std_strdup_printf ("%s", memo_name);
+        g_free (memo_name);
+    }
+    g_option_context_free(context);
+}
+
+
+
+/* main_SysExec:
+ *  Demande à l'OS d'executer une cmd dans un dossier précis.
+ */
+int main_SysExec(char *cmd, const char *dir)
+{
+    int i;
+    char cwd[MAX_PATH+1]="";
+    int ret = FALSE;
+    
+    if (getcwd(cwd, MAX_PATH) != NULL)
+    {
+        i = chdir(dir);
+        if (system(cmd) == 0)
+            ret = TRUE;
+        i = chdir(cwd);
+        printf ("cwd='%s' dir='%s' cmd='%s'\n", cwd, dir, cmd); 
+    }
+    return ret;
+    (void)i;
+}
+
+
+
+/* main_RmFile:
+ *   Efface un fichier.
+ */
+int main_RmFile(char *path)
+{
+    return (unlink(path) == 0) ? TRUE : FALSE;
+}
+
+
+
+/* main_TmpFile:
+ *   Cree un fichier temporaire.
+ */
+char *main_TmpFile(char *buf, int maxlen)
+{
+#ifdef OS_LINUX
+    char tmp_name[] = "/tmp/teo_XXXXXX";
+    char *tmp = tmp_name;
+
+    if (mkstemp(tmp_name) >= 0)
+        (void)snprintf (buf, maxlen, "%s", tmp_name);
+    else
+        tmp = NULL;
+#else
+    char *tmp;
+    tmp = tmpnam(buf);
+#endif
+    return tmp;
+    (void)maxlen;
+}
+
+
+
 /* DisplayMessage:
  *  Affiche un message.
  */
-static void DisplayMessage(const char msg[])
+void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
     error_box (msg, NULL);
@@ -157,118 +292,10 @@ static void DisplayMessage(const char msg[])
 /* ExitMessage:
  *  Affiche un message de sortie et sort du programme.
  */
-static void ExitMessage(const char msg[])
+void main_ExitMessage(const char msg[])
 {
-    DisplayMessage(msg);
+    main_DisplayMessage(msg);
     exit(EXIT_FAILURE);
-}
-
-
-
-/* ReadCommandLine:
- *  Lit la ligne de commande
- */
-static int ReadCommandLine(int argc, char *argv[])
-{
-    GError *error = NULL;
-    GOptionContext *context;
-    GOptionEntry entries[] = {
-        { "reset", 'r', 0, G_OPTION_ARG_NONE, &reset,
-           is_fr?"Reset Ã  froid de l'Ã©mulateur"
-                :"Cold-reset emulator", NULL },
-        { "disk0", '0', 0, G_OPTION_ARG_FILENAME, &disk_name[0],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"CHEMIN":"PATH" },
-        { "disk1", '1', 0, G_OPTION_ARG_FILENAME, &disk_name[1],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"CHEMIN":"PATH" },
-        { "disk2", '2', 0, G_OPTION_ARG_FILENAME, &disk_name[2],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"CHEMIN":"PATH" },
-        { "disk3", '3', 0, G_OPTION_ARG_FILENAME, &disk_name[3],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"CHEMIN":"PATH" },
-        { "cass", 0, 0, G_OPTION_ARG_FILENAME, &cass_name,
-           is_fr?"Charge une cassette":"Load a tape",
-           is_fr?"FICHIER":"FILE" },
-        { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
-           is_fr?"Charge une cartouche":"Load a cartridge",
-           is_fr?"FICHIER":"FILE" },
-        { G_OPTION_REMAINING, 0, G_OPTION_FLAG_IN_MAIN,
-          G_OPTION_ARG_FILENAME_ARRAY, &remain_name, "", NULL },
-        { NULL, 0, 0, 0, NULL, NULL, NULL }
-    };
-
-    context = g_option_context_new ("- test tree model performance");
-    g_option_context_add_main_entries (context, entries, NULL);
-    g_option_context_set_ignore_unknown_options (context, FALSE);
-//    g_option_context_set_description (context, "description");
-//    g_option_context_set_summary (context, "summary");
-    if (g_option_context_parse (context, &argc, &argv, &error) == FALSE)
-        ExitMessage (error->message);
-
-
-    /* Lecture des arguments supplémentaires */
-    xargs_init(&xargs);
-    xargs.tmpFile    = tmpFile;
-    xargs.sysExec    = sysExec;
-    xargs.rmFile     = rmFile;
-    xargs.sapfs      = "sapfs";
-    xargs.exitMsg = (void*)ExitMessage;
-//    xargs_parse(&xargs, argc-1, argv+1);
-    if (
-
-
-    
-    return 0;
-}
-
-
-
-/* sysexec:
- *  Demande à l'OS d'executer une cmd dans un dossier précis.
- */
-static void sysExec(char *cmd, const char *dir) {
-    char cwd[MAX_PATH]="";
-    char *tmp;
-    int i;
-    
-    tmp = getcwd(cwd, MAX_PATH);
-    i = chdir(dir);
-    i = system(cmd);
-    i = chdir(cwd);
-    (void)i;
-    (void)tmp;
-}
-
-
-/* rmFile:
- *   Efface un fichier.
- */
-static void rmFile(char *path) {
-    unlink(path);
-}
-
-
-/* tmpFile:
- *   Cree un fichier temporaire.
- */
-static char *tmpFile(char *buf, int maxlen) {
-#ifdef OS_LINUX
-    int tmp;
-    tmp = mkstemp(buf);
-#else
-    char *tmp;
-    tmp = tmpnam(buf);
-#endif
-    strcat(buf, ".sap");
-    return buf;
-    (void)maxlen;
-    (void)tmp;
 }
 
 
@@ -284,14 +311,12 @@ int main(int argc, char *argv[])
     int direct_write_support = FALSE;
     int drive_type[4];
     char *lang;
-    int reset = FALSE;
-    int ini_load_error = 0;
-    xargs xargs;
+
 #ifdef DEBIAN_BUILD
-    char fname[MAX_PATH+1] = "";
+    char *fname = NULL;
 #endif
 
-    /* Repérage du language utilisée */
+    /* Repérage du language utilisé */
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "");
@@ -299,19 +324,15 @@ int main(int argc, char *argv[])
 
 #ifdef DEBIAN_BUILD
     /* Création du répertoire pour Teo (tous les droits) */
-    (void)snprintf (fname, MAX_PATH, "%s/.teo", getenv("HOME"));
+    fname = std_strdup_printf ("%s/.teo", getenv("HOME"));
     if (access (fname, F_OK) < 0)
         (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    fname = std_free (fname);
 #endif
  
-    /* Initialisation gtk */
-    gtk_init(&argc, &argv);
-
-    /* Charge les paramètres par défaut */
-    ini_load_error = ini_Load();
-
-    /* Lit la ligne de commande */
-    ini_load_error += ReadCommandLine (argc, argv);
+    gtk_init (&argc, &argv);     /* Initialisation gtk */
+    ini_Load();                  /* Charge les paramètres par défaut */
+    ReadCommandLine(argc, argv); /* Récupération des options */
 
 /*
         warning_box (is_fr?"Un fichier de configuration n'a pas pu Ãªtre " \
@@ -326,8 +347,8 @@ int main(int argc, char *argv[])
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
                  "Teo "TO8_VERSION_STR" (Linux/X11)");
-    printf("Copyright (C) 1997-2012 Gilles FÃ©tis, Eric Botcazou, \
-            Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
+    printf("Copyright (C) 1997-2012 Gilles FÃ©tis, Eric Botcazou,\
+ Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n"
                  :"Keys : [ESC] Control pannel\n"));
     printf((is_fr?"         [F12] DÃ©bogueur\n\n"
@@ -335,11 +356,10 @@ int main(int argc, char *argv[])
 
     /* Initialisation du TO8 */
     printf((is_fr?"Initialisation de l'Ã©mulateur..."
-                 :"Initialization of the emulator..."));
-    fflush(stdout);
+                 :"Initialization of the emulator...")); fflush(stdout);
 
-    if ( to8_Init(TO8_NJOYSTICKS) == TO8_ERROR )
-        ExitMessage(to8_error_msg);
+    if ( to8_Init(TO8_NJOYSTICKS) < 0 )
+        main_ExitMessage(to8_error_msg);
 
     /* Initialisation de l'interface d'accès direct */
     InitDirectDisk (drive_type, direct_write_support);
@@ -348,59 +368,29 @@ int main(int argc, char *argv[])
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
-    /* Création de la fenêtre principale de l'émulateur */
-    InitWindow ();
+    InitWindow ();      /* Création de la fenêtre principale */
+    InitDisplay();      /* Initialisation du serveur X */
+    InitGraphic();      /* Initialisation du module graphique */
+    disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
+    cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
+    memo_FirstLoad ();  /* Chargement de la cartouche éventuelle */
 
-    /* Initialisation du serveur X */
-    InitDisplay();
+    /* Chargement des options non définies */
+    for (i=0;(remain_name!=NULL)&&(remain_name[i]!=NULL);i++)
+        option_Undefined (remain_name[i]);
+    g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
 
-    /* Initialisation des modules graphique, sonore et disquette */
-    InitGraphic();
+    /* Initialise le son */
+    if (InitSound() < 0)
+        main_DisplayMessage(to8_error_msg);
 
-    if (InitSound() == TO8_ERROR)
-        DisplayMessage(to8_error_msg);
-
-    to8_ColdReset();
-
-#if 0
+    /* Restitue l'état sauvegardé de l'émulateur */
+    to8_ColdReset();    /* Reset à froid de l'émulateur */
     if (!reset)
-    {
-        /* Charge les disquettes */
-        for (i=0;i<NBDRIVE;i++)
-        {
-            if (disk_name[i] !=NULL)
-            {
-                if (std_isdir (disk_name[i]))
-                     xargs_parse (&xargs, disk_name[i]);
-              
-                to8_LoadDisk(i, disk_name[i]);
-            }
-        }
-        /* Charge la cartouche */
-        if (memo_name !=NULL)
-            to8_LoadMemo(memo_name);
-
-        /* Charge la cassette */
-        if (cass_name !=NULL)
-            to8_LoadCass(cass_name);
-
-        /* Charge l'image de sauvegarde */
         if (access("autosave.img", F_OK) >= 0)
-            to8_LoadImage("autosave.img");
+            image_Load ("autosave.img");
 
-        /* Charge les options non définies */
-        for (i=0;remain_name[i]!=NULL;i++)
-        {
-            if (std_isdir (disk_name[i]))
-                xargs_parse (&xargs, disk_name[i]);
-                to8_LoadDisk(i, disk_name[i]);
-            }
-        }
-    }
-#endif
-
-    /* Initialise l'interface graphique */
-    InitGUI ();
+    InitGUI ();      /* Initialise l'interface graphique */
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
@@ -411,17 +401,9 @@ int main(int argc, char *argv[])
     g_idle_remove_by_data (&idle_data);
     g_timer_destroy (timer);
 
-    /* Mise au repos de l'interface d'accès direct */
-    ExitDirectDisk();
-
-    /* nettoyage des arguments supplementaires */
-    xargs_exit(&xargs);
-
-    /* Libère la mémoire utilisée par la GUI */
-    FreeGUI ();
-
-    /* Referme le périphérique audio*/
-    CloseSound();
+    ExitDirectDisk();   /* Mise au repos de l'interface d'accès direct */
+    FreeGUI ();         /* Libère la mémoire utilisée par la GUI */
+    CloseSound();       /* Referme le périphérique audio*/
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
