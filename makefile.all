@@ -44,13 +44,14 @@ TEO_SRC_FILES =         \
    src/media/keyboard.c \
    src/media/mouse.c    \
    src/media/printer.c  \
+   src/media/libsap.c   \
    src/errors.c         \
    src/hardware.c       \
    src/image.c          \
    src/ini.c            \
    src/std.c            \
-   src/to8.c            \
-   src/xargs.c
+   src/option.c         \
+   src/to8.c
 
 TEO_SRC_ALLEG_FILES =        \
    src/alleg/acolor8.c       \
@@ -103,7 +104,6 @@ TEO_SRC_WIN_FILES =    \
    src/win/wgui.c      \
    src/win/wkeybint.c  \
    src/win/wmain.c     \
-   src/win/wgui/wstart.c   \
    src/win/wgui/wabout.c   \
    src/win/wgui/wsetting.c \
    src/win/wgui/wcass.c    \
