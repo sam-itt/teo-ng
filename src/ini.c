@@ -54,44 +54,76 @@
 #include "intern/defs.h"
 #include "intern/printer.h"
 #include "intern/std.h"
-#include "intern/xargs.h"
 #include "to8.h"
 
 
 #define INI_FILE_NAME  "teo.ini"
 
-#define Sc_TEO       "[teo]"
-#define Sc_SETTINGS  "[settings]"
-#define Sc_MEMO      "[memo]"
-#define Sc_CASS      "[cass]"
-#define Sc_DISK0     "[disk0]"
-#define Sc_DISK1     "[disk1]"
-#define Sc_DISK2     "[disk2]"
-#define Sc_DISK3     "[disk3]"
-#define Sc_PRINTER   "[printer]"
+enum {
+    IARG_BOOL = 0,
+    IARG_INT,
+    IARG_STR,
+    IARG_DIR
+};
 
-static struct STRING_LIST *list_start = NULL;
+struct INI_LIST {
+    char *section;
+    char *key;
+    int  type;
+    void *ptr;
+};
+
 static FILE *file = NULL;
-static int ini_load_error = 0;
+static struct STRING_LIST *list_start = NULL;
+static const struct INI_LIST ini_entry[] = {
+    { "teo"     , "default_folder"  , IARG_DIR , &teo.default_folder           },
+    { "settings", "exact_speed"     , IARG_BOOL, &teo.setting.exact_speed      },
+    { "settings", "interlaced_video", IARG_BOOL, &teo.setting.interlaced_video },
+    { "settings", "sound_volume"    , IARG_INT , &teo.setting.sound_volume     },
+    { "settings", "sound_enabled"   , IARG_BOOL, &teo.setting.sound_enabled    },
+    { "memo"    , "file"            , IARG_STR , &teo.memo.file                },
+    { "memo"    , "label"           , IARG_STR , &teo.memo.label               },
+    { "cass"    , "file"            , IARG_STR , &teo.cass.file                },
+    { "cass"    , "write_protect"   , IARG_BOOL, &teo.cass.write_protect       },
+    { "disk"    , "file0"           , IARG_STR , &teo.disk[0].file             },
+    { "disk"    , "write_protect0"  , IARG_BOOL, &teo.disk[0].write_protect    },
+    { "disk"    , "file1"           , IARG_STR , &teo.disk[1].file             },
+    { "disk"    , "write_protect1"  , IARG_BOOL, &teo.disk[1].write_protect    },
+    { "disk"    , "file2"           , IARG_STR , &teo.disk[2].file             },
+    { "disk"    , "write_protect2"  , IARG_BOOL, &teo.disk[2].write_protect    },
+    { "disk"    , "file3"           , IARG_STR , &teo.disk[3].file             },
+    { "disk"    , "write_protect3"  , IARG_BOOL, &teo.disk[3].write_protect    },
+    { "printer" , "folder"          , IARG_DIR , &teo.lprt.folder              },
+    { "printer" , "number"          , IARG_INT , &teo.lprt.number              },
+    { "printer" , "dip"             , IARG_BOOL, &teo.lprt.dip                 },
+    { "printer" , "nlq"             , IARG_BOOL, &teo.lprt.nlq                 },
+    { "printer" , "raw_output"      , IARG_BOOL, &teo.lprt.raw_output          },
+    { "printer" , "txt_output"      , IARG_BOOL, &teo.lprt.txt_output          },
+    { "printer" , "gfx_output"      , IARG_BOOL, &teo.lprt.gfx_output          },
+    { NULL      , NULL              , 0        , NULL                          }
+};
 
 
-/* pString:
+
+/* value_pointer:
  *  Retourne une valeur selon la section et la clef.
  */
-static char *pString (char *section, char *key)
+static char *value_pointer (char *section, char *key)
 {
     size_t length;
-    char *p = NULL;
+    char *s = NULL;
     struct STRING_LIST *list = list_start;
 
     /* Cherche la section */
-    length = strlen(section);
+    s = std_strdup_printf ("[%s]", section);
     while ((list != NULL) && (list->str != NULL)
-      && (memcmp(section, list->str, length) != 0))
+      && (strcmp(s, list->str) != 0))
         list = list->next;
+    s = std_free(s);
 
     /* Passe la section */
-    if (list != NULL) list = list->next;
+    if (list != NULL)
+        list = list->next;
 
     /* Cherche la clef */
     length = strlen(key);
@@ -101,81 +133,13 @@ static char *pString (char *section, char *key)
 
     /* Cherche la valeur */
     if ((list != NULL) && (list->str != NULL)) {
-        p = std_skpspc (list->str + length);
-        p = (*p=='=') ? std_skpspc(p+1) : NULL;
+        s = std_skpspc (list->str + length);
+        s = (*s=='=') ? std_skpspc(s+1) : NULL;
     }
 
-    return ((p!=NULL) && (*p!='\0')) ? p : NULL;
+    return ((s!=NULL) && (*s!='\0')) ? s : NULL;
 }
 
-
-
-/* getInt:
- *  Lit un entier selon la section et la clef.
- */
-static void getInt (char *section, char *key, int *val)
-{
-    char *p;
-    int tmp_val;
-    char *s = pString(section, key);
-
-    if (s!=NULL) {
-        tmp_val = (int)strtol (s, &p, 0);
-        if (*p <= '\x20')
-            *val = tmp_val;
-    }
-}
-
-
-
-/* getBool:
- *  Read a boolean.
- */
-static void getBool (char *section, char *key, int *val)
-{
-    char *s = pString(section, key);
-
-    if (s!=NULL) {
-        if (strcmp (s,"yes") == 0) *val = TRUE;
-        else
-        if (strcmp (s,"no" ) == 0) *val = FALSE;
-    }
-}
-
-
-
-/* getDir:
- *  Read a dir name.
- */
-static void getDir (char *section, char *key, char **ptr)
-{
-    char *s = pString(section, key);
-
-    if (s!=NULL) {
-        if (std_isdir (s))
-            *ptr = std_strdup_printf ("%s", s);
-        else
-            ini_load_error++;
-    }
-}
-
-
-#if 0
-/* getFile:
- *  Read a file name.
- */
-static void getFile (char *section, char *key, char **ptr)
-{
-    char *s = pString(section, key);
-
-    if (s!=NULL) {
-        if (std_isfile(s) == TRUE)
-            *ptr = std_strdup_printf ("%s", s);
-        else
-            ini_load_error++;
-    }
-}
-#endif
 
 
 /* load_ini_file:
@@ -183,7 +147,7 @@ static void getFile (char *section, char *key, char **ptr)
  */
 static void load_ini_file(void)
 {
-    int go_on = TRUE;
+    int  stop  = FALSE;
     char *line = NULL;
 
 #ifdef DEBIAN_BUILD
@@ -191,212 +155,160 @@ static void load_ini_file(void)
 
     file = NULL;
     fname = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
-    if ((fname != NULL) && ((file = fopen(fname, "r")) == NULL))
-    {
-        std_free (fname);
+    if ((fname != NULL) && ((file = fopen(fname, "r")) == NULL)) {
+        fname = std_free (fname);
         fname = std_strdup_printf ("/usr/share/teo/%s", INI_FILE_NAME);
-        if (fname != NULL) file = fopen(fname, "r");
+        if (fname != NULL)
+            file = fopen(fname, "r");
     }
-    std_free (fname);
+    fname = std_free (fname);
 #else
     file=fopen(INI_FILE_NAME, "r");
 #endif
-
-    if (file != NULL)
-    {
-        line = malloc (300+1);
-        if (line != NULL)
-        {
-            while ((go_on == TRUE) && (fgets(line, 300, file) != NULL))
-            {    
-                /* Nettoie la chaîne */
-                std_rtrim (line);
-
-                /* Enregistre la chaîne */
-                list_start = std_StringListAppend (list_start, line);
-
-                go_on = (list_start!=NULL)?TRUE:FALSE;
-            }
-            free (line);
+    if ((file != NULL) && ((line = malloc (300+1)) != NULL)) {
+        while ((stop == FALSE) && (fgets(line, 300, file) != NULL)) {
+            std_rtrim (line);
+            list_start = std_StringListAppend (list_start, line);
+            stop = (list_start == NULL) ? TRUE : FALSE;
         }
-        fclose(file);
     }
+    file = std_fclose(file);
+    line = std_free(line);
 }
 
 
-
-static void putSection (char *section) {
-    if ((file!=NULL) && (fprintf (file, "%s\n", section) < 0))
-        file = std_fclose (file);
-}
-
-static void putBool (char *key, int boolean) {
-    if ((file!=NULL)
-     && (fprintf(file, "%s=%s\n", key, (boolean==FALSE) ? "no" : "yes") < 0))
-        file = std_fclose (file);
-}
-
-static void putInt (char *key, int value) {
-    if ((file!=NULL) && (fprintf (file, "%s=%d\n", key, value) < 0))
-        file = std_fclose (file);
-}
-
-static void putDir (char *key, char *dir_name) {
-    if ((file!=NULL)
-     && (fprintf (file, "%s=%s\n", key, (dir_name==NULL)?"":dir_name) < 0))
-        file = std_fclose (file);
-}
-
-static void putFile (char *key, char *file_name) {
-    if ((file!=NULL)
-     && (fprintf (file, "%s=%s\n", key, (file_name==NULL)?"":file_name) < 0))
-        file = std_fclose (file);
-}
-
-static void putBlank (void) {
-    if ((file!=NULL) && (fprintf (file, "\n") < 0))
-        file = std_fclose (file);
-}
-
-
-/*===========================================================================*/
+/* ------------------------------------------------------------------------- */
 
 
 /* ini_Load:
- *  Charge l'état sauvegardé de l'émulateur.
+ *  Charge le fichier INI.
  */
-int ini_Load(void)
+void ini_Load(void)
 {
-    ini_load_error = 0;
+    int  i = 0;
+    int  tmp_val;
+    char *pval;
+    char *p;
+    char **s;
+    int  *d;
   
-    /* Initialise la structure TEO */
+    /* Initialise les paramètres par défaut de la structure générale */
     memset (&teo, 0x00, sizeof(struct EMUTEO));
-
-    /* Initialise les paramètres par défaut */
     teo.sound_enabled = TRUE;
     teo.command = NONE;
     teo.lprt.number = 55;
     teo.lprt.gfx_output = TRUE;
     teo.setting.exact_speed = TRUE;
+    teo.setting.sound_volume = 128;
     teo.setting.sound_enabled = TRUE;
 
-    /* Charge le fichier de configuration */
+    /* Charge le fichier ini */
     load_ini_file();
-    /*-----------------------------------------------------------------------*/
-    getDir  (Sc_TEO     , "default_folder"  , &teo.default_folder);
-    /*-----------------------------------------------------------------------*/
-    getBool (Sc_SETTINGS, "exact_speed"     , &teo.setting.exact_speed);
-    getBool (Sc_SETTINGS, "interlaced_video", &teo.setting.interlaced_video);
-    getInt  (Sc_SETTINGS, "sound_volume"    , &teo.setting.sound_volume);
-    getBool (Sc_SETTINGS, "sound_enabled"   , &teo.setting.sound_enabled);
-    /*-----------------------------------------------------------------------*/
-//    getFile (Sc_MEMO    , "file"            , &xarg->memo);
-    /*-----------------------------------------------------------------------*/
-//    getFile (Sc_CASS    , "file"            , &xarg->cass);
-    getBool (Sc_CASS    , "write_protect"   , &teo.cass.write_protect);
-    /*-----------------------------------------------------------------------*/
-//    getFile (Sc_DISK0   , "file"            , &xarg->disk[0]);
-    getBool (Sc_DISK0   , "write_protect"   , &teo.disk[0].write_protect);
-    /*-----------------------------------------------------------------------*/
-//    getFile (Sc_DISK1   , "file"            , &xarg->disk[1]);
-    getBool (Sc_DISK1   , "write_protect"   , &teo.disk[1].write_protect);
-    /*-----------------------------------------------------------------------*/
-//    getFile (Sc_DISK2   , "file"            , &xarg->disk[2]);
-    getBool (Sc_DISK2   , "write_protect"   , &teo.disk[2].write_protect);
-    /*-----------------------------------------------------------------------*/
-//    getFile (Sc_DISK3   , "file"            , &xarg->disk[3]);
-    getBool (Sc_DISK3   , "write_protect"   , &teo.disk[3].write_protect);
-    /*-----------------------------------------------------------------------*/
-    getDir  (Sc_PRINTER , "folder"          , &teo.lprt.folder);
-    getInt  (Sc_PRINTER , "number"          , &teo.lprt.number);
-    getBool (Sc_PRINTER , "dip"             , &teo.lprt.dip);
-    getBool (Sc_PRINTER , "nlq"             , &teo.lprt.nlq);
-    getBool (Sc_PRINTER , "raw_output"      , &teo.lprt.raw_output);
-    getBool (Sc_PRINTER , "txt_output"      , &teo.lprt.txt_output);
-    getBool (Sc_PRINTER , "gfx_output"      , &teo.lprt.gfx_output);
-    /*-----------------------------------------------------------------------*/
-    std_StringListFree (list_start);
 
-    return ini_load_error;
+    /* Lit le fichier ini */
+    while (ini_entry[i].section != NULL) {
+        pval = value_pointer (ini_entry[i].section, ini_entry[i].key);
+        if (pval != NULL) {
+            switch (ini_entry[i].type) {
+            case IARG_BOOL : d = (int*)ini_entry[i].ptr;
+                             if (strcmp (pval,"yes") == 0) *d = TRUE ; else
+                             if (strcmp (pval,"no" ) == 0) *d = FALSE;
+                             break;
+            case IARG_INT  : d = (int*)ini_entry[i].ptr;
+                             tmp_val = (int)strtol (pval, &p, 0);
+                             if (*p <= '\x20') *d = tmp_val;
+                             break;
+            case IARG_STR  : s = (char**)ini_entry[i].ptr;
+                             *s = std_strdup_printf ("%s", pval);
+                             break;
+            case IARG_DIR :  s = (char**)ini_entry[i].ptr;
+                             if (access (pval, F_OK) >= 0)
+                                 *s = std_strdup_printf ("%s", pval);
+                             break;
+            }
+        }
+        i++;
+    }
+
+    /* Libère la mémoire occupée par le fichier ini */
+    std_StringListFree (list_start);
 }
 
 
 
+/* ini_Free:
+ *  Libère la mémoire des variables.
+ */
+void ini_Free (void)
+{
+    int i = 0;
+    char **s = NULL;
+
+    while (ini_entry[i].section != NULL) {
+        switch (ini_entry[i].type) {
+        case IARG_STR  :
+        case IARG_DIR  : s = (char**)ini_entry[i].ptr;
+                         *s = std_free (*s);
+                         break;
+        }
+        i++;
+    }
+}
+
+    
+
 /* ini_Save:
- *  Sauvegarde l'état de l'émulateur.
+ *  Sauve le fichier INI.
  */
 void ini_Save (void)
 {
+    int i = 0;
+    int res;
+    char *p = NULL;
+    char *key;
+    int *d;
+    char **s;
+
+    /* Ouvre le fichier ini */
 #ifdef DEBIAN_BUILD
-    char *fname=std_strdup_printf ("%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
-    file = fopen(fname, "w");
-    fname = std_free(fname);
+    p = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
+    file = fopen(p, "w");
+    p = std_free(p);
 #else
     file = fopen(INI_FILE_NAME, "w");
 #endif
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_TEO);
-        putDir   ("default_folder"  , teo.default_folder);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_SETTINGS);
-        putBool  ("exact_speed"     , teo.setting.exact_speed);
-        putBool  ("interlaced_video", teo.setting.interlaced_video);
-        putInt   ("sound_volume"    , teo.setting.sound_volume);
-        putBool  ("sound_enabled"   , teo.setting.sound_enabled);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_MEMO);
-        putFile  ("file"            , teo.memo.file);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_CASS);
-        putFile  ("file"            , teo.cass.file);
-        putBool  ("write_protect"   , teo.cass.write_protect);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_DISK0);
-        putFile  ("file"            , teo.disk[0].file);
-        putBool  ("write_protect"   , teo.disk[0].write_protect);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_DISK1);
-        putFile  ("file"            , teo.disk[1].file);
-        putBool  ("write_protect"   , teo.disk[1].write_protect);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_DISK2);
-        putFile  ("file"            , teo.disk[2].file);
-        putBool  ("write_protect"   , teo.disk[2].write_protect);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_DISK3);
-        putFile  ("file"            , teo.disk[3].file);
-        putBool  ("write_protect"   , teo.disk[3].write_protect);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
-    putSection (Sc_PRINTER);
-        putDir   ("folder"          , teo.lprt.folder);
-        putInt   ("number"          , teo.lprt.number);
-        putBool  ("dip"             , teo.lprt.dip);
-        putBool  ("nlq"             , teo.lprt.nlq);
-        putBool  ("raw_output"      , teo.lprt.raw_output);
-        putBool  ("txt_output"      , teo.lprt.txt_output);
-        putBool  ("gfx_output"      , teo.lprt.gfx_output);
-        putBlank ();
-    /*-----------------------------------------------------------------------*/
+
+    /* Sauvegarde le fichier ini */
+    while ((file != NULL) && (ini_entry[i].section != NULL))
+    {
+        res = 0;
+
+        if ((p == NULL) || (strcmp (p, ini_entry[i].section) != 0))
+            if ((res = fprintf (file, "\n[%s]\n", ini_entry[i].section)) < 0)
+                file = std_fclose (file);
+        p = ini_entry[i].section;
+            
+        key = ini_entry[i].key;
+        switch (ini_entry[i].type) {
+        case IARG_STR  :
+        case IARG_DIR  : s = (char**)ini_entry[i].ptr;
+                         res = fprintf (file, "%s=%s\n", key, (*s==NULL)?"":*s);
+                         break;
+        case IARG_BOOL : d = (int*)ini_entry[i].ptr;
+                         res = fprintf (file, "%s=%s\n", key, (*d==FALSE)?"no":"yes");
+                         break;
+        case IARG_INT  : d = (int*)ini_entry[i].ptr;
+                         res = fprintf (file, "%s=%d\n", key, *d);
+                         break;
+        }
+        if (res < 0)
+            file = std_fclose (file);
+        i++;
+    }
+    if (file!=NULL)
+        fprintf (file, "\n");
     file = std_fclose (file);
 
-    /* Libère la mémoire de la structure INI */
-    teo.default_folder = std_free (teo.default_folder);
-    teo.lprt.folder    = std_free (teo.lprt.folder);
-    teo.disk[0].file   = std_free (teo.disk[0].file);
-    teo.disk[1].file   = std_free (teo.disk[1].file);
-    teo.disk[2].file   = std_free (teo.disk[2].file);
-    teo.disk[3].file   = std_free (teo.disk[3].file);
-    teo.cass.file      = std_free (teo.cass.file);
-    teo.memo.file      = std_free (teo.memo.file);
-    teo.memo.label     = std_free (teo.memo.label);
-    teo.imag.file      = std_free (teo.imag.file);
+    /* Libère la mémoire des variables */
+    ini_Free ();
 }
-
