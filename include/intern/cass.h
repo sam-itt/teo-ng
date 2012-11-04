@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 15/05/2000
+ *               François Mouret 05/10/2012 01/11/2012
  *
  *  Gestion des cassettes.
  */
@@ -45,7 +46,15 @@
 #ifndef CASS_H
 #define CASS_H
 
-extern void InitCass(void);
-extern void DoCassStuff(int *, int *);
+extern void  cass_Init(void);
+extern void  cass_Event (int *br, int *cc);
+extern int   cass_Check (const char filename[]);
+extern void  cass_FirstLoad (void);
+extern int   cass_Load(const char filename[]);
+extern int   cass_SetMode(int mode);
+extern int   cass_GetCounter(void);
+extern void  cass_SetCounter(int counter);
+extern void  cass_Eject(void);
 
 #endif
+

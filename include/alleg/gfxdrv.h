@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, Samuel Devulder
+ *                          Jérémie Guillaume, François Mouret, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 29/11/2000
  *               Samuel Devulder 30/07/2011
+ *               François Mouret 01/11/2012
  *
  *  Sélection du pilote graphique.
  */
@@ -59,7 +60,9 @@ struct GRAPHIC_DRIVER {
     void (*SetDiskLed)(int);
 };
 
-extern struct GRAPHIC_DRIVER mod4_driver, mod8_driver, tcol_driver;
+extern struct GRAPHIC_DRIVER amode40_driver;
+extern struct GRAPHIC_DRIVER amode80_driver;
+extern struct GRAPHIC_DRIVER tcol_driver;
 
 extern int need_palette_refresh;
 
@@ -84,7 +87,7 @@ enum {
     GFX_WINDOW
 };
 
-extern int  InitGraphic(int, int, int, int);
-extern void Screenshot(void);
+extern int  agfxdrv_Init(int, int, int, int);
+extern void agfxdrv_Screenshot(void);
 
 #endif

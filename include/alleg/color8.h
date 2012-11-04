@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  *  Module     : alleg/color8.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou mai 2000
- *  Modifié par:
+ *  Modifié par: François Mouret 01/11/2012
  *
  *  Gestion de la palette dynamique 256 couleurs (modes 8-bit).
  */
@@ -54,12 +54,12 @@ struct color_cell {
 
 extern struct color_cell bcell[];
 
-extern void SetPalette8(void);
-extern void GetPalette8(void);
-extern void SetColor8(int, int, int, int);
-extern void SetBorderColor8(int, int);
-extern void RefreshPalette8(void);
-extern void RefreshScreen8(void);
-extern void InitColor8(int);
+extern void acolor8_SetPalette(void);
+extern void acolor8_GetPalette(void);
+extern void acolor8_SetColor(int, int, int, int);
+extern void acolor8_SetBorderColor(int, int);
+extern void acolor8_RefreshPalette(void);
+extern void acolor8_RefreshScreen(void);
+extern void acolor8_Init(int);
 
 #endif

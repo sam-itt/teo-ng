@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,16 +37,18 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 14/02/2001
+ *               François Mouret 01/11/2012
  *
- *  Gestion du clavier (et des manettes) du TO8.
+ *  Gestion du clavier (et des manettes).
  */
 
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-extern int  InitKeyboard(int);
-extern void ResetKeyboard(int, int);
-extern void mc6804_SetACK(int);
+extern int   keyboard_Init(int num_joy);
+extern void  keyboard_Reset(int mask, int value);
+extern void  keyboard_Press(int key, int release);
+extern void  keyboard_SetACK(int state);
 
 #endif

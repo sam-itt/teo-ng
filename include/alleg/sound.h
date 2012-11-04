@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 24/09/2001
+ *               François Mouret 01/11/2012
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -45,11 +46,11 @@
 #ifndef ALLEG_SOUND_H
 #define ALLEG_SOUND_H
 
-extern void InitSound(int);
-extern void StartSound(void);
-extern void StopSound(void);
-extern int  GetVolume(void);
-extern void SetVolume(int);
-extern void PlaySoundBuffer(void);
+extern void asound_Init(int);
+extern void asound_Start(void);
+extern void asound_Stop(void);
+extern int  asound_GetVolume(void);
+extern void asound_SetVolume(int);
+extern void asound_Play(void);
 
 #endif

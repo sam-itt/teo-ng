@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  *  Module     : alleg/joyint.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 14/02/2001
- *  Modifié par:
+ *  Modifié par: François Mouret 01/11/2012
  *
  *  Interface de gestion des manettes.
  */
@@ -45,7 +45,7 @@
 #ifndef ALLEG_JOYINT_H
 #define ALLEG_JOYINT_H
 
-extern void InitJoyint(int num_joy);
-extern void UpdateJoystick(void);
+extern void ajoyint_Init(int num_joy);
+extern void ajoyint_Update(void);
 
 #endif

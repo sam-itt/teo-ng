@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 1/12/2000
- *               François Mouret 18/09/2006
+ *               François Mouret 18/09/2006 02/11/2012
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -83,7 +83,7 @@ extern inline void DrawGPL(int addr)
     to8_DrawGPL(mode_page.lgamod, addr, pt, col);
 }
 
-extern void InitHardware(void);
-extern void StoreByte(int addr, int val);
+extern void hardware_Init(void);
+extern void hardware_StoreByte(int addr, int val);
 
 #endif

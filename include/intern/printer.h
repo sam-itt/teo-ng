@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 24/03/2001
- *               François Mouret 18/04/2012
+ *               François Mouret 18/04/2012 01/11/2012
  *
  *  Emulation de l'imprimante.
  */
@@ -46,13 +46,10 @@
 #ifndef PRINTER_H
 #define PRINTER_H
 
-extern struct LPRT_CONFIG *printer_get_config (void);
-extern void  printer_set_config (struct LPRT_CONFIG *config);
-
+extern void printer_Init(void);
 extern void printer_WriteData(int mask, int value);
 extern void printer_SetStrobe(int state);
 extern void printer_Close(void);
-extern void InitPrinter(void);
 
 #endif
 

@@ -59,21 +59,27 @@ extern HWND prog_win;
 extern HICON prog_icon;
 
 extern void SelectGraphicMode(int *, int *);
-extern void DisplayControlPanelWin(void);
+extern void wgui_Panel(void);
+extern void wgui_Free (void);
 
-extern int  CALLBACK AboutProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern int  CALLBACK SettingTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern int  CALLBACK CassetteTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern int  CALLBACK CartridgeTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern int  CALLBACK DiskTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern int  CALLBACK PrinterTabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern BOOL CALLBACK StartDialogProc(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
+extern int  CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern void wabout_Free (void);
 
-extern void free_cass_list (void);
-extern void free_memo_list (void);
-extern void free_disk_list (void);
-extern void FreeGUI (void);
+extern int  CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern void wsetting_Free (void);
 
-extern void create_tooltip (HWND hWnd, WORD id, char *text);
+extern int  CALLBACK wcass_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern void wcass_Free (void);
+
+extern int  CALLBACK wmemo_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern void wmemo_Free (void);
+
+extern int  CALLBACK wdisk_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern void wdisk_Free (void);
+
+extern int  CALLBACK wprinter_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern void wprinter_Free (void);
+
+extern void wgui_CreateTooltip (HWND hWnd, WORD id, char *text);
 
 #endif

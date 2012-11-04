@@ -38,18 +38,58 @@
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 24/10/2003
- *               François Mouret 12/08/2011
+ *               François Mouret 12/08/2011 03/11/2012
  *
- *  Panneau de contrôle de l'émulateur.
+ *  GUI Allegro de l'émulateur.
  */
 
 
 #ifndef ALLEG_GUI_H
 #define ALLEG_GUI_H
 
-extern void InitGUI(char [], int, int);
-extern void SetGUIColors(int, int, int);
-extern void ControlPanel(void);
+/* panneau de contrôle */
+extern void agui_SetColors(int, int, int);
+extern void agui_Panel(void);
+extern void agui_Init(char [], int, int);
+extern void agui_Free (void);
 
-extern void PopupMessage(const char message[]);
+/* panneau d'imprimante */
+extern void aprinter_SetColors(int fg_color, int bg_color, int bg_entry_color);
+extern void aprinter_Panel(void);
+extern void aprinter_Init(void);
+extern void aprinter_Free(void);
+
+/* panneau des disquettes */
+extern void adisk_SetColors(int fg_color, int bg_color, int bg_entry_color);
+extern void adisk_Panel(void);
+extern void adisk_Init(int direct_disk_support);
+extern void adisk_Free(void);
+
+/* panneau de la cassette */
+extern void acass_SetColors(int fg_color, int bg_color, int bg_entry_color);
+extern void acass_Panel(void);
+extern void acass_Init(void);
+extern void acass_Free(void);
+
+/* panneau de la cartouche */
+extern void amemo_SetColors(int fg_color, int bg_color, int bg_entry_color);
+extern void amemo_Panel(void);
+extern void amemo_Init(void);
+extern void amemo_Free(void);
+
+/* panneau des réglages */
+extern void asetting_SetColors(int fg_color, int bg_color, int bg_entry_color);
+extern void asetting_Init(char version_name[], int gfx_mode);
+extern void asetting_Panel(void);
+extern void asetting_Free(void);
+
+/* panneau "A propos..." */
+extern void aabout_SetColors(int fg_color, int bg_color, int bg_entry_color);
+extern void aabout_Panel(void);
+extern void aabout_Init(char *title);
+extern void aabout_Free(void);
+
+/* fonctions de la GUI */
+extern void agui_PopupMessage(const char message[]);
+
 #endif

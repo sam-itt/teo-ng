@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  *  Module     : alleg/keybint.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
- *  Modifié par:
+ *  Modifié par: François Mouret 01/11/2012
  *
  *  Interface de gestion du clavier.
  */
@@ -45,8 +45,8 @@
 #ifndef ALLEG_KEYBINT_H
 #define ALLEG_KEYBINT_H
 
-extern void InstallKeybint(void);
-extern void ShutDownKeybint(void);
-extern void InitKeybint(void);
+extern void wkeybint_Install(void);
+extern void wkeybint_ShutDown(void);
+extern void wkeybint_Init(void);
 
 #endif

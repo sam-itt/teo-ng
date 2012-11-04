@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 24/10/2003
- *
+ *               François Mouret 05/10/2012
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
  */
 
@@ -74,11 +74,22 @@ extern inline int disk_ctrl_rdata(void)
     return disk_ctrl.rdata;
 }
 
-extern void InitDisk(void);
 extern void ResetDiskCtrl(int *);
 extern void ReadSector(int *);
 extern void WriteSector(int *);
 extern void FormatDrive(int *);
 extern void DiskNop(int *);
 
+extern void  disk_Init(void);
+extern int   disk_SetDirect(int drive);
+extern int   disk_SetVirtual(int drive);
+extern void  disk_UnloadDir (int drive);
+extern void  disk_Eject(int drive);
+extern void  disk_UnloadAll (void);
+extern int   disk_Check (const char filename[]);
+extern int   disk_Load(int drive, const char filename[]);
+extern void  disk_FirstLoad (void);
+extern int   disk_SetMode(int drive, int mode);
+
 #endif
+
