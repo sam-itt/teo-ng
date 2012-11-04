@@ -15,7 +15,8 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, Samuel Devulder
+ *                          Jérémie Guillaume, François Mouret, 
+ *                          Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,8 +39,9 @@
  *  Créé par   : Eric Botcazou 1999
  *  Modifié par: Eric Botcazou 13/02/2001
  *               Samuel Devulder 05/02/2012
+ *               François Mouret 02/11/2012
  *
- *  Gestion de la souris et du crayon optique du TO8.
+ *  Gestion de la souris et du crayon optique.
  */
 
 
@@ -52,15 +54,16 @@
 static int mouse_x, mouse_y;
 
 
+/* ------------------------------------------------------------------------- */
 
-/* ResetMouse:
+/* mouse_Reset:
  *  Réinitialise les périphériques de pointage.
  */
-void ResetMouse(void)
+void mouse_Reset(void)
 {
     mc6846.prc&=0xFD;    /* bouton crayon optique relâché */
 
-    ResetJoystick();     /* bouton souris relâché */
+    joystick_Reset();     /* bouton souris relâché */
 }
 
 
@@ -68,7 +71,7 @@ void ResetMouse(void)
 /* GetLightPen:
  *  Lit l'état du crayon optique.
  */
-void GetLightpen(int *xr, int *yr, int *cc)
+void mouse_GetLightpen(int *xr, int *yr, int *cc)
 {
     switch (mode_page.lgamod)
     {
@@ -93,15 +96,10 @@ void GetLightpen(int *xr, int *yr, int *cc)
 
 
 
-/**********************************/
-/* partie publique                */
-/**********************************/
-
-
-/* HandleMouseMotion:
+/* mouse_Motion:
  *  Prend en compte un mouvement de la souris.
  */
-void to8_HandleMouseMotion(int xpos, int ypos)
+void mouse_Motion(int xpos, int ypos)
 {
     mouse_x=xpos;
     mouse_y=ypos;
@@ -129,14 +127,14 @@ void to8_HandleMouseMotion(int xpos, int ypos)
         STORE_BYTE(0x60D7, mouse_y);
 }
 
-END_OF_FUNCTION(to8_HandleMouseMotion)
+END_OF_FUNCTION(mouse_Motion)
 
 
 
-/* HandleMouseClick:
+/* mouse_Click:
  *  Prend en compte un changement d'état des boutons de la souris.
  */
-void to8_HandleMouseClick(int button, int release)
+void mouse_Click(int button, int release)
 {
     if (LOAD_BYTE(0x6074)&0x80)  /* souris */
     {
@@ -154,14 +152,14 @@ void to8_HandleMouseClick(int button, int release)
     }
 }
 
-END_OF_FUNCTION(to8_HandleMouseClick)
+END_OF_FUNCTION(mouse_Click)
 
 
 
-/* InitMouse:
+/* mouse_Init:
  *  Initialise le module souris.
  */
-void InitMouse(void)
+void mouse_Init(void)
 {
     /* on force l'autodétection de la souris au démarrage */
     mem.rom.bank[3][0x2E6C]=0x21; /* BRanch Never */

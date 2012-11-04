@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,8 +37,9 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 17/09/2001
+ *               François Mouret 02/11/2012
  *
- *  Gestion du clavier (et des manettes) du TO8.
+ *  Gestion du clavier (et des manettes).
  */
 
 
@@ -47,6 +48,7 @@
 #endif
 
 #include "mc68xx/mc6809.h"
+#include "mc68xx/mc6846.h"
 #include "intern/errors.h"
 #include "intern/hardware.h"
 #include "intern/joystick.h"
@@ -136,34 +138,6 @@ static unsigned char key_pad_code[9][2]={
  /* key_pad_code[] convertit le scancode d'une touche du clavier numérique PC
     en sa valeur clavier TO8 ou en sa valeur manette TO8 */
 
-
-
-/* ResetKeyboard:
- *  Remet à zéro le clavier et le port manette du TO8.
- */
-void ResetKeyboard(int mask, int value)
-{
-    int i;
-
-    mc6846_SetCP1(&mc6846, 1);  /* DATAS clavier à 1 */
-    pia_int.porta.idr &= 0xFE;  /* keytest à 0 */
-    kb_data=0;                  /* donnée clavier à 0 */
-
-    /* modification optionnelle des flags */
-    for (i=0; i<TO8_MAX_FLAG; i++)
-        if (mask & (1<<i))
-            kb_state = (kb_state & ~(1<<i)) | (value & (1<<i));
-
-    if (kb_state & TO8_CAPSLOCK_FLAG)
-        mc6846.prc &= 0xF7;
-    else
-        mc6846.prc |= 8;
-
-    j0_dir[0] = j0_dir[1] = TO8_JOYSTICK_CENTER;
-    j1_dir[0] = j1_dir[1] = TO8_JOYSTICK_CENTER;
-}
-
-
 enum {
     KB_INIT,
     KB_MAJ,
@@ -200,15 +174,17 @@ static void DoRequest(int req)
 }
 
 
+/* ------------------------------------------------------------------------- */
+
+
 #define KB_INIT_DELAY 670  /* cycles CPU */
 #define KB_MAJ_DELAY 1300  /* cycles CPU */
 #define KB_MIN_DELAY 1900  /* cycles CPU */
 
-
-/* SetACK:
+/* keyboard_SetACK:
  *  Emule le contrôleur clavier MC6804.
  */
-void mc6804_SetACK(int state)
+void keyboard_SetACK(int state)
 {
     static mc6809_clock_t start_time;
     int delay;
@@ -248,17 +224,39 @@ void mc6804_SetACK(int state)
 
 
 
-/**********************************/
-/* partie publique                */
-/**********************************/
+/* keyboard_Reset:
+ *  Remet à zéro le clavier et le port manette du TO8.
+ */
+void keyboard_Reset(int mask, int value)
+{
+    int i;
+
+    mc6846_SetCP1(&mc6846, 1);  /* DATAS clavier à 1 */
+    pia_int.porta.idr &= 0xFE;  /* keytest à 0 */
+    kb_data=0;                  /* donnée clavier à 0 */
+
+    /* modification optionnelle des flags */
+    for (i=0; i<TO8_MAX_FLAG; i++)
+        if (mask & (1<<i))
+            kb_state = (kb_state & ~(1<<i)) | (value & (1<<i));
+
+    if (kb_state & TO8_CAPSLOCK_FLAG)
+        mc6846.prc &= 0xF7;
+    else
+        mc6846.prc |= 8;
+
+    j0_dir[0] = j0_dir[1] = TO8_JOYSTICK_CENTER;
+    j1_dir[0] = j1_dir[1] = TO8_JOYSTICK_CENTER;
+}
 
 
-/* HandleKeyPress:
+
+/* keyboard_Press:
  *  Prend en compte la frappe ou le relâchement d'une touche.
  *   key: scancode de la touche frappée/relachée (voir to8keys.h pour la liste).
  *   release: flag d'enfoncement/relâchement.
  */
-void to8_HandleKeyPress(int key, int release)
+void keyboard_Press(int key, int release)
 {
     unsigned char code;
 
@@ -267,7 +265,7 @@ void to8_HandleKeyPress(int key, int release)
         case TEO_KEY_LCONTROL:  /* le contrôle gauche émule la touche CNT
                                 et le bouton joystick 1 (NUMLOCK éteint) */
             if ((njoy>1) && !(kb_state&TO8_NUMLOCK_FLAG))
-                to8_HandleJoystickFire(njoy-1, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
+                joystick_Button(njoy-1, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
 
             kb_state=(release ? kb_state&~TO8_CTRL_FLAG : kb_state|TO8_CTRL_FLAG);
             break;
@@ -275,7 +273,7 @@ void to8_HandleKeyPress(int key, int release)
         case TEO_KEY_RCONTROL:  /* le contrôle droit émule le bouton joystick 0 ou 1
                                 en mode manette (NUMLOCK éteint) */
             if ((njoy>0) && !(kb_state&TO8_NUMLOCK_FLAG))
-                to8_HandleJoystickFire(TO8_NJOYSTICKS-njoy, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
+                joystick_Button(TO8_NJOYSTICKS-njoy, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
 
             break;
 
@@ -292,7 +290,7 @@ void to8_HandleKeyPress(int key, int release)
                     to8_SetKeyboardLed(kb_state);
 
                 if (njoy)
-                    ResetJoystick();
+                    joystick_Reset();
             }
             break;
 
@@ -349,7 +347,7 @@ void to8_HandleKeyPress(int key, int release)
                         j1_dir[0]=code;
                     }
 
-                    to8_HandleJoystickMove(njoy-1, j1_dir[0]);
+                    joystick_Move(njoy-1, j1_dir[0]);
                 }
 
 		code=key_lpd_code[key-TEO_KEY_A][0];
@@ -379,7 +377,7 @@ void to8_HandleKeyPress(int key, int release)
                         j0_dir[0]=code;
                     }
 
-                    to8_HandleJoystickMove(TO8_NJOYSTICKS-njoy, j0_dir[0]);
+                    joystick_Move(TO8_NJOYSTICKS-njoy, j0_dir[0]);
                     break; /* fin du traitement pour le pavé numérique en mode manette */
                 }
             }
@@ -418,23 +416,23 @@ void to8_HandleKeyPress(int key, int release)
     } /* end of switch */
 }
 
-END_OF_FUNCTION(to8_HandleKeyPress)
+END_OF_FUNCTION(keyboard_Press)
 
 
 #define NMODS 10
 
-/* InitKeyboard:
+/* keyboard_Init:
  *  Effectue quelques modifications mineures de la routine de
  *  lecture clavier TO8 (adresse: 0xF08E bank 1).
  */
-int InitKeyboard(int num_joy)
+int keyboard_Init(int num_joy)
 {
     int addr[NMODS]={0x0A5,0x0A6,0x0A7,0x0F7,0x124,0x277,0x2DA,0x24F,0x292,0x287};
     unsigned char val[NMODS]={0x7E,0xF0,0xE5,0x86,0x86,0x26,0x2A,0x2D,0x21,0x5F};
     int i;
 
     if ((num_joy<0) || (num_joy>TO8_NJOYSTICKS))
-       return ErrorMessage(TO8_BAD_JOYSTICK_NUM, NULL);
+       return error_Message(TO8_BAD_JOYSTICK_NUM, NULL);
 
     njoy = num_joy;
 
@@ -449,8 +447,8 @@ int InitKeyboard(int num_joy)
     LOCK_VARIABLE(key_altgr_code);
     LOCK_VARIABLE(j0_dir);
     LOCK_VARIABLE(j1_dir);
-    LOCK_FUNCTION(to8_HandleKeyPress);
+    LOCK_FUNCTION(keyboard_Press);
 
-    return TO8_OK;
+    return 0;
 }
 

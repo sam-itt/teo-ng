@@ -45,12 +45,12 @@
 #include "intern/hardware.h"
 #include "intern/joystick.h"  /* MacOS */
 
+/* ------------------------------------------------------------------------- */
 
-
-/* ResetJoystick:
+/* joystick_Reset:
  *  Remet au repos le port manettes.
  */
-void ResetJoystick(void)
+void joystick_Reset(void)
 {
     pia_ext.porta.idr = 0xFF;
     pia_ext.portb.idr = 0xCF;
@@ -58,19 +58,14 @@ void ResetJoystick(void)
     pia_ext.portb.cr  |= 0xC0;
 }
 
-END_OF_FUNCTION(ResetJoystick)
+END_OF_FUNCTION(joystick_Reset)
 
 
 
-/**********************************/
-/* partie publique                */
-/**********************************/
-
-
-/* HandleJoystickMove:
+/* joystick_Move:
  *  Prend en compte un mouvement des manches des joysticks.
  */
-void to8_HandleJoystickMove(int joy, int pos)
+void joystick_Move(int joy, int pos)
 {
     int qval = 0xf;
 
@@ -90,13 +85,13 @@ void to8_HandleJoystickMove(int joy, int pos)
         pia_ext.porta.idr = (pia_ext.porta.idr&0xf0) | qval;
 }
 
-END_OF_FUNCTION(to8_HandleJoystickMove)
+END_OF_FUNCTION(joystick_Move)
 
 
-/* HandleJoystickFire:
+/* joystick_Button:
  *  Prend en compte un changement d'état des boutons des joysticks.
  */
-void to8_HandleJoystickFire(int joy, int button, int state)
+void joystick_Button(int joy, int button, int state)
 {
     if (joy)
     {
@@ -164,16 +159,16 @@ void to8_HandleJoystickFire(int joy, int button, int state)
     }
 }
 
-END_OF_FUNCTION(to8_HandleJoystickFire)
+END_OF_FUNCTION(joystick_Button)
 
 
-/* InitJoystick:
+/* joystick_Init:
  *  Initialise le module joystick.
  */
-void InitJoystick(void)
+void joystick_Init(void)
 {
-    LOCK_FUNCTION(ResetJoystick);
-    LOCK_FUNCTION(to8_HandleJoystickMove);
-    LOCK_FUNCTION(to8_HandleJoystickFire);
+    LOCK_FUNCTION(joystick_Reset);
+    LOCK_FUNCTION(joystick_Move);
+    LOCK_FUNCTION(joystick_Button);
 }
 
