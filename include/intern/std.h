@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -61,11 +61,12 @@ extern char* std_BaseName(char *fullname);
 extern void *std_free (void *p);
 extern void *std_stralloc (void *p, char *s);
 extern FILE *std_fclose (FILE *fp);
-extern int  std_isfile (char *fname);
-extern int  std_isdir (char *fname);
+extern int  std_IsFile (const char filename[]);
+extern int  std_IsDir (const char filename[]);
 extern void std_rtrim (char *s);
 extern char *std_skpspc(char *p);
 extern char *std_strdup_printf (char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+extern size_t std_snprintf (char *dest, size_t size, const char*fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
 #endif
 
