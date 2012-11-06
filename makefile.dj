@@ -72,7 +72,7 @@ OBJ_DIR = obj/djgpp
 
 VPATH += src/alleg src/dos src/alleg/agui
 
-OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(filter-out src/alleg/amode40.c, $(TEO_SRC_ALLEG_FILES)) $(TEO_SRC_DOS_FILES)))
+OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_SRC_DOS_FILES)))
 
 
 # ------ special file rules ------
