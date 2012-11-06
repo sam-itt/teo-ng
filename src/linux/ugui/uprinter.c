@@ -50,10 +50,10 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "intern/std.h"
-#include "intern/printer.h"
-#include "linux/gui.h"
 #include "to8.h"
+#include "std.h"
+#include "media/printer.h"
+#include "linux/gui.h"
 
 #define PRINTER_NUMBER 5
 
@@ -73,7 +73,7 @@ static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
 
 
 
-void folder_changed (GtkFileChooser *chooser, gpointer user_data)
+static void folder_changed (GtkFileChooser *chooser, gpointer user_data)
 {
     gchar *filename = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER(chooser));
     teo.lprt.folder = std_free (teo.lprt.folder);
@@ -84,25 +84,26 @@ void folder_changed (GtkFileChooser *chooser, gpointer user_data)
 
 
 
-void check_button_toggled (GtkToggleButton *button, int *reg)
+static void check_button_toggled (GtkToggleButton *button, int *reg)
 {
     *reg = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
 }
 
 
 
-void combo_changed (GtkComboBox *combo, gpointer user_data)
+static void combo_changed (GtkComboBox *combo, gpointer user_data)
 {
     teo.lprt.number = (prt_list[gtk_combo_box_get_active (GTK_COMBO_BOX(combo))].number);
     (void)user_data;
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* init_printer_notebook_frame:
+/* uprinter_Init:
  *  Initialise la frame du notebook pour la cartouche.
  */
-void init_printer_notebook_frame (GtkWidget *notebook)
+void uprinter_Init (GtkWidget *notebook)
 {
     int i;
     int combo_index = 0;

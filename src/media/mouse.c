@@ -45,9 +45,9 @@
  */
 
 
-#include "intern/hardware.h"
-#include "intern/joystick.h"
-#include "intern/mouse.h"  /* MacOS */
+#include "media/joystick.h"
+#include "media/mouse.h"  /* MacOS */
+#include "hardware.h"
 #include "to8.h"
 
 
@@ -180,7 +180,7 @@ void mouse_Init(void)
 
     LOCK_VARIABLE(mouse_x);
     LOCK_VARIABLE(mouse_y);
-    LOCK_FUNCTION(to8_HandleMouseMotion);
-    LOCK_FUNCTION(to8_HandleMouseClick);
+    LOCK_FUNCTION(mouse_Motion);
+    LOCK_FUNCTION(mouse_Click);
 }
 

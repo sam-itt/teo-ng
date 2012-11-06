@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 12/06/2012
+ *                               04/11/2012
  *
  *  Gestion des cassettes.
  */
@@ -52,11 +53,11 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "intern/cass.h"
-#include "intern/std.h"
-#include "linux/gui.h"
-#include "to8err.h"
 #include "to8.h"
+#include "std.h"
+#include "error.h"
+#include "media/cass.h"
+#include "linux/gui.h"
 
 #define COUNTER_MAX  999
 
@@ -122,7 +123,7 @@ static int load_cass (gchar *filename)
     switch (ret)
     {
         case ERR_ERROR :
-            error_box (to8_error_msg, wControl);
+            ugui_Error (to8_error_msg, wControl);
             break;
 
         case TO8_READ_ONLY :
@@ -153,8 +154,8 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
 
         if (cass_SetMode(TO8_READ_WRITE)==TO8_READ_ONLY)
         {
-            error_box((is_fr?"Ecriture impossible sur ce support."
-                            :"Writing unavailable on this device."), wControl);
+            ugui_Error ((is_fr?"Ecriture impossible sur ce support."
+                              :"Writing unavailable on this device."), wControl);
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
             teo.cass.write_protect = TRUE;
         }
@@ -217,7 +218,7 @@ static void reset_combo (GtkButton *button, gpointer data)
     /* Bloque l'intervention de combo_changed */
     g_signal_handler_block (combo, combo_changed_id);
 
-    free_cass_list ();
+    ucass_Free ();
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     eject_cass ();
     init_combo ();
@@ -320,10 +321,10 @@ static void open_file (GtkButton *button, gpointer data)
 /* --------------------------- Partie publique ----------------------------- */
 
 
-/* free_cass_list
+/* ucass_Free
  *  Libère la mémoire utilisée par la liste des cartouches.
  */
-void free_cass_list (void)
+void ucass_Free (void)
 {
     g_list_foreach (path_list, (GFunc)g_free, (gpointer) NULL);
     g_list_free (path_list);
@@ -333,20 +334,20 @@ void free_cass_list (void)
 
 
 
-/* update_counter_cass:
+/* ucass_UpdateCounter:
  *  Positionne le compteur de cassette.
  */ 
-void update_counter_cass (void)
+void ucass_UpdateCounter (void)
 {
     set_counter_cass ();
 }
 
 
 
-/* init_cass_notebook_frame:
+/* ucass_Init:
  *  Initialise la frame du notebook pour la cassette.
  */
-void init_cass_notebook_frame (GtkWidget *notebook)
+void ucass_Init (GtkWidget *notebook)
 {
     GtkWidget *vbox;
     GtkWidget *hbox;
