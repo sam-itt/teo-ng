@@ -11,6 +11,13 @@
   teo.command et teo.sound_enabled
 - Changement de media/memo7.c en media/memo.c
 - Changement de media/k7.c en media/cass.c
+- Changement des noms des fonctions publiques (<nom_du_fichier>_*)
+- Elimination de include/intern/xargs.h, src/xargs.c, src/win/wgui/wstart.c
+- Ajout de src/win/wgui/cass.ico, src/win/wgui/disk.ico, src/win/wgui/memo.ico,
+  src/win/wgui/open1.ico
+- Ajout de src/media/libsap.c, src/option.c
+- Réorganisation des headers
+- Ajout du suffixe 'TEO_COMMAND_' pour les valeurs de commandes
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
@@ -29,13 +36,13 @@
           correction de bug : nom de cartouche désormais effacé au reset
           de combo (sinon il réapparait au lancement suivant en
           -loadstate)
-          Création des fonctions memo_FirstLoad(), memo_IsMemo()
+          Création des fonctions memo_FirstLoad(), memo_Check()
 - media/disk.c
-          Création des fonctions disk_FirstLoad(), disk_IsDisk(),
+          Création des fonctions disk_FirstLoad(), disk_Check(),
           disk_LoadDir(), disk_UnloadAll(), disk_UnloadDir() suite
           à la fusion de xargs de Samuel Devulder
 - media/cass.c
-          Création des fonctions cass_FirstLoad(), cass_IsCass()
+          Création des fonctions cass_FirstLoad(), cass_Check()
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
