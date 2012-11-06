@@ -53,11 +53,11 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "to8err.h"
-#include "intern/std.h"
-#include "intern/disk.h"
-#include "linux/gui.h"
 #include "to8.h"
+#include "std.h"
+#include "error.h"
+#include "media/disk.h"
+#include "linux/gui.h"
 
 #define NDISKS 4
 
@@ -87,7 +87,7 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
     switch (ret)
     {
         case ERR_ERROR :
-            error_box (to8_error_msg, wControl);
+            ugui_Error (to8_error_msg, wControl);
             break;
 
         case TO8_READ_ONLY :
@@ -114,7 +114,7 @@ static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
     }
     else if (disk_SetMode (vector->id, TO8_READ_WRITE)==TO8_READ_ONLY)
     {
-        error_box(is_fr?"Ecriture impossible sur ce support."
+        ugui_Error (is_fr?"Ecriture impossible sur ce support."
                        :"Writing unavailable on this device.", wControl);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
         teo.disk[vector->id].write_protect = TRUE;
@@ -346,13 +346,13 @@ static void open_dir (GtkButton *button, struct FILE_VECTOR *vector)
 }
 
 
-/* --------------------------- Partie publique ----------------------------- */
+/* ------------------------------------------------------------------------- */
 
 
-/* free_disk_list:
+/* udisk_Free:
  *  Libère la mémoire utilisée par les listes de disquettes.
  */
-void free_disk_list (void)
+void udisk_Free (void)
 {
     int i;
 
@@ -362,10 +362,10 @@ void free_disk_list (void)
 
 
 
-/* init_disk_notebook_frame:
+/* udisk_Init:
  *  Initialise la frame du notebook pour les disquettes.
  */
-void init_disk_notebook_frame (GtkWidget *notebook)
+void udisk_Init (GtkWidget *notebook)
 {
     int i;
     GtkWidget *vbox;

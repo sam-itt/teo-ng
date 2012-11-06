@@ -74,17 +74,20 @@ static GtkWidget *notebook;
  */
 static void do_exit (GtkWidget *button, gpointer user_data)
 {
-    teo.command = (volatile enum _command)user_data;
+    teo.command = (volatile enum teo_command)user_data;
     gtk_dialog_response (GTK_DIALOG(wControl), TEO_RESPONSE_END);
 
     (void) button;
 }
 
 
-/* display_box:
+/* ------------------------------------------------------------------------- */
+
+
+/* ugui_MessageBox:
  *  Affiche une boîte à message
  */
-void display_box (const gchar *message, GtkWidget *parent_window, int dialog_flag)
+void ugui_MessageBox (const gchar *message, GtkWidget *parent_window, int dialog_flag)
 {
     GtkWidget *dialog = gtk_message_dialog_new  (
                     (GtkWindow *)parent_window,
@@ -98,42 +101,42 @@ void display_box (const gchar *message, GtkWidget *parent_window, int dialog_fla
 
 
 
-/* error_box:
+/* ugui_Error:
  *  Affiche une boîte d'erreur
  */
-void error_box (const gchar *message, GtkWidget *parent_window)
+void ugui_Error (const gchar *message, GtkWidget *parent_window)
 {
-    display_box (message, parent_window, GTK_MESSAGE_ERROR);
+    ugui_MessageBox (message, parent_window, GTK_MESSAGE_ERROR);
 }
 
 
 
-/* warning_box:
+/* ugui_Warning:
  *  Affiche une boîte de prévention
  */
-void warning_box (const gchar *message, GtkWidget *parent_window)
+void ugui_Warning (const gchar *message, GtkWidget *parent_window)
 {
-    display_box (message, parent_window, GTK_MESSAGE_WARNING);
+    ugui_MessageBox (message, parent_window, GTK_MESSAGE_WARNING);
 }
 
 
 
-/* FreeGUI:
+/* ugui_Free:
  *  Libère la mémoire utilisée par l'interface
  */
-void FreeGUI (void)
+void ugui_Free (void)
 {
-    free_memo_list ();
-    free_cass_list ();
-    free_disk_list ();
+    umemo_Free ();
+    umemo_Free ();
+    udisk_Free ();
 }
 
 
 
-/* InitGUI:
+/* ugui_Init:
  *  Initialise le module interface utilisateur.
  */
-void InitGUI(void)
+void ugui_Init(void)
 {
     GtkWidget *content_area;
     GtkWidget *action_area;
@@ -172,27 +175,27 @@ void InitGUI(void)
 
     /* bouton de réinitialisation */
     widget=gtk_button_new_with_label((is_fr?"RÃ©initialiser le TO8":"TO8 warm reset"));
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) RESET);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) TEO_COMMAND_RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
 
     /* bouton de redémarrage à froid */
     widget=gtk_button_new_with_label((is_fr?"RedÃ©marrer Ã  froid le TO8":"TO8 cold reset"));
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) COLD_RESET);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) TEO_COMMAND_COLD_RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
 
     /* bouton de "A Propos" */
     widget=gtk_button_new_from_stock(GTK_STOCK_ABOUT);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(run_about_window), (gpointer)NULL);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(uabout_Dialog), (gpointer)NULL);
     gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
 
     /* notebook */
     notebook=gtk_notebook_new();
     gtk_box_pack_start( GTK_BOX(content_area), notebook, TRUE, FALSE, 0);
-    init_setting_notebook_frame (notebook);
-    init_disk_notebook_frame (notebook);
-    init_cass_notebook_frame (notebook);
-    init_memo_notebook_frame (notebook);
-    init_printer_notebook_frame (notebook);
+    usetting_Init (notebook);
+    udisk_Init    (notebook);
+    ucass_Init    (notebook);
+    umemo_Init    (notebook);
+    uprinter_Init (notebook);
 
     /* affiche tout l'intérieur */
     gtk_widget_show_all(content_area);
@@ -204,18 +207,18 @@ void InitGUI(void)
 }
 
 
-/* ControlPanel:
+/* ugui_Panel:
  *  Affiche le panneau de contrôle.
  */
-void ControlPanel(void)
+void ugui_Panel(void)
 {
     gint response;
 
     /* Mise à jour du compteur de cassettes */
-    update_counter_cass ();
+    ucass_UpdateCounter ();
 
     /* initialisation de la commande */
-    teo.command = NONE;
+    teo.command = TEO_COMMAND_NONE;
 
     /* gestion des évènements */
     response = gtk_dialog_run (GTK_DIALOG(wControl));
@@ -223,7 +226,7 @@ void ControlPanel(void)
     {
         case TEO_RESPONSE_END    : break;
         case GTK_RESPONSE_ACCEPT : break;
-        case TEO_RESPONSE_QUIT   : teo.command=QUIT; break;
+        case TEO_RESPONSE_QUIT   : teo.command=TEO_COMMAND_QUIT; break;
    }
    gtk_widget_hide (wControl);
 }
