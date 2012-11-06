@@ -357,6 +357,8 @@ static int amode40_InitGraphic(int depth, int _allegro_driver, int border_suppor
 }
 
 
+/* ------------------------------------------------------------------------- */
+
 
 struct GRAPHIC_DRIVER amode40_driver={
     amode40_InitGraphic,
