@@ -47,14 +47,15 @@
    #include <allegro/internal/aintern.h>
 #endif
 
+#include "media/keyboard.h"
 #include "to8.h"
 
 
 
-/* KeyboardHandler:
+/* keyboard_handler:
  *  Handler des évènements bas-niveau clavier.
  */
-static void KeyboardHandler(int key)
+static void keyboard_handler(int key)
 {
     int release=key&0x80;
 
@@ -64,32 +65,32 @@ static void KeyboardHandler(int key)
     {
         case KEY_ESC:
             if (!release)
-                teo.command=CONTROL_PANEL;
+                teo.command=TEO_COMMAND_PANEL;
             break;
 
         case KEY_F11:
             if (!release)
-                teo.command=SCREENSHOT;
+                teo.command=TEO_COMMAND_SCREENSHOT;
             break;
 
         case KEY_F12:
             if (!release)
-                teo.command=DEBUGGER;
+                teo.command=TEO_COMMAND_DEBUGGER;
             break;
 
         default:
-            to8_HandleKeyPress(key, release);
+            keyboard_Press (key, release);
     }
 }
 
-END_OF_FUNCTION(KeyboardHandler)
+END_OF_FUNCTION(keyboard_handler)
 
 
 
-/* SetKeyboardLed:
+/* set_keyboard_led:
  *  Modifie l'état des Leds du clavier physique.
  */
-static void SetKeyboardLed(int state)
+static void set_keyboard_led(int state)
 {
     int flags = 0;
 
@@ -104,11 +105,12 @@ static void SetKeyboardLed(int state)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InstallKeybint:
+/* dkeybint_Install:
  *  Installe le module de gestion bas-niveau du clavier.
  */
-void InstallKeybint(void)
+void dkeybint_Install(void)
 {
     static int first=1;
     int mask=0, value=0;
@@ -141,27 +143,27 @@ void InstallKeybint(void)
 
     to8_InputReset(mask, value);
 
-    keyboard_lowlevel_callback=KeyboardHandler;
+    keyboard_lowlevel_callback=keyboard_handler;
 }
 
 
 
-/* ShutDownKeybint:
+/* dkeybint_ShutDown:
  *  Désinstalle le module de gestion bas-niveau du clavier.
  */
-void ShutDownKeybint(void)
+void dkeybint_ShutDown(void)
 {
     keyboard_lowlevel_callback=NULL;
 }
 
 
 
-/* InitKeybint:
+/* dkeybint_Init:
  *  Initialise le module de gestion bas-niveau clavier.
  */
-void InitKeybint(void)
+void dkeybint_Init(void)
 {
-    to8_SetKeyboardLed=SetKeyboardLed;
-    LOCK_FUNCTION(KeyboardHandler);
+    to8_SetKeyboardLed=set_keyboard_led;
+    LOCK_FUNCTION(keyboard_handler);
 }
 

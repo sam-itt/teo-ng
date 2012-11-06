@@ -63,22 +63,22 @@
    #include <X11/Xutil.h>
 #endif
 
-#include "intern/defs.h"
-#include "intern/printer.h"
-#include "intern/option.h"
-#include "intern/image.h"
-#include "intern/main.h"
-#include "intern/std.h"
-#include "intern/ini.h"
-#include "intern/disk.h"
-#include "intern/cass.h"
-#include "intern/memo.h"
+#include "defs.h"
+#include "to8.h"
+#include "option.h"
+#include "image.h"
+#include "main.h"
+#include "std.h"
+#include "ini.h"
+#include "media/disk.h"
+#include "media/cass.h"
+#include "media/memo.h"
+#include "media/printer.h"
 #include "linux/disk.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
 #include "linux/sound.h"
 #include "linux/gui.h"
-#include "to8.h"
 
 
 struct EMUTEO teo;
@@ -110,33 +110,33 @@ static gboolean RunTO8 (gpointer user_data)
     g_timer_start (timer);
 
     if (to8_DoFrame(debug) == 0)
-        teo.command=BREAKPOINT;
+        teo.command=TEO_COMMAND_BREAKPOINT;
 
-    if ((teo.command == BREAKPOINT)
-     || (teo.command == DEBUGGER))
+    if ((teo.command == TEO_COMMAND_BREAKPOINT)
+     || (teo.command == TEO_COMMAND_DEBUGGER))
         debug = DebugPanel();
 
-    if (teo.command == CONTROL_PANEL) {
-        ControlPanel();
+    if (teo.command == TEO_COMMAND_PANEL) {
+        ugui_Panel();
         debug = 0;
     }
 
-    if (teo.command == RESET) {
+    if (teo.command == TEO_COMMAND_RESET) {
         to8_Reset();
         debug = 0;
     }
 
-    if (teo.command == COLD_RESET) {
+    if (teo.command == TEO_COMMAND_COLD_RESET) {
         to8_ColdReset();
         debug = 0;
     }
-    if (teo.command == QUIT) {
+    if (teo.command == TEO_COMMAND_QUIT) {
         mc6809_FlushExec();
         gtk_main_quit ();
         return FALSE;
     }
 
-    teo.command = NONE;
+    teo.command = TEO_COMMAND_NONE;
 
     RefreshScreen();
     if ((teo.setting.exact_speed)
@@ -284,7 +284,8 @@ char *main_TmpFile(char *buf, int maxlen)
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
-    error_box (msg, NULL);
+    ugui_Error
+     (msg, NULL);
 }
 
 
@@ -362,7 +363,7 @@ int main(int argc, char *argv[])
         main_ExitMessage(to8_error_msg);
 
     /* Initialisation de l'interface d'accès direct */
-    InitDirectDisk (drive_type, direct_write_support);
+    ufloppy_Init (drive_type, direct_write_support);
 
     /* Détection des lecteurs supportés (3"5 seulement) */
     for (i=0; i<4; i++)
@@ -390,20 +391,20 @@ int main(int argc, char *argv[])
         if (access("autosave.img", F_OK) >= 0)
             image_Load ("autosave.img");
 
-    InitGUI ();      /* Initialise l'interface graphique */
+    ugui_Init();      /* Initialise l'interface graphique */
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    teo.command=NONE;
+    teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
     g_timeout_add (2, RunTO8, &idle_data);
     gtk_main ();
     g_idle_remove_by_data (&idle_data);
     g_timer_destroy (timer);
 
-    ExitDirectDisk();   /* Mise au repos de l'interface d'accès direct */
-    FreeGUI ();         /* Libère la mémoire utilisée par la GUI */
-    CloseSound();       /* Referme le périphérique audio*/
+    ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
+    ugui_Free ();     /* Libère la mémoire utilisée par la GUI */
+    CloseSound();   /* Referme le périphérique audio*/
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));

@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 12/06/2012
+ *                               04/11/2012
  *
  *  Gestion des cartouches.
  */
@@ -51,8 +52,8 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "intern/memo.h"
-#include "intern/std.h"
+#include "media/memo.h"
+#include "std.h"
 #include "linux/gui.h"
 #include "to8.h"
 
@@ -87,7 +88,7 @@ static void add_combo_entry (const char *name, const char *path)
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
         entry_max++;
     }
-    teo.command = COLD_RESET;
+    teo.command = TEO_COMMAND_COLD_RESET;
 }
 
 
@@ -110,7 +111,7 @@ static void reset_combo (GtkButton *button, gpointer data)
     /* Bloque l'intervention de combo_changed */
     g_signal_handler_block (combo, combo_changed_id);
 
-    free_memo_list ();
+    umemo_Free ();
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     init_combo();
     memo_Eject();
@@ -137,9 +138,9 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
         memo_Eject();
     else
     if (memo_Load(filename) < 0)
-        error_box(to8_error_msg, wControl);
+        ugui_Error (to8_error_msg, wControl);
 
-    teo.command=COLD_RESET;
+    teo.command=TEO_COMMAND_COLD_RESET;
 
     (void)data;
 }
@@ -189,7 +190,7 @@ static void open_file (GtkButton *button, gpointer data)
     {
         file_name = gtk_file_chooser_get_filename((GtkFileChooser *)dialog);
         if (memo_Load(file_name) < 0)
-            error_box(to8_error_msg, wControl);
+            ugui_Error (to8_error_msg, wControl);
         else
         {
             /* Bloque l'intervention de combo_changed */
@@ -216,10 +217,10 @@ static void open_file (GtkButton *button, gpointer data)
 /* --------------------------- Partie publique ----------------------------- */
 
 
-/* free_memo_list
+/* umemo_Free
  *  Libère la mémoire utilisée par la liste des cartouches.
  */
-void free_memo_list (void)
+void umemo_Free (void)
 {
     g_list_foreach (name_list, (GFunc)g_free, (gpointer) NULL);
     g_list_foreach (path_list, (GFunc)g_free, (gpointer) NULL);
@@ -232,10 +233,10 @@ void free_memo_list (void)
 
 
 
-/* init_memo_notebook_frame:
+/* umemo_Init:
  *  Initialise la frame du notebook pour la cartouche.
  */
-void init_memo_notebook_frame (GtkWidget *notebook)
+void umemo_Init (GtkWidget *notebook)
 {
     GtkWidget *vbox;
     GtkWidget *hbox;
