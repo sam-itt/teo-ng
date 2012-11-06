@@ -54,8 +54,8 @@
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "intern/memo.h"
-#include "intern/std.h"
+#include "media/memo.h"
+#include "std.h"
 #include "to8.h"
 
 /* Chemin du fichier de la cartouche. */
@@ -142,7 +142,7 @@ void amemo_Panel(void)
                 m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
                 m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
                 memo_Eject();
-                teo.command=COLD_RESET;
+                teo.command=TEO_COMMAND_COLD_RESET;
                 break;
 
             case M7DIAL_BUTTON:
@@ -161,7 +161,7 @@ void amemo_Panel(void)
                         teo.default_folder = std_free (teo.default_folder);
                         teo.default_folder = std_strdup_printf ("%s", filename);
                         std_CleanPath (teo.default_folder);
-                        teo.command=COLD_RESET;
+                        teo.command=TEO_COMMAND_COLD_RESET;
                     }   
                 }
                 break;
@@ -191,8 +191,8 @@ void amemo_SetColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void amemo_Init(void)
 {
-    if (teo.memo.file != NULL)
-        m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", teo.memo.file);
+    if (teo.memo.label != NULL)
+        m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", teo.memo.label);
 }
 
 
