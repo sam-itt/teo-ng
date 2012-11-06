@@ -51,15 +51,14 @@
 #endif
 
 #include "to8.h"
-#include "intern/disk.h"
-#include "intern/memo.h"
-#include "intern/cass.h"
-#include "intern/option.h"
-#include "intern/main.h"
-#include "intern/std.h"
-#include "intern/ini.h"
-#include "to8.h"
-#include "to8err.h"
+#include "option.h"
+#include "main.h"
+#include "std.h"
+#include "ini.h"
+#include "error.h"
+#include "media/disk.h"
+#include "media/memo.h"
+#include "media/cass.h"
 
 
 enum {
@@ -268,7 +267,7 @@ void option_Undefined (char *fname)
 
     /* si on a un fichier disque sans option ou un dossier, on trouve le 1er
        disque libre */
-    if (disk_Check(fname) == TRUE)
+    if (disk_Check(fname) != FALSE)
     {
         if (teo.disk[0].file == NULL) err = disk_Load (0, fname); else
         if (teo.disk[1].file == NULL) err = disk_Load (1, fname); else
@@ -278,7 +277,7 @@ void option_Undefined (char *fname)
     }
     else
     /* traitement d'un fichier memo */
-    if (memo_Check (fname) == TRUE)
+    if (memo_Check (fname) != FALSE)
         err = (teo.memo.file == NULL) ? memo_Load (fname)
                                       : error_Message (TO8_MEDIA_ALREADY_SET, fname);
     else
