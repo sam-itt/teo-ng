@@ -51,10 +51,10 @@
    #include <stdarg.h>
 #endif
 
-#include "intern/defs.h"
-#include "intern/printer.h"
-#include "intern/std.h"
+#include "defs.h"
+#include "std.h"
 #include "to8.h"
+#include "media/printer.h"
 
 
 
@@ -114,6 +114,9 @@ static char *std_strdup_printf_run (char *fmt, va_list ap)
     char *s;
     char *buf = calloc(1,33);
     char *ptr = calloc(1,1);
+    char fill_char = '\0';
+    char fill_size = 0;
+    char *fmt_tmp = calloc(1,33);
     
     while ((ptr != NULL)
         && (buf != NULL)
@@ -124,7 +127,18 @@ static char *std_strdup_printf_run (char *fmt, va_list ap)
         fmt += strcspn (fmt, "%");
         if (*fmt == '%')
         {
-            switch (*(++fmt))
+            fmt++;
+
+            if ((*(fmt) == '0') || (*(fmt) == ' '))
+            {
+                fill_char = *fmt;
+                fmt++;
+            }
+
+            if ((*(fmt) >= '1') && (*(fmt) <= '9'))
+                fill_size = (int)strtol (fmt, &fmt, 0);
+
+            switch (*fmt)
             {
                 /* Chaîne */
                 case 's': s = va_arg (ap, char *);
@@ -133,7 +147,16 @@ static char *std_strdup_printf_run (char *fmt, va_list ap)
 
                 /* Entier */
                 case 'd': d = va_arg (ap, int);
-                          i = sprintf (buf, "%d", d);
+                          sprintf (fmt_tmp, "%%d");
+                          if (fill_size != 0)
+                          {
+                              if (fill_char != '\0')
+                                  sprintf (fmt_tmp, "%%%c%dd", fill_char, fill_size);
+                              else
+                                  sprintf (fmt_tmp, "%%%dd", fill_size);
+                          }
+                          i = sprintf (buf, fmt_tmp, d);
+                          
                           ptr = std_strdup_printf_add(ptr, buf, i);
                           break;
 
@@ -148,6 +171,8 @@ static char *std_strdup_printf_run (char *fmt, va_list ap)
                 /* Passe */
                 default : break;
             }
+            fill_char = '\0';
+            fill_size = 0;
             fmt++;
         }
     }
