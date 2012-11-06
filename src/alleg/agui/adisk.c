@@ -54,8 +54,8 @@
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "intern/disk.h"
-#include "intern/std.h"
+#include "media/disk.h"
+#include "std.h"
 #include "to8.h"
 
 /* Chemin du fichier de la disquette. */
@@ -184,11 +184,14 @@ void adisk_Panel(void)
             init_filename(drive);
 
             dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
-            if (*filename != '\0')
+            if ((filename != NULL) && (*filename != '\0'))
                 diskdial[dial_nbr].dp = std_strdup_printf ("%s" , get_filename(filename));
             name = (char *)diskdial[dial_nbr].dp;
             if ((name == NULL) || (*name == '\0'))
+            {
+                diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
                 diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+            }
             dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
             if (teo.disk[drive].write_protect)
                 diskdial[dial_nbr].flags |= D_SELECTED;
@@ -241,12 +244,12 @@ void adisk_Panel(void)
                         diskdial[dial_nbr].dp = std_strdup_printf ("%s", get_filename(filename));
                         teo.default_folder = std_free (teo.default_folder);
                         teo.default_folder = std_strdup_printf ("%s", filename);
-
                         std_CleanPath (teo.default_folder);
 
                         if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
                         {
-                            agui_PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
+                            agui_PopupMessage(is_fr?"Attention: écriture impossible."
+                                                   :"Warning: writing unavailable.");
                             diskdial[ret+1].flags|=D_SELECTED;
                             diskdial[ret+1].d2=1;
                         }
