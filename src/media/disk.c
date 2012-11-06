@@ -53,12 +53,12 @@
    #include <dirent.h>
 #endif
 
-#include "intern/disk.h"
-#include "intern/errors.h"
-#include "intern/hardware.h"
-#include "intern/main.h"
-#include "intern/std.h"
-#include "intern/libsap.h"
+#include "media/disk.h"
+#include "media/libsap.h"
+#include "error.h"
+#include "hardware.h"
+#include "main.h"
+#include "std.h"
 #include "to8.h"
 
 #ifdef UNIX_TOOL

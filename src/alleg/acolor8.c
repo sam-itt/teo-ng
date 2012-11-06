@@ -51,7 +51,7 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h" 
 #include "to8.h"
-#include "intern/defs.h"
+#include "defs.h"
 
 
 #define PALETTE_START  (TO8_NCOLORS+1)

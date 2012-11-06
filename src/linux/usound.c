@@ -56,9 +56,9 @@
    #include <alsa/asoundlib.h>
 #endif
 
-#include "intern/hardware.h"
-#include "intern/std.h"
-#include "to8err.h"
+#include "hardware.h"
+#include "std.h"
+#include "error.h"
 #include "to8.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */

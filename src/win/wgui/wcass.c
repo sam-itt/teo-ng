@@ -56,9 +56,9 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
-#include "intern/std.h"
-#include "intern/errors.h"
-#include "intern/cass.h"
+#include "std.h"
+#include "error.h"
+#include "media/cass.h"
 #include "to8.h"
 
 #define COUNTER_MAX  999

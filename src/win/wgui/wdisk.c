@@ -57,9 +57,9 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
-#include "intern/disk.h"
-#include "intern/std.h"
-#include "intern/errors.h"
+#include "media/disk.h"
+#include "std.h"
+#include "error.h"
 #include "to8.h"
 
 static int direct_disk_support=0;

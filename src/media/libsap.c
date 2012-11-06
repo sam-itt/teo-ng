@@ -26,7 +26,7 @@
 #include <time.h>
 #endif
 
-#include "intern/libsap.h"
+#include "media/libsap.h"
 
 
 int sap_errno;

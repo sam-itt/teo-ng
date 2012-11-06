@@ -53,11 +53,11 @@
    #include <string.h>
 #endif
 
-#include "intern/defs.h"
-#include "intern/hardware.h"
-#include "intern/errors.h"
-#include "intern/main.h"
-#include "intern/std.h"
+#include "defs.h"
+#include "hardware.h"
+#include "error.h"
+#include "main.h"
+#include "std.h"
 #include "to8.h"
 
 

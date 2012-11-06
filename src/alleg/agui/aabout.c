@@ -54,7 +54,7 @@
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "intern/std.h"
+#include "std.h"
 #include "to8.h"
 
 /* Boîte de dialogue. */

@@ -49,12 +49,12 @@
 
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
-#include "intern/errors.h"
-#include "intern/hardware.h"
-#include "intern/joystick.h"
-#include "intern/keyboard.h"  /* MacOS */
+#include "media/joystick.h"
+#include "media/keyboard.h"  /* MacOS */
+#include "error.h"
+#include "hardware.h"
 #include "to8.h"
-#include "to8keys.h"
+#include "teokey.h"
 
 
 static volatile int kb_state; /* contient l'état des touches et leds du clavier PC:

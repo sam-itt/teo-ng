@@ -52,18 +52,18 @@
    #include <time.h>
 #endif
 
+#include "defs.h"
+#include "to8.h"
+#include "error.h"
+#include "hardware.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/mc6846.h"
-#include "intern/defs.h"
-#include "intern/disk.h"
-#include "intern/errors.h"
-#include "intern/hardware.h"
-#include "intern/keyboard.h"
-#include "intern/cass.h"
-#include "intern/mouse.h"
-#include "intern/printer.h"
-#include "to8.h"
+#include "media/disk.h"
+#include "media/keyboard.h"
+#include "media/cass.h"
+#include "media/mouse.h"
+#include "media/printer.h"
 
 
 /* les composants métériels de l'émulateur */

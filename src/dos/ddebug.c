@@ -52,7 +52,7 @@
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "dos/memmng.h"
-#include "to8dbg.h"
+#include "debug.h"
 #include "to8.h"
 
 #define MENU_NLINES 8

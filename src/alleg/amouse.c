@@ -49,7 +49,7 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/mouse.h"
-#include "intern/mouse.h"
+#include "media/mouse.h"
 #include "to8.h"
 
 

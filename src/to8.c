@@ -53,20 +53,20 @@
    #include <string.h>
 #endif
 
-#include "mc68xx/mc6809.h"
-#include "intern/defs.h"
-#include "intern/disk.h"
-#include "intern/errors.h"
-#include "intern/hardware.h"
-#include "intern/joystick.h"
-#include "intern/keyboard.h"
-#include "intern/image.h"
-#include "intern/cass.h"
-#include "intern/mouse.h"
-#include "intern/printer.h"
-#include "intern/ini.h"
-#include "intern/std.h"
+#include "defs.h"
 #include "to8.h"
+#include "error.h"
+#include "image.h"
+#include "ini.h"
+#include "std.h"
+#include "hardware.h"
+#include "media/disk.h"
+#include "media/joystick.h"
+#include "media/keyboard.h"
+#include "media/cass.h"
+#include "media/mouse.h"
+#include "media/printer.h"
+#include "mc68xx/mc6809.h"
 
 int is_fr=0;
 

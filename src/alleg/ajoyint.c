@@ -48,7 +48,7 @@
    #include <allegro.h>
 #endif
 
-#include "intern/joystick.h"
+#include "media/joystick.h"
 #include "to8.h"
 
 

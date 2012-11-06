@@ -53,7 +53,7 @@
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "intern/std.h"
+#include "std.h"
 #include "to8.h"
 
 /* Liste des imprimantes */

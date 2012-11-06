@@ -42,8 +42,8 @@
  */
 
 
-#include "intern/hardware.h"
-#include "intern/joystick.h"  /* MacOS */
+#include "hardware.h"
+#include "media/joystick.h"  /* MacOS */
 
 /* ------------------------------------------------------------------------- */
 

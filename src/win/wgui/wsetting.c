@@ -53,7 +53,7 @@
    #include <commctrl.h>
 #endif
 
-#include "intern/image.h"
+#include "image.h"
 #include "alleg/sound.h"
 #include "win/dialog.rh"
 #include "win/gui.h"

@@ -55,7 +55,7 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
-#include "intern/std.h"
+#include "std.h"
 #include "to8.h"
 
 #define PRINTER_NUMBER 5

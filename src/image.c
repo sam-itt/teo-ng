@@ -51,9 +51,9 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "mc68xx/mc6821.h"
-#include "intern/disk.h"
-#include "intern/errors.h"
-#include "intern/hardware.h"
+#include "media/disk.h"
+#include "error.h"
+#include "hardware.h"
 
 
 /***************************************************************************************************

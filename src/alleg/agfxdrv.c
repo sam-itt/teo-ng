@@ -52,7 +52,7 @@
 
 #include "alleg/gfxdrv.h"
 #include "alleg/mouse.h"
-#include "intern/std.h"
+#include "std.h"
 #include "to8.h"
 
 
@@ -63,7 +63,6 @@ void (*RefreshBorder)(void);
 void (*RefreshPalette)(void);
 void (*RefreshScreen)(void);
 void (*RetraceScreen)(int, int, int, int);
-
 
 static struct GRAPHIC_DRIVER *graphic_driver_list[]={
     NULL,
