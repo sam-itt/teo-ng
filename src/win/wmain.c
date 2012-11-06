@@ -54,17 +54,17 @@
    #include <ctype.h>
 #endif
 
-#include "intern/libsap.h"
-#include "intern/printer.h"
-#include "intern/option.h"
-#include "intern/std.h"
-#include "intern/ini.h"
-#include "intern/disk.h"
-#include "intern/cass.h"
-#include "intern/memo.h"
-#include "intern/image.h"
-#include "intern/main.h"
-#include "intern/errors.h"
+#include "media/libsap.h"
+#include "media/disk.h"
+#include "media/cass.h"
+#include "media/memo.h"
+#include "media/printer.h"
+#include "option.h"
+#include "std.h"
+#include "ini.h"
+#include "image.h"
+#include "main.h"
+#include "error.h"
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
@@ -115,7 +115,7 @@ static void RunTO8(int windowed_mode)
 
     do  /* boucle principale de l'émulateur */
     {
-        teo.command=NONE;
+        teo.command=TEO_COMMAND_NONE;
 
         /* installation des handlers clavier, souris et son */ 
         wkeybint_Install();
@@ -159,7 +159,7 @@ static void RunTO8(int windowed_mode)
 
             frame++;
         }
-        while (teo.command==NONE);  /* fin de la boucle d'émulation */
+        while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
 
         /* désinstallation des handlers clavier, souris et son */
         if (teo.setting.exact_speed)
@@ -173,7 +173,7 @@ static void RunTO8(int windowed_mode)
         wkeybint_ShutDown();
 
         /* éxécution des commandes */
-        if (teo.command==CONTROL_PANEL)
+        if (teo.command==TEO_COMMAND_PANEL)
         {
             if (windowed_mode)
                 wgui_Panel();
@@ -181,19 +181,19 @@ static void RunTO8(int windowed_mode)
                 agui_Panel();
         }
 
-        if (teo.command==SCREENSHOT)
+        if (teo.command==TEO_COMMAND_SCREENSHOT)
             agfxdrv_Screenshot();
 
-        if (teo.command==RESET)
+        if (teo.command==TEO_COMMAND_RESET)
             to8_Reset();
 
-        if (teo.command==COLD_RESET)
+        if (teo.command==TEO_COMMAND_COLD_RESET)
         {
             to8_ColdReset();
             amouse_Install(TO8_MOUSE);
         }
     }
-    while (teo.command != QUIT);  /* fin de la boucle principale */
+    while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
@@ -371,7 +371,7 @@ char *main_TmpFile(char *buf, int maxlen) {
  */
 static void close_procedure (void)
 {
-    teo.command = QUIT;
+    teo.command = TEO_COMMAND_QUIT;
 }
  
 

@@ -48,7 +48,7 @@
    #include <allegro/internal/aintern.h>
 #endif
 
-#include "intern/keyboard.h"
+#include "media/keyboard.h"
 #include "to8.h"
 
 
@@ -66,12 +66,12 @@ static void KeyboardHandler(int key)
     {
         case KEY_ESC:
             if (!release)
-                teo.command=CONTROL_PANEL;
+                teo.command=TEO_COMMAND_PANEL;
             break;
 
         case KEY_F11:
             if (!release)
-                teo.command=SCREENSHOT;
+                teo.command=TEO_COMMAND_SCREENSHOT;
             break;
 
         default:

@@ -56,9 +56,9 @@
 
 #include "win/dialog.rh"
 #include "win/gui.h"
-#include "intern/memo.h"
-#include "intern/std.h"
-#include "intern/errors.h"
+#include "media/memo.h"
+#include "std.h"
+#include "error.h"
 #include "to8.h"
 
 static int entry_max = 0;
@@ -141,7 +141,7 @@ static void clear_combo (HWND hWnd)
     memo_Eject ();
     SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_RESETCONTENT, 0, 0);
     init_combo (hWnd);
-    teo.command = COLD_RESET;
+    teo.command = TEO_COMMAND_COLD_RESET;
     update_params(hWnd);
 }
 
@@ -164,7 +164,7 @@ static void combo_changed (HWND hWnd)
         {
             (void)load_memo (hWnd, std_StringListText (path_list, index));
         }
-        teo.command = COLD_RESET;
+        teo.command = TEO_COMMAND_COLD_RESET;
         update_params(hWnd);
     }
 }
@@ -208,7 +208,7 @@ static void open_file (HWND hWnd)
           teo.default_folder = std_free (teo.default_folder);
           teo.default_folder = std_strdup_printf ("%s", teo.memo.file);
           (void)snprintf (current_file, MAX_PATH, "%s", teo.memo.file);
-          teo.command = COLD_RESET;
+          teo.command = TEO_COMMAND_COLD_RESET;
           update_params(hWnd);
       }
    }

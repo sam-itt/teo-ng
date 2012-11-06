@@ -56,14 +56,14 @@
    #include <X11/keysym.h>
 #endif
 
+#include "to8.h"
+#include "thomson.xpm"
+#include "teokey.h"
+#include "media/keyboard.h"
+#include "media/mouse.h"
 #include "linux/gui.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
-#include "intern/keyboard.h"
-#include "intern/mouse.h"
-#include "to8keys.h"
-#include "to8.h"
-#include "thomson.xpm"
 
 
 GtkWidget *wMain;
@@ -236,7 +236,7 @@ void InitDisplay(void)
 static gboolean
 delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    teo.command = QUIT;
+    teo.command = TEO_COMMAND_QUIT;
 
     return FALSE;
     (void)widget;
@@ -272,8 +272,8 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
     switch (teo_key)
     {
-        case TEO_KEY_ESC : teo.command=CONTROL_PANEL; break;
-        case TEO_KEY_F12 : teo.command=DEBUGGER; break;
+        case TEO_KEY_ESC : teo.command=TEO_COMMAND_PANEL; break;
+        case TEO_KEY_F12 : teo.command=TEO_COMMAND_DEBUGGER; break;
         default          : keyboard_Press (teo_key, FALSE); break;
     }
     return FALSE;

@@ -51,9 +51,9 @@
    #include <unistd.h>
 #endif
 
-#include "intern/defs.h"
-#include "intern/printer.h"
-#include "intern/std.h"
+#include "defs.h"
+#include "media/printer.h"
+#include "std.h"
 #include "to8.h"
 
 
@@ -77,14 +77,18 @@ static FILE *file = NULL;
 static struct STRING_LIST *list_start = NULL;
 static const struct INI_LIST ini_entry[] = {
     { "teo"     , "default_folder"  , IARG_DIR , &teo.default_folder           },
+    /* --------------------------------------------------------------------- */
     { "settings", "exact_speed"     , IARG_BOOL, &teo.setting.exact_speed      },
     { "settings", "interlaced_video", IARG_BOOL, &teo.setting.interlaced_video },
     { "settings", "sound_volume"    , IARG_INT , &teo.setting.sound_volume     },
     { "settings", "sound_enabled"   , IARG_BOOL, &teo.setting.sound_enabled    },
+    /* --------------------------------------------------------------------- */
     { "memo"    , "file"            , IARG_STR , &teo.memo.file                },
     { "memo"    , "label"           , IARG_STR , &teo.memo.label               },
+    /* --------------------------------------------------------------------- */
     { "cass"    , "file"            , IARG_STR , &teo.cass.file                },
     { "cass"    , "write_protect"   , IARG_BOOL, &teo.cass.write_protect       },
+    /* --------------------------------------------------------------------- */
     { "disk"    , "file0"           , IARG_STR , &teo.disk[0].file             },
     { "disk"    , "write_protect0"  , IARG_BOOL, &teo.disk[0].write_protect    },
     { "disk"    , "file1"           , IARG_STR , &teo.disk[1].file             },
@@ -93,6 +97,7 @@ static const struct INI_LIST ini_entry[] = {
     { "disk"    , "write_protect2"  , IARG_BOOL, &teo.disk[2].write_protect    },
     { "disk"    , "file3"           , IARG_STR , &teo.disk[3].file             },
     { "disk"    , "write_protect3"  , IARG_BOOL, &teo.disk[3].write_protect    },
+    /* --------------------------------------------------------------------- */
     { "printer" , "folder"          , IARG_DIR , &teo.lprt.folder              },
     { "printer" , "number"          , IARG_INT , &teo.lprt.number              },
     { "printer" , "dip"             , IARG_BOOL, &teo.lprt.dip                 },
@@ -195,7 +200,7 @@ void ini_Load(void)
     /* Initialise les paramètres par défaut de la structure générale */
     memset (&teo, 0x00, sizeof(struct EMUTEO));
     teo.sound_enabled = TRUE;
-    teo.command = NONE;
+    teo.command = TEO_COMMAND_NONE;
     teo.lprt.number = 55;
     teo.lprt.gfx_output = TRUE;
     teo.setting.exact_speed = TRUE;

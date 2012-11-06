@@ -53,7 +53,7 @@
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "intern/std.h"
+#include "std.h"
 #include "to8.h"
 
 
@@ -194,11 +194,11 @@ void agui_Panel(void)
         switch (popup_dialog(controldial, CONTROLDIAL_OK))
         {
             case CONTROLDIAL_WARMRESET:
-                teo.command=RESET;
+                teo.command=TEO_COMMAND_RESET;
                 return;
 
             case CONTROLDIAL_COLDRESET:
-                teo.command=COLD_RESET;
+                teo.command=TEO_COMMAND_COLD_RESET;
                 return;
 
             case CONTROLDIAL_COMMAND:
@@ -230,7 +230,7 @@ void agui_Panel(void)
                 return;
 
             case CONTROLDIAL_QUIT:
-                teo.command=QUIT;
+                teo.command=TEO_COMMAND_QUIT;
                 return;
         }
 }

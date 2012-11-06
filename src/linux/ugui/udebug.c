@@ -42,21 +42,21 @@
 
 
 #ifndef SCAN_DEPEND
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <unistd.h>
+   #include <gtk/gtk.h>
+   #include <gdk/gdkx.h>
 #endif
 
+#include "to8.h"
+#include "debug.h"
+#include "mc68xx/dasm6809.h"
+#include "mc68xx/mc6809.h"
 #include "linux/display.h"
 #include "linux/gui.h"
 #include "linux/graphic.h"
-#include "to8.h"
-#include "mc68xx/dasm6809.h"
-#include "mc68xx/mc6809.h"
-#include "to8dbg.h"
 
 #define DEBUG_SPACE 2
 
@@ -394,8 +394,8 @@ int DebugPanel(void)
     debug = FALSE;
     switch (response)
     {
-        case GTK_RESPONSE_ACCEPT: debug = TRUE     ; break;
-        case GTK_RESPONSE_CANCEL: teo.command=NONE ; break;
+        case GTK_RESPONSE_ACCEPT: debug = TRUE; break;
+        case GTK_RESPONSE_CANCEL: teo.command=TEO_COMMAND_NONE ; break;
    }
    gtk_widget_hide (wDebug);
    return debug;
