@@ -54,8 +54,8 @@
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "intern/cass.h"
-#include "intern/std.h"
+#include "media/cass.h"
+#include "std.h"
 #include "to8.h"
 
 /* Chemin du fichier de la cassette. */
@@ -361,7 +361,8 @@ void acass_Panel(void)
                 {
                     if (cass_SetMode(TO8_READ_WRITE)==TO8_READ_ONLY)
                     {
-                        agui_PopupMessage(is_fr?"Ecriture impossible sur ce support.":"Writing unavailable on this device.");
+                        agui_PopupMessage(is_fr?"Ecriture impossible sur ce support."
+                                               :"Writing unavailable on this device.");
                         k7dial[K7DIAL_CHECK].flags|=D_SELECTED;
                         k7dial[K7DIAL_CHECK].d2=1;
                     }
