@@ -183,12 +183,12 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
                break;
 
             case RESET_BUTTON:
-               teo.command = RESET;
+               teo.command = TEO_COMMAND_RESET;
                EndDialog(hDlg, IDOK);
                break;
 
             case COLDRESET_BUTTON:
-               teo.command = COLD_RESET;
+               teo.command = TEO_COMMAND_COLD_RESET;
                EndDialog(hDlg, IDOK);
                break;
 
@@ -275,5 +275,5 @@ void wgui_Panel(void)
    ret = DialogBox(prog_inst, "CONTROL_DIALOG", prog_win, ControlDialogProc);
 
    if (ret == IDCANCEL) 
-      teo.command = QUIT;
+      teo.command = TEO_COMMAND_QUIT;
 }

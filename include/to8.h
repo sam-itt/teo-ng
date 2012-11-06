@@ -123,15 +123,15 @@
 
 #define TO8_TRAP_CODE          0xCD   /* code pour le trap */
 
-enum _command {
-    NONE = 1,
-    CONTROL_PANEL,
-    SCREENSHOT,
-    DEBUGGER,
-    BREAKPOINT,
-    RESET,
-    COLD_RESET,
-    QUIT
+enum teo_command {
+    TEO_COMMAND_NONE = 1,
+    TEO_COMMAND_PANEL,
+    TEO_COMMAND_SCREENSHOT,
+    TEO_COMMAND_DEBUGGER,
+    TEO_COMMAND_BREAKPOINT,
+    TEO_COMMAND_RESET,
+    TEO_COMMAND_COLD_RESET,
+    TEO_COMMAND_QUIT
 };
 
 enum {
@@ -150,7 +150,7 @@ extern int is_fr;
 
 struct EMUTEO {
     int sound_enabled;
-    volatile enum _command command;
+    volatile enum teo_command command;
     char *default_folder;
     struct EMUTEO_SETTINGS {
         int  exact_speed;
