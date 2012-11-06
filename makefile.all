@@ -45,7 +45,7 @@ TEO_SRC_FILES =         \
    src/media/mouse.c    \
    src/media/printer.c  \
    src/media/libsap.c   \
-   src/errors.c         \
+   src/error.c          \
    src/hardware.c       \
    src/image.c          \
    src/ini.c            \
@@ -56,19 +56,19 @@ TEO_SRC_FILES =         \
 TEO_SRC_ALLEG_FILES =        \
    src/alleg/acolor8.c       \
    src/alleg/agfxdrv.c       \
+   src/alleg/amouse.c        \
+   src/alleg/asound.c        \
+   src/alleg/atruecol.c      \
+   src/alleg/ajoyint.c       \
+   src/alleg/amode40.c       \
+   src/alleg/amode80.c       \
    src/alleg/agui.c          \
    src/alleg/agui/asetting.c \
    src/alleg/agui/adisk.c    \
    src/alleg/agui/acass.c    \
    src/alleg/agui/amemo.c    \
    src/alleg/agui/aprinter.c \
-   src/alleg/agui/aabout.c   \
-   src/alleg/ajoyint.c       \
-   src/alleg/amode40.c       \
-   src/alleg/amode80.c       \
-   src/alleg/amouse.c        \
-   src/alleg/asound.c        \
-   src/alleg/atruecol.c
+   src/alleg/agui/aabout.c
 
 TEO_SRC_DOS_FILES =   \
    src/dos/ddebug.c   \
