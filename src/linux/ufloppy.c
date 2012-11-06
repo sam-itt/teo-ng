@@ -70,10 +70,10 @@ static int drive_type[2];
 
 
 
-/* ResetFloppyDrive:
+/* reset_floppy:
  *  Réinitialise le lecteur de disquettes.
  */
-static void ResetFloppyDrive(int drive)
+static void reset_floppy(int drive)
 {
     struct floppy_struct fd_prm;
 
@@ -92,10 +92,10 @@ static void ResetFloppyDrive(int drive)
 
 
 
-/* OpenFloppyDrive:
+/* open_floppy:
  *  Obtient le descripteur de fichier pour le lecteur de disquettes.
  */
-static int OpenFloppyDrive(int drive)
+static int open_floppy(int drive)
 {
     char dev_str[16];
 
@@ -109,25 +109,25 @@ static int OpenFloppyDrive(int drive)
         return 0;
     }
 
-    ResetFloppyDrive(drive);
+    reset_floppy(drive);
     return 1;
 }
 
 
 
-/* ExecCommand:
+/* execute_command:
  *  Exécute la commande spécifiée via l'appel ioctl() FDRAWCMD.
  */
-static int ExecCommand(int drive, struct floppy_raw_cmd *fd_cmd)
+static int execute_command(int drive, struct floppy_raw_cmd *fd_cmd)
 {
     int i, ret=-1;
 
-    if (fd[drive]<0 && !OpenFloppyDrive(drive))
+    if (fd[drive]<0 && !open_floppy(drive))
         return 0x10;  /* lecteur non prêt */
 
     for (i=0; (i<DISK_RETRY)&&(ret!=0); i++)
     {
-        if (i) ResetFloppyDrive(drive);
+        if (i) reset_floppy(drive);
         ret=ioctl(fd[drive], FDRAWCMD, fd_cmd);
     }
 
@@ -165,17 +165,17 @@ static int ExecCommand(int drive, struct floppy_raw_cmd *fd_cmd)
 
 
 
-/* ExecDiskCommand:
+/* disk_command:
  *  Exécute la commande spécifiée (avec reset pour disquettes fatiguées)
  */
-static int ExecDiskCommand(int drive, struct floppy_raw_cmd *fd_cmd)
+static int disk_command(int drive, struct floppy_raw_cmd *fd_cmd)
 {
     int i,ret=-1;
 
     for (i=0;(i<RESET_RETRY)&&(ret!=0);i++)
     {
-        if (i) ResetFloppyDrive(drive);
-        ret = ExecCommand (drive,fd_cmd);
+        if (i) reset_floppy(drive);
+        ret = execute_command (drive,fd_cmd);
     }
     
     return ret;
@@ -183,10 +183,10 @@ static int ExecDiskCommand(int drive, struct floppy_raw_cmd *fd_cmd)
 
 
 
-/* ReadSector:
+/* read_sector:
  *  Lit le secteur spécifié sur la disquette.
  */
-static int ReadSector(int drive, int track, int sector, int nsects, unsigned char data[])
+static int read_sector(int drive, int track, int sector, int nsects, unsigned char data[])
 {
     struct floppy_raw_cmd fd_cmd;
     int pc_drive = drive/2;
@@ -211,15 +211,15 @@ static int ReadSector(int drive, int track, int sector, int nsects, unsigned cha
 
     SET_NO_MULTITRACK(fd_cmd.cmd[0]);
 
-    return ExecDiskCommand(pc_drive, &fd_cmd);
+    return disk_command(pc_drive, &fd_cmd);
 }
 
 
 
-/* WriteSector:
+/* write_sector:
  *  Ecrit le secteur spécifié sur la disquette.
  */
-static int WriteSector(int drive, int track, int sector, int nsects, const unsigned char data[])
+static int write_sector(int drive, int track, int sector, int nsects, const unsigned char data[])
 {
     struct floppy_raw_cmd fd_cmd;
     int pc_drive = drive/2;
@@ -244,15 +244,15 @@ static int WriteSector(int drive, int track, int sector, int nsects, const unsig
 
     SET_NO_MULTITRACK(fd_cmd.cmd[0]);
 
-    return ExecDiskCommand(pc_drive, &fd_cmd);
+    return disk_command(pc_drive, &fd_cmd);
 }
 
 
 
-/* FormatTrack:
+/* format_track:
  *  Formate la piste en utilisant la table des headers spécifiée.
  */
-static int FormatTrack(int drive, int track, const unsigned char header_table[])
+static int format_track(int drive, int track, const unsigned char header_table[])
 {
     struct floppy_raw_cmd fd_cmd;
     int pc_drive = drive/2;
@@ -274,21 +274,23 @@ static int FormatTrack(int drive, int track, const unsigned char header_table[])
 
     SET_NO_MULTITRACK(fd_cmd.cmd[0]);  /* nop */
 
-    return ExecDiskCommand(pc_drive, &fd_cmd);
+    return disk_command(pc_drive, &fd_cmd);
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InitDirectDisk:
+
+/* ufloppy_Init:
  *  Initialise le module de lecture directe.
  */
-int InitDirectDisk(int to_drive_type[4], int enable_write)
+int ufloppy_Init (int to_drive_type[4], int enable_write)
 {
     struct floppy_drive_params fd_params;
     char dev_str[16];
     int i, num_drives = 0;
 
-    to8_DirectReadSector = NULL;
+    to8_DirectReadSector  = NULL;
     to8_DirectWriteSector = NULL;
     to8_DirectFormatTrack = NULL;
 
@@ -338,12 +340,12 @@ int InitDirectDisk(int to_drive_type[4], int enable_write)
         }
     }
 
-    to8_DirectReadSector = ReadSector;
+    to8_DirectReadSector = read_sector;
 
     if (enable_write)
     {
-        to8_DirectWriteSector = WriteSector;
-        to8_DirectFormatTrack = FormatTrack;
+        to8_DirectWriteSector = write_sector;
+        to8_DirectFormatTrack = format_track;
     }
 
     return num_drives;
@@ -351,14 +353,14 @@ int InitDirectDisk(int to_drive_type[4], int enable_write)
 
 
 
-/* ExitDirectDisk:
+/* ufloppy_Exit:
  *  Met au repos le module de lecture directe.
  */
-void ExitDirectDisk(void)
+void ufloppy_Exit (void)
 {
     int i;
 
-    to8_DirectReadSector = NULL;
+    to8_DirectReadSector  = NULL;
     to8_DirectWriteSector = NULL;
     to8_DirectFormatTrack = NULL;
 

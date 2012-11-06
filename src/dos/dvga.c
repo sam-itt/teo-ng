@@ -244,19 +244,19 @@ static int vga_SetGraphicMode(int mode)
             if (set_gfx_mode(GFX_VGA,320,200,0,0))
                 return FALSE;
                 
-            SetPalette8();
+            acolor8_SetPalette();
             graphic_mode=TRUE;
             break;
 
         case RESTORE:
             set_gfx_mode(GFX_VGA, 320, 200, 0, 0);
-            SetPalette8();
+            acolor8_SetPalette();
             blit(screen_buffer, screen, 0, 0, 0, 0, 320, 200);
             graphic_mode=TRUE;
             break;
 
         case SHUTDOWN:
-            GetPalette8(); /* on sauvegarde la palette */
+            acolor8_GetPalette(); /* on sauvegarde la palette */
             set_gfx_mode(GFX_TEXT,0,0,0,0);
             graphic_mode=FALSE;
             break;
@@ -295,7 +295,7 @@ static int vga_InitGraphic(int depth, int _allegro_driver, int border_support)
         return FALSE;
 
     set_color_depth(8);
-    InitColor8(border_support);
+    acolor8_Init(border_support);
 
     if (!vga_SetGraphicMode(INIT))
         return FALSE;
@@ -316,13 +316,13 @@ static int vga_InitGraphic(int depth, int _allegro_driver, int border_support)
 struct GRAPHIC_DRIVER mod4_driver={
     vga_InitGraphic,
     vga_SetGraphicMode,
-    RefreshPalette8,
-    RefreshScreen8,
+    acolor8_RefreshPalette,
+    acolor8_RefreshScreen,
     vga_RetraceScreen,
     vga_DrawGPL,
     NULL,
-    SetColor8,
-    SetBorderColor8,
+    acolor8_SetColor,
+    acolor8_SetBorderColor,
     vga_SetDiskLed
 };
 

@@ -52,27 +52,31 @@
 extern GtkWidget *wControl;
 
 /* main panel */
-extern void InitGUI(void);
-extern void FreeGUI (void);
-extern void ControlPanel(void);
+extern void ugui_Init (void);
+extern void ugui_Free (void);
+extern void ugui_Panel (void);
 
 /* boxes */
-/* extern int  ask_box (const gchar *message, GtkWidget *parent_window); */
-extern void error_box (const gchar *message, GtkWidget *parent_window);
-extern void warning_box (const gchar *message, GtkWidget *parent_window);
+extern void ugui_Error   (const gchar *message, GtkWidget *parent_window);
+extern void ugui_Warning (const gchar *message, GtkWidget *parent_window);
 
 /* sub panels */
 extern int  DebugPanel(void);
-extern void init_disk_notebook_frame (GtkWidget *notebook);
-extern void free_disk_list (void);
-extern void run_about_window (GtkButton *button, gpointer user_data);
-extern void init_memo_notebook_frame (GtkWidget *notebook);
-extern void free_memo_list (void);
-extern void init_cass_notebook_frame (GtkWidget *notebook);
-extern void update_counter_cass (void);
-extern void free_cass_list (void);
-extern void init_setting_notebook_frame (GtkWidget *notebook);
-extern void init_printer_notebook_frame (GtkWidget *notebook);
+extern void udisk_Init (GtkWidget *notebook);
+extern void udisk_Free (void);
+
+extern void uabout_Dialog (GtkButton *button, gpointer user_data);
+
+extern void umemo_Init (GtkWidget *notebook);
+extern void umemo_Free (void);
+
+extern void ucass_Init (GtkWidget *notebook);
+extern void ucass_UpdateCounter (void);
+extern void ucass_Free (void);
+
+extern void usetting_Init (GtkWidget *notebook);
+
+extern void uprinter_Init (GtkWidget *notebook);
 
 #endif
 

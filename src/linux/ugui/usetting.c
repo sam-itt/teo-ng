@@ -91,13 +91,13 @@ static void toggle_sound (GtkWidget *button, gpointer data)
 }
 
 
-/* --------------------------- Partie publique ----------------------------- */
+/* ------------------------------------------------------------------------- */
 
 
-/* init_setting_notebook:
+/* usetting_Init:
  *  Initialise la frame du notebook pour les réglages
  */
-void init_setting_notebook_frame (GtkWidget *notebook)
+void usetting_Init (GtkWidget *notebook)
 {
     GtkWidget *hbox;
     GtkWidget *vbox;

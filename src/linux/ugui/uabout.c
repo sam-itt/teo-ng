@@ -57,7 +57,7 @@
 /* run_about_window:
  *  Affiche le panneau "A propos"
  */
-void run_about_window (GtkButton *button, gpointer user_data)
+void uabout_Dialog (GtkButton *button, gpointer user_data)
 {
     const gchar *authors_list[] = { "Gilles Fétis", "Eric Botcazou", "Alexandre Pukall",
                                     "Jérémie Guillaume", "François Mouret",

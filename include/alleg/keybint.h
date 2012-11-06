@@ -45,8 +45,8 @@
 #ifndef ALLEG_KEYBINT_H
 #define ALLEG_KEYBINT_H
 
-extern void wkeybint_Install(void);
-extern void wkeybint_ShutDown(void);
-extern void wkeybint_Init(void);
+extern void dkeybint_Install(void);
+extern void dkeybint_ShutDown(void);
+extern void dkeybint_Init(void);
 
 #endif

@@ -45,7 +45,7 @@
 #ifndef LINUX_DISK_H
 #define LINUX_DISK_H
 
-extern int InitDirectDisk(int drive_type[4], int enable_write);
-extern void ExitDirectDisk(void);
+extern int   ufloppy_Init (int drive_type[4], int enable_write);
+extern void  ufloppy_Exit (void);
 
 #endif
