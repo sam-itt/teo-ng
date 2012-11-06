@@ -51,8 +51,14 @@
    #include <allegro.h>
 #endif
 
-#include "intern/printer.h"
-#include "intern/gui.h"
+#include "option.h"
+#include "ini.h"
+#include "image.h"
+#include "main.h"
+#include "media/disk.h"
+#include "media/cass.h"
+#include "media/memo.h"
+#include "media/printer.h"
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
@@ -90,16 +96,15 @@ END_DIGI_DRIVER_LIST
 BEGIN_MIDI_DRIVER_LIST
 END_MIDI_DRIVER_LIST
 
+struct EMUTEO teo;
 
-struct EmuTO teo={
-    TRUE,
-    NONE
-};
+static int reset = FALSE;
+static int gfx_mode = NO_GFX;
+struct STRING_LIST *remain_name = NULL;
 
 int frame;                 /* compteur de frame vidéo */
 int direct_write_support = FALSE;
 static volatile int tick;  /* compteur du timer */
-
 
 
 static void Timer(void)
@@ -115,21 +120,21 @@ END_OF_FUNCTION(Timer)
  */
 static void RunTO8(void)
 {
-    InstallPointer(TO8_MOUSE); /* la souris est le périphérique de pointage par défaut */
+    amouse_Install (TO8_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
     do  /* boucle principale de l'émulateur */
     {
-        teo.command=NONE;
+        teo.command=TEO_COMMAND_NONE;
 
         /* installation des handlers clavier, souris et son */ 
-        InstallKeybint();
-        InstallPointer(LAST_POINTER);
+        dkeybint_Install();
+        amouse_Install(LAST_POINTER);
 
-        if (gui->setting.exact_speed)
+        if (teo.setting.exact_speed)
         {
-            if (gui->setting.sound_enabled)
-                StartSound();
+            if (teo.setting.sound_enabled)
+                asound_Start();
             else
             {
                 install_int_ex(Timer, BPS_TO_TIMER(TO8_FRAME_FREQ));
@@ -140,7 +145,7 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
-            to8_DoFrame();
+            to8_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */ 
             if (need_palette_refresh)
@@ -150,13 +155,13 @@ static void RunTO8(void)
             RefreshScreen();
 
             /* mise à jour de la position des joysticks */
-            UpdateJoystick();
+            ajoyint_Update();
 
             /* synchronisation sur fréquence réelle */
-            if (gui->setting.exact_speed)
+            if (teo.setting.exact_speed)
             {
-                if (gui->settings.sound_enabled)
-                    PlaySoundBuffer();
+                if (teo.setting.sound_enabled)
+                    asound_Play ();
                 else
                     while (frame==tick)
                         ;
@@ -164,46 +169,46 @@ static void RunTO8(void)
 
             frame++;
         }
-        while (teo.command==NONE);  /* fin de la boucle d'émulation */
+        while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
 
         /* désinstallation des handlers clavier, souris et son */
-        if (gui->setting.exact_speed)
+        if (teo.setting.exact_speed)
         {
-            if (gui->setting.sound_enabled)
-                StopSound();
+            if (teo.setting.sound_enabled)
+                asound_Stop();
             else
                 remove_int(Timer);
         }
 
-        ShutDownPointer();
-        ShutDownKeybint();
+        amouse_ShutDown();
+        dkeybint_ShutDown();
 
         /* éxécution des commandes */
-        if (teo.command==CONTROL_PANEL)
-            ControlPanel();
+        if (teo.command==TEO_COMMAND_PANEL)
+            agui_Panel();
 
-        if (teo.command==SCREENSHOT)
-            Screenshot();
+        if (teo.command==TEO_COMMAND_SCREENSHOT)
+            agfxdrv_Screenshot();
 
-        if (teo.command==DEBUGGER)
+        if (teo.command==TEO_COMMAND_DEBUGGER)
         {
             remove_keyboard();
             SetGraphicMode(SHUTDOWN);
-            Debugger();
+            ddebug_Run();
             SetGraphicMode(RESTORE);
             install_keyboard();
         }
 
-        if (teo.command==RESET)
+        if (teo.command==TEO_COMMAND_RESET)
             to8_Reset();
 
-        if (teo.command==COLD_RESET)
+        if (teo.command==TEO_COMMAND_COLD_RESET)
         {
             to8_ColdReset();
-            InstallPointer(TO8_MOUSE);
+            amouse_Install(TO8_MOUSE);
         }
     }
-    while (teo.command != QUIT);  /* fin de la boucle principale */
+    while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
@@ -266,21 +271,10 @@ static void ReadCommandLine(int argc, char *argv[])
 
 
 
-/* ExitMessage:
- *  Affiche un message de sortie et sort du programme.
- */
-static void ExitMessage(const char msg[])
-{
-    fprintf(stderr, "%s\n", msg);
-    exit(EXIT_FAILURE);
-}
-
-
-
 /* sysexec:
  *  Demande à l'OS d'executer une cmd dans un dossier précis.
  */
-static void sysExec(char *cmd, const char *dir) {
+int main_SysExec(char *cmd, const char *dir) {
     char cwd[MAX_PATH]="";
     char *tmp;
     int i;
@@ -289,6 +283,7 @@ static void sysExec(char *cmd, const char *dir) {
     i = chdir(dir);
     i = system(cmd);
     i = chdir(cwd);
+    return 0;
     (void)i;
     (void)tmp;
 }
@@ -297,19 +292,39 @@ static void sysExec(char *cmd, const char *dir) {
 /* rmFile:
  *   Efface un fichier.
  */
-static void rmFile(char *path) {
+int main_RmFile(char *path) {
     unlink(path);
+    return 0;
 }
 
 
 /* tmpFile:
  *   Cree un fichier temporaire.
  */
-static char *tmpFile(char *buf, int maxlen) {
+char *main_TmpFile(char *buf, int maxlen) {
     char *tmp;
     tmp = tmpnam(buf);
     strcat(buf, ".sap");
     return buf;
+}
+
+
+/* main_ExitMessage:
+ *  Affiche un message de sortie et sort du programme.
+ */
+void main_DisplayMessage(const char msg[])
+{
+    fprintf(stderr, "%s\n", msg);
+}
+
+
+/* main_ExitMessage:
+ *  Affiche un message de sortie et sort du programme.
+ */
+void main_ExitMessage(const char msg[])
+{
+    main_DisplayMessage(msg);
+    exit(EXIT_FAILURE);
 }
 
 
@@ -322,7 +337,6 @@ static char *tmpFile(char *buf, int maxlen) {
 int main(int argc, char *argv[])
 {
     char version_name[]="Teo "TO8_VERSION_STR" (MSDOS/DPMI)";
-    char memo_name[MAX_PATH]="\0";
 #ifdef FRENCH_LANG
     char *mode_desc[3]= {
         " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
@@ -334,27 +348,17 @@ int main(int argc, char *argv[])
         " 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)",
         " 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)" };
 #endif
-    int gfx_mode=NO_GFX;
     int direct_support = 0;
     int drive_type[4];
-    int load_state = FALSE;
     int njoy = 0;  /* njoy=-1 si joystick non supportés */
     int scancode, i;
+    struct STRING_LIST *str_list = NULL;
 
 #ifdef FRENCH_LANG
     is_fr = 1;
 #else
     is_fr = 0;
 #endif
-
-    /* Retrouve sapfs.exe dans le PATH */
-    do {
-        int len = SearchPath(NULL, "sapfs", ".exe", sizeof(sapfs_exe)/sizeof(TCHAR), sapfs_exe, NULL);
-        if(len==0) {
-            fprintf(stderr, is_fr?"sapfs.exe introuvable":"Cannot find sapfs.exe\n"); fflush(stderr);
-            sapfs_exe[0] = '\0'; /* c'est pas grave, on peut faire sans */
-        }
-    } while(0);
 
     /* traitement des paramètres */
     ini_Load();                   /* Charge les paramètres par défaut */
@@ -393,16 +397,13 @@ int main(int argc, char *argv[])
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
 
-    if (gui_Init() < 0)
-        ExitMessage(to8_error_msg);
-
     if (to8_Init(TO8_NJOYSTICKS-njoy) < 0)
-        ExitMessage(to8_error_msg);
+        main_ExitMessage(to8_error_msg);
 
     printf("ok\n");
 
     /* initialisation de l'interface clavier */
-    InitKeybint();
+    dkeybint_Init();
 
     /* initialisation de l'interface d'accès direct */
     InitDirectDisk(drive_type, direct_write_support);
@@ -415,10 +416,10 @@ int main(int argc, char *argv[])
     }
 
     /* initialisation du son */
-    InitSound(25600);  /* 25600 Hz */
+    asound_Init(25600);  /* 25600 Hz */
 
     /* initialisation des joysticks */
-    InitJoyint(njoy);
+    ajoyint_Init(njoy);
 
     /* sélection du mode graphique */ 
     printf(is_fr?"\nS‚lection du mode graphique:\n\n":"\nSelect graphic mode:\n\n");
@@ -435,7 +436,7 @@ int main(int argc, char *argv[])
             scancode = readkey()>>8;
 
             if (key_shifts&KB_CTRL_FLAG)
-               load_state = TRUE;
+               reset = 0;
 
             switch (scancode_to_ascii(scancode))
             {
@@ -464,25 +465,25 @@ int main(int argc, char *argv[])
     switch (gfx_mode)
     {
         case GFX_MODE40:
-            if (InitGraphic(GFX_MODE40, 8, GFX_VGA, FALSE))
+            if (agfxdrv_Init(GFX_MODE40, 8, GFX_VGA, FALSE))
                 goto driver_found;
             break;
 
         case GFX_MODE80:
             for (i=0; i<3; i++)
-                if (InitGraphic(GFX_MODE80, 8, GFX_AUTODETECT, FALSE))
+                if (agfxdrv_Init(GFX_MODE80, 8, GFX_AUTODETECT, FALSE))
                     goto driver_found;
             break;
                 
         case GFX_TRUECOLOR:
             for (i=0; i<3; i++)
-                if (InitGraphic(GFX_TRUECOLOR, 15, GFX_AUTODETECT, FALSE) || 
-                           InitGraphic(GFX_TRUECOLOR, 16, GFX_AUTODETECT, FALSE))
+                if (agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT, FALSE) || 
+                           agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT, FALSE))
                     goto driver_found;
            break;
     }
 
-    ExitMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
+    main_ExitMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
 
   driver_found:
 
@@ -502,7 +503,7 @@ int main(int argc, char *argv[])
     to8_ColdReset();
     if (reset == 0)
         if (access("autosave.img", F_OK) >= 0)
-            to8_LoadImage("autosave.img");
+            image_Load ("autosave.img");
 
     /* et c'est parti !!! */
     RunTO8();
@@ -519,6 +520,7 @@ int main(int argc, char *argv[])
     /* sortie de l'émulateur */
     printf(is_fr?"A bient“t !\n":"Goodbye !\n");
 
+    /* sortie de l'émulateur */
     exit(EXIT_SUCCESS);
 }
 
