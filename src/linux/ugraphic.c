@@ -44,20 +44,7 @@
  *  Gestion de l'affichage du TO8.
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <string.h>
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <sys/ipc.h>
-   #include <sys/shm.h>
-   #include <X11/Xlib.h>
-   #include <X11/Xutil.h>
-   #include <X11/extensions/XShm.h>
-#endif
-
-#include "linux/display.h"
-#include "to8.h"
+#include "teo_lnx.h"
 
 
 /* variables globales */
@@ -176,10 +163,10 @@ static inline int gpl_need_update(const char *gpl1, const char *gpl2)
 
 
 
-/* DrawGPL:
+/* ugraphic_DrawGPL:
  *  Affiche un Groupe Point Ligne (un octet de VRAM).
  */
-static void DrawGPL(int mode, int addr, int pt, int col)
+static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 {
     register int i;
     unsigned int x, y, c1, c2;
@@ -603,7 +590,7 @@ void ugraphic_Init(void)
 
     to8_SetColor=SetColor;
     to8_SetBorderColor=SetBorderColor;
-    to8_DrawGPL=DrawGPL;
+    to8_DrawGPL=ugraphic_DrawGPL;
     to8_DrawBorderLine=DrawBorderLine;
     to8_SetDiskLed=SetDiskLed;
 }
