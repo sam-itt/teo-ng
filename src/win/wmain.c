@@ -43,37 +43,7 @@
  *  Boucle principale de l'émulateur.
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <string.h>
-   #include <allegro.h>
-   #include <winalleg.h>
-   #include <sys/stat.h>
-   #include <ctype.h>
-#endif
-
-#include "media/libsap.h"
-#include "media/disk.h"
-#include "media/cass.h"
-#include "media/memo.h"
-#include "media/printer.h"
-#include "option.h"
-#include "std.h"
-#include "ini.h"
-#include "image.h"
-#include "main.h"
-#include "error.h"
-#include "mc68xx/mc6809.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "alleg/joyint.h"
-#include "alleg/keybint.h"
-#include "alleg/mouse.h"
-#include "alleg/sound.h"
-#include "win/gui.h"
-#include "to8.h"
+#include "teo_win.h"
 
 
 struct EMUTEO teo;

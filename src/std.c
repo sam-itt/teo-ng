@@ -41,21 +41,7 @@
  *  Fonctions utilitaires.
  */
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <string.h>
-   #include <ctype.h>
-   #include <sys/stat.h>
-   #include <unistd.h>
-   #include <stdarg.h>
-#endif
-
-#include "defs.h"
-#include "std.h"
-#include "to8.h"
-#include "media/printer.h"
-
+#include "teo.h"
 
 
 /* std_StringListLast:

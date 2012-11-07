@@ -45,21 +45,8 @@
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
  */
 
+#include "teo.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <unistd.h>
-   #include <dirent.h>
-#endif
-
-#include "media/disk.h"
-#include "media/libsap.h"
-#include "error.h"
-#include "hardware.h"
-#include "main.h"
-#include "std.h"
-#include "to8.h"
 
 #ifdef UNIX_TOOL
 #   define SLASH "/"

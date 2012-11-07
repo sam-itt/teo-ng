@@ -33,7 +33,7 @@
 
 #ifdef DEBUG
 
-#include "mc68xx/mc6821.h"
+#include "teo.h"
 
 
 

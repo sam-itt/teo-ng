@@ -44,23 +44,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <unistd.h>
-   #include <string.h>
-   #include <windows.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
-   #include <shlobj.h>
-#endif
-
-#include "win/dialog.rh"
-#include "win/gui.h"
-#include "media/disk.h"
-#include "std.h"
-#include "error.h"
-#include "to8.h"
+#include "teo_win.h"
 
 static int direct_disk_support=0;
 

@@ -44,17 +44,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <allegro.h>
-#endif
-
-#include "alleg/sound.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "std.h"
-#include "to8.h"
+#include "teo_allg.h"
 
 
 /* Facteur de correction pour la taille des boutons. */

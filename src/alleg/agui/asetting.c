@@ -45,17 +45,8 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <allegro.h>
-#endif
+#include "teo_allg.h"
 
-#include "alleg/sound.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "image.h"
-#include "to8.h"
 
 /* Boîte de dialogue. */
 static DIALOG commdial[]={

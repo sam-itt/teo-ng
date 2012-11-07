@@ -45,18 +45,8 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <allegro.h>
-#endif
+#include "teo_allg.h"
 
-#include "alleg/sound.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "media/memo.h"
-#include "std.h"
-#include "to8.h"
 
 /* Chemin du fichier de la cartouche. */
 static char filename[MAX_PATH+1] = "";

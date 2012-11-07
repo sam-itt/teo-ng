@@ -41,19 +41,7 @@
  *  Gestion des fichier-images de l'état de l'émulateur.
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <stdlib.h>
-#endif
-
-#include "mc68xx/mc6809.h"
-#include "mc68xx/mc6846.h"
-#include "mc68xx/mc6821.h"
-#include "media/disk.h"
-#include "error.h"
-#include "hardware.h"
+#include "teo.h"
 
 
 /***************************************************************************************************

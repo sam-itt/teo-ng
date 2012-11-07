@@ -44,18 +44,7 @@
  *  Gestion des cassettes.
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-#endif
-
-#include "media/cass.h"  /* MacOS */
-#include "error.h"
-#include "hardware.h"
-#include "main.h"
-#include "std.h"
-#include "to8.h"
+#include "teo.h"
 
 
 #define COUNTER_RATIO   100

@@ -42,19 +42,7 @@
  *  Gestion du clavier (et des manettes).
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stddef.h>
-#endif
-
-#include "mc68xx/mc6809.h"
-#include "mc68xx/mc6846.h"
-#include "media/joystick.h"
-#include "media/keyboard.h"  /* MacOS */
-#include "error.h"
-#include "hardware.h"
-#include "to8.h"
-#include "teokey.h"
+#include "teo.h"
 
 
 static volatile int kb_state; /* contient l'état des touches et leds du clavier PC:

@@ -44,22 +44,8 @@
  *  Gestion de l'émulation sonore du TO8.
  */
 
+#include "teo_lnx.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <fcntl.h>
-   #include <errno.h>
-   #include <unistd.h>
-/* Use the newer ALSA API */
-#define ALSA_PCM_NEW_HW_PARAMS_API
-   #include <alsa/asoundlib.h>
-#endif
-
-#include "hardware.h"
-#include "std.h"
-#include "error.h"
-#include "to8.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
 #define ALSA_SOUND_FREQ  44100         /* débit */

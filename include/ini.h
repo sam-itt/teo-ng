@@ -45,7 +45,7 @@
 #ifndef INI_H
 #define INI_H
 
-extern int   ini_Load (void);
+extern void  ini_Load (void);
 extern void  ini_Save (void);
 extern void  ini_Free (void);
 

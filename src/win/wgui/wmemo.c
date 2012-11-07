@@ -44,22 +44,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <unistd.h>
-   #include <string.h>
-   #include <windows.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
-#endif
-
-#include "win/dialog.rh"
-#include "win/gui.h"
-#include "media/memo.h"
-#include "std.h"
-#include "error.h"
-#include "to8.h"
+#include "teo_win.h"
 
 static int entry_max = 0;
 static int combo_index = 0;

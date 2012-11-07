@@ -41,18 +41,8 @@
  *  Fenêtre "A propos"
  */
 
+#include "teo_lnx.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <string.h>
-   #include <unistd.h>
-   #include <gdk/gdkx.h>
-   #include <gtk/gtk.h>
-#endif
-
-#include "to8.h"
-#include "linux/gui.h"
 
 /* run_about_window:
  *  Affiche le panneau "A propos"

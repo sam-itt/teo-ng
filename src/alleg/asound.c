@@ -44,13 +44,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <allegro.h>
-#endif
-
-#include "to8.h"
+#include "teo_allg.h"
 
 
 static AUDIOSTREAM *stream;

@@ -43,15 +43,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <allegro.h>
-#endif
-
-#include "alleg/color8.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h" 
-#include "to8.h"
-#include "defs.h"
+#include "teo_allg.h"
 
 
 #define PALETTE_START  (TO8_NCOLORS+1)

@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/11/2000
+ *               François Mouret 07/11/2012
  *
  *  Déclarations d'objets privés nécessaires au débogage.
  */
@@ -44,10 +45,6 @@
 
 #ifndef TO8DBG_H
 #define TO8DBG_H
-
-#include "mc68xx/mc6821.h"
-#include "mc68xx/mc6846.h"
-#include "defs.h"
 
 #define  LOAD_BYTE(addr)       (int) mempager.segment[((addr)>>12)&0xF][(addr)&0xFFF]
 #define STORE_BYTE(addr, val)  mempager.segment[((addr)>>12)&0xF][(addr)&0xFFF]=(uint8) (val)
@@ -60,3 +57,5 @@ extern struct GATE_ARRAY  mode_page;
 extern struct DISK_CTRL disk_ctrl;
 
 #endif
+
+

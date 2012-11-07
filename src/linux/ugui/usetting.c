@@ -43,17 +43,8 @@
  *  Gestion des préférences.
  */
 
+#include "teo_lnx.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <unistd.h>
-   #include <string.h>
-   #include <libgen.h>
-   #include <gtk/gtk.h>
-#endif
-
-#include "linux/gui.h"
-#include "to8.h"
 
 static GtkWidget *sound_widget = NULL;
 

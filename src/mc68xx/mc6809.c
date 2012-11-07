@@ -54,13 +54,8 @@
  *               émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
  */
 
+#include "teo.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-#endif
-
-#include "mc68xx/mc6809.h"
-#include "to8.h"
 
 #ifdef OS_LINUX
 extern int udebug_Breakpoint (int pc);

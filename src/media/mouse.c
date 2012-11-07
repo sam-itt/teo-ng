@@ -44,11 +44,7 @@
  *  Gestion de la souris et du crayon optique.
  */
 
-
-#include "media/joystick.h"
-#include "media/mouse.h"  /* MacOS */
-#include "hardware.h"
-#include "to8.h"
+#include "teo.h"
 
 
 static int mouse_x, mouse_y;

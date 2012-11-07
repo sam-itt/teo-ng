@@ -45,15 +45,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <allegro.h>
-#endif
-
-#include "alleg/gfxdrv.h"
-#include "alleg/mouse.h"
-#include "std.h"
-#include "to8.h"
+#include "teo_allg.h"
 
 
 int need_palette_refresh;

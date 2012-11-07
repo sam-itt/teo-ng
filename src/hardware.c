@@ -45,25 +45,7 @@
  *	- circuits d'entrée/sortie des périphériques
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <time.h>
-#endif
-
-#include "defs.h"
-#include "to8.h"
-#include "error.h"
-#include "hardware.h"
-#include "mc68xx/mc6809.h"
-#include "mc68xx/mc6821.h"
-#include "mc68xx/mc6846.h"
-#include "media/disk.h"
-#include "media/keyboard.h"
-#include "media/cass.h"
-#include "media/mouse.h"
-#include "media/printer.h"
+#include "teo.h"
 
 
 /* les composants métériels de l'émulateur */
@@ -77,7 +59,6 @@ struct MEMORY mem;             /* carte mémoire physique   */
 struct MOTHERBOARD mb;         /* (pseudo) carte mère      */
 
 mc6809_clock_t screen_clock;
-
 
 
 /* Fonctions de commutation de l'espace mémoire:

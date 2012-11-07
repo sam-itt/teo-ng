@@ -44,20 +44,8 @@
  *  Gestion des cassettes.
  */
 
+#include "teo_lnx.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <unistd.h>
-   #include <string.h>
-   #include <libgen.h>
-   #include <gtk/gtk.h>
-#endif
-
-#include "to8.h"
-#include "std.h"
-#include "error.h"
-#include "media/cass.h"
-#include "linux/gui.h"
 
 #define COUNTER_MAX  999
 

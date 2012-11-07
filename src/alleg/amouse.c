@@ -43,14 +43,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <allegro.h>
-#endif
-
-#include "alleg/gfxdrv.h"
-#include "alleg/mouse.h"
-#include "media/mouse.h"
-#include "to8.h"
+#include "teo_allg.h"
 
 
 #define SCR40_SIZE   8

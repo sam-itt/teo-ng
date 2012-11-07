@@ -41,19 +41,8 @@
  *  Gestion des imprimantes.
  */
 
+#include "teo_lnx.h"
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <unistd.h>
-   #include <string.h>
-   #include <libgen.h>
-   #include <gtk/gtk.h>
-#endif
-
-#include "to8.h"
-#include "std.h"
-#include "media/printer.h"
-#include "linux/gui.h"
 
 #define PRINTER_NUMBER 5
 

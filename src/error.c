@@ -43,15 +43,7 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stddef.h>
-   #include <string.h>
-#endif
-
-#include "std.h"
-#include "error.h"  /* MacOS */
-#include "to8.h"
+#include "teo.h"
 
 char *to8_error_msg = NULL;
 

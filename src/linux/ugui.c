@@ -43,21 +43,9 @@
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <string.h>
-   #include <unistd.h>
-   #include <gdk/gdkx.h>
-   #include <gtk/gtk.h>
-#endif
-
-#include "linux/display.h"
-#include "linux/gui.h"
-#include "linux/graphic.h"
-#include "to8.h"
+#include "teo_lnx.h"
 #include "commands.xpm"
+
 
 enum {
    TEO_RESPONSE_END = 1,

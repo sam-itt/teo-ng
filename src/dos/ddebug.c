@@ -43,17 +43,8 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <conio.h>
-   #include <stdio.h>
-#endif
+#include "teo_dos.h"
 
-#include "mc68xx/dasm6809.h"
-#include "mc68xx/mc6809.h"
-#include "alleg/gfxdrv.h"
-#include "dos/memmng.h"
-#include "debug.h"
-#include "to8.h"
 
 #define MENU_NLINES 8
 #define MENU_POS_X  4
