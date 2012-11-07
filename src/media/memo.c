@@ -46,19 +46,7 @@
  *  Gestion des cartouches.
  */
 
-
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <string.h>
-#endif
-
-#include "defs.h"
-#include "hardware.h"
-#include "error.h"
-#include "main.h"
-#include "std.h"
-#include "to8.h"
+#include "teo.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -124,11 +112,12 @@ void memo_Eject(void)
 {
     register int i;
 
-    for (i=0; i<4; i++)
+    for (i=0; i<mem.cart.nbank; i++)
         mem.cart.bank[i] = std_free (mem.cart.bank[i]);
     mem.cart.nbank = 0;
-    std_free (teo.memo.file);
-    std_free (teo.memo.label);
+    
+    teo.memo.file = std_free (teo.memo.file);
+    teo.memo.label = std_free (teo.memo.label);
 }
 
 
@@ -191,7 +180,7 @@ void memo_FirstLoad (void)
 
     if (teo.memo.file !=NULL) {
         s = std_strdup_printf ("%s", teo.memo.file);
-        teo.memo.file = std_free (teo.memo.file);
+        memo_Eject();
         if (s != NULL)
             if (memo_Load(s) < 0)
                 main_DisplayMessage (to8_error_msg);
