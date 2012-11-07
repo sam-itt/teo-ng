@@ -44,31 +44,8 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <string.h>
-   #include <allegro.h>
-#endif
+#include "teo_dos.h"
 
-#include "option.h"
-#include "ini.h"
-#include "image.h"
-#include "main.h"
-#include "media/disk.h"
-#include "media/cass.h"
-#include "media/memo.h"
-#include "media/printer.h"
-#include "mc68xx/mc6809.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "alleg/joyint.h"
-#include "alleg/keybint.h"
-#include "alleg/mouse.h"
-#include "alleg/sound.h"
-#include "dos/disk.h"
-#include "dos/debug.h"
-#include "to8.h"
 
 /* pour limiter la taille de l'éxécutable */
 BEGIN_COLOR_DEPTH_LIST
@@ -406,7 +383,7 @@ int main(int argc, char *argv[])
     dkeybint_Init();
 
     /* initialisation de l'interface d'accès direct */
-    InitDirectDisk(drive_type, direct_write_support);
+    dfloppy_Init (drive_type, direct_write_support);
 
     /* Détection des lecteurs supportés (3"5 seulement) */
     for (i=0; i<4; i++)
@@ -515,7 +492,7 @@ int main(int argc, char *argv[])
     SetGraphicMode(SHUTDOWN);
 
     /* mise au repos de l'interface d'accès direct */
-    ExitDirectDisk();
+    dfloppy_Exit();
 
     /* sortie de l'émulateur */
     printf(is_fr?"A bient“t !\n":"Goodbye !\n");
