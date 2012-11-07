@@ -72,7 +72,7 @@ TEO_SRC_ALLEG_FILES =        \
 
 TEO_SRC_DOS_FILES =   \
    src/dos/ddebug.c   \
-   src/dos/ddisk.c    \
+   src/dos/dfloppy.c  \
    src/dos/dkeybint.c \
    src/dos/dmain.c    \
    src/dos/dmemmng.c  \
@@ -99,18 +99,18 @@ TEO_SRC_MC68XX_FILES =   \
    src/mc68xx/mc6821.c   \
    src/mc68xx/mc6846.c
 
-TEO_SRC_WIN_FILES =    \
-   src/win/wdialog.rc  \
-   src/win/wgui.c      \
-   src/win/wkeybint.c  \
-   src/win/wmain.c     \
+TEO_SRC_WIN_FILES =        \
+   src/win/wgui.c          \
+   src/win/wkeybint.c      \
+   src/win/wmain.c         \
    src/win/wgui/wabout.c   \
    src/win/wgui/wsetting.c \
    src/win/wgui/wcass.c    \
    src/win/wgui/wdisk.c    \
    src/win/wgui/wprinter.c \
-   src/win/wgui/wmemo.c
-
+   src/win/wgui/wmemo.c    \
+   src/win/wdialog.rc
+   
 
 # ------ object files ------
 
