@@ -45,18 +45,8 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <string.h>
-   #include <allegro.h>
-#endif
+#include "teo_allg.h"
 
-#include "alleg/sound.h"
-#include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "media/disk.h"
-#include "std.h"
-#include "to8.h"
 
 /* Chemin du fichier de la disquette. */
 static char filename[MAX_PATH+1] = "";
@@ -194,7 +184,11 @@ void adisk_Panel(void)
             }
             dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
             if (teo.disk[drive].write_protect)
+            {
+                disk_SetMode(drive, TO8_READ_ONLY);
                 diskdial[dial_nbr].flags |= D_SELECTED;
+                diskdial[dial_nbr].d2 = 1;
+            }
         }
 	    first=0;
     }
@@ -246,12 +240,15 @@ void adisk_Panel(void)
                         teo.default_folder = std_strdup_printf ("%s", filename);
                         std_CleanPath (teo.default_folder);
 
-                        if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
+                        dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
+                        diskdial[dial_nbr].flags &= ~D_SELECTED;
+                        diskdial[dial_nbr].d2=0;
+                        if (ret2==TO8_READ_ONLY)
                         {
                             agui_PopupMessage(is_fr?"Attention: écriture impossible."
                                                    :"Warning: writing unavailable.");
-                            diskdial[ret+1].flags|=D_SELECTED;
-                            diskdial[ret+1].d2=1;
+                            diskdial[dial_nbr].flags|=D_SELECTED;
+                            diskdial[dial_nbr].d2=1;
                         }
                     }
                 }
@@ -294,11 +291,13 @@ void adisk_Panel(void)
 
                         std_CleanPath (teo.default_folder);
 
-                        if ((ret2==TO8_READ_ONLY) && !(diskdial[ret+1].d2))
+                        dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
+                        if ((ret2==TO8_READ_ONLY) && !(diskdial[dial_nbr].d2))
                         {
-                            agui_PopupMessage(is_fr?"Attention: écriture impossible.":"Warning: writing unavailable.");
-                            diskdial[ret+1].flags|=D_SELECTED;
-                            diskdial[ret+1].d2=1;
+                            agui_PopupMessage(is_fr?"Attention: écriture impossible."
+                                                   :"Warning: writing unavailable.");
+                            diskdial[dial_nbr].flags|=D_SELECTED;
+                            diskdial[dial_nbr].d2=1;
                         }
                     }
                 }
@@ -310,11 +309,13 @@ void adisk_Panel(void)
             case DISKDIAL_CHECK3:
                 drive=(ret-DISKDIAL_CHECK0)/(DISKDIAL_CHECK1-DISKDIAL_CHECK0);
             
+//                if ((diskdial[ret].flags&D_SELECTED) == 0)
                 if (diskdial[ret].d2)
                 {
                     if (disk_SetMode(drive, TO8_READ_WRITE)==TO8_READ_ONLY)
                     {
-                        agui_PopupMessage(is_fr?"Ecriture impossible sur ce support.":"Writing unavailable on this device.");
+                        agui_PopupMessage(is_fr?"Ecriture impossible sur ce support."
+                                               :"Writing unavailable on this device.");
                         diskdial[ret].flags|=D_SELECTED;
                         diskdial[ret].d2=1;
                     }
@@ -324,6 +325,7 @@ void adisk_Panel(void)
                         diskdial[ret].d2=0;
                     }
                 }
+                
                 else
                 {
                     disk_SetMode(drive, TO8_READ_ONLY);
@@ -342,7 +344,8 @@ void adisk_Panel(void)
 
                         dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
                         diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
-                        diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"Accès Direct":"Direct Access");
+                        diskdial[dial_nbr].dp = std_strdup_printf ("%s",
+                                                    is_fr?"Accès Direct":"Direct Access");
                         teo.disk[drive].file = std_free (teo.disk[drive].file);
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
@@ -365,7 +368,8 @@ void adisk_Panel(void)
                 for (drive=0; drive<4; drive++)
                 {
                     dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
-                    teo.disk[drive].write_protect = (diskdial[dial_nbr].flags & D_SELECTED) ? TRUE : FALSE;
+                    teo.disk[drive].write_protect = (diskdial[dial_nbr].flags & D_SELECTED)
+                                                     ? TRUE : FALSE;
                 }
                 return;
         }
