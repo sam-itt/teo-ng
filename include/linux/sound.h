@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou août 1999
  *  Modifié par: Eric Botcazou 4/12/2000
- *               François Mouret 08/2011 24/02/2012
+ *               François Mouret 08/2011 24/02/2012 06/11/2012
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -46,9 +46,9 @@
 #ifndef LINUX_SOUND_H
 #define LINUX_SOUND_H
 
-extern int InitSound(void);
-extern void PlaySoundBuffer(void);
-extern void CloseSound (void);
+extern int   usound_Init (void);
+extern void  usound_Play (void);
+extern void  usound_Close (void);
 
 #endif
 

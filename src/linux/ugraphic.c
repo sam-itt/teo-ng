@@ -364,74 +364,6 @@ static void DrawBorderLine(int col, int line)
 
 
 
-/* RetraceScreen:
- *  Rafraîchit une portion de l'écran du TO8.
- */
-inline void RetraceScreen(int x, int y, int w, int h)
-{
-    if (mit_shm_enabled)
-	XShmPutImage(display, screen_win, gc, screen_buffer, x, y, x, y, w, h, True);
-    else
-	XPutImage(display, screen_win, gc, screen_buffer, x, y, x, y, w, h);
-}
-
-
-
-/* RefreshScreen:
- *  Rafraîchit l'écran du TO8.
- */
-void RefreshScreen(void)
-{
-    register int i,j;
-    int cell_start;
-    int *dirty_cell_row = dirty_cell;
-    static int odd = 1;
-
-    if (teo.setting.interlaced_video)
-    {
-        odd ^= 1;
-        dirty_cell_row = (odd == 0) ? dirty_cell : dirty_cell + TO8_SCREEN_CW;
-        /* on groupe les dirty rectangles ligne par ligne */
-        for (j=odd; j<TO8_SCREEN_CH; j+=2)
-        {
-            for (i=0; i<TO8_SCREEN_CW; i++)
-                if (dirty_cell_row[i])
-	        {
-                    cell_start=i;
-
-                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
-                        dirty_cell_row[i++]=False;
-
-                    RetraceScreen(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
-                }
-
-            /* ligne suivante */
-            dirty_cell_row += (TO8_SCREEN_CW<<1);
-        }
-    }
-    else
-    {
-        /* on groupe les dirty rectangles ligne par ligne */
-        for (j=0; j<TO8_SCREEN_CH; j++)
-        {
-            for (i=0; i<TO8_SCREEN_CW; i++)
-                if (dirty_cell_row[i])
-	        {
-                    cell_start=i;
-
-                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
-                        dirty_cell_row[i++]=False;
-
-                    RetraceScreen(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
-                }
-
-            /* ligne suivante */
-            dirty_cell_row += TO8_SCREEN_CW;
-        }
-    }
-}
-
-
 #define LED_SIZE 12
 
 
@@ -453,17 +385,87 @@ static void SetDiskLed(int led_on)
 	XFillRectangle(display, screen_win, gc, TO8_SCREEN_W*2-LED_SIZE+1, 1, LED_SIZE-2, LED_SIZE-2);
     }
     else
-	/* RetraceScreen() laisse parfois la led allumée... */
+	/* ugraphic_Retrace() laisse parfois la led allumée... */
         dirty_cell[TO8_SCREEN_CW-1] = True;
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* InitGraphic:
+
+/* ugraphic_Retrace:
+ *  Rafraîchit une portion de l'écran du TO8.
+ */
+inline void ugraphic_Retrace(int x, int y, int w, int h)
+{
+    if (mit_shm_enabled)
+	XShmPutImage(display, screen_win, gc, screen_buffer, x, y, x, y, w, h, True);
+    else
+	XPutImage(display, screen_win, gc, screen_buffer, x, y, x, y, w, h);
+}
+
+
+
+/* ugraphic_Refresh:
+ *  Rafraîchit l'écran du TO8.
+ */
+void ugraphic_Refresh(void)
+{
+    register int i,j;
+    int cell_start;
+    int *dirty_cell_row = dirty_cell;
+    static int odd = 1;
+
+    if (teo.setting.interlaced_video)
+    {
+        odd ^= 1;
+        dirty_cell_row = (odd == 0) ? dirty_cell : dirty_cell + TO8_SCREEN_CW;
+        /* on groupe les dirty rectangles ligne par ligne */
+        for (j=odd; j<TO8_SCREEN_CH; j+=2)
+        {
+            for (i=0; i<TO8_SCREEN_CW; i++)
+                if (dirty_cell_row[i])
+	        {
+                    cell_start=i;
+
+                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
+                        dirty_cell_row[i++]=False;
+
+                    ugraphic_Retrace(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
+                }
+
+            /* ligne suivante */
+            dirty_cell_row += (TO8_SCREEN_CW<<1);
+        }
+    }
+    else
+    {
+        /* on groupe les dirty rectangles ligne par ligne */
+        for (j=0; j<TO8_SCREEN_CH; j++)
+        {
+            for (i=0; i<TO8_SCREEN_CW; i++)
+                if (dirty_cell_row[i])
+	        {
+                    cell_start=i;
+
+                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
+                        dirty_cell_row[i++]=False;
+
+                    ugraphic_Retrace(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
+                }
+
+            /* ligne suivante */
+            dirty_cell_row += TO8_SCREEN_CW;
+        }
+    }
+}
+
+
+/* ugraphic_Init:
  *  Sélectionne le visual, met en place la palette de couleurs et
  *  initialise le mécanisme de bufferisation (dirty rectangles).
  */
-void InitGraphic(void)
+void ugraphic_Init(void)
 {
     register int i;
 

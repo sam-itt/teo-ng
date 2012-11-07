@@ -271,8 +271,13 @@ static void do_command_debug (GtkWidget *button, int command)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-static void InitDEBUG(void)
+
+/* udebug_Init:
+ *  Crée la fenêtre de dialogue du debugger
+ */
+static void udebug_Init(void)
 {
     GtkWidget *content_area;
     GtkWidget *hbox;
@@ -374,17 +379,17 @@ static void InitDEBUG(void)
 }
 
 
-/* DebugPanel:
+/* udebug_Panel:
  *  Affiche le panneau du debug.
  */
-int DebugPanel(void)
+int udebug_Panel(void)
 {
     int debug = FALSE;
     gint response;
 
     /* Initialise la fenêtre */
     if (wDebug == NULL)
-        InitDEBUG();
+        udebug_Init();
 
     /* actualise le texte à afficher */
     update_debug_text ();
@@ -402,8 +407,10 @@ int DebugPanel(void)
 }
 
 
-int 
-check_bkpt(int pc) {
+/* udebug_Breakpoint:
+ *  Repère si le PC est au breakpoint
+ */
+int udebug_Breakpoint(int pc) {
     int i;
     for (i=0;i< MAX_BREAKPOINTS;i++) {
 	if (breakpoint[i]==-1) break;

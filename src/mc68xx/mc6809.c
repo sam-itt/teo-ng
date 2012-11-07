@@ -63,8 +63,17 @@
 #include "to8.h"
 
 #ifdef OS_LINUX
-extern int check_bkpt(int pc);
+extern int udebug_Breakpoint (int pc);
 #endif
+
+/* broche de demande d'interruption ordinaire */
+int mc6809_irq;
+
+#ifdef DEBUG
+   FILE *mc6809_ftrace=NULL;
+#endif
+
+
 
 static void (*FetchInstr)(int, unsigned char []);
 static int  (*LoadByte)(int);
@@ -2843,16 +2852,47 @@ static void (*addr[])(void)=
 };
 
 
+static void mc6809_Step(void) {
+    if (step==1) {     /* [Fetch OpCode] */
+        if (!page) {
+#ifdef DEBUG
+            if (mc6809_ftrace)
+                fprintf(mc6809_ftrace, "pc: %04X\n", pc);
+#endif
+            if (cpu_clock>=cpu_timer)
+                TimerCallback(timer_data);
+
+            if ((mc6809_irq!=0)&&((ccrest&0x10)==0)) {
+                irq_start=irq_run=1;
+                opcode=0x300;
+                do_irq();
+            }
+        }
+        if (!irq_start) {
+            opcode=LoadByte(pc);
+            pc=(pc+1)&0xffff;
+            if(opcode==TO8_TRAP_CODE) {
+                mc6809_GetRegs(&reg_list);
+                opcode=TrapCallback(&reg_list);
+                mc6809_SetRegs(&reg_list, 0x1FF);
+            }
+        }
+        switch(opcode) {
+        case 0x10 : page=0x100; step=0; break;
+        case 0x11 : page=0x200; step=0; break;
+        default   : compute_address=addr[opcode&0xff]; break;
+        }
+    } else {
+        (*(code[opcode+page]))();
+        if (step==0)  /* fetch reset */
+            page=0;
+    }        
+}
+
+
 /************************************************/
 /*** Interface publique de l'émulateur MC6809 ***/
 /************************************************/
-
-/* broche de demande d'interruption ordinaire */
-int mc6809_irq;
-
-#ifdef DEBUG
-   FILE *mc6809_ftrace=NULL;
-#endif
 
 /* clock:
  *  Retourne la valeur de l'horloge du CPU.
@@ -2984,44 +3024,6 @@ void mc6809_Reset(void)
 }
 
 
-static void mc6809_Step(void) {
-    if (step==1) {     /* [Fetch OpCode] */
-        if (!page) {
-#ifdef DEBUG
-            if (mc6809_ftrace)
-                fprintf(mc6809_ftrace, "pc: %04X\n", pc);
-#endif
-            if (cpu_clock>=cpu_timer)
-                TimerCallback(timer_data);
-
-            if ((mc6809_irq!=0)&&((ccrest&0x10)==0)) {
-                irq_start=irq_run=1;
-                opcode=0x300;
-                do_irq();
-            }
-        }
-        if (!irq_start) {
-            opcode=LoadByte(pc);
-            pc=(pc+1)&0xffff;
-            if(opcode==TO8_TRAP_CODE) {
-                mc6809_GetRegs(&reg_list);
-                opcode=TrapCallback(&reg_list);
-                mc6809_SetRegs(&reg_list, 0x1FF);
-            }
-        }
-        switch(opcode) {
-        case 0x10 : page=0x100; step=0; break;
-        case 0x11 : page=0x200; step=0; break;
-        default   : compute_address=addr[opcode&0xff]; break;
-        }
-    } else {
-        (*(code[opcode+page]))();
-        if (step==0)  /* fetch reset */
-            page=0;
-    }        
-}
-
-
 /* FlushExec:
  * Achève l'exécution d'une instruction et/ou
  * d'une interruption
@@ -3086,7 +3088,7 @@ int mc6809_TimeExec_debug(mc6809_clock_t time_limit)
         step++;     
         cpu_clock++;        
 #ifdef OS_LINUX
-	if (check_bkpt(pc&0xFFFF)) return -1;
+	if (udebug_Breakpoint (pc&0xFFFF)) return -1;
 #endif
     }
     return ninst;

@@ -349,19 +349,6 @@ static void open_dir (GtkButton *button, struct FILE_VECTOR *vector)
 /* ------------------------------------------------------------------------- */
 
 
-/* udisk_Free:
- *  Libère la mémoire utilisée par les listes de disquettes.
- */
-void udisk_Free (void)
-{
-    int i;
-
-    for (i=0; i<NDISKS; i++)
-        free_disk_entry (&vector[i]);
-}
-
-
-
 /* udisk_Init:
  *  Initialise la frame du notebook pour les disquettes.
  */
@@ -445,5 +432,18 @@ void udisk_Init (GtkWidget *notebook)
         gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
         (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_dir), (gpointer)&vector[i]);
     }
+}
+
+
+
+/* udisk_Free:
+ *  Libère la mémoire utilisée par les listes de disquettes.
+ */
+void udisk_Free (void)
+{
+    int i;
+
+    for (i=0; i<NDISKS; i++)
+        free_disk_entry (&vector[i]);
 }
 

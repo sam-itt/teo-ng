@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : linux/display.c
+ *  Module     : linux/udisplay.c
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
@@ -209,27 +209,6 @@ static void SetPointer(int pointer)
 }
 
 
-/* InitDisplay:
- *  Ouvre la connexion avec le serveur X et initialise le clavier.
- */
-void InitDisplay(void)
-{
-    int i;
-    int ret1, ret2, ret3;
-
-    /* Connexion au serveur X */
-    display=gdk_x11_get_default_xdisplay();
-    screen=DefaultScreen(display);
-
-    /* Calcul de la table de conversion des keycodes */
-    for (i=0; i<KB_SIZE; i++)
-        x11_to_dos[XKeysymToKeycode(display,keyconv[i].keysym)]=keyconv[i].keycode;
-
-    /* Test de présence de l'extension MIT-SHM */
-    mit_shm_enabled = XQueryExtension(display, "MIT-SHM", &ret1, &ret2, &ret3);
-}
-
-
 /* button_release_event:
  *  Gestion des touches enfoncées.
  */
@@ -378,7 +357,7 @@ window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if ((event->window_state.changed_mask & GDK_WINDOW_STATE_ICONIFIED) != 0)
         if ((event->window_state.new_window_state & GDK_WINDOW_STATE_ICONIFIED) == 0)
-            RetraceScreen(0, 0, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
+            ugraphic_Retrace(0, 0, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
 
     return FALSE;
     (void)widget;
@@ -386,10 +365,35 @@ window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
-/* InitWindow:
+/* ------------------------------------------------------------------------- */
+
+
+/* udisplay_Init:
+ *  Ouvre la connexion avec le serveur X et initialise le clavier.
+ */
+void udisplay_Init(void)
+{
+    int i;
+    int ret1, ret2, ret3;
+
+    /* Connexion au serveur X */
+    display=gdk_x11_get_default_xdisplay();
+    screen=DefaultScreen(display);
+
+    /* Calcul de la table de conversion des keycodes */
+    for (i=0; i<KB_SIZE; i++)
+        x11_to_dos[XKeysymToKeycode(display,keyconv[i].keysym)]=keyconv[i].keycode;
+
+    /* Test de présence de l'extension MIT-SHM */
+    mit_shm_enabled = XQueryExtension(display, "MIT-SHM", &ret1, &ret2, &ret3);
+}
+
+
+
+/* udisplay_Window:
  *   Crée la fenêtre principale.
  */
-void InitWindow(void)
+void udisplay_Window(void)
 {
     GdkPixbuf *pixbuf;
     GdkGeometry hints;

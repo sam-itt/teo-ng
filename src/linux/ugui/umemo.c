@@ -214,23 +214,7 @@ static void open_file (GtkButton *button, gpointer data)
 }
 
 
-/* --------------------------- Partie publique ----------------------------- */
-
-
-/* umemo_Free
- *  Libère la mémoire utilisée par la liste des cartouches.
- */
-void umemo_Free (void)
-{
-    g_list_foreach (name_list, (GFunc)g_free, (gpointer) NULL);
-    g_list_foreach (path_list, (GFunc)g_free, (gpointer) NULL);
-    g_list_free (name_list);
-    g_list_free (path_list);
-    name_list=NULL;
-    path_list=NULL;
-    entry_max = 0;
-}
-
+/* ------------------------------------------------------------------------- */
 
 
 /* umemo_Init:
@@ -283,5 +267,21 @@ void umemo_Init (GtkWidget *notebook)
     gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer) NULL);
+}
+
+
+
+/* umemo_Free
+ *  Libère la mémoire utilisée par la liste des cartouches.
+ */
+void umemo_Free (void)
+{
+    g_list_foreach (name_list, (GFunc)g_free, (gpointer) NULL);
+    g_list_foreach (path_list, (GFunc)g_free, (gpointer) NULL);
+    g_list_free (name_list);
+    g_list_free (path_list);
+    name_list=NULL;
+    path_list=NULL;
+    entry_max = 0;
 }
 

@@ -15,7 +15,7 @@
  *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
  *  Module     : linux/graphic.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
- *  Modifié par:
+ *  Modifié par: François Mouret 06/11/2012
  *
  *  Gestion de l'affichage du TO8.
  */
@@ -45,9 +45,9 @@
 #ifndef LINUX_GRAPHIC_H
 #define LINUX_GRAPHIC_H
 
-extern void InitGraphic(void);
-extern void RetraceScreen(int, int, int, int);
-extern void RefreshScreen(void);
+extern void ugraphic_Init(void);
+extern void ugraphic_Retrace(int x, int y, int w, int h);
+extern void ugraphic_Refresh(void);
 
 #endif
 

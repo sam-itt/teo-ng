@@ -35,8 +35,8 @@
 /*
  *  Module     : linux/ugui/uprinter.c
  *  Version    : 1.8.2
- *  Créé par   : François Mouret 18/04/2012 29/10/2012
- *  Modifié par: 
+ *  Créé par   : François Mouret 18/04/2012
+ *  Modifié par: François Mouret 29/10/2012
  *
  *  Gestion des imprimantes.
  */
@@ -72,7 +72,6 @@ static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
 
 
 
-
 static void folder_changed (GtkFileChooser *chooser, gpointer user_data)
 {
     gchar *filename = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER(chooser));
@@ -99,6 +98,7 @@ static void combo_changed (GtkComboBox *combo, gpointer user_data)
 
 
 /* ------------------------------------------------------------------------- */
+
 
 /* uprinter_Init:
  *  Initialise la frame du notebook pour la cartouche.

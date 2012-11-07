@@ -63,9 +63,8 @@ extern Window screen_win;
 extern Window window_win;
 extern int mit_shm_enabled;
 
-extern void InitDisplay(void);
-extern void InitWindow(void);
-extern void HandleEvents(void);
+extern void udisplay_Init(void);
+extern void udisplay_Window(void);
 
 #endif
 

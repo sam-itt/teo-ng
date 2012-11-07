@@ -81,21 +81,21 @@ static int data_type;
 static snd_pcm_sframes_t period_size;
 static int threshold;
 
-void CloseSound (void);
+void usound_Close (void);
 
 
 
-/* Error:
+/* sound_error:
  *  Erreur d'initialisation du module de streaming audio.
  */
-static int Error (const char *error_name, char *error_string)
+static int sound_error (const char *error_name, char *error_string)
 {
     perror(error_name);
 
     to8_error_msg = std_free (to8_error_msg);
     to8_error_msg = std_strdup_printf ("%s : %s", error_name, error_string);
     
-    CloseSound ();
+    usound_Close ();
     teo.setting.sound_enabled=0;
     return ERR_ERROR;
 }
@@ -115,51 +115,51 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
 
     /* Initialise la structure */
     if ((err = snd_pcm_hw_params_any (handle, params)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_any())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_any())");
 
     /* Initialise le resample */
     if ((err = snd_pcm_hw_params_set_rate_resample (handle, params, ALSA_RESAMPLE)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_resample())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_resample())");
 
     /* Initialise le type d'accès */
     if ((err = snd_pcm_hw_params_set_access (handle, params, ALSA_ACCESS)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_access())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_access())");
 
     /* Initialise le format */
     if ((err = snd_pcm_hw_params_set_format (handle, params, (data_type=SND_PCM_FORMAT_S16))) < 0)
         if ((err = snd_pcm_hw_params_set_format (handle, params, (data_type=SND_PCM_FORMAT_U8))) < 0)
-            return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_format())");
+            return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_format())");
 
     /* Initialise le nombre de canaux */
     if ((err = snd_pcm_hw_params_set_channels (handle, params, ALSA_CHANNELS)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_channels())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_channels())");
 
     /* Initialise le débit en données/seconde */
     if ((err = snd_pcm_hw_params_set_rate_near (handle, params, &rate, 0)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_near())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_rate_near())");
 
     /* Initialise le temps du ring-buffer en microsecondes */
     if ((err = snd_pcm_hw_params_set_buffer_time_near (handle, params, &buffer_time, &dir)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_buffer_time_near())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_buffer_time_near())");
 
     /* Lit la taille du ring-buffer */
     if ((err = snd_pcm_hw_params_get_buffer_size (params, &size)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_buffer_size())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_buffer_size())");
     buffer_size = size;
 
     /* Set period size (frames) */
     if ((err = snd_pcm_hw_params_set_period_time_near (handle, params, &period_time, &dir)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_period_time_near())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_period_time_near())");
 
     /* Lit la taille de la période en frames */
     if ((err = snd_pcm_hw_params_get_period_size (params, &size, &dir)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_period_size())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_period_size())");
     period_size = size;
     threshold = (buffer_size / period_size) * period_size;
 
     /* Actualise des paramètres hardware */
     if ((err = snd_pcm_hw_params (handle, params)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params())");
 
     return 0;
 }
@@ -175,27 +175,27 @@ static int set_swparams (snd_pcm_sw_params_t *params)
 
     /* Récupère le swparams courant */
     if ((err = snd_pcm_sw_params_current (handle, params)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params_current())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_sw_params_current())");
 
     if ((err = snd_pcm_sw_params_set_start_threshold (handle, params, threshold)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params_set_start_threshold())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_sw_params_set_start_threshold())");
 
     if ((err = snd_pcm_sw_params_set_avail_min (handle, params, period_size)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params_set_avail_min())");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_sw_params_set_avail_min())");
 
     /* Actualise les paramètres software */
     if ((err = snd_pcm_sw_params (handle, params)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_sw_params()");
+        return sound_error (snd_strerror(err), "ALSA (snd_pcm_sw_params()");
 
     return 0;
 }
 
 
 
-/* PutSoundByte:
+/* put_sound_byte:
  *  Place un octet dans le tampon de streaming audio.
  */
-static void PutSoundByte(unsigned long long int clock, unsigned char data)
+static void put_sound_byte(unsigned long long int clock, unsigned char data)
 {
     register int i;
     register char char_data;
@@ -228,11 +228,13 @@ static void PutSoundByte(unsigned long long int clock, unsigned char data)
 }
 
 
+/* ------------------------------------------------------------------------- */
 
-/* CloseSound:
+
+/* usound_Close:
  *  Ferme le device audio.
  */
-void CloseSound (void)
+void usound_Close (void)
 {
     if (sound_buffer != NULL)
     {
@@ -248,23 +250,24 @@ void CloseSound (void)
 
 
 
-/* InitSound:
+/* usound_Init:
  *  Initialise le module de streaming audio.
  */
-int InitSound(void)
+int usound_Init(void)
 {
     int err;
     int sound_buffer_size;
 
-    to8_PutSoundByte=PutSoundByte;
+    to8_PutSoundByte=put_sound_byte;
 
     if (teo.setting.sound_enabled)
     {
-        printf(is_fr?"Initialisation du son (ALSA)...":"Sound initialization (ALSA)...");
+        printf(is_fr?"Initialisation du son (ALSA)..."
+                    :"Sound initialization (ALSA)...");
 
         /* Open PCM device for playback. */
         if ((err = snd_pcm_open(&handle, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
-            return Error (snd_strerror(err),
+            return sound_error (snd_strerror(err),
                                    is_fr?"Impossible d'ouvrir le pÃ©riphÃ©rique audio"
                                         :"Unable to open audio device");
 
@@ -282,9 +285,9 @@ int InitSound(void)
         sound_buffer_size = period_size * ALSA_CHANNELS * (snd_pcm_format_physical_width(data_type) >> 3);
         sound_buffer = (unsigned char *)calloc (sound_buffer_size, sizeof(unsigned char));
         if (sound_buffer == NULL)
-            return Error (is_fr?"Erreur audio":"Audio error",
-                            is_fr?"MÃ©moire insuffisante pour le buffer"
-                                 :"Insufficient memory for buffer");
+            return sound_error (is_fr?"Erreur audio":"Audio error",
+                                is_fr?"MÃ©moire insuffisante pour le buffer"
+                                     :"Insufficient memory for buffer");
 
         snd_pcm_prepare (handle);
 
@@ -295,10 +298,10 @@ int InitSound(void)
 
 
 
-/* PlaySoundBuffer:
+/* usound_Play:
  *  Envoie le tampon de streaming audio à la carte son.
  */
-void PlaySoundBuffer(void)
+void usound_Play(void)
 {
     int err;
     register int i;

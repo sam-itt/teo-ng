@@ -74,7 +74,7 @@
 #include "media/cass.h"
 #include "media/memo.h"
 #include "media/printer.h"
-#include "linux/disk.h"
+#include "linux/floppy.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
 #include "linux/sound.h"
@@ -114,7 +114,7 @@ static gboolean RunTO8 (gpointer user_data)
 
     if ((teo.command == TEO_COMMAND_BREAKPOINT)
      || (teo.command == TEO_COMMAND_DEBUGGER))
-        debug = DebugPanel();
+        debug = udebug_Panel();
 
     if (teo.command == TEO_COMMAND_PANEL) {
         ugui_Panel();
@@ -138,10 +138,10 @@ static gboolean RunTO8 (gpointer user_data)
 
     teo.command = TEO_COMMAND_NONE;
 
-    RefreshScreen();
+    ugraphic_Refresh ();
     if ((teo.setting.exact_speed)
      && (teo.setting.sound_enabled))
-        PlaySoundBuffer();
+        usound_Play ();
 
     return TRUE;
     (void)user_data;
@@ -369,9 +369,9 @@ int main(int argc, char *argv[])
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
-    InitWindow ();      /* Création de la fenêtre principale */
-    InitDisplay();      /* Initialisation du serveur X */
-    InitGraphic();      /* Initialisation du module graphique */
+    udisplay_Window (); /* Création de la fenêtre principale */
+    udisplay_Init();    /* Initialisation du serveur X */
+    ugraphic_Init();    /* Initialisation du module graphique */
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
     memo_FirstLoad ();  /* Chargement de la cartouche éventuelle */
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
     g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
 
     /* Initialise le son */
-    if (InitSound() < 0)
+    if (usound_Init() < 0)
         main_DisplayMessage(to8_error_msg);
 
     /* Restitue l'état sauvegardé de l'émulateur */
@@ -403,8 +403,8 @@ int main(int argc, char *argv[])
     g_timer_destroy (timer);
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
-    ugui_Free ();     /* Libère la mémoire utilisée par la GUI */
-    CloseSound();   /* Referme le périphérique audio*/
+    ugui_Free ();   /* Libère la mémoire utilisée par la GUI */
+    usound_Close(); /* Referme le périphérique audio*/
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
