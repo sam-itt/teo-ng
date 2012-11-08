@@ -101,11 +101,11 @@ static int LoadFile(const char filename[], unsigned char dest[], int size)
     FILE *file;
 
     if ((file=fopen(filename,"rb")) == NULL)
-        return error_Message(TO8_CANNOT_FIND_FILE, filename);
+        return error_Message(TEO_ERROR_CANNOT_FIND_FILE, filename);
 
     if (fread(dest, sizeof(char), size, file) != (size_t)size) {
         fclose(file);
-        return error_Message(TO8_CANNOT_OPEN_FILE, filename);
+        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, filename);
     }
     fclose(file);
 
@@ -124,25 +124,25 @@ static int InitMemory(void)
     /* 64 ko de ROM logiciels */
     for (i=0; i<mem.rom.nbank; i++)
         if ((mem.rom.bank[i] = malloc(mem.rom.size*sizeof(uint8))) == NULL)
-            return error_Message(TO8_BAD_ALLOC, NULL); 
+            return error_Message(TEO_ERROR_BAD_ALLOC, NULL); 
 
     /* 512 ko de RAM */
     for (i=0; i<mem.ram.nbank; i++)
         if ((mem.ram.bank[i] = calloc(mem.ram.size, sizeof(uint8))) == NULL)
-            return error_Message(TO8_BAD_ALLOC, NULL);
+            return error_Message(TEO_ERROR_BAD_ALLOC, NULL);
 
     /* 16 ko de ROM moniteur */
     for (i=0; i<mem.mon.nbank; i++)
         if ((mem.mon.bank[i] = malloc(mem.mon.size*sizeof(uint8))) == NULL)
-            return error_Message(TO8_BAD_ALLOC, NULL);
+            return error_Message(TEO_ERROR_BAD_ALLOC, NULL);
 
     for (i=0; i<mem.rom.nbank; i++)
         if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) < 0)
-            return ERR_ERROR;
+            return TEO_ERROR;
 
     for (i=0; i<mem.mon.nbank; i++)
         if (LoadFile(mem.mon.filename[i], mem.mon.bank[i], mem.mon.size) < 0)
-            return ERR_ERROR;
+            return TEO_ERROR;
 
     /* modification de la page d'affichage de la date */
     mem.rom.bank[3][0x25D3]=TO8_TRAP_CODE;
@@ -686,7 +686,7 @@ void to8_Exit(void)
         mem.cart.bank[i] = std_free (mem.cart.bank[i]);
 
     /* Libère l'occupation du message d'erreur */
-    to8_error_msg = std_free (to8_error_msg);
+    teo_error_msg = std_free (teo_error_msg);
 
     to8_alive = FALSE;
 }
@@ -700,20 +700,20 @@ int to8_Init(int num_joy)
 {
     /* on détecte les instances multiples */
     if (to8_alive)
-        return error_Message(TO8_MULTIPLE_INIT, NULL);
+        return error_Message(TEO_ERROR_MULTIPLE_INIT, NULL);
 
     hardware_Init();
 
     if (InitMemory() < 0)
     {
         to8_Exit();
-        return ERR_ERROR;
+        return TEO_ERROR;
     }
 
     if (keyboard_Init(num_joy) < 0)
     {
-       to8_Exit();
-       return ERR_ERROR;
+        to8_Exit();
+        return TEO_ERROR;
     }
 
     joystick_Init();
@@ -728,3 +728,4 @@ int to8_Init(int num_joy)
     to8_new_video_params = FALSE;
     return 0;
 }
+

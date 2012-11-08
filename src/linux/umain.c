@@ -67,6 +67,7 @@
 #include "teo.h"
 #include "option.h"
 #include "image.h"
+#include "error.h"
 #include "main.h"
 #include "std.h"
 #include "ini.h"
@@ -360,7 +361,7 @@ int main(int argc, char *argv[])
                  :"Initialization of the emulator...")); fflush(stdout);
 
     if ( to8_Init(TO8_NJOYSTICKS) < 0 )
-        main_ExitMessage(to8_error_msg);
+        main_ExitMessage(teo_error_msg);
 
     /* Initialisation de l'interface d'accès direct */
     ufloppy_Init (drive_type, direct_write_support);
@@ -383,7 +384,7 @@ int main(int argc, char *argv[])
 
     /* Initialise le son */
     if (usound_Init() < 0)
-        main_DisplayMessage(to8_error_msg);
+        main_DisplayMessage(teo_error_msg);
 
     /* Restitue l'état sauvegardé de l'émulateur */
     to8_ColdReset();    /* Reset à froid de l'émulateur */

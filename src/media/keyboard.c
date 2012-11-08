@@ -432,7 +432,7 @@ int keyboard_Init(int num_joy)
     int i;
 
     if ((num_joy<0) || (num_joy>TO8_NJOYSTICKS))
-       return error_Message(TO8_BAD_JOYSTICK_NUM, NULL);
+       return error_Message(TEO_ERROR_BAD_JOYSTICK_NUM, NULL);
 
     njoy = num_joy;
 

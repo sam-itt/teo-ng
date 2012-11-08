@@ -86,7 +86,7 @@ static int load_memo (HWND hWnd, char *filename)
     int ret = memo_Load(filename);
 
     if (ret < 0)
-        MessageBox(hWnd, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
+        MessageBox(hWnd, teo_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
 
     return ret;
 }

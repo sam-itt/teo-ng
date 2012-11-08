@@ -50,10 +50,10 @@
 #endif
 
 #include "std.h"
-#include "error.h"  /* MacOS */
+#include "error.h"
 #include "teo.h"
 
-char *to8_error_msg = NULL;
+char *teo_error_msg = NULL;
 
 struct ERROR_TABLE {
     int   err;
@@ -62,59 +62,59 @@ struct ERROR_TABLE {
 
 static const struct ERROR_TABLE error_table_fr[]= {
 #ifdef UNIX_TOOL
-    { TO8_MULTIPLE_INIT           , "Initialisation multiple de l'Ã©mulateur." },
-    { TO8_BAD_ALLOC               , "Allocation d'espace impossible."          },
-    { TO8_CANNOT_FIND_FILE        , "Impossible de trouver "                   },
-    { TO8_CANNOT_OPEN_FILE        , "Ouverture impossible."                    },
-    { TO8_BAD_FILE_FORMAT         , "Mauvais format de fichier."               },
-    { TO8_UNSUPPORTED_MODEL       , "Image d'un modÃ¨le non supportÃ©."        },
-    { TO8_BAD_JOYSTICK_NUM        , "Nombre de joysticks incorrect."           },
-    { TO8_BAD_MEMO_HEADER_CHECKSUM, "Checksum d'en-tÃªte de memo erronÃ©."     },
-    { TO8_BAD_MEMO_HEADER_NAME    , "Nom d'en-tÃªte de memo incorrect."        },
-    { TO8_MEDIA_ALREADY_SET       , "Plus de media libre."                     },
-    { TO8_CANNOT_CREATE_DISK      , "Impossible de crÃ©er la disquette."       },
-    { TO8_SAP_NOT_VALID           , "Archive SAP invalide."                    },
-    { TO8_FILE_TOO_LARGE          , "Fichier trop important."                  },
-    { TO8_FILE_IS_EMPTY           , "Fichier vide."                            },
-    { TO8_SAP_DIRECTORY_FULL      , "RÃ©pertoire SAP plein"                    },
-    { 0                           , "Erreur inconnue."                         }
+    { TEO_ERROR_MULTIPLE_INIT           , "Initialisation multiple de l'Ã©mulateur." },
+    { TEO_ERROR_BAD_ALLOC               , "Allocation d'espace impossible."          },
+    { TEO_ERROR_CANNOT_FIND_FILE        , "Impossible de trouver "                   },
+    { TEO_ERROR_CANNOT_OPEN_FILE        , "Ouverture impossible."                    },
+    { TEO_ERROR_BAD_FILE_FORMAT         , "Mauvais format de fichier."               },
+    { TEO_ERROR_UNSUPPORTED_MODEL       , "Image d'un modÃ¨le non supportÃ©."        },
+    { TEO_ERROR_BAD_JOYSTICK_NUM        , "Nombre de joysticks incorrect."           },
+    { TEO_ERROR_BAD_MEMO_HEADER_CHECKSUM, "Checksum d'en-tÃªte de memo erronÃ©."     },
+    { TEO_ERROR_BAD_MEMO_HEADER_NAME    , "Nom d'en-tÃªte de memo incorrect."        },
+    { TEO_ERROR_MEDIA_ALREADY_SET       , "Plus de media libre."                     },
+    { TEO_ERROR_CANNOT_CREATE_DISK      , "Impossible de crÃ©er la disquette."       },
+    { TEO_ERROR_SAP_NOT_VALID           , "Archive SAP invalide."                    },
+    { TEO_ERROR_FILE_TOO_LARGE          , "Fichier trop important."                  },
+    { TEO_ERROR_FILE_IS_EMPTY           , "Fichier vide."                            },
+    { TEO_ERROR_SAP_DIRECTORY_FULL      , "RÃ©pertoire SAP plein"                    },
+    { 0                                 , "Erreur inconnue."                         }
 #else
-    { TO8_MULTIPLE_INIT           , "Initialisation multiple de l'émulateur."  },
-    { TO8_BAD_ALLOC               , "Allocation d'espace impossible."          },
-    { TO8_CANNOT_FIND_FILE        , "Impossible de trouver "                   },
-    { TO8_CANNOT_OPEN_FILE        , "Ouverture impossible."                    },
-    { TO8_BAD_FILE_FORMAT         , "Mauvais format de fichier."               },
-    { TO8_UNSUPPORTED_MODEL       , "Image d'un modèle non supporté."          },
-    { TO8_BAD_JOYSTICK_NUM        , "Nombre de joysticks incorrect."           },
-    { TO8_BAD_MEMO_HEADER_CHECKSUM, "Checksum d'en-tête de memo erroné."       },
-    { TO8_BAD_MEMO_HEADER_NAME    , "Nom d'en-tête de memo incorrect."         },
-    { TO8_MEDIA_ALREADY_SET       , "Plus de media libre."                     },
-    { TO8_CANNOT_CREATE_DISK      , "Impossible de créer la disquette."        },
-    { TO8_SAP_NOT_VALID           , "Archive SAP invalide."                    },
-    { TO8_FILE_TOO_LARGE          , "Fichier trop important."                  },
-    { TO8_FILE_IS_EMPTY           , "Fichier vide."                            },
-    { TO8_SAP_DIRECTORY_FULL      , "Répertoire SAP plein"                     },
-    { 0                           , "Erreur inconnue."                         }
+    { TEO_ERROR_MULTIPLE_INIT           , "Initialisation multiple de l'émulateur."  },
+    { TEO_ERROR_BAD_ALLOC               , "Allocation d'espace impossible."          },
+    { TEO_ERROR_CANNOT_FIND_FILE        , "Impossible de trouver "                   },
+    { TEO_ERROR_CANNOT_OPEN_FILE        , "Ouverture impossible."                    },
+    { TEO_ERROR_BAD_FILE_FORMAT         , "Mauvais format de fichier."               },
+    { TEO_ERROR_UNSUPPORTED_MODEL       , "Image d'un modèle non supporté."          },
+    { TEO_ERROR_BAD_JOYSTICK_NUM        , "Nombre de joysticks incorrect."           },
+    { TEO_ERROR_BAD_MEMO_HEADER_CHECKSUM, "Checksum d'en-tête de memo erroné."       },
+    { TEO_ERROR_BAD_MEMO_HEADER_NAME    , "Nom d'en-tête de memo incorrect."         },
+    { TEO_ERROR_MEDIA_ALREADY_SET       , "Plus de media libre."                     },
+    { TEO_ERROR_CANNOT_CREATE_DISK      , "Impossible de créer la disquette."        },
+    { TEO_ERROR_SAP_NOT_VALID           , "Archive SAP invalide."                    },
+    { TEO_ERROR_FILE_TOO_LARGE          , "Fichier trop important."                  },
+    { TEO_ERROR_FILE_IS_EMPTY           , "Fichier vide."                            },
+    { TEO_ERROR_SAP_DIRECTORY_FULL      , "Répertoire SAP plein"                     },
+    { 0                                 , "Erreur inconnue."                         }
 #endif
 };
 
 static const struct ERROR_TABLE error_table_en[]= {
-    { TO8_MULTIPLE_INIT           , "Multiple initialization of the emulator." },
-    { TO8_BAD_ALLOC               , "Cannot allocate space."                   },
-    { TO8_CANNOT_FIND_FILE        , "Unable to find "                          },
-    { TO8_CANNOT_OPEN_FILE        , "Unable to open."                          },
-    { TO8_BAD_FILE_FORMAT         , "Bad file format."                         },
-    { TO8_UNSUPPORTED_MODEL       , "Unsupported image format."                },
-    { TO8_BAD_JOYSTICK_NUM        , "Bad count of joysticks."                  },
-    { TO8_BAD_MEMO_HEADER_CHECKSUM, "Bad checksum for memo header."            },
-    { TO8_BAD_MEMO_HEADER_NAME    , "Bad name for memo header."                },
-    { TO8_MEDIA_ALREADY_SET       , "Media not free."                          },
-    { TO8_CANNOT_CREATE_DISK      , "Cannot create disk."                      },
-    { TO8_SAP_NOT_VALID           , "SAP archive not valid."                   },
-    { TO8_FILE_TOO_LARGE          , "File toot large."                         },
-    { TO8_FILE_IS_EMPTY           , "File is empty."                           },
-    { TO8_SAP_DIRECTORY_FULL      , "Directory SAP full."                      },
-    { 0                           , "Unknown error."                           }
+    { TEO_ERROR_MULTIPLE_INIT           , "Multiple initialization of the emulator." },
+    { TEO_ERROR_BAD_ALLOC               , "Cannot allocate space."                   },
+    { TEO_ERROR_CANNOT_FIND_FILE        , "Unable to find "                          },
+    { TEO_ERROR_CANNOT_OPEN_FILE        , "Unable to open."                          },
+    { TEO_ERROR_BAD_FILE_FORMAT         , "Bad file format."                         },
+    { TEO_ERROR_UNSUPPORTED_MODEL       , "Unsupported image format."                },
+    { TEO_ERROR_BAD_JOYSTICK_NUM        , "Bad count of joysticks."                  },
+    { TEO_ERROR_BAD_MEMO_HEADER_CHECKSUM, "Bad checksum for memo header."            },
+    { TEO_ERROR_BAD_MEMO_HEADER_NAME    , "Bad name for memo header."                },
+    { TEO_ERROR_MEDIA_ALREADY_SET       , "Media not free."                          },
+    { TEO_ERROR_CANNOT_CREATE_DISK      , "Cannot create disk."                      },
+    { TEO_ERROR_SAP_NOT_VALID           , "SAP archive not valid."                   },
+    { TEO_ERROR_FILE_TOO_LARGE          , "File toot large."                         },
+    { TEO_ERROR_FILE_IS_EMPTY           , "File is empty."                           },
+    { TEO_ERROR_SAP_DIRECTORY_FULL      , "Directory SAP full."                      },
+    { 0                                 , "Unknown error."                           }
 };
 
 
@@ -127,23 +127,23 @@ int error_Message(int error, const char moreinfo[])
     int i = 0;
     const struct ERROR_TABLE *err_table = is_fr? error_table_fr
                                                : error_table_en;
-    if (error < ERR_ERROR)
+    if (error < TEO_ERROR)
     {
         while ((err_table[i].err != 0)
            && (err_table[i].err != error))
             i++;
     
-        to8_error_msg = std_free (to8_error_msg);
+        teo_error_msg = std_free (teo_error_msg);
         
 #ifdef DJGPP
-        to8_error_msg = std_strdup_printf ("%s.", err_table[i].str);
+        teo_error_msg = std_strdup_printf ("%s.", err_table[i].str);
 #else
         if (moreinfo == NULL)
-            to8_error_msg = std_strdup_printf ("%s.", err_table[i].str);
+            teo_error_msg = std_strdup_printf ("%s.", err_table[i].str);
         else
-            to8_error_msg = std_strdup_printf ("%s : %s", err_table[i].str, moreinfo);
+            teo_error_msg = std_strdup_printf ("%s : %s", err_table[i].str, moreinfo);
 #endif
     }
-    return ERR_ERROR;
+    return TEO_ERROR;
 }
 

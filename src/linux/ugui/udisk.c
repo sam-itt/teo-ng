@@ -86,8 +86,8 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
 
     switch (ret)
     {
-        case ERR_ERROR :
-            ugui_Error (to8_error_msg, wControl);
+        case TEO_ERROR :
+            ugui_Error (teo_error_msg, wControl);
             break;
 
         case TO8_READ_ONLY :

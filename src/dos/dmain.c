@@ -55,6 +55,7 @@
 #include "ini.h"
 #include "image.h"
 #include "main.h"
+#include "error.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -63,10 +64,10 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
-#include "alleg/keybint.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
-#include "dos/disk.h"
+#include "dos/keybint.h"
+#include "dos/floppy.h"
 #include "dos/debug.h"
 #include "teo.h"
 
@@ -398,7 +399,7 @@ int main(int argc, char *argv[])
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
 
     if (to8_Init(TO8_NJOYSTICKS-njoy) < 0)
-        main_ExitMessage(to8_error_msg);
+        main_ExitMessage(teo_error_msg);
 
     printf("ok\n");
 

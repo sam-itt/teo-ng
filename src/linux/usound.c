@@ -92,12 +92,12 @@ static int sound_error (const char *error_name, char *error_string)
 {
     perror(error_name);
 
-    to8_error_msg = std_free (to8_error_msg);
-    to8_error_msg = std_strdup_printf ("%s : %s", error_name, error_string);
+    teo_error_msg = std_free (teo_error_msg);
+    teo_error_msg = std_strdup_printf ("%s : %s", error_name, error_string);
     
     usound_Close ();
     teo.setting.sound_enabled=0;
-    return ERR_ERROR;
+    return TEO_ERROR;
 }
 
 
@@ -274,12 +274,12 @@ int usound_Init(void)
         /* Initialise les paramètres hardware */
         snd_pcm_hw_params_alloca (&hwparams);
         if (set_hwparams (hwparams) < 0)
-            return ERR_ERROR;
+            return TEO_ERROR;
 
         /* Initialise les paramètres software */
         snd_pcm_sw_params_alloca (&swparams);
         if (set_swparams (swparams) < 0)
-            return ERR_ERROR;
+            return TEO_ERROR;
 
         /* Alloue le buffer de son */
         sound_buffer_size = period_size * ALSA_CHANNELS * (snd_pcm_format_physical_width(data_type) >> 3);

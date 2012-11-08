@@ -125,8 +125,8 @@ static int load_cass (HWND hWnd, char *filename)
 
     switch (ret)
     {
-        case ERR_ERROR :
-            MessageBox(hWnd, to8_error_msg, PROGNAME_STR,
+        case TEO_ERROR :
+            MessageBox(hWnd, teo_error_msg, PROGNAME_STR,
                                MB_OK | MB_ICONINFORMATION);
             break;
 

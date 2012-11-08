@@ -242,15 +242,15 @@ char *option_Parse (int argc, char *argv[],
     help_option = help_option_list;
     prog_option = prog_option_list;
     
-    to8_error_msg = std_free (to8_error_msg);
-    to8_error_msg = option_check (argc, argv, internal_prog_name,
+    teo_error_msg = std_free (teo_error_msg);
+    teo_error_msg = option_check (argc, argv, internal_prog_name,
                                   help_option, remain_option);
-    if (to8_error_msg != NULL) {
-        to8_error_msg = std_free (to8_error_msg);
-        to8_error_msg = option_check (argc, argv, internal_prog_name,
+    if (teo_error_msg != NULL) {
+        teo_error_msg = std_free (teo_error_msg);
+        teo_error_msg = option_check (argc, argv, internal_prog_name,
                                       prog_option, remain_option);
     }
-    return to8_error_msg;
+    return teo_error_msg;
 }
 
 
@@ -273,22 +273,23 @@ void option_Undefined (char *fname)
         if (teo.disk[1].file == NULL) err = disk_Load (1, fname); else
         if (teo.disk[2].file == NULL) err = disk_Load (2, fname); else
         if (teo.disk[3].file == NULL) err = disk_Load (3, fname); else
-        err = error_Message (TO8_MEDIA_ALREADY_SET, fname);
+        err = error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
     }
     else
     /* traitement d'un fichier memo */
     if (memo_Check (fname) != FALSE)
         err = (teo.memo.file == NULL) ? memo_Load (fname)
-                                      : error_Message (TO8_MEDIA_ALREADY_SET, fname);
+                                      : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
     else
     /* traitement d'un fichier cassette */
     if (cass_Check (fname))
         err = (teo.cass.file == NULL) ? cass_Load (fname)
-                                      : error_Message (TO8_MEDIA_ALREADY_SET, fname);
+                                      : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
     else
     /* fichier non reconnu */
-    err = error_Message (TO8_CANNOT_OPEN_FILE, fname);
+    err = error_Message (TEO_ERROR_CANNOT_OPEN_FILE, fname);
     
     if (err < 0)
-        main_DisplayMessage (to8_error_msg);
+        main_DisplayMessage (teo_error_msg);
 }
+

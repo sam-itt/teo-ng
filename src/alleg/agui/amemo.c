@@ -55,6 +55,7 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "media/memo.h"
+#include "error.h"
 #include "std.h"
 #include "teo.h"
 
@@ -153,7 +154,7 @@ void amemo_Panel(void)
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     if (memo_Load(filename) < 0)
-                        agui_PopupMessage(to8_error_msg);
+                        agui_PopupMessage(teo_error_msg);
                     else
                     {
                         m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);

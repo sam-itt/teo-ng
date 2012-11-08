@@ -53,9 +53,10 @@
 #endif
 
 #include "media/memo.h"
-#include "std.h"
 #include "linux/gui.h"
 #include "to8.h"
+#include "std.h"
+#include "error.h"
 
 static GtkWidget *combo;
 static int entry_max=0;
@@ -138,7 +139,7 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
         memo_Eject();
     else
     if (memo_Load(filename) < 0)
-        ugui_Error (to8_error_msg, wControl);
+        ugui_Error (teo_error_msg, wControl);
 
     teo.command=TEO_COMMAND_COLD_RESET;
 
@@ -190,7 +191,7 @@ static void open_file (GtkButton *button, gpointer data)
     {
         file_name = gtk_file_chooser_get_filename((GtkFileChooser *)dialog);
         if (memo_Load(file_name) < 0)
-            ugui_Error (to8_error_msg, wControl);
+            ugui_Error (teo_error_msg, wControl);
         else
         {
             /* Bloque l'intervention de combo_changed */

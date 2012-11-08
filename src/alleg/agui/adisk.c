@@ -55,6 +55,7 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "media/disk.h"
+#include "error.h"
 #include "std.h"
 #include "teo.h"
 
@@ -237,7 +238,7 @@ void adisk_Panel(void)
                     ret2=disk_Load (drive, filename);
 
                     if (ret2 < 0)
-                        agui_PopupMessage(to8_error_msg);
+                        agui_PopupMessage(teo_error_msg);
                     else
                     {
                         dial_nbr = DISKDIAL_EJECT0+(DISKDIAL_EJECT1-DISKDIAL_EJECT0)*drive;
@@ -287,7 +288,7 @@ void adisk_Panel(void)
                     ret2=disk_Load (drive, filename);
 
                     if (ret2 < 0)
-                        agui_PopupMessage(to8_error_msg);
+                        agui_PopupMessage(teo_error_msg);
                     else
                     {
                         dial_nbr = DISKDIAL_EJECT0+(DISKDIAL_EJECT1-DISKDIAL_EJECT0)*drive;

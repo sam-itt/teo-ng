@@ -69,9 +69,9 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
-#include "alleg/keybint.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
+#include "win/keybint.h"
 #include "win/gui.h"
 #include "to8.h"
 
@@ -321,7 +321,7 @@ int main_SysExec(char *cmd, const char *dir) {
                           (int)GetLastError(),
                           cmd,
                           dir?dir:(is_fr?"répertoire courant":"current dir"));
-        return ERR_ERROR;
+        return TEO_ERROR;
     }
     
     /* Wait until child process exits. */
@@ -479,7 +479,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
     if (to8_Init(TO8_NJOYSTICKS-njoy) < 0)
-        main_ExitMessage(to8_error_msg);
+        main_ExitMessage(teo_error_msg);
     printf("ok\n");
 
     /* initialisation du son */

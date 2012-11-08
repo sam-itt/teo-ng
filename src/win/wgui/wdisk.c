@@ -100,8 +100,8 @@ static int load_disk (HWND hWnd, char *filename, struct FILE_VECTOR *vector)
 
     switch (ret)
     {
-        case ERR_ERROR :
-            MessageBox(hWnd, to8_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
+        case TEO_ERROR :
+            MessageBox(hWnd, teo_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
             break;
 
         case TO8_READ_ONLY :

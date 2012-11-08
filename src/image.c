@@ -745,22 +745,22 @@ int image_Load(const char filename[])
 
     (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
     if ((file = fopen(fname, "rb")) == NULL)
-        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
 #else
     if ((file = fopen(filename, "rb")) == NULL)
-        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
 #endif
     /* lecture de l'entête */
     if (fread(buffer, 1, FORMAT_ID_SIZE, file) != FORMAT_ID_SIZE)  /* format_id */
     {
         fclose(file);
-        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
     }
     
     if (strncmp(buffer, format_id, FORMAT_ID_SIZE))
     {
         fclose(file);
-        return error_Message(TO8_BAD_FILE_FORMAT, NULL);
+        return error_Message(TEO_ERROR_BAD_FILE_FORMAT, NULL);
     }
 
     fread_int16(&value, file);  /* format_ver */
@@ -771,7 +771,7 @@ int image_Load(const char filename[])
     if ((value != thomson[THOMSON_TO8].id) && (value != thomson[THOMSON_TO8D].id))
     {
         fclose(file);
-        return error_Message(TO8_UNSUPPORTED_MODEL, NULL);
+        return error_Message(TEO_ERROR_UNSUPPORTED_MODEL, NULL);
     }
 
     fseek(file, 6, SEEK_CUR);  /* reserved */
@@ -788,7 +788,7 @@ int image_Load(const char filename[])
         if (chunk_id >= 0x2000)
         {
             fclose(file);
-            return error_Message(TO8_BAD_FILE_FORMAT, NULL);
+            return error_Message(TEO_ERROR_BAD_FILE_FORMAT, NULL);
         }
 
         Loader[chunk_id>>8](chunk_id, chunk_size, file);
@@ -815,10 +815,10 @@ int image_Save(const char filename[])
 
     (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
     if ((file = fopen(fname, "wb")) == NULL)
-        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
 #else
     if ((file = fopen(filename, "wb")) == NULL)
-        return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
+        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
 #endif
     /* écriture de l'entête */
     fwrite(format_id, 1, FORMAT_ID_SIZE, file); 

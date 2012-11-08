@@ -55,6 +55,7 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "media/cass.h"
+#include "error.h"
 #include "std.h"
 #include "teo.h"
 
@@ -336,7 +337,7 @@ void acass_Panel(void)
                     ret=cass_Load(filename);
 
                     if (ret < 0)
-                        agui_PopupMessage(to8_error_msg);
+                        agui_PopupMessage(teo_error_msg);
                     else
                     {
                         k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);

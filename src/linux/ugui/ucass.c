@@ -122,8 +122,8 @@ static int load_cass (gchar *filename)
     rewind_cass();
     switch (ret)
     {
-        case ERR_ERROR :
-            ugui_Error (to8_error_msg, wControl);
+        case TEO_ERROR :
+            ugui_Error (teo_error_msg, wControl);
             break;
 
         case TO8_READ_ONLY :

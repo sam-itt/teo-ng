@@ -87,7 +87,7 @@ static int DoLoadCass(const char filename[], int mode)
    if ((new_cass=fopen(filename, "rb")) != NULL)
       goto Success;
 
-   return error_Message(TO8_CANNOT_OPEN_FILE, NULL);
+   return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
 
  Success:
    if (cass)
@@ -256,7 +256,7 @@ void cass_FirstLoad (void)
         teo.cass.file = std_free (teo.cass.file);
         if (s != NULL)
             if (cass_Load (s) < 0)
-                main_DisplayMessage (to8_error_msg);
+                main_DisplayMessage (teo_error_msg);
         s = std_free (s);
     }
 }
