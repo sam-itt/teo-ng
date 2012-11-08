@@ -49,6 +49,11 @@
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 
+#include <gtk/gtk.h>
+#include <gdk/gdkx.h>
+#include <X11/Xlib.h>
+#include "../to8.h"
+
 extern GtkWidget *wMain;
 extern GdkWindow *gscreen_win;
 extern GdkWindow *gwindow_win;

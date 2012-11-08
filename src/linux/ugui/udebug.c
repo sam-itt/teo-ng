@@ -40,8 +40,23 @@
  *  Débogueur du TO8.
  */
 
-#include "teo_lnx.h"
 
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <unistd.h>
+   #include <gtk/gtk.h>
+   #include <gdk/gdkx.h>
+#endif
+
+#include "to8.h"
+#include "debug.h"
+#include "mc68xx/dasm6809.h"
+#include "mc68xx/mc6809.h"
+#include "linux/display.h"
+#include "linux/gui.h"
+#include "linux/graphic.h"
 
 #define DEBUG_SPACE 2
 

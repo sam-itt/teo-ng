@@ -46,6 +46,18 @@
  *  Gestion des cartouches.
  */
 
+
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+#endif
+
+#include "defs.h"
+#include "hardware.h"
+#include "error.h"
+#include "main.h"
+#include "std.h"
 #include "teo.h"
 
 

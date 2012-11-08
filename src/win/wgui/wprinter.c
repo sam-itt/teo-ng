@@ -42,7 +42,21 @@
  */
 
 
-#include "teo_win.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <unistd.h>
+   #include <windows.h>
+   #include <shellapi.h>
+   #include <commctrl.h>
+   #include <shlobj.h>
+#endif
+
+#include "win/dialog.rh"
+#include "win/gui.h"
+#include "std.h"
+#include "teo.h"
 
 #define PRINTER_NUMBER 5
 

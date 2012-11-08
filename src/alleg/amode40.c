@@ -45,7 +45,14 @@
  */
 
 
-#include "teo_allg.h"
+#ifndef SCAN_DEPEND
+   #include <string.h>
+   #include <allegro.h>
+#endif
+
+#include "alleg/color8.h"
+#include "alleg/gfxdrv.h"
+#include "teo.h"
 
 
 /* variables globales */

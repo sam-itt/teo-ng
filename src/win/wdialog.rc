@@ -43,13 +43,15 @@
  *  Définition des boîtes de dialogue.
  */
 
+
 #ifndef SCAN_DEPEND
    #include <windows.h>
    #include <commctrl.h>
 #endif
 
 #include "win/dialog.rh"
-#include "teo.h"
+#include "to8.h"
+
 
 a           ICON   "src/win/thomson.ico"   // To force it to be the program icon
 thomson_ico ICON   "src/win/thomson.ico"

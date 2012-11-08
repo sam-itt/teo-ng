@@ -43,8 +43,17 @@
  */
 
 
-#include "teo_dos.h"
+#ifndef SCAN_DEPEND
+   #include <conio.h>
+   #include <stdio.h>
+#endif
 
+#include "mc68xx/dasm6809.h"
+#include "mc68xx/mc6809.h"
+#include "alleg/gfxdrv.h"
+#include "dos/memmng.h"
+#include "debug.h"
+#include "teo.h"
 
 #define MENU_NLINES 8
 #define MENU_POS_X  4

@@ -46,8 +46,27 @@
  *  Module de pilotage de l'émulateur.
  */
 
-#include "teo.h"
 
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+#endif
+
+#include "defs.h"
+#include "teo.h"
+#include "error.h"
+#include "image.h"
+#include "ini.h"
+#include "std.h"
+#include "hardware.h"
+#include "media/disk.h"
+#include "media/joystick.h"
+#include "media/keyboard.h"
+#include "media/cass.h"
+#include "media/mouse.h"
+#include "media/printer.h"
+#include "mc68xx/mc6809.h"
 
 int is_fr=0;
 

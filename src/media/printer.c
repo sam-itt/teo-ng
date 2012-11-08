@@ -42,8 +42,22 @@
  *  Emulation des imprimantes.
  */
 
-#include "teo.h"
 
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <ctype.h>
+#ifndef DJGPP
+   #include <png.h>
+#endif
+#endif
+
+#include "mc68xx/mc6809.h"
+#include "mc68xx/mc6846.h"
+#include "media/printer.h"
+#include "hardware.h"
+#include "std.h"
 
 #ifdef UNIX_TOOL
 #   define SLASH "/"

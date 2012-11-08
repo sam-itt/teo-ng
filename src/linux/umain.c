@@ -47,7 +47,38 @@
  */
 
 
-#include "teo_lnx.h"
+#ifndef SCAN_DEPEND
+   #include <locale.h>
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <signal.h>
+   #include <unistd.h>
+   #include <sys/time.h>
+   #include <sys/types.h>
+   #include <sys/stat.h>
+   #include <gtk/gtk.h>
+   #include <X11/Xlib.h>
+   #include <X11/Xresource.h>
+   #include <X11/Xutil.h>
+#endif
+
+#include "defs.h"
+#include "teo.h"
+#include "option.h"
+#include "image.h"
+#include "main.h"
+#include "std.h"
+#include "ini.h"
+#include "media/disk.h"
+#include "media/cass.h"
+#include "media/memo.h"
+#include "media/printer.h"
+#include "linux/floppy.h"
+#include "linux/display.h"
+#include "linux/graphic.h"
+#include "linux/sound.h"
+#include "linux/gui.h"
 
 
 struct EMUTEO teo;

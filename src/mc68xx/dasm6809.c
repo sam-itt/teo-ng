@@ -40,8 +40,14 @@
  *               corrections mineures (MacOS port)
  */
 
-#include "teo.h"
 
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <string.h>
+#endif
+
+#include "mc68xx/dasm6809.h"
+#include "mc68xx/mc6809.h"
 
 
 /* tables des instructions */

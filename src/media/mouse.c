@@ -44,6 +44,10 @@
  *  Gestion de la souris et du crayon optique.
  */
 
+
+#include "media/joystick.h"
+#include "media/mouse.h"  /* MacOS */
+#include "hardware.h"
 #include "teo.h"
 
 

@@ -44,8 +44,18 @@
  *  Gestion des cartouches.
  */
 
-#include "teo_lnx.h"
 
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <unistd.h>
+   #include <string.h>
+   #include <gtk/gtk.h>
+#endif
+
+#include "media/memo.h"
+#include "std.h"
+#include "linux/gui.h"
+#include "to8.h"
 
 static GtkWidget *combo;
 static int entry_max=0;

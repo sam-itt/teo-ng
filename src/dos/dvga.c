@@ -45,7 +45,15 @@
  */
 
 
-#include "teo_dos.h"
+#ifndef SCAN_DEPEND
+   #include <pc.h>
+   #include <go32.h>
+   #include <allegro.h>
+#endif
+
+#include "alleg/color8.h"
+#include "alleg/gfxdrv.h"
+#include "teo.h"
 
 
 static int graphic_mode;

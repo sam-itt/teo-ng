@@ -46,6 +46,10 @@
 #ifndef WIN_GUI_H
 #define WIN_GUI_H
 
+#ifndef SCAN_DEPEND
+   #include <windows.h>
+#endif
+
 #define PROGNAME_STR  "Teo"
 #define BUFFER_SIZE  512
 #define NOT_FOUND   -1

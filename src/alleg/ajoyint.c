@@ -43,7 +43,13 @@
  */
 
 
-#include "teo_allg.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <allegro.h>
+#endif
+
+#include "media/joystick.h"
+#include "teo.h"
 
 
 static int njoy;

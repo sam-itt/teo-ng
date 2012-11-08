@@ -44,7 +44,22 @@
  */
 
 
-#include "teo_win.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <windows.h>
+   #include <shellapi.h>
+   #include <commctrl.h>
+#endif
+
+#include "image.h"
+#include "alleg/sound.h"
+#include "win/dialog.rh"
+#include "win/gui.h"
+#include "teo.h"
+
+
 
 #define MIN_POS    0
 #define MAX_POS    254

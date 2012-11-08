@@ -50,23 +50,6 @@
 #ifndef TO8_H
 #define TO8_H
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stddef.h>
-   #include <string.h>
-   #include <stdlib.h>
-   #include <time.h>
-   #include <ctype.h>
-   #include <sys/stat.h>
-   #include <unistd.h>
-   #include <stdarg.h>
-   #include <dirent.h>
-#ifndef DJGPP
-   #include <png.h>
-#endif
-#endif
-
-
 #ifndef MAX_PATH
 #   define MAX_PATH 300
 #endif
@@ -228,30 +211,6 @@ extern void  to8_Reset(void);
 extern void  to8_ColdReset(void);
 extern void  to8_InputReset(int mask, int value);
 extern int   to8_DoFrame(int debug);
-
-
-#include "mc68xx/dasm6809.h"
-#include "mc68xx/mc6809.h"
-#include "mc68xx/mc6821.h"
-#include "mc68xx/mc6846.h"
-#include "defs.h"
-#include "std.h"
-#include "error.h"
-#include "hardware.h"
-#include "option.h"
-#include "main.h"
-#include "image.h"
-#include "ini.h"
-#include "debug.h"
-#include "teokey.h"
-#include "media/disk.h"
-#include "media/memo.h"
-#include "media/cass.h"
-#include "media/joystick.h"
-#include "media/keyboard.h"
-#include "media/mouse.h"
-#include "media/printer.h"
-#include "media/libsap.h"
 
 #endif
 

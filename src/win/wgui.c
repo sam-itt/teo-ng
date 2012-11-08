@@ -44,7 +44,19 @@
  */
 
 
-#include "teo_win.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <windows.h>
+   #include <shellapi.h>
+   #include <commctrl.h>
+#endif
+
+#include "alleg/gfxdrv.h"
+#include "win/dialog.rh"
+#include "win/gui.h"
+#include "to8.h"
 
 /* ressources globales de l'application */
 #define NBTABS_MASTER 5

@@ -41,7 +41,24 @@
  *  Traitement de la ligne de commande.
  */
 
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <ctype.h>
+   #include <sys/stat.h>
+   #include <unistd.h>
+#endif
+
 #include "teo.h"
+#include "option.h"
+#include "main.h"
+#include "std.h"
+#include "ini.h"
+#include "error.h"
+#include "media/disk.h"
+#include "media/memo.h"
+#include "media/cass.h"
 
 
 enum {

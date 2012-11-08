@@ -43,7 +43,20 @@
  *  Lecture directe des disquettes Thomson.
  */
 
-#include "teo_lnx.h"
+
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <fcntl.h>
+   #include <unistd.h>
+   #include <errno.h>
+   #include <sys/ioctl.h>
+   #include <sys/stat.h>
+   #include <linux/fd.h>
+   #include <linux/fdreg.h>
+#endif
+
+#include "teo.h"
+#include "linux/sound.h"
 
 
 #define DISK_RETRY    5

@@ -45,8 +45,17 @@
  */
 
 
-#include "teo_allg.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <string.h>
+   #include <allegro.h>
+#endif
 
+#include "alleg/sound.h"
+#include "alleg/gfxdrv.h"
+#include "alleg/gui.h"
+#include "std.h"
+#include "teo.h"
 
 /* Boîte de dialogue. */
 static DIALOG aboutdial[]={

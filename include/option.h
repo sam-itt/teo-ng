@@ -45,6 +45,8 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include "std.h"
+
 enum {
   OPTION_ARG_BOOL = 0,
   OPTION_ARG_FILENAME,

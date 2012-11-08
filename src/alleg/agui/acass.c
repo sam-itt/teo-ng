@@ -45,8 +45,18 @@
  */
 
 
-#include "teo_allg.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <string.h>
+   #include <allegro.h>
+#endif
 
+#include "alleg/sound.h"
+#include "alleg/gfxdrv.h"
+#include "alleg/gui.h"
+#include "media/cass.h"
+#include "std.h"
+#include "teo.h"
 
 /* Chemin du fichier de la cassette. */
 static char filename[MAX_PATH+1] = "";

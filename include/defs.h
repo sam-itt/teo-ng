@@ -33,11 +33,11 @@
  */
 
 /*
- *  Module     : defs.h
+ *  Module     : intern/defs.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 28/04/2012 06/11/2012
+ *               François Mouret 28/04/2012
  *
  *  Définition des structures et constantes internes.
  */
@@ -45,6 +45,9 @@
 
 #ifndef DEFS_H
 #define DEFS_H
+
+#include "mc68xx/mc6809.h"
+
 
 #ifdef DJGPP
 

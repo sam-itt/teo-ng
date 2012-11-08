@@ -49,6 +49,11 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
+#include "mc68xx/mc6821.h"
+#include "mc68xx/mc6846.h"
+#include "defs.h"
+#include "to8.h"
+
 #define  LOAD_BYTE(addr)       (int) mempager.segment[((addr)>>12)&0xF][(addr)&0xFFF]
 #define  LOAD_WORD(addr)       (LOAD_BYTE(addr)<<8)+LOAD_BYTE(addr+1)
 #define STORE_BYTE(addr, val)  mempager.segment[((addr)>>12)&0xF][(addr)&0xFFF]=(uint8) (val)

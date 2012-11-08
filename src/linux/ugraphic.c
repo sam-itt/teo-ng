@@ -44,7 +44,20 @@
  *  Gestion de l'affichage du TO8.
  */
 
-#include "teo_lnx.h"
+
+#ifndef SCAN_DEPEND
+   #include <string.h>
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <sys/ipc.h>
+   #include <sys/shm.h>
+   #include <X11/Xlib.h>
+   #include <X11/Xutil.h>
+   #include <X11/extensions/XShm.h>
+#endif
+
+#include "linux/display.h"
+#include "teo.h"
 
 
 /* variables globales */

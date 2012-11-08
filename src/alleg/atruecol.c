@@ -44,7 +44,15 @@
  */
 
 
-#include "teo_allg.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <string.h>
+   #include <allegro.h>
+#endif
+
+#include "alleg/gfxdrv.h"
+#include "alleg/gui.h"
+#include "teo.h"
 
 
 /* paramètres d'affichage */

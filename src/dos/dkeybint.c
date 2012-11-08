@@ -42,7 +42,14 @@
  */
 
 
-#include "teo_dos.h"
+#ifndef SCAN_DEPEND
+   #include <allegro.h>
+   #include <allegro/internal/aintern.h>
+#endif
+
+#include "media/keyboard.h"
+#include "teo.h"
+
 
 
 /* keyboard_handler:

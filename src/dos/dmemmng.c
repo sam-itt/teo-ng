@@ -46,7 +46,15 @@
  */
 
 
-#include "teo_dos.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <conio.h>
+#endif
+
+#include "mc68xx/dasm6809.h"
+#include "mc68xx/mc6809.h"
+#include "debug.h"
+#include "teo.h"
 
 
 /* paramètres de disposition des modules à l'écran */
