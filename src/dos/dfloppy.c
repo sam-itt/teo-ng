@@ -42,7 +42,15 @@
  */
 
 
-#include "teo_dos.h"
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stddef.h>
+   #include <bios.h>
+   #include <dpmi.h>
+   #include <sys/movedata.h>
+#endif
+
+#include "to8.h"
 
 
 #define DPT_SIZE      11
