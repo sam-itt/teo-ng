@@ -18,6 +18,7 @@
 - Ajout de src/media/libsap.c, src/option.c
 - Réorganisation des headers
 - Ajout du suffixe 'TEO_COMMAND_' pour les valeurs de commandes
+- Ajout du suffixe 'TEO_ERROR_' pour les valeurs d'erreurs
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
