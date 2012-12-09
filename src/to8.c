@@ -101,11 +101,11 @@ static int LoadFile(const char filename[], unsigned char dest[], int size)
     FILE *file;
 
     if ((file=fopen(filename,"rb")) == NULL)
-        return error_Message(TEO_ERROR_CANNOT_FIND_FILE, filename);
+        return error_Message(TEO_ERROR_FILE_NOT_FOUND, filename);
 
     if (fread(dest, sizeof(char), size, file) != (size_t)size) {
         fclose(file);
-        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, filename);
+        return error_Message(TEO_ERROR_FILE_OPEN, filename);
     }
     fclose(file);
 
@@ -124,17 +124,17 @@ static int InitMemory(void)
     /* 64 ko de ROM logiciels */
     for (i=0; i<mem.rom.nbank; i++)
         if ((mem.rom.bank[i] = malloc(mem.rom.size*sizeof(uint8))) == NULL)
-            return error_Message(TEO_ERROR_BAD_ALLOC, NULL); 
+            return error_Message(TEO_ERROR_ALLOC, NULL); 
 
     /* 512 ko de RAM */
     for (i=0; i<mem.ram.nbank; i++)
         if ((mem.ram.bank[i] = calloc(mem.ram.size, sizeof(uint8))) == NULL)
-            return error_Message(TEO_ERROR_BAD_ALLOC, NULL);
+            return error_Message(TEO_ERROR_ALLOC, NULL);
 
     /* 16 ko de ROM moniteur */
     for (i=0; i<mem.mon.nbank; i++)
         if ((mem.mon.bank[i] = malloc(mem.mon.size*sizeof(uint8))) == NULL)
-            return error_Message(TEO_ERROR_BAD_ALLOC, NULL);
+            return error_Message(TEO_ERROR_ALLOC, NULL);
 
     for (i=0; i<mem.rom.nbank; i++)
         if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) < 0)

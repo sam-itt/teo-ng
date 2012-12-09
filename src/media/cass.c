@@ -87,7 +87,7 @@ static int DoLoadCass(const char filename[], int mode)
    if ((new_cass=fopen(filename, "rb")) != NULL)
       goto Success;
 
-   return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, NULL);
+   return error_Message(TEO_ERROR_FILE_OPEN, NULL);
 
  Success:
    if (cass)

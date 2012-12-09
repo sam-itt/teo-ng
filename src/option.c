@@ -287,7 +287,7 @@ void option_Undefined (char *fname)
                                       : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
     else
     /* fichier non reconnu */
-    err = error_Message (TEO_ERROR_CANNOT_OPEN_FILE, fname);
+    err = error_Message (TEO_ERROR_FILE_OPEN, fname);
     
     if (err < 0)
         main_DisplayMessage (teo_error_msg);

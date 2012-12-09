@@ -329,6 +329,24 @@ int std_StringListIndex (struct STRING_LIST *p, char *str)
 
 
 
+/* std_StringListLength:
+ *  Renvoit le nombre d'éléments de la stringlist.
+ */
+int std_StringListLength (struct STRING_LIST *p)
+{
+    int i = 0;
+
+    while (p!=NULL)
+    {
+        i++;
+        p=p->next;
+    }
+
+    return i;
+}
+
+
+
 /* std_StringListText:
  *  Renvoit le pointeur du texte de l'élément de la stringlist.
  */

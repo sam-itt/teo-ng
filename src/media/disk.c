@@ -428,12 +428,12 @@ static int sap_format_track(int drive, int track, unsigned char filler_byte)
 static int SapErrorMessage(int sap_err, const char more[])
 {
    switch (sap_err) {
-      case SAP_EBADF : return error_Message (TEO_ERROR_SAP_NOT_VALID, more);
+      case SAP_EBADF : return error_Message (TEO_ERROR_VALID_SAP, more);
       case SAP_EFBIG : return error_Message (TEO_ERROR_FILE_TOO_LARGE, more);
-      case SAP_ENFILE: return error_Message (TEO_ERROR_FILE_IS_EMPTY, more);
-      case SAP_ENOENT: return error_Message (TEO_ERROR_CANNOT_FIND_FILE, more);
-      case SAP_ENOSPC: return error_Message (TEO_ERROR_SAP_DIRECTORY_FULL, more);
-      case SAP_EPERM : return error_Message (TEO_ERROR_CANNOT_CREATE_DISK, more);
+      case SAP_ENFILE: return error_Message (TEO_ERROR_FILE_EMPTY, more);
+      case SAP_ENOENT: return error_Message (TEO_ERROR_FILE_NOT_FOUND, more);
+      case SAP_ENOSPC: return error_Message (TEO_ERROR_DIRECTORY_FULL, more);
+      case SAP_EPERM : return error_Message (TEO_ERROR_DISK_CREATE, more);
       default        : return error_Message (0, more); /* Unknown error */
    }
 }
@@ -501,9 +501,9 @@ static int disk_CreateAndFillSAP (const char sap_name[], const char dir_name[],
                 }
             }
             closedir(dir);
-        } else err = error_Message (TEO_ERROR_CANNOT_CREATE_DISK, sap_name);
+        } else err = error_Message (TEO_ERROR_DISK_CREATE, sap_name);
         path_name = std_free (path_name);
-    } else err = error_Message (TEO_ERROR_CANNOT_CREATE_DISK, sap_name);
+    } else err = error_Message (TEO_ERROR_DISK_CREATE, sap_name);
 
     sap_CloseArchive(id);
 
@@ -869,7 +869,7 @@ static int CheckFile(const char filename[], int mode)
     if (access (filename, F_OK) == 0)
         mode = (access (filename, W_OK) == 0) ? mode : TO8_READ_ONLY;
     else
-        mode = error_Message (TEO_ERROR_CANNOT_OPEN_FILE, filename);
+        mode = error_Message (TEO_ERROR_FILE_OPEN, filename);
 
     return mode;
 }
@@ -976,7 +976,7 @@ int disk_Check (const char filename[])
     char header[SAP_HEADER_SIZE] = "";
 
     if (access (filename, F_OK) < 0)
-        return TEO_ERROR_CANNOT_FIND_FILE;
+        return TEO_ERROR_FILE_NOT_FOUND;
 
     if (std_IsFile (filename) == TRUE)
     {
@@ -988,11 +988,11 @@ int disk_Check (const char filename[])
 
         if ((length != SAP_HEADER_SIZE)
          || (strncmp(header, sap_header, SAP_HEADER_SIZE) != 0))
-             err = TEO_ERROR_BAD_FILE_FORMAT;
+             err = TEO_ERROR_FILE_FORMAT;
     }
     else
     if (std_IsDir (filename) != TRUE)
-        err = TEO_ERROR_BAD_FILE_FORMAT;
+        err = TEO_ERROR_FILE_FORMAT;
 
     return err;
 }
@@ -1017,10 +1017,10 @@ int disk_Load(int drive, const char filename[])
         if (std_IsDir (filename) == TRUE)
         {
             if (access(SAPFS_NAME, F_OK) != 0)
-                return error_Message (TEO_ERROR_CANNOT_CREATE_DISK, SAPFS_NAME);
+                return error_Message (TEO_ERROR_DISK_CREATE, SAPFS_NAME);
 
             if (main_TmpFile (tmp, MAX_PATH) == NULL)
-                return error_Message (TEO_ERROR_CANNOT_CREATE_DISK, NULL);
+                return error_Message (TEO_ERROR_DISK_CREATE, NULL);
 
             if (disk_CreateAndFillSAP (filename, tmp, SAP_FORMAT2, SAP_TRK80) < 0)
                 return TEO_ERROR;

@@ -78,7 +78,7 @@ int memo_Check (const char filename[])
     char memo_header[32];
 
     if ((file = fopen (filename,"rb")) == NULL)
-        return TEO_ERROR_CANNOT_OPEN_FILE;
+        return TEO_ERROR_FILE_OPEN;
 
     /* on détermine la longueur du fichier, qui doit être
        un multiple de 4096 sans excéder 65536 octets.
@@ -94,23 +94,23 @@ int memo_Check (const char filename[])
       
     /* vérifie la taille du fichier */
     if ((length > 65536) || ((length % 4096) != 0))
-        return TEO_ERROR_BAD_FILE_FORMAT;
+        return TEO_ERROR_FILE_FORMAT;
 
     /* calcule checksum */
     for (i = 0; i < 26; i++) checksum += memo_header[i];
     if ((unsigned char)checksum != (unsigned char)memo_header[26])
-        return TEO_ERROR_BAD_MEMO_HEADER_CHECKSUM;
+        return TEO_ERROR_MEMO_HEADER_CHECKSUM;
 
     /* first character */
     if (memo_header[0] != ' ')
-        return TEO_ERROR_BAD_MEMO_HEADER_NAME;
+        return TEO_ERROR_MEMO_HEADER_NAME;
 
     /* vérifie la présence du terminateur du nom de cartouche */
     for (i = 1; i < 25; i++)
        if (memo_header[i] < ' ')
            break;
     if (memo_header[i] != '\x04')
-        return TEO_ERROR_BAD_MEMO_HEADER_NAME;
+        return TEO_ERROR_MEMO_HEADER_NAME;
 
     return 0;
 }
@@ -151,7 +151,7 @@ int memo_Load(const char filename[])
 
     /* chargement de la cartouche */
     if ((file=fopen(filename,"rb")) == NULL)
-        return error_Message(TEO_ERROR_CANNOT_OPEN_FILE, filename);
+        return error_Message(TEO_ERROR_FILE_OPEN, filename);
 
     memo_Eject();
     mem.cart.nbank = 0;
@@ -161,7 +161,7 @@ int memo_Load(const char filename[])
         {
             fclose(file);
             memo_Eject();
-            return error_Message(TEO_ERROR_BAD_ALLOC, filename);
+            return error_Message(TEO_ERROR_ALLOC, filename);
         }
         length = fread(mem.cart.bank[mem.cart.nbank], sizeof(char), mem.cart.size, file);
         length = length;
