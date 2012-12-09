@@ -77,30 +77,26 @@ static DIALOG diskdial[]={
   /* disk 0 */
 { d_text_proc,       30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "0:" },
 { d_button_proc,     47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  40, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    188,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
-{ d_button_proc,    222,  40,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
+{ d_textbox_proc,    64,  40, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    228,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 1 */
 { d_text_proc,       30,  68,   0,   0, 0, 0,   0,   0,    0, 0, "1:" },
 { d_button_proc,     47,  66,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  64, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    188,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
-{ d_button_proc,    222,  64,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
+{ d_textbox_proc,    64,  64, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    228,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260,  64,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 2 */
 { d_text_proc,       30,  92,   0,   0, 0, 0,   0,   0,    0, 0, "2:" },
 { d_button_proc,     47,  90,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  88, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    188,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
-{ d_button_proc,    222,  88,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
+{ d_textbox_proc,    64,  88, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    228,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260,  88,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 3 */
 { d_text_proc,       30, 116,   0,   0, 0, 0,   0,   0,    0, 0, "3:" },
 { d_button_proc,     47, 114,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64, 112, 120,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    188, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
-{ d_button_proc,    222, 112,  30,  16, 0, 0,   0, D_EXIT, 0, 0, "dir" },
+{ d_textbox_proc,    64, 112, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    228, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* direct disk */
 #ifdef FRENCH_LANG
@@ -117,30 +113,26 @@ static DIALOG diskdial[]={
 #define DISKDIAL_EJECT0    3
 #define DISKDIAL_LABEL0    4
 #define DISKDIAL_BUTTON0   5
-#define DISKDIAL_DIR0      6
-#define DISKDIAL_CHECK0    7
+#define DISKDIAL_CHECK0    6
 
-#define DISKDIAL_EJECT1    9
-#define DISKDIAL_LABEL1    10
-#define DISKDIAL_BUTTON1   11
-#define DISKDIAL_DIR1      12
-#define DISKDIAL_CHECK1    13
+#define DISKDIAL_EJECT1    8
+#define DISKDIAL_LABEL1    9
+#define DISKDIAL_BUTTON1   10
+#define DISKDIAL_CHECK1    11
 
-#define DISKDIAL_EJECT2    15
-#define DISKDIAL_LABEL2    16
-#define DISKDIAL_BUTTON2   17
-#define DISKDIAL_DIR2      18
-#define DISKDIAL_CHECK2    19
+#define DISKDIAL_EJECT2    13
+#define DISKDIAL_LABEL2    14
+#define DISKDIAL_BUTTON2   15
+#define DISKDIAL_CHECK2    16
 
-#define DISKDIAL_EJECT3    21
-#define DISKDIAL_LABEL3    22
-#define DISKDIAL_BUTTON3   23
-#define DISKDIAL_DIR3      24
-#define DISKDIAL_CHECK3    25
+#define DISKDIAL_EJECT3    18
+#define DISKDIAL_LABEL3    19
+#define DISKDIAL_BUTTON3   20
+#define DISKDIAL_CHECK3    21
 
-#define DISKDIAL_DIRECT    26
+#define DISKDIAL_DIRECT    22
 
-#define DISKDIAL_OK        28
+#define DISKDIAL_OK        24
 
 
 
@@ -171,7 +163,7 @@ static void init_filename(int drive)
 void adisk_Panel(void)
 {
     static int first=1;
-    int i;
+//    int i;
     int drive, ret, ret2;
     int dial_nbr;
     char *name = NULL;
@@ -266,7 +258,7 @@ void adisk_Panel(void)
                 break;
 
 
-
+#if 0
             case DISKDIAL_DIR0:
             case DISKDIAL_DIR1:
             case DISKDIAL_DIR2:
@@ -313,7 +305,7 @@ void adisk_Panel(void)
                     }
                 }
                 break;
-
+#endif
             case DISKDIAL_CHECK0:
             case DISKDIAL_CHECK1:
             case DISKDIAL_CHECK2:

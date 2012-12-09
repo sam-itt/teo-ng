@@ -50,7 +50,7 @@
    #include <sys/movedata.h>
 #endif
 
-#include "to8.h"
+#include "teo.h"
 
 
 #define DPT_SIZE      11

@@ -56,7 +56,7 @@
 #include "alleg/gfxdrv.h"
 #include "win/dialog.rh"
 #include "win/gui.h"
-#include "to8.h"
+#include "teo.h"
 
 /* ressources globales de l'application */
 #define NBTABS_MASTER 5

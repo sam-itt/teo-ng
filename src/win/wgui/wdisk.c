@@ -294,7 +294,7 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
 }
 
 
-
+#if 0
 /* open_folder_Callback:
  *  Callback pour la boîte de dialogue du répertoire.
  */
@@ -349,7 +349,7 @@ static void open_folder (HWND hWnd, struct FILE_VECTOR *vector)
         }
     }
 }
-
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -452,14 +452,14 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case DISK3_MORE_BUTTON: 
                open_file(hWnd, &vector[LOWORD(wParam)-DISK0_MORE_BUTTON]);
                break;
-
+#if 0
             case DISK0_FOLDER_BUTTON:
             case DISK1_FOLDER_BUTTON:
             case DISK2_FOLDER_BUTTON:
             case DISK3_FOLDER_BUTTON: 
                open_folder(hWnd, &vector[LOWORD(wParam)-DISK0_FOLDER_BUTTON]);
                break;
-
+#endif
             case DISK0_COMBO:
             case DISK1_COMBO:
             case DISK2_COMBO:

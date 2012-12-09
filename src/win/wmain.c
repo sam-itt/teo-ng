@@ -73,7 +73,7 @@
 #include "alleg/sound.h"
 #include "win/keybint.h"
 #include "win/gui.h"
-#include "to8.h"
+#include "teo.h"
 
 
 struct EMUTEO teo;
