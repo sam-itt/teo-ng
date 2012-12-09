@@ -53,7 +53,7 @@
 #endif
 
 #include "linux/gui.h"
-#include "to8.h"
+#include "teo.h"
 
 static GtkWidget *sound_widget = NULL;
 

@@ -51,7 +51,7 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "to8.h"
+#include "teo.h"
 #include "linux/gui.h"
 
 /* run_about_window:

@@ -53,7 +53,7 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "to8.h"
+#include "teo.h"
 #include "std.h"
 #include "error.h"
 #include "media/disk.h"
@@ -291,7 +291,7 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
 }
 
 
-
+#if 0
 /* open_dir:
  *  Charge un nouveau répertoire (callback).
  */
@@ -344,7 +344,7 @@ static void open_dir (GtkButton *button, struct FILE_VECTOR *vector)
     gtk_widget_hide(dialog);
     (void)button;
 }
-
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -424,13 +424,15 @@ void udisk_Init (GtkWidget *notebook)
         gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
         (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer)&vector[i]);
         
-        /* bouton d'ouverture de fichier */
+#if 0
+        /* bouton d'ouverture de répertoire */
         widget = gtk_button_new ();
         image = gtk_image_new_from_stock ("gtk-directory", GTK_ICON_SIZE_BUTTON);
         gtk_button_set_image(GTK_BUTTON(widget), image);
         gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un rÃ©pertoire":"Open a folder");
         gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
         (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_dir), (gpointer)&vector[i]);
+#endif
     }
 }
 

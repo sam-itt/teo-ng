@@ -50,7 +50,7 @@
    #include <gdk/gdkx.h>
 #endif
 
-#include "to8.h"
+#include "teo.h"
 #include "debug.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"

@@ -50,7 +50,7 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "to8.h"
+#include "teo.h"
 #include "std.h"
 #include "media/printer.h"
 #include "linux/gui.h"

@@ -53,7 +53,7 @@
    #include <gtk/gtk.h>
 #endif
 
-#include "to8.h"
+#include "teo.h"
 #include "std.h"
 #include "error.h"
 #include "media/cass.h"

@@ -54,7 +54,7 @@
 
 #include "media/memo.h"
 #include "linux/gui.h"
-#include "to8.h"
+#include "teo.h"
 #include "std.h"
 #include "error.h"
 

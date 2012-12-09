@@ -52,7 +52,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <X11/Xlib.h>
-#include "../to8.h"
+#include "../teo.h"
 
 extern GtkWidget *wMain;
 extern GdkWindow *gscreen_win;
