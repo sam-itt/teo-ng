@@ -52,9 +52,9 @@
 #endif
 
 #include "defs.h"
+#include "teo.h"
 #include "media/printer.h"
 #include "std.h"
-#include "teo.h"
 
 
 #define INI_FILE_NAME  "teo.ini"
