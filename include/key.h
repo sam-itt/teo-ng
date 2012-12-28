@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : teokeys.h
+ *  Module     : key.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou
  *  Modifié par: Eric Botcazou 13/02/2001
@@ -42,8 +42,8 @@
  */
 
 
-#ifndef TO8KEYS_H
-#define TO8KEYS_H
+#ifndef KEY_H
+#define KEY_H
 
 #define TEO_KEY_A                 1
 #define TEO_KEY_B                 2

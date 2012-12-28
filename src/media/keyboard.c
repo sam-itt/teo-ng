@@ -54,7 +54,7 @@
 #include "error.h"
 #include "hardware.h"
 #include "teo.h"
-#include "teokey.h"
+#include "key.h"
 
 
 static volatile int kb_state; /* contient l'état des touches et leds du clavier PC:

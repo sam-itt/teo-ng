@@ -58,7 +58,7 @@
 
 #include "teo.h"
 #include "thomson.xpm"
-#include "teokey.h"
+#include "key.h"
 #include "media/keyboard.h"
 #include "media/mouse.h"
 #include "linux/gui.h"
