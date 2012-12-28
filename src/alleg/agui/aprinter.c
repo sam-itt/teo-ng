@@ -51,6 +51,7 @@
    #include <allegro.h>
 #endif
 
+#include "alleg/gui.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "std.h"
@@ -61,7 +62,7 @@
 struct PRINTER_CODE_LIST {
     char name[9];
     int  number;
-};
+}; 
 static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
     { "PR90-042",  42 },
     { "PR90-055",  55 },
@@ -88,29 +89,29 @@ static DIALOG printerdial[]={
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Sauver dans:" },
 { d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, NULL },
 { d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
-{ d_text_proc,        50,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimante:" },
-{ d_list_proc,        50,  90, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
-{ d_button_proc,      50, 130,  44,  16, 0, 0, 'd',  0,     0, 0, "&Dip" },
-{ d_button_proc,     106, 130,  44,  16, 0, 0, 'n',  0,     0, 0, "&Nlq" },
-{ d_text_proc,       200,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Sortie:" },
-{ d_check_proc,      210,  90,  60,  14, 0, 0, 'b',  0,     0, 0, "&brute" },
-{ d_check_proc,      210, 110,  60,  14, 0, 0, 't',  0,     0, 0, "&texte" },
-{ d_check_proc,      178, 130,  94,  14, 0, 0, 'g',  0,     0, 0, "&graphique" },
+{ d_text_proc,        60,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimante:" },
+{ d_list_proc,       150,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
+{ d_button_proc,      30, 100, 260,  16, 0, 0, 'c',  0,     0, 0, "Change le comportement du &CR" },
+{ d_button_proc,      30, 118, 260,  16, 0, 0, 'h',  0,     0, 0, "Imprime en de &haute qualité" },
+{ d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, "Sortie:" },
+{ d_check_proc,       90, 142,  60,  14, 0, 0, 'b',  0,     0, 0, "&brute" },
+{ d_check_proc,      160, 142,  60,  14, 0, 0, 't',  0,     0, 0, "&texte" },
+{ d_check_proc,      230, 142,  94,  14, 0, 0, 'g',  0,     0, 0, "&graph" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Dot-matrix printers" },
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Save in:" },
 { d_textbox_proc,    100,  40, 148,  16, 0, 0,   0,  0,     0, 0, NULL },
 { d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
-{ d_text_proc,        50,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Printer:" },
-{ d_list_proc,        50,  90, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
-{ d_button_proc,      50, 130,  44,  16, 0, 0, 'd',  0,     0, 0, "&Dip" },
-{ d_button_proc,     106, 130,  44,  16, 0, 0, 'n',  0,     0, 0, "&Nlq" },
-{ d_text_proc,       206,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Output:" },
-{ d_check_proc,      226,  90,  42,  14, 0, 0, 'r',  0,     0, 0, "&raw" },
-{ d_check_proc,      218, 110,  50,  14, 0, 0, 't',  0,     0, 0, "&text" },
-{ d_check_proc,      194, 130,  76,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
+{ d_text_proc,        70,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Printer:" },
+{ d_list_proc,       140,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
+{ d_button_proc,      30, 100, 260,  16, 0, 0, 'c',  0,     0, 0, "Change behaviour of &CR" },
+{ d_button_proc,      30, 118, 260,  16, 0, 0, 'h',  0,     0, 0, "&High quality print" },
+{ d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, "Output:" },
+{ d_check_proc,       98, 142,  42,  14, 0, 0, 'r',  0,     0, 0, "&raw" },
+{ d_check_proc,      152, 142,  50,  14, 0, 0, 't',  0,     0, 0, "&text" },
+{ d_check_proc,      214, 142,  76,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
 #endif
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
@@ -159,8 +160,8 @@ void aprinter_Panel(void)
             printerdial[PRINTERDIAL_GFX_OUTPUT].flags|=D_SELECTED;
         for (i=0; i<PRINTER_NUMBER; i++)
         {
-             if (teo.lprt.number == prt_list[i].number)
-                 printerdial[PRINTERDIAL_LIST].d1 = i;
+            if (teo.lprt.number == prt_list[i].number)
+                printerdial[PRINTERDIAL_LIST].d1 = i;
         }
         first = 0;
     }
@@ -171,6 +172,10 @@ void aprinter_Panel(void)
     {
         switch (popup_dialog(printerdial, PRINTERDIAL_OK))
         {
+            case PRINTERDIAL_LIST:
+                agui_PopupMessage ("12");
+                break;
+
             case PRINTERDIAL_MORE:
                 (void)file_select_ex(is_fr?"Choisissez un répertoire:":"Choose a folder:",
                                printer_folder, "/+s+d", MAX_PATH,

@@ -179,6 +179,13 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
                             is_fr?"Sauver dans : ":" Save in : ");
          SetWindowText(GetDlgItem(hWnd, PRINTER_CHOOSE_RTEXT),
                             is_fr?"Imprimante : ":"Printer : ");
+         SetWindowText(GetDlgItem(hWnd, PRINTER_DIP_CHECK),
+                            is_fr?"Change le comportement de CR":"Change behaviour of CR");
+#ifndef FRENCH_LANG
+         MoveWindow (GetDlgItem(hWnd, PRINTER_DIP_CHECK), 58, 53, 140, 16, FALSE);
+#endif
+         SetWindowText(GetDlgItem(hWnd, PRINTER_NLQ_CHECK),
+                            is_fr?"Imprime en haute qualité":"High quality print");
          SetWindowText(GetDlgItem(hWnd, PRINTER_OUTPUT_RTEXT),
                             is_fr?"Sortie : ":"Output : ");
          SetWindowText(GetDlgItem(hWnd, PRINTER_RAW_CHECK),

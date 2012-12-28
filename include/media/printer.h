@@ -33,7 +33,7 @@
  */
 
 /*
- *  Module     : printer.h
+ *  Module     : media/printer.h
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 24/03/2001
@@ -43,9 +43,74 @@
  */
 
 
-#ifndef PRINTER_H
-#define PRINTER_H
+#ifndef MEDIA_PRINTER_H
+#define MEDIA_PRINTER_H
 
+#define TEO_PRINTER_FACE_PICA         (0<<3)
+#define TEO_PRINTER_FACE_ITALIC       (1<<3)
+#define TEO_PRINTER_FACE_ELITE        (2<<3)
+#define TEO_PRINTER_FACE_CONDENSED    (3<<3)
+#define TEO_PRINTER_FACE_SUPERSCRIPT  (4<<3)
+#define TEO_PRINTER_FACE_SUBSCRIPT    (5<<3)
+#define TEO_PRINTER_FACE_FONT_MASK    (7<<3)
+
+#define TEO_PRINTER_FBIT_NLQ          (1<<0)
+#define TEO_PRINTER_FBIT_DOUBLE_WIDTH (1<<1)
+#define TEO_PRINTER_FBIT_PROPORTIONAL (1<<2)
+#define TEO_PRINTER_FBIT_STYLE_MASK   3
+
+struct PRINTER {
+    int   data;
+    int   screenprint_delay;
+    void  (*prog)();
+    void  (*restart_prog)();
+    int   counter_value;
+    int   chars_per_line;
+    int   mode7;
+    int   nlq_allowed;
+    struct EMUTEO_LPRT lprt;
+};
+
+extern struct PRINTER printer;
+
+/* printer commands */
+extern void printer_DigitCounter (int length, void (*jump)());
+extern void printer_BinaryCounter (int length, void (*jump)());
+extern void printer_Forget (void);
+extern void printer_LineFeedPerInch (int nblines);
+extern void printer_LineFeed144 (void);
+extern void printer_LeftMargin (void);
+extern void printer_DotPrintPosition (void);
+extern void printer_SpaceDot (void);
+extern void printer_Gfx7Data (void);
+extern void printer_Gfx8 (void);
+extern void printer_Gfx16 (void);
+extern void printer_ScreenPrint (void);
+extern void printer_Gfx8Repeat (void);
+extern void printer_Gfx16Repeat (void);
+extern void printer_PrintPosition (void);
+extern void printer_CharPositionning (void);
+extern void printer_PicaPositionning (void);
+extern void printer_LineFeed (void);
+extern void printer_LineStart (void);
+extern void printer_LineStartDip (void);
+extern void printer_FormFeed (void);
+extern void printer_SelectFont (int face);
+extern void printer_PageLength (void);
+extern void printer_Underline (void);
+extern void printer_NoUnderline (void);
+extern void printer_Bold (void);
+extern void printer_Thin (void);
+extern void printer_DoubleWidth (void);
+extern void printer_SimpleWidth (void);
+extern void printer_Reset (void);
+extern void printer_ClearGfxMode7(void);
+extern void printer_ClearBuffer (void);
+
+/* print a char */
+extern void printer_DrawableChar(int data);
+
+/* printer functions */
 extern void printer_Init(void);
 extern void printer_WriteData(int mask, int value);
 extern void printer_SetStrobe(int state);

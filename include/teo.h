@@ -54,6 +54,12 @@
 #   define MAX_PATH 300
 #endif
 
+#ifdef UNIX_TOOL
+#   define FOLDER_SLASH "/"
+#else
+#   define FOLDER_SLASH "\\"
+#endif
+
 /* paramètres et symboles de l'émulation */
 #define TO8_VERSION_STR "1.8.2"
 #define PROG_NAME   "teo"

@@ -43,8 +43,12 @@ TEO_SRC_FILES =         \
    src/media/memo.c     \
    src/media/keyboard.c \
    src/media/mouse.c    \
-   src/media/printer.c  \
    src/media/libsap.c   \
+   src/media/printer/pr906xx.c  \
+   src/media/printer/pr90582.c  \
+   src/media/printer/pr90042.c  \
+   src/media/printer/pr90055.c  \
+   src/media/printer.c  \
    src/error.c          \
    src/hardware.c       \
    src/image.c          \
@@ -71,6 +75,7 @@ TEO_SRC_ALLEG_FILES =        \
    src/alleg/agui/aabout.c
 
 TEO_SRC_DOS_FILES =   \
+   src/file/bmp.c     \
    src/dos/ddebug.c   \
    src/dos/dfloppy.c  \
    src/dos/dkeybint.c \
@@ -79,6 +84,7 @@ TEO_SRC_DOS_FILES =   \
    src/dos/dvga.c
 
 TEO_SRC_LINUX_FILES =         \
+   src/file/png.c             \
    src/linux/ufloppy.c        \
    src/linux/udisplay.c       \
    src/linux/ugraphic.c       \
@@ -100,6 +106,7 @@ TEO_SRC_MC68XX_FILES =   \
    src/mc68xx/mc6846.c
 
 TEO_SRC_WIN_FILES =        \
+   src/file/png.c          \
    src/win/wgui.c          \
    src/win/wkeybint.c      \
    src/win/wmain.c         \
@@ -114,7 +121,7 @@ TEO_SRC_WIN_FILES =        \
 
 # ------ object files ------
 
-VPATH = src src/mc68xx src/media
+VPATH = src src/mc68xx src/media src/media/printer src/file
 
 COMMON_OBJ_LIST = $(basename $(notdir $(TEO_SRC_FILES) $(TEO_SRC_MC68XX_FILES)))
 
