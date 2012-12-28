@@ -55,7 +55,7 @@ TEO_SRC_FILES =         \
    src/ini.c            \
    src/std.c            \
    src/option.c         \
-   src/to8.c
+   src/teo.c
 
 TEO_SRC_ALLEG_FILES =        \
    src/alleg/acolor8.c       \
