@@ -51,6 +51,7 @@
    #include <allegro.h>
 #endif
 
+#include "teo.h"
 #include "option.h"
 #include "ini.h"
 #include "image.h"
@@ -69,7 +70,6 @@
 #include "dos/keybint.h"
 #include "dos/floppy.h"
 #include "dos/debug.h"
-#include "teo.h"
 
 /* pour limiter la taille de l'éxécutable */
 BEGIN_COLOR_DEPTH_LIST

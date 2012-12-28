@@ -103,7 +103,7 @@ static DIALOG k7dial[]={
 #else
 { d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rewind" },
 #endif
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };

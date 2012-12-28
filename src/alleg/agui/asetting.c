@@ -78,7 +78,7 @@ static DIALOG commdial[]={
 { d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
 { d_check_proc,       88,  82, 147,  14, 5, 0, 'i',  0,     0, 0, "&Interlaced video" },
 #endif
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };

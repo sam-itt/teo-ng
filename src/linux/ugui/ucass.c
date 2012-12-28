@@ -322,7 +322,7 @@ static void open_file (GtkButton *button, gpointer data)
 
 
 /* ucass_Free
- *  Libère la mémoire utilisée par la liste des cartouches.
+ *  Libère la mémoire utilisée par la liste des cassettes.
  */
 void ucass_Free (void)
 {

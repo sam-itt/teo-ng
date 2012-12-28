@@ -65,7 +65,7 @@ static DIALOG mesgdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key  flags d1  d2 dp */
 { d_shadow_box_proc, 10,  10,   0,  50, 0, 0,   0,    0,   0, 0, NULL },
 { d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,    0,   0, 0, NULL },
-{ d_button_proc,     30,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,    210,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,      10,  10,   0,   0, 0, 0,   0,    0,   0, 0, NULL },
 { NULL,               0,   0,   0,   0, 0, 0,   0,    0,   0, 0, NULL }
 };
@@ -142,26 +142,26 @@ static DIALOG controldial[]={
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Panneau de contrôle" },
 { d_button_proc,      30,  35, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "Redémarrer à &chaud le TO8" },
 { d_button_proc,      30,  53, 260,  16, 0, 0, 'f', D_EXIT, 0, 0, "Redémarrer à &froid le TO8" },
-{ d_button_proc,      40,  75, 240,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Réglages..." },
-{ d_button_proc,      40,  93, 240,  16, 0, 0, 't', D_EXIT, 0, 0, "Lecteur de car&touches..." },
-{ d_button_proc,      40, 111, 240,  16, 0, 0, 's', D_EXIT, 0, 0, "Lecteur de ca&ssettes..." },
-{ d_button_proc,      40, 129, 240,  16, 0, 0, 'd', D_EXIT, 0, 0, "Lecteurs de &disquettes..." },
-{ d_button_proc,      40, 147, 240,  16, 0, 0, 'i', D_EXIT, 0, 0, "&Imprimante matricielle..." },
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,      30,  75, 260,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Réglages..." },
+{ d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, "Lecteurs de &disquettes..." },
+{ d_button_proc,      30, 111, 260,  16, 0, 0, 's', D_EXIT, 0, 0, "Lecteur de ca&ssettes..." },
+{ d_button_proc,      30, 129, 260,  16, 0, 0, 't', D_EXIT, 0, 0, "Lecteur de car&touches..." },
+{ d_button_proc,      30, 147, 260,  16, 0, 0, 'i', D_EXIT, 0, 0, "&Imprimante matricielle..." },
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quitter" },
 { d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, "&A Propos" },
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quitter" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Control panel" },
 { d_button_proc,      30,  35, 260,  16, 0, 0, 'w', D_EXIT, 0, 0, "TO8 &warm reset" },
 { d_button_proc,      30,  53, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "TO8 &cold reset" },
-{ d_button_proc,      40,  75, 240,  16, 0, 0, 's', D_EXIT, 0, 0, "&Settings..." },
-{ d_button_proc,      40,  93, 240,  16, 0, 0, 'r', D_EXIT, 0, 0, "Ca&rtridge reader..." },
-{ d_button_proc,      40, 111, 240,  16, 0, 0, 't', D_EXIT, 0, 0, "&Tape recorder..." },
-{ d_button_proc,      40, 129, 240,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Disk drives..." },
-{ d_button_proc,      40, 147, 240,  16, 0, 0, 'p', D_EXIT, 0, 0, "Dot-matrix &printer..." },
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,      30,  75, 260,  16, 0, 0, 's', D_EXIT, 0, 0, "&Settings..." },
+{ d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Disk drives..." },
+{ d_button_proc,      30, 111, 260,  16, 0, 0, 't', D_EXIT, 0, 0, "&Tape recorder..." },
+{ d_button_proc,      30, 129, 260,  16, 0, 0, 'r', D_EXIT, 0, 0, "Ca&rtridge reader..." },
+{ d_button_proc,      30, 147, 260,  16, 0, 0, 'p', D_EXIT, 0, 0, "Dot-matrix &printer..." },
+{ d_button_proc,      30, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quit" },
 { d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, "&About" },
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quit" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 #endif
 { d_yield_proc,       20,  10,   0,   0, 0, 0,  0,    0,    0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,  0,    0,    0, 0, NULL }
@@ -170,13 +170,13 @@ static DIALOG controldial[]={
 #define CONTROLDIAL_WARMRESET 2
 #define CONTROLDIAL_COLDRESET 3
 #define CONTROLDIAL_COMMAND   4
-#define CONTROLDIAL_CART      5
+#define CONTROLDIAL_DISK      5
 #define CONTROLDIAL_CASS      6
-#define CONTROLDIAL_DISK      7
+#define CONTROLDIAL_CART      7
 #define CONTROLDIAL_PRINTER   8
-#define CONTROLDIAL_OK        9
+#define CONTROLDIAL_QUIT      9
 #define CONTROLDIAL_ABOUT     10
-#define CONTROLDIAL_QUIT      11
+#define CONTROLDIAL_OK        11
 
 
 /* ------------------------------------------------------------------------- */

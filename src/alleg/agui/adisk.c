@@ -105,7 +105,7 @@ static DIALOG diskdial[]={
 { d_button_proc,     30, 146, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Direct access" },
 #endif
 { d_text_proc,      255,  30,   0,   0, 0, 0,   0,   0,    0, 0, "prot." },
-{ d_button_proc,     30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,    210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,      20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
 { NULL,               0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
 };

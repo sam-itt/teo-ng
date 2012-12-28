@@ -54,17 +54,19 @@
    #include <ctype.h>
 #endif
 
-#include "media/libsap.h"
-#include "media/disk.h"
-#include "media/cass.h"
-#include "media/memo.h"
-#include "media/printer.h"
+#include "defs.h"
+#include "teo.h"
 #include "option.h"
 #include "std.h"
 #include "ini.h"
 #include "image.h"
 #include "main.h"
 #include "error.h"
+#include "media/libsap.h"
+#include "media/disk.h"
+#include "media/cass.h"
+#include "media/memo.h"
+#include "media/printer.h"
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
@@ -73,7 +75,6 @@
 #include "alleg/sound.h"
 #include "win/keybint.h"
 #include "win/gui.h"
-#include "teo.h"
 
 
 struct EMUTEO teo;

@@ -79,7 +79,7 @@ static DIALOG aboutdial[]={
 { d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "http://sourceforge.net/projects/" },
 { d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "                     teoemulator/" },
 { d_ctext_proc,      160, 140,   0,   0, 0, 0,   0,  0,     0, 0, "Licence: GPL 2.0" },
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     120, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };

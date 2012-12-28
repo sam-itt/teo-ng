@@ -127,7 +127,7 @@ void ugui_Warning (const gchar *message, GtkWidget *parent_window)
 void ugui_Free (void)
 {
     umemo_Free ();
-    umemo_Free ();
+    ucass_Free ();
     udisk_Free ();
 }
 
@@ -141,22 +141,31 @@ void ugui_Init(void)
     GtkWidget *content_area;
     GtkWidget *action_area;
     GtkWidget *widget;
-    GtkWidget *hidden_button;
     GtkWidget *hbox, *vbox;
     GdkPixbuf *pixbuf;
 
     /* fenêtre d'affichage */
-    wControl = gtk_dialog_new_with_buttons (
-                    is_fr?"Panneau de contrÃ´le":"Control panel",
-                    GTK_WINDOW(wMain),
-                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                    GTK_STOCK_QUIT, TEO_RESPONSE_QUIT,
-                    NULL);
-    hidden_button = gtk_dialog_add_button (GTK_DIALOG(wControl),"", TEO_RESPONSE_END);
+    wControl = gtk_dialog_new ();
     gtk_window_set_resizable (GTK_WINDOW(wControl), FALSE);
+    gtk_window_set_title (GTK_WINDOW(wControl), is_fr?"Panneau de contrÃ´le":"Control panel");
+    gtk_window_set_transient_for (GTK_WINDOW(wControl), GTK_WINDOW(wMain));
+    gtk_window_set_destroy_with_parent (GTK_WINDOW(wControl), TRUE);
+    gtk_window_set_modal (GTK_WINDOW(wControl), TRUE);
+    
     content_area = gtk_dialog_get_content_area (GTK_DIALOG(wControl));
     action_area = gtk_dialog_get_action_area (GTK_DIALOG(wControl));
+    
+    /* bouton de "A Propos" */
+    widget=gtk_button_new_from_stock(GTK_STOCK_ABOUT);
+    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(uabout_Dialog), (gpointer)NULL);
+    gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
+
+    /* boîte horizontale du titre */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_pack_start( GTK_BOX(action_area), hbox, TRUE, TRUE, 0);
+
+    gtk_dialog_add_button (GTK_DIALOG(wControl), GTK_STOCK_QUIT , TEO_RESPONSE_QUIT  );
+    gtk_dialog_add_button (GTK_DIALOG(wControl), GTK_STOCK_OK   , GTK_RESPONSE_ACCEPT);
 
     /* crée toutes les widgets de la fenêtre */
     /* boîte horizontale du titre */
@@ -183,10 +192,6 @@ void ugui_Init(void)
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) TEO_COMMAND_COLD_RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
 
-    /* bouton de "A Propos" */
-    widget=gtk_button_new_from_stock(GTK_STOCK_ABOUT);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(uabout_Dialog), (gpointer)NULL);
-    gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
 
     /* notebook */
     notebook=gtk_notebook_new();
@@ -199,7 +204,6 @@ void ugui_Init(void)
 
     /* affiche tout l'intérieur */
     gtk_widget_show_all(content_area);
-    gtk_widget_hide (hidden_button);
 
     /* Attend la fin du travail de GTK */
     while (gtk_events_pending ())

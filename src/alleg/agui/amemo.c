@@ -75,7 +75,7 @@ static DIALOG m7dial[]={
 { d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
 { d_textbox_proc,     64,  40, 191,  16, 0, 0,   0,   0,    0, 0, NULL },
 { d_button_proc,     260,  40,  30,  16, 0, 0, 'm', D_EXIT, 0, 0, "..." },
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
 };
