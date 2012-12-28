@@ -19,15 +19,14 @@
 
 
 #ifndef SCAN_DEPEND
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+    #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <time.h>
 #endif
 
 #include "media/libsap.h"
-
 
 int sap_errno;
 
