@@ -44,6 +44,9 @@
           à la fusion de xargs de Samuel Devulder
 - media/cass.c
           Création des fonctions cass_FirstLoad(), cass_Check()
+- media/printer.c
+          Séparation des traitements spécifiques à chaque imprimante
+          Optimisation de l'occupation mémoire
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===

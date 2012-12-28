@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
- *               François Mouret 26/01/2010 08/2011 02/06/2012
+ *               François Mouret 26/01/2010 08/2011 02/06/2012 28/12/2012
  *               Gilles Fétis 07/2011
  *
  *  Module d'interface avec le serveur X.
@@ -76,7 +76,7 @@ Window window_win;
 
 static int need_modifiers_reset = TRUE;
 
-static int installed_pointer = TO8_MOUSE;
+static int installed_pointer = TEO_MOUSE;
 
 static int x11_to_dos[256];
 
@@ -196,14 +196,14 @@ static void SetPointer(int pointer)
 {
     switch (pointer)
     {
-        case TO8_MOUSE :
+        case TEO_MOUSE :
             gdk_window_set_cursor (gwindow_win, NULL);
-            installed_pointer=TO8_MOUSE;
+            installed_pointer=TEO_MOUSE;
             break;
 
-        case TO8_LIGHTPEN :
+        case TEO_LIGHTPEN :
             gdk_window_set_cursor (gwindow_win, gdk_cursor_new (GDK_PENCIL));
-            installed_pointer=TO8_LIGHTPEN;
+            installed_pointer=TEO_LIGHTPEN;
             break;
     }
 }
@@ -235,12 +235,12 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
     if (need_modifiers_reset)
     {
-        if (event->key.state & GDK_SHIFT_MASK)   value |= TO8_SHIFT_FLAG;
-        if (event->key.state & GDK_CONTROL_MASK) value |= TO8_CTRL_FLAG;
-        if (event->key.state & GDK_MOD3_MASK)    value |= TO8_ALTGR_FLAG;
-        if (event->key.state & GDK_MOD2_MASK)    value |= TO8_NUMLOCK_FLAG;
-        if (event->key.state & GDK_LOCK_MASK)    value |= TO8_CAPSLOCK_FLAG;
-        keyboard_Reset ((1<<TO8_MAX_FLAG)-1, value);
+        if (event->key.state & GDK_SHIFT_MASK)   value |= TEO_SHIFT_FLAG;
+        if (event->key.state & GDK_CONTROL_MASK) value |= TEO_CTRL_FLAG;
+        if (event->key.state & GDK_MOD3_MASK)    value |= TEO_ALTGR_FLAG;
+        if (event->key.state & GDK_MOD2_MASK)    value |= TEO_NUMLOCK_FLAG;
+        if (event->key.state & GDK_LOCK_MASK)    value |= TEO_CAPSLOCK_FLAG;
+        keyboard_Reset ((1<<TEO_MAX_FLAG)-1, value);
         need_modifiers_reset = FALSE;
     }
 
@@ -289,7 +289,7 @@ button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     switch (event->button.button)
     {
         case 1 : mouse_Click(1, FALSE); break;
-        case 3 : if (installed_pointer == TO8_MOUSE)
+        case 3 : if (installed_pointer == TEO_MOUSE)
                      mouse_Click (2, FALSE);
                  break;
     }
@@ -322,10 +322,10 @@ button_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 static gboolean
 motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    if (((int)event->button.x > (TO8_BORDER_W*2))
-     && ((int)event->button.y > (TO8_BORDER_H*2)))
-        mouse_Motion ((int)event->button.x/2-TO8_BORDER_W,
-                      (int)event->button.y/2-TO8_BORDER_H);
+    if (((int)event->button.x > (TEO_BORDER_W*2))
+     && ((int)event->button.y > (TEO_BORDER_H*2)))
+        mouse_Motion ((int)event->button.x/2-TEO_BORDER_W,
+                      (int)event->button.y/2-TEO_BORDER_H);
     return FALSE;
     (void)widget;
     (void)user_data;
@@ -357,7 +357,7 @@ window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if ((event->window_state.changed_mask & GDK_WINDOW_STATE_ICONIFIED) != 0)
         if ((event->window_state.new_window_state & GDK_WINDOW_STATE_ICONIFIED) == 0)
-            ugraphic_Retrace(0, 0, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
+            ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
 
     return FALSE;
     (void)widget;
@@ -434,10 +434,10 @@ void udisplay_Window(void)
                       G_CALLBACK (window_state_event), NULL);
 
     /* Set window size */
-    hints.min_width = TO8_SCREEN_W*2;
-    hints.max_width = TO8_SCREEN_W*2;
-    hints.min_height = TO8_SCREEN_H*2;
-    hints.max_height = TO8_SCREEN_H*2;
+    hints.min_width = TEO_SCREEN_W*2;
+    hints.max_width = TEO_SCREEN_W*2;
+    hints.min_height = TEO_SCREEN_H*2;
+    hints.max_height = TEO_SCREEN_H*2;
     gtk_window_set_geometry_hints (GTK_WINDOW(wMain), wMain, &hints,
                                    GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
 
@@ -463,7 +463,7 @@ void udisplay_Window(void)
     window_win = GDK_WINDOW_XID (gwindow_win);
     screen_win = window_win;
 
-    to8_SetPointer=SetPointer;
+    teo_SetPointer=SetPointer;
 
     printf("ok\n");
 }

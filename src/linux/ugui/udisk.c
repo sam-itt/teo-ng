@@ -90,7 +90,7 @@ static int load_disk (gchar *filename, struct FILE_VECTOR *vector)
             ugui_Error (teo_error_msg, wControl);
             break;
 
-        case TO8_READ_ONLY :
+        case TEO_READ_ONLY :
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(vector->check_prot), TRUE);
             teo.disk[vector->id].write_protect = TRUE;
             break;
@@ -109,10 +109,10 @@ static void toggle_check_disk(GtkWidget *button, struct FILE_VECTOR *vector)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
     {
-        disk_SetMode (vector->id, TO8_READ_ONLY);
+        disk_SetMode (vector->id, TEO_READ_ONLY);
         teo.disk[vector->id].write_protect = TRUE;
     }
-    else if (disk_SetMode (vector->id, TO8_READ_WRITE)==TO8_READ_ONLY)
+    else if (disk_SetMode (vector->id, TEO_READ_WRITE)==TEO_READ_ONLY)
     {
         ugui_Error (is_fr?"Ecriture impossible sur ce support."
                        :"Writing unavailable on this device.", wControl);
@@ -131,11 +131,11 @@ static void set_access_mode (struct FILE_VECTOR *vector)
     int ret;
 
     (void)disk_SetVirtual (vector->id);
-    ret = TO8_READ_WRITE;
+    ret = TEO_READ_WRITE;
     if ((vector->direct) && (gtk_combo_box_get_active (GTK_COMBO_BOX(vector->combo)) == 1))
         ret = disk_SetDirect (vector->id);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vector->check_prot), (ret==TO8_READ_ONLY) ? TRUE : FALSE);
-    teo.disk[vector->id].write_protect = (ret==TO8_READ_ONLY) ? TRUE : FALSE;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vector->check_prot), (ret==TEO_READ_ONLY) ? TRUE : FALSE);
+    teo.disk[vector->id].write_protect = (ret==TEO_READ_ONLY) ? TRUE : FALSE;
 }
 
 

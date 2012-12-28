@@ -81,7 +81,7 @@ extern inline void DrawGPL(int addr)
     pt =mem.ram.bank[mempager.screen.vram_page][addr];
     col=mem.ram.bank[mempager.screen.vram_page][addr+0x2000];
 
-    to8_DrawGPL(mode_page.lgamod, addr, pt, col);
+    teo_DrawGPL(mode_page.lgamod, addr, pt, col);
 }
 
 extern void hardware_Init(void);

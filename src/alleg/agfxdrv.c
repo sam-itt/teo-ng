@@ -82,11 +82,11 @@ int agfxdrv_Init(int mode, int depth, int allegro_driver, int border_support)
 {
     if (graphic_driver_list[mode]->InitGraphic(depth, allegro_driver, border_support))
     {   
-        to8_DrawGPL        = graphic_driver_list[mode]->DrawGPL;
-        to8_DrawBorderLine = graphic_driver_list[mode]->DrawBorderLine;
-        to8_SetColor       = graphic_driver_list[mode]->SetColor;
-        to8_SetBorderColor = graphic_driver_list[mode]->SetBorderColor;
-        to8_SetDiskLed     = graphic_driver_list[mode]->SetDiskLed;
+        teo_DrawGPL        = graphic_driver_list[mode]->DrawGPL;
+        teo_DrawBorderLine = graphic_driver_list[mode]->DrawBorderLine;
+        teo_SetColor       = graphic_driver_list[mode]->SetColor;
+        teo_SetBorderColor = graphic_driver_list[mode]->SetBorderColor;
+        teo_SetDiskLed     = graphic_driver_list[mode]->SetDiskLed;
 
         SetGraphicMode = graphic_driver_list[mode]->SetGraphicMode;
         RefreshPalette = graphic_driver_list[mode]->RefreshPalette;

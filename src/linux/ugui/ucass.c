@@ -126,7 +126,7 @@ static int load_cass (gchar *filename)
             ugui_Error (teo_error_msg, wControl);
             break;
 
-        case TO8_READ_ONLY :
+        case TEO_READ_ONLY :
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(check_prot), TRUE);
             teo.cass.write_protect = TRUE;
             break;
@@ -145,14 +145,14 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
 {
     if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
     {
-        cass_SetMode(TO8_READ_ONLY);
+        cass_SetMode(TEO_READ_ONLY);
         teo.cass.write_protect = TRUE;
     }
     else
     {
         teo.cass.write_protect = FALSE;
 
-        if (cass_SetMode(TO8_READ_WRITE)==TO8_READ_ONLY)
+        if (cass_SetMode(TEO_READ_WRITE)==TEO_READ_ONLY)
         {
             ugui_Error ((is_fr?"Ecriture impossible sur ce support."
                               :"Writing unavailable on this device."), wControl);

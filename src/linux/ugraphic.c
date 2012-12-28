@@ -68,7 +68,7 @@ static Colormap colormap;
 static int *dirty_cell;
 static int border_color;
 static XImage *gpl_buffer, *screen_buffer;
-static XColor xcolor[TO8_NCOLORS+4];
+static XColor xcolor[TEO_NCOLORS+4];
 static int pixel_size;
 
 /* SetColor:
@@ -114,37 +114,37 @@ static void SetBorderColor(int mode, int color)
     int *dirty_cell_row = dirty_cell;
 
     /* on dessine dans le screen buffer */
-    if (mode == TO8_PALETTE)
+    if (mode == TEO_PALETTE)
     {
-        border_color = TO8_NCOLORS;  /* couleur fixe de l'écran de la palette */
-        RECTF(TO8_BORDER_W*2, 0, (TO8_SCREEN_W-TO8_BORDER_W)*2-1, TO8_BORDER_H*2-1);
-        RECTF(0, 0, TO8_BORDER_W*2-1, (TO8_BORDER_H+(TO8_PALETTE_ADDR/TO8_WINDOW_GW))*2-1);
-        RECTF((TO8_SCREEN_W-TO8_BORDER_W)*2, 0, TO8_SCREEN_W*2-1, (TO8_BORDER_H+(TO8_PALETTE_ADDR/TO8_WINDOW_GW))*2-1);
+        border_color = TEO_NCOLORS;  /* couleur fixe de l'écran de la palette */
+        RECTF(TEO_BORDER_W*2, 0, (TEO_SCREEN_W-TEO_BORDER_W)*2-1, TEO_BORDER_H*2-1);
+        RECTF(0, 0, TEO_BORDER_W*2-1, (TEO_BORDER_H+(TEO_PALETTE_ADDR/TEO_WINDOW_GW))*2-1);
+        RECTF((TEO_SCREEN_W-TEO_BORDER_W)*2, 0, TEO_SCREEN_W*2-1, (TEO_BORDER_H+(TEO_PALETTE_ADDR/TEO_WINDOW_GW))*2-1);
 
 	border_color = color;
-        RECTF(0, (TO8_BORDER_H+(TO8_PALETTE_ADDR/TO8_WINDOW_GW))*2, TO8_BORDER_W*2-1, TO8_SCREEN_H*2-1);
-        RECTF((TO8_SCREEN_W-TO8_BORDER_W)*2, (TO8_BORDER_H+(TO8_PALETTE_ADDR/TO8_WINDOW_GW))*2, TO8_SCREEN_W*2-1, TO8_SCREEN_H*2-1);
-        RECTF(TO8_BORDER_W*2, (TO8_SCREEN_H-TO8_BORDER_H)*2, (TO8_SCREEN_W-TO8_BORDER_W)*2-1, TO8_SCREEN_H*2-1);
+        RECTF(0, (TEO_BORDER_H+(TEO_PALETTE_ADDR/TEO_WINDOW_GW))*2, TEO_BORDER_W*2-1, TEO_SCREEN_H*2-1);
+        RECTF((TEO_SCREEN_W-TEO_BORDER_W)*2, (TEO_BORDER_H+(TEO_PALETTE_ADDR/TEO_WINDOW_GW))*2, TEO_SCREEN_W*2-1, TEO_SCREEN_H*2-1);
+        RECTF(TEO_BORDER_W*2, (TEO_SCREEN_H-TEO_BORDER_H)*2, (TEO_SCREEN_W-TEO_BORDER_W)*2-1, TEO_SCREEN_H*2-1);
     }
     else
     {
         border_color = color;
-        RECTF(TO8_BORDER_W*2, 0, (TO8_SCREEN_W-TO8_BORDER_W)*2-1, TO8_BORDER_W*2-1);
-        RECTF(TO8_BORDER_W*2, (TO8_SCREEN_H-TO8_BORDER_H)*2, (TO8_SCREEN_W-TO8_BORDER_W)*2-1, TO8_SCREEN_H*2-1);
-        RECTF(0, 0, TO8_BORDER_W*2-1, TO8_SCREEN_H*2-1);
-        RECTF((TO8_SCREEN_W-TO8_BORDER_W)*2, 0, TO8_SCREEN_W*2-1, TO8_SCREEN_H*2-1);
+        RECTF(TEO_BORDER_W*2, 0, (TEO_SCREEN_W-TEO_BORDER_W)*2-1, TEO_BORDER_W*2-1);
+        RECTF(TEO_BORDER_W*2, (TEO_SCREEN_H-TEO_BORDER_H)*2, (TEO_SCREEN_W-TEO_BORDER_W)*2-1, TEO_SCREEN_H*2-1);
+        RECTF(0, 0, TEO_BORDER_W*2-1, TEO_SCREEN_H*2-1);
+        RECTF((TEO_SCREEN_W-TEO_BORDER_W)*2, 0, TEO_SCREEN_W*2-1, TEO_SCREEN_H*2-1);
     }
 
     /* on coche les dirty cells */
-    for (j=0; j<TO8_SCREEN_CH; j++)
+    for (j=0; j<TEO_SCREEN_CH; j++)
     {
-        for (i=0; i<TO8_SCREEN_CW; i++)
-            if ( (i<TO8_BORDER_CW) || (i>=TO8_SCREEN_CW-TO8_BORDER_CW) ||
-                 (j<TO8_BORDER_CH) || (j>=TO8_SCREEN_CH-TO8_BORDER_CH) )
+        for (i=0; i<TEO_SCREEN_CW; i++)
+            if ( (i<TEO_BORDER_CW) || (i>=TEO_SCREEN_CW-TEO_BORDER_CW) ||
+                 (j<TEO_BORDER_CH) || (j>=TEO_SCREEN_CH-TEO_BORDER_CH) )
                 dirty_cell_row[i] = True ;
 
         /* ligne suivante */
-        dirty_cell_row += TO8_SCREEN_CW;
+        dirty_cell_row += TEO_SCREEN_CW;
     }
 
     (void) mode;
@@ -165,7 +165,7 @@ static void SetBorderColor(int mode, int color)
  */
 static inline int gpl_need_update(const char *gpl1, const char *gpl2)
 {
-    register int i = TO8_GPL_SIZE*2*pixel_size;
+    register int i = TEO_GPL_SIZE*2*pixel_size;
 
     while (i--)
         if (*gpl1++ != *gpl2++)
@@ -188,7 +188,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 
     switch (mode)
     {
-	 case TO8_BITMAP4: /* mode bitmap 4 couleurs */
+	 case TEO_BITMAP4: /* mode bitmap 4 couleurs */
 	    pt<<=1;
 
 	    for (i=0; i<8; i++)
@@ -198,7 +198,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
             break;
 
-        case TO8_PAGE1: /* mode commutation page 1 */
+        case TEO_PAGE1: /* mode commutation page 1 */
 	    for (i=0; i<8; i++)
 	    {
 		c1 = xcolor[(0x80>>i)&pt ? 1 : 0].pixel;
@@ -206,7 +206,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    break;
 
-        case TO8_PAGE2: /* mode commutation page 2 */
+        case TEO_PAGE2: /* mode commutation page 2 */
 	    for (i=0; i<8; i++)
 	    {
 		c1 = xcolor[(0x80>>i)&col ? 2 : 0].pixel;
@@ -214,7 +214,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    break;
 
-        case TO8_STACK2: /* mode superposition 2 pages */
+        case TEO_STACK2: /* mode superposition 2 pages */
 	    for (i=0; i<8; i++)
 	    {
 		c1 = xcolor[(0x80>>i)&pt ? 1 : ((0x80>>i)&col ? 2 : 0)].pixel;
@@ -222,7 +222,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    break;
 
-        case TO8_COL80: /* mode 80 colonnes */
+        case TEO_COL80: /* mode 80 colonnes */
 	    for (i=0; i<8; i++)
 	    {
 		XPutPixel(gpl_buffer, i,   0, xcolor[(0x80>>i)&pt  ? 1 : 0].pixel);
@@ -230,7 +230,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    break;
 
-	case TO8_STACK4: /* mode superposition 4 pages */
+	case TEO_STACK4: /* mode superposition 4 pages */
 	    /* on modifie les pixels 4 par 4 */
 	    for (i=0; i<4; i++)
 	    {
@@ -243,7 +243,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    break;
 
-        case TO8_BITMAP4b: /* mode bitmap 4 non documenté */
+        case TEO_BITMAP4b: /* mode bitmap 4 non documenté */
 	    for (i=0; i<4; i++)
 	    {
 		c1 = xcolor[( pt>>(6-(i<<1)) )&3].pixel;
@@ -254,7 +254,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    break;
 
-        case TO8_BITMAP16: /* mode bitmap 16 couleurs */
+        case TEO_BITMAP16: /* mode bitmap 16 couleurs */
 	    /* on modifie les pixels 4 par 4 */
 	    c1 = xcolor[(pt&0xF0)>>4].pixel;
 	    PUT4PIXEL(0, c1);
@@ -269,18 +269,18 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    PUT4PIXEL(3, c1);
 	    break;
 
-        case TO8_PALETTE: /* mode écran de la palette */
-	    if (addr<TO8_PALETTE_ADDR)
+        case TEO_PALETTE: /* mode écran de la palette */
+	    if (addr<TEO_PALETTE_ADDR)
 	    {
 		if ((col&0x78)==0x30)
 		{
-		    c1=TO8_NCOLORS;
-		    c2=TO8_NCOLORS+1;
+		    c1=TEO_NCOLORS;
+		    c2=TEO_NCOLORS+1;
 		}
 		else
 		{
-		    c1=TO8_NCOLORS+1;
-		    c2=TO8_NCOLORS;
+		    c1=TEO_NCOLORS+1;
+		    c2=TEO_NCOLORS;
 		}
 
 		for (i=0; i<8; i++)
@@ -292,7 +292,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
 	    /* no break */
 
-        case TO8_COL40: /* mode 40 colonnes 16 couleurs */
+        case TEO_COL40: /* mode 40 colonnes 16 couleurs */
         default:
 	    c1=((col>>3)&7)+(((~col)&0x40)>>3);
 	    c2=(col&7)+(((~col)&0x80)>>4);
@@ -304,8 +304,8 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	    }
     } /* end of switch */
 
-    x = TO8_BORDER_W*2 + (addr%TO8_WINDOW_GW)*TO8_GPL_SIZE*2;
-    y = TO8_BORDER_H*2 + (addr/TO8_WINDOW_GW)*2;
+    x = TEO_BORDER_W*2 + (addr%TEO_WINDOW_GW)*TEO_GPL_SIZE*2;
+    y = TEO_BORDER_H*2 + (addr/TEO_WINDOW_GW)*2;
 
     gpl_src  = gpl_buffer->data;
     gpl_dest = screen_buffer->data + y*screen_buffer->bytes_per_line + x*pixel_size;
@@ -313,14 +313,14 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
     if (gpl_need_update(gpl_src, gpl_dest))
     {
         /* duplication des pixels */
-        memcpy(gpl_dest, gpl_src, TO8_GPL_SIZE*2*pixel_size);
+        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE*2*pixel_size);
         gpl_dest += screen_buffer->bytes_per_line;
-        memcpy(gpl_dest, gpl_src, TO8_GPL_SIZE*2*pixel_size);
+        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE*2*pixel_size);
 
 	/* dirty rectangles */
-	x = TO8_BORDER_CW + (addr%TO8_WINDOW_CW);
-	y = TO8_BORDER_CH + addr/(TO8_WINDOW_CW*TO8_CHAR_SIZE);
-	dirty_cell_row = dirty_cell + y*TO8_SCREEN_CW;
+	x = TEO_BORDER_CW + (addr%TEO_WINDOW_CW);
+	y = TEO_BORDER_CH + addr/(TEO_WINDOW_CW*TEO_CHAR_SIZE);
+	dirty_cell_row = dirty_cell + y*TEO_SCREEN_CW;
 	dirty_cell_row[x] = True;
     }
 }
@@ -332,33 +332,33 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
  */
 static void DrawBorderLine(int col, int line)
 {
-    int *dirty_cell_row = dirty_cell + (line/TO8_CHAR_SIZE)*TO8_SCREEN_CW;
+    int *dirty_cell_row = dirty_cell + (line/TEO_CHAR_SIZE)*TEO_SCREEN_CW;
 
-    if (col&TO8_LEFT_BORDER)
+    if (col&TEO_LEFT_BORDER)
     {
 	if (XGetPixel(screen_buffer, 0, line*2) != xcolor[border_color].pixel)
         {
-            RECTF(0, line*2, TO8_BORDER_W*2-1, line*2+1);
+            RECTF(0, line*2, TEO_BORDER_W*2-1, line*2+1);
 
 	    dirty_cell_row[0] = True;
 	    dirty_cell_row[1] = True;
 	}
     }
-    else if (col&TO8_RIGHT_BORDER)
+    else if (col&TEO_RIGHT_BORDER)
     {
-	if (XGetPixel(screen_buffer, TO8_SCREEN_W*2-1, line*2) != xcolor[border_color].pixel)
+	if (XGetPixel(screen_buffer, TEO_SCREEN_W*2-1, line*2) != xcolor[border_color].pixel)
         {
-            RECTF((TO8_SCREEN_W-TO8_BORDER_W)*2, line*2 , TO8_SCREEN_W*2-1, line*2+1);
+            RECTF((TEO_SCREEN_W-TEO_BORDER_W)*2, line*2 , TEO_SCREEN_W*2-1, line*2+1);
 
-	    dirty_cell_row[TO8_SCREEN_CW-TO8_BORDER_CW] = True;
-	    dirty_cell_row[TO8_SCREEN_CW-TO8_BORDER_CW+1] = True;
+	    dirty_cell_row[TEO_SCREEN_CW-TEO_BORDER_CW] = True;
+	    dirty_cell_row[TEO_SCREEN_CW-TEO_BORDER_CW+1] = True;
 	}
     }
-    else if (XGetPixel(screen_buffer, (TO8_BORDER_W+col*TO8_GPL_SIZE)*2, line*2) != xcolor[border_color].pixel)
+    else if (XGetPixel(screen_buffer, (TEO_BORDER_W+col*TEO_GPL_SIZE)*2, line*2) != xcolor[border_color].pixel)
     {
-        RECTF((TO8_BORDER_W+col*TO8_GPL_SIZE)*2, line*2, (TO8_BORDER_W+(col+1)*TO8_GPL_SIZE)*2-1, line*2+1);
+        RECTF((TEO_BORDER_W+col*TEO_GPL_SIZE)*2, line*2, (TEO_BORDER_W+(col+1)*TEO_GPL_SIZE)*2-1, line*2+1);
 
-        dirty_cell_row[TO8_BORDER_CW+col] = True;
+        dirty_cell_row[TEO_BORDER_CW+col] = True;
     }
 }
 
@@ -376,17 +376,17 @@ static void SetDiskLed(int led_on)
     {
 	XGCValues values;
 
-	values.foreground=xcolor[TO8_NCOLORS+2].pixel;
+	values.foreground=xcolor[TEO_NCOLORS+2].pixel;
 	XChangeGC(display, gc, GCForeground, &values);
-	XDrawRectangle(display, screen_win, gc, TO8_SCREEN_W*2-LED_SIZE, 0, LED_SIZE-1, LED_SIZE-1);
+	XDrawRectangle(display, screen_win, gc, TEO_SCREEN_W*2-LED_SIZE, 0, LED_SIZE-1, LED_SIZE-1);
 
-	values.foreground=xcolor[TO8_NCOLORS+3].pixel;
+	values.foreground=xcolor[TEO_NCOLORS+3].pixel;
 	XChangeGC(display, gc, GCForeground, &values);
-	XFillRectangle(display, screen_win, gc, TO8_SCREEN_W*2-LED_SIZE+1, 1, LED_SIZE-2, LED_SIZE-2);
+	XFillRectangle(display, screen_win, gc, TEO_SCREEN_W*2-LED_SIZE+1, 1, LED_SIZE-2, LED_SIZE-2);
     }
     else
 	/* ugraphic_Retrace() laisse parfois la led allumée... */
-        dirty_cell[TO8_SCREEN_CW-1] = True;
+        dirty_cell[TEO_SCREEN_CW-1] = True;
 }
 
 
@@ -419,43 +419,43 @@ void ugraphic_Refresh(void)
     if (teo.setting.interlaced_video)
     {
         odd ^= 1;
-        dirty_cell_row = (odd == 0) ? dirty_cell : dirty_cell + TO8_SCREEN_CW;
+        dirty_cell_row = (odd == 0) ? dirty_cell : dirty_cell + TEO_SCREEN_CW;
         /* on groupe les dirty rectangles ligne par ligne */
-        for (j=odd; j<TO8_SCREEN_CH; j+=2)
+        for (j=odd; j<TEO_SCREEN_CH; j+=2)
         {
-            for (i=0; i<TO8_SCREEN_CW; i++)
+            for (i=0; i<TEO_SCREEN_CW; i++)
                 if (dirty_cell_row[i])
 	        {
                     cell_start=i;
 
-                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
+                    while ((i<TEO_SCREEN_CW) && dirty_cell_row[i])
                         dirty_cell_row[i++]=False;
 
-                    ugraphic_Retrace(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
+                    ugraphic_Retrace(cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2, (i-cell_start)*TEO_CHAR_SIZE*2, TEO_CHAR_SIZE*2);
                 }
 
             /* ligne suivante */
-            dirty_cell_row += (TO8_SCREEN_CW<<1);
+            dirty_cell_row += (TEO_SCREEN_CW<<1);
         }
     }
     else
     {
         /* on groupe les dirty rectangles ligne par ligne */
-        for (j=0; j<TO8_SCREEN_CH; j++)
+        for (j=0; j<TEO_SCREEN_CH; j++)
         {
-            for (i=0; i<TO8_SCREEN_CW; i++)
+            for (i=0; i<TEO_SCREEN_CW; i++)
                 if (dirty_cell_row[i])
 	        {
                     cell_start=i;
 
-                    while ((i<TO8_SCREEN_CW) && dirty_cell_row[i])
+                    while ((i<TEO_SCREEN_CW) && dirty_cell_row[i])
                         dirty_cell_row[i++]=False;
 
-                    ugraphic_Retrace(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2, (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
+                    ugraphic_Retrace(cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2, (i-cell_start)*TEO_CHAR_SIZE*2, TEO_CHAR_SIZE*2);
                 }
 
             /* ligne suivante */
-            dirty_cell_row += TO8_SCREEN_CW;
+            dirty_cell_row += TEO_SCREEN_CW;
         }
     }
 }
@@ -484,31 +484,31 @@ void ugraphic_Init(void)
     gc=DefaultGC(display, screen);
 
     /* Couleurs de la page de réglage de la palette */
-    xcolor[TO8_NCOLORS].red   = (TO8_PALETTE_COL1>>16)*0x101;
-    xcolor[TO8_NCOLORS].green = ((TO8_PALETTE_COL1>>8)&0xFF)*0x101;
-    xcolor[TO8_NCOLORS].blue  = (TO8_PALETTE_COL1&0xFF)*0x101;
+    xcolor[TEO_NCOLORS].red   = (TEO_PALETTE_COL1>>16)*0x101;
+    xcolor[TEO_NCOLORS].green = ((TEO_PALETTE_COL1>>8)&0xFF)*0x101;
+    xcolor[TEO_NCOLORS].blue  = (TEO_PALETTE_COL1&0xFF)*0x101;
 
-    xcolor[TO8_NCOLORS+1].red   = (TO8_PALETTE_COL2>>16)*0x101;
-    xcolor[TO8_NCOLORS+1].green = ((TO8_PALETTE_COL2>>8)&0xFF)*0x101;
-    xcolor[TO8_NCOLORS+1].blue  = (TO8_PALETTE_COL2&0xFF)*0x101;
+    xcolor[TEO_NCOLORS+1].red   = (TEO_PALETTE_COL2>>16)*0x101;
+    xcolor[TEO_NCOLORS+1].green = ((TEO_PALETTE_COL2>>8)&0xFF)*0x101;
+    xcolor[TEO_NCOLORS+1].blue  = (TEO_PALETTE_COL2&0xFF)*0x101;
 
     /* Couleurs de la led du lecteur de disquettes */
-    xcolor[TO8_NCOLORS+2].red   = 0;
-    xcolor[TO8_NCOLORS+2].green = 0;
-    xcolor[TO8_NCOLORS+2].blue  = 0;
+    xcolor[TEO_NCOLORS+2].red   = 0;
+    xcolor[TEO_NCOLORS+2].green = 0;
+    xcolor[TEO_NCOLORS+2].blue  = 0;
 
-    xcolor[TO8_NCOLORS+3].red   = 0;
-    xcolor[TO8_NCOLORS+3].green = 0xFFFF;
-    xcolor[TO8_NCOLORS+3].blue  = 0;
+    xcolor[TEO_NCOLORS+3].red   = 0;
+    xcolor[TEO_NCOLORS+3].green = 0xFFFF;
+    xcolor[TEO_NCOLORS+3].blue  = 0;
 
     if (visualinfo.class == TrueColor)
 	for (i=0; i<4; i++)
-	    XAllocColor(display, colormap, &xcolor[TO8_NCOLORS+i]);
+	    XAllocColor(display, colormap, &xcolor[TEO_NCOLORS+i]);
     else if (visualinfo.class == PseudoColor)
     {
-	long int pixels[TO8_NCOLORS+4];
+	long int pixels[TEO_NCOLORS+4];
 
-	if (!XAllocColorCells(display, colormap, False, 0, 0, (long unsigned int *)pixels, TO8_NCOLORS+4))
+	if (!XAllocColorCells(display, colormap, False, 0, 0, (long unsigned int *)pixels, TEO_NCOLORS+4))
 	{
 	    colormap=XCreateColormap(display, screen_win, visualinfo.visual, AllocNone);
 
@@ -521,11 +521,11 @@ void ugraphic_Init(void)
 	    XSetWindowColormap(display, screen_win, colormap);
 	}
 
-	for (i=0; i<TO8_NCOLORS+4; i++)
+	for (i=0; i<TEO_NCOLORS+4; i++)
 	{
 	    xcolor[i].pixel=pixels[i];
 
-	    if (i>=TO8_NCOLORS)
+	    if (i>=TEO_NCOLORS)
 		xcolor[i].flags=DoRed|DoGreen|DoBlue;
 
 	    XStoreColor(display, colormap, &xcolor[i]);
@@ -537,7 +537,7 @@ void ugraphic_Init(void)
     {
 	XShmSegmentInfo *shminfo = malloc(sizeof(XShmSegmentInfo));
 
-        screen_buffer=XShmCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, NULL, shminfo, TO8_SCREEN_W*2, TO8_SCREEN_H*2);
+        screen_buffer=XShmCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, NULL, shminfo, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
 
 	if (screen_buffer == NULL)
 	    mit_shm_enabled = 0;
@@ -576,7 +576,7 @@ void ugraphic_Init(void)
 
     if (!mit_shm_enabled)
     {
-	screen_buffer = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, TO8_SCREEN_W*2, TO8_SCREEN_H*2, 32, 0);
+	screen_buffer = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, TEO_SCREEN_W*2, TEO_SCREEN_H*2, 32, 0);
 	screen_buffer->data = malloc(screen_buffer->height * screen_buffer->bytes_per_line);
     }
 
@@ -595,16 +595,16 @@ void ugraphic_Init(void)
     fprintf(stderr, "          blue_mask=%lx\n",  screen_buffer->blue_mask);
 #endif
 
-    gpl_buffer = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, TO8_GPL_SIZE*2, 1, 32, 0);
+    gpl_buffer = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, TEO_GPL_SIZE*2, 1, 32, 0);
     gpl_buffer->data = malloc(gpl_buffer->bytes_per_line);
 
-    dirty_cell = calloc(TO8_SCREEN_W*TO8_SCREEN_H, sizeof(int));
+    dirty_cell = calloc(TEO_SCREEN_W*TEO_SCREEN_H, sizeof(int));
     pixel_size = (screen_buffer->bits_per_pixel+1)/8;
 
-    to8_SetColor=SetColor;
-    to8_SetBorderColor=SetBorderColor;
-    to8_DrawGPL=ugraphic_DrawGPL;
-    to8_DrawBorderLine=DrawBorderLine;
-    to8_SetDiskLed=SetDiskLed;
+    teo_SetColor=SetColor;
+    teo_SetBorderColor=SetBorderColor;
+    teo_DrawGPL=ugraphic_DrawGPL;
+    teo_DrawBorderLine=DrawBorderLine;
+    teo_SetDiskLed=SetDiskLed;
 }
 

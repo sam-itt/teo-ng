@@ -301,13 +301,13 @@ void acass_Panel(void)
             k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
             k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
         }
-        (void)cass_SetMode(TO8_READ_WRITE);
+        (void)cass_SetMode(TEO_READ_WRITE);
         k7dial[K7DIAL_CHECK].d2=0;
         if (teo.cass.write_protect)
         {
             k7dial[K7DIAL_CHECK].flags |= D_SELECTED;
             k7dial[K7DIAL_CHECK].d2=1;
-            (void)cass_SetMode(TO8_READ_ONLY);
+            (void)cass_SetMode(TEO_READ_ONLY);
         }
         first=0;
     }
@@ -346,7 +346,7 @@ void acass_Panel(void)
                         teo.default_folder = std_strdup_printf ("%s", filename);
                         std_CleanPath (teo.default_folder);
 
-                        if ((ret==TO8_READ_ONLY) && !(k7dial[6].d2))
+                        if ((ret==TEO_READ_ONLY) && !(k7dial[6].d2))
                         {
                             agui_PopupMessage(is_fr?"Attention: écriture impossible."
                                                    :"Warning: writing unavailable.");
@@ -360,7 +360,7 @@ void acass_Panel(void)
             case K7DIAL_CHECK:
                 if (k7dial[K7DIAL_CHECK].d2)
                 {
-                    if (cass_SetMode(TO8_READ_WRITE)==TO8_READ_ONLY)
+                    if (cass_SetMode(TEO_READ_WRITE)==TEO_READ_ONLY)
                     {
                         agui_PopupMessage(is_fr?"Ecriture impossible sur ce support."
                                                :"Writing unavailable on this device.");
@@ -375,7 +375,7 @@ void acass_Panel(void)
                 }
                 else
                 {
-                    cass_SetMode(TO8_READ_ONLY);
+                    cass_SetMode(TEO_READ_ONLY);
                     k7dial[K7DIAL_CHECK].flags|=D_SELECTED;
                     k7dial[K7DIAL_CHECK].d2=1;
                 }

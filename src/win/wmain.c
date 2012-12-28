@@ -111,7 +111,7 @@ static void RetraceCallback(void)
  */
 static void RunTO8(int windowed_mode)
 {
-    amouse_Install(TO8_MOUSE); /* la souris est le périphérique de pointage par défaut */
+    amouse_Install(TEO_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
     do  /* boucle principale de l'émulateur */
@@ -128,7 +128,7 @@ static void RunTO8(int windowed_mode)
                 asound_Start();
             else
             {
-                install_int_ex(Timer, BPS_TO_TIMER(TO8_FRAME_FREQ));
+                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
                 frame=1;
                 tick=frame;
             }
@@ -136,7 +136,7 @@ static void RunTO8(int windowed_mode)
 
         do  /* boucle d'émulation */
         {
-            to8_DoFrame(FALSE);
+            teo_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */
             if (need_palette_refresh)
@@ -186,12 +186,12 @@ static void RunTO8(int windowed_mode)
             agfxdrv_Screenshot();
 
         if (teo.command==TEO_COMMAND_RESET)
-            to8_Reset();
+            teo_Reset();
 
         if (teo.command==TEO_COMMAND_COLD_RESET)
         {
-            to8_ColdReset();
-            amouse_Install(TO8_MOUSE);
+            teo_ColdReset();
+            amouse_Install(TEO_MOUSE);
         }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
@@ -382,7 +382,7 @@ static void close_procedure (void)
  */
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
-    char version_name[]="Teo "TO8_VERSION_STR" (Windows/DirectX)";
+    char version_name[]="Teo "TEO_VERSION_STR" (Windows/DirectX)";
     int alleg_depth, argc=0;
 #ifndef __MINGW32__
     char *argv[16];
@@ -475,11 +475,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     SetClassLong(prog_win, GCL_HICONSM, (LONG) prog_icon);
 
     /* détection de la présence de joystick(s) */
-    njoy = MIN(TO8_NJOYSTICKS, num_joysticks);
+    njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
-    if (to8_Init(TO8_NJOYSTICKS-njoy) < 0)
+    if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
     printf("ok\n");
 
@@ -568,7 +568,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     std_StringListFree (remain_name);
 
     /* reset éventuel de l'émulateur */
-    to8_ColdReset();
+    teo_ColdReset();
     if (reset == 0)  
         if (access("autosave.img", F_OK) >= 0)
             image_Load("autosave.img");

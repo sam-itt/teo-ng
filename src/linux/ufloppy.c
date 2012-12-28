@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 29/07/2000
  *  Modifié par: Eric Botcazou 05/11/2003
  *               Gilles Fétis 07/09/2011
- *               François Mouret 08/09/2011
+ *               François Mouret 08/09/2011 28/12/2012
  *
  *  Lecture directe des disquettes Thomson.
  */
@@ -103,9 +103,9 @@ static int open_floppy(int drive)
 
     if ((fd[drive]=open(dev_str, O_RDWR | O_NDELAY))<0)
     {
-        to8_DirectReadSector = NULL;
-        to8_DirectWriteSector = NULL;
-        to8_DirectFormatTrack = NULL;
+        teo_DirectReadSector = NULL;
+        teo_DirectWriteSector = NULL;
+        teo_DirectFormatTrack = NULL;
         return 0;
     }
 
@@ -290,9 +290,9 @@ int ufloppy_Init (int to_drive_type[4], int enable_write)
     char dev_str[16];
     int i, num_drives = 0;
 
-    to8_DirectReadSector  = NULL;
-    to8_DirectWriteSector = NULL;
-    to8_DirectFormatTrack = NULL;
+    teo_DirectReadSector  = NULL;
+    teo_DirectWriteSector = NULL;
+    teo_DirectFormatTrack = NULL;
 
     for (i=0; i<2; i++)
     {
@@ -340,12 +340,12 @@ int ufloppy_Init (int to_drive_type[4], int enable_write)
         }
     }
 
-    to8_DirectReadSector = read_sector;
+    teo_DirectReadSector = read_sector;
 
     if (enable_write)
     {
-        to8_DirectWriteSector = write_sector;
-        to8_DirectFormatTrack = format_track;
+        teo_DirectWriteSector = write_sector;
+        teo_DirectFormatTrack = format_track;
     }
 
     return num_drives;
@@ -360,9 +360,9 @@ void ufloppy_Exit (void)
 {
     int i;
 
-    to8_DirectReadSector  = NULL;
-    to8_DirectWriteSector = NULL;
-    to8_DirectFormatTrack = NULL;
+    teo_DirectReadSector  = NULL;
+    teo_DirectWriteSector = NULL;
+    teo_DirectFormatTrack = NULL;
 
     for (i=0; i<2; i++)
     {

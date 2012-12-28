@@ -188,7 +188,7 @@ void adisk_Panel(void)
             dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
             if (teo.disk[drive].write_protect)
             {
-                disk_SetMode(drive, TO8_READ_ONLY);
+                disk_SetMode(drive, TEO_READ_ONLY);
                 diskdial[dial_nbr].flags |= D_SELECTED;
                 diskdial[dial_nbr].d2 = 1;
             }
@@ -246,7 +246,7 @@ void adisk_Panel(void)
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
                         diskdial[dial_nbr].flags &= ~D_SELECTED;
                         diskdial[dial_nbr].d2=0;
-                        if (ret2==TO8_READ_ONLY)
+                        if (ret2==TEO_READ_ONLY)
                         {
                             agui_PopupMessage(is_fr?"Attention: écriture impossible."
                                                    :"Warning: writing unavailable.");
@@ -295,7 +295,7 @@ void adisk_Panel(void)
                         std_CleanPath (teo.default_folder);
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
-                        if ((ret2==TO8_READ_ONLY) && !(diskdial[dial_nbr].d2))
+                        if ((ret2==TEO_READ_ONLY) && !(diskdial[dial_nbr].d2))
                         {
                             agui_PopupMessage(is_fr?"Attention: écriture impossible."
                                                    :"Warning: writing unavailable.");
@@ -315,7 +315,7 @@ void adisk_Panel(void)
 //                if ((diskdial[ret].flags&D_SELECTED) == 0)
                 if (diskdial[ret].d2)
                 {
-                    if (disk_SetMode(drive, TO8_READ_WRITE)==TO8_READ_ONLY)
+                    if (disk_SetMode(drive, TEO_READ_WRITE)==TEO_READ_ONLY)
                     {
                         agui_PopupMessage(is_fr?"Ecriture impossible sur ce support."
                                                :"Writing unavailable on this device.");
@@ -331,7 +331,7 @@ void adisk_Panel(void)
                 
                 else
                 {
-                    disk_SetMode(drive, TO8_READ_ONLY);
+                    disk_SetMode(drive, TEO_READ_ONLY);
                     diskdial[ret].flags|=D_SELECTED;
                     diskdial[ret].d2=1;
                 }
@@ -352,7 +352,7 @@ void adisk_Panel(void)
                         teo.disk[drive].file = std_free (teo.disk[drive].file);
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
-                        if (disk_SetDirect(drive) == TO8_READ_ONLY)
+                        if (disk_SetDirect(drive) == TEO_READ_ONLY)
                         {
                             diskdial[dial_nbr].flags|=D_SELECTED;
                             diskdial[dial_nbr].d2=1;

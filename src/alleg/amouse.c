@@ -93,12 +93,12 @@ static inline int clip_x(void)
 {
     if (border_supported)
     {
-        int x = (mouse_x/screen_ratio) - TO8_BORDER_W;
+        int x = (mouse_x/screen_ratio) - TEO_BORDER_W;
 
         if (x<0)
             return 0;
-        else if (x>=TO8_WINDOW_W)
-            return TO8_WINDOW_W;
+        else if (x>=TEO_WINDOW_W)
+            return TEO_WINDOW_W;
         else 
             return x;
     }
@@ -111,12 +111,12 @@ static inline int clip_y(void)
 {
     if (border_supported)
     {
-        int y = (mouse_y/screen_ratio) - TO8_BORDER_W;
+        int y = (mouse_y/screen_ratio) - TEO_BORDER_W;
 
         if (y<0)
             return 0;
-        else if (y>=TO8_WINDOW_H)
-            return TO8_WINDOW_H;
+        else if (y>=TEO_WINDOW_H)
+            return TEO_WINDOW_H;
         else 
             return y;
     }
@@ -203,18 +203,18 @@ void amouse_Install(int pointer)
 {
     switch (pointer)
     {
-        case TO8_MOUSE:
+        case TEO_MOUSE:
             mouse_callback=MouseCallback;
-            installed_pointer=TO8_MOUSE;
+            installed_pointer=TEO_MOUSE;
             break;
 
-        case TO8_LIGHTPEN:
+        case TEO_LIGHTPEN:
             mouse_callback=LightpenCallback;
-            installed_pointer=TO8_LIGHTPEN;
+            installed_pointer=TEO_LIGHTPEN;
             break;
 
         case LAST_POINTER:
-            mouse_callback=(installed_pointer == TO8_MOUSE ? MouseCallback
+            mouse_callback=(installed_pointer == TEO_MOUSE ? MouseCallback
                                                          : LightpenCallback);
             break;
     }
@@ -310,7 +310,7 @@ void amouse_Init(int gfx_mode, int bsupp)
 
     border_supported = bsupp;
 
-    to8_SetPointer=amouse_Install;
+    teo_SetPointer=amouse_Install;
     install_mouse();
 
     lock_bitmap(pen_pointer);

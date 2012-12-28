@@ -71,7 +71,7 @@ static int *dirty_cell;
  */
 static inline int gpl_need_update(const unsigned char *gpl1, const unsigned char *gpl2)
 {
-    register int i = TO8_GPL_SIZE;
+    register int i = TEO_GPL_SIZE;
 
     while (i--)
         if (*gpl1++ != *gpl2++)
@@ -94,30 +94,30 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
 
     switch (mode)
     {
-        case TO8_BITMAP4: /* mode bitmap 4 couleurs */
+        case TEO_BITMAP4: /* mode bitmap 4 couleurs */
             pt<<=1;
 
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[((pt>>(7-i))&2)+((col>>(7-i))&1)].index;
             break;
 
-        case TO8_PAGE1: /* mode commutation page 1 */
+        case TEO_PAGE1: /* mode commutation page 1 */
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[(0x80>>i)&pt ? 1 : 0].index;
             break;
 
-        case TO8_PAGE2: /* mode commutation page 2 */
+        case TEO_PAGE2: /* mode commutation page 2 */
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[(0x80>>i)&col ? 2 : 0].index;
             break;
 
-        case TO8_STACK2: /* mode superposition 2 pages */
+        case TEO_STACK2: /* mode superposition 2 pages */
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[(0x80>>i)&pt ? 1 :
                                   ((0x80>>i)&col ? 2 : 0)].index;
             break;
 
-        case TO8_COL80: /* mode 80 colonnes */
+        case TEO_COL80: /* mode 80 colonnes */
             for (i=0;i<4;i++)
                 *gpl_src++ = bcell[( pt>>(6-(i<<1)) )&1].index;
 
@@ -126,7 +126,7 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
 
             break;
 
-        case TO8_STACK4: /* mode superposition 4 pages */
+        case TEO_STACK4: /* mode superposition 4 pages */
             for (i=0; i<4; i++)
             {
                 c1 = bcell[ (0x80>>i)&pt  ? 1 :
@@ -140,7 +140,7 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
             break;
 
 
-        case TO8_BITMAP4b: /* mode bitmap 4 non documenté */
+        case TEO_BITMAP4b: /* mode bitmap 4 non documenté */
             for (i=0;i<4;i++)
                 *gpl_src++ = bcell[( pt>>(6-(i<<1)) )&3].index;
 
@@ -149,7 +149,7 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
 
             break;
 
-        case TO8_BITMAP16: /* mode bitmap 16 couleurs */
+        case TEO_BITMAP16: /* mode bitmap 16 couleurs */
             /* on modifie les pixels deux par deux */
             c1=bcell[(pt&0xF0)>>4].index;
             PUT2PIXEL(c1);
@@ -164,8 +164,8 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
             PUT2PIXEL(c1);
             break;
 
-        case TO8_PALETTE: /* mode écran de la palette */
-            if (addr<TO8_PALETTE_ADDR)
+        case TEO_PALETTE: /* mode écran de la palette */
+            if (addr<TEO_PALETTE_ADDR)
             {
                 if ((col&0x78)==0x30)
                 {
@@ -185,7 +185,7 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
             }
             /* no break */
     
-        case TO8_COL40: /* mode 40 colonnes 16 couleurs */
+        case TEO_COL40: /* mode 40 colonnes 16 couleurs */
         default:
             c1=((col>>3)&7)+(((~col)&0x40)>>3);
             c2=(col&7)+(((~col)&0x80)>>4);
@@ -195,20 +195,20 @@ static void amode40_DrawGPL(int mode, int addr, int pt, int col)
 
     } /* end of switch */
 
-    x=(addr%TO8_WINDOW_GW)*TO8_GPL_SIZE;
-    y=(addr/TO8_WINDOW_GW);
+    x=(addr%TEO_WINDOW_GW)*TEO_GPL_SIZE;
+    y=(addr/TEO_WINDOW_GW);
 
     gpl_src  = gpl_buffer->line[0];
     gpl_dest = screen_buffer->line[y]+x;
 
     if (gpl_need_update(gpl_src, gpl_dest))
     {
-        memcpy(gpl_dest, gpl_src, TO8_GPL_SIZE);
+        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE);
         
         /* dirty rectangles */
-        x = addr%TO8_WINDOW_CW;
-        y = addr/(TO8_WINDOW_CW*TO8_CHAR_SIZE);
-        dirty_cell_row = dirty_cell + y*TO8_WINDOW_CW;
+        x = addr%TEO_WINDOW_CW;
+        y = addr/(TEO_WINDOW_CW*TEO_CHAR_SIZE);
+        dirty_cell_row = dirty_cell + y*TEO_WINDOW_CW;
         dirty_cell_row[x] = TRUE;
     }
 }
@@ -245,28 +245,28 @@ static void amode40_RefreshScreen(void)
     if (teo.setting.interlaced_video)
     {
         odd ^= 1;
-        for(j=odd; j<TO8_WINDOW_H<<1; j+=2)
-            blit(screen_buffer, screen, 0, j, 0, j, TO8_WINDOW_W<<1, 1);
+        for(j=odd; j<TEO_WINDOW_H<<1; j+=2)
+            blit(screen_buffer, screen, 0, j, 0, j, TEO_WINDOW_W<<1, 1);
     }
     else
     {
         /* on groupe les dirty rectangles ligne par ligne */ 
-        for (j=0; j<TO8_WINDOW_CH; j++)
+        for (j=0; j<TEO_WINDOW_CH; j++)
         {
-            for (i=0; i<TO8_WINDOW_CW; i++)
+            for (i=0; i<TEO_WINDOW_CW; i++)
             {
                 if (dirty_cell_row[i])
                 {
                     cell_start=i;
 
-                    while ((i<TO8_WINDOW_CW) && dirty_cell_row[i])
+                    while ((i<TEO_WINDOW_CW) && dirty_cell_row[i])
                         dirty_cell_row[i++]=FALSE;
     
-                    amode40_RetraceScreen(cell_start*TO8_CHAR_SIZE, j*TO8_CHAR_SIZE, (i-cell_start)*TO8_CHAR_SIZE, TO8_CHAR_SIZE);
+                    amode40_RetraceScreen(cell_start*TEO_CHAR_SIZE, j*TEO_CHAR_SIZE, (i-cell_start)*TEO_CHAR_SIZE, TEO_CHAR_SIZE);
                 }
             }
             /* ligne suivante */
-            dirty_cell_row += TO8_WINDOW_CW;
+            dirty_cell_row += TEO_WINDOW_CW;
         }
     }
 
@@ -283,7 +283,7 @@ static int amode40_SetGraphicMode(int mode)
     switch (mode)
     {
         case INIT:
-            if (set_gfx_mode(allegro_driver, TO8_WINDOW_W, TO8_WINDOW_H, 0, 0))
+            if (set_gfx_mode(allegro_driver, TEO_WINDOW_W, TEO_WINDOW_H, 0, 0))
                 return FALSE;
 
             acolor8_SetPalette();
@@ -291,9 +291,9 @@ static int amode40_SetGraphicMode(int mode)
             break;
 
         case RESTORE:
-            set_gfx_mode(allegro_driver, TO8_WINDOW_W, TO8_WINDOW_H, 0, 0);
+            set_gfx_mode(allegro_driver, TEO_WINDOW_W, TEO_WINDOW_H, 0, 0);
             acolor8_SetPalette();
-            blit(screen_buffer, screen, 0, 0, 0, 0, TO8_WINDOW_W, TO8_WINDOW_H);
+            blit(screen_buffer, screen, 0, 0, 0, 0, TEO_WINDOW_W, TEO_WINDOW_H);
             graphic_mode=TRUE;
             break;
 
@@ -320,11 +320,11 @@ static void amode40_SetDiskLed(int led_on)
     {
         if (led_on)
         {
-            rect    (screen, TO8_WINDOW_W-LED_SIZE  , 0, TO8_WINDOW_W-1, LED_SIZE-1, 1);
-            rectfill(screen, TO8_WINDOW_W-LED_SIZE+1, 1, TO8_WINDOW_W-2, LED_SIZE-2, 6);
+            rect    (screen, TEO_WINDOW_W-LED_SIZE  , 0, TEO_WINDOW_W-1, LED_SIZE-1, 1);
+            rectfill(screen, TEO_WINDOW_W-LED_SIZE+1, 1, TEO_WINDOW_W-2, LED_SIZE-2, 6);
         }
         else
-            RetraceScreen(TO8_WINDOW_W-LED_SIZE, 0, LED_SIZE, LED_SIZE);
+            RetraceScreen(TEO_WINDOW_W-LED_SIZE, 0, LED_SIZE, LED_SIZE);
     }
 }
 
@@ -346,10 +346,10 @@ static int amode40_InitGraphic(int depth, int _allegro_driver, int border_suppor
     if (!amode40_SetGraphicMode(INIT))
         return FALSE;
 
-    gpl_buffer = create_bitmap(TO8_GPL_SIZE, 1);
-    screen_buffer = create_bitmap(TO8_WINDOW_W, TO8_WINDOW_H);
+    gpl_buffer = create_bitmap(TEO_GPL_SIZE, 1);
+    screen_buffer = create_bitmap(TEO_WINDOW_W, TEO_WINDOW_H);
     clear_bitmap(screen_buffer);
-    dirty_cell = calloc(TO8_WINDOW_CW*TO8_WINDOW_CH, sizeof(int));
+    dirty_cell = calloc(TEO_WINDOW_CW*TEO_WINDOW_CH, sizeof(int));
 
     (void) border_support;
 

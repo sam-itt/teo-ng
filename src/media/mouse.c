@@ -39,7 +39,7 @@
  *  Créé par   : Eric Botcazou 1999
  *  Modifié par: Eric Botcazou 13/02/2001
  *               Samuel Devulder 05/02/2012
- *               François Mouret 02/11/2012
+ *               François Mouret 02/11/2012 28/12/2012
  *
  *  Gestion de la souris et du crayon optique.
  */
@@ -75,12 +75,12 @@ void mouse_GetLightpen(int *xr, int *yr, int *cc)
 {
     switch (mode_page.lgamod)
     {
-        case TO8_COL80:    /* mode 80 colonnes */
+        case TEO_COL80:    /* mode 80 colonnes */
             *xr=mouse_x*2;
             break;
 
-        case TO8_STACK4:   /* mode superposition 4 pages */
-        case TO8_BITMAP16: /* mode bitmap 16 couleurs */
+        case TEO_STACK4:   /* mode superposition 4 pages */
+        case TEO_BITMAP16: /* mode bitmap 16 couleurs */
             *xr=mouse_x/2;
             break;
 
@@ -106,13 +106,13 @@ void mouse_Motion(int xpos, int ypos)
 
     switch (mode_page.lgamod)
     {
-        case TO8_COL80: /* mode 80 colonnes */
+        case TEO_COL80: /* mode 80 colonnes */
             STORE_BYTE(0x60D8, (mouse_x*2)/256);
             STORE_BYTE(0x60D9, (mouse_x*2)%256);
             break;
 
-        case TO8_STACK4:   /* mode superposition 4 pages */
-        case TO8_BITMAP16: /* mode bitmap 16 couleurs */
+        case TEO_STACK4:   /* mode superposition 4 pages */
+        case TEO_BITMAP16: /* mode bitmap 16 couleurs */
             STORE_BYTE(0x60D8, (mouse_x/2)/256);
             STORE_BYTE(0x60D9, (mouse_x/2)%256);
             break;
@@ -168,14 +168,14 @@ void mouse_Init(void)
     mem.mon.bank[1][0x13AF]=0x39;
 
     /* appel routine de sélection souris/crayon optique */
-    mem.rom.bank[3][0x3159]=TO8_TRAP_CODE;
+    mem.rom.bank[3][0x3159]=TEO_TRAP_CODE;
 
     /* appel routine GETL crayon optique */
-    mem.rom.bank[3][0x337D]=TO8_TRAP_CODE;
+    mem.rom.bank[3][0x337D]=TEO_TRAP_CODE;
     mem.rom.bank[3][0x337E]=0x39;
 
     /* appel routine GETL crayon optique 2 */
-    mem.rom.bank[3][0x3F96]=TO8_TRAP_CODE;
+    mem.rom.bank[3][0x3F96]=TEO_TRAP_CODE;
     mem.rom.bank[3][0x3F97]=0x39;
 
     LOCK_VARIABLE(mouse_x);

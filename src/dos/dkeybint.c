@@ -37,6 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/09/2001
+ *               François Mouret 28/12/2012
  *
  *  Interface de gestion du clavier.
  */
@@ -94,10 +95,10 @@ static void set_keyboard_led(int state)
 {
     int flags = 0;
 
-    if (state&TO8_NUMLOCK_FLAG)
+    if (state&TEO_NUMLOCK_FLAG)
         flags |= KB_NUMLOCK_FLAG;
 
-    if (state&TO8_CAPSLOCK_FLAG)
+    if (state&TEO_CAPSLOCK_FLAG)
         flags |= KB_CAPSLOCK_FLAG;
     
     /* mise à jour des leds */
@@ -117,31 +118,31 @@ void dkeybint_Install(void)
   
     if (first)
     {
-        mask |= (TO8_NUMLOCK_FLAG | TO8_CAPSLOCK_FLAG);
+        mask |= (TEO_NUMLOCK_FLAG | TEO_CAPSLOCK_FLAG);
 
         if (_key_shifts&KB_NUMLOCK_FLAG)
-            value |= TO8_NUMLOCK_FLAG;
+            value |= TEO_NUMLOCK_FLAG;
 
         if (_key_shifts&KB_CAPSLOCK_FLAG)
-            value |= TO8_CAPSLOCK_FLAG;
+            value |= TEO_CAPSLOCK_FLAG;
 
         /* on prend définitivement le contrôle des leds */
         key_led_flag = FALSE;
         first=0;
     }
        
-    mask |= (TO8_SHIFT_FLAG | TO8_CTRL_FLAG | TO8_ALTGR_FLAG);
+    mask |= (TEO_SHIFT_FLAG | TEO_CTRL_FLAG | TEO_ALTGR_FLAG);
 
     if (_key_shifts&KB_SHIFT_FLAG)
-        value |= TO8_SHIFT_FLAG;
+        value |= TEO_SHIFT_FLAG;
 
     if (_key_shifts&KB_CTRL_FLAG)
-        value |= TO8_CTRL_FLAG;
+        value |= TEO_CTRL_FLAG;
 
     if (_key_shifts&KB_ALT_FLAG)
-        value |= TO8_ALTGR_FLAG;
+        value |= TEO_ALTGR_FLAG;
 
-    to8_InputReset(mask, value);
+    teo_InputReset(mask, value);
 
     keyboard_lowlevel_callback=keyboard_handler;
 }
@@ -163,7 +164,7 @@ void dkeybint_ShutDown(void)
  */
 void dkeybint_Init(void)
 {
-    to8_SetKeyboardLed=set_keyboard_led;
+    teo_SetKeyboardLed=set_keyboard_led;
     LOCK_FUNCTION(keyboard_handler);
 }
 

@@ -110,7 +110,7 @@ static gboolean RunTO8 (gpointer user_data)
     g_timer_stop (timer);
     g_timer_start (timer);
 
-    if (to8_DoFrame(debug) == 0)
+    if (teo_DoFrame(debug) == 0)
         teo.command=TEO_COMMAND_BREAKPOINT;
 
     if ((teo.command == TEO_COMMAND_BREAKPOINT)
@@ -123,12 +123,12 @@ static gboolean RunTO8 (gpointer user_data)
     }
 
     if (teo.command == TEO_COMMAND_RESET) {
-        to8_Reset();
+        teo_Reset();
         debug = 0;
     }
 
     if (teo.command == TEO_COMMAND_COLD_RESET) {
-        to8_ColdReset();
+        teo_ColdReset();
         debug = 0;
     }
     if (teo.command == TEO_COMMAND_QUIT) {
@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'√©mulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
-                 "Teo "TO8_VERSION_STR" (Linux/X11)");
+                 "Teo "TEO_VERSION_STR" (Linux/X11)");
     printf("Copyright (C) 1997-2012 Gilles F√©tis, Eric Botcazou,\
  Alexandre Pukall, Fran√ßois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contr√¥le\n"
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
     printf((is_fr?"Initialisation de l'√©mulateur..."
                  :"Initialization of the emulator...")); fflush(stdout);
 
-    if ( to8_Init(TO8_NJOYSTICKS) < 0 )
+    if ( teo_Init(TEO_NJOYSTICKS) < 0 )
         main_ExitMessage(teo_error_msg);
 
     /* Initialisation de l'interface d'accËs direct */
@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
         main_DisplayMessage(teo_error_msg);
 
     /* Restitue l'Ètat sauvegardÈ de l'Èmulateur */
-    to8_ColdReset();    /* Reset ‡ froid de l'Èmulateur */
+    teo_ColdReset();    /* Reset ‡ froid de l'Èmulateur */
     if (!reset)
         if (access("autosave.img", F_OK) >= 0)
             image_Load ("autosave.img");

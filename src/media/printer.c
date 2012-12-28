@@ -560,7 +560,7 @@ static void print_gfx16_data (void)
 static void print_screen_data (void)
 {
     int i;
-    mc6809_clock_t delay = (printer.screenprint_delay * TO8_CPU_FREQ) / 1000;
+    mc6809_clock_t delay = (printer.screenprint_delay * TEO_CPU_FREQ) / 1000;
 
     if (mc6809_clock() - last_data_time > delay)
     {
@@ -1427,7 +1427,7 @@ void printer_SetStrobe(int state)
 void printer_Init(void)
 {
     /* trap to get RS.STA value */
-    mem.mon.bank[0][0x1B65]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x1B65]=TEO_TRAP_CODE;
 
     mc6846.prc &= 0xBF;  /* BUSY à 0 */
 }

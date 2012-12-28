@@ -121,7 +121,7 @@ END_OF_FUNCTION(Timer)
  */
 static void RunTO8(void)
 {
-    amouse_Install (TO8_MOUSE); /* la souris est le périphérique de pointage par défaut */
+    amouse_Install (TEO_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
     do  /* boucle principale de l'émulateur */
@@ -138,7 +138,7 @@ static void RunTO8(void)
                 asound_Start();
             else
             {
-                install_int_ex(Timer, BPS_TO_TIMER(TO8_FRAME_FREQ));
+                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
                 frame=1;
                 tick=frame;
             }
@@ -146,7 +146,7 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
-            to8_DoFrame(FALSE);
+            teo_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */ 
             if (need_palette_refresh)
@@ -201,12 +201,12 @@ static void RunTO8(void)
         }
 
         if (teo.command==TEO_COMMAND_RESET)
-            to8_Reset();
+            teo_Reset();
 
         if (teo.command==TEO_COMMAND_COLD_RESET)
         {
-            to8_ColdReset();
-            amouse_Install(TO8_MOUSE);
+            teo_ColdReset();
+            amouse_Install(TEO_MOUSE);
         }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
@@ -337,7 +337,7 @@ void main_ExitMessage(const char msg[])
  */
 int main(int argc, char *argv[])
 {
-    char version_name[]="Teo "TO8_VERSION_STR" (MSDOS/DPMI)";
+    char version_name[]="Teo "TEO_VERSION_STR" (MSDOS/DPMI)";
 #ifdef FRENCH_LANG
     char *mode_desc[3]= {
         " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
@@ -393,12 +393,12 @@ int main(int argc, char *argv[])
     }
 
     /* détection de la présence de joystick(s) */
-    njoy = MIN(TO8_NJOYSTICKS, num_joysticks);
+    njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
 
-    if (to8_Init(TO8_NJOYSTICKS-njoy) < 0)
+    if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
 
     printf("ok\n");
@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
     std_StringListFree (remain_name);
 
     /* reset éventuel de l'émulateur */
-    to8_ColdReset();
+    teo_ColdReset();
     if (reset == 0)
         if (access("autosave.img", F_OK) >= 0)
             image_Load ("autosave.img");

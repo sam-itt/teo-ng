@@ -69,14 +69,14 @@ void joystick_Move(int joy, int pos)
 {
     int qval = 0xf;
 
-    if (pos & TO8_JOYSTICK_LEFT)
+    if (pos & TEO_JOYSTICK_LEFT)
        qval &= 0x0b;
-    else if (pos & TO8_JOYSTICK_RIGHT)
+    else if (pos & TEO_JOYSTICK_RIGHT)
        qval &= 0x07;
 
-    if (pos & TO8_JOYSTICK_UP)
+    if (pos & TEO_JOYSTICK_UP)
        qval &= 0x0d;
-    else if (pos & TO8_JOYSTICK_DOWN)
+    else if (pos & TEO_JOYSTICK_DOWN)
        qval &= 0x0e; 
 
     if (joy)
@@ -99,7 +99,7 @@ void joystick_Button(int joy, int button, int state)
         if (button)
         {
             /* button B */
-            if (state == TO8_JOYSTICK_FIRE_ON)
+            if (state == TEO_JOYSTICK_FIRE_ON)
             {
                 pia_ext.portb.idr &= 0xf7;
                 pia_ext.portb.cr  &= 0x7f;
@@ -113,7 +113,7 @@ void joystick_Button(int joy, int button, int state)
         else
         {
             /* button A */
-            if (state == TO8_JOYSTICK_FIRE_ON)
+            if (state == TEO_JOYSTICK_FIRE_ON)
             {
                 pia_ext.portb.idr &= 0x7f;
                 pia_ext.portb.cr  &= 0xbf;
@@ -131,7 +131,7 @@ void joystick_Button(int joy, int button, int state)
         if (button)
         {
             /* button B */
-            if (state == TO8_JOYSTICK_FIRE_ON)
+            if (state == TEO_JOYSTICK_FIRE_ON)
             {
                 pia_ext.portb.idr &= 0xfb;
                 pia_ext.porta.cr  &= 0x7f;
@@ -145,7 +145,7 @@ void joystick_Button(int joy, int button, int state)
         else
         {
             /* button A */
-            if (state == TO8_JOYSTICK_FIRE_ON)
+            if (state == TEO_JOYSTICK_FIRE_ON)
             {
                 pia_ext.portb.idr &= 0xbf;
                 pia_ext.porta.cr  &= 0xbf;

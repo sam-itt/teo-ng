@@ -163,7 +163,7 @@ static void update_color(int index)
 {
     static int gamma[16]={0,100,127,147,163,179,191,203,215,223,231,239,243,247,251,255};
 
-    to8_SetColor(index, gamma[ pal_chip.color[index].gr&0xF],
+    teo_SetColor(index, gamma[ pal_chip.color[index].gr&0xF],
                         gamma[(pal_chip.color[index].gr&0xF0)>>4],
                         gamma[ pal_chip.color[index].b&0xF]);
 }
@@ -186,7 +186,7 @@ static void SetDeviceRegister(int addr, int val)
             mc6846_WriteCommand(&mc6846, val);
 
             if ((mc6846.crc&0x30) == 0x30)
-                to8_PutSoundByte(mc6809_clock(), mc6846.crc&8 ? 0x00 : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                teo_PutSoundByte(mc6809_clock(), mc6846.crc&8 ? 0x00 : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7C2:
@@ -296,7 +296,7 @@ static void SetDeviceRegister(int addr, int val)
             mc6821_WriteData(&pia_ext.portb, val);
 
             if (!(mc6846.crc&8))  /* MUTE son inactif */
-                to8_PutSoundByte(mc6809_clock(), (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                teo_PutSoundByte(mc6809_clock(), (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7CE:
@@ -353,7 +353,7 @@ static void SetDeviceRegister(int addr, int val)
                     pal_chip.color[index].b = val;
                     pal_chip.update(index);
                     new_lsb = FALSE;
-                    to8_new_video_params = TRUE;
+                    teo_new_video_params = TRUE;
                 }
             }
             else if (pal_chip.color[index].gr != val)
@@ -373,7 +373,7 @@ static void SetDeviceRegister(int addr, int val)
             if (val != mode_page.lgamod)
             {
                 mode_page.lgamod=val;
-                to8_new_video_params=TRUE;
+                teo_new_video_params=TRUE;
             }
             break;
 
@@ -381,10 +381,10 @@ static void SetDeviceRegister(int addr, int val)
             if (mempager.screen.vram_page != (val>>6)) /* commutation de la VRAM */
             {
                mempager.screen.vram_page=(val>>6);
-               to8_new_video_params=TRUE;
+               teo_new_video_params=TRUE;
             }
-            if ( ((mode_page.system2&0xF) != (val&0xF)) && to8_SetBorderColor)
-                to8_SetBorderColor(mode_page.lgamod, val&0xF);
+            if ( ((mode_page.system2&0xF) != (val&0xF)) && teo_SetBorderColor)
+                teo_SetBorderColor(mode_page.lgamod, val&0xF);
 
             mode_page.system2=val;
             break;
@@ -632,16 +632,16 @@ static int BiosCall(struct MC6809_REGS *regs)
             return 0x10; /* LDY immédiat */
 
         case 0x315A:  /* routine de sélection souris/crayon optique */
-            to8_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TO8_MOUSE: TO8_LIGHTPEN);
+            teo_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TEO_MOUSE: TEO_LIGHTPEN);
             mouse_Reset();
             return 0x8E; /* LDX immédiat */
 
         case 0x357A:  /* page de modification palette: fin */
-            mode_page.lgamod=TO8_COL40;
+            mode_page.lgamod=TEO_COL40;
             return 0x7D; /* TST étendu */
 
         case 0x3686:  /* page de modification palette: début */
-            mode_page.lgamod=TO8_PALETTE;
+            mode_page.lgamod=TEO_PALETTE;
             return 0x86; /* LDA immédiat */
 
         case 0x337E:  /* routine GETL crayon optique   */
@@ -701,7 +701,7 @@ void DrawGPL(int addr)
     pt =mem.ram.bank[mempager.screen.vram_page][addr];
     col=mem.ram.bank[mempager.screen.vram_page][addr+0x2000];
 
-    to8_DrawGPL(mode_page.lgamod, addr, pt, col);
+    teo_DrawGPL(mode_page.lgamod, addr, pt, col);
 }
 
 #endif

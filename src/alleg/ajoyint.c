@@ -53,7 +53,7 @@
 
 
 static int njoy;
-static int old_pos[TO8_NJOYSTICKS];
+static int old_pos[TEO_NJOYSTICKS];
 
 
 /* ------------------------------------------------------------------------- */
@@ -66,7 +66,7 @@ static int old_pos[TO8_NJOYSTICKS];
  */
 void ajoyint_Update(void)
 {
-    int j, pos = TO8_JOYSTICK_CENTER;
+    int j, pos = TEO_JOYSTICK_CENTER;
 
     if (!njoy)
        return;
@@ -78,14 +78,14 @@ void ajoyint_Update(void)
     {
         /* gestion des "arbres" */
         if (joy[j].stick[0].axis[0].d1)
-            pos |= TO8_JOYSTICK_LEFT;
+            pos |= TEO_JOYSTICK_LEFT;
         else if (joy[j].stick[0].axis[0].d2)
-            pos |= TO8_JOYSTICK_RIGHT;
+            pos |= TEO_JOYSTICK_RIGHT;
 
         if (joy[j].stick[0].axis[1].d1)
-            pos |= TO8_JOYSTICK_DOWN;
+            pos |= TEO_JOYSTICK_DOWN;
         else if (joy[j].stick[0].axis[1].d2)
-            pos |= TO8_JOYSTICK_UP;
+            pos |= TEO_JOYSTICK_UP;
 
         if (pos != old_pos[j])
         {
@@ -95,11 +95,11 @@ void ajoyint_Update(void)
 
         /* gestion des boutons */
         joystick_Button(j, 0, joy[j].button[0].b ?
-                               TO8_JOYSTICK_FIRE_ON : TO8_JOYSTICK_FIRE_OFF);
+                               TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF);
 
         if (joy[j].num_buttons>1)
             joystick_Button(j, 1, joy[j].button[1].b ?
-                                   TO8_JOYSTICK_FIRE_ON : TO8_JOYSTICK_FIRE_OFF);
+                                   TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF);
     }
 }
 

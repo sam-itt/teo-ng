@@ -178,7 +178,7 @@ int memo_Load(const char filename[])
     teo.memo.file  = std_free (teo.memo.file);
     teo.memo.file  = std_strdup_printf ("%s", filename);
 
-    return TO8_READ_ONLY;
+    return TEO_READ_ONLY;
 }
 
 

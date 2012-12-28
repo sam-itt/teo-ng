@@ -295,12 +295,12 @@ int dfloppy_Init(int to_drive_type[4], int enable_write)
         }
     }
 
-    to8_DirectReadSector = dfloppy_ReadSector;
+    teo_DirectReadSector = dfloppy_ReadSector;
 
     if (enable_write)
     {
-        to8_DirectWriteSector = dfloppy_WriteSector;
-        to8_DirectFormatTrack = dfloppy_FormatTrack;
+        teo_DirectWriteSector = dfloppy_WriteSector;
+        teo_DirectFormatTrack = dfloppy_FormatTrack;
     }
 
     return num_drives;
@@ -313,9 +313,9 @@ int dfloppy_Init(int to_drive_type[4], int enable_write)
  */
 void dfloppy_Exit(void)
 {
-    to8_DirectReadSector = NULL;
-    to8_DirectWriteSector = NULL;
-    to8_DirectFormatTrack = NULL;
+    teo_DirectReadSector = NULL;
+    teo_DirectWriteSector = NULL;
+    teo_DirectFormatTrack = NULL;
 
     if (dpt_addr)
     {

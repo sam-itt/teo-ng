@@ -557,8 +557,8 @@ void ReadSector(int *cc)
         return;
     }
 
-    if (to8_SetDiskLed)
-        to8_SetDiskLed(TRUE);
+    if (teo_SetDiskLed)
+        teo_SetDiskLed(TRUE);
 
     switch (disk[drive].state)
     {
@@ -573,12 +573,12 @@ void ReadSector(int *cc)
             break;
 
         case DIRECT_ACCESS:
-            if (to8_DirectReadSector)
+            if (teo_DirectReadSector)
             {
                 /* MSDOS: le BIOS a besoin d'un buffer de 512 octets */
                 unsigned char direct_buffer[512];
 
-                err=to8_DirectReadSector(drive, sapsector.track, sapsector.sector, 1, direct_buffer);
+                err=teo_DirectReadSector(drive, sapsector.track, sapsector.sector, 1, direct_buffer);
                 if (err==0)
                     for (i=0;i<SECTSIZE;i++)
                         /* On utilise StoreByte plutôt que STORE_BYTE pour limiter l'accès en mémoire */
@@ -612,8 +612,8 @@ void ReadSector(int *cc)
         *cc|=1;
     }
 
-    if (to8_SetDiskLed)
-        to8_SetDiskLed(FALSE);
+    if (teo_SetDiskLed)
+        teo_SetDiskLed(FALSE);
 }
 
 
@@ -648,15 +648,15 @@ void WriteSector(int *cc)
         return;
     }
 
-    if (disk[drive].mode == TO8_READ_ONLY)
+    if (disk[drive].mode == TEO_READ_ONLY)
     {
         STORE_BYTE(0x604E, 1);
         *cc|=1;
         return;
     }
 
-    if (to8_SetDiskLed)
-        to8_SetDiskLed(TRUE);
+    if (teo_SetDiskLed)
+        teo_SetDiskLed(TRUE);
 
     switch (disk[drive].state)
     {
@@ -671,7 +671,7 @@ void WriteSector(int *cc)
             break;
 
         case DIRECT_ACCESS:
-            if (to8_DirectWriteSector)
+            if (teo_DirectWriteSector)
             {
                 /* MSDOS: le BIOS a besoin d'un buffer de 512 octets */
                 unsigned char direct_buffer[512];
@@ -682,9 +682,9 @@ void WriteSector(int *cc)
                 /* MSDOS: nécessaire pour que le secteur soit lu par un TO8 réel */
                 direct_buffer[SECTSIZE]=0;
 
-                err=to8_DirectWriteSector(drive, sapsector.track, sapsector.sector, 1, direct_buffer);
+                err=teo_DirectWriteSector(drive, sapsector.track, sapsector.sector, 1, direct_buffer);
             }
-            else if (to8_DirectReadSector)
+            else if (teo_DirectReadSector)
                 err=0x01;  /* disque protégé en écriture */
             else
                 err=0x10;
@@ -713,8 +713,8 @@ void WriteSector(int *cc)
         *cc|=1;
     }
 
-    if (to8_SetDiskLed)
-        to8_SetDiskLed(FALSE);
+    if (teo_SetDiskLed)
+        teo_SetDiskLed(FALSE);
 }
 
 
@@ -796,7 +796,7 @@ void FormatDrive(int *cc)
 
     STORE_BYTE(0x6048, LOAD_BYTE(0x6048)&0x80);
 
-    if (disk[drive].mode == TO8_READ_ONLY)
+    if (disk[drive].mode == TEO_READ_ONLY)
     {
         STORE_BYTE(0x604E, 1);
         *cc|=1;
@@ -827,9 +827,9 @@ void FormatDrive(int *cc)
                 break;
 
             case DIRECT_ACCESS:
-                if (to8_DirectFormatTrack)
-                    err=to8_DirectFormatTrack(drive, track, headers_table);
-                else if (to8_DirectReadSector)
+                if (teo_DirectFormatTrack)
+                    err=teo_DirectFormatTrack(drive, track, headers_table);
+                else if (teo_DirectReadSector)
                     err=0x01;  /* disque protégé en écriture */
                 else
                     err=0x10;
@@ -867,7 +867,7 @@ void FormatDrive(int *cc)
 static int CheckFile(const char filename[], int mode)
 {
     if (access (filename, F_OK) == 0)
-        mode = (access (filename, W_OK) == 0) ? mode : TO8_READ_ONLY;
+        mode = (access (filename, W_OK) == 0) ? mode : TEO_READ_ONLY;
     else
         mode = error_Message (TEO_ERROR_FILE_OPEN, filename);
 
@@ -890,7 +890,7 @@ int disk_SetDirect(int drive)
         disk[drive].state = DIRECT_ACCESS;
             
         /* premier accès en lecture seule */
-        disk[drive].mode = TO8_READ_ONLY;
+        disk[drive].mode = TEO_READ_ONLY;
     }
 
     return disk[drive].mode;
@@ -909,7 +909,7 @@ int disk_SetVirtual(int drive)
         disk[drive].state = (teo.disk[drive].file == NULL) ? NO_DISK : NORMAL_ACCESS;
             
         /* premier accès en lecture seule */
-        disk[drive].mode=TO8_READ_WRITE;
+        disk[drive].mode=TEO_READ_WRITE;
     }
 
     return disk[drive].mode;
@@ -1093,8 +1093,8 @@ int disk_SetMode(int drive, int mode)
                 break;
 
             case DIRECT_ACCESS:
-                if ((mode == TO8_READ_WRITE) && !to8_DirectWriteSector)
-                    mode = TO8_READ_ONLY;  
+                if ((mode == TEO_READ_WRITE) && !teo_DirectWriteSector)
+                    mode = TEO_READ_ONLY;  
                   ret = disk[drive].mode = mode;
                 break;
 
@@ -1119,41 +1119,41 @@ void disk_Init(void)
     int drive;
         
     /* trap reset du contrôleur disk -> ResetDiskCtrl() */
-    mem.mon.bank[0][0x00FE]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x00FE]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x00FF]=0x39;
 
     /* trap écriture d'un secteur -> WriteSector() */
-    mem.mon.bank[0][0x0187]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x0187]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x0188]=0x39;
     /* E177 conduit toujours à ce trap */
     mem.mon.bank[0][0x0180]=0x20; /* BRA */
 
     /* trap lecture d'un secteur -> ReadSector() */
-    mem.mon.bank[0][0x03A7]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x03A7]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x03A8]=0x39;
 
     /* trap formatage lecteur -> FormatDrive() + BRA >E515 */
-    mem.mon.bank[0][0x04C8]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x04C8]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x04C9]=0x20;
     mem.mon.bank[0][0x04CA]=0x4A;
 
     /* trap recherche piste 0 -> DiskNop() */
-    mem.mon.bank[0][0x0134]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x0134]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x0135]=0x39;
 
     /* trap attente ready -> DiskNop() */
-    mem.mon.bank[0][0x045A]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x045A]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x045B]=0x39;
 
     /* trap recherche piste effective -> DiskNop() */
     /* E452 conduit toujours à ce trap */
-    mem.mon.bank[0][0x047A]=TO8_TRAP_CODE;
+    mem.mon.bank[0][0x047A]=TEO_TRAP_CODE;
     mem.mon.bank[0][0x047B]=0x39;
 
     for (drive=0; drive<NBDRIVE; drive++)
     {
         disk[drive].state=NO_DISK;
-        disk[drive].mode=TO8_READ_WRITE;
+        disk[drive].mode=TEO_READ_WRITE;
     }
 }
 

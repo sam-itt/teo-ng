@@ -94,13 +94,11 @@ static unsigned char key_altgr_code[TEO_KEY_MAX]={
     du clavier TO8 sont en Altgr+touche sur le PC (#, @, ...) */
 
 static unsigned char key_lpd_code[26][2]={
-    {44, TO8_JOYSTICK_LEFT},
+    {44, TEO_JOYSTICK_LEFT},
     {0, 0},
-    {32, TO8_JOYSTICK_RIGHT|TO8_JOYSTICK_UP},
-    {28, TO8_JOYSTICK_RIGHT},
-    {27, TO8_JOYSTICK_RIGHT|TO8_JOYSTICK_DOWN},
-    {0, 0},
-    {0, 0},
+    {32, TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_UP},
+    {28, TEO_JOYSTICK_RIGHT},
+    {27, TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_DOWN},
     {0, 0},
     {0, 0},
     {0, 0},
@@ -110,30 +108,32 @@ static unsigned char key_lpd_code[26][2]={
     {0, 0},
     {0, 0},
     {0, 0},
-    {43, TO8_JOYSTICK_LEFT|TO8_JOYSTICK_DOWN},
-    {0, 0},
-    {36, TO8_JOYSTICK_CENTER},
     {0, 0},
     {0, 0},
+    {43, TEO_JOYSTICK_LEFT|TEO_JOYSTICK_DOWN},
     {0, 0},
-    {35, TO8_JOYSTICK_DOWN},
-    {40, TO8_JOYSTICK_UP},
+    {36, TEO_JOYSTICK_CENTER},
     {0, 0},
-    {48, TO8_JOYSTICK_LEFT|TO8_JOYSTICK_UP}
+    {0, 0},
+    {0, 0},
+    {35, TEO_JOYSTICK_DOWN},
+    {40, TEO_JOYSTICK_UP},
+    {0, 0},
+    {48, TEO_JOYSTICK_LEFT|TEO_JOYSTICK_UP}
 };
  /* key_lpd_code[] convertit le scancode d'une touche du bloc clavier gauche
     du PC en sa valeur clavier TO8 ou en sa valeur manette TO8 */
 
 static unsigned char key_pad_code[9][2]={
-    {22, TO8_JOYSTICK_LEFT|TO8_JOYSTICK_UP},
-    {38, TO8_JOYSTICK_UP},
-    {79, TO8_JOYSTICK_RIGHT|TO8_JOYSTICK_UP},
-    {30, TO8_JOYSTICK_LEFT},
-    {46, TO8_JOYSTICK_CENTER},
-    {47, TO8_JOYSTICK_RIGHT},
-    {29, TO8_JOYSTICK_LEFT|TO8_JOYSTICK_DOWN},
-    {37, TO8_JOYSTICK_DOWN},
-    {54, TO8_JOYSTICK_RIGHT|TO8_JOYSTICK_DOWN}
+    {22, TEO_JOYSTICK_LEFT|TEO_JOYSTICK_UP},
+    {38, TEO_JOYSTICK_UP},
+    {79, TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_UP},
+    {30, TEO_JOYSTICK_LEFT},
+    {46, TEO_JOYSTICK_CENTER},
+    {47, TEO_JOYSTICK_RIGHT},
+    {29, TEO_JOYSTICK_LEFT|TEO_JOYSTICK_DOWN},
+    {37, TEO_JOYSTICK_DOWN},
+    {54, TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_DOWN}
 };
  /* key_pad_code[] convertit le scancode d'une touche du clavier numérique PC
     en sa valeur clavier TO8 ou en sa valeur manette TO8 */
@@ -150,23 +150,23 @@ enum {
  */
 static void DoRequest(int req)
 {
-    if (to8_SetKeyboardLed)
+    if (teo_SetKeyboardLed)
         switch (req)
         {
             case KB_INIT:
             case KB_MAJ:
-                kb_state |= TO8_CAPSLOCK_FLAG;
-                to8_SetKeyboardLed(kb_state);
+                kb_state |= TEO_CAPSLOCK_FLAG;
+                teo_SetKeyboardLed(kb_state);
             break;
 
             case KB_MIN:
-                kb_state &= ~TO8_CAPSLOCK_FLAG;
-                to8_SetKeyboardLed(kb_state);
+                kb_state &= ~TEO_CAPSLOCK_FLAG;
+                teo_SetKeyboardLed(kb_state);
             break;
         }
     else  /* on re-synchronise */
     {
-        if (kb_state&TO8_CAPSLOCK_FLAG)
+        if (kb_state&TEO_CAPSLOCK_FLAG)
             mc6846.prc &= 0xF7;
         else
             mc6846.prc |= 8;
@@ -213,7 +213,7 @@ void keyboard_SetACK(int state)
         if (!(mc6846.crc&0x80))  /* CP1 à 0? */
         {
             mem.mon.bank[1][0x10F8] = kb_data;
-            mem.mon.bank[1][0x1125] = (kb_state&TO8_CTRL_FLAG ? 1 : 0);
+            mem.mon.bank[1][0x1125] = (kb_state&TEO_CTRL_FLAG ? 1 : 0);
         }
         else
             mc6846_SetCP1(&mc6846, 0);
@@ -236,17 +236,17 @@ void keyboard_Reset(int mask, int value)
     kb_data=0;                  /* donnée clavier à 0 */
 
     /* modification optionnelle des flags */
-    for (i=0; i<TO8_MAX_FLAG; i++)
+    for (i=0; i<TEO_MAX_FLAG; i++)
         if (mask & (1<<i))
             kb_state = (kb_state & ~(1<<i)) | (value & (1<<i));
 
-    if (kb_state & TO8_CAPSLOCK_FLAG)
+    if (kb_state & TEO_CAPSLOCK_FLAG)
         mc6846.prc &= 0xF7;
     else
         mc6846.prc |= 8;
 
-    j0_dir[0] = j0_dir[1] = TO8_JOYSTICK_CENTER;
-    j1_dir[0] = j1_dir[1] = TO8_JOYSTICK_CENTER;
+    j0_dir[0] = j0_dir[1] = TEO_JOYSTICK_CENTER;
+    j1_dir[0] = j1_dir[1] = TEO_JOYSTICK_CENTER;
 }
 
 
@@ -264,30 +264,30 @@ void keyboard_Press(int key, int release)
     {
         case TEO_KEY_LCONTROL:  /* le contrôle gauche émule la touche CNT
                                 et le bouton joystick 1 (NUMLOCK éteint) */
-            if ((njoy>1) && !(kb_state&TO8_NUMLOCK_FLAG))
-                joystick_Button(njoy-1, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
+            if ((njoy>1) && !(kb_state&TEO_NUMLOCK_FLAG))
+                joystick_Button(njoy-1, 0, release ? TEO_JOYSTICK_FIRE_OFF : TEO_JOYSTICK_FIRE_ON);
 
-            kb_state=(release ? kb_state&~TO8_CTRL_FLAG : kb_state|TO8_CTRL_FLAG);
+            kb_state=(release ? kb_state&~TEO_CTRL_FLAG : kb_state|TEO_CTRL_FLAG);
             break;
 
         case TEO_KEY_RCONTROL:  /* le contrôle droit émule le bouton joystick 0 ou 1
                                 en mode manette (NUMLOCK éteint) */
-            if ((njoy>0) && !(kb_state&TO8_NUMLOCK_FLAG))
-                joystick_Button(TO8_NJOYSTICKS-njoy, 0, release ? TO8_JOYSTICK_FIRE_OFF : TO8_JOYSTICK_FIRE_ON);
+            if ((njoy>0) && !(kb_state&TEO_NUMLOCK_FLAG))
+                joystick_Button(TEO_NJOYSTICKS-njoy, 0, release ? TEO_JOYSTICK_FIRE_OFF : TEO_JOYSTICK_FIRE_ON);
 
             break;
 
         case TEO_KEY_ALTGR:
-            kb_state=(release ? kb_state&~TO8_ALTGR_FLAG : kb_state|TO8_ALTGR_FLAG);
+            kb_state=(release ? kb_state&~TEO_ALTGR_FLAG : kb_state|TEO_ALTGR_FLAG);
             break;
 
         case TEO_KEY_NUMLOCK:
             if (!release)
             {
-                kb_state^=TO8_NUMLOCK_FLAG;
+                kb_state^=TEO_NUMLOCK_FLAG;
 
-                if (to8_SetKeyboardLed)
-                    to8_SetKeyboardLed(kb_state);
+                if (teo_SetKeyboardLed)
+                    teo_SetKeyboardLed(kb_state);
 
                 if (njoy)
                     joystick_Reset();
@@ -296,28 +296,28 @@ void keyboard_Press(int key, int release)
 
         case TEO_KEY_LSHIFT:
         case TEO_KEY_RSHIFT:
-#ifdef TO8_DOUBLE_CAPSLOCK
+#ifdef TEO_DOUBLE_CAPSLOCK
         case TEO_KEY_CAPSLOCK:
-            if ( ((key == TEO_KEY_CAPSLOCK) && !(kb_state&TO8_CAPSLOCK_FLAG)) ||
-                 (((key == TEO_KEY_LSHIFT) || (key == TEO_KEY_RSHIFT)) && (kb_state&TO8_CAPSLOCK_FLAG)) )
+            if ( ((key == TEO_KEY_CAPSLOCK) && !(kb_state&TEO_CAPSLOCK_FLAG)) ||
+                 (((key == TEO_KEY_LSHIFT) || (key == TEO_KEY_RSHIFT)) && (kb_state&TEO_CAPSLOCK_FLAG)) )
                 key = TEO_KEY_CAPSLOCK;
             else
             {
-                kb_state=(release ? kb_state&~TO8_SHIFT_FLAG : kb_state|TO8_SHIFT_FLAG);
+                kb_state=(release ? kb_state&~TEO_SHIFT_FLAG : kb_state|TEO_SHIFT_FLAG);
                 break;
             }
 #else
-            kb_state=(release ? kb_state&~TO8_SHIFT_FLAG : kb_state|TO8_SHIFT_FLAG);
+            kb_state=(release ? kb_state&~TEO_SHIFT_FLAG : kb_state|TEO_SHIFT_FLAG);
             break;
 
         case TEO_KEY_CAPSLOCK:
 #endif
             if (!release)
             {
-                kb_state^=TO8_CAPSLOCK_FLAG;
+                kb_state^=TEO_CAPSLOCK_FLAG;
 
-                if (to8_SetKeyboardLed)
-                    to8_SetKeyboardLed(kb_state);
+                if (teo_SetKeyboardLed)
+                    teo_SetKeyboardLed(kb_state);
             }
 	    /* pas de break, la gestion du CapsLock est assurée par la
                routine logicielle du moniteur */
@@ -327,7 +327,7 @@ void keyboard_Press(int key, int release)
 
             if (code==253)  /* touche du bloc gauche */
             {
-                if ((njoy>1) && !(kb_state&TO8_NUMLOCK_FLAG))
+                if ((njoy>1) && !(kb_state&TEO_NUMLOCK_FLAG))
 		{
 		    code=key_lpd_code[key-TEO_KEY_A][1];
 
@@ -336,10 +336,10 @@ void keyboard_Press(int key, int release)
                         if (code == j1_dir[0])
                         {
                             j1_dir[0]=j1_dir[1];
-                            j1_dir[1]=TO8_JOYSTICK_CENTER;
+                            j1_dir[1]=TEO_JOYSTICK_CENTER;
                         }
                         else if (code == j1_dir[1])
-                            j1_dir[1]=TO8_JOYSTICK_CENTER;
+                            j1_dir[1]=TEO_JOYSTICK_CENTER;
                     }
                     else if (code != j1_dir[0])
                     {
@@ -355,7 +355,7 @@ void keyboard_Press(int key, int release)
             }
             else if (code==254)  /* touche du pave numérique */
             {
-                if (kb_state&TO8_NUMLOCK_FLAG)
+                if (kb_state&TEO_NUMLOCK_FLAG)
                     code=key_pad_code[key-TEO_KEY_1_PAD][0];
                 else if (njoy>0) /* mode manette */
                 {
@@ -366,10 +366,10 @@ void keyboard_Press(int key, int release)
                         if (code == j0_dir[0])
                         {
                             j0_dir[0]=j0_dir[1];
-                            j0_dir[1]=TO8_JOYSTICK_CENTER;
+                            j0_dir[1]=TEO_JOYSTICK_CENTER;
                         }
                         else if (code == j0_dir[1])
-                            j0_dir[1]=TO8_JOYSTICK_CENTER;
+                            j0_dir[1]=TEO_JOYSTICK_CENTER;
                     }
                     else if (code != j0_dir[0])
                     {
@@ -377,11 +377,11 @@ void keyboard_Press(int key, int release)
                         j0_dir[0]=code;
                     }
 
-                    joystick_Move(TO8_NJOYSTICKS-njoy, j0_dir[0]);
+                    joystick_Move(TEO_NJOYSTICKS-njoy, j0_dir[0]);
                     break; /* fin du traitement pour le pavé numérique en mode manette */
                 }
             }
-            else if ((kb_state&TO8_ALTGR_FLAG) && key_altgr_code[key])
+            else if ((kb_state&TEO_ALTGR_FLAG) && key_altgr_code[key])
                      code=key_altgr_code[key];
              /* on remplace le code donné par key_code[] par celui donné par
                 key_altgr_code[] si ce dernier est non nul et si AltGr est pressée */
@@ -389,10 +389,10 @@ void keyboard_Press(int key, int release)
             if (code--)  /* touche mappée */
             {
                 /* deux cas où le bit 7 est mis à 1 */
-                if (kb_state&TO8_SHIFT_FLAG)
+                if (kb_state&TEO_SHIFT_FLAG)
                     code^=0x80;
 
-                if ((code==64) && (kb_state&TO8_CAPSLOCK_FLAG))
+                if ((code==64) && (kb_state&TEO_CAPSLOCK_FLAG))
                     code|=0x80;
 
                 if (release)  /* touche relâchée */
@@ -431,7 +431,7 @@ int keyboard_Init(int num_joy)
     unsigned char val[NMODS]={0x7E,0xF0,0xE5,0x86,0x86,0x26,0x2A,0x2D,0x21,0x5F};
     int i;
 
-    if ((num_joy<0) || (num_joy>TO8_NJOYSTICKS))
+    if ((num_joy<0) || (num_joy>TEO_NJOYSTICKS))
        return error_Message(TEO_ERROR_JOYSTICK_NUM, NULL);
 
     njoy = num_joy;

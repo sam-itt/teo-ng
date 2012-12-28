@@ -35,8 +35,8 @@
 /*
  *  Module     : linux/ugui/uabout.c
  *  Version    : 1.8.2
- *  Créé par   : François Mouret 21/03/2012 22/09/2012
- *  Modifié par: 
+ *  Créé par   : François Mouret 21/03/2012
+ *  Modifié par: François Mouret 22/09/2012
  *
  *  Fenêtre "A propos"
  */
@@ -65,7 +65,7 @@ void uabout_Dialog (GtkButton *button, gpointer user_data)
 
     gtk_show_about_dialog (GTK_WINDOW(wControl),
                            "program-name", "Teo",
-                           "version", TO8_VERSION_STR,
+                           "version", TEO_VERSION_STR,
                            "copyright", "Copyright Â© 1997-2012",
                            "comments", "Linux/X11",
                            "website", "http://sourceforge.net/projects/teoemulator/",

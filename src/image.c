@@ -417,8 +417,8 @@ static void modepage_Loader(int chunk_id, int chunk_size, FILE *file)
     fread_int8(&mode_page.lp4, file);
     FILL_GAP(12, chunk_size);
 
-    if (to8_SetBorderColor)
-        to8_SetBorderColor(mode_page.lgamod, mode_page.system2&0xF);
+    if (teo_SetBorderColor)
+        teo_SetBorderColor(mode_page.lgamod, mode_page.system2&0xF);
 
     (void) chunk_id;
 }
@@ -796,7 +796,7 @@ int image_Load(const char filename[])
 
     fclose(file);
 
-    to8_new_video_params = TRUE;
+    teo_new_video_params = TRUE;
 
     return 0;
 }

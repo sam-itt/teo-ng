@@ -77,11 +77,11 @@ static int DoLoadCass(const char filename[], int mode)
 {
    FILE *new_cass;
 
-   if (mode == TO8_READ_WRITE) {
+   if (mode == TEO_READ_WRITE) {
       if ((new_cass=fopen(filename, "rb+")) != NULL)
 	 goto Success;
       else
-	 mode = TO8_READ_ONLY;
+	 mode = TEO_READ_ONLY;
    }
 
    if ((new_cass=fopen(filename, "rb")) != NULL)
@@ -134,7 +134,7 @@ void cass_Event (int *br, int *cc)
 	 break;
 
       case 4:
-	 if (cass && (cass_mode == TO8_READ_WRITE)) {
+	 if (cass && (cass_mode == TEO_READ_WRITE)) {
 	    if (LOAD_BYTE(0x602A) != 4) {
 	       int i;
 
@@ -160,7 +160,7 @@ void cass_Event (int *br, int *cc)
 	 break;
 
       case 8:
-	 if ((cass) && (cass_mode == TO8_READ_WRITE)) {
+	 if ((cass) && (cass_mode == TEO_READ_WRITE)) {
 	    if (current_op == READ) {
 	       fflush(cass); /* pour se conformer à l'ANSI C */
 	       current_op = WRITE;
@@ -192,11 +192,11 @@ void cass_Event (int *br, int *cc)
 void cass_Init(void)
 {
     /* Appel routine de gestion Cass. */
-    mem.mon.bank[0][0x1A59] = TO8_TRAP_CODE;
+    mem.mon.bank[0][0x1A59] = TEO_TRAP_CODE;
     mem.mon.bank[0][0x1A5A] = 0x39;
 
     cass = NULL;
-    cass_mode = TO8_READ_ONLY;
+    cass_mode = TEO_READ_ONLY;
     cass_counter = -1;
     current_op = READ;
 }
@@ -228,7 +228,7 @@ void cass_Eject(void)
 
 /* cass_Load:
  *  Charge une cassette dans le lecteur et retourne le mode d'ouverture.
- *  Retourne TO8_ERROR en cas d'échec et préserve la cassette précédemment
+ *  Retourne TEO_ERROR en cas d'échec et préserve la cassette précédemment
  *  chargée.
  */
 int cass_Load(const char filename[])
@@ -265,7 +265,7 @@ void cass_FirstLoad (void)
 
 /* cass_SetMode:
  *  Fixe le mode d'accès à la cassette. Retourne le mode en cas de succès
- *  ou TO8_ERROR en case d'échec.
+ *  ou TEO_ERROR en case d'échec.
  */
 int cass_SetMode(int mode)
 {

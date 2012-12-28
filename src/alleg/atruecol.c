@@ -68,23 +68,23 @@ struct SCREEN_PARAMS
     int border_ch;
 };
 
-static const struct SCREEN_PARAMS tcol1={ TO8_WINDOW_W*2,
-                                          TO8_WINDOW_H*2,
+static const struct SCREEN_PARAMS tcol1={ TEO_WINDOW_W*2,
+                                          TEO_WINDOW_H*2,
                                           0,
                                           0, 
-                                          TO8_WINDOW_CW,
-                                          TO8_WINDOW_CH,
+                                          TEO_WINDOW_CW,
+                                          TEO_WINDOW_CH,
                                           0,
                                           0 },  /* sans pourtour */
 
-                                  tcol2={ TO8_SCREEN_W*2,
-                                          TO8_SCREEN_H*2,
-                                          TO8_BORDER_W*2,
-                                          TO8_BORDER_H*2,
-                                          TO8_SCREEN_CW,
-                                          TO8_SCREEN_CH,
-                                          TO8_BORDER_CW,
-                                          TO8_BORDER_CH };  /* avec pourtour */
+                                  tcol2={ TEO_SCREEN_W*2,
+                                          TEO_SCREEN_H*2,
+                                          TEO_BORDER_W*2,
+                                          TEO_BORDER_H*2,
+                                          TEO_SCREEN_CW,
+                                          TEO_SCREEN_CH,
+                                          TEO_BORDER_CW,
+                                          TEO_BORDER_CH };  /* avec pourtour */
 
 /* variables globales */
 static int allegro_driver;
@@ -93,7 +93,7 @@ static const struct SCREEN_PARAMS *tcol;
 static int *dirty_cell;
 static int border_color;
 static BITMAP *gpl_buffer, *screen_buffer;
-static int palette[TO8_NCOLORS+1];
+static int palette[TEO_NCOLORS+1];
 static int pixel_size;
 
 
@@ -121,16 +121,16 @@ static void tcol_SetBorderColor(int mode, int color)
              int *dirty_cell_row = dirty_cell;
 
     /* on dessine dans le screen buffer */
-    if (mode == TO8_PALETTE)
+    if (mode == TEO_PALETTE)
     {
-        border_color = TO8_NCOLORS;  /* couleur fixe de l'écran de la palette */
+        border_color = TEO_NCOLORS;  /* couleur fixe de l'écran de la palette */
         RECTF(tcol2.border_w, 0, tcol2.screen_w-tcol2.border_w-1, tcol2.border_h-1);
-        RECTF(0, 0, tcol2.border_w-1, tcol2.border_h+(TO8_PALETTE_ADDR/TO8_WINDOW_GW)*2-1);
-        RECTF(tcol2.screen_w-tcol2.border_w, 0, tcol2.screen_w-1, tcol2.border_h+(TO8_PALETTE_ADDR/TO8_WINDOW_GW)*2-1);
+        RECTF(0, 0, tcol2.border_w-1, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2-1);
+        RECTF(tcol2.screen_w-tcol2.border_w, 0, tcol2.screen_w-1, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2-1);
 
         border_color = color;
-        RECTF(0, tcol2.border_h+(TO8_PALETTE_ADDR/TO8_WINDOW_GW)*2, tcol2.border_w-1, tcol2.screen_h-1);
-        RECTF(tcol2.screen_w-tcol2.border_w, tcol2.border_h+(TO8_PALETTE_ADDR/TO8_WINDOW_GW)*2, tcol2.screen_w-1, tcol2.screen_h-1);
+        RECTF(0, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2, tcol2.border_w-1, tcol2.screen_h-1);
+        RECTF(tcol2.screen_w-tcol2.border_w, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2, tcol2.screen_w-1, tcol2.screen_h-1);
         RECTF(tcol2.border_w, tcol2.screen_h-tcol2.border_h, tcol2.screen_w-tcol2.border_w-1, tcol2.screen_h-1);
     }
     else 
@@ -172,7 +172,7 @@ static void tcol_SetBorderColor(int mode, int color)
  */
 static inline int gpl_need_update(const unsigned char *gpl1, const unsigned char *gpl2)
 {
-    register int i = TO8_GPL_SIZE*2*pixel_size;
+    register int i = TEO_GPL_SIZE*2*pixel_size;
 
     while (i--)
         if (*gpl1++ != *gpl2++)
@@ -195,7 +195,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
 
     switch (mode)
     {
-        case TO8_BITMAP4: /* mode bitmap 4 couleurs */
+        case TEO_BITMAP4: /* mode bitmap 4 couleurs */
             pt<<=1;
 
             for (i=0; i<8; i++)
@@ -205,7 +205,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             break;
 
-        case TO8_PAGE1: /* mode commutation page 1 */
+        case TEO_PAGE1: /* mode commutation page 1 */
             for (i=0; i<8; i++)
             {
                 c1 = palette[(0x80>>i)&pt ? 1 : 0];
@@ -213,7 +213,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             break;
 
-        case TO8_PAGE2: /* mode commutation page 2 */
+        case TEO_PAGE2: /* mode commutation page 2 */
             for (i=0; i<8; i++)
             {
                 c1 = palette[(0x80>>i)&pt ? 2 : 0];
@@ -221,7 +221,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             break;
 
-        case TO8_STACK2: /* mode superposition 2 pages */
+        case TEO_STACK2: /* mode superposition 2 pages */
             for (i=0; i<8; i++)
             {
                 c1= palette[(0x80>>i)&pt ? 1 : ((0x80>>i)&col ? 2 : 0)];
@@ -229,7 +229,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             break;
 
-        case TO8_COL80: /* mode 80 colonnes */
+        case TEO_COL80: /* mode 80 colonnes */
             for (i=0; i<8; i++)
             {
                 putpixel(gpl_buffer, i,   0, palette[(0x80>>i)&pt  ? 1 : 0]);
@@ -237,7 +237,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }   
             break;
 
-        case TO8_STACK4: /* mode superposition 4 pages */
+        case TEO_STACK4: /* mode superposition 4 pages */
             /* on modifie les pixels 4 par 4 */
             for (i=0; i<4; i++)
             {
@@ -249,7 +249,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             break;
 
-        case TO8_BITMAP4b: /* mode bitmap 4 non documenté */
+        case TEO_BITMAP4b: /* mode bitmap 4 non documenté */
             for (i=0; i<4; i++)
             {
                 c1 = palette[((pt>>(6-(i<<1)))&3)];
@@ -260,7 +260,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             break;
 
-        case TO8_BITMAP16: /* mode bitmap 16 couleurs */
+        case TEO_BITMAP16: /* mode bitmap 16 couleurs */
             /* on modifie les pixels 4 par 4 */
             c1 = palette[(pt&0xF0)>>4];
             PUT4PIXEL(0, c1);
@@ -275,18 +275,18 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             PUT4PIXEL(3, c1);
             break;
 
-        case TO8_PALETTE: /* mode écran de la palette */
-            if (addr<TO8_PALETTE_ADDR)
+        case TEO_PALETTE: /* mode écran de la palette */
+            if (addr<TEO_PALETTE_ADDR)
             {
                 if ((col&0x78)==0x30)
                 {
-                    c1=makecol(TO8_PALETTE_COL1>>16, (TO8_PALETTE_COL1>>8)&0xFF, TO8_PALETTE_COL1&0xFF);
-                    c2=makecol(TO8_PALETTE_COL2>>16, (TO8_PALETTE_COL2>>8)&0xFF, TO8_PALETTE_COL2&0xFF);
+                    c1=makecol(TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
+                    c2=makecol(TEO_PALETTE_COL2>>16, (TEO_PALETTE_COL2>>8)&0xFF, TEO_PALETTE_COL2&0xFF);
                 }
                 else
                 {
-                    c2=makecol(TO8_PALETTE_COL1>>16, (TO8_PALETTE_COL1>>8)&0xFF, TO8_PALETTE_COL1&0xFF);
-                    c1=makecol(TO8_PALETTE_COL2>>16, (TO8_PALETTE_COL2>>8)&0xFF, TO8_PALETTE_COL2&0xFF);
+                    c2=makecol(TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
+                    c1=makecol(TEO_PALETTE_COL2>>16, (TEO_PALETTE_COL2>>8)&0xFF, TEO_PALETTE_COL2&0xFF);
                 }
 
                 for (i=0; i<8; i++)
@@ -298,7 +298,7 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
             /* no break */
 
-        case TO8_COL40: /* mode 40 colonnes 16 couleurs */
+        case TEO_COL40: /* mode 40 colonnes 16 couleurs */
         default:
             c1 = palette[((col>>3)&7)+(((~col)&0x40)>>3)];
             c2 = palette[(col&7)+(((~col)&0x80)>>4)];
@@ -310,8 +310,8 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
             }
     } /* end of switch */
 
-    x = tcol->border_w + (addr%TO8_WINDOW_GW)*TO8_GPL_SIZE*2;
-    y = tcol->border_h + (addr/TO8_WINDOW_GW)*2;
+    x = tcol->border_w + (addr%TEO_WINDOW_GW)*TEO_GPL_SIZE*2;
+    y = tcol->border_h + (addr/TEO_WINDOW_GW)*2;
 
     gpl_src  = gpl_buffer->line[0];
     gpl_dest = screen_buffer->line[y]+x*pixel_size;
@@ -319,13 +319,13 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
     if (gpl_need_update(gpl_src, gpl_dest))
     {
         /* duplication des pixels */
-        memcpy(gpl_dest, gpl_src, TO8_GPL_SIZE*2*pixel_size);
+        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE*2*pixel_size);
         gpl_dest = screen_buffer->line[y+1]+x*pixel_size;
-        memcpy(gpl_dest, gpl_src, TO8_GPL_SIZE*2*pixel_size);
+        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE*2*pixel_size);
 
         /* dirty rectangles */
-        x = tcol->border_cw + (addr%TO8_WINDOW_CW);
-        y = tcol->border_ch + addr/(TO8_WINDOW_CW*TO8_CHAR_SIZE);
+        x = tcol->border_cw + (addr%TEO_WINDOW_CW);
+        y = tcol->border_ch + addr/(TEO_WINDOW_CW*TEO_CHAR_SIZE);
         dirty_cell_row = dirty_cell + y*tcol->screen_cw;
         dirty_cell_row[x] = TRUE;
     }
@@ -339,9 +339,9 @@ static void tcol_DrawGPL(int mode, int addr, int pt, int col)
  */
 static void tcol_DrawBorderLine(int col, int line)
 {
-    int *dirty_cell_row = dirty_cell + (line/TO8_CHAR_SIZE)*tcol2.screen_cw;
+    int *dirty_cell_row = dirty_cell + (line/TEO_CHAR_SIZE)*tcol2.screen_cw;
 
-    if (col&TO8_LEFT_BORDER)
+    if (col&TEO_LEFT_BORDER)
     {
         if (getpixel(screen_buffer, 0, line*2) != palette[border_color])
         {
@@ -351,7 +351,7 @@ static void tcol_DrawBorderLine(int col, int line)
             dirty_cell_row[1] = TRUE;
         }
     } 
-    else if (col&TO8_RIGHT_BORDER)
+    else if (col&TEO_RIGHT_BORDER)
     {
         if (getpixel(screen_buffer, tcol2.screen_w-1, line*2) != palette[border_color])
         {
@@ -361,9 +361,9 @@ static void tcol_DrawBorderLine(int col, int line)
             dirty_cell_row[tcol2.screen_cw-tcol2.border_cw+1] = TRUE;
         } 
     }
-    else if (getpixel(screen_buffer, tcol2.border_w+col*TO8_GPL_SIZE*2, line*2) != palette[border_color])
+    else if (getpixel(screen_buffer, tcol2.border_w+col*TEO_GPL_SIZE*2, line*2) != palette[border_color])
     {
-        RECTF(tcol2.border_w+col*TO8_GPL_SIZE*2, line*2, tcol2.border_w+(col+1)*TO8_GPL_SIZE*2-1, line*2+1);
+        RECTF(tcol2.border_w+col*TEO_GPL_SIZE*2, line*2, tcol2.border_w+(col+1)*TEO_GPL_SIZE*2-1, line*2+1);
         
         dirty_cell_row[tcol2.border_cw+col] = TRUE;
     }
@@ -416,8 +416,8 @@ static void tcol_RefreshScreen(void)
                     while ((i<tcol->screen_cw) && dirty_cell_row[i])
                         dirty_cell_row[i++]=FALSE;
 
-                    tcol_RetraceScreen(cell_start*TO8_CHAR_SIZE*2, j*TO8_CHAR_SIZE*2,
-                                         (i-cell_start)*TO8_CHAR_SIZE*2, TO8_CHAR_SIZE*2);
+                    tcol_RetraceScreen(cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2,
+                                         (i-cell_start)*TEO_CHAR_SIZE*2, TEO_CHAR_SIZE*2);
                 }
 
             /* ligne suivante */
@@ -507,11 +507,11 @@ static int tcol_InitGraphic(int depth, int _allegro_driver, int border_support)
     if (!tcol_SetGraphicMode(INIT))
        return FALSE;
 
-    gpl_buffer = create_bitmap(TO8_GPL_SIZE*2, 1);
+    gpl_buffer = create_bitmap(TEO_GPL_SIZE*2, 1);
     screen_buffer = create_bitmap(tcol->screen_w, tcol->screen_h);
     clear_bitmap(screen_buffer);
     dirty_cell = calloc(tcol->screen_cw*tcol->screen_ch, sizeof(int));
-    palette[TO8_NCOLORS] = makecol(TO8_PALETTE_COL1>>16, (TO8_PALETTE_COL1>>8)&0xFF, TO8_PALETTE_COL1&0xFF);
+    palette[TEO_NCOLORS] = makecol(TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
 
     pixel_size = (depth+1)/8;
 

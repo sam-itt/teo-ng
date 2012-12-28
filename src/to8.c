@@ -71,25 +71,25 @@
 int is_fr=0;
 
 /* fonctions importables requises */
-void (*to8_SetColor)(int, int, int, int);
-void (*to8_DrawGPL)(int, int, int, int);
-void (*to8_PutSoundByte)(unsigned long long int, unsigned char);
-void (*to8_SetPointer)(int);
+void (*teo_SetColor)(int, int, int, int);
+void (*teo_DrawGPL)(int, int, int, int);
+void (*teo_PutSoundByte)(unsigned long long int, unsigned char);
+void (*teo_SetPointer)(int);
 
 /* fonctions importables optionnelles */
-void (*to8_SetBorderColor)(int, int)=NULL;
-void (*to8_DrawBorderLine)(int, int)=NULL;
-void (*to8_SetKeyboardLed)(int)=NULL;
-void (*to8_SetDiskLed)(int)=NULL;
-int  (*to8_DirectReadSector)(int, int, int, int, unsigned char [])=NULL;
-int  (*to8_DirectWriteSector)(int, int, int, int, const unsigned char [])=NULL;
-int  (*to8_DirectFormatTrack)(int, int, const unsigned char [])=NULL;
+void (*teo_SetBorderColor)(int, int)=NULL;
+void (*teo_DrawBorderLine)(int, int)=NULL;
+void (*teo_SetKeyboardLed)(int)=NULL;
+void (*teo_SetDiskLed)(int)=NULL;
+int  (*teo_DirectReadSector)(int, int, int, int, unsigned char [])=NULL;
+int  (*teo_DirectWriteSector)(int, int, int, int, const unsigned char [])=NULL;
+int  (*teo_DirectFormatTrack)(int, int, const unsigned char [])=NULL;
 
 /* variables publiques */
-int to8_new_video_params;
+int teo_new_video_params;
 
 /* variables privées */
-static int to8_alive = 0;
+static int teo_alive = 0;
 
 
 
@@ -145,12 +145,12 @@ static int InitMemory(void)
             return TEO_ERROR;
 
     /* modification de la page d'affichage de la date */
-    mem.rom.bank[3][0x25D3]=TO8_TRAP_CODE;
+    mem.rom.bank[3][0x25D3]=TEO_TRAP_CODE;
     mem.rom.bank[3][0x2619]=0x21;
 
     /* modification de la page de réglage de la palette de couleurs */
-    mem.rom.bank[3][0x3579]=TO8_TRAP_CODE;
-    mem.rom.bank[3][0x3685]=TO8_TRAP_CODE;
+    mem.rom.bank[3][0x3579]=TEO_TRAP_CODE;
+    mem.rom.bank[3][0x3685]=TEO_TRAP_CODE;
     mem.rom.bank[3][0x38EB]=0x7E;
     mem.rom.bank[3][0x38EC]=0x39;
     mem.rom.bank[3][0x38ED]=0x10;
@@ -242,12 +242,12 @@ static void DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
     for (i=0; i<nlines; i++)
     {
         /* bordure gauche de la ligne */
-        if (to8_DrawBorderLine) 
+        if (teo_DrawBorderLine) 
         {
             *exact_clock+=LEFT_SHADOW_CYCLES;
             mc6809_TimeExec(*exact_clock);
 
-            to8_DrawBorderLine(TO8_LEFT_BORDER, TOP_BORDER_LINES+i);
+            teo_DrawBorderLine(TEO_LEFT_BORDER, TOP_BORDER_LINES+i);
             *exact_clock+=LEFT_BORDER_CYCLES;
 	        mc6809_TimeExec(*exact_clock);
         }
@@ -274,8 +274,8 @@ static void DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
         mode_page.lp4&=0xDF;
 
         /* bordure droite de la ligne */
-        if (to8_DrawBorderLine)
-	        to8_DrawBorderLine(TO8_RIGHT_BORDER, TOP_BORDER_LINES+i);
+        if (teo_DrawBorderLine)
+	        teo_DrawBorderLine(TEO_RIGHT_BORDER, TOP_BORDER_LINES+i);
 
         *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
         mc6809_TimeExec(*exact_clock);
@@ -294,12 +294,12 @@ static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
     for (i=0; i<nlines; i++)
     {
         /* bordure gauche de la ligne */
-        if (to8_DrawBorderLine) 
+        if (teo_DrawBorderLine) 
         {
             *exact_clock+=LEFT_SHADOW_CYCLES;
             if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
 
-            to8_DrawBorderLine(TO8_LEFT_BORDER, TOP_BORDER_LINES+i);
+            teo_DrawBorderLine(TEO_LEFT_BORDER, TOP_BORDER_LINES+i);
             *exact_clock+=+LEFT_BORDER_CYCLES;
             if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
         }
@@ -326,8 +326,8 @@ static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
         mode_page.lp4&=0xDF;
 
         /* bordure droite de la ligne */
-        if (to8_DrawBorderLine)
-	        to8_DrawBorderLine(TO8_RIGHT_BORDER, TOP_BORDER_LINES+i);
+        if (teo_DrawBorderLine)
+	        teo_DrawBorderLine(TEO_RIGHT_BORDER, TOP_BORDER_LINES+i);
 
         *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
          if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
@@ -337,7 +337,7 @@ static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
 
 
 
-#ifndef TO8_NO_BORDER
+#ifndef TEO_NO_BORDER
 
 /* DoBorderLinesAndRetrace:
  *  Fait tourner le MC6809E en retraçant le pourtour ligne par ligne.
@@ -356,7 +356,7 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
         *exact_clock+=LEFT_SHADOW_CYCLES;
         mc6809_TimeExec(*exact_clock);
 
-        to8_DrawBorderLine(TO8_LEFT_BORDER, offset+i);
+        teo_DrawBorderLine(TEO_LEFT_BORDER, offset+i);
         *exact_clock+=+LEFT_BORDER_CYCLES;
         mc6809_TimeExec(*exact_clock);
 
@@ -368,7 +368,7 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
         for (j=0; j<WINDOW_LINE_CYCLES/LINE_GRANULARITY; j++)
         {
             for (k=0; k<LINE_GRANULARITY; k++)
-                to8_DrawBorderLine(j*LINE_GRANULARITY+k, offset+i);
+                teo_DrawBorderLine(j*LINE_GRANULARITY+k, offset+i);
 
             *exact_clock+=LINE_GRANULARITY;
             mc6809_TimeExec(*exact_clock);
@@ -377,7 +377,7 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
         mode_page.lp4&=0xDF;
 
         /* bordure droite de la ligne */
-        to8_DrawBorderLine(TO8_RIGHT_BORDER, offset+i);
+        teo_DrawBorderLine(TEO_RIGHT_BORDER, offset+i);
         *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
         mc6809_TimeExec(*exact_clock);
     }
@@ -402,7 +402,7 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
         *exact_clock+=LEFT_SHADOW_CYCLES;
         if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
 
-        to8_DrawBorderLine(TO8_LEFT_BORDER, offset+i);
+        teo_DrawBorderLine(TEO_LEFT_BORDER, offset+i);
         *exact_clock+=+LEFT_BORDER_CYCLES;
         if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
 
@@ -414,7 +414,7 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
         for (j=0; j<WINDOW_LINE_CYCLES/LINE_GRANULARITY; j++)
         {
             for (k=0; k<LINE_GRANULARITY; k++)
-                to8_DrawBorderLine(j*LINE_GRANULARITY+k, offset+i);
+                teo_DrawBorderLine(j*LINE_GRANULARITY+k, offset+i);
 
             *exact_clock+=LINE_GRANULARITY;
             if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
@@ -423,7 +423,7 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
         mode_page.lp4&=0xDF;
 
         /* bordure droite de la ligne */
-        to8_DrawBorderLine(TO8_RIGHT_BORDER, offset+i);
+        teo_DrawBorderLine(TEO_RIGHT_BORDER, offset+i);
         *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
         if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
     }
@@ -439,7 +439,7 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
 /* Reset:
  *  Simule un appui sur le bouton reset du TO8.
  */
-void to8_Reset(void)
+void teo_Reset(void)
 {
     mc6809_Reset();
 }
@@ -449,7 +449,7 @@ void to8_Reset(void)
 /* ColdReset:
  *  Simule un dé/rebranchement du TO8.
  */
-void to8_ColdReset(void)
+void teo_ColdReset(void)
 {
     /* initialisation du PIA 6846 système */
     mc6846_Init(&mc6846, 0x80, 0xE5, 0x3D);
@@ -504,20 +504,20 @@ void to8_ColdReset(void)
 /* DoFrame:
  *  Fait tourner le TO8 pendant une trame vidéo.
  */
-int to8_DoFrame(int debug)
+int teo_DoFrame(int debug)
 {
     screen_clock=mb.exact_clock;
 
     if (debug == TRUE)
     {
-        if (to8_new_video_params)
+        if (teo_new_video_params)
         {
-            to8_new_video_params=FALSE;
+            teo_new_video_params=FALSE;
             mb.direct_screen_mode=FALSE;
 
             /* début de la frame vidéo: bordure haute de l'écran */
-#ifndef TO8_NO_BORDER
-            if (to8_DrawBorderLine)
+#ifndef TEO_NO_BORDER
+            if (teo_DrawBorderLine)
             {
                 if (DoLines_debug(TOP_SHADOW_LINES, &mb.exact_clock) == 0)
                     return 0;
@@ -536,8 +536,8 @@ int to8_DoFrame(int debug)
             mode_page.lp4&=0x7F;
 
             /* bordure du bas de l'écran et remontée du faisceau */
-#ifndef TO8_NO_BORDER
-            if (to8_DrawBorderLine)
+#ifndef TEO_NO_BORDER
+            if (teo_DrawBorderLine)
             {
                 if (DoBorderLinesAndRetrace_debug(BOTTOM_BORDER, BOTTOM_BORDER_LINES, &mb.exact_clock) == 0)
                     return 0;
@@ -579,14 +579,14 @@ int to8_DoFrame(int debug)
     }
     else
     {
-        if (to8_new_video_params)
+        if (teo_new_video_params)
         {
-            to8_new_video_params=FALSE;
+            teo_new_video_params=FALSE;
             mb.direct_screen_mode=FALSE;
 
             /* début de la frame vidéo: bordure haute de l'écran */
-#ifndef TO8_NO_BORDER
-            if (to8_DrawBorderLine)
+#ifndef TEO_NO_BORDER
+            if (teo_DrawBorderLine)
             {
                 DoLines(TOP_SHADOW_LINES, &mb.exact_clock);
                 DoBorderLinesAndRetrace(TOP_BORDER, TOP_BORDER_LINES, &mb.exact_clock);
@@ -601,8 +601,8 @@ int to8_DoFrame(int debug)
             mode_page.lp4&=0x7F;
 
             /* bordure du bas de l'écran et remontée du faisceau */
-#ifndef TO8_NO_BORDER
-            if (to8_DrawBorderLine)
+#ifndef TEO_NO_BORDER
+            if (teo_DrawBorderLine)
             {
                 DoBorderLinesAndRetrace(BOTTOM_BORDER, BOTTOM_BORDER_LINES, &mb.exact_clock);
     	        DoLines(BOTTOM_SHADOW_LINES, &mb.exact_clock);
@@ -641,7 +641,7 @@ int to8_DoFrame(int debug)
 /* InputReset:
  *  Remet à zéro les périphériques d'entrée.
  */
-void to8_InputReset(int mask, int value)
+void teo_InputReset(int mask, int value)
 {
     keyboard_Reset(mask, value);
     joystick_Reset();
@@ -655,11 +655,11 @@ void to8_InputReset(int mask, int value)
  *  (il n'est pas nécessaire de l'appeler explicitement, elle est
  *   automatiquement invoquée à la sortie du programme)
  */
-void to8_Exit(void)
+void teo_Exit(void)
 {
     register int i;
 
-    if (!to8_alive)
+    if (!teo_alive)
         return;
 
     /* Sauvegarde de l'état de l'émulateur */
@@ -688,7 +688,7 @@ void to8_Exit(void)
     /* Libère l'occupation du message d'erreur */
     teo_error_msg = std_free (teo_error_msg);
 
-    to8_alive = FALSE;
+    teo_alive = FALSE;
 }
 
 
@@ -696,23 +696,23 @@ void to8_Exit(void)
 /* Init:
  *  Initialise l'émulateur et réserve les ressources nécessaires.
  */
-int to8_Init(int num_joy)
+int teo_Init(int num_joy)
 {
     /* on détecte les instances multiples */
-    if (to8_alive)
+    if (teo_alive)
         return error_Message(TEO_ERROR_MULTIPLE_INIT, NULL);
 
     hardware_Init();
 
     if (InitMemory() < 0)
     {
-        to8_Exit();
+        teo_Exit();
         return TEO_ERROR;
     }
 
     if (keyboard_Init(num_joy) < 0)
     {
-        to8_Exit();
+        teo_Exit();
         return TEO_ERROR;
     }
 
@@ -722,10 +722,10 @@ int to8_Init(int num_joy)
     cass_Init();
     printer_Init();
 
-    to8_alive = TRUE;
-    atexit(to8_Exit);
+    teo_alive = TRUE;
+    atexit(teo_Exit);
 
-    to8_new_video_params = FALSE;
+    teo_new_video_params = FALSE;
     return 0;
 }
 

@@ -2871,7 +2871,7 @@ static void mc6809_Step(void) {
         if (!irq_start) {
             opcode=LoadByte(pc);
             pc=(pc+1)&0xffff;
-            if(opcode==TO8_TRAP_CODE) {
+            if(opcode==TEO_TRAP_CODE) {
                 mc6809_GetRegs(&reg_list);
                 opcode=TrapCallback(&reg_list);
                 mc6809_SetRegs(&reg_list, 0x1FF);

@@ -104,7 +104,7 @@ static int load_disk (HWND hWnd, char *filename, struct FILE_VECTOR *vector)
             MessageBox(hWnd, teo_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
             break;
 
-        case TO8_READ_ONLY :
+        case TEO_READ_ONLY :
             CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, BST_CHECKED);
             break;
 
@@ -124,11 +124,11 @@ static void set_access_mode (HWND hWnd, struct FILE_VECTOR *vector)
     int index = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
 
     ret = (teo.disk[vector->id].write_protect == TRUE)
-                      ? TO8_READ_ONLY : TO8_READ_WRITE;
+                      ? TEO_READ_ONLY : TEO_READ_WRITE;
     if ((vector->direct) && (index == 1))
         ret = disk_SetDirect(vector->id);
     CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id,
-                   (ret==TO8_READ_ONLY) ? BST_CHECKED : BST_UNCHECKED);
+                   (ret==TEO_READ_ONLY) ? BST_CHECKED : BST_UNCHECKED);
     update_params (hWnd, vector);
 }
 
@@ -166,10 +166,10 @@ static void toggle_check_disk(HWND hWnd, struct FILE_VECTOR *vector)
 {
     if (IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id) == BST_CHECKED)
     {
-        disk_SetMode (vector->id, TO8_READ_ONLY);
+        disk_SetMode (vector->id, TEO_READ_ONLY);
     }
     else
-    if (disk_SetMode (vector->id, TO8_READ_WRITE)==TO8_READ_ONLY)
+    if (disk_SetMode (vector->id, TEO_READ_WRITE)==TEO_READ_ONLY)
     {
         MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
                               :"Warning: writing unavailable on this device."

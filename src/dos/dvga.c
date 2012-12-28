@@ -84,7 +84,7 @@ static BITMAP *gpl_buffer, *screen_buffer;
  */
 static inline int gpl_need_update(const unsigned char *gpl1, const unsigned char *gpl2)
 {
-    register int i = TO8_GPL_SIZE;
+    register int i = TEO_GPL_SIZE;
 
     while (i--)
         if (*gpl1++ != *gpl2++)
@@ -106,30 +106,30 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
 
     switch (mode)
     {
-        case TO8_BITMAP4: /* mode bitmap 4 couleurs */
+        case TEO_BITMAP4: /* mode bitmap 4 couleurs */
             pt<<=1;
 
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[((pt>>(7-i))&2)+((col>>(7-i))&1)].index;
             break;
 
-        case TO8_PAGE1: /* mode commutation page 1 */
+        case TEO_PAGE1: /* mode commutation page 1 */
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[(0x80>>i)&pt ? 1 : 0].index;
             break;
 
-        case TO8_PAGE2: /* mode commutation page 2 */
+        case TEO_PAGE2: /* mode commutation page 2 */
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[(0x80>>i)&col ? 2 : 0].index;
             break;
 
-        case TO8_STACK2: /* mode superposition 2 pages */
+        case TEO_STACK2: /* mode superposition 2 pages */
             for (i=0; i<8; i++)
                 *gpl_src++ = bcell[(0x80>>i)&pt ? 1 :
                                   ((0x80>>i)&col ? 2 : 0)].index;
             break;
 
-        case TO8_COL80: /* mode 80 colonnes */
+        case TEO_COL80: /* mode 80 colonnes */
             for (i=0;i<4;i++)
                 *gpl_src++ = bcell[( pt>>(6-(i<<1)) )&1].index;
 
@@ -138,7 +138,7 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
 
             break;
 
-        case TO8_STACK4: /* mode superposition 4 pages */
+        case TEO_STACK4: /* mode superposition 4 pages */
             for (i=0; i<4; i++)
             {
                 c1 = bcell[ (0x80>>i)&pt  ? 1 :
@@ -152,7 +152,7 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
             break;
 
 
-        case TO8_BITMAP4b: /* mode bitmap 4 non documenté */
+        case TEO_BITMAP4b: /* mode bitmap 4 non documenté */
             for (i=0;i<4;i++)
                 *gpl_src++ = bcell[( pt>>(6-(i<<1)) )&3].index;
 
@@ -161,7 +161,7 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
 
             break;
 
-        case TO8_BITMAP16: /* mode bitmap 16 couleurs */
+        case TEO_BITMAP16: /* mode bitmap 16 couleurs */
             /* on modifie les pixels deux par deux */
             c1=bcell[(pt&0xF0)>>4].index;
             PUT2PIXEL(c1);
@@ -176,8 +176,8 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
             PUT2PIXEL(c1);
             break;
 
-        case TO8_PALETTE: /* mode écran de la palette */
-            if (addr<TO8_PALETTE_ADDR)
+        case TEO_PALETTE: /* mode écran de la palette */
+            if (addr<TEO_PALETTE_ADDR)
             {
                 if ((col&0x78)==0x30)
                 {
@@ -197,7 +197,7 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
             }
             /* no break */
     
-        case TO8_COL40: /* mode 40 colonnes 16 couleurs */
+        case TEO_COL40: /* mode 40 colonnes 16 couleurs */
         default:
             c1=((col>>3)&7)+(((~col)&0x40)>>3);
             c2=(col&7)+(((~col)&0x80)>>4);
@@ -212,7 +212,7 @@ static void vga_DrawGPL(int mode, int addr, int pt, int col)
 
     if (gpl_need_update(gpl_src, gpl_dest))
     {
-        memcpy(gpl_dest, gpl_src, TO8_GPL_SIZE);
+        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE);
 
         if (graphic_mode)
             BLIT_GPL(gpl_src, addr);
@@ -301,8 +301,8 @@ static int vga_InitGraphic(int depth, int _allegro_driver, int border_support)
         return FALSE;
 
     vga_sel = _dos_ds;
-    gpl_buffer = create_bitmap(TO8_GPL_SIZE, 1);
-    screen_buffer = create_bitmap(TO8_WINDOW_W, TO8_WINDOW_H);
+    gpl_buffer = create_bitmap(TEO_GPL_SIZE, 1);
+    screen_buffer = create_bitmap(TEO_WINDOW_W, TEO_WINDOW_H);
     clear_bitmap(screen_buffer);
     LOCK_FUNCTION(vga_DrawGPL);
 

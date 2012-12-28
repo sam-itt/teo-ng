@@ -54,7 +54,7 @@
 #include "defs.h"
 
 
-#define PALETTE_START  (TO8_NCOLORS+1)
+#define PALETTE_START  (TEO_NCOLORS+1)
 #define PALETTE_END                255
 #define BCELL_SIZE                   4
 
@@ -67,12 +67,12 @@ static PALETTE palette={ { 0, 0, 0},  /* bordure de l'écran */
                          {63, 0, 0},  /* LED rouge */
                          {63,63, 0},  /* LED jaune */
                          { 0,63, 0},  /* LED verte */
-                         MAKERGB(TO8_PALETTE_COL1),   /* page palette */
-                         MAKERGB(TO8_PALETTE_COL2) };
+                         MAKERGB(TEO_PALETTE_COL1),   /* page palette */
+                         MAKERGB(TEO_PALETTE_COL2) };
 
 static unsigned int palette_flag[256];
 static struct color_cell shcell;
-       struct color_cell bcell[TO8_NCOLORS];
+       struct color_cell bcell[TEO_NCOLORS];
 static int border_enabled;
 static int border_color;
 
@@ -199,12 +199,12 @@ void acolor8_SetBorderColor(int mode, int color)
 {
     register int i;
 
-    for (i=0; i<TO8_NCOLORS; i++)
+    for (i=0; i<TEO_NCOLORS; i++)
         if (need_palette_refresh&(1<<i))
             if (AllocColor(i, &bcell[i].last_rgb, frame-2))
             {
                 need_palette_refresh&=~(1<<i);
-                to8_new_video_params=TRUE;
+                teo_new_video_params=TRUE;
             }
 }
 
@@ -236,14 +236,14 @@ void acolor8_Init(int _border_enabled)
     register int i;
 
     /* initialisation des cellules de base de la palette */
-    for (i=0; i<TO8_NCOLORS; i++)
+    for (i=0; i<TEO_NCOLORS; i++)
     {
         bcell[i].start= PALETTE_START+    i*BCELL_SIZE;
         bcell[i].end  = PALETTE_START+(i+1)*BCELL_SIZE;
     }
 
     /* initialisation de la cellule partagée */
-    shcell.start= PALETTE_START+TO8_NCOLORS*BCELL_SIZE;
+    shcell.start= PALETTE_START+TEO_NCOLORS*BCELL_SIZE;
     shcell.end  = PALETTE_END;
 
     border_enabled = _border_enabled;

@@ -83,12 +83,12 @@ FILETYPE VFT_APP
                                  "Alexandre Pukall, Jérémie Guillaume, François Mouret, "\
                                  "Samuel Devulder."
             VALUE "FileDescription", "Teo - l'émulateur TO8"
-            VALUE "FileVersion", TO8_VERSION_STR
+            VALUE "FileVersion", TEO_VERSION_STR
             VALUE "InternalName", "TEOW.EXE"
             VALUE "LegalCopyright", "Copyright © 1997-2012 Teo Developers"
             VALUE "OriginalFilename", "TEOW.EXE"
             VALUE "ProductName", "Teo"
-            VALUE "ProductVersion", TO8_VERSION_STR
+            VALUE "ProductVersion", TEO_VERSION_STR
         }
     }
 
@@ -209,7 +209,7 @@ FONT 8, "Tahoma"
     CONTROL         "to8_bmp", -1, "static", SS_BITMAP, 8, 8, 80, 280
     PUSHBUTTON      "&OK", IDOK, 140, 160, 40, 14, WS_GROUP | WS_TABSTOP
     CTEXT           "Teo (Windows/DirectX)\n Version "\
-                    TO8_VERSION_STR, ABOUT_CTEXT_TITLE, 70, 6, 180, 42
+                    TEO_VERSION_STR, ABOUT_CTEXT_TITLE, 70, 6, 180, 42
     CTEXT           "Copyright © 1997-2012\n Gilles Fétis, Eric Botcazou, Alexandre Pukall, "\
                     "Jérémie Guillaume, François Mouret, Samuel Devulder", ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 50
     CONTROL         "", ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 70, 102, 180, 26

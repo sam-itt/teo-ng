@@ -88,24 +88,24 @@ static void KeyboardHandler(int key)
  */
 void wkeybint_Install(void)
 {
-    int mask=(1<<TO8_MAX_FLAG)-1, value=0;
+    int mask=(1<<TEO_MAX_FLAG)-1, value=0;
 
     if (_key_shifts&KB_NUMLOCK_FLAG)
-        value |= TO8_NUMLOCK_FLAG;
+        value |= TEO_NUMLOCK_FLAG;
 
     if (_key_shifts&KB_CAPSLOCK_FLAG)
-        value |= TO8_CAPSLOCK_FLAG;
+        value |= TEO_CAPSLOCK_FLAG;
 
     if (_key_shifts&KB_SHIFT_FLAG)
-        value |= TO8_SHIFT_FLAG;
+        value |= TEO_SHIFT_FLAG;
 
     if (_key_shifts&KB_CTRL_FLAG)
-        value |= TO8_CTRL_FLAG;
+        value |= TEO_CTRL_FLAG;
 
     if (_key_shifts&KB_ALT_FLAG)
-        value |= TO8_ALTGR_FLAG;
+        value |= TEO_ALTGR_FLAG;
 
-    to8_InputReset(mask, value);
+    teo_InputReset(mask, value);
 
     keyboard_lowlevel_callback=KeyboardHandler;
 }

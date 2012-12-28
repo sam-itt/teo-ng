@@ -130,7 +130,7 @@ static int load_cass (HWND hWnd, char *filename)
                                MB_OK | MB_ICONINFORMATION);
             break;
 
-        case TO8_READ_ONLY :
+        case TEO_READ_ONLY :
             CheckDlgButton(hWnd, K7_PROT_CHECK, BST_CHECKED);
             break;
 
@@ -150,10 +150,10 @@ static void toggle_check_cass (HWND hWnd)
 {
     if (IsDlgButtonChecked(hWnd, K7_PROT_CHECK) == BST_CHECKED)
     {
-        cass_SetMode(TO8_READ_ONLY);
+        cass_SetMode(TEO_READ_ONLY);
     }
     else
-    if (cass_SetMode(TO8_READ_WRITE)==TO8_READ_ONLY)
+    if (cass_SetMode(TEO_READ_WRITE)==TEO_READ_ONLY)
     {
         MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
                               :"Warning: writing unavailable on this device."

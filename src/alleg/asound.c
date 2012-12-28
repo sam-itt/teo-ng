@@ -33,12 +33,12 @@
  */
 
 /*
- *  Module     : alleg/sound.c
+ *  Module     : alleg/asound.c
  *  Version    : 1.8.2
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 24/09/2001
  *               Samuel Devulder 23/03/2010
- *               François Mouret 08/2011 19/10/2012
+ *               François Mouret 08/2011 19/10/2012 28/12/2012
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -77,7 +77,7 @@ static void voice_get_position_callback(void)
  */
 static void PutSoundByte(unsigned long long int clock, unsigned char data)
 {
-    int index=(clock%TO8_CYCLES_PER_FRAME)*sound_freq/TO8_CPU_FREQ;
+    int index=(clock%TEO_CYCLES_PER_FRAME)*sound_freq/TEO_CPU_FREQ;
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
        théorique, on bloque l'index à sa valeur maximale */
@@ -162,10 +162,10 @@ void asound_Play(void)
 void asound_Init(int freq)
 {
     sound_freq = freq;
-    sound_buffer_size = sound_freq/TO8_FRAME_FREQ;
+    sound_buffer_size = sound_freq/TEO_FRAME_FREQ;
     sound_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
 
-    to8_PutSoundByte=PutSoundByte;
+    teo_PutSoundByte=PutSoundByte;
 
     teo.sound_enabled=FALSE;
 

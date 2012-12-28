@@ -66,7 +66,7 @@
 #define ALSA_CHANNELS 1                            /* nombre de canaux */
 #define ALSA_RESAMPLE 1                            /* enable alsa-lib resampling */
 #define ALSA_ACCESS SND_PCM_ACCESS_RW_INTERLEAVED  /* type d'accès */
-#define ALSA_FRAME_LENGTH  TO8_CYCLES_PER_FRAME
+#define ALSA_FRAME_LENGTH  TEO_CYCLES_PER_FRAME
 
 static int last_index = 0;
 static unsigned char last_data = 0x00;
@@ -199,7 +199,7 @@ static void put_sound_byte(unsigned long long int clock, unsigned char data)
 {
     register int i;
     register char char_data;
-    int index= period_size*(clock%TO8_CYCLES_PER_FRAME)/TO8_CYCLES_PER_FRAME;
+    int index= period_size*(clock%TEO_CYCLES_PER_FRAME)/TEO_CYCLES_PER_FRAME;
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
        théorique, on bloque l'index à sa valeur maximale */
@@ -258,7 +258,7 @@ int usound_Init(void)
     int err;
     int sound_buffer_size;
 
-    to8_PutSoundByte=put_sound_byte;
+    teo_PutSoundByte=put_sound_byte;
 
     if (teo.setting.sound_enabled)
     {
