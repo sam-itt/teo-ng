@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@
  *  Version    : 1.8.2
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
- *               Samuel Devulder 30/07/2011
+ *               Samuel Devulder 30/07/2011 10/02/2013
  *               François Mouret 25/04/2012 24/10/2012
  *
  *  Gestion de l'affichage 80 colonnes 16-bit du TO8.
@@ -92,7 +92,7 @@ static int graphic_mode;
 static const struct SCREEN_PARAMS *tcol;
 static int *dirty_cell;
 static int border_color;
-static BITMAP *gpl_buffer, *screen_buffer;
+static BITMAP *gpl_buffer, *screen_buffer, *interlace_buffer;
 static int palette[TEO_NCOLORS+1];
 static int pixel_size;
 
@@ -390,7 +390,7 @@ static void tcol_RefreshScreen(void)
 {
     register int i,j;
              int cell_start, *dirty_cell_row = dirty_cell;
-    static int odd = 1;
+      int blend_done = 0;
 
     if (!graphic_mode)
         return;
@@ -399,9 +399,31 @@ static void tcol_RefreshScreen(void)
 
     if (teo.setting.interlaced_video)
     {
-        odd ^= 1;
-        for(j=odd; j<tcol->screen_h; j+=2)
-	    blit(screen_buffer, screen, 0, j, 0, j, tcol->screen_w, 1);
+        /* on groupe les dirty rectangles ligne par ligne */
+        for (j=0; j<tcol->screen_ch; j++)
+        {
+            for (i=0; i<tcol->screen_cw; i++)
+                if (dirty_cell_row[i])
+                {
+                    cell_start=i;
+                    if(!blend_done) {
+                        blend_done = 1;
+                        draw_trans_sprite(interlace_buffer, screen_buffer, 0, 0);
+                        vsync(); // plus fluide ainsi?
+                    }
+
+                    while ((i<tcol->screen_cw) && dirty_cell_row[i])
+                        dirty_cell_row[i++]<<=2;
+
+                    blit(interlace_buffer, screen,
+                        cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2,
+                        cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2,
+                        (i-cell_start)*TEO_CHAR_SIZE*2, TEO_CHAR_SIZE*2);
+                }
+
+            /* ligne suivante */
+            dirty_cell_row += tcol->screen_cw;
+        }
     }
     else
     {
@@ -514,6 +536,10 @@ static int tcol_InitGraphic(int depth, int _allegro_driver, int border_support)
     palette[TEO_NCOLORS] = makecol(TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
 
     pixel_size = (depth+1)/8;
+
+    interlace_buffer = create_bitmap(tcol->screen_w, tcol->screen_h);
+    clear_bitmap(interlace_buffer);
+    set_trans_blender(0,0,0,depth>=24?256/3:128); // entrelacement: utiliser 32 au lieu de 256/3 pour un effet encore plus marqu¦
 
     /* objets touchés par l'interruption souris (djgpp) */
     LOCK_VARIABLE(screen_buffer);
