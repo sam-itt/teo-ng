@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -90,14 +90,21 @@ static const struct INI_LIST ini_entry[] = {
     { "cass"    , "file"            , IARG_STR , &teo.cass.file                },
     { "cass"    , "write_protect"   , IARG_BOOL, &teo.cass.write_protect       },
     /* --------------------------------------------------------------------- */
-    { "disk"    , "file0"           , IARG_STR , &teo.disk[0].file             },
-    { "disk"    , "write_protect0"  , IARG_BOOL, &teo.disk[0].write_protect    },
-    { "disk"    , "file1"           , IARG_STR , &teo.disk[1].file             },
-    { "disk"    , "write_protect1"  , IARG_BOOL, &teo.disk[1].write_protect    },
-    { "disk"    , "file2"           , IARG_STR , &teo.disk[2].file             },
-    { "disk"    , "write_protect2"  , IARG_BOOL, &teo.disk[2].write_protect    },
-    { "disk"    , "file3"           , IARG_STR , &teo.disk[3].file             },
-    { "disk"    , "write_protect3"  , IARG_BOOL, &teo.disk[3].write_protect    },
+    { "disk0"   , "file"            , IARG_STR , &teo.disk[0].file             },
+    { "disk0"   , "side"            , IARG_INT , &teo.disk[0].side             },
+    { "disk0"   , "write_protect"   , IARG_BOOL, &teo.disk[0].write_protect    },
+    /* --------------------------------------------------------------------- */
+    { "disk1"   , "file"            , IARG_STR , &teo.disk[1].file             },
+    { "disk1"   , "side"            , IARG_INT , &teo.disk[1].side             },
+    { "disk1"   , "write_protect"   , IARG_BOOL, &teo.disk[1].write_protect    },
+    /* --------------------------------------------------------------------- */
+    { "disk2"   , "file"            , IARG_STR , &teo.disk[2].file             },
+    { "disk2"   , "side"            , IARG_INT , &teo.disk[2].side             },
+    { "disk2"   , "write_protect"   , IARG_BOOL, &teo.disk[2].write_protect    },
+    /* --------------------------------------------------------------------- */
+    { "disk3"   , "file"            , IARG_STR , &teo.disk[3].file             },
+    { "disk3"   , "side"            , IARG_INT , &teo.disk[3].side             },
+    { "disk3"   , "write_protect"   , IARG_BOOL, &teo.disk[3].write_protect    },
     /* --------------------------------------------------------------------- */
     { "printer" , "folder"          , IARG_DIR , &teo.lprt.folder              },
     { "printer" , "number"          , IARG_INT , &teo.lprt.number              },
@@ -148,6 +155,22 @@ static char *value_pointer (char *section, char *key)
 
 
 
+static FILE *file_open (const char filename[], const char mode[])
+{
+    char *name = NULL;
+
+#ifdef DEBIAN_BUILD
+    name = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), filename);
+#else
+    name = std_strdup_printf ("%s", filename);
+#endif
+    file = fopen(name, mode);
+    name = std_free (name);
+    return file;
+}
+
+
+
 /* load_ini_file:
  *  Charge le fichier INI.
  */
@@ -156,21 +179,8 @@ static void load_ini_file(void)
     int  stop  = FALSE;
     char *line = NULL;
 
-#ifdef DEBIAN_BUILD
-    char *fname = NULL;
+    file_open (INI_FILE_NAME, "r");
 
-    file = NULL;
-    fname = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
-    if ((fname != NULL) && ((file = fopen(fname, "r")) == NULL)) {
-        fname = std_free (fname);
-        fname = std_strdup_printf ("/usr/share/teo/%s", INI_FILE_NAME);
-        if (fname != NULL)
-            file = fopen(fname, "r");
-    }
-    fname = std_free (fname);
-#else
-    file=fopen(INI_FILE_NAME, "r");
-#endif
     if ((file != NULL) && ((line = malloc (300+1)) != NULL)) {
         while ((stop == FALSE) && (fgets(line, 300, file) != NULL)) {
             std_rtrim (line);
@@ -207,6 +217,7 @@ void ini_Load(void)
     teo.setting.exact_speed = TRUE;
     teo.setting.sound_volume = 128;
     teo.setting.sound_enabled = TRUE;
+    teo.cass.write_protect = TRUE;
 
     /* Charge le fichier ini */
     load_ini_file();
@@ -242,27 +253,6 @@ void ini_Load(void)
 
 
 
-/* ini_Free:
- *  Libère la mémoire des variables.
- */
-void ini_Free (void)
-{
-    int i = 0;
-    char **s = NULL;
-
-    while (ini_entry[i].section != NULL) {
-        switch (ini_entry[i].type) {
-        case IARG_STR  :
-        case IARG_DIR  : s = (char**)ini_entry[i].ptr;
-                         *s = std_free (*s);
-                         break;
-        }
-        i++;
-    }
-}
-
-    
-
 /* ini_Save:
  *  Sauve le fichier INI.
  */
@@ -276,13 +266,7 @@ void ini_Save (void)
     char **s;
 
     /* Ouvre le fichier ini */
-#ifdef DEBIAN_BUILD
-    p = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), INI_FILE_NAME);
-    file = fopen(p, "w");
-    p = std_free(p);
-#else
-    file = fopen(INI_FILE_NAME, "w");
-#endif
+    file_open (INI_FILE_NAME, "w");
 
     /* Sauvegarde le fichier ini */
     while ((file != NULL) && (ini_entry[i].section != NULL))
@@ -299,6 +283,7 @@ void ini_Save (void)
         case IARG_STR  :
         case IARG_DIR  : s = (char**)ini_entry[i].ptr;
                          res = fprintf (file, "%s=%s\n", key, (*s==NULL)?"":*s);
+                         *s = std_free (*s);
                          break;
         case IARG_BOOL : d = (int*)ini_entry[i].ptr;
                          res = fprintf (file, "%s=%s\n", key, (*d==FALSE)?"no":"yes");
@@ -314,7 +299,4 @@ void ini_Save (void)
     if (file!=NULL)
         fprintf (file, "\n");
     file = std_fclose (file);
-
-    /* Libère la mémoire des variables */
-    ini_Free ();
 }
