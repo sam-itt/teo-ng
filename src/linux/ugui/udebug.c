@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 2011-2012 Gilles Fétis, François Mouret
+ *  Copyright (C) 2011-2013 Gilles Fétis, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,13 +50,17 @@
    #include <gdk/gdkx.h>
 #endif
 
+#include "defs.h"
 #include "teo.h"
 #include "debug.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
+#include "media/disk/controlr.h"
+#include "media/disk.h"
 #include "linux/display.h"
 #include "linux/gui.h"
 #include "linux/graphic.h"
+
 
 #define DEBUG_SPACE 2
 
@@ -140,9 +144,9 @@ static char* debug_get_regs(void) {
     ptr+=sprintf(ptr,"LGAMOD: %02X     SYS1: %02X\n",mode_page.lgamod,mode_page.system1);
     ptr+=sprintf(ptr,"  SYS2: %02X     DATA: %02X\n",mode_page.system2,mode_page.ram_data);
     ptr+=sprintf(ptr,"  CART: %02X   COMMUT: %02X\n",mode_page.cart,mode_page.commut);
-    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n", disk_ctrl.cmd0, disk_ctrl.cmd1, disk_ctrl.cmd2);
-    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",disk_ctrl.stat0, disk_ctrl.stat1);
-    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",disk_ctrl.wdata, disk_ctrl.rdata);
+    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n", dkc->wr0, dkc->wr1, dkc->wr2);
+    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",dkc->rr0, dkc->rr1);
+    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",dkc->wr3, dkc->rr3);
     ptr+=sprintf(ptr,is_fr?"page de ROM cartouche : %d\n":"ROM cartridge page  : %d\n", mempager.cart.rom_page);
     ptr+=sprintf(ptr,is_fr?"page de RAM cartouche : %d\n":"RAM cartridge page  : %d\n", mempager.cart.ram_page);
     ptr+=sprintf(ptr,is_fr?"page de VRAM          : %d\n":"VRAM page           : %d\n", mempager.screen.vram_page);
