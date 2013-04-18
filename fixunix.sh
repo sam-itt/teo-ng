@@ -13,7 +13,8 @@ if [ "$1" != "--quick" ]; then
       -type f "(" \
       -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
       -name "*.xpm" -o -name "*.sh" -o -name "makefile.*" -o \
-      -name "*.txt" -o -name "*.log" -o -name "*.htm*" \
+      -name "*.txt" -o -name "*.log" -o -name "*.bat" -o \
+      -name "*.BAT"  -o -name "*.htm*"\
       ")" \
       -exec sh -c "echo -n '.';
                    mv {} _tmpfile;
@@ -21,7 +22,15 @@ if [ "$1" != "--quick" ]; then
                    touch -r _tmpfile {};
                    rm _tmpfile" \;
 
-   chmod +x *.sh misc/*.sh doc/*.sh misc/pack/*.sh
+   find . -type d "(" \
+      -name ".hg" -prune \
+      ")" -o \
+      -type f "(" \
+      -name "*.sh" \
+      ")" \
+      -exec sh -c "echo -n '-';
+                   chmod +x {};" \;
+
    echo
 fi
 
