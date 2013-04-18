@@ -45,9 +45,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-extern int   main_SysExec(char *cmd, const char *dir);
-extern int   main_RmFile(char *path);
-extern char *main_TmpFile(char *buf, int maxlen);
 extern void  main_DisplayMessage(const char msg[]);
 extern void  main_ExitMessage(const char msg[]);
 
