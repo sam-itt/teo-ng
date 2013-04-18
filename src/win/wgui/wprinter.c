@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -180,7 +180,7 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          SetWindowText(GetDlgItem(hWnd, PRINTER_CHOOSE_RTEXT),
                             is_fr?"Imprimante : ":"Printer : ");
          SetWindowText(GetDlgItem(hWnd, PRINTER_DIP_CHECK),
-                            is_fr?"Change le comportement de CR":"Change behaviour of CR");
+                            is_fr?"Double interligne":"Double spacing");
 #ifndef FRENCH_LANG
          MoveWindow (GetDlgItem(hWnd, PRINTER_DIP_CHECK), 58, 53, 140, 16, FALSE);
 #endif
@@ -201,12 +201,6 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          wgui_CreateTooltip (hWnd, PRINTER_MORE_BUTTON,
                                    is_fr?"Choisir un répertoire de sauvegarde"
                                         :"Choose a save folder");
-         wgui_CreateTooltip (hWnd, PRINTER_DIP_CHECK,
-                                   is_fr?"Change le comportement de CR"
-                                        :"Change behavior of CR");
-         wgui_CreateTooltip (hWnd, PRINTER_NLQ_CHECK,
-                                   is_fr?"Haute qualité"
-                                        :"High-quality");
 
          return TRUE;
 
