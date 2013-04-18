@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Teo</title>
+<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+<body>
+<table width="100%"><tr><td>
+
+<h3>Installation de CC90 c&ocirc;t&eacute; Thomson</h3>
+
+<ul>
+<li><a href="#install">Installer CC90 sans la disquette</a></li>
+<li><a href="#run">Fonctionnement g&eacute;n&eacute;ral</a></li>
+<li><a href="#errors">Messages d'erreur</a></li>
+</ul>
+
+<p><center><img src="images/thomson1.gif" alt="Ecran Thomson de CC90"></center></p>
+
+<p><a name="install"></a></p>
+
+<h5>Installer CC90 sans la disquette</h5>
+
+<p>Votre syst&egrave;me ne vous permet pas de transf&eacute;rer le fichier cc90.sap sur une disquette Thomson ? CC90 peut &ecirc;tre lanc&eacute; &agrave; partir du PC !</p>
+
+<p>Il vous suffit de recopier le programme suivant sur votre Thomson sous Basic, de le sauver et de le lancer :</p>
+
+<blockquote><blockquote><pre>
+0 'SAVE"INSTALL.BAS",A
+5 '
+10 DATA "8EE7E0CE45001A50",&H3D2
+15 DATA "4F5FED02CC03FFED",&H458
+20 DATA "84CC043CED028D2F",&H33B
+25 DATA "1F988D2B33CB8D27",&H321
+30 DATA "1F988D23E7C04A26",&H37E
+35 DATA "F9E684C42026FACC",&H533
+40 DATA "0A02E700C6031E88",&H262
+45 DATA "1F884A26F58D0827",&H2C8
+50 DATA "D5E784ECC36ECB34",&H55C
+55 DATA "02C601E784E6842B",&H3C9
+60 DATA "FCE6842BF8C6801E",&H4ED
+65 DATA "881F88A600485624",&H297
+70 DATA "F63582",&H1AD
+75 '
+80 LOCATE,,0:CLS:CONSOLE,,1
+85 D=PEEK(&HFFF2)
+90 IF D&lt;128 THEN D=16384 ELSE D=0
+95 A=D
+100 FOR I=1 TO 13
+105  READ A$,C:R=0
+110  FOR J=1 TO LEN(A$)-1 STEP2
+115   V=VAL("&H"+MID$(A$,J,2))
+120   R=R+V
+125   POKE A,V
+130   A=A+1
+135  NEXTJ
+140  IF R&lt;&gt;C THEN PRINT"Error line";I;"of datas (&H";HEX$(R);"&lt;&gt;&H";HEX$(C);")":END
+145 NEXTI
+150 '
+155 A=D/256
+160 POKE D+1,&HA7+A:POKE D+4,&H05+A
+165 EXEC D
+</pre></blockquote></blockquote>
+
+<p>Proc&eacute;dez ensuite &agrave; l'installation en lan&ccedil;ant le programme c&ocirc;t&eacute; PC avec l'option -i ou l'option --install (mode console) ou en demandant une installation sans disquette (mode fen&ecirc;tr&eacute;).</p>
+
+<p><a name="run"></a></p>
+
+<h5>Fonctionnement g&eacute;n&eacute;ral</h5>
+
+<p>Lancer CC90 en appuyant sur la touche de lancement du Basic au menu g&eacute;n&eacute;ral (lancement de l'AUTO.BAT) ou par un RUN"CC90" &agrave; partir du Basic. Ne soyez pas inquiet au sujet de la partie incoh&eacute;rente de l'&eacute;cran en-dessous du titre : il s'agit du programme binaire.</p>
+
+<p>... et lors d'un transfert, la date sera mise &agrave; jour automatiquement sur le Thomson (TO8/TO8D/TO9+).</p>
+
+<p>Une fois le programme lanc&eacute;, le Thomson travaille alors exclusivement en "esclave".</p>
+
+<p><a name="errors"></a></p>
+
+<h5>Messages d'erreur</h5>
+
+<table border="1" width="100%">
+<tr><td style="white-space:nowrap"><b>COM Not Ready</b></td><td>L'interface CC90-232 n'a pas &eacute;t&eacute; raccord&eacute;e au Thomson. Eteignez votre Thomson, branchez l'interface, allumez &agrave; nouveau le Thomson et relancez CC90</td></tr>
+<tr><td style="white-space:nowrap"><b>COM Bstart Error</b></td><td>Le Thomson a eu &agrave; attendre trop longtemps lors de la r&eacute;ception d'une donn&eacute;e</td></tr>
+<tr><td style="white-space:nowrap"><b>COM Crc Error</b></td><td>Le bloc de donn&eacute;es re&ccedil;u par le Thomson n'est pas valide</td></tr>
+<tr><td style="white-space:nowrap"><b>COM Rts Error</b></td><td>Le Thomson a eu &agrave; attendre trop longtemps lors de l'&eacute;mission d'une donn&eacute;e</td></tr>
+<tr><td style="white-space:nowrap"><b>Disk Protected</b></td><td>La disquette est prot&eacute;g&eacute;e en &eacute;criture alors qu'une sauvegarde est tent&eacute;e</td></tr>
+<tr><td style="white-space:nowrap"><b>Disk I/O Error</b></td><td>Il y a un probl&egrave;me avec la disquette</td></tr>
+<tr><td style="white-space:nowrap"><b>Disk Not Ready</b></td><td>La disquette n'a pas &eacute;t&eacute; ins&eacute;r&eacute;e dans le lecteur</td></tr>
+<tr><td style="white-space:nowrap"><b>Break</b></td><td>Le Thomson a re&ccedil;u un bloc de code inconnu (assez rare)</td></tr>
+</table>
+
+<hr>
+<center><p>Teo developers &copy; 1997-2013 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+</td></tr></table>
+</body>
+</html>

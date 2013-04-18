@@ -1,0 +1,18 @@
+###Foire aux questions
+
+* <a href="#0">Pourquoi avoir choisi l'interface CC90-232 ?</a>
+* <a href="#1">Puis-je utiliser l'interface RF57-932 avec le programme CC90 ?</a>
+* <a href="#2">Pourquoi une vitesse de 38400 bauds ?</a>
+
+<a name="0"></a>
+######Pourquoi avoir choisi la CC90-232 ? N'existe-t-il pas une interface compatible avec les TO de derni&egrave;re g&eacute;n&eacute;ration ?
+Oui, il existe une interface qui fonctionne sur les TO8, TO8D et TO9+ : la RF57-932. Mais on la trouve difficilement.
+
+<a name="1"></a>
+######Puis-je utiliser l'interface RF57-932 avec les programmes de CC90 ?
+Non. Les registres hardware ne sont pas les m&ecirc;mes que ceux de la CC90-232. Le programme CC90 ne fonctionnera donc pas.
+
+<a name="2"></a>
+######Pourquoi une vitesse de 38400 bauds ?
+On aurait pu choisir une vitesse plus grande, comme 57600 bauds, par exemple. Mais, d'une part, un cycle thomson est indivisible, et une vitesse de 57600 bauds aurait n&eacute;c&eacute;ssit&eacute; un tempo de 17,333 cycles. D'autre part, une vitesse un peu r&eacute;duite permet de calculer le CRC des blocs de donn&eacute;es pendant la transmission, et aussi d'&ecirc;tre plus &agrave; l'aise dans les boucles.
+

@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Teo</title>
+<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+<body>
+<table width="100%"><tr><td>
+
+<h3>Foire aux questions</h3>
+
+<ul>
+<li><a href="#0">Pourquoi avoir choisi l'interface CC90-232 ?</a></li>
+<li><a href="#1">Puis-je utiliser l'interface RF57-932 avec le programme CC90 ?</a></li>
+<li><a href="#2">Pourquoi une vitesse de 38400 bauds ?</a></li>
+</ul>
+
+<p><a name="0"></a></p>
+
+<h6>Pourquoi avoir choisi la CC90-232 ? N'existe-t-il pas une interface compatible avec les TO de derni&egrave;re g&eacute;n&eacute;ration ?</h6>
+
+<p>Oui, il existe une interface qui fonctionne sur les TO8, TO8D et TO9+ : la RF57-932. Mais on la trouve difficilement.</p>
+
+<p><a name="1"></a></p>
+
+<h6>Puis-je utiliser l'interface RF57-932 avec les programmes de CC90 ?</h6>
+
+<p>Non. Les registres hardware ne sont pas les m&ecirc;mes que ceux de la CC90-232. Le programme CC90 ne fonctionnera donc pas.</p>
+
+<p><a name="2"></a></p>
+
+<h6>Pourquoi une vitesse de 38400 bauds ?</h6>
+
+<p>On aurait pu choisir une vitesse plus grande, comme 57600 bauds, par exemple. Mais, d'une part, un cycle thomson est indivisible, et une vitesse de 57600 bauds aurait n&eacute;c&eacute;ssit&eacute; un tempo de 17,333 cycles. D'autre part, une vitesse un peu r&eacute;duite permet de calculer le CRC des blocs de donn&eacute;es pendant la transmission, et aussi d'&ecirc;tre plus &agrave; l'aise dans les boucles.</p>
+
+<hr>
+<center><p>Teo developers &copy; 1997-2013 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+</td></tr></table>
+</body>
+</html>

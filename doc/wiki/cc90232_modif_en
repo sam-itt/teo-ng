@@ -1,0 +1,95 @@
+###Modifying the CC90-232 interface
+
+<center><i>This achievement is an original idea of OncleTom and Prehisto</i></center>
+
+<center><img src="modif1.jpg" alt="CC90-232 interface unfolded"></center>
+
+* <a href="#a">Equipment</a>
+* <a href="#b">Scraping off the stripboard</a>
+* <a href="#c">Soldering the components</a>
+* <a href="#d">Testing the circuit</a>
+* <a href="#e">Desoldering the useless components</a>
+* <a href="#f">Connecting the interface</a>
+* <a href="#g">Integrating the voltage converter</a>
+
+<a name="a"></a>
+####Equipment
+
+The CC90-232 interface, as such, can not work properly in serial mode on rare Thomson what have -5 volts supply, in addition to 12 volts.
+
+The designers of the CC90-232 interface used simple components to convert 12 volts into -12 volts. The voltage of -5 volts is used to prevent the power loss due to dissipation.
+
+Nowadays, some components are able to convert a positive voltage into a negative voltage without loss. The deal is to create the -12 volts from the 12 volts supplied by Thomson ... without passing through the -5 volts.
+
+What is necessary:
+
+* A 8x8 holes pre-drilled stripboard on 0.1 inch (2.54 mm) centers
+* A DIL component that is able to convert the 12 volts into -12 volts (here: a 7660SCPAZ of Intersil
+* Two capacitors 10&micro;F 35v (as required by the IC... so it depends on the IC ;-)
+* Three  wires to connect the assembled interface
+
+<a name="b"></a>
+####Scraping off the stripboard
+
+You must first scrape off four strips in the middle of the stripboard. Use, for example, a retractable blade knife to cut the strips either side of the zone and then scratch the copper with it.
+
+<center><img src="modif2.jpg" alt="Stripboard copper side">
+<img src="modif3.jpg" alt="Stripboard component side"></center>
+
+<a name="c"></a>
+####Soldering the components
+
+A pretty simple wiring. To further facilitate the work, start with straps that you will make with the pin connectors of the two capacitors. Solder then the IC and finally the capacitors. Finally, solder the three wires (here white, green and black, but colours don't matter). Interface side, the white wire is connected to the 12 volts, the black one to the ground and the green one to the well expected -12 volts.
+
+<center><img src="modif3a.gif" alt="Extract from datasheets">
+<img src="modif3b.gif" alt="Extract from datasheets"></center>
+<center><img src="modif4.gif" alt="PCB layout">
+<img src="modif5.jpg" alt="Component side of the wiring">
+<img src="modif6.jpg" alt="Copper side of the wiring"></center>
+
+Be sure to solder the IC on the horse and scraped in the direction indicated.
+
+<a name="d"></a>
+####Testing the circuit
+
+Use an electric battery which not exceeds 12 volts. Connect the white wire to the +, the black wire to the - and check with a multimeter that there is an inverted voltage between the green wire and the - of the battery.
+
+<a name="e"></a>
+####Desoldering the useless components
+
+This operation will allow you to put the voltage converter into the space created once everything is finished. The identification is all the easier given that the name of each component is printed on the circuit board.
+
+<center><img src="modif7.jpg" alt="Before" border="1">
+<img src="modif8.jpg" alt="After" border="1"></center>
+<center><img src="modif9.gif" alt="Voltage converter layout" border="1"></center>
+
+Just remove:
+
+* T1, T2, T3 and T4
+* R2, R3, R4, R5, R6, R7, R8 and R9
+* C5, C6 and C8
+* D1, D2 and D3
+
+<a name="f"></a>
+####Connecting the interface
+
+Connect the green wire to the + of D3, the black wire to the - of D3, and the white wire to 12 volts (thicker circuit on the
+ left), after reducing the wire to a minimum length. Also check the inclination of the solder so that the wires go in the
+ opposite direction of the ribbon cable.
+
+<center><img src="modif10.jpg" alt="Wiring of the voltage converter">
+<img src="modif11.jpg" alt="Close up of the wiring" border="1"></center>
+
+Now wrap your wiring in a thin cardboard to avoid short circuits.
+
+<center><img src="modif12.jpg" alt="Integration of the voltage converter"></center>
+
+<a name="g"></a>
+####Integrating the voltage converter
+
+Place all at the location of the desoldered components and close the interface. Don't forget to replace the insulating sheet between the two parts of printed circuit boards.
+
+<p>Your interface is ready for use.</p>
+
+<center><img src="modif13.jpg" alt="Interface plugged to a TO9+" border="1"></center>
+

@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Teo</title>
+<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+<body>
+<table width="100%"><tr><td>
+
+<h3>Modification de l'interface CC90-232</h3>
+
+<p><center><i>Cette r&eacute;alisation est originellement une id&eacute;e de OncleTom et Prehisto</i></center></p>
+
+<p><center><img src="images/modif1.jpg" alt="Interface CC90-232 d&eacute;pli&eacute;e"></center></p>
+
+<ul>
+<li><a href="#a">Mat&eacute;riel</a></li>
+<li><a href="#b">Gratter la plaque d'essai</a></li>
+<li><a href="#c">Souder les composants</a></li>
+<li><a href="#d">Tester le circuit</a></li>
+<li><a href="#e">Dessouder les composants de l'interface devenus inutiles</a></li>
+<li><a href="#f">Raccorder le montage &agrave; l'interface</a></li>
+</ul>
+
+<p><a name="a"></a></p>
+
+<h4>Mat&eacute;riel</h4>
+
+<p>L'interface CC90-232, telle quelle, ne peut fonctionner correctement en mode s&eacute;rie que sur de rares Thomson qui poss&egrave;dent une alimentation -5 volts, en plus du 12 volts.</p>
+
+<p>Les concepteurs de l'interface CC90-232 ont utilis&eacute; des composants simples pour convertir le 12 volts en -12 volts. La  tension de -5 volts est utilis&eacute;e pour pr&eacute;venir la perte de puissance due &agrave; la dissipation.</p></p>
+
+<p>De nos jours, il existe des composants capables de convertir une tension positive en tension n&eacute;gative sans perte. Le but du jeu est donc de cr&eacute;er le -12 volts &agrave; partir du 12 volts d&eacute;livr&eacute; par le Thomson... sans passer par le -5 volts.</p></p>
+
+<p>Il va donc vous falloir :</p>
+
+<ul>
+<li>Une plaque d'essai pr&eacute;perc&eacute;e &agrave; bandes de 8 trous sur 8 trous (au pas de 2.54)</li>
+<li>Un composant DIL pouvant convertir le 12 volts en -12 volts (ici : un 7660SCPAZ de chez Intersil vu chez Farnell <a href="http://fr.farnell.com/" TARGET="_blank">http://fr.farnell.com/</a>)</li>
+<li>Deux condensateurs annexes 10&micro;F 35v (exigés par le CI... donc, &ccedil;a d&eacute;pend du CI.</li>
+<li>Trois fils de quelques centim&egrave;tres pour connecter le montage &agrave; l'interface</li>
+</ul>
+
+<p><a name="b"></a></p>
+
+<h4>Gratter la plaque d'essai</h4>
+
+<p>Vous devez tout d'abord gratter la plaque d'essai sur quatre bandes en plein milieu. Utilisez, par exemple, la pointe d'un cutter pour couper les bandes de part et d'autre de la zone &agrave; gratter et pour ensuite gratter le cuivre.</p>
+
+<p><center><img src="images/modif2.jpg" alt="Plaque d'essai c&ocirc;t&eacute; cuivre">
+<img src="images/modif3.jpg" alt="Plaque d'essai c&ocirc;t&eacute; composants"></center></p>
+
+<p><a name="c"></a></p>
+
+<h4>Souder les composants</h4>
+
+<p>Un montage assez simple, en somme. Pour vous faciliter encore la t&acirc;che, commencez par les straps, que vous fabriquerez avec les pattes des deux condensateurs, puis le CI et enfin les condensateurs. Pour finir, soudez les trois fils (ici blanc, vert et noir, mais peu importe la couleur). C&ocirc;t&eacute; interface, le fil blanc sera soud&eacute; sur le 12 volts, le noir sur la masse, et le vert d&eacute;livrera le -12 volts tant esp&eacute;r&eacute;.</p>
+
+<p><center><img src="images/modif3a.gif" alt="Extrait des datasheets">
+<img src="images/modif3b.gif" alt="Extrait des datasheets"></center>
+<center><img src="images/modif4.gif" alt="Sch&eacute;ma de montage">
+<img src="images/modif5.jpg" alt="Montage c&ocirc;t&eacute; composants">
+<img src="images/modif6.jpg" alt="Montage c&ocirc;t&eacute; cuivre"></center></p>
+
+<p>Veillez bien &agrave; souder le CI &agrave; cheval sur la partie gratt&eacute;e et dans le sens indiqu&eacute;.</p>
+
+<p><a name="d"></a></p>
+
+<h4>Tester le circuit</h4>
+
+<p>Utilisez une pile &eacute;lectrique ne d&eacute;passant pas 12 volts (une pile de 4,5 volts fera l'affaire). Branchez le fil blanc sur le +, le fil noir sur le -, et v&eacute;rifiez avec un multim&egrave;tre qu'il y a bien une tension inverse &agrave; celle de la pile entre le fil vert et le - de la pile.</p>
+
+<p><a name="e"></a></p>
+
+<h4>Dessouder les composants de l'interface devenus inutiles</h4>
+
+<p>Cette op&eacute;ration va vous permettre de loger le montage du convertisseur de tension dans l'espace ainsi cr&eacute;&eacute; une fois que tout sera fini. Leur rep&eacute;rage est d'autant plus facile que les composants sont s&eacute;rigraphi&eacute;s sur le circuit imprim&eacute;.</p>
+
+<p><center><img src="images/modif7.jpg" alt="Avant" border="1">
+<img src="images/modif8.jpg" alt="Apr&egrave;s" border="1">
+<img src="images/modif9.gif" alt="Sh&eacute;ma du convertisseur de tension" border="1"></center></p>
+
+<p>Vous pouvez donc retirer :</p>
+
+<ul>
+<li>T1, T2, T3 et T4</li>
+<li>R2, R3, R4, R5, R6, R7, R8 et R9</li>
+<li>C5, C6 et C8</li>
+<li>D1, D2 et D3</li>
+</ul>
+
+<p><a name="f"></a></p>
+
+<h4>Raccorder le montage &agrave; l'interface</h4>
+
+<p>Reliez le fil vert sur le + de D3, le fil noir sur le - de D3, et le blanc au 12 volts (le circuit &eacute;pais sur la gauche), apr&egrave;s avoir réduit ces fils &agrave; une longueur minimum. V&eacute;rifiez aussi l'inclinaison de la soudure de telle fa&ccedil;on que les fils aillent dans le sens oppos&eacute; au composants pr&egrave;s de la nappe. (photos non contractuelles).</p>
+
+<p><center><img src="images/modif10.jpg" alt="Montage du convertisseur de tension">
+<img src="images/modif11.jpg" alt="Gros plan sur le c&acirc;blage du convertisseur de tension" border="1"></center></p>
+
+<p>Vous pouvez maintenant encapsuler votre petit montage dans un carton fin (du carton de chemise, par exemple) pour &eacute;viter les courts-circuits.</p>
+
+<p><center><img src="images/modif12.jpg" alt="Int&eacute;gration du convertisseur de tension"></center></p>
+
+<p>Placer le tout &agrave; l'endroit des composants dessoud&eacute;s et refermez l'interface, en n'oubliant pas de replacer la feuille isolante entre les deux volets de circuits imprim&eacute;s.</p>
+
+<p>Votre interface est pr&ecirc;te &agrave; l'emploi.</p>
+
+<p><center><img src="images/modif13.jpg" alt="Interface branch&eacute;e sur un TO9+" border="1"></center></p>
+
+<hr>
+<center><p>Teo developers &copy; 1997-2013 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+</td></tr></table>
+</body>
+</html>

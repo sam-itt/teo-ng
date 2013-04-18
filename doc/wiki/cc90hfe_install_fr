@@ -1,0 +1,3 @@
+###Installation de CC90HFE
+
+Normalement, le port s&eacute;rie est d&eacute;tect&eacute; automatiquement par CC90HFE. Mais si tel n'est pas le cas, vous pourrez toujours forcer le nom du port s&eacute;rie dans le fichier cc90hfe.ini qui sera cr&eacute;&eacute; d&egrave;s le premier lancement de CC90HFE, en face de la clef 'port_name' dans la section '[serial]'.

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Teo</title>
+<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+<body>
+<table width="100%"><tr><td>
+
+<h3>Modifying the CC90-232 interface</h3>
+
+<p><center><i>This achievement is an original idea of OncleTom and Prehisto</i></center></p>
+
+<p><center><img src="images/modif1.jpg" alt="CC90-232 interface unfolded"></center></p>
+
+<ul>
+<li><a href="#a">Equipment</a></li>
+<li><a href="#b">Scraping off the stripboard</a></li>
+<li><a href="#c">Soldering the components</a></li>
+<li><a href="#d">Testing the circuit</a></li>
+<li><a href="#e">Desoldering the useless components</a></li>
+<li><a href="#f">Connecting the interface</a></li>
+<li><a href="#g">Integrating the voltage converter</a></li>
+</ul>
+
+<p><a name="a"></a></p>
+
+<h4>Equipment</h4>
+
+<p>The CC90-232 interface, as such, can not work properly in serial mode on rare Thomson what have -5 volts supply, in addition to 12 volts.</p>
+
+<p>The designers of the CC90-232 interface used simple components to convert 12 volts into -12 volts. The voltage of -5 volts is used to prevent the power loss due to dissipation.</p>
+
+<p>Nowadays, some components are able to convert a positive voltage into a negative voltage without loss. The deal is to create the -12 volts from the 12 volts supplied by Thomson ... without passing through the -5 volts.</p>
+
+<p>What is necessary:</p>
+
+<ul>
+<li>A 8x8 holes pre-drilled stripboard on 0.1 inch (2.54 mm) centers</li>
+<li>A DIL component that is able to convert the 12 volts into -12 volts (here: a 7660SCPAZ of Intersil</li>
+<li>Two capacitors 10&micro;F 35v (as required by the IC... so it depends on the IC ;-)</li>
+<li>Three  wires to connect the assembled interface</li>
+</ul>
+
+<p><a name="b"></a></p>
+
+<h4>Scraping off the stripboard</h4>
+
+<p>You must first scrape off four strips in the middle of the stripboard. Use, for example, a retractable blade knife to cut the strips either side of the zone and then scratch the copper with it.</p>
+
+<p><center><img src="images/modif2.jpg" alt="Stripboard copper side">
+<img src="images/modif3.jpg" alt="Stripboard component side"></center></p>
+
+<p><a name="c"></a></p>
+
+<h4>Soldering the components</h4>
+
+<p>A pretty simple wiring. To further facilitate the work, start with straps that you will make with the pin connectors of the two capacitors. Solder then the IC and finally the capacitors. Finally, solder the three wires (here white, green and black, but colours don't matter). Interface side, the white wire is connected to the 12 volts, the black one to the ground and the green one to the well expected -12 volts.</p>
+
+<p><center><img src="images/modif3a.gif" alt="Extract from datasheets">
+<img src="images/modif3b.gif" alt="Extract from datasheets"></center>
+<center><img src="images/modif4.gif" alt="PCB layout">
+<img src="images/modif5.jpg" alt="Component side of the wiring">
+<img src="images/modif6.jpg" alt="Copper side of the wiring"></center></p>
+
+<p>Be sure to solder the IC on the horse and scraped in the direction indicated.</p>
+
+<p><a name="d"></a></p>
+
+<h4>Testing the circuit</h4>
+
+<p>Use an electric battery which not exceeds 12 volts. Connect the white wire to the +, the black wire to the - and check with a multimeter that there is an inverted voltage between the green wire and the - of the battery.</p>
+
+<p><a name="e"></a></p>
+
+<h4>Desoldering the useless components</h4>
+
+<p>This operation will allow you to put the voltage converter into the space created once everything is finished. The identification is all the easier given that the name of each component is printed on the circuit board.</p>
+
+<p><center><img src="images/modif7.jpg" alt="Before" border="1">
+<img src="images/modif8.jpg" alt="After" border="1"></center>
+<center><img src="images/modif9.gif" alt="Voltage converter layout" border="1"></center></p>
+
+<p>Just remove:</p>
+
+<ul>
+<li>T1, T2, T3 and T4</li>
+<li>R2, R3, R4, R5, R6, R7, R8 and R9</li>
+<li>C5, C6 and C8</li>
+<li>D1, D2 and D3</li>
+</ul>
+
+<p><a name="f"></a></p>
+
+<h4>Connecting the interface</h4>
+
+<p>Connect the green wire to the + of D3, the black wire to the - of D3, and the white wire to 12 volts (thicker circuit on the
+ left), after reducing the wire to a minimum length. Also check the inclination of the solder so that the wires go in the
+ opposite direction of the ribbon cable.</p>
+
+<p><center><img src="images/modif10.jpg" alt="Wiring of the voltage converter">
+<img src="images/modif11.jpg" alt="Close up of the wiring" border="1"></center></p>
+
+<p>Now wrap your wiring in a thin cardboard to avoid short circuits.</p>
+
+<p><center><img src="images/modif12.jpg" alt="Integration of the voltage converter"></center></p>
+
+<p><a name="g"></a></p>
+
+<h4>Integrating the voltage converter</h4>
+
+<p>Place all at the location of the desoldered components and close the interface. Don't forget to replace the insulating sheet between the two parts of printed circuit boards.</p>
+
+<p>Your interface is ready for use.</p>
+
+<p><center><img src="images/modif13.jpg" alt="Interface plugged to a TO9+" border="1"></center></p>
+
+<hr>
+<center><p>Teo developers &copy; 1997-2013 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,18 @@
+###FAQs
+
+* <a href="#0">Why choosing the CC90-232 interface ?</a>
+* <a href="#1">Is it possible to use the RF57-932 interface with CC90 program ?</a>
+* <a href="#2">Why a 38400 baud speed ?</a>
+
+<a name="0"></a>
+######Why choosing the CC90-232 interface ? There is an interface compatible with Thomsons of last generation, isn't it ?
+Yes, there is an interface which works with TO8, TO8D and TO9+ : the RF57-932 interface. But it's hard to find it.
+
+<a name="1"></a>
+######Is it possible to use the RF57-932 interface with CC90 program ?
+No. Hardware registers are not similar. CC90 program won't then work.
+
+<a name="2"></a>
+######Why a 38400 baud speed ?
+We could choose a higher speed, like 57600 baud, for exemple. First, a 6809 cycle can't be divided, and a 57600 baud speed need a temporization of 17.333 cycles. Next, a slower speed gives the opportunity to calculate the CRC during  the transmission, and to be more comfortable in loops.
+

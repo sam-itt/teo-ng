@@ -1,0 +1,77 @@
+###Installation de CC90 c&ocirc;t&eacute; Thomson
+
+* <a href="./#install">Installer CC90 sans la disquette</a>
+* <a href="./#run">Fonctionnement g&eacute;n&eacute;ral</a>
+* <a href="./#errors">Messages d'erreur</a>
+
+<center><img src="thomson1.gif" alt="Ecran Thomson de CC90"></center>
+
+<a name="install"></a>
+#####Installer CC90 sans la disquette
+
+Votre syst&egrave;me ne vous permet pas de transf&eacute;rer le fichier cc90.sap sur une disquette Thomson ? CC90 peut &ecirc;tre lanc&eacute; &agrave; partir du PC !
+
+Il vous suffit de recopier le programme suivant sur votre Thomson sous Basic, de le sauver et de le lancer :
+
+<blockquote><blockquote><pre>
+0 'SAVE\"INSTALL.BAS\",A
+5 '
+10 DATA \"8EE7E0CE45001A50\",&amp;H3D2
+15 DATA \"4F5FED02CC03FFED\",&amp;H458
+20 DATA \"84CC043CED028D2F\",&amp;H33B
+25 DATA \"1F988D2B33CB8D27\",&amp;H321
+30 DATA \"1F988D23E7C04A26\",&amp;H37E
+35 DATA \"F9E684C42026FACC\",&amp;H533
+40 DATA \"0A02E700C6031E88\",&amp;H262
+45 DATA \"1F884A26F58D0827\",&amp;H2C8
+50 DATA \"D5E784ECC36ECB34\",&amp;H55C
+55 DATA \"02C601E784E6842B\",&amp;H3C9
+60 DATA \"FCE6842BF8C6801E\",&amp;H4ED
+65 DATA \"881F88A600485624\",&amp;H297
+70 DATA \"F63582\",&amp;H1AD
+75 '
+80 LOCATE,,0:CLS:CONSOLE,,1
+85 D=PEEK(&amp;HFFF2)
+90 IF D&lt;128 THEN D=16384 ELSE D=0
+95 A=D
+100 FOR I=1 TO 13
+105  READ A$,C:R=0
+110  FOR J=1 TO LEN(A$)-1 STEP2
+115   V=VAL(\"&amp;H\"+MID$(A$,J,2))
+120   R=R+V
+125   POKE A,V
+130   A=A+1
+135  NEXTJ
+140  IF R&lt;&gt;C THEN PRINT\"Error line\";I;\"of datas (&amp;H\";HEX$(R);\"&lt;&gt;&amp;H\";HEX$(C);\")\":END
+145 NEXTI
+150 '
+155 A=D/256
+160 POKE D+1,&amp;HA7+A:POKE D+4,&amp;H05+A
+165 EXEC D
+</pre></blockquote></blockquote>
+
+Proc&eacute;dez ensuite &agrave; l'installation en lan&ccedil;ant le programme c&ocirc;t&eacute; PC avec l'option -i ou l'option --install (mode console) ou en demandant une installation sans disquette (mode fen&ecirc;tr&eacute;).
+
+<a name="run"></a>
+#####Fonctionnement g&eacute;n&eacute;ral
+
+Lancer CC90 en appuyant sur la touche de lancement du Basic au menu g&eacute;n&eacute;ral (lancement de l'AUTO.BAT) ou par un RUN"CC90" &agrave; partir du Basic. Ne soyez pas inquiet au sujet de la partie incoh&eacute;rente de l'&eacute;cran en-dessous du titre : il s'agit du programme binaire.
+
+... et lors d'un transfert, la date sera mise &agrave; jour automatiquement sur le Thomson (TO8/TO8D/TO9+).
+
+Une fois le programme lanc&eacute;, le Thomson travaille alors exclusivement en "esclave".
+
+<a name="errors"></a>
+#####Messages d'erreur
+
+<table border="1" width="100%">
+<tr><td style="white-space:nowrap"><b>COM Not Ready</b></td><td>L'interface CC90-232 n'a pas &eacute;t&eacute; raccord&eacute;e au Thomson. Eteignez votre Thomson, branchez l'interface, allumez &agrave; nouveau le Thomson et relancez CC90</td></tr>
+<tr><td style="white-space:nowrap"><b>COM Bstart Error</b></td><td>Le Thomson a eu &agrave; attendre trop longtemps lors de la r&eacute;ception d'une donn&eacute;e</td></tr>
+<tr><td style="white-space:nowrap"><b>COM Crc Error</b></td><td>Le bloc de donn&eacute;es re&ccedil;u par le Thomson n'est pas valide</td></tr>
+<tr><td style="white-space:nowrap"><b>COM Rts Error</b></td><td>Le Thomson a eu &agrave; attendre trop longtemps lors de l'&eacute;mission d'une donn&eacute;e</td></tr>
+<tr><td style="white-space:nowrap"><b>Disk Protected</b></td><td>La disquette est prot&eacute;g&eacute;e en &eacute;criture alors qu'une sauvegarde est tent&eacute;e</td></tr>
+<tr><td style="white-space:nowrap"><b>Disk I/O Error</b></td><td>Il y a un probl&egrave;me avec la disquette</td></tr>
+<tr><td style="white-space:nowrap"><b>Disk Not Ready</b></td><td>La disquette n'a pas &eacute;t&eacute; ins&eacute;r&eacute;e dans le lecteur</td></tr>
+<tr><td style="white-space:nowrap"><b>Break</b></td><td>Le Thomson a re&ccedil;u un bloc de code inconnu (assez rare)</td></tr>
+</table>
+

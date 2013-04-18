@@ -1,0 +1,16 @@
+###CC90HFE
+
+<b>CC90</b> is a 38400 baud serial transfer program (about 4ko every second) between today computers and the Thomson. To make it work right, you need some material :
+
+* An USB/RS232 adapter (or USB-Serial) you could find it in the shops or on the Internet. Choose a Prolific PL2303 chipset, whose technology is compatible with most of platforms.
+* A CC90-232 interface, that you already have or you will find on the Internet, and that you will have to modify.
+* A DB25/DB9 adapter fully wired (no 'null modem'!).
+
+The little electronic modification won't alter your interface faculties.
+
+* [FAQ for CC90](../cc90232_faq_en)
+* [Modifying the CC90-232 interface](../cc90232_modif_en)
+* [The DB25-DB9 adaptor](../cc90232_adapt_en)
+* [Installing CC90 (Thomson side)](../cc90_thomson_en)
+* [Installing CC90HFE](../cc90hfe_install_en)
+

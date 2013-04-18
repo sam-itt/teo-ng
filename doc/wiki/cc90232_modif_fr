@@ -1,0 +1,89 @@
+###Modification de l'interface CC90-232
+
+<center><i>Cette r&eacute;alisation est originellement une id&eacute;e de OncleTom et Prehisto</i></center>
+
+<center><img src="modif1.jpg" alt="Interface CC90-232 d&eacute;pli&eacute;e"></center>
+
+* <a href="#a">Mat&eacute;riel</a>
+* <a href="#b">Gratter la plaque d'essai</a>
+* <a href="#c">Souder les composants</a>
+* <a href="#d">Tester le circuit</a>
+* <a href="#e">Dessouder les composants de l'interface devenus inutiles</a>
+* <a href="#f">Raccorder le montage &agrave; l'interface</a>
+
+<a name="a"></a>
+####Mat&eacute;riel
+
+L'interface CC90-232, telle quelle, ne peut fonctionner correctement en mode s&eacute;rie que sur de rares Thomson qui poss&egrave;dent une alimentation -5 volts, en plus du 12 volts.
+
+Les concepteurs de l'interface CC90-232 ont utilis&eacute; des composants simples pour convertir le 12 volts en -12 volts. La  tension de -5 volts est utilis&eacute;e pour pr&eacute;venir la perte de puissance due &agrave; la dissipation.</p>
+
+De nos jours, il existe des composants capables de convertir une tension positive en tension n&eacute;gative sans perte. Le but du jeu est donc de cr&eacute;er le -12 volts &agrave; partir du 12 volts d&eacute;livr&eacute; par le Thomson... sans passer par le -5 volts.</p>
+
+Il va donc vous falloir :
+
+* Une plaque d'essai pr&eacute;perc&eacute;e &agrave; bandes de 8 trous sur 8 trous (au pas de 2.54)
+* Un composant DIL pouvant convertir le 12 volts en -12 volts (ici : un 7660SCPAZ de chez Intersil vu chez Farnell <a href="http://fr.farnell.com/" TARGET="_blank">http://fr.farnell.com/</a>)
+* Deux condensateurs annexes 10&micro;F 35v (exigés par le CI... donc, &ccedil;a d&eacute;pend du CI.
+* Trois fils de quelques centim&egrave;tres pour connecter le montage &agrave; l'interface
+
+<a name="b"></a>
+####Gratter la plaque d'essai
+
+Vous devez tout d'abord gratter la plaque d'essai sur quatre bandes en plein milieu. Utilisez, par exemple, la pointe d'un cutter pour couper les bandes de part et d'autre de la zone &agrave; gratter et pour ensuite gratter le cuivre.
+
+<center><img src="modif2.jpg" alt="Plaque d'essai c&ocirc;t&eacute; cuivre">
+<img src="modif3.jpg" alt="Plaque d'essai c&ocirc;t&eacute; composants"></center>
+
+<a name="c"></a>
+####Souder les composants
+
+Un montage assez simple, en somme. Pour vous faciliter encore la t&acirc;che, commencez par les straps, que vous fabriquerez avec les pattes des deux condensateurs, puis le CI et enfin les condensateurs. Pour finir, soudez les trois fils (ici blanc, vert et noir, mais peu importe la couleur). C&ocirc;t&eacute; interface, le fil blanc sera soud&eacute; sur le 12 volts, le noir sur la masse, et le vert d&eacute;livrera le -12 volts tant esp&eacute;r&eacute;.
+
+<center><img src="modif3a.gif" alt="Extrait des datasheets">
+<img src="modif3b.gif" alt="Extrait des datasheets"></center>
+<center><img src="modif4.gif" alt="Sch&eacute;ma de montage">
+<img src="modif5.jpg" alt="Montage c&ocirc;t&eacute; composants">
+<img src="modif6.jpg" alt="Montage c&ocirc;t&eacute; cuivre"></center>
+
+Veillez bien &agrave; souder le CI &agrave; cheval sur la partie gratt&eacute;e et dans le sens indiqu&eacute;.
+
+<a name="d"></a>
+####Tester le circuit
+
+Utilisez une pile &eacute;lectrique ne d&eacute;passant pas 12 volts (une pile de 4,5 volts fera l'affaire). Branchez le fil blanc sur le +, le fil noir sur le -, et v&eacute;rifiez avec un multim&egrave;tre qu'il y a bien une tension inverse &agrave; celle de la pile entre le fil vert et le - de la pile.
+
+<a name="e"></a>
+####Dessouder les composants de l'interface devenus inutiles
+    
+Cette op&eacute;ration va vous permettre de loger le montage du convertisseur de tension dans l'espace ainsi cr&eacute;&eacute; une fois que tout sera fini. Leur rep&eacute;rage est d'autant plus facile que les composants sont s&eacute;rigraphi&eacute;s sur le circuit imprim&eacute;.
+
+<center><img src="modif7.jpg" alt="Avant" border="1">
+<img src="modif8.jpg" alt="Apr&egrave;s" border="1">
+<img src="modif9.gif" alt="Sh&eacute;ma du convertisseur de tension" border="1"></center>
+
+Vous pouvez donc retirer :
+
+* T1, T2, T3 et T4
+* R2, R3, R4, R5, R6, R7, R8 et R9
+* C5, C6 et C8
+* D1, D2 et D3
+
+<a name="f"></a>
+####Raccorder le montage &agrave; l'interface
+    
+Reliez le fil vert sur le + de D3, le fil noir sur le - de D3, et le blanc au 12 volts (le circuit &eacute;pais sur la gauche), apr&egrave;s avoir réduit ces fils &agrave; une longueur minimum. V&eacute;rifiez aussi l'inclinaison de la soudure de telle fa&ccedil;on que les fils aillent dans le sens oppos&eacute; au composants pr&egrave;s de la nappe. (photos non contractuelles).
+
+<center><img src="modif10.jpg" alt="Montage du convertisseur de tension">
+<img src="modif11.jpg" alt="Gros plan sur le c&acirc;blage du convertisseur de tension" border="1"></center>
+
+Vous pouvez maintenant encapsuler votre petit montage dans un carton fin (du carton de chemise, par exemple) pour &eacute;viter les courts-circuits.
+
+<center><img src="modif12.jpg" alt="Int&eacute;gration du convertisseur de tension"></center>
+
+Placer le tout &agrave; l'endroit des composants dessoud&eacute;s et refermez l'interface, en n'oubliant pas de replacer la feuille isolante entre les deux volets de circuits imprim&eacute;s.
+
+Votre interface est pr&ecirc;te &agrave; l'emploi.
+
+<center><img src="modif13.jpg" alt="Interface branch&eacute;e sur un TO9+" border="1"></center>
+
