@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,7 @@
 #ifndef MEMO_H
 #define MEMO_H
 
-extern int   memo_Check (const char filename[]);
+extern int   memo_IsMemo (const char filename[]);
 extern void  memo_Eject(void);
 extern int   memo_Load(const char filename[]);
 extern void  memo_FirstLoad (void);
