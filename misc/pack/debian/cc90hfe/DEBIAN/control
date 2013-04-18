@@ -1,0 +1,10 @@
+Package: cc90hfe
+Version: 0.5.0
+Architecture: i386
+Section: base
+Priority: optional
+Maintainer: François Mouret <fjjm@orange.fr>
+Homepage: http://sourceforge.net/projects/teoemulator/
+Installed-Size: <set by pack.sh>
+Description: Transfering between HFE files and Thomson disks
+
