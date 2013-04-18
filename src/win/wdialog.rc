@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -57,9 +57,6 @@ a           ICON   "src/win/thomson.ico"   // To force it to be the program icon
 thomson_ico ICON   "src/win/thomson.ico"
 empty_ico   ICON   "src/win/wgui/empty.ico"
 open_ico    ICON   "src/win/wgui/open.ico"
-cass_ico    ICON   "src/win/wgui/cass.ico"
-memo_ico    ICON   "src/win/wgui/memo.ico"
-disk_ico    ICON   "src/win/wgui/disk.ico"
 thomson_bmp BITMAP "src/win/thomson.bmp"
 panel_bmp   BITMAP "src/win/panel.bmp"
 to8_bmp     BITMAP "src/win/to8.bmp"
@@ -85,7 +82,7 @@ FILETYPE VFT_APP
             VALUE "FileDescription", "Teo - l'émulateur TO8"
             VALUE "FileVersion", TEO_VERSION_STR
             VALUE "InternalName", "TEOW.EXE"
-            VALUE "LegalCopyright", "Copyright © 1997-2012 Teo Developers"
+            VALUE "LegalCopyright", "Copyright © 1997-2013 Teo Developers"
             VALUE "OriginalFilename", "TEOW.EXE"
             VALUE "ProductName", "Teo"
             VALUE "ProductVersion", TEO_VERSION_STR
@@ -168,10 +165,14 @@ FONT 8, "Tahoma"
     PUSHBUTTON      "", DISK1_EJECT_BUTTON, 24, 26, 16, 13, BS_ICON, WS_EX_TRANSPARENT
     PUSHBUTTON      "", DISK2_EJECT_BUTTON, 24, 42, 16, 13, BS_ICON, WS_EX_TRANSPARENT
     PUSHBUTTON      "", DISK3_EJECT_BUTTON, 24, 58, 16, 13, BS_ICON, WS_EX_TRANSPARENT
-    COMBOBOX        DISK0_COMBO, 44, 10, 140, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
-    COMBOBOX        DISK1_COMBO, 44, 26, 140, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
-    COMBOBOX        DISK2_COMBO, 44, 42, 140, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
-    COMBOBOX        DISK3_COMBO, 44, 58, 140, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK0_COMBO, 44, 10, 114, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK1_COMBO, 44, 26, 114, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK2_COMBO, 44, 42, 114, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK3_COMBO, 44, 58, 114, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK0_SIDE_COMBO, 162, 10, 22, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK1_SIDE_COMBO, 162, 26, 22, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK2_SIDE_COMBO, 162, 42, 22, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        DISK3_SIDE_COMBO, 162, 58, 22, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
     PUSHBUTTON      "", DISK0_MORE_BUTTON, 188, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
     PUSHBUTTON      "", DISK1_MORE_BUTTON, 188, 26, 16, 13, BS_ICON, WS_EX_TRANSPARENT
     PUSHBUTTON      "", DISK2_MORE_BUTTON, 188, 42, 16, 13, BS_ICON, WS_EX_TRANSPARENT
@@ -210,7 +211,7 @@ FONT 8, "Tahoma"
     PUSHBUTTON      "&OK", IDOK, 140, 160, 40, 14, WS_GROUP | WS_TABSTOP
     CTEXT           "Teo (Windows/DirectX)\n Version "\
                     TEO_VERSION_STR, ABOUT_CTEXT_TITLE, 70, 6, 180, 42
-    CTEXT           "Copyright © 1997-2012\n Gilles Fétis, Eric Botcazou, Alexandre Pukall, "\
+    CTEXT           "Copyright © 1997-2013\n Gilles Fétis, Eric Botcazou, Alexandre Pukall, "\
                     "Jérémie Guillaume, François Mouret, Samuel Devulder", ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 50
     CONTROL         "", ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 70, 102, 180, 26
     CTEXT           "License GPL 2.0", ABOUT_CTEXT_LICENSE, 70, 130, 180, 16

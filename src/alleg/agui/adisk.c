@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,10 +51,14 @@
    #include <allegro.h>
 #endif
 
+#include "defs.h"
+#include "teo.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
+#include "media/disk/daccess.h"
 #include "error.h"
 #include "std.h"
 #include "teo.h"
@@ -77,32 +81,38 @@ static DIALOG diskdial[]={
   /* disk 0 */
 { d_text_proc,       30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "0:" },
 { d_button_proc,     47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  40, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_textbox_proc,    64,  40, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    202,  40,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
 { d_button_proc,    228,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 1 */
 { d_text_proc,       30,  68,   0,   0, 0, 0,   0,   0,    0, 0, "1:" },
 { d_button_proc,     47,  66,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  64, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_textbox_proc,    64,  64, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    202,  64,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
 { d_button_proc,    228,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260,  64,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 2 */
 { d_text_proc,       30,  92,   0,   0, 0, 0,   0,   0,    0, 0, "2:" },
 { d_button_proc,     47,  90,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  88, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_textbox_proc,    64,  88, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    202,  88,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
 { d_button_proc,    228,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260,  88,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* disk 3 */
 { d_text_proc,       30, 116,   0,   0, 0, 0,   0,   0,    0, 0, "3:" },
 { d_button_proc,     47, 114,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64, 112, 160,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_textbox_proc,    64, 112, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
+{ d_button_proc,    202, 112,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
 { d_button_proc,    228, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* direct disk */
 #ifdef FRENCH_LANG
 { d_button_proc,     30, 136, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "Accès &direct" },
+{ d_text_proc,      200,  30,   0,   0, 0, 0,   0,   0,    0, 0, "face" },
 #else
 { d_button_proc,     30, 146, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Direct access" },
+{ d_text_proc,      200,  30,   0,   0, 0, 0,   0,   0,    0, 0, "side" },
 #endif
 { d_text_proc,      255,  30,   0,   0, 0, 0,   0,   0,    0, 0, "prot." },
 { d_button_proc,    210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
@@ -110,29 +120,48 @@ static DIALOG diskdial[]={
 { NULL,               0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
 };
 
-#define DISKDIAL_EJECT0    3
-#define DISKDIAL_LABEL0    4
-#define DISKDIAL_BUTTON0   5
-#define DISKDIAL_CHECK0    6
+#define DISKDIAL_EJECT0   3
+#define DISKDIAL_LABEL0   4
+#define DISKDIAL_SIDE0    5
+#define DISKDIAL_BUTTON0  6
+#define DISKDIAL_CHECK0   7
 
-#define DISKDIAL_EJECT1    8
-#define DISKDIAL_LABEL1    9
-#define DISKDIAL_BUTTON1   10
-#define DISKDIAL_CHECK1    11
+#define DISKDIAL_EJECT1   9
+#define DISKDIAL_LABEL1   10
+#define DISKDIAL_SIDE1    11
+#define DISKDIAL_BUTTON1  12
+#define DISKDIAL_CHECK1   13
 
-#define DISKDIAL_EJECT2    13
-#define DISKDIAL_LABEL2    14
-#define DISKDIAL_BUTTON2   15
-#define DISKDIAL_CHECK2    16
+#define DISKDIAL_EJECT2   15
+#define DISKDIAL_LABEL2   16
+#define DISKDIAL_SIDE2    17
+#define DISKDIAL_BUTTON2  18
+#define DISKDIAL_CHECK2   19
 
-#define DISKDIAL_EJECT3    18
-#define DISKDIAL_LABEL3    19
-#define DISKDIAL_BUTTON3   20
-#define DISKDIAL_CHECK3    21
+#define DISKDIAL_EJECT3   21
+#define DISKDIAL_LABEL3   22
+#define DISKDIAL_SIDE3    23
+#define DISKDIAL_BUTTON3  24
+#define DISKDIAL_CHECK3   25
 
-#define DISKDIAL_DIRECT    22
+#define DISKDIAL_DIRECT   26
 
-#define DISKDIAL_OK        24
+#define DISKDIAL_OK       29
+
+
+
+/* :
+ *  Update the button for side.
+ */
+static void update_side_button(int drive)
+{
+    int dial_nbr = DISKDIAL_SIDE0+(DISKDIAL_SIDE1-DISKDIAL_SIDE0)*drive;
+
+    if (teo.disk[drive].side >= disk[drive].side_count)
+        teo.disk[drive].side = disk[drive].side_count - 1;
+    diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+    diskdial[dial_nbr].dp = std_strdup_printf ("%d", teo.disk[drive].side);
+}
 
 
 
@@ -163,7 +192,6 @@ static void init_filename(int drive)
 void adisk_Panel(void)
 {
     static int first=1;
-//    int i;
     int drive, ret, ret2;
     int dial_nbr;
     char *name = NULL;
@@ -176,6 +204,7 @@ void adisk_Panel(void)
         {
             init_filename(drive);
 
+            /* init disk name */
             dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
             if ((filename != NULL) && (*filename != '\0'))
                 diskdial[dial_nbr].dp = std_strdup_printf ("%s" , get_filename(filename));
@@ -184,14 +213,21 @@ void adisk_Panel(void)
             {
                 diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
                 diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                teo.disk[drive].side = 0;
+                disk[drive].side_count = 1;
             }
+
+            /* init disk protection */
             dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
             if (teo.disk[drive].write_protect)
             {
-                disk_SetMode(drive, TEO_READ_ONLY);
+                disk_SetProtection (drive, TRUE);
                 diskdial[dial_nbr].flags |= D_SELECTED;
                 diskdial[dial_nbr].d2 = 1;
             }
+
+            /* init disk side */
+            update_side_button(drive);
         }
 	    first=0;
     }
@@ -224,7 +260,7 @@ void adisk_Panel(void)
                 std_CleanPath (filename);
                 strcat (filename, "\\");
                 if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:",
-                                   filename, "sap", MAX_PATH,
+                                   filename, "sap;hfe;fd;qd", MAX_PATH,
                                    OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     ret2=disk_Load (drive, filename);
@@ -246,66 +282,31 @@ void adisk_Panel(void)
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
                         diskdial[dial_nbr].flags &= ~D_SELECTED;
                         diskdial[dial_nbr].d2=0;
-                        if (ret2==TEO_READ_ONLY)
+                        if (ret2==TRUE)
                         {
                             agui_PopupMessage(is_fr?"Attention: écriture impossible."
                                                    :"Warning: writing unavailable.");
                             diskdial[dial_nbr].flags|=D_SELECTED;
                             diskdial[dial_nbr].d2=1;
                         }
+                        update_side_button(drive);
                     }
                 }
                 break;
 
-
-#if 0
-            case DISKDIAL_DIR0:
-            case DISKDIAL_DIR1:
-            case DISKDIAL_DIR2:
-            case DISKDIAL_DIR3:
-                drive=(ret-DISKDIAL_BUTTON0)/(DISKDIAL_BUTTON1-DISKDIAL_BUTTON0);
-                init_filename(drive);
-                std_CleanPath (filename);
-                strcat (filename, "\\");
-                if (file_select_ex(is_fr?"Choisissez un répertoire:":"Choose a folder:",
-                               filename, "/+s+d", MAX_PATH,
-                               OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
-                {
-                    printf ("%s\n", filename);
-                    i = strlen (filename) - 1;
-                    if (i > 0)
-                        while ((i >= 0) && (filename[i] == '\\'))
-                            filename[i--] = '\0';
-
-                    ret2=disk_Load (drive, filename);
-
-                    if (ret2 < 0)
-                        agui_PopupMessage(teo_error_msg);
-                    else
-                    {
-                        dial_nbr = DISKDIAL_EJECT0+(DISKDIAL_EJECT1-DISKDIAL_EJECT0)*drive;
-                        diskdial[dial_nbr].flags &= ~D_DISABLED;
-
-                        dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
-                        diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
-                        diskdial[dial_nbr].dp = std_strdup_printf ("%s", get_filename(filename));
-                        teo.default_folder = std_free (teo.default_folder);
-                        teo.default_folder = std_strdup_printf ("%s", filename);
-
-                        std_CleanPath (teo.default_folder);
-
-                        dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
-                        if ((ret2==TEO_READ_ONLY) && !(diskdial[dial_nbr].d2))
-                        {
-                            agui_PopupMessage(is_fr?"Attention: écriture impossible."
-                                                   :"Warning: writing unavailable.");
-                            diskdial[dial_nbr].flags|=D_SELECTED;
-                            diskdial[dial_nbr].d2=1;
-                        }
-                    }
-                }
+            case DISKDIAL_SIDE0:
+            case DISKDIAL_SIDE1:
+            case DISKDIAL_SIDE2:
+            case DISKDIAL_SIDE3:
+                drive=(ret-DISKDIAL_SIDE0)/(DISKDIAL_SIDE1-DISKDIAL_SIDE0);
+                teo.disk[drive].side++;
+                if (teo.disk[drive].side >= disk[drive].side_count)
+                    teo.disk[drive].side = 0;
+                dkc->WriteUpdateTrack();
+                disk[drive].info->track = -1;
+                update_side_button(drive);
                 break;
-#endif
+
             case DISKDIAL_CHECK0:
             case DISKDIAL_CHECK1:
             case DISKDIAL_CHECK2:
@@ -315,7 +316,7 @@ void adisk_Panel(void)
 //                if ((diskdial[ret].flags&D_SELECTED) == 0)
                 if (diskdial[ret].d2)
                 {
-                    if (disk_SetMode(drive, TEO_READ_WRITE)==TEO_READ_ONLY)
+                    if (disk_SetProtection(drive, FALSE)==TRUE)
                     {
                         agui_PopupMessage(is_fr?"Ecriture impossible sur ce support."
                                                :"Writing unavailable on this device.");
@@ -331,7 +332,7 @@ void adisk_Panel(void)
                 
                 else
                 {
-                    disk_SetMode(drive, TEO_READ_ONLY);
+                    disk_SetProtection(drive, TRUE);
                     diskdial[ret].flags|=D_SELECTED;
                     diskdial[ret].d2=1;
                 }
@@ -352,7 +353,8 @@ void adisk_Panel(void)
                         teo.disk[drive].file = std_free (teo.disk[drive].file);
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
-                        if (disk_SetDirect(drive) == TEO_READ_ONLY)
+
+                        if (daccess_LoadDisk (drive, "") == TRUE)
                         {
                             diskdial[dial_nbr].flags|=D_SELECTED;
                             diskdial[dial_nbr].d2=1;
@@ -390,6 +392,10 @@ void adisk_SetColors(int fg_color, int bg_color, int bg_entry_color)
     diskdial[DISKDIAL_LABEL1].bg = bg_entry_color;
     diskdial[DISKDIAL_LABEL2].bg = bg_entry_color;
     diskdial[DISKDIAL_LABEL3].bg = bg_entry_color;
+    diskdial[DISKDIAL_SIDE0].bg = bg_entry_color;
+    diskdial[DISKDIAL_SIDE1].bg = bg_entry_color;
+    diskdial[DISKDIAL_SIDE2].bg = bg_entry_color;
+    diskdial[DISKDIAL_SIDE3].bg = bg_entry_color;
 }
 
 
@@ -418,6 +424,9 @@ void adisk_Free(void)
     for (drive=0; drive<NBDRIVE; drive++)
     {
         dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
+        diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
+
+        dial_nbr = DISKDIAL_SIDE0+(DISKDIAL_SIDE1-DISKDIAL_SIDE0)*drive;
         diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
     }
 }
