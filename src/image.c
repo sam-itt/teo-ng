@@ -14,8 +14,8 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,17 +48,22 @@
    #include <stdlib.h>
 #endif
 
+
+#include "defs.h"
+#include "teo.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "mc68xx/mc6821.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "error.h"
+#include "std.h"
 #include "hardware.h"
 
 
 /***************************************************************************************************
  *
- * Teo image file format specification (v1.1):
+ * Teo image file format specification (v2.0):
  *
  *   endian   file offset(bytes)   field name    field size(bytes)           contents
  *    big             0             format_id          22              "TEO IMAGE FILE FORMAT " string
@@ -77,8 +82,9 @@
  */
 
 #define FORMAT_ID_SIZE  22
+static FILE *file;
 static const char format_id[FORMAT_ID_SIZE] = "TEO IMAGE FILE FORMAT ";
-static const int format_ver = 0x100;
+static const int format_ver = 0x200;
 
 
 /* Computer numeric id table :
@@ -149,7 +155,7 @@ static const int hardware_id[HW_MAX] = {
 };  
 
 /*
- * End of Teo image file format specification (v1.1)
+ * End of Teo image file format specification (v2.0)
  *
  ***************************************************************************************************/
 
@@ -159,7 +165,7 @@ static const int hardware_id[HW_MAX] = {
  *  Helper pour lire en big endian un entier 8-bit
  *  quel que soit son format natif.
  */
-static void fread_int8(int *value, FILE *file)
+static void fread_int8(int *value)
 {
     unsigned char buffer[1];
 
@@ -175,7 +181,7 @@ static void fread_int8(int *value, FILE *file)
  *  Helper pour lire en big endian un entier 16-bit
  *  quel que soit son format natif.
  */
-static void fread_int16(int *value, FILE *file)
+static void fread_int16(int *value)
 {
     unsigned char buffer[2];
 
@@ -192,7 +198,7 @@ static void fread_int16(int *value, FILE *file)
  *  Helper pour lire en big endian un entier 32-bit
  *  quel que soit son format natif.
  */
-static void fread_int32(int *value, FILE *file)
+static void fread_int32(int *value)
 {
     unsigned char buffer[4];
 
@@ -209,7 +215,7 @@ static void fread_int32(int *value, FILE *file)
  *  Helper pour lire en big endian un entier 64-bit
  *  quel que soit son format natif.
  */
-static void fread_int64(unsigned long long int *value, FILE *file)
+static void fread_int64(unsigned long long int *value)
 {
     unsigned char buffer[8];
     unsigned long long int high_dword, low_dword; 
@@ -229,7 +235,7 @@ static void fread_int64(unsigned long long int *value, FILE *file)
  *  Helper pour écrire en big endian un entier 8-bit
  *  quel que soit son format natif.
  */
-static void fwrite_int8(int val, FILE *file)
+static void fwrite_int8(int val)
 {
     unsigned char buffer[1];
 
@@ -244,7 +250,7 @@ static void fwrite_int8(int val, FILE *file)
  *  Helper pour écrire en big endian un entier 16-bit
  *  quel que soit son format natif.
  */
-static void fwrite_int16(int val, FILE *file)
+static void fwrite_int16(int val)
 {
     unsigned char buffer[2];
 
@@ -261,7 +267,7 @@ static void fwrite_int16(int val, FILE *file)
  *  Helper pour écrire en big endian un entier 32-bit
  *  quel que soit son format natif.
  */
-static void fwrite_int32(int val, FILE *file)
+static void fwrite_int32(int val)
 {
     unsigned char buffer[4];
 
@@ -280,7 +286,7 @@ static void fwrite_int32(int val, FILE *file)
  *  Helper pour écrire en big endian un entier 64-bit
  *  quel que soit son format natif.
  */
-static void fwrite_int64(unsigned long long int val, FILE *file)
+static void fwrite_int64(unsigned long long int val)
 {
     unsigned char buffer[8];
 
@@ -301,7 +307,7 @@ static void fwrite_int64(unsigned long long int val, FILE *file)
 /* Loader:
  *  Charge et modifie l'état du composant matériel.
  */ 
-static void null_Loader(int chunk_id, int chunk_size, FILE *file)
+static void null_Loader(int chunk_id, int chunk_size)
 {
     /* Oups! l'identifiant matériel est inconnu, il a dû être ajouté
        dans une version ultérieure du format; on saute les données */
@@ -316,53 +322,53 @@ static void null_Loader(int chunk_id, int chunk_size, FILE *file)
         fseek(file, to-from, SEEK_CUR)
 
 
-static void mc6809_Loader(int chunk_id, int chunk_size, FILE *file)
+static void mc6809_Loader(int chunk_id, int chunk_size)
 {
     struct MC6809_REGS regs;
 
-    fread_int8(&regs.cc, file);
-    fread_int8(&regs.dp, file);
-    fread_int8(&regs.ar, file);
-    fread_int8(&regs.br, file);
-    fread_int16(&regs.xr, file);
-    fread_int16(&regs.yr, file);
-    fread_int16(&regs.ur, file);
-    fread_int16(&regs.sr, file);
-    fread_int16(&regs.pc, file);
-    fread_int64(&regs.cpu_clock, file);
-    fread_int64(&regs.cpu_timer, file);
-    fread_int8(&mc6809_irq, file);
-    FILL_GAP(31, chunk_size);
+    fread_int8  (&regs.cc);
+    fread_int8  (&regs.dp);
+    fread_int8  (&regs.ar);
+    fread_int8  (&regs.br);
+    fread_int16 (&regs.xr);
+    fread_int16 (&regs.yr);
+    fread_int16 (&regs.ur);
+    fread_int16 (&regs.sr);
+    fread_int16 (&regs.pc);
+    fread_int64 (&regs.cpu_clock);
+    fread_int64 (&regs.cpu_timer);
+    fread_int8  (&mc6809_irq);
+    FILL_GAP    (31, chunk_size);
 
     mc6809_SetRegs(&regs, (1<<MC6809_REGS_MAX_FLAG)-1);
     (void) chunk_id;
 }
 
 
-static void mc6846_Loader(int chunk_id, int chunk_size, FILE *file)
+static void mc6846_Loader(int chunk_id, int chunk_size)
 {
     int tmp;
 
-    fread_int8(&mc6846.csr, file);
-    fread_int8(&mc6846.crc, file);
-    fread_int8(&mc6846.ddrc, file);
-    fread_int8(&mc6846.prc, file);
+    fread_int8  (&mc6846.csr);
+    fread_int8  (&mc6846.crc);
+    fread_int8  (&mc6846.ddrc);
+    fread_int8  (&mc6846.prc);
 
     /* backward compatibility */
     /* v1.0: fread_int8(&mc6846.w_mask, file); */
-    fread_int8(&tmp, file);
+    fread_int8  (&tmp);
 
-    fread_int8(&mc6846.tcr, file);
-    fread_int8(&mc6846.tmsb, file);
-    fread_int8(&mc6846.tlsb, file);
-    fread_int8(&mc6846.timer_ratio, file);
-    fread_int64(&mc6846.timeout, file);
-    FILL_GAP(17, chunk_size);
+    fread_int8  (&mc6846.tcr);
+    fread_int8  (&mc6846.tmsb);
+    fread_int8  (&mc6846.tlsb);
+    fread_int8  (&mc6846.timer_ratio);
+    fread_int64 (&mc6846.timeout);
+    FILL_GAP    (17, chunk_size);
     (void) chunk_id;
 }
 
 
-static void mc6821_Loader(int chunk_id, int chunk_size, FILE *file)
+static void mc6821_Loader(int chunk_id, int chunk_size)
 {
     struct MC6821_PIA *pia;
     int tmp;
@@ -373,49 +379,49 @@ static void mc6821_Loader(int chunk_id, int chunk_size, FILE *file)
         pia = &pia_ext;
     else
     {
-        null_Loader(chunk_id, chunk_size, file);
+        null_Loader(chunk_id, chunk_size);
         return;
     }
 
-    fread_int8(&pia->porta.cr, file);
-    fread_int8(&pia->porta.ddr, file);
-    fread_int8(&pia->porta.odr, file);
+    fread_int8  (&pia->porta.cr);
+    fread_int8  (&pia->porta.ddr);
+    fread_int8  (&pia->porta.odr);
 
     /* backward compatibility */
     /* v1.0: fread_int8(&pia->porta.pdr, file);    */
     /*       fread_int8(&pia->porta.w_mask, file); */
-    fread_int8(&tmp, file);
-    fread_int8(&tmp, file);
+    fread_int8  (&tmp);
+    fread_int8  (&tmp);
 
-    fread_int8(&pia->portb.cr, file);
-    fread_int8(&pia->portb.ddr, file);
-    fread_int8(&pia->portb.odr, file);
+    fread_int8  (&pia->portb.cr);
+    fread_int8  (&pia->portb.ddr);
+    fread_int8  (&pia->portb.odr);
 
     /* backward compatibility */
     /* v1.0: fread_int8(&pia->portb.pdr, file);    */
     /*       fread_int8(&pia->portb.w_mask, file); */
-    fread_int8(&tmp, file);
-    fread_int8(&tmp, file);
+    fread_int8  (&tmp);
+    fread_int8  (&tmp);
 
-    FILL_GAP(10, chunk_size);
+    FILL_GAP    (10, chunk_size);
 }
 
 
-static void modepage_Loader(int chunk_id, int chunk_size, FILE *file)
+static void modepage_Loader(int chunk_id, int chunk_size)
 {
-    fread_int8(&mode_page.p_data, file);
-    fread_int8(&mode_page.p_addr, file);
-    fread_int8(&mode_page.lgamod, file);
-    fread_int8(&mode_page.system1, file);
-    fread_int8(&mode_page.system2, file);
-    fread_int8(&mode_page.commut, file);
-    fread_int8(&mode_page.ram_data, file);
-    fread_int8(&mode_page.cart, file);
-    fread_int8(&mode_page.lp1, file);
-    fread_int8(&mode_page.lp2, file);
-    fread_int8(&mode_page.lp3, file);
-    fread_int8(&mode_page.lp4, file);
-    FILL_GAP(12, chunk_size);
+    fread_int8 (&mode_page.p_data);
+    fread_int8 (&mode_page.p_addr);
+    fread_int8 (&mode_page.lgamod);
+    fread_int8 (&mode_page.system1);
+    fread_int8 (&mode_page.system2);
+    fread_int8 (&mode_page.commut);
+    fread_int8 (&mode_page.ram_data);
+    fread_int8 (&mode_page.cart);
+    fread_int8 (&mode_page.lp1);
+    fread_int8 (&mode_page.lp2);
+    fread_int8 (&mode_page.lp3);
+    fread_int8 (&mode_page.lp4);
+    FILL_GAP   (12, chunk_size);
 
     if (teo_SetBorderColor)
         teo_SetBorderColor(mode_page.lgamod, mode_page.system2&0xF);
@@ -424,14 +430,14 @@ static void modepage_Loader(int chunk_id, int chunk_size, FILE *file)
 }
 
 
-static void palchip_Loader(int chunk_id, int chunk_size, FILE *file)
+static void palchip_Loader(int chunk_id, int chunk_size)
 {
     int i;
 
     for (i=0; i<16; i++)
     {
-        fread_int8(&pal_chip.color[i].gr, file);
-        fread_int8(&pal_chip.color[i].b, file);
+        fread_int8 (&pal_chip.color[i].gr);
+        fread_int8 (&pal_chip.color[i].b);
         pal_chip.update(i);
     }
 
@@ -440,58 +446,84 @@ static void palchip_Loader(int chunk_id, int chunk_size, FILE *file)
 }
 
 
-static void diskctrl_Loader(int chunk_id, int chunk_size, FILE *file)
+static void diskctrl_Loader(int chunk_id, int chunk_size)
 {
-    fread_int8(&disk_ctrl.cmd0, file);
-    fread_int8(&disk_ctrl.cmd1, file);
-    fread_int8(&disk_ctrl.cmd2, file);
-    fread_int8(&disk_ctrl.stat0, file);
-    fread_int8(&disk_ctrl.stat1, file);
-    fread_int8(&disk_ctrl.wdata, file);
-    fread_int8(&disk_ctrl.rdata, file);
-    fread_int8(&disk_ctrl.wclk, file);
-    fread_int8(&disk_ctrl.wsect, file);
-    fread_int8(&disk_ctrl.wtrck, file);
-    fread_int8(&disk_ctrl.wcell, file);
-    fread_int16(&disk_ctrl.prot, file);
-    FILL_GAP(13, chunk_size);
+    fread_int8  (&dkc->rr0);
+    fread_int8  (&dkc->rr1);
+    fread_int8  (&dkc->rr2);
+    fread_int8  (&dkc->rr3);
+    fread_int8  (&dkc->rr4);
+    fread_int8  (&dkc->rr5);
+    fread_int8  (&dkc->rr6);
+    fread_int8  (&dkc->rr7);
+    fread_int8  (&dkc->rr8);
+    fread_int8  (&dkc->rr9);
+    fread_int8  (&dkc->wr0);
+    fread_int8  (&dkc->wr1);
+    fread_int8  (&dkc->wr2);
+    fread_int8  (&dkc->wr3);
+    fread_int8  (&dkc->wr4);
+    fread_int8  (&dkc->wr5);
+    fread_int8  (&dkc->wr6);
+    fread_int8  (&dkc->wr7);
+    fread_int8  (&dkc->wr8);
+    fread_int8  (&dkc->wr9);
+    fread_int8  (&dkc->ctrl);
+    fread_int8  (&dkc->drive);
+    fread_int16 (&dkc->crc);
+    fread_int8  (&dkc->write_door);
+    fread_int8  (&dkc->process);
+    fread_int8  (&dkc->process_cpt);
+    fread_int16 (&dkc->auto_count);
+    fread_int64 (&dkc->read_address_clock);
+    fread_int8  (&dkc->sector[0]);
+    fread_int8  (&dkc->sector[1]);
+    fread_int8  (&dkc->track[0]);
+    fread_int8  (&dkc->track[1]);
+    fread_int16 (&dkc->last_pos[0]);
+    fread_int16 (&dkc->last_pos[1]);
+    fread_int64 (&dkc->motor_clock[0]);
+    fread_int64 (&dkc->motor_clock[1]);
+    fread_int64 (&dkc->motor_stop[0]);
+    fread_int64 (&dkc->motor_stop[1]);
+    FILL_GAP    (57, chunk_size);
     (void) chunk_id;
 }
 
 
-static void mempager_Loader(int chunk_id, int chunk_size, FILE *file)
+static void mempager_Loader(int chunk_id, int chunk_size)
 {
-    fread_int8(&mempager.cart.page, file);
-    fread_int8(&mempager.cart.rom_page, file);
-    fread_int8(&mempager.cart.ram_page, file);
+    fread_int8  (&mempager.cart.page);
+    fread_int8  (&mempager.cart.rom_page);
+    fread_int8  (&mempager.cart.ram_page);
     mempager.cart.update();
 
-    fread_int8(&mempager.screen.page, file);
-    fread_int8(&mempager.screen.vram_page, file);
+    fread_int8  (&mempager.screen.page);
+    fread_int8  (&mempager.screen.vram_page);
     mempager.screen.update();
 
-    fread_int8(&mempager.system.page, file);
+    fread_int8  (&mempager.system.page);
     mempager.system.update();
 
-    fread_int8(&mempager.data.page, file);
-    fread_int8(&mempager.data.reg_page, file);
-    fread_int8(&mempager.data.pia_page, file);
+    fread_int8  (&mempager.data.page);
+    fread_int8  (&mempager.data.reg_page);
+    fread_int8  (&mempager.data.pia_page);
     mempager.data.update();
 
-    fread_int8(&mempager.mon.page, file);
+    fread_int8  (&mempager.mon.page);
     mempager.mon.update();
 
-    FILL_GAP(10, chunk_size);
+    FILL_GAP    (10, chunk_size);
     (void) chunk_id;
 }
 
 
-static void membank_Loader(int chunk_id, int chunk_size, FILE *file)
+static void membank_Loader(int chunk_id, int chunk_size)
 {
     int bank = chunk_id&0xFF;
     int begin, end, size=chunk_size-2;
 
-    fread_int16(&begin, file);
+    fread_int16 (&begin);
 
     if (begin)
         memset(mem.ram.bank[bank], 0, begin);
@@ -506,16 +538,16 @@ static void membank_Loader(int chunk_id, int chunk_size, FILE *file)
 }
 
 
-static void mb_Loader(int chunk_id, int chunk_size, FILE *file)
+static void mb_Loader(int chunk_id, int chunk_size)
 {
-    fread_int64(&mb.exact_clock, file);
-    fread_int8(&mb.direct_screen_mode, file);
-    FILL_GAP(9, chunk_size);
+    fread_int64 (&mb.exact_clock);
+    fread_int8  (&mb.direct_screen_mode);
+    FILL_GAP    (9, chunk_size);
     (void) chunk_id;
 }
 
 
-static void (*Loader[32])(int, int, FILE *) = {
+static void (*Loader[32])(int, int) = {
     null_Loader,     mc6809_Loader,   mc6846_Loader,   mc6821_Loader,
     modepage_Loader, palchip_Loader,  diskctrl_Loader, mempager_Loader,
     membank_Loader,  mb_Loader,       null_Loader,     null_Loader,
@@ -531,49 +563,49 @@ static void (*Loader[32])(int, int, FILE *) = {
 /* Saver:
  *  Sauvegarde l'état du composant matériel.
  */
-static void mc6809_Saver(int chunk_id, FILE *file)
+static void mc6809_Saver(int chunk_id)
 {
     struct MC6809_REGS regs;
     mc6809_GetRegs(&regs);
-    fwrite_int16(31, file);
-    fwrite_int8(regs.cc, file);
-    fwrite_int8(regs.dp, file);
-    fwrite_int8(regs.ar, file);
-    fwrite_int8(regs.br, file);
-    fwrite_int16(regs.xr, file);
-    fwrite_int16(regs.yr, file);
-    fwrite_int16(regs.ur, file);
-    fwrite_int16(regs.sr, file);
-    fwrite_int16(regs.pc, file);
-    fwrite_int64(regs.cpu_clock, file);
-    fwrite_int64(regs.cpu_timer, file);
-    fwrite_int8(mc6809_irq, file);
+    fwrite_int16 (31);
+    fwrite_int8  (regs.cc);
+    fwrite_int8  (regs.dp);
+    fwrite_int8  (regs.ar);
+    fwrite_int8  (regs.br);
+    fwrite_int16 (regs.xr);
+    fwrite_int16 (regs.yr);
+    fwrite_int16 (regs.ur);
+    fwrite_int16 (regs.sr);
+    fwrite_int16 (regs.pc);
+    fwrite_int64 (regs.cpu_clock);
+    fwrite_int64 (regs.cpu_timer);
+    fwrite_int8  (mc6809_irq);
     (void) chunk_id;
 }
 
 
-static void mc6846_Saver(int chunk_id, FILE *file)
+static void mc6846_Saver(int chunk_id)
 {
-    fwrite_int16(17, file);
-    fwrite_int8(mc6846.csr, file);
-    fwrite_int8(mc6846.crc, file);
-    fwrite_int8(mc6846.ddrc, file);
-    fwrite_int8(mc6846.prc, file);
+    fwrite_int16 (17);
+    fwrite_int8  (mc6846.csr);
+    fwrite_int8  (mc6846.crc);
+    fwrite_int8  (mc6846.ddrc);
+    fwrite_int8  (mc6846.prc);
 
     /* backward compatibility */
     /* v1.0: fwrite_int8(mc6846.w_mask, file); */
-    fwrite_int8(0x3D, file);
+    fwrite_int8  (0x3D);
 
-    fwrite_int8(mc6846.tcr, file);
-    fwrite_int8(mc6846.tmsb, file);
-    fwrite_int8(mc6846.tlsb, file);
-    fwrite_int8(mc6846.timer_ratio, file);
-    fwrite_int64(mc6846.timeout, file);
+    fwrite_int8  (mc6846.tcr);
+    fwrite_int8  (mc6846.tmsb);
+    fwrite_int8  (mc6846.tlsb);
+    fwrite_int8  (mc6846.timer_ratio);
+    fwrite_int64 (mc6846.timeout);
     (void) chunk_id;
 }
 
 
-static void mc6821_Saver(int chunk_id, FILE *file)
+static void mc6821_Saver(int chunk_id)
 {
     struct MC6821_PIA *pia;
     int porta_w_mask, portb_w_mask, mask;
@@ -593,103 +625,129 @@ static void mc6821_Saver(int chunk_id, FILE *file)
         portb_w_mask = 0x3F;
     }
 
-    fwrite_int16(10, file);
-    fwrite_int8(pia->porta.cr, file);
-    fwrite_int8(pia->porta.ddr, file);
-    fwrite_int8(pia->porta.odr, file);
+    fwrite_int16 (10);
+    fwrite_int8  (pia->porta.cr);
+    fwrite_int8  (pia->porta.ddr);
+    fwrite_int8  (pia->porta.odr);
 
     /* backward compatibility */
     /* v1.0: fwrite_int8(pia->porta.pdr, file);    */
     /*       fwrite_int8(pia->porta.w_mask, file); */
     mask = pia->porta.ddr & porta_w_mask;
-    fwrite_int8((pia->porta.idr&(mask^0xFF)) | (pia->porta.odr&mask), file);
-    fwrite_int8(porta_w_mask, file);
+    fwrite_int8  ((pia->porta.idr&(mask^0xFF)) | (pia->porta.odr&mask));
+    fwrite_int8  (porta_w_mask);
 
-    fwrite_int8(pia->portb.cr, file);
-    fwrite_int8(pia->portb.ddr, file);
-    fwrite_int8(pia->portb.odr, file);
+    fwrite_int8  (pia->portb.cr);
+    fwrite_int8  (pia->portb.ddr);
+    fwrite_int8  (pia->portb.odr);
 
     /* backward compatibility */
     /* v1.0: fwrite_int8(pia->portb.pdr, file);    */
     /*       fwrite_int8(pia->portb.w_mask, file); */
     mask = pia->portb.ddr & portb_w_mask;
-    fwrite_int8((pia->portb.idr&(mask^0xFF)) | (pia->portb.odr&mask), file);
-    fwrite_int8(portb_w_mask, file);
+    fwrite_int8  ((pia->portb.idr&(mask^0xFF)) | (pia->portb.odr&mask));
+    fwrite_int8  (portb_w_mask);
 }
 
 
-static void modepage_Saver(int chunk_id, FILE *file)
+static void modepage_Saver(int chunk_id)
 {
-    fwrite_int16(12, file);
-    fwrite_int8(mode_page.p_data, file);
-    fwrite_int8(mode_page.p_addr, file);
-    fwrite_int8(mode_page.lgamod, file);
-    fwrite_int8(mode_page.system1, file);
-    fwrite_int8(mode_page.system2, file);
-    fwrite_int8(mode_page.commut, file);
-    fwrite_int8(mode_page.ram_data, file);
-    fwrite_int8(mode_page.cart, file);
-    fwrite_int8(mode_page.lp1, file);
-    fwrite_int8(mode_page.lp2, file);
-    fwrite_int8(mode_page.lp3, file);
-    fwrite_int8(mode_page.lp4, file);
+    fwrite_int16 (12);
+    fwrite_int8  (mode_page.p_data);
+    fwrite_int8  (mode_page.p_addr);
+    fwrite_int8  (mode_page.lgamod);
+    fwrite_int8  (mode_page.system1);
+    fwrite_int8  (mode_page.system2);
+    fwrite_int8  (mode_page.commut);
+    fwrite_int8  (mode_page.ram_data);
+    fwrite_int8  (mode_page.cart);
+    fwrite_int8  (mode_page.lp1);
+    fwrite_int8  (mode_page.lp2);
+    fwrite_int8  (mode_page.lp3);
+    fwrite_int8  (mode_page.lp4);
     (void) chunk_id;
 }
 
 
-static void palchip_Saver(int chunk_id, FILE *file)
+static void palchip_Saver(int chunk_id)
 {
     int i;
 
-    fwrite_int16(32, file);
+    fwrite_int16 (32);
 
     for (i=0; i<16; i++)
     {
-        fwrite_int8(pal_chip.color[i].gr, file);
-        fwrite_int8(pal_chip.color[i].b, file);
+        fwrite_int8  (pal_chip.color[i].gr);
+        fwrite_int8  (pal_chip.color[i].b);
     }
 
     (void) chunk_id;
 }
 
 
-static void diskctrl_Saver(int chunk_id, FILE *file)
+static void diskctrl_Saver(int chunk_id)
 {
-    fwrite_int16(13, file);
-    fwrite_int8(disk_ctrl.cmd0, file);
-    fwrite_int8(disk_ctrl.cmd1, file);
-    fwrite_int8(disk_ctrl.cmd2, file);
-    fwrite_int8(disk_ctrl.stat0, file);
-    fwrite_int8(disk_ctrl.stat1, file);
-    fwrite_int8(disk_ctrl.wdata, file);
-    fwrite_int8(disk_ctrl.rdata, file);
-    fwrite_int8(disk_ctrl.wclk, file);
-    fwrite_int8(disk_ctrl.wsect, file);
-    fwrite_int8(disk_ctrl.wtrck, file);
-    fwrite_int8(disk_ctrl.wcell, file);
-    fwrite_int16(disk_ctrl.prot, file);
+    fwrite_int16 (57);
+    fwrite_int8  (dkc->rr0);
+    fwrite_int8  (dkc->rr1);
+    fwrite_int8  (dkc->rr2);
+    fwrite_int8  (dkc->rr3);
+    fwrite_int8  (dkc->rr4);
+    fwrite_int8  (dkc->rr5);
+    fwrite_int8  (dkc->rr6);
+    fwrite_int8  (dkc->rr7);
+    fwrite_int8  (dkc->rr8);
+    fwrite_int8  (dkc->rr9);
+    fwrite_int8  (dkc->wr0);
+    fwrite_int8  (dkc->wr1);
+    fwrite_int8  (dkc->wr2);
+    fwrite_int8  (dkc->wr3);
+    fwrite_int8  (dkc->wr4);
+    fwrite_int8  (dkc->wr5);
+    fwrite_int8  (dkc->wr6);
+    fwrite_int8  (dkc->wr7);
+    fwrite_int8  (dkc->wr8);
+    fwrite_int8  (dkc->wr9);
+    fwrite_int8  (dkc->ctrl);
+    fwrite_int8  (dkc->drive);
+    fwrite_int16 (dkc->crc);
+    fwrite_int8  (dkc->write_door);
+    fwrite_int8  (dkc->process);
+    fwrite_int8  (dkc->process_cpt);
+    fwrite_int16 (dkc->auto_count);
+    fwrite_int64 (dkc->read_address_clock);
+    fwrite_int8  (dkc->sector[0]);
+    fwrite_int8  (dkc->sector[1]);
+    fwrite_int8  (dkc->track[0]);
+    fwrite_int8  (dkc->track[1]);
+    fwrite_int16 (dkc->last_pos[0]);
+    fwrite_int16 (dkc->last_pos[1]);
+    fwrite_int64 (dkc->motor_clock[0]);
+    fwrite_int64 (dkc->motor_clock[1]);
+    fwrite_int64 (dkc->motor_stop[0]);
+    fwrite_int64 (dkc->motor_stop[1]);
     (void) chunk_id;
 }
 
 
-static void mempager_Saver(int chunk_id, FILE *file)
+static void mempager_Saver(int chunk_id)
 {
-    fwrite_int16(10, file);
-    fwrite_int8(mempager.cart.page       , file);
-    fwrite_int8(mempager.cart.rom_page   , file);
-    fwrite_int8(mempager.cart.ram_page   , file);
-    fwrite_int8(mempager.screen.page     , file);
-    fwrite_int8(mempager.screen.vram_page, file);
-    fwrite_int8(mempager.system.page     , file);
-    fwrite_int8(mempager.data.page       , file);
-    fwrite_int8(mempager.data.reg_page   , file);
-    fwrite_int8(mempager.data.pia_page   , file);
-    fwrite_int8(mempager.mon.page        , file);
+    fwrite_int16 (10);
+    fwrite_int8  (mempager.cart.page);
+    fwrite_int8  (mempager.cart.rom_page);
+    fwrite_int8  (mempager.cart.ram_page);
+    fwrite_int8  (mempager.screen.page);
+    fwrite_int8  (mempager.screen.vram_page);
+    fwrite_int8  (mempager.system.page);
+    fwrite_int8  (mempager.data.page);
+    fwrite_int8  (mempager.data.reg_page);
+    fwrite_int8  (mempager.data.pia_page);
+    fwrite_int8  (mempager.mon.page);
     (void) chunk_id;
 }
 
 
-static void membank_Saver(int chunk_id, FILE *file)
+static void membank_Saver(int chunk_id)
 {
     int bank = chunk_id&0xFF;
     int begin = 0, end = mem.ram.size, size;
@@ -702,22 +760,22 @@ static void membank_Saver(int chunk_id, FILE *file)
 
     size = end-begin;
 
-    fwrite_int16(2+size, file);
-    fwrite_int16(begin, file);
+    fwrite_int16 (2+size);
+    fwrite_int16 (begin);
     fwrite(mem.ram.bank[bank]+begin, 1, size, file);
 }    
 
 
-static void mb_Saver(int chunk_id, FILE *file)
+static void mb_Saver(int chunk_id)
 {
-    fwrite_int16(9, file);
-    fwrite_int64(mb.exact_clock, file);
-    fwrite_int8(mb.direct_screen_mode, file);
+    fwrite_int16 (9);
+    fwrite_int64 (mb.exact_clock);
+    fwrite_int8  (mb.direct_screen_mode);
     (void) chunk_id;
 }
 
 
-static void (*Saver[32])(int, FILE *) = {
+static void (*Saver[32])(int) = {
     NULL,           mc6809_Saver,   mc6846_Saver,   mc6821_Saver,
     modepage_Saver, palchip_Saver,  diskctrl_Saver, mempager_Saver,
     membank_Saver,  mb_Saver,       NULL,           NULL,
@@ -729,6 +787,21 @@ static void (*Saver[32])(int, FILE *) = {
 };
 
 
+static FILE *file_open (const char filename[], const char mode[])
+{
+    char *name = NULL;
+
+#ifdef DEBIAN_BUILD
+    name = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), filename);
+#else
+    name = std_strdup_printf ("%s", filename);
+#endif
+    file = fopen(name, mode);
+    name = std_free (name);
+    return file;
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -737,19 +810,13 @@ static void (*Saver[32])(int, FILE *) = {
  */
 int image_Load(const char filename[])
 {
-    FILE *file;
     char buffer[FORMAT_ID_SIZE];
     int value, chunk_id, chunk_size;
-#ifdef DEBIAN_BUILD
-    char fname[MAX_PATH+1] = "";
 
-    (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
-    if ((file = fopen(fname, "rb")) == NULL)
+    /* open the image file */
+    if (file_open(filename, "rb") == NULL)
         return error_Message(TEO_ERROR_FILE_OPEN, NULL);
-#else
-    if ((file = fopen(filename, "rb")) == NULL)
-        return error_Message(TEO_ERROR_FILE_OPEN, NULL);
-#endif
+
     /* lecture de l'entête */
     if (fread(buffer, 1, FORMAT_ID_SIZE, file) != FORMAT_ID_SIZE)  /* format_id */
     {
@@ -763,11 +830,16 @@ int image_Load(const char filename[])
         return error_Message(TEO_ERROR_FILE_FORMAT, NULL);
     }
 
-    fread_int16(&value, file);  /* format_ver */
-    /* pour le moment, la version du format ne sert à rien... */
+    /* check format version */
+    fread_int16 (&value);
+    if (value != format_ver)
+    {
+        fclose(file);
+        return error_Message(TEO_ERROR_UNSUPPORTED_MODEL, NULL);
+    }
 
-    fread_int16(&value, file);  /* thomson_id */
-
+    /* check thomson id */
+    fread_int16 (&value);
     if ((value != thomson[THOMSON_TO8].id) && (value != thomson[THOMSON_TO8D].id))
     {
         fclose(file);
@@ -778,12 +850,12 @@ int image_Load(const char filename[])
 
     while (TRUE)
     {
-        fread_int16(&chunk_id, file);
+        fread_int16 (&chunk_id);
 
         if (feof(file))
             break;
 
-        fread_int16(&chunk_size, file);
+        fread_int16 (&chunk_size);
 
         if (chunk_id >= 0x2000)
         {
@@ -791,7 +863,7 @@ int image_Load(const char filename[])
             return error_Message(TEO_ERROR_FILE_FORMAT, NULL);
         }
 
-        Loader[chunk_id>>8](chunk_id, chunk_size, file);
+        Loader[chunk_id>>8](chunk_id, chunk_size);
     } 
 
     fclose(file);
@@ -808,34 +880,28 @@ int image_Load(const char filename[])
  */
 int image_Save(const char filename[])
 {
-    FILE *file;
     int chunk_id, i;
-#ifdef DEBIAN_BUILD
-    char fname[MAX_PATH+1] = "";
 
-    (void)snprintf (fname, MAX_PATH, "%s/.teo/%s", getenv("HOME"), filename);
-    if ((file = fopen(fname, "wb")) == NULL)
+    /* open the image file */
+    if (file_open(filename, "wb") == NULL)
         return error_Message(TEO_ERROR_FILE_OPEN, NULL);
-#else
-    if ((file = fopen(filename, "wb")) == NULL)
-        return error_Message(TEO_ERROR_FILE_OPEN, NULL);
-#endif
+
     /* écriture de l'entête */
     fwrite(format_id, 1, FORMAT_ID_SIZE, file); 
-    fwrite_int16(format_ver, file);
-    fwrite_int16(thomson[THOMSON_TO8D].id, file);
+    fwrite_int16 (format_ver);
+    fwrite_int16 (thomson[THOMSON_TO8D].id);
 
-    fwrite_int16(0, file); /* reserved */
-    fwrite_int16(0, file); /* reserved */
-    fwrite_int16(0, file); /* reserved */
+    fwrite_int16 (0); /* reserved */
+    fwrite_int16 (0); /* reserved */
+    fwrite_int16 (0); /* reserved */
 
     /* sauvegarde de l'état des composants matériels */
     for (i=0; i<HW_MAX; i++)
         if (i != HW_MEMORY_BANK)
         {
             chunk_id = hardware_id[i];
-            fwrite_int16(chunk_id, file);
-            Saver[chunk_id>>8](chunk_id, file);
+            fwrite_int16 (chunk_id);
+            Saver[chunk_id>>8](chunk_id);
         }
 
     /* sauvegarde des banques mémoire */
@@ -843,8 +909,8 @@ int image_Save(const char filename[])
 
     for (i=0; i<mem.ram.nbank; i++)
     {
-        fwrite_int16(chunk_id+i, file);
-        Saver[chunk_id>>8](chunk_id+i, file);
+        fwrite_int16(chunk_id+i);
+        Saver[chunk_id>>8](chunk_id+i);
     }
 
     fclose(file);
