@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -108,8 +108,6 @@
 #define TEO_PALETTE_COL1       0x0000FF  /* triplet RRGGBB couleur 1 */    
 #define TEO_PALETTE_COL2       0xD7FBEF  /* triplet RRGGBB couleur 2 */
 
-// #define TEO_MEMO7_LABEL_LENGTH 25
-
 #define TEO_SHIFT_FLAG         (1<<0)
 #define TEO_CTRL_FLAG          (1<<1)
 #define TEO_ALTGR_FLAG         (1<<2)
@@ -141,10 +139,8 @@ enum teo_command {
 };
 
 enum {
-    TEO_READ_ONLY = 1,
-    TEO_READ_WRITE,
-    TEO_MOUSE,
-    TEO_LIGHTPEN
+    TEO_STATUS_MOUSE = 1,
+    TEO_STATUS_LIGHTPEN
 };
 
 extern int is_fr;
@@ -163,6 +159,7 @@ struct EMUTEO {
         } setting;
     struct EMUTEO_DISK {
         int  direct_access_allowed;
+        int  side;
         int  write_protect;
         char *file;
         } disk[NBDRIVE];
@@ -202,6 +199,7 @@ extern void (*teo_SetDiskLed)(int state);
 extern int  (*teo_DirectReadSector)(int drive, int track, int sector, int nsects, unsigned char data[]);
 extern int  (*teo_DirectWriteSector)(int drive, int track, int sector, int nsects, const unsigned char data[]);
 extern int  (*teo_DirectFormatTrack)(int drive, int track, const unsigned char data[]);
+extern int  (*teo_DirectIsDiskWritable)(int drive);
 
 /* variables exportables */
 extern char *teo_error_msg;
