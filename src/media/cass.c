@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -61,7 +61,6 @@
 #define COUNTER_RATIO   100
 
 static FILE *cass;
-static int cass_mode;
 static int cass_counter;
 static enum {
    READ,
@@ -73,21 +72,21 @@ static enum {
 /* DoLoadCass:
  *  Ouvre le fichier et retourne le mode d'ouverture.
  */
-static int DoLoadCass(const char filename[], int mode)
+static int DoLoadCass(const char filename[], int protection)
 {
    FILE *new_cass;
 
-   if (mode == TEO_READ_WRITE) {
+   if (protection == FALSE) {
       if ((new_cass=fopen(filename, "rb+")) != NULL)
 	 goto Success;
       else
-	 mode = TEO_READ_ONLY;
+	 protection = TRUE;
    }
 
    if ((new_cass=fopen(filename, "rb")) != NULL)
       goto Success;
 
-   return error_Message(TEO_ERROR_FILE_OPEN, NULL);
+   return error_Message(TEO_ERROR_FILE_OPEN, filename);
 
  Success:
    if (cass)
@@ -96,7 +95,7 @@ static int DoLoadCass(const char filename[], int mode)
    cass = new_cass;
    cass_counter = -1;  /* position du fichier modifiée */
 
-   return mode;
+   return protection;
 }
 
 
@@ -134,7 +133,7 @@ void cass_Event (int *br, int *cc)
 	 break;
 
       case 4:
-	 if (cass && (cass_mode == TEO_READ_WRITE)) {
+	 if (cass && (teo.cass.write_protect == FALSE)) {
 	    if (LOAD_BYTE(0x602A) != 4) {
 	       int i;
 
@@ -160,7 +159,7 @@ void cass_Event (int *br, int *cc)
 	 break;
 
       case 8:
-	 if ((cass) && (cass_mode == TEO_READ_WRITE)) {
+	 if ((cass) && (teo.cass.write_protect == FALSE)) {
 	    if (current_op == READ) {
 	       fflush(cass); /* pour se conformer à l'ANSI C */
 	       current_op = WRITE;
@@ -196,19 +195,18 @@ void cass_Init(void)
     mem.mon.bank[0][0x1A5A] = 0x39;
 
     cass = NULL;
-    cass_mode = TEO_READ_ONLY;
     cass_counter = -1;
     current_op = READ;
 }
 
 
 
-/* cass_Check:
+/* cass_IsCass:
  *  Vérifie la validité du fichier cassette.
  */
-int cass_Check (const char filename[])
+int cass_IsCass (const char filename[])
 {
-    return std_IsFile (filename);
+    return (std_IsFile (filename) == TRUE) ? 0 : TEO_ERROR;
 }
 
 
@@ -233,12 +231,12 @@ void cass_Eject(void)
  */
 int cass_Load(const char filename[])
 {
-   int ret = DoLoadCass(filename, cass_mode);
+   int ret = DoLoadCass(filename, teo.cass.write_protect);
 
    if (ret >= 0) {
       teo.cass.file = std_free (teo.cass.file);
       teo.cass.file = std_strdup_printf ("%s", filename);
-      cass_mode = ret;
+      teo.cass.write_protect = ret;
    }
 
    return ret;
@@ -263,26 +261,26 @@ void cass_FirstLoad (void)
 
 
 
-/* cass_SetMode:
+/* cass_SetProtection:
  *  Fixe le mode d'accès à la cassette. Retourne le mode en cas de succès
  *  ou TEO_ERROR en case d'échec.
  */
-int cass_SetMode(int mode)
+int cass_SetProtection(int protection)
 {
-   if (cass_mode == mode)
-      return cass_mode;
+   if (teo.cass.write_protect == protection)
+      return protection;
 
    if (cass) {
-      int ret = DoLoadCass(teo.cass.file, mode);
+      int ret = DoLoadCass(teo.cass.file, protection);
 
       if (ret >= 0)
-	 cass_mode = ret;
+	 teo.cass.write_protect = ret;
 
       return ret;
    }
    else {
-      cass_mode = mode;
-      return cass_mode;
+      teo.cass.write_protect = protection;
+      return protection;
    }
 }
 
