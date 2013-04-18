@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -62,7 +62,7 @@
 #include "image.h"
 #include "main.h"
 #include "error.h"
-#include "media/libsap.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -111,7 +111,7 @@ static void RetraceCallback(void)
  */
 static void RunTO8(int windowed_mode)
 {
-    amouse_Install(TEO_MOUSE); /* la souris est le périphérique de pointage par défaut */
+    amouse_Install(TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
     do  /* boucle principale de l'émulateur */
@@ -136,6 +136,7 @@ static void RunTO8(int windowed_mode)
 
         do  /* boucle d'émulation */
         {
+            dkc->ClearWriteFlag();
             teo_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */
@@ -158,6 +159,7 @@ static void RunTO8(int windowed_mode)
                    Sleep(0);
             }
 
+            dkc->WriteUpdateTimeout();
             frame++;
         }
         while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
@@ -191,10 +193,13 @@ static void RunTO8(int windowed_mode)
         if (teo.command==TEO_COMMAND_COLD_RESET)
         {
             teo_ColdReset();
-            amouse_Install(TEO_MOUSE);
+            amouse_Install(TEO_STATUS_MOUSE);
         }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
+
+    /* Finit de sauver les données disquettes */
+    dkc->WriteUpdateTrack();
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
@@ -202,10 +207,10 @@ static void RunTO8(int windowed_mode)
 
 
 
-/* ReadCommandLine:
+/* read_command_line:
  *  Lit la ligne de commande
  */
-static void ReadCommandLine(int argc, char *argv[])
+static void read_command_line(int argc, char *argv[])
 {
     char *message;
     int mode40=0, mode80=0, truecolor=0, windowd=0;
@@ -298,75 +303,6 @@ void main_ExitMessage(const char msg[])
 
 
 
-/* sysexec:
- *  Demande à l'OS d'executer une cmd dans un dossier précis.
- */
-int main_SysExec(char *cmd, const char *dir) {
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(si));
-    ZeroMemory(&pi, sizeof(pi));
-    
-    si.cb = sizeof(si);
-
-    /*
-    fprintf(stderr, "sysexec(%s, \"%s\")\n", cmd, dir?dir:"");
-    fflush(stderr);
-    */
-    
-    if(!CreateProcess(NULL, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, dir, &si, &pi)) {
-        char buf[256];
-        sprintf(buf, is_fr?"CreateProcess a échoué (%d): %s pour %s.\n"
-                          :"CreateProcess failed (%d): %s in %s.\n",
-                          (int)GetLastError(),
-                          cmd,
-                          dir?dir:(is_fr?"répertoire courant":"current dir"));
-        return TEO_ERROR;
-    }
-    
-    /* Wait until child process exits. */
-    WaitForSingleObject(pi.hProcess, INFINITE);
-
-    /* Close process and thread handles. */
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    return 0;
-}
-
-
-/* rmFile:
- *   Efface un fichier.
- */
-int main_RmFile(char *path) {
-    DeleteFile(path);
-    return 0;
-}
-
-/* tmpFile:
- *   Cree un fichier temporaire.
- */
-char *main_TmpFile(char *buf, int maxlen) {
-    char tmpdir[MAX_PATH], *s;
-    
-    if(MAX_PATH < GetTempPath(MAX_PATH, tmpdir)) return NULL;
-    if(0 == GetTempFileName(tmpdir, "sap", 0, buf)) return NULL;
-    if(!buf[0]) return NULL;
-    
-    /* il faut forcer la création du sap ou shortpath échoue */
-    fclose(fopen(buf, "wb"));
-    
-    /* nom courts forcément */
-    s = shortpath(buf);
-    if(!s) return NULL;
-    strncpy(buf, s, maxlen); 
-    free(s);
-    
-    return buf;
-}
- 
-
-
 /* close_procedure:
  *  Procédure de fermeture de la fenêtre par le bouton close.
  */
@@ -391,7 +327,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #endif
     int windowed_mode=FALSE;
     int njoy = 0;
-    TCHAR sapfs_exe[MAX_PATH];
     struct STRING_LIST *str_list;
 
 #ifdef FRENCH_LANG
@@ -400,33 +335,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     is_fr = 0;
 #endif
 
-    /* On s'assure que "fichier.rom" est dispo dans le repertoire courant sinon TEO échoue. */
-    do {
-        FILE *f = fopen("fichier.rom", "rb");
-        if(f==NULL) {
-            /* On a pas trouvé le fichier. On regarde dans le path et on se positionne dans le
-               bon repertoire. */
-            char *buf = sapfs_exe;  /* optim: on utilise le buffer sapfs_exe */
-            int len = SearchPath(NULL, "fichier", ".rom", sizeof(sapfs_exe)/sizeof(TCHAR), buf, NULL);
-            if(len) {
-                char *s = buf;
-                while(*s) ++s; 
-                while(s>buf && *s!='/' && *s!='\\') --s;
-                if(*s=='/' || *s=='\\') *s = '\0';
-                SetCurrentDirectory(buf);
-            }
-        } else fclose(f);
-    } while(0);
-    
-    /* Retrouve sapfs.exe dans le PATH */
-    do {
-        int len = SearchPath(NULL, "sapfs", ".exe", sizeof(sapfs_exe)/sizeof(TCHAR), sapfs_exe, NULL);
-        if(len==0) {
-            fprintf(stderr, is_fr?"sapfs.exe introuvable":"Cannot find sapfs.exe\n"); fflush(stderr);
-            sapfs_exe[0] = '\0'; /* c'est pas grave, on peut faire sans */
-        }
-    } while(0);
-    
     /* conversion de la ligne de commande Windows */
     prog_inst = hInst;
     prog_icon = LoadIcon(hInst, "thomson_ico");
@@ -453,7 +361,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #endif
 
     ini_Load();                   /* Charge les paramètres par défaut */
-    ReadCommandLine (argc, argv); /* Récupération des options */
+    read_command_line (argc, argv); /* Récupération des options */
 
     /* l'initialisation de l'interface clavier, qui utilise un appel GDI, doit avoir lieu
        avant celle du module clavier d'Allegro, basé sur DirectInput */
@@ -488,7 +396,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* initialisation des joysticks */
     ajoyint_Init(njoy);
-    
+
     /* initialisation du mode graphique */
     switch(gfx_mode)
     {
@@ -546,9 +454,15 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* initialisation de l'interface utilisateur Allegro */
     if (!windowed_mode)
+    {
        agui_Init(version_name, gfx_mode, FALSE);
+       teo_error_short = TRUE;
+    }
     else
+    {
        set_window_close_hook(close_procedure);
+       teo_error_short = FALSE;
+    }
 
     /* installation de la fonction callback de retraçage de l'écran nécessaire
        pour les modes fullscreen */

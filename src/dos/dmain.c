@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,12 +51,14 @@
    #include <allegro.h>
 #endif
 
+#include "defs.h"
 #include "teo.h"
 #include "option.h"
 #include "ini.h"
 #include "image.h"
 #include "main.h"
 #include "error.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -104,7 +106,7 @@ static int gfx_mode = NO_GFX;
 struct STRING_LIST *remain_name = NULL;
 
 int frame;                 /* compteur de frame vidéo */
-int direct_write_support = FALSE;
+int direct_write_support = TRUE;
 static volatile int tick;  /* compteur du timer */
 
 
@@ -121,7 +123,7 @@ END_OF_FUNCTION(Timer)
  */
 static void RunTO8(void)
 {
-    amouse_Install (TEO_MOUSE); /* la souris est le périphérique de pointage par défaut */
+    amouse_Install (TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
     do  /* boucle principale de l'émulateur */
@@ -146,6 +148,7 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
+            dkc->ClearWriteFlag();
             teo_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */ 
@@ -167,7 +170,7 @@ static void RunTO8(void)
                     while (frame==tick)
                         ;
             }
-
+            dkc->WriteUpdateTimeout();
             frame++;
         }
         while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
@@ -206,10 +209,13 @@ static void RunTO8(void)
         if (teo.command==TEO_COMMAND_COLD_RESET)
         {
             teo_ColdReset();
-            amouse_Install(TEO_MOUSE);
+            amouse_Install(TEO_STATUS_MOUSE);
         }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
+
+    /* Finit de sauver les données disquettes */
+    dkc->WriteUpdateTrack();
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
@@ -257,8 +263,6 @@ static void ReadCommandLine(int argc, char *argv[])
            is_fr?"Affichage en 80 colonnes":"80 columns display", NULL},
         { "truecolor", '\0', OPTION_ARG_BOOL, &truecolor,
            is_fr?"Affichage en vraies couleurs":"Truecolor display", NULL},
-        { "enable-direct-write", '\0', OPTION_ARG_BOOL, &direct_write_support,
-           is_fr?"Autorise l'‚criture en mode direct":"Enable writing in direct mode", NULL},
         { NULL, 0, 0, NULL, NULL, NULL }
     };
     message = option_Parse (argc, argv, "teo", entries, &remain_name);
@@ -270,44 +274,6 @@ static void ReadCommandLine(int argc, char *argv[])
     if (truecolor) gfx_mode = GFX_TRUECOLOR;
 }
 
-
-
-/* sysexec:
- *  Demande à l'OS d'executer une cmd dans un dossier précis.
- */
-int main_SysExec(char *cmd, const char *dir) {
-    char cwd[MAX_PATH]="";
-    char *tmp;
-    int i;
-    
-    tmp = getcwd(cwd, MAX_PATH);
-    i = chdir(dir);
-    i = system(cmd);
-    i = chdir(cwd);
-    return 0;
-    (void)i;
-    (void)tmp;
-}
-
-
-/* rmFile:
- *   Efface un fichier.
- */
-int main_RmFile(char *path) {
-    unlink(path);
-    return 0;
-}
-
-
-/* tmpFile:
- *   Cree un fichier temporaire.
- */
-char *main_TmpFile(char *buf, int maxlen) {
-    char *tmp;
-    tmp = tmpnam(buf);
-    strcat(buf, ".sap");
-    return buf;
-}
 
 
 /* main_ExitMessage:
@@ -490,6 +456,7 @@ int main(int argc, char *argv[])
 
     /* initialisation de l'interface utilisateur */
     agui_Init(version_name, gfx_mode, direct_support);
+    teo_error_short = TRUE;
     
     disk_FirstLoad ();  /* chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* chargement de la cassette éventuelle */

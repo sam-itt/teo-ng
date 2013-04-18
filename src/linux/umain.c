@@ -14,7 +14,7 @@
  *
  *                  L'Èmulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles FÈtis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles FÈtis, Eric Botcazou, Alexandre Pukall,
  *                          JÈrÈmie Guillaume, FranÁois Mouret
  *                          Samuel Devulder
  *
@@ -71,6 +71,7 @@
 #include "main.h"
 #include "std.h"
 #include "ini.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -107,7 +108,6 @@ static gboolean RunTO8 (gpointer user_data)
      && (g_timer_elapsed (timer, &microseconds) < 0.02))
         return TRUE;
 
-    g_timer_stop (timer);
     g_timer_start (timer);
 
     if (teo_DoFrame(debug) == 0)
@@ -117,32 +117,41 @@ static gboolean RunTO8 (gpointer user_data)
      || (teo.command == TEO_COMMAND_DEBUGGER))
         debug = udebug_Panel();
 
-    if (teo.command == TEO_COMMAND_PANEL) {
+    if (teo.command == TEO_COMMAND_PANEL)
+    {
         ugui_Panel();
         debug = 0;
     }
 
-    if (teo.command == TEO_COMMAND_RESET) {
+    if (teo.command == TEO_COMMAND_RESET)
+    {
         teo_Reset();
         debug = 0;
     }
 
-    if (teo.command == TEO_COMMAND_COLD_RESET) {
+    if (teo.command == TEO_COMMAND_COLD_RESET)
+    {
         teo_ColdReset();
         debug = 0;
     }
-    if (teo.command == TEO_COMMAND_QUIT) {
+
+    if (teo.command == TEO_COMMAND_QUIT)
+    {
+        dkc->WriteUpdateTrack();
         mc6809_FlushExec();
         gtk_main_quit ();
         return FALSE;
     }
 
+    dkc->ClearWriteFlag();
     teo.command = TEO_COMMAND_NONE;
 
     ugraphic_Refresh ();
     if ((teo.setting.exact_speed)
      && (teo.setting.sound_enabled))
         usound_Play ();
+
+    dkc->WriteUpdateTimeout();
 
     return TRUE;
     (void)user_data;
@@ -223,70 +232,13 @@ static void ReadCommandLine(int argc, char *argv[])
 
 
 
-/* main_SysExec:
- *  Demande ‡ l'OS d'executer une cmd dans un dossier prÈcis.
- */
-int main_SysExec(char *cmd, const char *dir)
-{
-    int i;
-    char cwd[MAX_PATH+1]="";
-    int ret = FALSE;
-    
-    if (getcwd(cwd, MAX_PATH) != NULL)
-    {
-        i = chdir(dir);
-        if (system(cmd) == 0)
-            ret = TRUE;
-        i = chdir(cwd);
-        printf ("cwd='%s' dir='%s' cmd='%s'\n", cwd, dir, cmd); 
-    }
-    return ret;
-    (void)i;
-}
-
-
-
-/* main_RmFile:
- *   Efface un fichier.
- */
-int main_RmFile(char *path)
-{
-    return (unlink(path) == 0) ? TRUE : FALSE;
-}
-
-
-
-/* main_TmpFile:
- *   Cree un fichier temporaire.
- */
-char *main_TmpFile(char *buf, int maxlen)
-{
-#ifdef OS_LINUX
-    char tmp_name[] = "/tmp/teo_XXXXXX";
-    char *tmp = tmp_name;
-
-    if (mkstemp(tmp_name) >= 0)
-        (void)snprintf (buf, maxlen, "%s", tmp_name);
-    else
-        tmp = NULL;
-#else
-    char *tmp;
-    tmp = tmpnam(buf);
-#endif
-    return tmp;
-    (void)maxlen;
-}
-
-
-
 /* DisplayMessage:
  *  Affiche un message.
  */
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
-    ugui_Error
-     (msg, NULL);
+    ugui_Error (msg, NULL);
 }
 
 
@@ -310,7 +262,7 @@ void main_ExitMessage(const char msg[])
 int main(int argc, char *argv[])
 {
     int i;
-    int direct_write_support = FALSE;
+    int direct_write_support = TRUE;
     int drive_type[4];
     char *lang;
 
@@ -336,29 +288,22 @@ int main(int argc, char *argv[])
     ini_Load();                  /* Charge les paramËtres par dÈfaut */
     ReadCommandLine(argc, argv); /* RÈcupÈration des options */
 
-/*
-        warning_box (is_fr?"Un fichier de configuration n'a pas pu √™tre " \
-                           "charg√©. V√©rifiez qu'il n'a pas √©t√© d√©plac√©, " \
-                           "d√©truit et que le p√©riph√©rique a bien √©t√© mont√©."
-                          :"A configuration file was unable to be loaded. " \
-                           "Check if this file has been moved, deleted and that " \
-                           "the media has been successfully mounted.", NULL);
-*/
-
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'√©mulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
                  "Teo "TEO_VERSION_STR" (Linux/X11)");
-    printf("Copyright (C) 1997-2012 Gilles F√©tis, Eric Botcazou,\
- Alexandre Pukall, Fran√ßois Mouret, Samuel Devulder.\n\n");
+    printf("Copyright (C) 1997-2013 Gilles F√©tis, Eric Botcazou, "
+           "Alexandre Pukall, Fran√ßois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contr√¥le\n"
                  :"Keys : [ESC] Control pannel\n"));
     printf((is_fr?"         [F12] D√©bogueur\n\n"
                  :"       [F12] Debugger\n\n"));
 
+    teo_error_short = FALSE;
+    
     /* Initialisation du TO8 */
     printf((is_fr?"Initialisation de l'√©mulateur..."
-                 :"Initialization of the emulator...")); fflush(stdout);
+                 :"Initialization of the emulator...")); fflush(stderr);
 
     if ( teo_Init(TEO_NJOYSTICKS) < 0 )
         main_ExitMessage(teo_error_msg);
@@ -388,9 +333,8 @@ int main(int argc, char *argv[])
 
     /* Restitue l'Ètat sauvegardÈ de l'Èmulateur */
     teo_ColdReset();    /* Reset ‡ froid de l'Èmulateur */
-    if (!reset)
-        if (access("autosave.img", F_OK) >= 0)
-            image_Load ("autosave.img");
+    if (reset == 0)
+        image_Load ("autosave.img");
 
     ugui_Init();      /* Initialise l'interface graphique */
 
@@ -398,9 +342,8 @@ int main(int argc, char *argv[])
     printf((is_fr?"Lancement de l'√©mulation...\n":"Launching emulation...\n"));
     teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
-    g_timeout_add (2, RunTO8, &idle_data);
+    g_timeout_add_full (G_PRIORITY_DEFAULT, 2, RunTO8, &idle_data, NULL);
     gtk_main ();
-    g_idle_remove_by_data (&idle_data);
     g_timer_destroy (timer);
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accËs direct */
