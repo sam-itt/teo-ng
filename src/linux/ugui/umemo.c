@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -59,10 +59,52 @@
 #include "error.h"
 
 static GtkWidget *combo;
+static gulong combo_id;
+static GtkWidget *emptying_button;
+static gulong emptying_button_id;
 static int entry_max=0;
-static gulong combo_changed_id;
 static GList *name_list = NULL;
 static GList *path_list = NULL;
+
+
+
+static void block_all (void)
+{
+    g_signal_handler_block (combo, combo_id);
+    g_signal_handler_block (emptying_button, emptying_button_id);
+}
+
+
+
+static void unblock_all (void)
+{
+    g_signal_handler_unblock (combo, combo_id);
+    g_signal_handler_unblock (emptying_button, emptying_button_id);
+}
+
+
+
+/* update_params:
+ *  Ajuste les paramètres de cartouche.
+ */
+static void update_params (void)
+{
+    int combo_index;
+    
+    if (combo_id != 0)
+    {
+        block_all ();
+
+        combo_index = gtk_combo_box_get_active (GTK_COMBO_BOX (combo));
+
+        if (combo_index == 0)
+            gtk_widget_set_sensitive (emptying_button, FALSE);
+        else
+            gtk_widget_set_sensitive (emptying_button, TRUE);
+
+        unblock_all ();
+    }
+}
 
 
 
@@ -109,16 +151,16 @@ static void init_combo (void)
  */
 static void reset_combo (GtkButton *button, gpointer data)
 {
-    /* Bloque l'intervention de combo_changed */
-    g_signal_handler_block (combo, combo_changed_id);
+    block_all ();
 
     umemo_Free ();
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     init_combo();
     memo_Eject();
 
-    /* Débloque l'intervention de combo_changed */
-    g_signal_handler_unblock (combo, combo_changed_id);
+    unblock_all ();
+
+    update_params ();
 
     (void)button;
     (void)data;
@@ -140,6 +182,8 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
     else
     if (memo_Load(filename) < 0)
         ugui_Error (teo_error_msg, wControl);
+
+    update_params ();
 
     teo.command=TEO_COMMAND_COLD_RESET;
 
@@ -171,21 +215,26 @@ static void open_file (GtkButton *button, gpointer data)
         gtk_file_filter_add_pattern (filter, "*.M7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if ((teo.memo.file != NULL) && (teo.memo.label != NULL))
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, teo.memo.file);
-        else
-        if (teo.default_folder != NULL)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
-        else
-        if (access("./memo/", F_OK) == 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./memo/");
-
         /* Attend que le dialog ait tout assimilé */
         while (gtk_events_pending ())
             gtk_main_iteration ();
 
         first=0;
     }
+
+    if (teo.memo.file != NULL)
+    {
+        folder_name = std_strdup_printf ("%s", teo.memo.file);
+        std_CleanPath (folder_name);
+        (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, folder_name);
+        folder_name = std_free (folder_name);
+    }
+    else
+    if (teo.default_folder != NULL)
+        (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
+    else
+    if (access("./disks/", F_OK) == 0)
+        (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./memo/");
 
     if (gtk_dialog_run ((GtkDialog *)dialog) == GTK_RESPONSE_ACCEPT)
     {
@@ -194,8 +243,7 @@ static void open_file (GtkButton *button, gpointer data)
             ugui_Error (teo_error_msg, wControl);
         else
         {
-            /* Bloque l'intervention de combo_changed */
-            g_signal_handler_block (combo, combo_changed_id);
+            block_all ();
 
             add_combo_entry (teo.memo.label, teo.memo.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
@@ -204,8 +252,9 @@ static void open_file (GtkButton *button, gpointer data)
                 teo.default_folder = std_strdup_printf ("%s",folder_name);
             g_free (folder_name);
 
-            /* Débloque l'intervention de combo_changed */
-            g_signal_handler_unblock (combo, combo_changed_id); 
+            unblock_all ();
+
+            update_params ();
         }
         g_free (file_name);
     }
@@ -246,12 +295,12 @@ void umemo_Init (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* bouton de vidange */
-    widget = gtk_button_new ();
+    emptying_button = gtk_button_new ();
     image = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(GTK_BUTTON(widget), image);
-    gtk_widget_set_tooltip_text (widget, is_fr?"Vide la liste des fichiers":"Empty the file list");
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-    (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(reset_combo), (gpointer) NULL);
+    gtk_button_set_image(GTK_BUTTON(emptying_button), image);
+    gtk_widget_set_tooltip_text (emptying_button, is_fr?"Vide la liste des fichiers":"Empty the file list");
+    gtk_box_pack_start( GTK_BOX(hbox), emptying_button, FALSE, FALSE, 0);
+    emptying_button_id = g_signal_connect(G_OBJECT(emptying_button), "clicked", G_CALLBACK(reset_combo), (gpointer) NULL);
 
     /* combobox pour le rappel de cartouche */
     combo=gtk_combo_box_text_new();
@@ -259,7 +308,7 @@ void umemo_Init (GtkWidget *notebook)
     init_combo();
     if ((teo.memo.label != NULL) && (teo.memo.file != NULL))
         add_combo_entry (teo.memo.label, teo.memo.file);
-    combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
+    combo_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
 
     /* bouton d'ouverture de fichier */
     widget = gtk_button_new ();
@@ -268,6 +317,8 @@ void umemo_Init (GtkWidget *notebook)
     gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer) NULL);
+    
+    update_params ();
 }
 
 
