@@ -5,7 +5,7 @@ Section: base
 Priority: optional
 Maintainer: Gilles Fétis <gilles504@gmail.com>
 Homepage: http://sourceforge.net/projects/teoemulator/
-Installed-Size: 950
+Installed-Size: <set by pack.sh>
 Description: Teo, a thomson TO8D microcomputer emulator
  Teo is an emulator of the Thomson TO8 microcomputer for PC, running on MSDOS,
  Windows and Linux.
