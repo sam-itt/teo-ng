@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,7 @@
    #include <unistd.h>
    #include <string.h>
    #include <windows.h>
+   #include <windowsx.h>
    #include <shellapi.h>
    #include <commctrl.h>
 #endif
@@ -77,8 +78,26 @@ static void update_params (HWND hWnd)
     teo.cass.write_protect = (IsDlgButtonChecked(hWnd, K7_PROT_CHECK)
                                  == BST_CHECKED) ? TRUE : FALSE;
     combo_index = SendDlgItemMessage(hWnd, K7_COMBO, CB_GETCURSEL, 0, 0);
-}
 
+    if (combo_index == 0)
+    {
+        Button_Enable(GetDlgItem (hWnd, K7_UPDOWN), FALSE);
+        Edit_Enable(GetDlgItem (hWnd, K7_COUNTER_EDIT), FALSE);
+        Button_Enable(GetDlgItem (hWnd, K7_REWIND_BUTTON), FALSE);
+        Static_Enable(GetDlgItem (hWnd, K7_COUNTER_LTEXT), FALSE);
+        Button_Enable(GetDlgItem (hWnd, K7_EJECT_BUTTON), FALSE);
+        Button_Enable(GetDlgItem (hWnd, K7_PROT_CHECK), FALSE);
+    }
+    else
+    {
+        Button_Enable(GetDlgItem (hWnd, K7_UPDOWN), TRUE);
+        Edit_Enable(GetDlgItem (hWnd, K7_COUNTER_EDIT), TRUE);
+        Button_Enable(GetDlgItem (hWnd, K7_REWIND_BUTTON), TRUE);
+        Static_Enable(GetDlgItem (hWnd, K7_COUNTER_LTEXT), TRUE);
+        Button_Enable(GetDlgItem (hWnd, K7_EJECT_BUTTON), TRUE);
+        Button_Enable(GetDlgItem (hWnd, K7_PROT_CHECK), TRUE);
+    }
+}
 
 
 /* set_counter_cass:
@@ -130,7 +149,7 @@ static int load_cass (HWND hWnd, char *filename)
                                MB_OK | MB_ICONINFORMATION);
             break;
 
-        case TEO_READ_ONLY :
+        case TRUE :
             CheckDlgButton(hWnd, K7_PROT_CHECK, BST_CHECKED);
             break;
 
@@ -150,10 +169,10 @@ static void toggle_check_cass (HWND hWnd)
 {
     if (IsDlgButtonChecked(hWnd, K7_PROT_CHECK) == BST_CHECKED)
     {
-        cass_SetMode(TEO_READ_ONLY);
+        cass_SetProtection(TRUE);
     }
     else
-    if (cass_SetMode(TEO_READ_WRITE)==TEO_READ_ONLY)
+    if (cass_SetProtection(FALSE)==TRUE)
     {
         MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
                               :"Warning: writing unavailable on this device."
@@ -270,7 +289,7 @@ static void open_file (HWND hWnd)
       
     if (GetOpenFileName(&ofn))
     {
-         if (load_cass (hWnd, ofn.lpstrFile) < 0)
+         if (load_cass (hWnd, ofn.lpstrFile) >= 0)
          {
              add_combo_entry (hWnd, teo.cass.file);
              teo.default_folder = std_free (teo.default_folder);
@@ -344,7 +363,7 @@ int CALLBACK wcass_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          himg=LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
          SendMessage(GetDlgItem(hWnd, K7_EJECT_BUTTON), BM_SETIMAGE,
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg);
-         himg=LoadImage (prog_inst, "cass_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         himg=LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
          SendMessage(GetDlgItem(hWnd, K7_MORE_BUTTON), BM_SETIMAGE,
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg);
 
@@ -361,7 +380,7 @@ int CALLBACK wcass_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          wgui_CreateTooltip (hWnd, K7_MORE_BUTTON,
                              is_fr?"Ouvrir un fichier cassette"
                                   :"Open a tape file");
-
+         update_params(hWnd);
          return TRUE;
 
       case WM_COMMAND:

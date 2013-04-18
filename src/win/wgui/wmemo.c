@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,7 @@
    #include <unistd.h>
    #include <string.h>
    #include <windows.h>
+   #include <windowsx.h>
    #include <shellapi.h>
    #include <commctrl.h>
 #endif
@@ -74,6 +75,14 @@ static struct STRING_LIST *name_list = NULL;
 static void update_params (HWND hWnd)
 {
     combo_index = SendDlgItemMessage(hWnd, MEMO7_COMBO, CB_GETCURSEL, 0, 0);
+    if (combo_index == 0)
+    {
+        Button_Enable(GetDlgItem (hWnd, MEMO7_EJECT_BUTTON), FALSE);
+    }
+    else
+    {
+        Button_Enable(GetDlgItem (hWnd, MEMO7_EJECT_BUTTON), TRUE);
+    }
 }
 
 
@@ -202,7 +211,7 @@ static void open_file (HWND hWnd)
 
    if (GetOpenFileName(&ofn))
    {
-      if (load_memo (hWnd, ofn.lpstrFile) < 0)
+      if (load_memo (hWnd, ofn.lpstrFile) >= 0)
       {
           add_combo_entry (hWnd, teo.memo.label, teo.memo.file);
           teo.default_folder = std_free (teo.default_folder);
@@ -265,7 +274,7 @@ int CALLBACK wmemo_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          himg = LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
          SendMessage(GetDlgItem(hWnd, MEMO7_EJECT_BUTTON), BM_SETIMAGE,
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg );
-         himg = LoadImage (prog_inst, "memo_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         himg = LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
          SendMessage(GetDlgItem(hWnd, MEMO7_MORE_BUTTON), BM_SETIMAGE,
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg );
 
@@ -275,6 +284,7 @@ int CALLBACK wmemo_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          wgui_CreateTooltip (hWnd, MEMO7_MORE_BUTTON,
                is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
 
+         update_params (hWnd);
          return TRUE;
 
       case WM_COMMAND:
