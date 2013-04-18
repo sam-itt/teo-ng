@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -64,12 +64,12 @@
 /* ------------------------------------------------------------------------- */
 
 
-/* memo_Check:
+/* memo_IsMemo:
  *  Vérifie le format de la cartouche.
  *
  *  Renvoie la position du caractère terminateur, ou une erreur.
  */
-int memo_Check (const char filename[])
+int memo_IsMemo (const char filename[])
 {
     FILE *file = NULL;
     int i;
@@ -146,7 +146,7 @@ int memo_Load(const char filename[])
     char memo_name[32] = "";
 
     /* vérificiation du format de la cartouche */
-    if ((err = memo_Check(filename)) < 0)
+    if ((err = memo_IsMemo(filename)) < 0)
         return error_Message(err, filename);
 
     /* chargement de la cartouche */
@@ -178,7 +178,7 @@ int memo_Load(const char filename[])
     teo.memo.file  = std_free (teo.memo.file);
     teo.memo.file  = std_strdup_printf ("%s", filename);
 
-    return TEO_READ_ONLY;
+    return TRUE;
 }
 
 
