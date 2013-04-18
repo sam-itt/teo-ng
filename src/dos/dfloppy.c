@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -252,6 +252,11 @@ int dfloppy_Init(int to_drive_type[4], int enable_write)
     __dpmi_regs r;
     int i, num_drives = 0;
 
+    teo_DirectIsDiskWritable = NULL;
+    teo_DirectReadSector     = NULL;
+    teo_DirectWriteSector    = NULL;
+    teo_DirectFormatTrack    = NULL;
+
     for (i=0; i<2; i++)
     {
         /* get drive parameters (int 13h, function 08h) */
@@ -313,6 +318,7 @@ int dfloppy_Init(int to_drive_type[4], int enable_write)
  */
 void dfloppy_Exit(void)
 {
+    teo_DirectIsDiskWritable = NULL;
     teo_DirectReadSector = NULL;
     teo_DirectWriteSector = NULL;
     teo_DirectFormatTrack = NULL;
