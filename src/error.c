@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,11 +49,13 @@
    #include <string.h>
 #endif
 
+#include "defs.h"
 #include "std.h"
 #include "error.h"
 #include "teo.h"
 
 char *teo_error_msg = NULL;
+int teo_error_short = TRUE;
 
 struct ERROR_TABLE {
     int   err;
@@ -76,71 +78,56 @@ int error_Message(int error, const char moreinfo[])
     int is_unix = 0;
 #endif
     struct ERROR_TABLE error_table[]= {
-        { TEO_ERROR_MULTIPLE_INIT   , is_fr?"Instance multiple de Teo"
-                                          :"Multiple instance of Teo"},
         { TEO_ERROR_ALLOC           , is_fr?(is_unix?"Plus de mÃ©moire"
                                                     :"Plus de mémoire")
                                            :"No more memory space"},
+        { TEO_ERROR_BMP_FORMAT   , is_fr?"Format BMP incorrect"
+                                           :"Bad BMP format"},
+        { TEO_ERROR_DIRECTORY_FULL, is_fr?(is_unix?"RÃ©pertoire plein"
+                                                  :"Répertoire plein")
+                                         :"Directory full"},
+        { TEO_ERROR_DISK_CONVERSION, is_fr?"Impossible de convertir le disque"
+                                          :"Unable to convert disk"},
+        { TEO_ERROR_DISK_CREATE, is_fr?(is_unix?"Impossible de crÃ©er la disquette"
+                                               :"Impossible de créer la disquette")
+                                      :"Cannot create disk"},
+        { TEO_ERROR_DISK_IO, is_fr?"Erreur sur le disque"
+                                  :"Disk I/O error"},
+        { TEO_ERROR_DISK_NONE, is_fr?"Disque absent":"No disk"},
+        { TEO_ERROR_DISK_PROTECT, is_fr?(is_unix?"Disque protÃ©gÃ©e en Ã©criture"
+                                               :"Disque protégé en écriture")
+                                      :"Disk write protected"},
+        { TEO_ERROR_FILE_EMPTY      , is_fr?"Fichier vide"
+                                           :"File is empty"},
+        { TEO_ERROR_FILE_FORMAT     , is_fr?"Mauvais format de fichier"
+                                           :"Bad file format"},
         { TEO_ERROR_FILE_NOT_FOUND  , is_fr?"Fichier introuvable"
                                            :"File not found"},
         { TEO_ERROR_FILE_OPEN       , is_fr?"Ouverture impossible"
                                            :"Unable to open"},
-        { TEO_ERROR_FILE_FORMAT     , is_fr?"Mauvais format de fichier"
-                                           :"Bad file format"},
+        { TEO_ERROR_FILE_READ       , is_fr?"Erreur de lecture du fichier"
+                                           :"Error while reading file"},
         { TEO_ERROR_FILE_TOO_LARGE  , is_fr?"Fichier trop important"
                                            :"File too large"},
-        { TEO_ERROR_FILE_EMPTY      , is_fr?"Fichier vide"
-                                           :"File is empty"},
-        { TEO_ERROR_UNSUPPORTED_MODEL, is_fr?(is_unix?"Image d'un modÃ¨le non supportÃ©"
-                                                     :"Image d'un modèle non supporté")
-                                            :"Unsupported image format"},
-        { TEO_ERROR_BMP_FORMAT   , is_fr?"Format BMP incorrect"
-                                           :"Bad BMP format"},
+        { TEO_ERROR_FILE_WRITE      , is_fr?"Erreur d'Ã©criture du fichier"
+                                           :"Error while writing file"},
         { TEO_ERROR_JOYSTICK_NUM    , is_fr?"Nombre de joysticks incorrect"
                                            :"Bad count of joysticks"},
+        { TEO_ERROR_MEDIA_ALREADY_SET, is_fr?"Plus de media libre"
+                                             :"Media not free"},
         { TEO_ERROR_MEMO_HEADER_CHECKSUM, is_fr?(is_unix?"Checksum d'en-tÃªte de memo erronÃ©"
                                                         :"Checksum d'en-tête de memo erroné")
                                                :"Bad checksum for memo header"},
         { TEO_ERROR_MEMO_HEADER_NAME, is_fr?(is_unix?"Nom d'en-tÃªte de memo incorrect"
                                                     :"Nom d'en-tête de memo incorrect")
                                            :"Bad name for memo header"},
-        { TEO_ERROR_MEDIA_ALREADY_SET, is_fr?"Plus de media libre"
-                                             :"Media not free"},
+        { TEO_ERROR_MULTIPLE_INIT   , is_fr?"Instance multiple de Teo"
+                                          :"Multiple instance of Teo"},
+        { TEO_ERROR_UNSUPPORTED_MODEL, is_fr?(is_unix?"Image d'un modÃ¨le non supportÃ©"
+                                                     :"Image d'un modèle non supporté")
+                                            :"Unsupported image format"},
         { TEO_ERROR_VALID_SAP, is_fr?"Archive SAP invalide"
                                     :"SAP archive not valid"},
-        { TEO_ERROR_DISK_IO, is_fr?"Erreur sur le disque"
-                                  :"Disk I/O error"},
-        { TEO_ERROR_DISK_PROTECT, is_fr?(is_unix?"Disque protÃ©gÃ©e en Ã©criture"
-                                               :"Disque protégé en écriture")
-                                      :"Disk write protected"},
-        { TEO_ERROR_DISK_CREATE, is_fr?(is_unix?"Impossible de crÃ©er la disquette"
-                                               :"Impossible de créer la disquette")
-                                      :"Cannot create disk"},
-        { TEO_ERROR_DISK_ACCESS, is_fr?(is_unix?"Impossible d'accÃ©der au disque"
-                                               :"Impossible d'accéder au disque")
-                                      :"Unable to access disk"},
-        { TEO_ERROR_DISK_CONVERSION, is_fr?"Impossible de convertir le disque"
-                                          :"Unable to convert disk"},
-        { TEO_ERROR_DIRECTORY_FULL, is_fr?(is_unix?"RÃ©pertoire plein"
-                                                  :"Répertoire plein")
-                                         :"Directory full"},
-        { TEO_ERROR_SERIAL_OPEN, is_fr?(is_unix?"Port sÃ©rie introuvable"
-                                             :"Port série introuvable")
-                                     :"No serial port found"},
-        { TEO_ERROR_SERIAL_IO, is_fr?(is_unix?"Erreur de transfert sÃ©rie"
-                                               :"Erreur de transfert CRC série")
-                                     :"Serial transfer error"},
-        { TEO_ERROR_CC90_CRC, is_fr?(is_unix?"Erreur de CRC sÃ©rie"
-                                               :"Erreur de CRC série")
-                                     :"CRC serial error"},
-        { TEO_ERROR_CC90_BSTART, is_fr?(is_unix?"Erreur de BSTART sÃ©rie"
-                                                  :"Erreur de BSTART série")
-                                        :"BSTART serial error"},
-        { TEO_ERROR_CC90_VERSION, is_fr?"Mauvaise version de CC90"
-                                       :"Bad version of CC90"},
-        { TEO_ERROR_CC90_MEMORY, is_fr?(is_unix?"Erreur de mÃ©moire Thomson"
-                                                    :"Erreur de mémoire Thomson")
-                                           :"Thomson memory error"},
         { 0 , is_fr?"Erreur inconnue"
                     :"Unknown error"}
     };    
@@ -152,15 +139,14 @@ int error_Message(int error, const char moreinfo[])
                i++;
     
         teo_error_msg = std_free (teo_error_msg);
-        
-#ifdef DJGPP
-        teo_error_msg = std_strdup_printf ("%s.", error_table[i].str);
-#else
-        if (moreinfo == NULL)
-            teo_error_msg = std_strdup_printf ("%s.", error_table[i].str);
+
+        if ((moreinfo != NULL)
+          && ((teo_error_short == FALSE) || (strlen (moreinfo) <= 38)))
+                teo_error_msg = std_strdup_printf ("%s.\n%s",
+                                                   error_table[i].str,
+                                                   moreinfo);
         else
-            teo_error_msg = std_strdup_printf ("%s : %s", error_table[i].str, moreinfo);
-#endif
+            teo_error_msg = std_strdup_printf ("%s.", error_table[i].str);
     }
     return TEO_ERROR;
 }

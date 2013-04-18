@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -46,40 +46,33 @@
 #define ERROR_H
 
 enum {
-    TEO_ERROR_MULTIPLE_INIT = -1000,
-    TEO_ERROR_ALLOC,
-    TEO_ERROR_FILE_NONE,
-    TEO_ERROR_FILE_OPEN,
-    TEO_ERROR_FILE_WRITE,
-    TEO_ERROR_FILE_READ,
-    TEO_ERROR_FILE_NOT_FOUND,
-    TEO_ERROR_FILE_FORMAT,
-    TEO_ERROR_FILE_TOO_LARGE,
-    TEO_ERROR_FILE_EMPTY,
-    TEO_ERROR_DISK_NONE,
-    TEO_ERROR_DISK_CREATE,
-    TEO_ERROR_DISK_PROTECT,
-    TEO_ERROR_DISK_IO,
-    TEO_ERROR_DISK_ACCESS,
-    TEO_ERROR_DISK_CONVERSION,
-    TEO_ERROR_CC90_CRC,
-    TEO_ERROR_CC90_BSTART,
-    TEO_ERROR_CC90_VERSION,
-    TEO_ERROR_CC90_MEMORY,
-    TEO_ERROR_SERIAL_OPEN,
-    TEO_ERROR_SERIAL_IO,
+    TEO_ERROR_ALLOC = -1000,
     TEO_ERROR_BMP_FORMAT,
-    TEO_ERROR_UNSUPPORTED_MODEL,
+    TEO_ERROR_DIRECTORY_FULL,
+    TEO_ERROR_DISK_CONVERSION,
+    TEO_ERROR_DISK_CREATE,
+    TEO_ERROR_DISK_IO,
+    TEO_ERROR_DISK_NONE,
+    TEO_ERROR_DISK_PROTECT,
+    TEO_ERROR_FILE_EMPTY,
+    TEO_ERROR_FILE_FORMAT,
+    TEO_ERROR_FILE_NOT_FOUND,
+    TEO_ERROR_FILE_OPEN,
+    TEO_ERROR_FILE_READ,
+    TEO_ERROR_FILE_TOO_LARGE,
+    TEO_ERROR_FILE_WRITE,
     TEO_ERROR_JOYSTICK_NUM,
+    TEO_ERROR_MEDIA_ALREADY_SET,
     TEO_ERROR_MEMO_HEADER_CHECKSUM,
     TEO_ERROR_MEMO_HEADER_NAME,
-    TEO_ERROR_MEDIA_ALREADY_SET,
+    TEO_ERROR_MULTIPLE_INIT,
+    TEO_ERROR_UNSUPPORTED_MODEL,
     TEO_ERROR_VALID_SAP,
-    TEO_ERROR_DIRECTORY_FULL,
     TEO_ERROR
 };
 
 extern char *teo_error_msg;
+extern int teo_error_short;
 extern int error_Message(int error, const char moreinfo[]);
 
 #endif
