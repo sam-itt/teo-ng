@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -48,10 +48,10 @@
 
 extern void  cass_Init(void);
 extern void  cass_Event (int *br, int *cc);
-extern int   cass_Check (const char filename[]);
+extern int   cass_IsCass (const char filename[]);
 extern void  cass_FirstLoad (void);
 extern int   cass_Load(const char filename[]);
-extern int   cass_SetMode(int mode);
+extern int   cass_SetProtection(int protection);
 extern int   cass_GetCounter(void);
 extern void  cass_SetCounter(int counter);
 extern void  cass_Eject(void);
