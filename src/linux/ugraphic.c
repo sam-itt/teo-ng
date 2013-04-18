@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -364,7 +364,7 @@ static void DrawBorderLine(int col, int line)
 
 
 
-#define LED_SIZE 12
+#define LED_SIZE 16
 
 
 /* SetDiskLed:
@@ -383,6 +383,8 @@ static void SetDiskLed(int led_on)
 	values.foreground=xcolor[TEO_NCOLORS+3].pixel;
 	XChangeGC(display, gc, GCForeground, &values);
 	XFillRectangle(display, screen_win, gc, TEO_SCREEN_W*2-LED_SIZE+1, 1, LED_SIZE-2, LED_SIZE-2);
+
+        dirty_cell[TEO_SCREEN_CW-1] = False;
     }
     else
 	/* ugraphic_Retrace() laisse parfois la led allumée... */
