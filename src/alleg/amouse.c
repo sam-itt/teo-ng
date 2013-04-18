@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -203,19 +203,20 @@ void amouse_Install(int pointer)
 {
     switch (pointer)
     {
-        case TEO_MOUSE:
+        case TEO_STATUS_MOUSE:
             mouse_callback=MouseCallback;
-            installed_pointer=TEO_MOUSE;
+            installed_pointer=TEO_STATUS_MOUSE;
             break;
 
-        case TEO_LIGHTPEN:
+        case TEO_STATUS_LIGHTPEN:
             mouse_callback=LightpenCallback;
-            installed_pointer=TEO_LIGHTPEN;
+            installed_pointer=TEO_STATUS_LIGHTPEN;
             break;
 
         case LAST_POINTER:
-            mouse_callback=(installed_pointer == TEO_MOUSE ? MouseCallback
-                                                         : LightpenCallback);
+            mouse_callback=(installed_pointer == TEO_STATUS_MOUSE
+                                                   ? MouseCallback
+                                                   : LightpenCallback);
             break;
     }
 }
