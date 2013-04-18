@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -191,7 +191,6 @@ void ugui_Init(void)
     widget=gtk_button_new_with_label((is_fr?"RedÃ©marrer Ã  froid le TO8":"TO8 cold reset"));
     g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) TEO_COMMAND_COLD_RESET);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
-
 
     /* notebook */
     notebook=gtk_notebook_new();
