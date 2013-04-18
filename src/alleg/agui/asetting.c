@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -64,16 +64,16 @@ static DIALOG commdial[]={
 #ifdef FRENCH_LANG
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Réglages" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
-{ d_radio_proc,      135,  44, 126,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },
-{ d_radio_proc,      205,  44, 126,   8, 0, 0, 'r',  0,     1, 0, "&rapide" },
+{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },
+{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'r',  0,     1, 0, "&rapide" },
 { d_check_proc,       78,  62, 120,  14, 0, 0, 's',  0,     0, 0, "&Son" },
 { d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
 { d_check_proc,       88,  82, 148,  14, 0, 0, 'v',  0,     0, 0, "&Vidéo entrelacée" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Settings" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, " Speed:" },
-{ d_radio_proc,      135,  44, 126,   8, 0, 0, 'e',  0,     1, 0, "&exact" },
-{ d_radio_proc,      205,  44, 126,   8, 0, 0, 'f',  0,     1, 0, "&fast" },
+{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exact" },
+{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'f',  0,     1, 0, "&fast" },
 { d_check_proc,       78,  62, 120,  14, 5, 0, 's',  0,     0, 0, "&Sound" },
 { d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
 { d_check_proc,       88,  82, 147,  14, 5, 0, 'i',  0,     0, 0, "&Interlaced video" },
@@ -107,6 +107,8 @@ void asetting_Panel(void)
 
     if (first)
     {
+        centre_dialog(commdial);
+
         asound_SetVolume(teo.setting.sound_volume);
         commdial[COMMDIAL_SLIDER].d2=teo.setting.sound_volume-1;
         first = 0;
@@ -115,7 +117,6 @@ void asetting_Panel(void)
        commdial[COMMDIAL_SLIDER].d2=asound_GetVolume()-1;
 
     clear_keybuf();
-    centre_dialog(commdial);
 
     popup_dialog(commdial, COMMDIAL_OK);
 

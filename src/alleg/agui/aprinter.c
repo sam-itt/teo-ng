@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -91,12 +91,12 @@ static DIALOG printerdial[]={
 { d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
 { d_text_proc,        60,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimante:" },
 { d_list_proc,       150,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
-{ d_button_proc,      30, 100, 260,  16, 0, 0, 'c',  0,     0, 0, "Change le comportement du &CR" },
-{ d_button_proc,      30, 118, 260,  16, 0, 0, 'h',  0,     0, 0, "Imprime en de &haute qualité" },
+{ d_button_proc,      40, 100, 240,  16, 0, 0, 'c',  0,     0, 0, "Change le comportement du &CR" },
+{ d_button_proc,      40, 118, 240,  16, 0, 0, 'h',  0,     0, 0, "Imprime en de &haute qualité" },
 { d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, "Sortie:" },
 { d_check_proc,       90, 142,  60,  14, 0, 0, 'b',  0,     0, 0, "&brute" },
 { d_check_proc,      160, 142,  60,  14, 0, 0, 't',  0,     0, 0, "&texte" },
-{ d_check_proc,      230, 142,  94,  14, 0, 0, 'g',  0,     0, 0, "&graph" },
+{ d_check_proc,      230, 142,  50,  14, 0, 0, 'g',  0,     0, 0, "&graph" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Dot-matrix printers" },
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Save in:" },
@@ -104,14 +104,14 @@ static DIALOG printerdial[]={
 { d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
 { d_text_proc,        70,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Printer:" },
 { d_list_proc,       140,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
-{ d_button_proc,      30, 100, 260,  16, 0, 0, 'c',  0,     0, 0, "Change behaviour of &CR" },
-{ d_button_proc,      30, 118, 260,  16, 0, 0, 'h',  0,     0, 0, "&High quality print" },
+{ d_button_proc,      40, 100, 240,  16, 0, 0, 'c',  0,     0, 0, "Change behaviour of &CR" },
+{ d_button_proc,      40, 118, 240,  16, 0, 0, 'h',  0,     0, 0, "&High quality print" },
 { d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, "Output:" },
 { d_check_proc,       98, 142,  42,  14, 0, 0, 'r',  0,     0, 0, "&raw" },
 { d_check_proc,      152, 142,  50,  14, 0, 0, 't',  0,     0, 0, "&text" },
-{ d_check_proc,      214, 142,  76,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
+{ d_check_proc,      214, 142,  66,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
 #endif
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     210, 170,  70,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
