@@ -14,22 +14,6 @@ endif
 
 # ------ compiler flags ------ 
 
-CC = gcc
-
-WFLAGS = -Wall -Werror
-
-
-ifdef PGCC
-   OFLAGS = -O6 -ffast-math
-else
-ifdef PENTIUMONLY
-   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
-else
-   OFLAGS = -O2 -funroll-loops -ffast-math
-endif
-endif
-
-
 ifdef DEBUGMODE
 
 # -- debugging build --
@@ -58,11 +42,6 @@ DESCRIPTION = optimized
 endif
 endif
 
-ifdef EN_LANG
-CFLAGS += -DENGLISH_LANG
-else
-CFLAGS += -DFRENCH_LANG
-endif
 
 # ------ plateform-dependant objects and executables ------
 

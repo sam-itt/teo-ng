@@ -12,24 +12,6 @@ UNIX_TOOLS = 1
 
 # ------ compiler flags ------ 
 
-
-CC = gcc
-
-WFLAGS = -Wall -W -Werror
-
-
-ifdef PGCC
-   OFLAGS = -O6 -ffast-math
-else
-ifdef PENTIUMONLY
-   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
-else
-   OFLAGS = -O2 -funroll-loops -ffast-math
-#   OFLAGS =  -g -O2
-endif
-endif
-
-
 ifdef DEBUGMODE
 
 # -- debugging build --

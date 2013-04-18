@@ -14,23 +14,7 @@ endif
 
 # ------ compiler flags ------
 
-CC = gcc
-
 WRES = windres
-
-WFLAGS = -Wall -Werror
-
-
-ifdef PGCC
-   OFLAGS = -O6 -ffast-math
-else
-ifdef PENTIUMONLY
-   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
-else
-   OFLAGS = -O2 -funroll-loops -ffast-math
-endif
-endif
-
 
 ifdef DEBUGMODE
 
@@ -77,12 +61,6 @@ LIB += -lshell32 -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lcomctl32 -lole32 -ldin
 HOME = c:/home
 EXE_NAME = teow.exe
 PLATFORM = mingw32
-
-ifdef EN_LANG
-CFLAGS += -DENGLISH_LANG
-else
-CFLAGS += -DFRENCH_LANG
-endif
 
 OBJ_DIR = obj/mingw32
 

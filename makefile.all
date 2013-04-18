@@ -37,13 +37,17 @@ _default: default
 # ------ sources files ------
 
 TEO_SRC_FILES =         \
-   src/media/disk.c     \
    src/media/joystick.c \
    src/media/cass.c     \
    src/media/memo.c     \
    src/media/keyboard.c \
    src/media/mouse.c    \
-   src/media/libsap.c   \
+   src/media/disk/controlr/thmfc1.c  \
+   src/media/disk/sap.c \
+   src/media/disk/hfe.c \
+   src/media/disk/fd.c  \
+   src/media/disk/daccess.c  \
+   src/media/disk.c     \
    src/media/printer/pr906xx.c  \
    src/media/printer/pr90582.c  \
    src/media/printer/pr90042.c  \
@@ -119,9 +123,25 @@ TEO_SRC_WIN_FILES =        \
    src/win/wdialog.rc
    
 
+# ------ compiler flags ------ 
+
+CC = gcc
+
+WFLAGS = -Wall -Werror
+
+ifdef PGCC
+   OFLAGS = -O6 -ffast-math
+else
+ifdef PENTIUMONLY
+   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
+else
+   OFLAGS = -O2 -funroll-loops -ffast-math
+endif
+endif
+
 # ------ object files ------
 
-VPATH = src src/mc68xx src/media src/media/printer src/file
+VPATH = src src/mc68xx src/media src/media/printer src/media/disk src/media/disk/controlr src/file
 
 COMMON_OBJ_LIST = $(basename $(notdir $(TEO_SRC_FILES) $(TEO_SRC_MC68XX_FILES)))
 
@@ -131,6 +151,12 @@ CFLAGS += -fsigned-char
 
 ifdef UNIX_TOOLS
 CFLAGS += -DUNIX_TOOL
+endif
+
+ifdef EN_LANG
+CFLAGS += -DENGLISH_LANG
+else
+CFLAGS += -DFRENCH_LANG
 endif
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o , $(OBJ_LIST)))
