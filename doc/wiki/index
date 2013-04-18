@@ -1,17 +1,5 @@
-\[[Page en Fran&ccedil;ais](../indexfr)\]
+###Choose your language first
 
-###Welcome to Wiki page of Teo !
-
-Teo is a TO8 emulator for Personal Computers. It tries to mimic as closely as possible the behavior of an other computer on the PC. Teo only emulates the hardware part of a TO8: The Motorola MC6809E micro-processor, the memory banks, the video system, and the following peripheral devices: mouse, light-pen, joysticks, tape player, floppy drives and dot-matrix printer.
-
-* [Overview of Teo](../teoen)
-* [Additional informations about Teo MS-DOS/DPMI](../teodosen)
-* [Additional informations about Teo Windows/DirectX](../teowinen)
-* [Additional informations about Teo Linux/X11](../teolnxen)
-* [Sap2](../sap2en) to import/export disks
-* [Sapfs](../sapfsen) to manage the SAP file system
-* [Wav2k7](../wav2k7en) to import/export tapes
-* [LibSap](../libsapen) a library of C functions to develop in C with SAP format
-* [Changes](../changeen)
-* [Licence](../licencen)
+* [English](../welcome_en)
+* [Fran&ccedil;ais](../welcome_fr)
 
