@@ -1,0 +1,11 @@
+###Wav2K7
+
+L'utilitaire Wav2K7 permet de r&eacute;cup&eacute;rer les vieux programmes sur k7.
+
+Il suffit de proc&eacute;der ainsi:
+
+* cr&eacute;er un fichier toto.wav de l'enregistrement du programme sur cassette, en 8bits, mono, à 44.1kHz, à l'aide de n'importe quel soft de type "enregistreur".
+* lancer l'utilitaire de conversion par: wav2k7 toto.wav
+* le fichier toto.k7 est produit, qui doit marcher si votre cassette est encore en bon &eacute;tat.
+* en cas de probl&egrave;me, s'assurer que le volume d'enregistrement du .wav est suffisant; utiliser &eacute;ventuellement un &eacute;qualiseur, en poussant la bande 4,5kHz - 6,3kHz.
+

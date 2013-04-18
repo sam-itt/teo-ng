@@ -1,0 +1,103 @@
+###Overview of Teo
+
+The original version of the Teo emulator was developed in 1994 for MSDos with the Allegro library. To adapt it to the OSes evolution, portings have been made for win32 (Windows 95/98, XP, Vista and Seven) and Linux. Those three versions are maintained by now.
+
+Besides, <a href="http://www.bannister.org/software/teo.htm">a native MacOS and now MacOSX porting</a> is managed by R. Bannister since the very first versions of Teo.
+
+* <a href="./#options">Launching options</a>
+* <a href="./#control_panel">Control panel</a>
+* <a href="./#keyboard">Keyboard</a>
+* <a href="./#joysticks">Joysticks</a>
+* <a href="./#mouse">Light-pen and mouse</a>
+* <a href="./#disks">Disks</a>
+* <a href="./#tapes">Tapes</a>
+* <a href="./#cartridges">Cartridges</a>
+* <a href="./#printers">Printers</a>
+* <a href="./#misc">Miscellaneous commands</a>
+
+#####Launching options<a name="options"></a>
+
+Teo accepts the following options on command line:
+
+<table width="100%" border="1">
+<tr><td>-h, --help</td><td>display help</td></tr>
+<tr><td>-r, --reset</td><td>hard reset the emulator</td></tr>
+<tr><td>-0 FILE, --disk0=FILE</td><td>load a disk (drive 0)</td></tr>
+<tr><td>-1 FILE, --disk1=FILE</td><td>load a disk (drive 1)</td></tr>
+<tr><td>-2 FILE, --disk2=FILE</td><td>load a disk (drive 2)</td></tr>
+<tr><td>-3 FILE, --disk3=FILE</td><td>load a disk (drive 3)</td></tr>
+<tr><td>--memo=FILE</td><td>load a ROM cartridge</td></tr>
+<tr><td>--cass=FILE</td><td>load a tape</td></tr>
+<tr><td>xxxxx</td><td>load disk/tape/memo (depends on file format)</td></tr>
+</table>
+
+#####Control panel<a name="control_panel"></a>
+
+Pressing the \[ESC\] key on the PC opens the control panel.
+
+#####Keyboard<a name="keyboard"></a>
+
+A key pressed on a French keyboard should display the same character in the emulator, provided the same key exists on the TO8 keyboard. The other keys can be accessed differently :
+
+<table width="100%" border="1">
+<tr><td>STOP</td><td>TAB</td></tr>
+<tr><td>CNT</td><td>Left CTRL</td></tr>
+<tr><td>ACC</td><td>ALT</td></tr>
+<tr><td>DEL</td><td>BACKSPACE</td></tr>
+<tr><td>F6</td><td>F6 or SHIFT+F1</td></tr>
+<tr><td>F7</td><td>F7 or SHIFT+F2</td></tr>
+<tr><td>F8</td><td>F8 or SHIFT+F3</td></tr>
+<tr><td>F9</td><td>F9 or SHIFT+F4</td></tr>
+<tr><td>F10</td><td>F10 or SHIFT+F5</td></tr>
+</table>
+
+If you have some keyboard response problems, don't hesitate to play with the numeric pad lock key (Num Lock).
+
+#####Joysticks<a name="joysticks"></a>
+
+In addition to being possibly detected materially, they can be controlled from the keyboard, `Lock. Num.` or `NumLock` off:
+
+<table width="100%" border="1">
+<tr><td>Directions joystick 0</td><td>Key pad 7, 8, 9, 4, 5, 6, 1, 2, 3</td></tr>
+<tr><td>Button joystick 0</td><td>Ctrl right</td></tr>
+<tr><td>Directions joystick 1</td><td>A, Z, E, Q, S, D, W, X, C (French keyboard)</td></tr>
+<tr><td>Button joystick 1</td><td>Ctrl left</td></tr>
+</table>
+
+#####Light-pen and mouse<a name="mouse"></a>
+
+Each of these two devices will be selected with the menu 'R&eacute;glage et Pr&eacute;f&eacute;rences' of the TO8. They are both emulated by the PC mouse.
+
+#####Disks<a name="disks"></a>
+
+The files with the *`sap`* and *`hfe`* extensions are virtual disks used by Teo, as well the raw formats (FD). You can import or export your SAP disks with software [Sap2](../sap2_en) and your HFE disks with software [Cc90hfe](../cc90hfe_en).
+
+You can also (depending on the system) access directly to a floppy if you have a drive. But it is strongly recommended not to do write access to floppy disk which have price to you. Format instead 3"5 floppy disk with Teo itself and copy your original disk onto it. You can then use that copy safely.
+
+It is possible to use disk 3"5 high density double side (1.44MB - 2HD) by obstructing the high capacity hole of the floppy disk with a simple piece of tape.
+
+#####Tapes<a name="tapes"></a>
+
+Files with the extension *`k7`* are the virtual tapes used by Teo. You can import or export your tapes with the software [Wav2k7](../wav2k7_en).
+
+#####Cartridges<a name="cartridges"></a>
+
+Files with the extension *`m7`* are the virtual cartridges used by Teo.
+
+By default, each file dialog will try to open in the directories *`disks`* for floppy, *`k7`* for tapes and *`memo7`* for cartridges.
+
+#####Printers<a name="printers"></a>
+
+Teo contains an emulation module of the Thomson dot-matrix printers PR90-042, PR90-055, PR90-582, PR90-600 and PR90-612 which can handle at the same time raw output, text output and graphical output.
+
+#####Miscellaneous commands<a name="misc"></a>
+
+\[F11\] saves a screen-shot (Windows)
+\[F12\] displays the debugger (Linux and MS-DOS)
+
+#####More ?
+
+* [Additional informations about Teo MS-DOS/DPMI](../teo_dos_en)
+* [Additional informations about Teo Windows/DirectX](../teo_windows_en)
+* [Additional informations about Teo Linux/X11](../teo_linux_en)
+

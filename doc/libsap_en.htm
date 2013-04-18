@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Teo</title>
+<link rel="stylesheet" type="text/css" href="doc.css">
+</head>
+<body>
+<table width="100%"><tr><td>
+
+<h3>LibSAP</h3>
+
+<p>LibSAP is a library for handling SAP archives written in ANSI C. It provides both low-level routines handling SAP archives considered as physical format (disk images) and high-level routines handling SAP archives considered as logic format (compatible with DOS BASIC Thomson).</p>
+
+<ul>
+<li><a href="#open_archive">Open a SAP archive</a></li>
+<li><a href="#create_archive">Create a SAP archive</a></li>
+<li><a href="#close_archive">Close a SAP archive</a></li>
+<li><a href="#fill_archive">Fill a SAP archive</a></li>
+<li><a href="#read_sector">Read a SAP sector</a></li>
+<li><a href="#read_sectors">Read a range of SAP sectors</a></li>
+<li><a href="#write_sector">Write a SAP sector</a></li>
+<li><a href="#write_sectors">Write a range of SAP sectors</a></li>
+<li><a href="#format_archive">Format a SAP archive</a></li>
+<li><a href="#list_archive">Store the directory of a SAP archive</a></li>
+<li><a href="#add_file">Add a file to a SAP archive</a></li>
+<li><a href="#delete_file">Delete a file in a SAP archive</a></li>
+<li><a href="#exract_file">Extract a file from a SAP archive</a></li>
+<li><a href="#read_informations">Get informations of a SAP file</a></li>
+</ul>
+
+<h5>Open a SAP archive<a name="open_archive"></a></h5>
+
+<p><b><i>sapID sap_OpenArchive(const char filename[], int *format);</i></b><br><span style="padding-left:30px"><em>filename : name of the SAP archive</em></span><br><span style="padding-left:30px"><em>format : return of the archive format (SAP_FORMAT1 or SAP_FORMAT2)</em></span></p>
+
+<p>Returns the identifier of the SAP archive. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_ETOOMANY : too many SAP archives are opened simultaneously.
+SAP_ENOENT : specified SAP archive does not exist.
+SAP_EBADF : The specified file is not a SAP archive.</p>
+
+<h5>Create a SAP archive<a name="create_archive"></a></h5>
+
+<p><b><i>sapID sap_CreateArchive(const char filename[], int format);</i></b><br><span style="padding-left:30px"><em>filename : name of the SAP archive</em></span><br><span style="padding-left:30px"><em>format : archive format (SAP_FORMAT1 or SAP_FORMAT2)</em></span></p>
+
+<p>Returns the identifier of the SAP archive. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_ETOOMANY : too many SAP archives are opened simultaneously.
+SAP_EPERM : Can not create file on the recording medium.</p>
+
+<h5>Close a SAP archive<a name="close_archive"></a></h5>
+
+<p><b><i>int sap_CloseArchive(sapID id);</i></b><br>
+<span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span></p>
+
+<p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.</p>
+
+<h5>Fill a SAP archive<a name="fill_archive"></a></h5>
+
+<p><b><i>int sap_FillArchive(sapID id, sapsector_t *sapsector);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>sapsector : pointer to a sector structure</em></span></p>
+
+<p>Fills an archive created by sap_CreateArchive () sector by sector, starting from sector 1 of track 0. At each call, the sector number is incremented by 1 and, if the current track becomes full, the next track is selected.
+Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_ENOSPC : SAP archive is full.</p>
+
+<h5>Read a SAP sector<a name="read_sector"></a></h5>
+
+<p><b><i>int sap_ReadSector(sapID id, int track, int sect, sapsector_t *sapsector);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>track : track number</em></span><br><span style="padding-left:30px"><em>sect : sector number</em></span><br><span style="padding-left:30px"><em>sapsector : pointer to a sector structure</em></span></p>
+
+<p>The result is in the structure sapsector.
+Returns SAP_OK flags or a combination of the following codes:
+SAP_NO_STD_FMT : the format is non-standard sector.
+SAP_PROTECTED : the sector is write protected.
+SAP_BAD_SECTOR : the sector has bad identifiers (track, sector)
+SAP_CRC_ERROR : CRC error on data sector.</p>
+
+<p>On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : archive the SAP is being filled by sap_FillArchive ()</p>
+
+<h5>Read a range of SAP sectors<a name="read_sectors"></a></h5>
+
+<p><b><i>int sap_ReadSectorEx(sapID id, int track, int sect, int nsects, unsigned char data[]);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>track : track number to start from</em></span><br><span style="padding-left:30px"><em>sect : sector number to start from</em></span><br><span style="padding-left:30px"><em>nsect : number of sectors to read</em></span><br><span style="padding-left:30px"><em>data : buffer large enough to store sectors</em></span></p>
+
+<p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+
+<h5>Write a SAP sector<a name="write_sector"></a></h5>
+
+<p><b><i>int sap_WriteSector(sapID id, int track, int sect, sapsector_t *sapsector);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>track : track number</em></span><br><span style="padding-left:30px"><em>sect : sector number</em></span><br><span style="padding-left:30px"><em>sapsector : pointer to a sector structure</em></span></p>
+
+<p>All fields in the sector must be specified, except the two fields for the CRC which will be calculated by the routine itself.
+Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+
+<h5>Write a range of SAP sectors<a name="write_sectors"></a></h5>
+
+<p><b><i>int sap_WriteSectorEx(sapID id, int track, int sect, int nsects, const unsigned char data[]);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>track : track number to start from</em></span><br><span style="padding-left:30px"><em>sect : sector number to start from</em></span><br><span style="padding-left:30px"><em>nsect : number of sectors to write</em></span><br><span style="padding-left:30px"><em>data : buffer of sectors</em></span></p>
+
+<p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+
+<h5>Format a SAP archive<a name="format_archive"></a></h5>
+
+<p><b><i>int sap_FormatArchive(sapID id, int capacity);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>capacity : SAP_TRK80 (80 tracks) or SAP_TRK40 (40 tracks)</em></span></p>
+
+<p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+
+<h5>Store the directory of a SAP archive<a name="list_archive"></a></h5>
+
+<p><b><i>int sap_ListArchive(sapID id, char buffer[], int buffer_size);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>buffer : buffer for list of files</em></span><br><span style="padding-left:30px"><em>buffer_size : size of buffer</em></span></p>
+
+<p>Returns the number of lines of the list. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+
+<h5>Add a file to a SAP archive<a name="add_file"></a></h5>
+
+<p><b><i>int sap_AddFile(sapID id, const char filename[]);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>filename : name of the file to add</em></span></p>
+
+<p>Returns the size of the file added in bytes. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_ENOENT : the file does not exist.
+SAP_ENFILE : the file is empty.
+SAP_ENOSPC : the SAP archive directory is full.
+SAP_EFBIG : the file is too big compared with the free space of the SAP archive.</p>
+
+<h5>Delete a file in a SAP archive<a name="delete_file"></a></h5>
+
+<p><b><i>int sap_DeleteFile(sapID id, const char pattern[]);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>pattern : pattern of the file(s) to delete ('*' and '?' are supported)</em></span></p>
+
+<p>Returns the size of the file(s) deleted in bytes. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_ENOENT : the file does not exist.</p>
+
+<h5>Extract a file from a SAP archive<a name="exract_file"></a></h5>
+
+<p><b><i>int sap_ExtractFile(sapID id, const char pattern[]);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>pattern : pattern of the file(s) to extract ('*' and '?' are supported)</em></span></p>
+
+<p>Returns the size of the file(s) extracted in bytes. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_ENOENT : the file does not exist in the SAP archive (invalid error when pattern contains at least one wildcard).
+SAP_EPERM : Can not write the file to the media.</p>
+
+<h5>Get informations of a SAP file<a name="read_informations"></a></h5>
+
+<p><b><i>int sap_GetFileInfo(sapID id, const char filename[], sapfileinfo_t *info);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>filename : name of the file to examine</em></span></p>
+
+<p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
+SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
+SAP_EEMPTY : SAP archive is empty.
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_ENOENT : the file does not exist.</p>
+
+<hr>
+<center><p>Teo developers &copy; 1997-2013 on <a href="https://sourceforge.net/projects/teoemulator/">SourceForge</a></p></center>
+</td></tr></table>
+</body>
+</html>

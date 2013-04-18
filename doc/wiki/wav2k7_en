@@ -1,0 +1,11 @@
+###Wav2K7
+
+The utility Wav2K7 allows to recover old programs on k7.
+
+Just do this:
+
+* create a file toto.wav by recording the program on tape, in 8bit, mono, 44.1kHz, using any soft type "recorder".
+* run the conversion utility by: `wav2k7 toto.wav`
+* toto.k7 file is produced, which should work if your tape is still in good condition.
+* in case of problems, ensure that the volume of the recording of the .wav is loud enough; if necessary use an equalizer, pushing the band 4.5 kHz - 6.3 kHz.
+
