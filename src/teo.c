@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -60,6 +60,7 @@
 #include "ini.h"
 #include "std.h"
 #include "hardware.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/joystick.h"
 #include "media/keyboard.h"
@@ -81,6 +82,7 @@ void (*teo_SetBorderColor)(int, int)=NULL;
 void (*teo_DrawBorderLine)(int, int)=NULL;
 void (*teo_SetKeyboardLed)(int)=NULL;
 void (*teo_SetDiskLed)(int)=NULL;
+int  (*teo_DirectIsDiskWritable)(int)=NULL;
 int  (*teo_DirectReadSector)(int, int, int, int, unsigned char [])=NULL;
 int  (*teo_DirectWriteSector)(int, int, int, int, const unsigned char [])=NULL;
 int  (*teo_DirectFormatTrack)(int, int, const unsigned char [])=NULL;
@@ -488,9 +490,6 @@ void teo_ColdReset(void)
     mempager.mon.page = 0;
     mempager.mon.update();
 
-    /* initialisation du gate array contrôleur de disquettes */
-    memset(&disk_ctrl, 0, sizeof(struct DISK_CTRL));
-
     /* flags de reset à froid */
     STORE_WORD(0x5FC1, 0);  /* menu principal */
     STORE_WORD(0x60FE, 0);  /* moniteur       */
@@ -668,9 +667,6 @@ void teo_Exit(void)
 
     /* Referme l'imprimante */
     printer_Close();
-
-    /* Nettoyage des disquettes temporaires */
-    disk_UnloadAll();
 
     /* on libère la mémoire */
     for (i=0; i<mem.rom.nbank; i++)
