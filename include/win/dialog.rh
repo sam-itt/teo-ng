@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -88,22 +88,26 @@
 #define DISK1_COMBO             2202
 #define DISK2_COMBO             2203
 #define DISK3_COMBO             2204
-#define DISK0_MORE_BUTTON       2205
-#define DISK1_MORE_BUTTON       2206
-#define DISK2_MORE_BUTTON       2207
-#define DISK3_MORE_BUTTON       2208
-#define DISK0_FOLDER_BUTTON     2209
-#define DISK1_FOLDER_BUTTON     2210
-#define DISK2_FOLDER_BUTTON     2211
-#define DISK3_FOLDER_BUTTON     2212
-#define DISK0_EJECT_BUTTON      2213
-#define DISK1_EJECT_BUTTON      2214
-#define DISK2_EJECT_BUTTON      2215
-#define DISK3_EJECT_BUTTON      2216
-#define DISK0_PROT_CHECK        2217
-#define DISK1_PROT_CHECK        2218
-#define DISK2_PROT_CHECK        2219
-#define DISK3_PROT_CHECK        2220
+#define DISK0_SIDE_COMBO        2205
+#define DISK1_SIDE_COMBO        2206
+#define DISK2_SIDE_COMBO        2207
+#define DISK3_SIDE_COMBO        2208
+#define DISK0_MORE_BUTTON       2209
+#define DISK1_MORE_BUTTON       2210
+#define DISK2_MORE_BUTTON       2211
+#define DISK3_MORE_BUTTON       2212
+#define DISK0_FOLDER_BUTTON     2213
+#define DISK1_FOLDER_BUTTON     2214
+#define DISK2_FOLDER_BUTTON     2215
+#define DISK3_FOLDER_BUTTON     2216
+#define DISK0_EJECT_BUTTON      2217
+#define DISK1_EJECT_BUTTON      2218
+#define DISK2_EJECT_BUTTON      2219
+#define DISK3_EJECT_BUTTON      2220
+#define DISK0_PROT_CHECK        2221
+#define DISK1_PROT_CHECK        2222
+#define DISK2_PROT_CHECK        2223
+#define DISK3_PROT_CHECK        2224
 
 #define PRINTER_TAB             2230
 #define PRINTER_MORE_RTEXT      2231
