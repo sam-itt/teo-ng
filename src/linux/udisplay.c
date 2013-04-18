@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -56,11 +56,14 @@
    #include <X11/keysym.h>
 #endif
 
+#include "defs.h"
 #include "teo.h"
 #include "thomson.xpm"
 #include "key.h"
 #include "media/keyboard.h"
 #include "media/mouse.h"
+#include "media/disk/controlr.h"
+#include "media/disk.h"
 #include "linux/gui.h"
 #include "linux/display.h"
 #include "linux/graphic.h"
@@ -76,7 +79,7 @@ Window window_win;
 
 static int need_modifiers_reset = TRUE;
 
-static int installed_pointer = TEO_MOUSE;
+static int installed_pointer = TEO_STATUS_MOUSE;
 
 static int x11_to_dos[256];
 
@@ -196,14 +199,14 @@ static void SetPointer(int pointer)
 {
     switch (pointer)
     {
-        case TEO_MOUSE :
+        case TEO_STATUS_MOUSE :
             gdk_window_set_cursor (gwindow_win, NULL);
-            installed_pointer=TEO_MOUSE;
+            installed_pointer=TEO_STATUS_MOUSE;
             break;
 
-        case TEO_LIGHTPEN :
+        case TEO_STATUS_LIGHTPEN :
             gdk_window_set_cursor (gwindow_win, gdk_cursor_new (GDK_PENCIL));
-            installed_pointer=TEO_LIGHTPEN;
+            installed_pointer=TEO_STATUS_LIGHTPEN;
             break;
     }
 }
@@ -289,7 +292,7 @@ button_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     switch (event->button.button)
     {
         case 1 : mouse_Click(1, FALSE); break;
-        case 3 : if (installed_pointer == TEO_MOUSE)
+        case 3 : if (installed_pointer == TEO_STATUS_MOUSE)
                      mouse_Click (2, FALSE);
                  break;
     }
