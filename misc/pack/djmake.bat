@@ -22,7 +22,7 @@ REM ---- Cleans executable files ----
 
 if exist misc\pack\msdos\*-??.exe del misc\pack\msdos\*-??.exe
 
-REM ---- Compiles Teo English version ----
+REM ---- Compiles Teo ----
 
 echo "Creating Teo executable for MSDOS in English..."
 
@@ -31,70 +31,78 @@ make EN_LANG=1
 copy teo.exe misc\pack\msdos\teo.exe
 ren misc\pack\msdos\teo.exe teo-en.exe
 
-REM ---- Compiles saptools English version ----
-
-echo "Creating Saptools executables for MSDOS in English..."
-
-cd sap
-make clean
-make EN_LANG=1
-cd ..
-copy sap\sap2.exe misc\pack\msdos\sap2.exe
-ren misc\pack\msdos\sap2.exe sap2-en.exe
-copy sap\sapfs.exe misc\pack\msdos\sapfs.exe
-ren misc\pack\msdos\sapfs.exe sapfs-en.exe
-
-REM ---- Compiles k7tools English version ----
-
-echo "Creating K7tools executables for MSDOS in English..."
-
-cd k7tools
-make clean
-make EN_LANG=1
-cd ..
-copy k7tools\wav2k7.exe misc\pack\msdos\wav2k7.exe
-ren misc\pack\msdos\wav2k7.exe wav2k7-en.exe
-
-REM ---- Compiles Teo French version ----
-
-echo "Creating executable for MSDOS in French..."
+echo "Creating Teo executable for MSDOS in French..."
 
 make clean
 make FR_LANG=1
 copy teo.exe misc\pack\msdos\teo.exe
 ren misc\pack\msdos\teo.exe teo-fr.exe
+
 make clean
 make depend
 
-REM ---- Compiles saptools French version ----
+REM ---- Compiles saptools ----
+
+echo "Creating Saptools executables for MSDOS in English..."
+
+cd tools
+cd sap
+make clean
+make EN_LANG=1
+cd ..
+cd ..
+copy tools\sap\sap2.exe misc\pack\msdos\sap2.exe
+ren misc\pack\msdos\sap2.exe sap2-en.exe
+copy tools\sap\sapfs.exe misc\pack\msdos\sapfs.exe
+ren misc\pack\msdos\sapfs.exe sapfs-en.exe
 
 echo "Creating Saptools executables for MSDOS in French..."
 
+cd tools
 cd sap
 make clean
 make FR_LANG=1
 cd ..
-copy sap\sap2.exe misc\pack\msdos\sap2.exe
+cd ..
+copy tools\sap\sap2.exe misc\pack\msdos\sap2.exe
 ren misc\pack\msdos\sap2.exe sap2-fr.exe
-copy sap\sapfs.exe misc\pack\msdos\sapfs.exe
+copy tools\sap\sapfs.exe misc\pack\msdos\sapfs.exe
 ren misc\pack\msdos\sapfs.exe sapfs-fr.exe
+
+cd tools
 cd sap
 make clean
 cd ..
+cd ..
 
-REM ---- Compiles k7tools French version ----
+REM ---- Compiles k7tools ----
+
+echo "Creating K7tools executables for MSDOS in English..."
+
+cd tools
+cd k7tools
+make clean
+make EN_LANG=1
+cd ..
+cd ..
+copy tools\k7tools\wav2k7.exe misc\pack\msdos\wav2k7.exe
+ren misc\pack\msdos\wav2k7.exe wav2k7-en.exe
 
 echo "Creating K7tools executables for MSDOS in French..."
 
+cd tools
 cd k7tools
 make clean
 make FR_LANG=1
 cd ..
-copy k7tools\wav2k7.exe misc\pack\msdos\wav2k7.exe
+cd ..
+copy tools\k7tools\wav2k7.exe misc\pack\msdos\wav2k7.exe
 ren misc\pack\msdos\wav2k7.exe wav2k7-fr.exe
+
+cd tools
 cd k7tools
 make clean
 cd ..
+cd ..
 
 echo Done!
-
