@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -630,7 +630,7 @@ static FILE *open_printer_file (char *name)
     
 #ifdef DEBIAN_BUILD
     filename = std_strdup_printf (
-                    "/usr/share/teo/system/printer/%s%03d/%s.txt",
+                    "/usr/share/teo/system/printer/%03d/%s.txt",
                     printer.lprt.number,
                     name);
 #else
