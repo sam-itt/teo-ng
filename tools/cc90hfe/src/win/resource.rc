@@ -1,0 +1,117 @@
+/*********************************************************
+ * cc90hfe (c) Teo Developers
+ *********************************************************
+ *
+ *  Copyright (C) 2012-2013 François Mouret
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ *  Module     : windows/resource.rc
+ *  Version    : 0.5.0
+ *  Créé par   : François Mouret 27/02/2013
+ *  Modifié par:
+ *
+ *  Resource file.
+ */
+
+
+#include <windows.h>
+
+#include "defs.h"
+#include "win/resource.h"
+
+IDI_ICON1 ICON DISCARDABLE "src\\win\\thomson.ico"
+
+teo_gfx BITMAP "src\\win\\to8.bmp"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 0, 5, 0, 0
+PRODUCTVERSION 0, 5, 0, 0
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040C04E4"
+        {
+            VALUE "ProductName", PROG_NAME
+            VALUE "CompanyName", "Teo Developpers"
+            VALUE "FileVersion", PROG_VERSION_MAJOR"."PROG_VERSION_MINOR"."PROG_VERSION_MICRO
+            VALUE "InternalName", PROG_NAME".EXE"
+            VALUE "LegalCopyright", "Copyright © 2007-"PROG_CREATION_YEAR" Teo Developpers"
+            VALUE "OriginalFilename", "cc90hfe.exe"
+            VALUE "FileDescription", PROG_DESCRIPTION
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x040C, 1252
+    }
+}
+
+
+ID_MAIN DIALOGEX DISCARDABLE 0, 0, 320, 314
+STYLE DS_SETFONT|WS_CHILD|WS_VISIBLE
+FONT 8, "Tahoma"
+{
+    CONTROL         "teo_gfx", -1, "static", SS_BITMAP, 6, 6, 80, 280
+    PUSHBUTTON      "", IDC_MAIN_ARCHIVE_BUTTON, 70, 6, 150, 24
+    PUSHBUTTON      "", IDC_MAIN_EXTRACT_BUTTON, 70, 36, 150, 24
+    PUSHBUTTON      "", IDC_MAIN_INSTALL_BUTTON, 70, 66, 150, 24
+    PUSHBUTTON      "", IDC_MAIN_ABOUT_BUTTON, 70, 96, 150, 24
+    LTEXT           "", IDC_MAIN_PROGRESS_LTEXT, 70, 140, 284, 13
+    CONTROL         "", IDC_MAIN_PROGRESS_BAR, PROGRESS_CLASS, PBS_SMOOTH, 70, 154, 104, 16
+    PUSHBUTTON      "", IDC_MAIN_CANCEL, 180, 154, 40, 16
+}
+
+
+ID_INSTALL DIALOGEX 0, 0, 290, 256
+STYLE DS_SETFONT|DS_MODALFRAME|DS_CENTER|WS_VISIBLE|WS_CAPTION|WS_POPUP|WS_SYSMENU
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    LTEXT           "", IDC_INSTALL_TEXT1, 5, 5, 290, 16
+    EDITTEXT        IDC_INSTALL_TEXT2, 5, 21, 280, 180, WS_GROUP | WS_TABSTOP | ES_READONLY | ES_MULTILINE | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL | ES_AUTOHSCROLL
+    LTEXT           "", IDC_INSTALL_TEXT3, 5, 210, 290, 16
+    PUSHBUTTON      "Ok", IDC_OK_BUTTON, 160, 230, 60, 16
+    PUSHBUTTON      "", IDCANCEL, 225, 230, 60, 16
+}
+
+
+ID_DETECT DIALOGEX 0, 0, 200, 95
+STYLE DS_SETFONT|DS_MODALFRAME|DS_CENTER|WS_VISIBLE|WS_CAPTION|WS_POPUP|WS_SYSMENU
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    LTEXT           "", IDC_DETECT_LTEXT, 5, 5, 190, 36
+    COMBOBOX        IDC_DETECT_COMBO, 5, 43, 190, 80, CBS_DROPDOWNLIST|CBS_HASSTRINGS|WS_VSCROLL
+    PUSHBUTTON      "Ok", IDCANCEL, 70, 68, 60, 16
+}
+
+
+ID_ABOUT DIALOGEX 0, 0, 258, 180
+STYLE DS_SETFONT|DS_MODALFRAME|DS_CENTER|WS_VISIBLE|WS_CAPTION|WS_POPUP|WS_SYSMENU
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    CONTROL         "teo_gfx", -1, "static", SS_BITMAP, 8, 8, 80, 133
+    PUSHBUTTON      "&OK", IDCANCEL, 130, 160, 60, 16, WS_GROUP | WS_TABSTOP
+    CTEXT           "CC90HFE\n Version "PROG_VERSION_MAJOR"."PROG_VERSION_MINOR, IDC_ABOUT_CTEXT_TITLE, 70, 6, 180, 42
+    CTEXT           "Copyright © 1997-2013\n Prehisto and OncleTom", IDC_ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 20
+    CONTROL         "", IDC_ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 60, 102, 200, 16
+    CTEXT           "License GPL 2.0", IDC_ABOUT_CTEXT_LICENSE, 70, 130, 180, 16
+}

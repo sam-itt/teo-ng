@@ -1,0 +1,41 @@
+#*******************************************************************#
+# makefile for Windows
+#*******************************************************************#
+
+ifneq (,$(findstring /sh.exe,$(SHELL)))
+  UNIX_TOOLS = 1
+endif
+
+PROGRAM_FILES += $(WINDOWS_FILES)
+VPATH += src/win src/win/gui
+OBJ_DIR = obj/win
+CFLAGS+= -D_WIN32_IE=0x300 -DWINDOWS_SYSTEM
+LDFLAGS += -lkernel32 -lcomctl32 -luser32 -lgdi32 -lcomdlg32 -lole32 -lshell32
+FILES_TO_CLEAN = $(OBJ_DIR)/*.o $(OBJ_DIR)/*.d $(EXE_NAME).exe
+# For release mode
+ifdef RELEASE_MODE
+    ifdef CONSOLE_MODE
+	CFLAGS+= -DCONSOLE_MODE=1
+	LDFLAGS+=-Wl,--subsystem,console
+	else
+	LDFLAGS+=-Wl,--subsystem,windows
+	endif
+else
+# For debug mode
+	CFLAGS+= -DDEBUG_MODE=1
+	LDFLAGS+=-Wl,--subsystem,console
+# For console mode
+	ifdef CONSOLE_MODE
+	CFLAGS+= -DCONSOLE_MODE=1
+	endif
+endif
+# Translation
+ifdef ENGLISH
+	CFLAGS+= -DENGLISH_LANGUAGE=1
+else
+	CFLAGS+= -DFRENCH_LANGUAGE=1
+endif
+
+$(OBJ_DIR)/%.o: %.rc
+	windres --include-dir ./include -o $@ -i $<
+
