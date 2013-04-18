@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -201,17 +201,15 @@ void uprinter_Init (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* bouton check pour le dip */
-    widget_dip=gtk_check_button_new_with_label(is_fr?"Change le comportement de CR":"Change the behavior of CR");
+    widget_dip=gtk_check_button_new_with_label(is_fr?"Double interligne":"Double spacing");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_dip), teo.lprt.dip);
     g_signal_connect(G_OBJECT(widget_dip), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.dip);
-    gtk_widget_set_tooltip_text (widget_dip, is_fr?"Change le comportement de CR":"Change the behavior of CR");
     gtk_box_pack_start( GTK_BOX(hbox), widget_dip, FALSE, FALSE, 0);
 
     /* bouton check pour le nlq */
     widget_nlq=gtk_check_button_new_with_label(is_fr?"Imprime en haute qualitÃ©":"High-quality print");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_nlq), teo.lprt.nlq);
     g_signal_connect(G_OBJECT(widget_nlq), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.nlq);
-    gtk_widget_set_tooltip_text (widget_nlq, is_fr?"Imprime en haute qualitÃ©":"High-quality print");
     gtk_box_pack_start( GTK_BOX(hbox), widget_nlq, FALSE, FALSE, 0);
 
     /* boîte de centrage */
