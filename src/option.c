@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -50,12 +50,14 @@
    #include <unistd.h>
 #endif
 
+#include "defs.h"
 #include "teo.h"
 #include "option.h"
 #include "main.h"
 #include "std.h"
 #include "ini.h"
 #include "error.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/memo.h"
 #include "media/cass.h"
@@ -114,7 +116,7 @@ static void help (char *program_name)
     printf ("%s:\n", is_fr?"Options de l'application":"Application Options");
     help_display (prog_option);
     printf ("\n");
-    ini_Free();
+    ini_Save();
     exit(EXIT_FAILURE);
 }
 
@@ -267,7 +269,7 @@ void option_Undefined (char *fname)
 
     /* si on a un fichier disque sans option ou un dossier, on trouve le 1er
        disque libre */
-    if (disk_Check(fname) != FALSE)
+    if (disk_IsDisk(fname) == 0)
     {
         if (teo.disk[0].file == NULL) err = disk_Load (0, fname); else
         if (teo.disk[1].file == NULL) err = disk_Load (1, fname); else
@@ -277,12 +279,12 @@ void option_Undefined (char *fname)
     }
     else
     /* traitement d'un fichier memo */
-    if (memo_Check (fname) != FALSE)
+    if (memo_IsMemo (fname) == TRUE)
         err = (teo.memo.file == NULL) ? memo_Load (fname)
                                       : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
     else
     /* traitement d'un fichier cassette */
-    if (cass_Check (fname))
+    if (cass_IsCass (fname))
         err = (teo.cass.file == NULL) ? cass_Load (fname)
                                       : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
     else
