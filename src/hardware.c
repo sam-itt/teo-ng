@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,7 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/mc6846.h"
+#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/keyboard.h"
 #include "media/cass.h"
@@ -309,35 +310,43 @@ static void SetDeviceRegister(int addr, int val)
 
         /* Gate Array lecteur de disquettes */
         case 0xE7D0:
-            disk_ctrl_cmd0(val);
+            dkc->SetReg0(val);
             break;
 
         case 0xE7D1:
-            disk_ctrl_cmd1(val);
+            dkc->SetReg1(val);
             break;
 
         case 0xE7D2:
-            disk_ctrl_cmd2(val);
+            dkc->SetReg2(val);
             break;
 
         case 0xE7D3:
-            disk_ctrl_wdata(val);
+            dkc->SetReg3(val);
             break;
 
         case 0xE7D4:
-            disk_ctrl_wclk(val);
+            dkc->SetReg4(val);
             break;
 
         case 0xE7D5:
-            disk_ctrl_wsect(val);
+            dkc->SetReg5(val);
             break;
 
         case 0xE7D6:
-            disk_ctrl_wtrck(val);
+            dkc->SetReg6(val);
             break;
 
         case 0xE7D7:
-            disk_ctrl_wcell(val);
+            dkc->SetReg7(val);
+            break;
+
+        case 0xE7D8:
+            dkc->SetReg8(val);
+            break;
+
+        case 0xE7D9:
+            dkc->SetReg9(val);
             break;
 
         /* Gate Array mode page */
@@ -380,7 +389,7 @@ static void SetDeviceRegister(int addr, int val)
         case 0xE7DD:
             if (mempager.screen.vram_page != (val>>6)) /* commutation de la VRAM */
             {
-               mempager.screen.vram_page=(val>>6);
+               mempager.screen.vram_page=val>>6;
                teo_new_video_params=TRUE;
             }
             if ( ((mode_page.system2&0xF) != (val&0xF)) && teo_SetBorderColor)
@@ -525,23 +534,34 @@ static int LoadByte(int addr)
 
             /* Gate Array lecteur de disquettes */
             case 0xE7D0:
-                return disk_ctrl_stat0();
+                return dkc->GetReg0();
 
             case 0xE7D1:
-                return disk_ctrl_stat1();
+                return dkc->GetReg1();
 
             case 0xE7D2:
-                return 0;
+                return dkc->GetReg2();
 
             case 0xE7D3:
-                return disk_ctrl_rdata();
+                return dkc->GetReg3();
 
             case 0xE7D4:
+                return dkc->GetReg4();
+
             case 0xE7D5:
+                return dkc->GetReg5();
+
             case 0xE7D6:
+                return dkc->GetReg6();
+
             case 0xE7D7:
+                return dkc->GetReg7();
+
             case 0xE7D8:
-                return 0;
+                return dkc->GetReg8();
+
+            case 0xE7D9:
+                return dkc->GetReg9();
 
             /* Gate Array mode page */
             case 0xE7DA:
@@ -632,7 +652,7 @@ static int BiosCall(struct MC6809_REGS *regs)
             return 0x10; /* LDY immédiat */
 
         case 0x315A:  /* routine de sélection souris/crayon optique */
-            teo_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TEO_MOUSE: TEO_LIGHTPEN);
+            teo_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TEO_STATUS_MOUSE: TEO_STATUS_LIGHTPEN);
             mouse_Reset();
             return 0x8E; /* LDX immédiat */
 
@@ -651,29 +671,6 @@ static int BiosCall(struct MC6809_REGS *regs)
 
         case 0xFA5A:  /* routine CASS */
             cass_Event(&regs->br,&regs->cc);
-            break;
-
- 	/* Contrôleur de disquettes */
-        case 0xE0FF:
-            ResetDiskCtrl(&regs->cc);
-            break;
-
-        case 0xE188:
-            WriteSector(&regs->cc);
-            break;
-
-        case 0xE3A8:
-            ReadSector(&regs->cc);
-            break;
-
-        case 0xE4C9:
-            FormatDrive(&regs->cc);
-            break;
-
-        case 0xE135:        
-        case 0xE45B:
-        case 0xE47B:
-            DiskNop(&regs->cc);
             break;
 
  	/* Imprimante */
@@ -779,7 +776,7 @@ void hardware_StoreByte(int addr, int val)
         case 0xE:
         case 0xF:
             if ((0xE7C0<=addr) && (addr<=0xE7FF))
-                SetDeviceRegister(addr,val);
+                SetDeviceRegister(addr,val&0xff);
 
             break;
     }
@@ -818,12 +815,12 @@ void hardware_Init(void)
 
 #ifdef DEBIAN_BUILD
     strcpy(mem.rom.filename[0], "/usr/share/teo/system/rom/basic512.rom");
-    strcpy(mem.rom.filename[1], "/usr/share/teo/system/rom/extram.rom");
+    strcpy(mem.rom.filename[1], "/usr/share/teo/system/rom/extramon.rom");
     strcpy(mem.rom.filename[2], "/usr/share/teo/system/rom/basic1.rom");
     strcpy(mem.rom.filename[3], "/usr/share/teo/system/rom/expl.rom");
 #else
     strcpy(mem.rom.filename[0], "system/rom/basic512.rom");
-    strcpy(mem.rom.filename[1], "system/rom/extram.rom");
+    strcpy(mem.rom.filename[1], "system/rom/extramon.rom");
     strcpy(mem.rom.filename[2], "system/rom/basic1.rom");
     strcpy(mem.rom.filename[3], "system/rom/expl.rom");
 #endif
