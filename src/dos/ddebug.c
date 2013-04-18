@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -48,10 +48,15 @@
    #include <stdio.h>
 #endif
 
+
+#include "defs.h"
+#include "teo.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "dos/memmng.h"
+#include "media/disk/controlr.h"
+#include "media/disk.h"
 #include "debug.h"
 #include "teo.h"
 
@@ -191,12 +196,12 @@ static void DisplayRegs(void)
     cprintf("  CART: %02X   COMMUT: %02X",mode_page.cart,mode_page.commut);
 
     gotoxy(2,31);
-    cprintf("CMD0: %02X  CMD1: %02X  CMD2: %02X", disk_ctrl.cmd0,
-      disk_ctrl.cmd1, disk_ctrl.cmd2);
+    cprintf("CMD0: %02X  CMD1: %02X  CMD2: %02X", dkc->wr0,
+      dkc->wr1, dkc->wr2);
        gotoxy(2,32);
-    cprintf(" STAT0: %02X    STAT1: %02X",disk_ctrl.stat0, disk_ctrl.stat1);
+    cprintf(" STAT0: %02X    STAT1: %02X",dkc->rr0, dkc->rr1);
     gotoxy(2,33);
-    cprintf(" WDATA: %02X    RDATA: %02X",disk_ctrl.wdata, disk_ctrl.rdata);
+    cprintf(" WDATA: %02X    RDATA: %02X",dkc->wr3, dkc->rr3);
 
     gotoxy(2,36);
     cprintf(is_fr?"page de ROM cartouche : %d":"ROM cartridge page    : %d",
