@@ -1,6 +1,10 @@
 ========================================================================
-=== Version 1.8.2 (Juin-octobre 2012)                              ===
+=== Version 1.8.2 (Juin 2012 - Avril 2013)                           ===
 ========================================================================
+  Ajout de fichiers source ---------------------------------------------
+
+  Changements généraux -------------------------------------------------
+
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
 - Ajout du checkbox pour le son sur le tableau de contrôle
@@ -9,34 +13,40 @@
 - Fusion de gui.h dans to8.h
 - Changement du nom de la structure 'gui' en 'teo' et inclusion de
   teo.command et teo.sound_enabled
+- Autodétection des fichiers par le format et non par l'extension
 - Changement de media/memo7.c en media/memo.c
 - Changement de media/k7.c en media/cass.c
 - Changement des noms des fonctions publiques (<nom_du_fichier>_*)
-- Elimination de include/intern/xargs.h, src/xargs.c, src/win/wgui/wstart.c
-- Ajout de src/win/wgui/cass.ico, src/win/wgui/disk.ico, src/win/wgui/memo.ico,
-  src/win/wgui/open1.ico
-- Ajout de src/media/libsap.c, src/option.c
+- Elimination de include/intern/xargs.h, src/xargs.c,
+  src/win/wgui/wstart.c
+- Ajout de src/option.c
 - Réorganisation des headers
 - Ajout du suffixe 'TEO_COMMAND_' pour les valeurs de commandes
 - Ajout du suffixe 'TEO_ERROR_' pour les valeurs d'erreurs
+- Abandon de la gestion des répertoires en tant que disquette au
+  lancement
+- Reconnaissance des fichiers de sauvegarde par le format
+- Gestion de la protection en écriture personnalisée (ne passe plus par
+  xxxx_SetMode mais par xxxx_SetProtection)
+- Création de 'teo_error_short' pour gérer les messages d'erreur longs
+  selon la GUI (limités à une quarantaine de caractères pour GUI
+  Allegro)
+- Ajout du vecteur de fonction teo_DirectIsDiskWritable()
+
+  Changements locaux ---------------------------------------------------
+
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
           fenêtre principale en GtkWindow
           changement de widget_win en wMain
           les events sont traités en callbacks
-- linux/usound.c
-          restauration du son en génération continue (la génération
-          "utile" est un échec)
 - linux/ugui.c
           fenêtre de contrôle en GtkDialog
 - linux/umain.c
           boucle principale de l'émulation mise en idle avec timeout
           teo.command traité en switch dans la boucle principale
 - media/memo.c
-          correction de bug : nom de cartouche désormais effacé au reset
-          de combo (sinon il réapparait au lancement suivant en
-          -loadstate)
           Création des fonctions memo_FirstLoad(), memo_Check()
 - media/disk.c
           Création des fonctions disk_FirstLoad(), disk_Check(),
@@ -47,6 +57,100 @@
 - media/printer.c
           Séparation des traitements spécifiques à chaque imprimante
           Optimisation de l'occupation mémoire
+- win/wgui/wprinter.c
+- linux/ugui/uprinter.c
+- alleg/agui/aprinter.c
+          Change le texte pour DIP
+- misc/pack/djmake.bat
+- misc/pack/pack.sh
+- misc/pack/mgwmake.bat
+          Mise à jour des scripts
+- doc/index.htm
+- doc/wiki/index
+          L'index propose de choisir la langue (Français ou Anglais)
+- src/linux/ugui/ucass.c
+- src/linux/ugui/umemo.c
+- src/win/wgui/wmemo.c
+- src/win/wgui/wcass.c
+- src/linux/ugui/ucass.c
+          Gadgets désactivés quand pas de support
+- src/hardware.c
+- src/dos/ddebug.c
+- src/linux/ugui/udebug.c
+- src/image.c
+          Mise à jour des appels au contrôleur
+- src/image.c
+          Passage à la version 2.0 du format
+- misc/pack/debian/teo/DEBIAN/control
+          Mise à jour automatique de 'Installed-Size' par
+          misc/pack/pack.sh
+- misc/pack/debian/teo/usr/share/applications/teo.desktop
+- misc/pack/inno/teo-setup.iss
+          Ajoute un raccourci au menu sur Teo + reset à froid
+- src/win/wgui/wsetting.c
+          Gestion de la barre de volume sans condition
+- src/linux/usound.c
+          Gestion du son plus fournie si erreur
+- doc/markhtml.sh
+          Gestion des images
+- fixdoscr.sh
+          Ajout des fichiers *.BAT dans la liste et exclusion de
+          fixunix.sh
+- fixunix.sh
+          Application de 'chmod +x' à l'aide de la commande 'find' pour
+          tous les fichiers .sh
+- include/error.h
+- src/error.c
+          Mise à jour de la liste des erreurs
+- include/ini.h
+- src/ini.c
+          Libération de la mémoire des chaînes de caractères
+          directement dans la fonction ini_Save() et pas à part
+- src/alleg/atruecol.c
+          Amélioration du mode vidéo interlacé (merci à Samuel)
+- src/file/png.c
+          Inclusion de zlib.h
+- makefile.all
+- makefile.dj
+- makefile.lnx
+- makefile.mgw
+          Migration des 'Compiler flags' dans makefile.all
+- src/win/wdialog.rc
+- src/linux/ugui/udisk.c
+- src/win/wgui/wdisk.c
+- src/alleg/agui/adisk.c
+- include/win/dialog.rh
+          Ajout des gadgets pour les faces de disquettes
+- src/linux/ugraphic.c
+          Agrandissement de la led disque
+- src/win/wmain.c
+- src/linux/umain.c
+- src/win/dmain.c
+          direct_write_support toujours à TRUE désormais
+
+- include/media/disk.h
+- src/media/disk.c
+          Reconfiguration du source pour s'adapter au contrôleur
+- include/teo.h
+          Ajout de la variable 'side' à la structure EMUTEO_DISK
+- src/linux/ufloppy.c
+          Ajout de la fonction is_disk_writable()
+- misc/fixver.sh
+          Met à jour Teo et Cc90hfe dorénavant
+
+  Correction de bugs ---------------------------------------------------
+
+- linux/usound.c
+          restauration du son en génération continue (la génération
+          "utile" est un échec)
+- media/memo.c
+          nom de cartouche désormais effacé au reset de combo (sinon
+          il réapparait au lancement suivant)
+- src/mc68xx/mc6809.c
+          Correction du risque de freeze pour synm(), cwai(), hcfm()
+- src/hardware.c
+          Limitation de la valeur passée à SetDeviceRegister à 8 bits
+          (évite le freeze lors d'un bug de programme 6809)
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
