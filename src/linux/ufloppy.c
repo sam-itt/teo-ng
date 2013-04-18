@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -46,6 +46,7 @@
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
+   #include <string.h>
    #include <fcntl.h>
    #include <unistd.h>
    #include <errno.h>
@@ -77,6 +78,7 @@ static void reset_floppy(int drive)
 {
     struct floppy_struct fd_prm;
 
+    memset (&fd_prm, 0x00, sizeof (struct floppy_struct));
     fd_prm.sect    = 8;
     fd_prm.head    = 2;
     fd_prm.track   = (IS_5_INCHES(drive) ? 40 : 80);
@@ -103,9 +105,10 @@ static int open_floppy(int drive)
 
     if ((fd[drive]=open(dev_str, O_RDWR | O_NDELAY))<0)
     {
-        teo_DirectReadSector = NULL;
-        teo_DirectWriteSector = NULL;
-        teo_DirectFormatTrack = NULL;
+        teo_DirectIsDiskWritable = NULL;
+        teo_DirectReadSector     = NULL;
+        teo_DirectWriteSector    = NULL;
+        teo_DirectFormatTrack    = NULL;
         return 0;
     }
 
@@ -125,6 +128,7 @@ static int execute_command(int drive, struct floppy_raw_cmd *fd_cmd)
     if (fd[drive]<0 && !open_floppy(drive))
         return 0x10;  /* lecteur non prêt */
 
+    reset_floppy(drive);
     for (i=0; (i<DISK_RETRY)&&(ret!=0); i++)
     {
         if (i) reset_floppy(drive);
@@ -192,6 +196,7 @@ static int read_sector(int drive, int track, int sector, int nsects, unsigned ch
     int pc_drive = drive/2;
 
     /* paramètres de commande */
+    memset (&fd_cmd, 0x00, sizeof (struct floppy_raw_cmd));
     fd_cmd.flags  = FD_RAW_READ | FD_RAW_INTR | FD_RAW_NEED_SEEK;
     fd_cmd.data   = data;
     fd_cmd.length = 256*nsects; /* SECTOR_SIZE */
@@ -225,8 +230,8 @@ static int write_sector(int drive, int track, int sector, int nsects, const unsi
     int pc_drive = drive/2;
 
     /* paramètres de commande */
-    fd_cmd.flags  = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_NEED_SEEK;
-    fd_cmd.data   = (unsigned char *)data;
+    memset (&fd_cmd, 0x00, sizeof (struct floppy_raw_cmd));
+    fd_cmd.flags  = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_NEED_SEEK; // | FD_RAW_NO_MOTOR_AFTER;    fd_cmd.data   = (unsigned char *)data;
     fd_cmd.length = 256*nsects; /* SECTOR_SIZE */
     fd_cmd.rate   = IS_5_INCHES(pc_drive) ? 1 : 2;
     fd_cmd.track  = IS_5_INCHES(pc_drive) ? track*2 : track;
@@ -258,6 +263,7 @@ static int format_track(int drive, int track, const unsigned char header_table[]
     int pc_drive = drive/2;
 
     /* paramètres de commande */
+    memset (&fd_cmd, 0x00, sizeof (struct floppy_raw_cmd));
     fd_cmd.flags  = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_NEED_SEEK;
     fd_cmd.data   = (unsigned char *)header_table;
     fd_cmd.length = 64;
@@ -278,6 +284,26 @@ static int format_track(int drive, int track, const unsigned char header_table[]
 }
 
 
+
+/* is_disk_writable:
+ *  Check if disk is writable.
+ */
+static int is_disk_writable(int drive)
+{
+    int pc_drive = drive>>1;
+    struct floppy_drive_struct fd_stat;
+
+    if (fd[pc_drive]<0 && !open_floppy(pc_drive))
+        return 0;
+
+    memset (&fd_stat, 0x00, sizeof (struct floppy_drive_struct));
+    if (ioctl(fd[pc_drive], FDPOLLDRVSTAT, &fd_stat) < 0)
+        return 0;
+
+    return fd_stat.flags & FD_DISK_WRITABLE;
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -290,9 +316,11 @@ int ufloppy_Init (int to_drive_type[4], int enable_write)
     char dev_str[16];
     int i, num_drives = 0;
 
-    teo_DirectReadSector  = NULL;
-    teo_DirectWriteSector = NULL;
-    teo_DirectFormatTrack = NULL;
+    memset (&fd_params, 0x00, sizeof (struct floppy_drive_params));
+    teo_DirectIsDiskWritable = NULL;
+    teo_DirectReadSector     = NULL;
+    teo_DirectWriteSector    = NULL;
+    teo_DirectFormatTrack    = NULL;
 
     for (i=0; i<2; i++)
     {
@@ -341,6 +369,7 @@ int ufloppy_Init (int to_drive_type[4], int enable_write)
     }
 
     teo_DirectReadSector = read_sector;
+    teo_DirectIsDiskWritable = is_disk_writable;
 
     if (enable_write)
     {
@@ -360,9 +389,10 @@ void ufloppy_Exit (void)
 {
     int i;
 
-    teo_DirectReadSector  = NULL;
-    teo_DirectWriteSector = NULL;
-    teo_DirectFormatTrack = NULL;
+    teo_DirectIsDiskWritable = NULL;
+    teo_DirectReadSector     = NULL;
+    teo_DirectWriteSector    = NULL;
+    teo_DirectFormatTrack    = NULL;
 
     for (i=0; i<2; i++)
     {
