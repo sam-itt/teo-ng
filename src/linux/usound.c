@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -322,7 +322,21 @@ void usound_Play(void)
             break;
     }
     if ((err = snd_pcm_writei(handle, sound_buffer, period_size)) < 0)
-        snd_pcm_recover (handle, err, TRUE);
+    {
+        if (err == -EPIPE)
+        {
+            (void)snd_pcm_prepare(handle);
+        }
+        else
+        if (err == -ESTRPIPE)
+        {
+            while ((err = snd_pcm_resume(handle)) == -EAGAIN)
+                sleep(1); /* wait until the suspend flag is released */
+            if (err < 0)
+                (void)snd_pcm_prepare(handle);
+        }
+    }
+    /* snd_pcm_recover (handle, err, TRUE); */
     
     last_index=0;
 }
