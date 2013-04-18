@@ -5,11 +5,13 @@
 echo "Convert files from UNIX to DOS..."
 find . -type d "(" \
       -name ".hg" -prune \
+      -name "fixunix.sh" -prune \
       ")" -o \
       -type f "(" \
       -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \
-      -name "*.xpm" -o -name "makefile.*" -o -name "*.txt" -o \
-      -name "*.log" -o -name "*.bat" -o -name "*.htm*" \
+      -name "*.xpm" -o -name "makefile.*" -o \
+      -name "*.txt" -o -name "*.log" -o -name "*.bat" -o \
+      -name "*.BAT"  -o -name "*.htm*"\
       ")" \
       -exec sh -c "echo -n '.';
                    mv {} _tmpfile;
