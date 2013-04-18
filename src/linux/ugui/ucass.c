@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -62,11 +62,66 @@
 #define COUNTER_MAX  999
 
 static GtkWidget *combo;
-static int entry_max=0;
-static gulong combo_changed_id;
+static gulong combo_id;
 static GtkWidget *check_prot;
+static gulong check_prot_id;
+static GtkWidget *emptying_button;
+static gulong emptying_button_id;
+static GtkWidget *counter_box;
+static int entry_max=0;
 static GtkWidget *spinner_cass;
 static GList *path_list = NULL;
+
+
+
+static void block_all (void)
+{
+    g_signal_handler_block (combo, combo_id);
+    g_signal_handler_block (check_prot, check_prot_id);
+    g_signal_handler_block (emptying_button, emptying_button_id);
+}
+
+
+
+static void unblock_all (void)
+{
+    g_signal_handler_unblock (combo, combo_id);
+    g_signal_handler_unblock (check_prot, check_prot_id);
+    g_signal_handler_unblock (emptying_button, emptying_button_id);
+}
+
+
+
+/* update_params:
+ *  Ajuste les paramètres de cassette.
+ */
+static void update_params (void)
+{
+    int combo_index;
+    
+    if (combo_id != 0)
+    {
+        block_all ();
+
+        combo_index = gtk_combo_box_get_active (GTK_COMBO_BOX (combo));
+
+        if (combo_index == 0)
+        {
+            gtk_widget_set_sensitive (emptying_button, FALSE);
+            gtk_widget_set_sensitive (check_prot, FALSE);
+            gtk_widget_set_sensitive (counter_box, FALSE);
+        }
+        else
+        {
+            gtk_widget_set_sensitive (emptying_button, TRUE);
+            gtk_widget_set_sensitive (check_prot, TRUE);
+            gtk_widget_set_sensitive (counter_box, TRUE);
+        }
+
+        unblock_all ();
+    }
+}
+
 
 
 /* set_counter_cass:
@@ -97,13 +152,15 @@ static void eject_cass (void)
 {
     rewind_cass ();
     cass_Eject();
+    update_params ();
 }
 
 
 
 /* click_rewind_cass:
  *  Met le compteur de cassette à 0 (callback).
- */static void click_rewind_cass (GtkWidget *button, gpointer data)
+ */
+static void click_rewind_cass (GtkWidget *button, gpointer data)
 {
     rewind_cass ();
     (void)button;
@@ -126,7 +183,7 @@ static int load_cass (gchar *filename)
             ugui_Error (teo_error_msg, wControl);
             break;
 
-        case TEO_READ_ONLY :
+        case TRUE :
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(check_prot), TRUE);
             teo.cass.write_protect = TRUE;
             break;
@@ -145,14 +202,14 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
 {
     if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
     {
-        cass_SetMode(TEO_READ_ONLY);
+        cass_SetProtection(TRUE);
         teo.cass.write_protect = TRUE;
     }
     else
     {
         teo.cass.write_protect = FALSE;
 
-        if (cass_SetMode(TEO_READ_WRITE)==TEO_READ_ONLY)
+        if (cass_SetProtection(FALSE) == TRUE)
         {
             ugui_Error ((is_fr?"Ecriture impossible sur ce support."
                               :"Writing unavailable on this device."), wControl);
@@ -161,6 +218,7 @@ static void toggle_check_cass (GtkWidget *button, gpointer data)
         }
     }
     set_counter_cass ();
+    update_params ();
     (void)data;
 }
 
@@ -196,6 +254,7 @@ static void add_combo_entry (const char *path)
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
         entry_max++;
     }
+    update_params ();
 }
 
 
@@ -215,16 +274,16 @@ static void init_combo (void)
  */
 static void reset_combo (GtkButton *button, gpointer data)
 {
-    /* Bloque l'intervention de combo_changed */
-    g_signal_handler_block (combo, combo_changed_id);
+    block_all ();
 
     ucass_Free ();
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     eject_cass ();
     init_combo ();
 
-    /* Débloque l'intervention de combo_changed */
-    g_signal_handler_unblock (combo, combo_changed_id);
+    unblock_all ();
+
+    update_params ();
 
     (void)button;
     (void)data;
@@ -247,6 +306,7 @@ static void combo_changed (GtkComboBox *combo_box, gpointer data)
     {
         (void)load_cass((char *)g_list_nth_data (path_list, (guint)entry_selected));
     }
+    update_params ();
     
     (void)data;
 }
@@ -276,15 +336,6 @@ static void open_file (GtkButton *button, gpointer data)
         gtk_file_filter_add_pattern (filter, "*.K7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
-        if (teo.cass.file != NULL)
-            (void)gtk_file_chooser_set_filename((GtkFileChooser *)dialog, teo.cass.file);
-        else
-        if (teo.default_folder != NULL)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
-        else
-        if (access("./k7/", F_OK) == 0)
-            (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./k7/");
-
         /* Attend que le dialog ait tout assimilé */
         while (gtk_events_pending ())
             gtk_main_iteration ();
@@ -292,13 +343,26 @@ static void open_file (GtkButton *button, gpointer data)
         first=0;
     }
 
+    if (teo.cass.file != NULL)
+    {
+        folder_name = std_strdup_printf ("%s", teo.cass.file);
+        std_CleanPath (folder_name);
+        (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, folder_name);
+        folder_name = std_free (folder_name);
+    }
+    else
+    if (teo.default_folder != NULL)
+        (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, teo.default_folder);
+    else
+    if (access("./disks/", F_OK) == 0)
+        (void)gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, "./k7/");
+
     if (gtk_dialog_run ((GtkDialog *)dialog) == GTK_RESPONSE_ACCEPT)
     {
         file_name = gtk_file_chooser_get_filename((GtkFileChooser *)dialog);
         if (load_cass (file_name) >= 0)
         {
-            /* Bloque l'intervention de combo_changed */
-            g_signal_handler_block (combo, combo_changed_id);
+            block_all ();
 
             add_combo_entry (teo.cass.file);
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
@@ -307,8 +371,8 @@ static void open_file (GtkButton *button, gpointer data)
                 teo.default_folder = std_strdup_printf ("%s",folder_name);
             g_free (folder_name);
 
-            /* Débloque l'intervention de combo_changed */
-            g_signal_handler_unblock (combo, combo_changed_id); 
+            unblock_all ();
+            update_params ();
         }
         g_free (file_name);
     }
@@ -373,12 +437,17 @@ void ucass_Init (GtkWidget *notebook)
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* bouton de vidange */
-    widget = gtk_button_new ();
+    emptying_button = gtk_button_new ();
     image = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(GTK_BUTTON(widget), image);
-    gtk_widget_set_tooltip_text (widget, is_fr?"Vide la liste des fichiers":"Empty the file list");
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-    (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(reset_combo), (gpointer) NULL);
+    gtk_button_set_image(GTK_BUTTON(emptying_button), image);
+    gtk_widget_set_tooltip_text (emptying_button,
+                                 is_fr?"Vide la liste des fichiers"
+                                       :"Empty the file list");
+    gtk_box_pack_start( GTK_BOX(hbox), emptying_button, FALSE, FALSE, 0);
+    emptying_button_id = g_signal_connect(G_OBJECT(emptying_button),
+                                          "clicked",
+                                          G_CALLBACK(reset_combo),
+                                          (gpointer) NULL);
 
     /* combobox pour le rappel de cassette */
     combo=gtk_combo_box_text_new();
@@ -386,42 +455,59 @@ void ucass_Init (GtkWidget *notebook)
     init_combo ();
     if (teo.cass.file != NULL)
         add_combo_entry (teo.cass.file);
-    combo_changed_id = g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
+    combo_id = g_signal_connect (G_OBJECT(combo),
+                                         "changed",
+                                         G_CALLBACK(combo_changed),
+                                         (gpointer) NULL);
 
     /* bouton protection de la cassette */
     check_prot=gtk_check_button_new_with_label("prot.");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_prot), teo.cass.write_protect);
-    g_signal_connect(G_OBJECT(check_prot), "toggled", G_CALLBACK(toggle_check_cass), (gpointer)NULL);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_prot),
+                                 teo.cass.write_protect);
+    check_prot_id = g_signal_connect(G_OBJECT(check_prot),
+                                     "toggled",
+                                     G_CALLBACK(toggle_check_cass),
+                                     (gpointer)NULL);
     gtk_box_pack_end( GTK_BOX(hbox), check_prot, FALSE, TRUE, 0);
 
     /* bouton d'ouverture de fichier */
     widget = gtk_button_new ();
     image = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(widget), image);
-    gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cassette":"Open a tape file");
+    gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cassette"
+                                              :"Open a tape file");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-    (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer) check_prot);
+    (void)g_signal_connect(G_OBJECT(widget),
+                           "clicked",
+                           G_CALLBACK(open_file),
+                           (gpointer) check_prot);
 
     /* molette du compteur de cassette */
     adjustment = gtk_adjustment_new (0, 0, COUNTER_MAX, 1, 10, 0);
     spinner_cass = gtk_spin_button_new (adjustment, 0.5, 0);
 
     /* seconde boîte horizontale de la cassette */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    counter_box=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    gtk_box_pack_start( GTK_BOX(vbox), counter_box, FALSE, FALSE, 0);
 
     /* molette du compteur de cassette */
     widget=gtk_label_new((is_fr?"Compteur:":"Counter:"));
-    gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (counter_box), widget, FALSE, FALSE, 0);
 
     /* Connecter le signal directement au spin button ne marche pas. */
-    g_signal_connect(G_OBJECT(adjustment), "value_changed", G_CALLBACK(change_counter_cass), (gpointer)NULL);
+    g_signal_connect(G_OBJECT(adjustment),
+                     "value_changed",
+                     G_CALLBACK(change_counter_cass),
+                     (gpointer)NULL);
     gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner_cass), FALSE);
-    gtk_box_pack_start (GTK_BOX (hbox), spinner_cass, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (counter_box), spinner_cass, FALSE, FALSE, 0);
 
     /* bouton rembobinage */
     widget=gtk_button_new_with_label((is_fr?"Rembobiner la cassette":"Rewind tape"));
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(click_rewind_cass), (gpointer)NULL);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget), "clicked",
+                     G_CALLBACK(click_rewind_cass), (gpointer)NULL);
+    gtk_box_pack_start( GTK_BOX(counter_box), widget, TRUE, FALSE, 0);
+
+    update_params ();
 }
 
