@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2012 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -74,9 +74,8 @@ static void init_bar(HWND volume_bar)
    SendMessage(volume_bar, TBM_SETPAGESIZE, TRUE, PAGE_STEP);
    SendMessage(volume_bar, TBM_SETTICFREQ, PAGE_STEP, 0);
 
-   SendMessage(volume_bar, TBM_SETPOS, TRUE,
-      (teo.setting.sound_enabled && teo.setting.exact_speed)
-                     ? asound_GetVolume()-1 : (MAX_POS-MIN_POS)/2);
+   SendMessage(volume_bar, TBM_SETPOS, TRUE, teo.setting.sound_volume);
+   asound_SetVolume(teo.setting.sound_volume);
    
    if (!teo.setting.sound_enabled || !teo.setting.exact_speed)
       EnableWindow(volume_bar, FALSE);
@@ -124,6 +123,7 @@ static void update_bar(HWND volume_bar, WPARAM wParam)
    }
 
    asound_SetVolume(pos+1);
+   teo.setting.sound_volume = pos+1;
 }
 
 
@@ -224,10 +224,7 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
 
       case WM_HSCROLL:
          if ((HWND)lParam == volume_bar)
-         {
-            if (teo.setting.sound_enabled && teo.setting.exact_speed)
                update_bar(volume_bar, wParam);
-         }
          return TRUE;
 
       default:
