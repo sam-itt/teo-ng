@@ -2571,11 +2571,26 @@ static void subd(void) {    /* NxZxVxCx */
 }
 
 static void synm(void) {
-        /* non supporté */
+    /* not supported */
+    switch (step) {
+    case 20 :  step=0;  /* reset fetch */
+               break;
+    /* Case 2->19 = [Don't Care] */
+    default :  break;
+    }
 }
 
 static void cwai(void) {
-        /* non supporté */
+    /* not supported */
+    switch (step) {
+    case 2 :  value=LoadByte(pc);
+              pc=(pc+1)&0xffff;
+              break;
+    case 4 :  step=0;  /* reset fetch */
+              break;
+    /* Case 2->3 = [Don't Care] */
+    default : break;
+    }
 }
 
 /**********************************************/
@@ -2594,6 +2609,7 @@ static void cd11(void) { };
 
 static void hcfm(void) { /* Halt and Catch Fire */
     /* not supported */
+    step=0;  /* reset fetch */
 }
 
 static void rset(void) { /* Reset */
@@ -2602,7 +2618,7 @@ static void rset(void) { /* Reset */
     pc=LoadWord(0xFFFE);
     mc6809_irq=0;
     irq_start=irq_run=0;
-    step=0;
+    step=0;  /* reset fetch */
 }
 
 static void cd18(void) {
@@ -2633,14 +2649,14 @@ static void cd38(void) {  /* ANDCC 4 cycles */
     }
 }
 
-static void cd42(void) {  /* NEGA/COMA */
+static void cd42(void) {  /* NEGA if Carry=0, COMA otherwise */
     if (res&0x100)
         coma();
     else
         nega();
 }
 
-static void cd52(void) {  /* NEGB/COMB */
+static void cd52(void) {  /* NEGB if Carry=0, COMB otherwise */
     if (res&0x100)
         comb();
     else
@@ -2668,6 +2684,8 @@ static void cd8f(void) {
              sign|=0x80;   /* N=1   */
              step=0;  /* reset fetch */
              break;
+    /* Case 1 = [Don't Care] */
+    default: break;
     }
 }
              
@@ -2684,6 +2702,8 @@ static void cdcf(void) {
              sign|=0x80;   /* N=1   */
              step=0;  /* reset fetch */
              break;
+    /* Case 1 = [Don't Care] */
+    default: break;
     }
 }
 
