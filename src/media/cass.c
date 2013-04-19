@@ -51,7 +51,7 @@
 #endif
 
 #include "media/cass.h"  /* MacOS */
-#include "error.h"
+#include "errors.h"
 #include "hardware.h"
 #include "main.h"
 #include "std.h"

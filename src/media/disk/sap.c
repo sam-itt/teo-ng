@@ -52,7 +52,7 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "media/disk/controlr.h"
 #include "media/disk.h"

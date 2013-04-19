@@ -67,7 +67,7 @@
 #include "teo.h"
 #include "option.h"
 #include "image.h"
-#include "error.h"
+#include "errors.h"
 #include "main.h"
 #include "std.h"
 #include "ini.h"

@@ -56,7 +56,7 @@
 #include "main.h"
 #include "std.h"
 #include "ini.h"
-#include "error.h"
+#include "errors.h"
 #include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/memo.h"

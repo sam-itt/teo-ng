@@ -55,7 +55,7 @@
 
 #include "defs.h"
 #include "hardware.h"
-#include "error.h"
+#include "errors.h"
 #include "main.h"
 #include "std.h"
 #include "teo.h"

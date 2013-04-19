@@ -58,7 +58,7 @@
 
 #include "hardware.h"
 #include "std.h"
-#include "error.h"
+#include "errors.h"
 #include "teo.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */

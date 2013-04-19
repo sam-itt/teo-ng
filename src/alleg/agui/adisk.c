@@ -59,7 +59,7 @@
 #include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/disk/daccess.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "teo.h"
 

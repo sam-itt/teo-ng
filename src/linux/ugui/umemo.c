@@ -56,7 +56,7 @@
 #include "linux/gui.h"
 #include "teo.h"
 #include "std.h"
-#include "error.h"
+#include "errors.h"
 
 static GtkWidget *combo;
 static gulong combo_id;

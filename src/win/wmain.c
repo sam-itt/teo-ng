@@ -61,7 +61,7 @@
 #include "ini.h"
 #include "image.h"
 #include "main.h"
-#include "error.h"
+#include "errors.h"
 #include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/cass.h"
@@ -259,21 +259,6 @@ static void read_command_line(int argc, char *argv[])
     if (mode80)    gfx_mode = GFX_MODE80   ; else
     if (truecolor) gfx_mode = GFX_TRUECOLOR; else
     if (windowd)   gfx_mode = GFX_WINDOW;
-}
-
-
-
-/* shortpath:
- *  Retourne une version courte du path passé en argument alloué dans le tas.
- */
-static char *shortpath(char *path) {
-    int len = GetShortPathName(path, NULL, 0);
-    char *buf = malloc(len + 1);
-    if(!buf) main_ExitMessage(is_fr?"Plus de mémoire":"Out of memory");
-    if(GetShortPathName(path, buf, len+1)) return buf;
-    main_ExitMessage(path);
-    free(buf);
-    return NULL;
 }
 
 

@@ -55,7 +55,7 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "media/cass.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "teo.h"
 

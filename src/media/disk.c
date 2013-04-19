@@ -59,7 +59,7 @@
 #include "std.h"
 #include "main.h"
 #include "hardware.h"
-#include "error.h"
+#include "errors.h"
 #include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/disk/sap.h"

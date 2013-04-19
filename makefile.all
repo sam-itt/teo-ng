@@ -53,7 +53,7 @@ TEO_SRC_FILES =         \
    src/media/printer/pr90042.c  \
    src/media/printer/pr90055.c  \
    src/media/printer.c  \
-   src/error.c          \
+   src/errors.c         \
    src/hardware.c       \
    src/image.c          \
    src/ini.c            \

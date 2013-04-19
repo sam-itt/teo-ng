@@ -55,7 +55,7 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "error.h"
+#include "errors.h"
 #include "image.h"
 #include "ini.h"
 #include "std.h"

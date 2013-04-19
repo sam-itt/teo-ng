@@ -55,7 +55,7 @@
 
 #include "teo.h"
 #include "std.h"
-#include "error.h"
+#include "errors.h"
 #include "media/cass.h"
 #include "linux/gui.h"
 

@@ -56,7 +56,7 @@
 #include "mc68xx/mc6821.h"
 #include "media/disk/controlr.h"
 #include "media/disk.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "hardware.h"
 

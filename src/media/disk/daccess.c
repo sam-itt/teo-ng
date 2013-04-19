@@ -50,7 +50,7 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "hardware.h"
 #include "media/disk/controlr.h"

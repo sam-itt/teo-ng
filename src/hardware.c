@@ -54,7 +54,7 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "error.h"
+#include "errors.h"
 #include "hardware.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6821.h"

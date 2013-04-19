@@ -204,7 +204,7 @@
 #endif
 
 #include "teo.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "main.h"
 #include "hardware.h"

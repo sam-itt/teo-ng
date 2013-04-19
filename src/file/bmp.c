@@ -47,7 +47,7 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "error.h"
+#include "errors.h"
 #include "std.h"
 #include "file/bmp.h"
 

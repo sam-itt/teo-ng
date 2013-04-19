@@ -51,7 +51,7 @@
 #include "mc68xx/mc6846.h"
 #include "media/joystick.h"
 #include "media/keyboard.h"  /* MacOS */
-#include "error.h"
+#include "errors.h"
 #include "hardware.h"
 #include "teo.h"
 #include "key.h"

@@ -53,7 +53,7 @@
 #include "defs.h"
 #include "teo.h"
 #include "std.h"
-#include "error.h"
+#include "errors.h"
 #include "file/png.h"
 
 struct FP_PNG {

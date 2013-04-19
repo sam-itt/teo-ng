@@ -59,7 +59,7 @@
 #include "win/gui.h"
 #include "media/memo.h"
 #include "std.h"
-#include "error.h"
+#include "errors.h"
 #include "teo.h"
 
 static int entry_max = 0;

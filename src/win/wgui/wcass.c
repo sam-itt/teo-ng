@@ -58,7 +58,7 @@
 #include "win/dialog.rh"
 #include "win/gui.h"
 #include "std.h"
-#include "error.h"
+#include "errors.h"
 #include "media/cass.h"
 #include "teo.h"
 
