@@ -24,7 +24,7 @@
 
 /*
  *  Module     : mc68xx/mc6809.c
- *  Version    : 2.8.0
+ *  Version    : 2.8.1
  *  Créé par   : Sylvain Huet 1996
  *  Modifié par: Eric Botcazou 30/11/2000
  *               François Mouret 27/09/2006 26/01/2010 04/02/2012
@@ -52,6 +52,8 @@
  *               émulation des postcodes non standard pour TFR/EXG
  *               émulation des postcodes non standard pour indexé
  *               émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
+ *  version 2.8.1: Correction du risque de freeze pour synm(), cwai()
+ *                 et hcfm()
  */
 
 
