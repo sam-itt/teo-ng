@@ -194,6 +194,7 @@ deb_dir=$deb_name/usr/share/cc90hfe
 
 # Compile cc90hfe
 cd teo/tools/cc90hfe
+./fixunix.sh
 make clean
 make DEBIAN=1
 cd ../../..
@@ -256,6 +257,7 @@ cp teo/tools/k7tools/wav2k7 teo/
 
 # Compile cc90hfe
 cd teo/tools/cc90hfe
+./fixunix.sh
 make clean
 make
 cd ../../..
