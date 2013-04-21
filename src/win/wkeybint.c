@@ -48,8 +48,9 @@
    #include <allegro/internal/aintern.h>
 #endif
 
-#include "media/keyboard.h"
 #include "teo.h"
+#include "to8keys.h"
+#include "media/keyboard.h"
 
 
 
@@ -88,22 +89,22 @@ static void KeyboardHandler(int key)
  */
 void wkeybint_Install(void)
 {
-    int mask=(1<<TEO_MAX_FLAG)-1, value=0;
+    int mask=(1<<TEO_KEY_F_MAX)-1, value=0;
 
     if (_key_shifts&KB_NUMLOCK_FLAG)
-        value |= TEO_NUMLOCK_FLAG;
+        value |= TEO_KEY_F_NUMLOCK;
 
     if (_key_shifts&KB_CAPSLOCK_FLAG)
-        value |= TEO_CAPSLOCK_FLAG;
+        value |= TEO_KEY_F_CAPSLOCK;
 
     if (_key_shifts&KB_SHIFT_FLAG)
-        value |= TEO_SHIFT_FLAG;
+        value |= TEO_KEY_F_SHIFT;
 
     if (_key_shifts&KB_CTRL_FLAG)
-        value |= TEO_CTRL_FLAG;
+        value |= TEO_KEY_F_CTRL;
 
     if (_key_shifts&KB_ALT_FLAG)
-        value |= TEO_ALTGR_FLAG;
+        value |= TEO_KEY_F_ALTGR;
 
     teo_InputReset(mask, value);
 

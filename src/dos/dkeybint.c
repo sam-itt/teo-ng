@@ -48,8 +48,9 @@
    #include <allegro/internal/aintern.h>
 #endif
 
-#include "media/keyboard.h"
 #include "teo.h"
+#include "to8keys.h"
+#include "media/keyboard.h"
 
 
 
@@ -95,10 +96,10 @@ static void set_keyboard_led(int state)
 {
     int flags = 0;
 
-    if (state&TEO_NUMLOCK_FLAG)
+    if (state&TEO_KEY_F_NUMLOCK)
         flags |= KB_NUMLOCK_FLAG;
 
-    if (state&TEO_CAPSLOCK_FLAG)
+    if (state&TEO_KEY_F_CAPSLOCK)
         flags |= KB_CAPSLOCK_FLAG;
     
     /* mise à jour des leds */
@@ -118,29 +119,29 @@ void dkeybint_Install(void)
   
     if (first)
     {
-        mask |= (TEO_NUMLOCK_FLAG | TEO_CAPSLOCK_FLAG);
+        mask |= (TEO_KEY_F_NUMLOCK | TEO_KEY_F_CAPSLOCK);
 
         if (_key_shifts&KB_NUMLOCK_FLAG)
-            value |= TEO_NUMLOCK_FLAG;
+            value |= TEO_KEY_F_NUMLOCK;
 
         if (_key_shifts&KB_CAPSLOCK_FLAG)
-            value |= TEO_CAPSLOCK_FLAG;
+            value |= TEO_KEY_F_CAPSLOCK;
 
         /* on prend définitivement le contrôle des leds */
         key_led_flag = FALSE;
         first=0;
     }
        
-    mask |= (TEO_SHIFT_FLAG | TEO_CTRL_FLAG | TEO_ALTGR_FLAG);
+    mask |= (TEO_KEY_F_SHIFT | TEO_KEY_F_CTRL | TEO_KEY_F_ALTGR);
 
     if (_key_shifts&KB_SHIFT_FLAG)
-        value |= TEO_SHIFT_FLAG;
+        value |= TEO_KEY_F_SHIFT;
 
     if (_key_shifts&KB_CTRL_FLAG)
-        value |= TEO_CTRL_FLAG;
+        value |= TEO_KEY_F_CTRL;
 
     if (_key_shifts&KB_ALT_FLAG)
-        value |= TEO_ALTGR_FLAG;
+        value |= TEO_KEY_F_ALTGR;
 
     teo_InputReset(mask, value);
 
