@@ -8,10 +8,8 @@ Comment=TO8D microcomputer emulator
 Comment[fr]=Emulateur de l'ordinateur TO8D
 Type=Application
 Categories=GNOME;GTK;Game;Emulator;
-Exec=/usr/games/teo %U
-TryExec=/usr/games/teo
+Exec=/usr/games/teo
 Terminal=false
-StartupNotify=true
 Icon=teo.png
 X-Ayatana-Desktop-Shortcuts=Reset;
 
