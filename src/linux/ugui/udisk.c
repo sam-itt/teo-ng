@@ -289,6 +289,7 @@ static void init_combo (struct FILE_VECTOR *vector)
         add_combo_entry (is_fr?"(Accès Direct)"
                               :"(Direct Access)", vector);
     gtk_combo_box_set_active (GTK_COMBO_BOX(vector->combo), 0);
+    teo.disk[vector->id].side = 0;
     set_access_mode (vector);
 }
 
