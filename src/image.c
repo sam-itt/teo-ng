@@ -486,7 +486,8 @@ static void diskctrl_Loader(int chunk_id, int chunk_size)
     fread_int64 (&dkc->motor_clock[1]);
     fread_int64 (&dkc->motor_stop[0]);
     fread_int64 (&dkc->motor_stop[1]);
-    FILL_GAP    (57, chunk_size);
+    FILL_GAP    (60, chunk_size);
+    thmfc1_Update();
     (void) chunk_id;
 }
 
@@ -687,7 +688,7 @@ static void palchip_Saver(int chunk_id)
 
 static void diskctrl_Saver(int chunk_id)
 {
-    fwrite_int16 (57);
+    fwrite_int16 (60);
     fwrite_int8  (dkc->rr0);
     fwrite_int8  (dkc->rr1);
     fwrite_int8  (dkc->rr2);
@@ -792,7 +793,7 @@ static FILE *file_open (const char filename[], const char mode[])
     char *name = NULL;
 
 #ifdef DEBIAN_BUILD
-    name = std_strdup_printf ("%s/.teo/%s", getenv("HOME"), filename);
+    name = std_strdup_printf ("%s/.local/share/applications/teo/%s", getenv("HOME"), filename);
 #else
     name = std_strdup_printf ("%s", filename);
 #endif
