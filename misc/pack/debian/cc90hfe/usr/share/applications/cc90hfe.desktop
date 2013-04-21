@@ -1,12 +1,11 @@
-
 [Desktop Entry]
 Version=0.5.0
 Name=Cc90hfe
 GenericName=Cc90hfe
-Exec=/usr/games/cc90hfe
-Comment=Exchange between HFE file and Thomson disks
-Comment[fr]=Transferts entre les fichiers HFE et les disquettes Thomson
+Comment=Create true images of double density Thomson disks
+Comment[fr]=Créer des images fidèles des disquettes Thomson double densité
 Type=Application
-Icon=cc90hfe-32x32
 Categories=GNOME;GTK;Game;Emulator;
-
+Exec=/usr/games/cc90hfe
+Terminal=false
+Icon=cc90hfe.png
