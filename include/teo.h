@@ -108,13 +108,6 @@
 #define TEO_PALETTE_COL1       0x0000FF  /* triplet RRGGBB couleur 1 */    
 #define TEO_PALETTE_COL2       0xD7FBEF  /* triplet RRGGBB couleur 2 */
 
-#define TEO_SHIFT_FLAG         (1<<0)
-#define TEO_CTRL_FLAG          (1<<1)
-#define TEO_ALTGR_FLAG         (1<<2)
-#define TEO_NUMLOCK_FLAG       (1<<3)
-#define TEO_CAPSLOCK_FLAG      (1<<4)
-#define TEO_MAX_FLAG           5
-
 #define TEO_NJOYSTICKS         2
 #define TEO_NBUTTONS           2
 #define TEO_JOYSTICK_CENTER    0
