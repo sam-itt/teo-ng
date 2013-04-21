@@ -251,6 +251,18 @@ static struct {
     { GDK_KEY_KP_Subtract     , TEO_KEY_F_NONE , TEO_KEY_MINUS_PAD  },
     { GDK_KEY_KP_Add          , TEO_KEY_F_NONE , TEO_KEY_PLUS_PAD   },
     { GDK_KEY_KP_Decimal      , TEO_KEY_F_NONE , TEO_KEY_DEL_PAD    },
+    /* PC joystick pad */
+    { GDK_KEY_KP_Home         , TEO_KEY_F_NONE , TEO_KEY_7_PAD      },       
+    { GDK_KEY_KP_Up           , TEO_KEY_F_NONE , TEO_KEY_8_PAD      },
+    { GDK_KEY_KP_Page_Up      , TEO_KEY_F_NONE , TEO_KEY_9_PAD      },
+    { GDK_KEY_KP_Left         , TEO_KEY_F_NONE , TEO_KEY_4_PAD      },
+    { GDK_KEY_KP_Begin        , TEO_KEY_F_NONE , TEO_KEY_5_PAD      },
+    { GDK_KEY_KP_Right        , TEO_KEY_F_NONE , TEO_KEY_6_PAD      },
+    { GDK_KEY_KP_End          , TEO_KEY_F_NONE , TEO_KEY_1_PAD      },
+    { GDK_KEY_KP_Down         , TEO_KEY_F_NONE , TEO_KEY_2_PAD      },
+    { GDK_KEY_KP_Page_Down    , TEO_KEY_F_NONE , TEO_KEY_3_PAD      },
+    { GDK_KEY_KP_Insert       , TEO_KEY_F_NONE , TEO_KEY_INSERT     },
+    { GDK_KEY_KP_Delete       , TEO_KEY_F_NONE , TEO_KEY_DEL        },
     /* PC special keys */
     { GDK_KEY_Escape          , TEO_KEY_F_NONE , TEO_KEY_ESC        },
     { GDK_KEY_Alt_L           , TEO_KEY_F_NONE , TEO_KEY_ALT        },
@@ -261,7 +273,7 @@ static struct {
     { GDK_KEY_Page_Down       , TEO_KEY_F_NONE , TEO_KEY_PGDN       },
     { GDK_KEY_End             , TEO_KEY_F_NONE , TEO_KEY_END        },
     /* end of list */
-    { -1                      , 0                  }
+    { -1                      , 0              , 0                  }
 };
 
 
