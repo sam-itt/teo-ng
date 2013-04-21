@@ -54,7 +54,7 @@
 #include "errors.h"
 #include "hardware.h"
 #include "teo.h"
-#include "key.h"
+#include "to8keys.h"
 
 
 static volatile int kb_state; /* contient l'état des touches et leds du clavier PC:
@@ -75,9 +75,9 @@ static unsigned char key_code[TEO_KEY_MAX]={
   0,  0, 14,  6,  5, 62,200,189,  2,141,192, 55,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,255,255,255,255, 21,255,  0,  0,  0,
   0,255, 65};
- /* key_code[] convertit le scancode d'une touche PC (voir to8keys.h pour
-    la liste des scancodes) en la valeur que produit le clavier TO8 pour la
-    même touche; il y a quatres valeurs particulières :
+ /* key_code[] convertit le scancode d'une touche PC (voir to8keys.h
+    pour la liste des scancodes) en la valeur que produit le clavier
+    TO8 pour la même touche; il y a quatres valeurs particulières :
      -   0 désigne une touche non mappée sur le TO8,
      - 253 désigne une touche du bloc clavier gauche du PC
      - 254 désigne une touche du clavier numérique du PC,
@@ -155,18 +155,18 @@ static void DoRequest(int req)
         {
             case KB_INIT:
             case KB_MAJ:
-                kb_state |= TEO_CAPSLOCK_FLAG;
+                kb_state |= TEO_KEY_F_CAPSLOCK;
                 teo_SetKeyboardLed(kb_state);
             break;
 
             case KB_MIN:
-                kb_state &= ~TEO_CAPSLOCK_FLAG;
+                kb_state &= ~TEO_KEY_F_CAPSLOCK;
                 teo_SetKeyboardLed(kb_state);
             break;
         }
     else  /* on re-synchronise */
     {
-        if (kb_state&TEO_CAPSLOCK_FLAG)
+        if (kb_state&TEO_KEY_F_CAPSLOCK)
             mc6846.prc &= 0xF7;
         else
             mc6846.prc |= 8;
@@ -213,7 +213,7 @@ void keyboard_SetACK(int state)
         if (!(mc6846.crc&0x80))  /* CP1 à 0? */
         {
             mem.mon.bank[1][0x10F8] = kb_data;
-            mem.mon.bank[1][0x1125] = (kb_state&TEO_CTRL_FLAG ? 1 : 0);
+            mem.mon.bank[1][0x1125] = (kb_state&TEO_KEY_F_CTRL ? 1 : 0);
         }
         else
             mc6846_SetCP1(&mc6846, 0);
@@ -236,11 +236,11 @@ void keyboard_Reset(int mask, int value)
     kb_data=0;                  /* donnée clavier à 0 */
 
     /* modification optionnelle des flags */
-    for (i=0; i<TEO_MAX_FLAG; i++)
+    for (i=0; i<TEO_KEY_F_MAX; i++)
         if (mask & (1<<i))
             kb_state = (kb_state & ~(1<<i)) | (value & (1<<i));
 
-    if (kb_state & TEO_CAPSLOCK_FLAG)
+    if (kb_state & TEO_KEY_F_CAPSLOCK)
         mc6846.prc &= 0xF7;
     else
         mc6846.prc |= 8;
@@ -264,27 +264,27 @@ void keyboard_Press(int key, int release)
     {
         case TEO_KEY_LCONTROL:  /* le contrôle gauche émule la touche CNT
                                 et le bouton joystick 1 (NUMLOCK éteint) */
-            if ((njoy>1) && !(kb_state&TEO_NUMLOCK_FLAG))
+            if ((njoy>1) && !(kb_state&TEO_KEY_F_NUMLOCK))
                 joystick_Button(njoy-1, 0, release ? TEO_JOYSTICK_FIRE_OFF : TEO_JOYSTICK_FIRE_ON);
 
-            kb_state=(release ? kb_state&~TEO_CTRL_FLAG : kb_state|TEO_CTRL_FLAG);
+            kb_state=(release ? kb_state&~TEO_KEY_F_CTRL : kb_state|TEO_KEY_F_CTRL);
             break;
 
         case TEO_KEY_RCONTROL:  /* le contrôle droit émule le bouton joystick 0 ou 1
                                 en mode manette (NUMLOCK éteint) */
-            if ((njoy>0) && !(kb_state&TEO_NUMLOCK_FLAG))
+            if ((njoy>0) && !(kb_state&TEO_KEY_F_NUMLOCK))
                 joystick_Button(TEO_NJOYSTICKS-njoy, 0, release ? TEO_JOYSTICK_FIRE_OFF : TEO_JOYSTICK_FIRE_ON);
 
             break;
 
         case TEO_KEY_ALTGR:
-            kb_state=(release ? kb_state&~TEO_ALTGR_FLAG : kb_state|TEO_ALTGR_FLAG);
+            kb_state=(release ? kb_state&~TEO_KEY_F_ALTGR : kb_state|TEO_KEY_F_ALTGR);
             break;
 
         case TEO_KEY_NUMLOCK:
             if (!release)
             {
-                kb_state^=TEO_NUMLOCK_FLAG;
+                kb_state^=TEO_KEY_F_NUMLOCK;
 
                 if (teo_SetKeyboardLed)
                     teo_SetKeyboardLed(kb_state);
@@ -298,23 +298,23 @@ void keyboard_Press(int key, int release)
         case TEO_KEY_RSHIFT:
 #ifdef TEO_DOUBLE_CAPSLOCK
         case TEO_KEY_CAPSLOCK:
-            if ( ((key == TEO_KEY_CAPSLOCK) && !(kb_state&TEO_CAPSLOCK_FLAG)) ||
-                 (((key == TEO_KEY_LSHIFT) || (key == TEO_KEY_RSHIFT)) && (kb_state&TEO_CAPSLOCK_FLAG)) )
+            if ( ((key == TEO_KEY_CAPSLOCK) && !(kb_state&TEO_KEY_F_CAPSLOCK)) ||
+                 (((key == TEO_KEY_LSHIFT) || (key == TEO_KEY_RSHIFT)) && (kb_state&TEO_KEY_F_CAPSLOCK)) )
                 key = TEO_KEY_CAPSLOCK;
             else
             {
-                kb_state=(release ? kb_state&~TEO_SHIFT_FLAG : kb_state|TEO_SHIFT_FLAG);
+                kb_state=(release ? kb_state&~TEO_KEY_F_SHIFT : kb_state|TEO_KEY_F_SHIFT);
                 break;
             }
 #else
-            kb_state=(release ? kb_state&~TEO_SHIFT_FLAG : kb_state|TEO_SHIFT_FLAG);
+            kb_state=(release ? kb_state&~TEO_KEY_F_SHIFT : kb_state|TEO_KEY_F_SHIFT);
             break;
 
         case TEO_KEY_CAPSLOCK:
 #endif
             if (!release)
             {
-                kb_state^=TEO_CAPSLOCK_FLAG;
+                kb_state^=TEO_KEY_F_CAPSLOCK;
 
                 if (teo_SetKeyboardLed)
                     teo_SetKeyboardLed(kb_state);
@@ -327,7 +327,7 @@ void keyboard_Press(int key, int release)
 
             if (code==253)  /* touche du bloc gauche */
             {
-                if ((njoy>1) && !(kb_state&TEO_NUMLOCK_FLAG))
+                if ((njoy>1) && !(kb_state&TEO_KEY_F_NUMLOCK))
 		{
 		    code=key_lpd_code[key-TEO_KEY_A][1];
 
@@ -355,7 +355,7 @@ void keyboard_Press(int key, int release)
             }
             else if (code==254)  /* touche du pave numérique */
             {
-                if (kb_state&TEO_NUMLOCK_FLAG)
+                if (kb_state&TEO_KEY_F_NUMLOCK)
                     code=key_pad_code[key-TEO_KEY_1_PAD][0];
                 else if (njoy>0) /* mode manette */
                 {
@@ -381,7 +381,7 @@ void keyboard_Press(int key, int release)
                     break; /* fin du traitement pour le pavé numérique en mode manette */
                 }
             }
-            else if ((kb_state&TEO_ALTGR_FLAG) && key_altgr_code[key])
+            else if ((kb_state&TEO_KEY_F_ALTGR) && key_altgr_code[key])
                      code=key_altgr_code[key];
              /* on remplace le code donné par key_code[] par celui donné par
                 key_altgr_code[] si ce dernier est non nul et si AltGr est pressée */
@@ -389,10 +389,10 @@ void keyboard_Press(int key, int release)
             if (code--)  /* touche mappée */
             {
                 /* deux cas où le bit 7 est mis à 1 */
-                if (kb_state&TEO_SHIFT_FLAG)
+                if (kb_state&TEO_KEY_F_SHIFT)
                     code^=0x80;
 
-                if ((code==64) && (kb_state&TEO_CAPSLOCK_FLAG))
+                if ((code==64) && (kb_state&TEO_KEY_F_CAPSLOCK))
                     code|=0x80;
 
                 if (release)  /* touche relâchée */
