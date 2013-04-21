@@ -173,6 +173,7 @@ extern struct DISK_CONTROLLER *dkc;
 
 extern struct DISK_CONTROLLER *thmfc1_Alloc (void);
 extern void thmfc1_Free (struct DISK_CONTROLLER *thmfc1);
+extern void thmfc1_Update (void);
 
 #endif
 

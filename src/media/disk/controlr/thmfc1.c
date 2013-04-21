@@ -1367,6 +1367,12 @@ static void set_nop (int val)
 /* ------------------------------------------------------------------------- */
 
 
+void thmfc1_Update (void)
+{
+    ctrl = dkc->drive>>1;
+}
+
+
 /* thmfc1_Alloc:
  *  Allocate a THMFC1 controller.
  */
