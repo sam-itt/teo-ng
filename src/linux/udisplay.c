@@ -40,7 +40,7 @@
  *               François Mouret 26/01/2010 08/2011 02/06/2012 28/12/2012
  *               Gilles Fétis 07/2011
  *
- *  Module d'interface avec le serveur X.
+ *  Module d'interface avec GDK.
  */
 
 
@@ -95,185 +95,193 @@ static struct {
     int keycode;
 } keyconv[]={
     /* thomson function keys */
-    { GDK_KEY_F1              , TEO_KEY_F_NONE , TEO_KEY_F1         },
-    { GDK_KEY_F2              , TEO_KEY_F_NONE , TEO_KEY_F2         },
-    { GDK_KEY_F3              , TEO_KEY_F_NONE , TEO_KEY_F3         },
-    { GDK_KEY_F4              , TEO_KEY_F_NONE , TEO_KEY_F4         },
-    { GDK_KEY_F5              , TEO_KEY_F_NONE , TEO_KEY_F5         },
-    { GDK_KEY_F6              , TEO_KEY_F_NONE , TEO_KEY_F6         },
-    { GDK_KEY_F7              , TEO_KEY_F_NONE , TEO_KEY_F7         },
-    { GDK_KEY_F8              , TEO_KEY_F_NONE , TEO_KEY_F8         },
-    { GDK_KEY_F9              , TEO_KEY_F_NONE , TEO_KEY_F9         },
-    { GDK_KEY_F10             , TEO_KEY_F_NONE , TEO_KEY_F10        },
+    { GDK_KEY_F1                , TEO_KEY_F_NONE    , TEO_KEY_F1         },
+    { GDK_KEY_F2                , TEO_KEY_F_NONE    , TEO_KEY_F2         },
+    { GDK_KEY_F3                , TEO_KEY_F_NONE    , TEO_KEY_F3         },
+    { GDK_KEY_F4                , TEO_KEY_F_NONE    , TEO_KEY_F4         },
+    { GDK_KEY_F5                , TEO_KEY_F_NONE    , TEO_KEY_F5         },
+    { GDK_KEY_F6                , TEO_KEY_F_NONE    , TEO_KEY_F6         },
+    { GDK_KEY_F7                , TEO_KEY_F_NONE    , TEO_KEY_F7         },
+    { GDK_KEY_F8                , TEO_KEY_F_NONE    , TEO_KEY_F8         },
+    { GDK_KEY_F9                , TEO_KEY_F_NONE    , TEO_KEY_F9         },
+    { GDK_KEY_F10               , TEO_KEY_F_NONE    , TEO_KEY_F10        },
     /* first row of thomson keyboard */
-    { GDK_KEY_numbersign      , TEO_KEY_F_ALTGR, TEO_KEY_3          }, /* # */
-    { GDK_KEY_at              , TEO_KEY_F_ALTGR, TEO_KEY_0          }, /* @ */
-    { GDK_KEY_asterisk        , TEO_KEY_F_NONE , TEO_KEY_ASTERISK   }, /* * */
-    { GDK_KEY_1               , TEO_KEY_F_SHIFT, TEO_KEY_1          }, /* 1 */
-    { GDK_KEY_eacute          , TEO_KEY_F_NONE , TEO_KEY_2          }, /* é */
-    { GDK_KEY_Eacute          , TEO_KEY_F_NONE , TEO_KEY_2          }, /* é */
-    { GDK_KEY_2               , TEO_KEY_F_SHIFT, TEO_KEY_2          }, /* 2 */
-    { GDK_KEY_quotedbl        , TEO_KEY_F_NONE , TEO_KEY_3          }, /* " */
-    { GDK_KEY_3               , TEO_KEY_F_SHIFT, TEO_KEY_3          }, /* 3 */
-    { GDK_KEY_apostrophe      , TEO_KEY_F_NONE , TEO_KEY_4          }, /* ' */
-    { GDK_KEY_4               , TEO_KEY_F_SHIFT, TEO_KEY_4          }, /* 4 */
-    { GDK_KEY_parenleft       , TEO_KEY_F_NONE , TEO_KEY_5          }, /* ( */
-    { GDK_KEY_5               , TEO_KEY_F_SHIFT, TEO_KEY_5          }, /* 5 */
-    { GDK_KEY_underscore      , TEO_KEY_F_NONE , TEO_KEY_8          }, /* _ */
-    { GDK_KEY_6               , TEO_KEY_F_SHIFT, TEO_KEY_6          }, /* 6 */
-    { GDK_KEY_egrave          , TEO_KEY_F_NONE , TEO_KEY_7          }, /* è */
-    { GDK_KEY_Egrave          , TEO_KEY_F_NONE , TEO_KEY_7          }, /* è */
-    { GDK_KEY_7               , TEO_KEY_F_SHIFT, TEO_KEY_7          }, /* 7 */
-    { GDK_KEY_exclam          , TEO_KEY_F_NONE , TEO_KEY_SLASH      }, /* ! */
-    { GDK_KEY_8               , TEO_KEY_F_SHIFT, TEO_KEY_8          }, /* 8 */
-    { GDK_KEY_ccedilla        , TEO_KEY_F_NONE , TEO_KEY_9          }, /* ç */
-    { GDK_KEY_Ccedilla        , TEO_KEY_F_NONE , TEO_KEY_9          }, /* ç */
-    { GDK_KEY_9               , TEO_KEY_F_SHIFT, TEO_KEY_9          }, /* 9 */
-    { GDK_KEY_agrave          , TEO_KEY_F_NONE , TEO_KEY_0          }, /* à */
-    { GDK_KEY_Agrave          , TEO_KEY_F_NONE , TEO_KEY_0          }, /* à */
-    { GDK_KEY_0               , TEO_KEY_F_SHIFT, TEO_KEY_0          }, /* 0 */
-    { GDK_KEY_parenright      , TEO_KEY_F_NONE , TEO_KEY_MINUS      }, /* ) */
-    { GDK_KEY_degree          , TEO_KEY_F_SHIFT, TEO_KEY_MINUS      }, /* ° */
-    { GDK_KEY_minus           , TEO_KEY_F_NONE , TEO_KEY_6          }, /* - */
-    { GDK_KEY_backslash       , TEO_KEY_F_ALTGR, TEO_KEY_8          }, /* \ */
-    { GDK_KEY_equal           , TEO_KEY_F_NONE , TEO_KEY_EQUALS     }, /* = */
-    { GDK_KEY_plus            , TEO_KEY_F_SHIFT, TEO_KEY_EQUALS     }, /* + */
-    { GDK_KEY_BackSpace       , TEO_KEY_F_NONE , TEO_KEY_BACKSPACE  },
+    { GDK_KEY_numbersign        , TEO_KEY_F_ALTGR   , TEO_KEY_3          }, /* # */
+    { GDK_KEY_at                , TEO_KEY_F_ALTGR   , TEO_KEY_0          }, /* @ */
+    { GDK_KEY_asterisk          , TEO_KEY_F_NONE    , TEO_KEY_ASTERISK   }, /* * */
+    { GDK_KEY_1                 , TEO_KEY_F_SHIFT   , TEO_KEY_1          }, /* 1 */
+    { GDK_KEY_eacute            , TEO_KEY_F_NONE    , TEO_KEY_2          }, /* é */
+    { GDK_KEY_Eacute            , TEO_KEY_F_NONE    , TEO_KEY_2          }, /* é */
+    { GDK_KEY_2                 , TEO_KEY_F_SHIFT   , TEO_KEY_2          }, /* 2 */
+    { GDK_KEY_quotedbl          , TEO_KEY_F_NONE    , TEO_KEY_3          }, /* " */
+    { GDK_KEY_3                 , TEO_KEY_F_SHIFT   , TEO_KEY_3          }, /* 3 */
+    { GDK_KEY_apostrophe        , TEO_KEY_F_NONE    , TEO_KEY_4          }, /* ' */
+    { GDK_KEY_4                 , TEO_KEY_F_SHIFT   , TEO_KEY_4          }, /* 4 */
+    { GDK_KEY_parenleft         , TEO_KEY_F_NONE    , TEO_KEY_5          }, /* ( */
+    { GDK_KEY_5                 , TEO_KEY_F_SHIFT   , TEO_KEY_5          }, /* 5 */
+    { GDK_KEY_underscore        , TEO_KEY_F_NONE    , TEO_KEY_8          }, /* _ */
+    { GDK_KEY_6                 , TEO_KEY_F_SHIFT   , TEO_KEY_6          }, /* 6 */
+    { GDK_KEY_egrave            , TEO_KEY_F_NONE    , TEO_KEY_7          }, /* è */
+    { GDK_KEY_Egrave            , TEO_KEY_F_NONE    , TEO_KEY_7          }, /* è */
+    { GDK_KEY_7                 , TEO_KEY_F_SHIFT   , TEO_KEY_7          }, /* 7 */
+    { GDK_KEY_exclam            , TEO_KEY_F_NONE    , TEO_KEY_SLASH      }, /* ! */
+    { GDK_KEY_8                 , TEO_KEY_F_SHIFT   , TEO_KEY_8          }, /* 8 */
+    { GDK_KEY_ccedilla          , TEO_KEY_F_NONE    , TEO_KEY_9          }, /* ç */
+    { GDK_KEY_Ccedilla          , TEO_KEY_F_NONE    , TEO_KEY_9          }, /* ç */
+    { GDK_KEY_9                 , TEO_KEY_F_SHIFT   , TEO_KEY_9          }, /* 9 */
+    { GDK_KEY_agrave            , TEO_KEY_F_NONE    , TEO_KEY_0          }, /* à */
+    { GDK_KEY_Agrave            , TEO_KEY_F_NONE    , TEO_KEY_0          }, /* à */
+    { GDK_KEY_0                 , TEO_KEY_F_SHIFT   , TEO_KEY_0          }, /* 0 */
+    { GDK_KEY_parenright        , TEO_KEY_F_NONE    , TEO_KEY_MINUS      }, /* ) */
+    { GDK_KEY_degree            , TEO_KEY_F_SHIFT   , TEO_KEY_MINUS      }, /* ° */
+    { GDK_KEY_minus             , TEO_KEY_F_NONE    , TEO_KEY_6          }, /* - */
+    { GDK_KEY_backslash         , TEO_KEY_F_ALTGR   , TEO_KEY_8          }, /* \ */
+    { GDK_KEY_equal             , TEO_KEY_F_NONE    , TEO_KEY_EQUALS     }, /* = */
+    { GDK_KEY_plus              , TEO_KEY_F_SHIFT   , TEO_KEY_EQUALS     }, /* + */
+    { GDK_KEY_BackSpace         , TEO_KEY_F_NONE    , TEO_KEY_BACKSPACE  },
     /* second row of thomson keyboard */
-    { GDK_KEY_Tab             , TEO_KEY_F_NONE , TEO_KEY_TAB        },
-    { GDK_KEY_a               , TEO_KEY_F_NONE , TEO_KEY_Q          }, /* a */
-    { GDK_KEY_A               , TEO_KEY_F_SHIFT, TEO_KEY_Q          }, /* A */
-    { GDK_KEY_z               , TEO_KEY_F_NONE , TEO_KEY_W          }, /* z */
-    { GDK_KEY_Z               , TEO_KEY_F_SHIFT, TEO_KEY_W          }, /* Z */
-    { GDK_KEY_e               , TEO_KEY_F_NONE , TEO_KEY_E          }, /* e */
-    { GDK_KEY_E               , TEO_KEY_F_SHIFT, TEO_KEY_E          }, /* E */
-    { GDK_KEY_r               , TEO_KEY_F_NONE , TEO_KEY_R          }, /* r */
-    { GDK_KEY_R               , TEO_KEY_F_SHIFT, TEO_KEY_R          }, /* R */
-    { GDK_KEY_t               , TEO_KEY_F_NONE , TEO_KEY_T          }, /* t */
-    { GDK_KEY_T               , TEO_KEY_F_SHIFT, TEO_KEY_T          }, /* T */
-    { GDK_KEY_y               , TEO_KEY_F_NONE , TEO_KEY_Y          }, /* y */
-    { GDK_KEY_Y               , TEO_KEY_F_SHIFT, TEO_KEY_Y          }, /* Y */
-    { GDK_KEY_u               , TEO_KEY_F_NONE , TEO_KEY_U          }, /* u */
-    { GDK_KEY_U               , TEO_KEY_F_SHIFT, TEO_KEY_U          }, /* U */
-    { GDK_KEY_i               , TEO_KEY_F_NONE , TEO_KEY_I          }, /* i */
-    { GDK_KEY_I               , TEO_KEY_F_SHIFT, TEO_KEY_I          }, /* I */
-    { GDK_KEY_o               , TEO_KEY_F_NONE , TEO_KEY_O          }, /* o */
-    { GDK_KEY_O               , TEO_KEY_F_SHIFT, TEO_KEY_O          }, /* O */
-    { GDK_KEY_p               , TEO_KEY_F_NONE , TEO_KEY_P          }, /* p */
-    { GDK_KEY_P               , TEO_KEY_F_SHIFT, TEO_KEY_P          }, /* P */
-    { GDK_KEY_asciicircum     , TEO_KEY_F_NONE , TEO_KEY_OPENBRACE  }, /* ^ */
-    { GDK_KEY_dead_circumflex , TEO_KEY_F_NONE , TEO_KEY_OPENBRACE  }, /* ^ */
-    { GDK_KEY_diaeresis       , TEO_KEY_F_SHIFT, TEO_KEY_OPENBRACE  }, /* " */
-    { GDK_KEY_dead_diaeresis  , TEO_KEY_F_SHIFT, TEO_KEY_OPENBRACE  }, /* " */
-    { GDK_KEY_ampersand       , TEO_KEY_F_NONE , TEO_KEY_1          }, /* & */
-    { GDK_KEY_dollar          , TEO_KEY_F_NONE , TEO_KEY_CLOSEBRACE }, /* $ */
-    { GDK_KEY_Return          , TEO_KEY_F_NONE , TEO_KEY_ENTER      },
+    { GDK_KEY_Tab               , TEO_KEY_F_NONE    , TEO_KEY_TAB        },
+    { GDK_KEY_a                 , TEO_KEY_F_NONE    , TEO_KEY_Q          }, /* a */
+    { GDK_KEY_A                 , TEO_KEY_F_SHIFT   , TEO_KEY_Q          }, /* A */
+    { GDK_KEY_z                 , TEO_KEY_F_NONE    , TEO_KEY_W          }, /* z */
+    { GDK_KEY_Z                 , TEO_KEY_F_SHIFT   , TEO_KEY_W          }, /* Z */
+    { GDK_KEY_e                 , TEO_KEY_F_NONE    , TEO_KEY_E          }, /* e */
+    { GDK_KEY_E                 , TEO_KEY_F_SHIFT   , TEO_KEY_E          }, /* E */
+    { GDK_KEY_r                 , TEO_KEY_F_NONE    , TEO_KEY_R          }, /* r */
+    { GDK_KEY_R                 , TEO_KEY_F_SHIFT   , TEO_KEY_R          }, /* R */
+    { GDK_KEY_t                 , TEO_KEY_F_NONE    , TEO_KEY_T          }, /* t */
+    { GDK_KEY_T                 , TEO_KEY_F_SHIFT   , TEO_KEY_T          }, /* T */
+    { GDK_KEY_y                 , TEO_KEY_F_NONE    , TEO_KEY_Y          }, /* y */
+    { GDK_KEY_Y                 , TEO_KEY_F_SHIFT   , TEO_KEY_Y          }, /* Y */
+    { GDK_KEY_u                 , TEO_KEY_F_NONE    , TEO_KEY_U          }, /* u */
+    { GDK_KEY_U                 , TEO_KEY_F_SHIFT   , TEO_KEY_U          }, /* U */
+    { GDK_KEY_i                 , TEO_KEY_F_NONE    , TEO_KEY_I          }, /* i */
+    { GDK_KEY_I                 , TEO_KEY_F_SHIFT   , TEO_KEY_I          }, /* I */
+    { GDK_KEY_o                 , TEO_KEY_F_NONE    , TEO_KEY_O          }, /* o */
+    { GDK_KEY_O                 , TEO_KEY_F_SHIFT   , TEO_KEY_O          }, /* O */
+    { GDK_KEY_p                 , TEO_KEY_F_NONE    , TEO_KEY_P          }, /* p */
+    { GDK_KEY_P                 , TEO_KEY_F_SHIFT   , TEO_KEY_P          }, /* P */
+    { GDK_KEY_asciicircum       , TEO_KEY_F_NONE    , TEO_KEY_OPENBRACE  }, /* ^ */
+    { GDK_KEY_dead_circumflex   , TEO_KEY_F_NONE    , TEO_KEY_OPENBRACE  }, /* ^ */
+    { GDK_KEY_diaeresis         , TEO_KEY_F_SHIFT   , TEO_KEY_OPENBRACE  }, /* " */
+    { GDK_KEY_dead_diaeresis    , TEO_KEY_F_SHIFT   , TEO_KEY_OPENBRACE  }, /* " */
+    { GDK_KEY_ampersand         , TEO_KEY_F_NONE    , TEO_KEY_1          }, /* & */
+    { GDK_KEY_dollar            , TEO_KEY_F_NONE    , TEO_KEY_CLOSEBRACE }, /* $ */
+    { GDK_KEY_Return            , TEO_KEY_F_NONE    , TEO_KEY_ENTER      },
     /* third row of thomson keyboard */
-    { GDK_KEY_Control_L       , TEO_KEY_F_NONE , TEO_KEY_LCONTROL   },
-    { GDK_KEY_braceleft       , TEO_KEY_F_ALTGR, TEO_KEY_4          }, /* } */
-    { GDK_KEY_bracketleft     , TEO_KEY_F_ALTGR, TEO_KEY_5          }, /* ] */
-    { GDK_KEY_q               , TEO_KEY_F_NONE , TEO_KEY_A          }, /* q */
-    { GDK_KEY_Q               , TEO_KEY_F_SHIFT, TEO_KEY_A          }, /* Q */
-    { GDK_KEY_s               , TEO_KEY_F_NONE , TEO_KEY_S          }, /* s */
-    { GDK_KEY_S               , TEO_KEY_F_SHIFT, TEO_KEY_S          }, /* S */
-    { GDK_KEY_d               , TEO_KEY_F_NONE , TEO_KEY_D          }, /* d */
-    { GDK_KEY_D               , TEO_KEY_F_SHIFT, TEO_KEY_D          }, /* D */
-    { GDK_KEY_f               , TEO_KEY_F_NONE , TEO_KEY_F          }, /* f */
-    { GDK_KEY_F               , TEO_KEY_F_SHIFT, TEO_KEY_F          }, /* F */
-    { GDK_KEY_g               , TEO_KEY_F_NONE , TEO_KEY_G          }, /* g */
-    { GDK_KEY_G               , TEO_KEY_F_SHIFT, TEO_KEY_G          }, /* G */
-    { GDK_KEY_h               , TEO_KEY_F_NONE , TEO_KEY_H          }, /* h */
-    { GDK_KEY_H               , TEO_KEY_F_SHIFT, TEO_KEY_H          }, /* H */
-    { GDK_KEY_j               , TEO_KEY_F_NONE , TEO_KEY_J          }, /* j */
-    { GDK_KEY_J               , TEO_KEY_F_SHIFT, TEO_KEY_J          }, /* J */
-    { GDK_KEY_k               , TEO_KEY_F_NONE , TEO_KEY_K          }, /* k */
-    { GDK_KEY_K               , TEO_KEY_F_SHIFT, TEO_KEY_K          }, /* K */
-    { GDK_KEY_l               , TEO_KEY_F_NONE , TEO_KEY_L          }, /* l */
-    { GDK_KEY_L               , TEO_KEY_F_SHIFT, TEO_KEY_L          }, /* L */
-    { GDK_KEY_m               , TEO_KEY_F_NONE , TEO_KEY_COLON      }, /* m */
-    { GDK_KEY_M               , TEO_KEY_F_SHIFT, TEO_KEY_COLON      }, /* M */
-    { GDK_KEY_ugrave          , TEO_KEY_F_NONE , TEO_KEY_QUOTE      }, /* ù */
-    { GDK_KEY_percent         , TEO_KEY_F_SHIFT, TEO_KEY_QUOTE      }, /* % */
-    { GDK_KEY_braceright      , TEO_KEY_F_ALTGR, TEO_KEY_EQUALS     }, /* } */
-    { GDK_KEY_bracketright    , TEO_KEY_F_ALTGR, TEO_KEY_MINUS      }, /* ] */
+    { GDK_KEY_Control_L         , TEO_KEY_F_NONE    , TEO_KEY_LCONTROL   },
+    { GDK_KEY_braceleft         , TEO_KEY_F_ALTGR   , TEO_KEY_4          }, /* } */
+    { GDK_KEY_bracketleft       , TEO_KEY_F_ALTGR   , TEO_KEY_5          }, /* ] */
+    { GDK_KEY_q                 , TEO_KEY_F_NONE    , TEO_KEY_A          }, /* q */
+    { GDK_KEY_Q                 , TEO_KEY_F_SHIFT   , TEO_KEY_A          }, /* Q */
+    { GDK_KEY_s                 , TEO_KEY_F_NONE    , TEO_KEY_S          }, /* s */
+    { GDK_KEY_S                 , TEO_KEY_F_SHIFT   , TEO_KEY_S          }, /* S */
+    { GDK_KEY_d                 , TEO_KEY_F_NONE    , TEO_KEY_D          }, /* d */
+    { GDK_KEY_D                 , TEO_KEY_F_SHIFT   , TEO_KEY_D          }, /* D */
+    { GDK_KEY_f                 , TEO_KEY_F_NONE    , TEO_KEY_F          }, /* f */
+    { GDK_KEY_F                 , TEO_KEY_F_SHIFT   , TEO_KEY_F          }, /* F */
+    { GDK_KEY_g                 , TEO_KEY_F_NONE    , TEO_KEY_G          }, /* g */
+    { GDK_KEY_G                 , TEO_KEY_F_SHIFT   , TEO_KEY_G          }, /* G */
+    { GDK_KEY_h                 , TEO_KEY_F_NONE    , TEO_KEY_H          }, /* h */
+    { GDK_KEY_H                 , TEO_KEY_F_SHIFT   , TEO_KEY_H          }, /* H */
+    { GDK_KEY_j                 , TEO_KEY_F_NONE    , TEO_KEY_J          }, /* j */
+    { GDK_KEY_J                 , TEO_KEY_F_SHIFT   , TEO_KEY_J          }, /* J */
+    { GDK_KEY_k                 , TEO_KEY_F_NONE    , TEO_KEY_K          }, /* k */
+    { GDK_KEY_K                 , TEO_KEY_F_SHIFT   , TEO_KEY_K          }, /* K */
+    { GDK_KEY_l                 , TEO_KEY_F_NONE    , TEO_KEY_L          }, /* l */
+    { GDK_KEY_L                 , TEO_KEY_F_SHIFT   , TEO_KEY_L          }, /* L */
+    { GDK_KEY_m                 , TEO_KEY_F_NONE    , TEO_KEY_COLON      }, /* m */
+    { GDK_KEY_M                 , TEO_KEY_F_SHIFT   , TEO_KEY_COLON      }, /* M */
+    { GDK_KEY_ugrave            , TEO_KEY_F_NONE    , TEO_KEY_QUOTE      }, /* ù */
+    { GDK_KEY_percent           , TEO_KEY_F_SHIFT   , TEO_KEY_QUOTE      }, /* % */
+    { GDK_KEY_braceright        , TEO_KEY_F_ALTGR   , TEO_KEY_EQUALS     }, /* } */
+    { GDK_KEY_bracketright      , TEO_KEY_F_ALTGR   , TEO_KEY_MINUS      }, /* ] */
     /* fourth row of thomson keyboard */
-    { GDK_KEY_Caps_Lock       , TEO_KEY_F_NONE , TEO_KEY_CAPSLOCK   },
-    { GDK_KEY_Shift_L         , TEO_KEY_F_NONE , TEO_KEY_LSHIFT     },
-    { GDK_KEY_w               , TEO_KEY_F_NONE , TEO_KEY_Z          }, /* w */
-    { GDK_KEY_W               , TEO_KEY_F_SHIFT, TEO_KEY_Z          }, /* W */
-    { GDK_KEY_x               , TEO_KEY_F_NONE , TEO_KEY_X          }, /* x */
-    { GDK_KEY_X               , TEO_KEY_F_SHIFT, TEO_KEY_X          }, /* X */
-    { GDK_KEY_c               , TEO_KEY_F_NONE , TEO_KEY_C          }, /* c */
-    { GDK_KEY_C               , TEO_KEY_F_SHIFT, TEO_KEY_C          }, /* C */
-    { GDK_KEY_v               , TEO_KEY_F_NONE , TEO_KEY_V          }, /* v */
-    { GDK_KEY_V               , TEO_KEY_F_SHIFT, TEO_KEY_V          }, /* V */
-    { GDK_KEY_b               , TEO_KEY_F_NONE , TEO_KEY_B          }, /* b */
-    { GDK_KEY_B               , TEO_KEY_F_SHIFT, TEO_KEY_B          }, /* B */
-    { GDK_KEY_n               , TEO_KEY_F_NONE , TEO_KEY_N          }, /* n */
-    { GDK_KEY_N               , TEO_KEY_F_SHIFT, TEO_KEY_N          }, /* N */
-    { GDK_KEY_comma           , TEO_KEY_F_NONE , TEO_KEY_M          }, /* , */
-    { GDK_KEY_question        , TEO_KEY_F_SHIFT, TEO_KEY_M          }, /* ? */
-    { GDK_KEY_semicolon       , TEO_KEY_F_NONE , TEO_KEY_COMMA      }, /* ; */
-    { GDK_KEY_period          , TEO_KEY_F_SHIFT, TEO_KEY_COMMA      }, /* . */
-    { GDK_KEY_colon           , TEO_KEY_F_NONE , TEO_KEY_STOP       }, /* : */
-    { GDK_KEY_slash           , TEO_KEY_F_SHIFT, TEO_KEY_STOP       }, /* / */
-    { GDK_KEY_less            , TEO_KEY_F_NONE , TEO_KEY_BACKSLASH2 }, /* < */
-    { GDK_KEY_greater         , TEO_KEY_F_SHIFT, TEO_KEY_BACKSLASH2 }, /* > */
-    { GDK_KEY_Shift_R         , TEO_KEY_F_NONE , TEO_KEY_RSHIFT     },
-    { GDK_KEY_Home            , TEO_KEY_F_NONE , TEO_KEY_HOME       },
-    { GDK_KEY_Insert          , TEO_KEY_F_NONE , TEO_KEY_INSERT     },
-    { GDK_KEY_Delete          , TEO_KEY_F_NONE , TEO_KEY_DEL        },
-    { GDK_KEY_space           , TEO_KEY_F_NONE , TEO_KEY_SPACE      }, /*   */
+    { GDK_KEY_Caps_Lock         , TEO_KEY_F_NONE    , TEO_KEY_CAPSLOCK   },
+    { GDK_KEY_Shift_L           , TEO_KEY_F_NONE    , TEO_KEY_LSHIFT     },
+    { GDK_KEY_w                 , TEO_KEY_F_NONE    , TEO_KEY_Z          }, /* w */
+    { GDK_KEY_W                 , TEO_KEY_F_SHIFT   , TEO_KEY_Z          }, /* W */
+    { GDK_KEY_x                 , TEO_KEY_F_NONE    , TEO_KEY_X          }, /* x */
+    { GDK_KEY_X                 , TEO_KEY_F_SHIFT   , TEO_KEY_X          }, /* X */
+    { GDK_KEY_c                 , TEO_KEY_F_NONE    , TEO_KEY_C          }, /* c */
+    { GDK_KEY_C                 , TEO_KEY_F_SHIFT   , TEO_KEY_C          }, /* C */
+    { GDK_KEY_v                 , TEO_KEY_F_NONE    , TEO_KEY_V          }, /* v */
+    { GDK_KEY_V                 , TEO_KEY_F_SHIFT   , TEO_KEY_V          }, /* V */
+    { GDK_KEY_b                 , TEO_KEY_F_NONE    , TEO_KEY_B          }, /* b */
+    { GDK_KEY_B                 , TEO_KEY_F_SHIFT   , TEO_KEY_B          }, /* B */
+    { GDK_KEY_n                 , TEO_KEY_F_NONE    , TEO_KEY_N          }, /* n */
+    { GDK_KEY_N                 , TEO_KEY_F_SHIFT   , TEO_KEY_N          }, /* N */
+    { GDK_KEY_comma             , TEO_KEY_F_NONE    , TEO_KEY_M          }, /* , */
+    { GDK_KEY_question          , TEO_KEY_F_SHIFT   , TEO_KEY_M          }, /* ? */
+    { GDK_KEY_semicolon         , TEO_KEY_F_NONE    , TEO_KEY_COMMA      }, /* ; */
+    { GDK_KEY_period            , TEO_KEY_F_SHIFT   , TEO_KEY_COMMA      }, /* . */
+    { GDK_KEY_colon             , TEO_KEY_F_NONE    , TEO_KEY_STOP       }, /* : */
+    { GDK_KEY_slash             , TEO_KEY_F_SHIFT   , TEO_KEY_STOP       }, /* / */
+    { GDK_KEY_less              , TEO_KEY_F_NONE    , TEO_KEY_BACKSLASH2 }, /* < */
+    { GDK_KEY_greater           , TEO_KEY_F_SHIFT   , TEO_KEY_BACKSLASH2 }, /* > */
+    { GDK_KEY_Shift_R           , TEO_KEY_F_NONE    , TEO_KEY_RSHIFT     },
+    { GDK_KEY_Home              , TEO_KEY_F_NONE    , TEO_KEY_HOME       },
+    { GDK_KEY_Insert            , TEO_KEY_F_NONE    , TEO_KEY_INSERT     },
+    { GDK_KEY_Delete            , TEO_KEY_F_NONE    , TEO_KEY_DEL        },
+    { GDK_KEY_space             , TEO_KEY_F_NONE    , TEO_KEY_SPACE      }, /*   */
     /* thomson numeric pad */
-    { GDK_KEY_KP_7            , TEO_KEY_F_NONE , TEO_KEY_7_PAD      }, /* 7 */
-    { GDK_KEY_KP_8            , TEO_KEY_F_NONE , TEO_KEY_8_PAD      }, /* 8 */
-    { GDK_KEY_KP_9            , TEO_KEY_F_NONE , TEO_KEY_9_PAD      }, /* 9 */
-    { GDK_KEY_KP_4            , TEO_KEY_F_NONE , TEO_KEY_4_PAD      }, /* 4 */
-    { GDK_KEY_KP_5            , TEO_KEY_F_NONE , TEO_KEY_5_PAD      }, /* 5 */
-    { GDK_KEY_KP_6            , TEO_KEY_F_NONE , TEO_KEY_6_PAD      }, /* 6 */
-    { GDK_KEY_KP_1            , TEO_KEY_F_NONE , TEO_KEY_1_PAD      }, /* 1 */
-    { GDK_KEY_KP_2            , TEO_KEY_F_NONE , TEO_KEY_2_PAD      }, /* 2 */
-    { GDK_KEY_KP_3            , TEO_KEY_F_NONE , TEO_KEY_3_PAD      }, /* 3 */
-    { GDK_KEY_KP_0            , TEO_KEY_F_NONE , TEO_KEY_0_PAD      }, /* 0 */
-    { GDK_KEY_KP_Enter        , TEO_KEY_F_NONE , TEO_KEY_ENTER_PAD  },
+    { GDK_KEY_KP_7              , TEO_KEY_F_NONE    , TEO_KEY_7_PAD      }, /* 7 */
+    { GDK_KEY_KP_8              , TEO_KEY_F_NONE    , TEO_KEY_8_PAD      }, /* 8 */
+    { GDK_KEY_KP_9              , TEO_KEY_F_NONE    , TEO_KEY_9_PAD      }, /* 9 */
+    { GDK_KEY_KP_4              , TEO_KEY_F_NONE    , TEO_KEY_4_PAD      }, /* 4 */
+    { GDK_KEY_KP_5              , TEO_KEY_F_NONE    , TEO_KEY_5_PAD      }, /* 5 */
+    { GDK_KEY_KP_6              , TEO_KEY_F_NONE    , TEO_KEY_6_PAD      }, /* 6 */
+    { GDK_KEY_KP_1              , TEO_KEY_F_NONE    , TEO_KEY_1_PAD      }, /* 1 */
+    { GDK_KEY_KP_2              , TEO_KEY_F_NONE    , TEO_KEY_2_PAD      }, /* 2 */
+    { GDK_KEY_KP_3              , TEO_KEY_F_NONE    , TEO_KEY_3_PAD      }, /* 3 */
+    { GDK_KEY_KP_0              , TEO_KEY_F_NONE    , TEO_KEY_0_PAD      }, /* 0 */
+    { GDK_KEY_KP_Enter          , TEO_KEY_F_NONE    , TEO_KEY_ENTER_PAD  },
     /* thomson arrow keys */
-    { GDK_KEY_Up              , TEO_KEY_F_NONE , TEO_KEY_UP         },
-    { GDK_KEY_Down            , TEO_KEY_F_NONE , TEO_KEY_DOWN       },
-    { GDK_KEY_Left            , TEO_KEY_F_NONE , TEO_KEY_LEFT       },
-    { GDK_KEY_Right           , TEO_KEY_F_NONE , TEO_KEY_RIGHT      },
+    { GDK_KEY_Up                , TEO_KEY_F_NONE    , TEO_KEY_UP         },
+    { GDK_KEY_Down              , TEO_KEY_F_NONE    , TEO_KEY_DOWN       },
+    { GDK_KEY_Left              , TEO_KEY_F_NONE    , TEO_KEY_LEFT       },
+    { GDK_KEY_Right             , TEO_KEY_F_NONE    , TEO_KEY_RIGHT      },
     /* PC function keys */
-    { GDK_KEY_F11             , TEO_KEY_F_NONE , TEO_KEY_F11        },
-    { GDK_KEY_F12             , TEO_KEY_F_NONE , TEO_KEY_F12        },
+    { GDK_KEY_F11               , TEO_KEY_F_NONE    , TEO_KEY_F11        },
+    { GDK_KEY_F12               , TEO_KEY_F_NONE    , TEO_KEY_F12        },
     /* PC numeric pad */
-    { GDK_KEY_Num_Lock        , TEO_KEY_F_NONE , TEO_KEY_NUMLOCK    },
-    { GDK_KEY_KP_Divide       , TEO_KEY_F_NONE , TEO_KEY_SLASH_PAD  },
-    { GDK_KEY_KP_Multiply     , TEO_KEY_F_NONE , TEO_KEY_ASTERISK   },
-    { GDK_KEY_KP_Subtract     , TEO_KEY_F_NONE , TEO_KEY_MINUS_PAD  },
-    { GDK_KEY_KP_Add          , TEO_KEY_F_NONE , TEO_KEY_PLUS_PAD   },
-    { GDK_KEY_KP_Decimal      , TEO_KEY_F_NONE , TEO_KEY_DEL_PAD    },
+    { GDK_KEY_Num_Lock          , TEO_KEY_F_NONE    , TEO_KEY_NUMLOCK    },
+    { GDK_KEY_KP_Divide         , TEO_KEY_F_NONE    , TEO_KEY_SLASH_PAD  },
+    { GDK_KEY_KP_Multiply       , TEO_KEY_F_NONE    , TEO_KEY_ASTERISK   },
+    { GDK_KEY_KP_Subtract       , TEO_KEY_F_NONE    , TEO_KEY_MINUS_PAD  },
+    { GDK_KEY_KP_Add            , TEO_KEY_F_NONE    , TEO_KEY_PLUS_PAD   },
+    { GDK_KEY_KP_Decimal        , TEO_KEY_F_NONE    , TEO_KEY_DEL_PAD    },
     /* PC joystick pad */
-    { GDK_KEY_KP_Home         , TEO_KEY_F_NONE , TEO_KEY_7_PAD      },       
-    { GDK_KEY_KP_Up           , TEO_KEY_F_NONE , TEO_KEY_8_PAD      },
-    { GDK_KEY_KP_Page_Up      , TEO_KEY_F_NONE , TEO_KEY_9_PAD      },
-    { GDK_KEY_KP_Left         , TEO_KEY_F_NONE , TEO_KEY_4_PAD      },
-    { GDK_KEY_KP_Begin        , TEO_KEY_F_NONE , TEO_KEY_5_PAD      },
-    { GDK_KEY_KP_Right        , TEO_KEY_F_NONE , TEO_KEY_6_PAD      },
-    { GDK_KEY_KP_End          , TEO_KEY_F_NONE , TEO_KEY_1_PAD      },
-    { GDK_KEY_KP_Down         , TEO_KEY_F_NONE , TEO_KEY_2_PAD      },
-    { GDK_KEY_KP_Page_Down    , TEO_KEY_F_NONE , TEO_KEY_3_PAD      },
-    { GDK_KEY_KP_Insert       , TEO_KEY_F_NONE , TEO_KEY_INSERT     },
-    { GDK_KEY_KP_Delete       , TEO_KEY_F_NONE , TEO_KEY_DEL        },
+    { GDK_KEY_KP_Home           , TEO_KEY_F_NONE    , TEO_KEY_7_PAD      },       
+    { GDK_KEY_Pointer_UpLeft    , TEO_KEY_F_NONE    , TEO_KEY_7_PAD      },
+    { GDK_KEY_KP_Up             , TEO_KEY_F_NONE    , TEO_KEY_8_PAD      },
+    { GDK_KEY_Pointer_Up        , TEO_KEY_F_NONE    , TEO_KEY_8_PAD      },
+    { GDK_KEY_KP_Page_Up        , TEO_KEY_F_NONE    , TEO_KEY_9_PAD      },
+    { GDK_KEY_Pointer_UpRight   , TEO_KEY_F_NONE    , TEO_KEY_9_PAD      },
+    { GDK_KEY_KP_Left           , TEO_KEY_F_NONE    , TEO_KEY_4_PAD      },
+    { GDK_KEY_Pointer_Left      , TEO_KEY_F_NONE    , TEO_KEY_4_PAD      },
+    { GDK_KEY_KP_Begin          , TEO_KEY_F_NONE    , TEO_KEY_5_PAD      },
+    { GDK_KEY_KP_Right          , TEO_KEY_F_NONE    , TEO_KEY_6_PAD      },
+    { GDK_KEY_Pointer_Right     , TEO_KEY_F_NONE    , TEO_KEY_6_PAD      },
+    { GDK_KEY_KP_End            , TEO_KEY_F_NONE    , TEO_KEY_1_PAD      },
+    { GDK_KEY_Pointer_DownLeft  , TEO_KEY_F_NONE    , TEO_KEY_1_PAD      },
+    { GDK_KEY_KP_Down           , TEO_KEY_F_NONE    , TEO_KEY_2_PAD      },
+    { GDK_KEY_Pointer_Down      , TEO_KEY_F_NONE    , TEO_KEY_2_PAD      },
+    { GDK_KEY_KP_Page_Down      , TEO_KEY_F_NONE    , TEO_KEY_3_PAD      },
+    { GDK_KEY_Pointer_DownRight , TEO_KEY_F_NONE    , TEO_KEY_3_PAD      },
+    { GDK_KEY_KP_Insert         , TEO_KEY_F_NONE    , TEO_KEY_INSERT     },
+    { GDK_KEY_KP_Delete         , TEO_KEY_F_NONE    , TEO_KEY_DEL        },
     /* PC special keys */
-    { GDK_KEY_Escape          , TEO_KEY_F_NONE , TEO_KEY_ESC        },
-    { GDK_KEY_Alt_L           , TEO_KEY_F_NONE , TEO_KEY_ALT        },
-    { GDK_KEY_ISO_Level3_Shift, TEO_KEY_F_NONE , TEO_KEY_ALTGR      },
-    { GDK_KEY_Control_R       , TEO_KEY_F_NONE , TEO_KEY_RCONTROL   },
-    { GDK_KEY_Scroll_Lock     , TEO_KEY_F_NONE , TEO_KEY_SCRLOCK    },
-    { GDK_KEY_Page_Up         , TEO_KEY_F_NONE , TEO_KEY_PGUP       },
-    { GDK_KEY_Page_Down       , TEO_KEY_F_NONE , TEO_KEY_PGDN       },
-    { GDK_KEY_End             , TEO_KEY_F_NONE , TEO_KEY_END        },
+    { GDK_KEY_Escape            , TEO_KEY_F_NONE    , TEO_KEY_ESC        },
+    { GDK_KEY_Alt_L             , TEO_KEY_F_NONE    , TEO_KEY_ALT        },
+    { GDK_KEY_ISO_Level3_Shift  , TEO_KEY_F_NONE    , TEO_KEY_ALTGR      },
+    { GDK_KEY_Control_R         , TEO_KEY_F_NONE    , TEO_KEY_RCONTROL   },
+    { GDK_KEY_Scroll_Lock       , TEO_KEY_F_NONE    , TEO_KEY_SCRLOCK    },
+    { GDK_KEY_Page_Up           , TEO_KEY_F_NONE    , TEO_KEY_PGUP       },
+    { GDK_KEY_Page_Down         , TEO_KEY_F_NONE    , TEO_KEY_PGDN       },
+    { GDK_KEY_End               , TEO_KEY_F_NONE    , TEO_KEY_END        },
     /* end of list */
-    { -1                      , 0              , 0                  }
+    { -1                      , 0                 , 0                  }
 };
 
 
@@ -323,6 +331,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int value = 0;
     int teo_key = 0;
+    static int kbstate = -1;
 
     if (event->key.state & GDK_CONTROL_MASK) value |= TEO_KEY_F_CTRL;
     if (event->key.state & GDK_MOD2_MASK)    value |= TEO_KEY_F_NUMLOCK;
@@ -336,21 +345,24 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     switch (event->key.keyval&0xff00)
     {
         case 0x0000 : value |= key00[event->key.keyval&0xff].keyflag;
-                      keyboard_Reset ((1<<TEO_KEY_F_MAX)-1, value);
                       teo_key = key00[event->key.keyval&0xff].keycode;
                       break;
 
         case 0xff00 : value |= keyFF[event->key.keyval&0xff].keyflag;
-                      keyboard_Reset ((1<<TEO_KEY_F_MAX)-1, value);
                       teo_key = keyFF[event->key.keyval&0xff].keycode;
                       break;
 
         case 0xfe00 : value |= keyFE[event->key.keyval&0xff].keyflag;
-                      keyboard_Reset ((1<<TEO_KEY_F_MAX)-1, value);
                       teo_key = keyFE[event->key.keyval&0xff].keycode;
                       break;
     }
-
+    
+    if (value != kbstate)
+    {
+        keyboard_Reset ((1<<TEO_KEY_F_MAX)-1, value);
+        kbstate = value;
+    }
+    
     switch (teo_key)
     {
         case TEO_KEY_ESC : teo.command=TEO_COMMAND_PANEL; break;
