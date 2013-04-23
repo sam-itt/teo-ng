@@ -1,10 +1,27 @@
 ========================================================================
-=== Version 1.8.2 (Juin 2012)                                        ===
+=== Version 1.8.2 (Juin 2012 - Avril 2013)                           ===
 ========================================================================
-- Emulation des imprimantes PR90-582, PR90-042
+- émulation du contrôleurdisque THMFC1
+- gestion des formats de disquettes en accès direct, SAP, HFE et des
+  formats raw (FD)
+- création de CC90hFE (avec CC90 version 2.0) pour créer des images
+  fidèles des disquettes Thomson en double densité
+- sélection des faces pour les disquettes multiface
+- accès direct en écriture par défaut (travailler sur des copies de
+  disquettes si l'écriture est requise!)
+- emulation des imprimantes PR90-582 et PR90-042
 - sous Linux :
   - passage à GTK+3.0
-  - réduction de l'usage CPU avec g_timeout_add()
+  - réduction de l'usage CPU
+
+Correction de bugs :
+- restauration du son en génération continue (la génération "utile" est
+  un échec)
+- nom de cartouche désormais effacé au reset de combo (sinon il
+  réapparait au lancement suivant)
+- correction du risque de freeze pour SYNC, CWAI et HCF
+- Limitation de la valeur passée à SetDeviceRegister à 8 bits (évite le
+  freeze de l'émulateur lors d'un bug de programme 6809)
 
 ========================================================================
 ==== Version 1.8.1 (Janvier-Mai 2012)                               ====

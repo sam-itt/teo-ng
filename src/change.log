@@ -3,8 +3,11 @@
 ========================================================================
   Ajout de fichiers source ---------------------------------------------
 
+- Création de CC90HFE dans le répertoire tools/
+
   Changements généraux -------------------------------------------------
 
+- émulation du contrôleur disque THMFC1
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
 - Ajout du checkbox pour le son sur le tableau de contrôle
@@ -13,6 +16,8 @@
 - Fusion de gui.h dans to8.h
 - Changement du nom de la structure 'gui' en 'teo' et inclusion de
   teo.command et teo.sound_enabled
+- Normalisation des arguments et possibilité de charger disquettes,
+  cassette et cartouche au lancement
 - Autodétection des fichiers par le format et non par l'extension
 - Changement de media/memo7.c en media/memo.c
 - Changement de media/k7.c en media/cass.c
@@ -25,11 +30,12 @@
 - Ajout du suffixe 'TEO_ERROR_' pour les valeurs d'erreurs
 - Abandon de la gestion des répertoires en tant que disquette au
   lancement
+- changement des images et icônes
 - Reconnaissance des fichiers de sauvegarde par le format
 - Gestion de la protection en écriture personnalisée (ne passe plus par
   xxxx_SetMode mais par xxxx_SetProtection)
 - Création de 'teo_error_short' pour gérer les messages d'erreur longs
-  selon la GUI (limités à une quarantaine de caractères pour GUI
+  selon la GUI (limités à une quarantaine de caractères pour la GUI
   Allegro)
 - Ajout du vecteur de fonction teo_DirectIsDiskWritable()
 
@@ -127,12 +133,12 @@
 - src/linux/umain.c
 - src/win/dmain.c
           direct_write_support toujours à TRUE désormais
-
 - include/media/disk.h
 - src/media/disk.c
           Reconfiguration du source pour s'adapter au contrôleur
 - include/teo.h
           Ajout de la variable 'side' à la structure EMUTEO_DISK
+          migration des flags de clavier dans include/to8keys.h
 - src/linux/ufloppy.c
           Ajout de la fonction is_disk_writable()
 - misc/fixver.sh
