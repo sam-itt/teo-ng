@@ -218,7 +218,7 @@ void main_InitAll (void)
     char *fname = NULL;
 
     /* Création du répertoire pour Cc90hfe (tous les droits) */
-    fname = std_strdup_printf ("%s/.teo", getenv("HOME"));
+    fname = std_strdup_printf ("%s/.local/share/applications/teo", getenv("HOME"));
     if (access (fname, F_OK) < 0)
         (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     fname = std_free (fname);
