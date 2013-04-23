@@ -95,7 +95,6 @@ teo/disks
 teo/memo7
 teo/k7
 teo/system
-teo/allegro.cfg
 teo/doc/images/*.*
 teo/doc/*.htm
 teo/doc/*.css
@@ -176,7 +175,6 @@ cp teo/teo            ~/$deb_name/usr/games/
 cp teo/sap2           ~/$deb_name/usr/games/
 cp teo/sapfs          ~/$deb_name/usr/games/
 cp teo/wav2k7         ~/$deb_name/usr/games/
-cp teo/allegro.cfg    ~/$deb_dir
 cp -r teo/system      ~/$deb_dir
 cp teo/*-fr.txt       ~/$deb_dir
 cp teo/*-en.txt       ~/$deb_dir
@@ -211,12 +209,12 @@ mkdir ~/$deb_dir/doc
 mkdir ~/$deb_dir/doc/images
 
 # Copy files into file structure
-cp teo/tools/cc90hfe/cc90hfe    ~/$deb_name/usr/games/
-# cp teo/tools/cc90hfe/*-fr.txt ~/$deb_dir
-# cp teo/tools/cc90hfe/*-en.txt ~/$deb_dir
-cp teo/doc/doc.css              ~/$deb_dir/doc
-cp teo/doc/images/*.*           ~/$deb_dir/doc/images
-cp teo/doc/cc90*.htm            ~/$deb_dir/doc
+cp teo/tools/cc90hfe/cc90hfe     ~/$deb_name/usr/games/
+cp teo/cc90.sap                  ~/$deb_dir
+cp teo/cc90.fd                   ~/$deb_dir
+cp teo/doc/doc.css               ~/$deb_dir/doc
+cp teo/doc/images/*.*            ~/$deb_dir/doc/images
+cp teo/doc/cc90*.htm             ~/$deb_dir/doc
 mv ~/$deb_dir/doc/cc90hfe_en.htm ~/$deb_dir/doc/index.htm
 mv ~/$deb_dir/doc/cc90hfe_fr.htm ~/$deb_dir/doc/index_fr.htm
 
@@ -270,7 +268,8 @@ teo/sap2
 teo/sapfs
 teo/wav2k7
 teo/cc90hfe
-teo/cc90.sap"
+teo/cc90.sap
+teo/cc90.fd"
 packFile="$current_folder/$packDir/teo-$teoversion-i586.tar"
 tar -cf $packFile $common_exec $linux_exec teo/*-??.*
 gzip $gzipOptions $packFile
@@ -320,6 +319,7 @@ cd ..
 msdos_exec="
 teo/language.dat
 teo/keyboard.dat
+teo/allegro.cfg
 teo/teo.exe
 teo/sap2.exe
 teo/sapfs.exe
@@ -351,12 +351,15 @@ rm teo/teo.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 windows_exec="
 teo/language.dat
 teo/keyboard.dat
+teo/allegro.cfg
 teo/teow.exe
 teo/sap2.exe
 teo/sapfs.exe
 teo/wav2k7.exe
 teo/cc90hfe.exe
 teo/cc90hfe-com.exe
+teo/cc90.sap
+teo/cc90.fd
 teo/*.dll"
 
 echo "Creating ZIP packages for Windows executables in French..."
@@ -367,7 +370,6 @@ cp $packDir/mingw/cc90hfe-fr.exe     teo/cc90hfe.exe
 cp $packDir/mingw/cc90hfe-com-fr.exe teo/cc90hfe-com.exe
 cp $packDir/msdos/sap2-fr.exe        teo/sap2.exe
 cp $packDir/msdos/sapfs-fr.exe       teo/sapfs.exe
-cp $packDir/msdos/wav2k7-fr.exe      teo/wav2k7.exe
 cp $packDir/msdos/wav2k7-fr.exe      teo/wav2k7.exe
 zip -r $zipOptions $packFile $common_exec $windows_exec teo/*-fr.*
 rm teo/teow.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe teo/cc90hfe.exe teo/cc90hfe-com.exe
@@ -389,7 +391,7 @@ rm teo/teow.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe teo/cc90hfe.exe teo/cc
 echo "Creating ZIP package for sources..."
 
 packFile="$current_folder/$packDir/teo-$teoversion-src.zip"
-zip -r $zipOptions $packFile $source_files
+zip -r $zipOptions $packFile $source_files teo/allegro.cfg
 
 # ----------------- delete temporary folders and files
 
