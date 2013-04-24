@@ -456,7 +456,6 @@ int main(int argc, char *argv[])
 
     /* initialisation de l'interface utilisateur */
     agui_Init(version_name, gfx_mode, direct_support);
-    teo_error_short = TRUE;
     
     disk_FirstLoad ();  /* chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* chargement de la cassette éventuelle */

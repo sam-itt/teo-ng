@@ -299,8 +299,6 @@ int main(int argc, char *argv[])
     printf((is_fr?"         [F12] Débogueur\n\n"
                  :"       [F12] Debugger\n\n"));
 
-    teo_error_short = FALSE;
-    
     /* Initialisation du TO8 */
     printf((is_fr?"Initialisation de l'émulateur..."
                  :"Initialization of the emulator...")); fflush(stderr);

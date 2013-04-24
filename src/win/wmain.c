@@ -441,12 +441,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     if (!windowed_mode)
     {
        agui_Init(version_name, gfx_mode, FALSE);
-       teo_error_short = TRUE;
     }
     else
     {
        set_window_close_hook(close_procedure);
-       teo_error_short = FALSE;
     }
 
     /* installation de la fonction callback de retraçage de l'écran nécessaire

@@ -34,9 +34,7 @@
 - Reconnaissance des fichiers de sauvegarde par le format
 - Gestion de la protection en écriture personnalisée (ne passe plus par
   xxxx_SetMode mais par xxxx_SetProtection)
-- Création de 'teo_error_short' pour gérer les messages d'erreur longs
-  selon la GUI (limités à une quarantaine de caractères pour la GUI
-  Allegro)
+- Gestion des messages d'erreur longs selon la GUI
 - Ajout du vecteur de fonction teo_DirectIsDiskWritable()
 
   Changements locaux ---------------------------------------------------
