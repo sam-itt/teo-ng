@@ -81,10 +81,16 @@
 #endif
 
 #ifndef TRUE
-#define TRUE  1
-#define FALSE 0
+#   define TRUE  1
+#   define FALSE 0
+#else
+#   if (TRUE == -1)
+#      undef TRUE
+#      undef FALSE
+#      define TRUE  1
+#      define FALSE 0
+#   endif
 #endif
-
 
 #define LEFT_SHADOW_CYCLES    10
 #define LEFT_BORDER_CYCLES     2
