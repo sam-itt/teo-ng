@@ -454,7 +454,13 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                              LR_DEFAULTCOLOR);
              SendMessage(GetDlgItem(hWnd, DISK0_MORE_BUTTON+i),
                            BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg);
-             
+
+             /* initialisation des textes */
+             SetWindowText(GetDlgItem(hWnd, DISK0_SIDE_RTEXT), is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, DISK1_SIDE_RTEXT), is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, DISK2_SIDE_RTEXT), is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, DISK3_SIDE_RTEXT), is_fr?"face":"side");
+
              /* initialisation des info-bulles */
              wgui_CreateTooltip (hWnd, DISK0_EJECT_BUTTON+i,
                                  is_fr?"Vider la liste des fichiers"
