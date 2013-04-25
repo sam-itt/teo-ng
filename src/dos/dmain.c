@@ -238,19 +238,19 @@ static void ReadCommandLine(int argc, char *argv[])
         { "disk0", '0', OPTION_ARG_FILENAME, &teo.disk[0].file,
            is_fr?"Charge un disque virtuel (lecteur 0)"
                 :"Load virtual disk (drive 0)",
-           is_fr?"CHEMIN":"PATH" },
+           is_fr?"FICHIER":"FILE" },
         { "disk1", '1', OPTION_ARG_FILENAME, &teo.disk[1].file,
            is_fr?"Charge un disque virtuel (lecteur 1)"
                 :"Load virtual disk (drive 1)",
-           is_fr?"CHEMIN":"PATH" },
+           is_fr?"FICHIER":"FILE" },
         { "disk2", '2', OPTION_ARG_FILENAME, &teo.disk[2].file,
            is_fr?"Charge un disque virtuel (lecteur 2)"
                 :"Load virtual disk (drive 2)",
-           is_fr?"CHEMIN":"PATH" },
+           is_fr?"FICHIER":"FILE" },
         { "disk3", '3', OPTION_ARG_FILENAME, &teo.disk[3].file,
            is_fr?"Charge un disque virtuel (lecteur 3)"
                 :"Load virtual disk (drive 3)",
-           is_fr?"CHEMIN":"PATH" },
+           is_fr?"FICHIER":"FILE" },
         { "cass", '\0', OPTION_ARG_FILENAME, &teo.cass.file,
            is_fr?"Charge une cassette":"Load a tape",
            is_fr?"FICHIER":"FILE" },

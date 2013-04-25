@@ -173,16 +173,16 @@ static void ReadCommandLine(int argc, char *argv[])
                 :"Cold-reset emulator", NULL },
         { "disk0", '0', 0, G_OPTION_ARG_FILENAME, &disk_name[0],
            is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
         { "disk1", '1', 0, G_OPTION_ARG_FILENAME, &disk_name[1],
            is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
         { "disk2", '2', 0, G_OPTION_ARG_FILENAME, &disk_name[2],
            is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
         { "disk3", '3', 0, G_OPTION_ARG_FILENAME, &disk_name[3],
            is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"CHEMIN":"PATH" },
+                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
         { "cass", 0, 0, G_OPTION_ARG_FILENAME, &cass_name,
            is_fr?"Charge une cassette":"Load a tape", is_fr?"FICHIER":"FILE" },
         { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
@@ -194,8 +194,8 @@ static void ReadCommandLine(int argc, char *argv[])
     };
 
     /* Lit la ligne de commande */
-    context = g_option_context_new (is_fr?"[FICHIER...] [REPERTOIRE...]"
-                                         :"[FILE...] [FOLDER...]");
+    context = g_option_context_new (is_fr?"[FICHIER...]"
+                                         :"[FILE...]");
     g_option_context_add_main_entries (context, entries, NULL);
     g_option_context_set_ignore_unknown_options (context, FALSE);
     g_option_context_set_description (context, is_fr
