@@ -74,18 +74,19 @@ teo/tests
 teo/obj/linux/*.dep
 teo/obj/djgpp/*.dep
 teo/obj/mingw32/*.dep
-teo/misc/*.*
+teo/misc/fix*.sh
+teo/misc/fixver/*.sh
 $packDir/*.txt
 $packDir/*.bat
 $packDir/*.sh
 $packDir/inno/*.iss
 $packDir/inno/*.bmp
 $packDir/debian
+$packDir/msdos/blank.txt
+$packDir/mingw/blank.txt
 teo/*-??.*
-teo/*.bat
-teo/*.sh
+teo/fix*.*
 teo/makefile*
-teo/*.diff
 teo/*.cfg
 teo/*.dll"
 
