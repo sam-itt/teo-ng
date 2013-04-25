@@ -295,18 +295,59 @@ void agui_Free (void)
 /* agui_PopupMessage:
  *  Affiche une boîte de dialogue contenant le message et un bouton OK.
  */
+#define STR_MAX_LENGTH 34
 void agui_PopupMessage(const char message[])
 {
-    mesgdial[MESGDIAL_SHADOW].w=strlen(message)*8+16;
-    mesgdial[MESGDIAL_MESG].x=mesgdial[MESGDIAL_SHADOW].x+mesgdial[MESGDIAL_SHADOW].w/2;
-    mesgdial[MESGDIAL_OK].x=mesgdial[MESGDIAL_MESG].x-(mesgdial[MESGDIAL_OK].w+BUTTON_FIX)/2;
+    char *msg = NULL;
+    char *msg1 = NULL;
+    char *msg2 = NULL;
+    char *msg3 = NULL;
+    char *p;
+    
+    if (strchr (message, 0x0a) == NULL)
+    {
+        mesgdial[MESGDIAL_SHADOW].w=strlen(message)*8+16;
+        mesgdial[MESGDIAL_MESG].x=mesgdial[MESGDIAL_SHADOW].x+mesgdial[MESGDIAL_SHADOW].w/2;
+        mesgdial[MESGDIAL_OK].x=mesgdial[MESGDIAL_MESG].x-(mesgdial[MESGDIAL_OK].w+BUTTON_FIX)/2;
 
-    mesgdial[MESGDIAL_MESG].dp = std_strdup_printf ("%s", message);
+        mesgdial[MESGDIAL_MESG].dp = std_strdup_printf ("%s", message);
 
-    centre_dialog(mesgdial);
+        centre_dialog(mesgdial);
 
-    popup_dialog(mesgdial, MESGDIAL_OK);
+        popup_dialog(mesgdial, MESGDIAL_OK);
 
-    mesgdial[MESGDIAL_MESG].dp = std_free (mesgdial[MESGDIAL_MESG].dp);
+        mesgdial[MESGDIAL_MESG].dp = std_free (mesgdial[MESGDIAL_MESG].dp);
+    }
+    else
+    {
+        msg = std_strdup_printf ("%s", message);
+        p = strchr (msg, 0x0a);
+        p[0] = '\0';
+        msg1 = std_strdup_printf ("%s", msg);
+        p++;
+        if (strlen (p) <= STR_MAX_LENGTH)
+        {
+            msg2 = std_strdup_printf ("%s", p);
+            msg3 = std_strdup_printf ("%s", " ");
+        }
+        else
+        if (strlen (p) <= (STR_MAX_LENGTH*2))
+        {
+            msg3 = std_strdup_printf ("%s", p+STR_MAX_LENGTH);
+            p[STR_MAX_LENGTH] = '\0';
+            msg2 = std_strdup_printf ("%s", p);
+        }
+        else
+        {
+            msg3 = std_strdup_printf ("...%s", p + (strlen(p) - STR_MAX_LENGTH + 3));
+            p[STR_MAX_LENGTH-3] = '\0';
+            msg2 = std_strdup_printf ("%s...", p);
+        }
+        alert (msg1, msg2, msg3, "OK", NULL, 0, 0);
+        msg = std_free (msg);
+        msg1 = std_free (msg1);
+        msg2 = std_free (msg2);
+        msg3 = std_free (msg3);
+    }
 }
 
