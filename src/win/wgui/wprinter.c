@@ -48,6 +48,7 @@
    #include <string.h>
    #include <unistd.h>
    #include <windows.h>
+   #include <windowsx.h>
    #include <shellapi.h>
    #include <commctrl.h>
    #include <shlobj.h>
@@ -72,6 +73,27 @@ static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
     { "PR90-600", 600 },
     { "PR90-612", 612 }
 };
+
+
+
+static void update_options (HWND hWnd, int number)
+{
+    if (number >= PRINTER_NUMBER)
+        number = 0;
+
+    teo.lprt.number = prt_list[number].number;
+
+    if (teo.lprt.number < 600)
+    {
+        Button_Enable(GetDlgItem (hWnd, PRINTER_DIP_CHECK), FALSE);
+        Button_Enable(GetDlgItem (hWnd, PRINTER_NLQ_CHECK), FALSE);
+    }
+    else
+    {
+        Button_Enable(GetDlgItem (hWnd, PRINTER_DIP_CHECK), TRUE);
+        Button_Enable(GetDlgItem (hWnd, PRINTER_NLQ_CHECK), TRUE);
+    }
+}
 
 
 
@@ -201,7 +223,7 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          wgui_CreateTooltip (hWnd, PRINTER_MORE_BUTTON,
                                    is_fr?"Choisir un répertoire de sauvegarde"
                                         :"Choose a save folder");
-
+         update_options (hWnd, combo_index);
          return TRUE;
 
       case WM_COMMAND:
@@ -241,7 +263,7 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
                {
                    combo_index = SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO,
                                                     CB_GETCURSEL, 0, 0);
-                   teo.lprt.number = prt_list[combo_index].number;
+                   update_options (hWnd, combo_index);
                }
                break;
          }
