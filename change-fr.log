@@ -10,6 +10,8 @@
 - accès direct en écriture par défaut (travailler sur des copies de
   disquettes si l'écriture est requise!)
 - emulation des imprimantes PR90-582 et PR90-042
+- sous Windows
+  - amélioration du mode vidéo entrelacé (merci à Samuel)
 - sous Linux :
   - passage à GTK+3.0
   - réduction de l'usage CPU

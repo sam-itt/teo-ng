@@ -9,6 +9,8 @@
 - direct access in write mode by default (work with copies if writing is
   required!)
 - emulation of PR90-582 and PR90-042 printers
+- under Windows
+  - improvement of interlace mode (thanks to Samuel)
 - under Linux :
   - upgrade to GTK+3.0
   - reducing of CPU usage
