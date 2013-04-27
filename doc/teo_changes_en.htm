@@ -10,6 +10,35 @@
 
 <h3>Changes</h3>
 
+<h5>Version 1.8.2 (June 2012-April 2013)</h5>
+
+<ul>
+<li>emulation of THMFC1 disk controller</li>
+<li>manage direct access, HFE, SAP, and raw (FD) disk formats</li>
+<li>creation of CC90hFE (with CC90 version 2.0) to create true images of double density Thomson floppies</li>
+<li>selection of sides for multi-sides disks</li>
+<li>direct access in write mode by default (work with copies if writing is required!)</li>
+<li>emulation of PR90-582 and PR90-042 printers</li>
+<li>under Windows :
+<ul>
+<li>improvement of interlace mode (thanks to Samuel)</li>
+</ul></li>
+<li><p>under Linux :</p>
+
+<ul>
+<li>upgrade to GTK+3.0</li>
+<li>reducing of CPU usage</li>
+</ul></li>
+<li><p>Bugs fixes</p>
+
+<ul>
+<li>restore continuous sound generation ("useful" generation failed)</li>
+<li>cartridge name now erased at combo reset (otherwise it comes back at next run)</li>
+<li>correction of freezing risk for SYNC, CWAI and HCF</li>
+<li>Limiting the value passed to SetDeviceRegister to 8 bits (to avoid freezing the emulator at a 6809 program bug)</li>
+</ul></li>
+</ul>
+
 <h5>Version 1.8.1 (January-May 2012)</h5>
 
 <ul>

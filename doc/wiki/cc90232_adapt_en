@@ -2,11 +2,6 @@
 
 This cable is used to connect the USB-Serial adaptor to the CC90-232 interface. Those cables are available in stores. Don't take any "Null Modem" !
 
-<center><img src="index3.jpg" alt="DB9/DB25 commercial adaptor">
-<img src="adapt1.jpg" alt="Close-up of the pins">
-<img src="adapt2.jpg" alt="Example of home made adaptor"></center>
-<center><img src="adapt3.jpg" alt="DB9/DB25 adaptor to solder"></center>
-
 If you want to make it yourself, the connections with the number of pins below :
 
 <center>

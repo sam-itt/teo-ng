@@ -1,17 +1,11 @@
 ###CC90HFE
 
-<b>CC90HFE</b> est un programme de transfert s&eacute;rie &agrave; 38400 bauds (&agrave; peu pr&egrave;s 4 kilooctets par seconde)  entre les ordinateurs r&eacute;cents et les Thomson. Pour le faire fonctionner correctement, il va vous falloir n&eacute;anmoins un
- peu de mat&eacute;riel:
+*`CC90HFE`* va vous permettre de cr&eacute;er des images fid&egrave;les de vos disquettes Thomson double densit&eacute; au format HFE, format qui est support&eacute; par Teo.
 
-* Un adaptateur USB/RS232 (ou USB/S&eacute;rie), que vous pouvez trouver encore dans le commerce, ou &agrave; d&eacute;faut sur Internet. Pr&eacute;f&eacute;rez un adaptateur avec le chipset PL2303 de prolific, dont la technologie est compatible avec la plupart des plateformes.
-* Une interface CC90-232, que vous poss&eacute;dez d&eacute;j&agrave; ou que vous trouverez sur Internet, et qu'il faudra modifier.
-* Un adaptateur DB25 m&acirc;le/DB9 femelle enti&egrave;rement c&acirc;bl&eacute; (pas de 'null modem'!).
-
-La petite modification &eacute;lectronique apport&eacute;e &agrave; votre interface CC90-232 ne changera rien &agrave; ses facult&eacute;s
-
-* [Foire aux questions pour CC90](../cc90232_faq_fr)
 * [Modification de l'interface](../cc90232_modif_fr)
 * [L'adaptateur DB25-DB9](../cc90232_adapt_fr)
 * [Installation de CC90 c&ocirc;t&eacute; Thomson](../cc90_thomson_fr)
-* [Installation de CC90HFE](../cc90hfe_install_fr)
+* [Foire aux questions pour CC90](../cc90232_faq_fr)
+* [Usage de CC90HFE sous Linux](../cc90hfe_linux_fr)
+* [Usage de CC90HFE sous Windows](../cc90hfe_windows_fr)
 

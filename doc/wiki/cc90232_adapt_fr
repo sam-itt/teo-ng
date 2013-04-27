@@ -2,12 +2,7 @@
 
 Ce cordon sert &agrave; relier l'adaptateur USB/RS232 &agrave; l'interface CC90-232. Des cordons (ou des adaptateurs) existent dans le commerce. Il faudra vous procurer alors un adaptateur DB25 m&acirc;le/DB9 femelle enti&egrave;rement c&acirc;bl&eacute; (pas de 'null modem'!).
 
-<center><img src="index3.jpg" alt="Adaptateur DB9/DB25 commercial">
-<img src="adapt1.jpg" alt="Gros plan des deux broches de l'adaptateur">
-<img src="adapt2.jpg" alt="Exemple d'adaptateur maison"></center>
-<center><img src="adapt3.jpg" alt="Adaptateur DB9/DB25 &agrave; c&acirc;bler"></center>
-
-Si vous voulez vous lancer, voici la table des connexions (avec le num&eacute;ro des broches):
+sSi vous voulez vous lancer, voici la table des connexions (avec le num&eacute;ro des broches):
 
 <center>
 <table width="1%" border="1">

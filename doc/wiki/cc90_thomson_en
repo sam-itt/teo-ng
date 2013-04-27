@@ -1,10 +1,10 @@
 ###Installing CC90 (Thomson side)
 
+*<center>Don't use CC90 version 2.0 with programs that require the 1.03 or earlier versions of CC90: they are not compatible.</center>*
+
 * <a href="./#install">Install CC90 without disk</a>
 * <a href="./#run">General working</a>
 * <a href="./#errors">Error messages</a>
-
-<center><img src="thomson1.gif" alt="CC90 Thomson screen"></center>
 
 <a name="install"></a>
 #####Install CC90 without disk

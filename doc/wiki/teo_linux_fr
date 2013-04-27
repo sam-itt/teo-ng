@@ -9,7 +9,7 @@
 
 #####Installation<a name="installation"></a>
 
-La configuration n&eacute;cessaire pour faire tourner l'&eacute;mulateur est la configuration standard des distributions r&eacute;centes; seule la pr&eacute;sence obligatoire de la version 3.0 ou sup&eacute;rieure du toolkit GTK+ peut n&eacute;cessiter une mise &agrave; jour du syst&egrave;me (RedHat 5.x, SuSE 5.x), disponible <a href="http://www.gtk.org">ici</a>.
+La configuration n&eacute;cessaire pour faire tourner l'&eacute;mulateur est la configuration standard des distributions r&eacute;centes; seule la pr&eacute;sence obligatoire de la version 3.0 ou sup&eacute;rieure du toolkit GTK+ peut n&eacute;cessiter une mise &agrave; jour du syst&egrave;me, disponible <a href="http://www.gtk.org">ici</a>.
 
 Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 
@@ -18,11 +18,19 @@ Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 
 #####Lancement<a name="launching"></a>
 
-Pour ajouter des options en ligne de commande pour la formule *`.deb`*, choisir *`Syst&egrave;me/Pr&eacute;f&eacute;rences/Menu principal`*, s&eacute;lectionner alors *`Jeux/Emulateur Teo`*, cliquer sur *`Propri&eacute;t&eacute;s`* et changer les options par d&eacute;faut de l'ex&eacute;cutable.
+Le lancement de Teo s'effectue en cliquant sur l'ic&ocirc;ne de Teo. Si vous cliquez-droit dessus, vous pourrez choisir de simplement le lancer, ou de le lancer avec un reset &agrave; froid.
 
 #####Clavier<a name="keyboard"></a>
 
-Si la touche ALTGR reste sans effet, v&eacute;rifez vos r&eacute;glages pour l'agencement du clavier en ce qui concerne les touches de 3&egrave;me niveau: *`Syst&egrave;me/Pr&eacute;f&eacute;rences/Clavier/Agencement/Options de l'agencement.../Touche s&eacute;lectionnant le 3&egrave;me niveau`*.
+Si la touche ALTGR reste sans effet, v&eacute;rifez vos r&eacute;glages pour l'agencement du clavier en ce qui concerne les touches de 3&egrave;me niveau: *`Agencement du clavier/Options.../Touche s&eacute;lectionnant le 3&egrave;me niveau`* &agrave; partir des *`Param&egrave;tres Syst&egrave;me`*.
+
+Sur votre clavier est autre que AZERTY, vous pouvez toujours avoir acc&egrave;s au clavier Français en suivant la proc&eacute;dure suivante
+
+* Quitter Teo
+* Lancer <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> dans un Terminal
+* Relancer Teo
+
+Le seul probl&egrave;me est que pendant le temps o&ugrave; le clavier Français sera activ&eacute;, il le sera pour toutes les applications. Pour revenir &agrave; votre clavier naturel, il suffira de lancer *`setxkbmap <votre_langage_clavier>`* dans un Terminal... ou de relancer votre distribution Linux.
 
 #####G&eacute;n&eacute;rateur sonore<a name="sound"></a>
 
@@ -63,5 +71,5 @@ Si toutefois la lecture directe a des difficult&eacute;s &agrave; fonctionner (e
 
 Si l'installation a &eacute;t&eacute; faite avec les fichiers *`tar.gz`*, il suffit d'&eacute;liminer le r&eacute;pertoire *`teo`* racine.
 
-Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal. Il se peut que l'entr&eacute;e dans le menu *`Applications/Jeux/Emulateur Teo`* ne disparaisse pas. Ex&eacute;cuter alors <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm ~/.local/share/applications/teo.desktop</span>. Et pour vraiment tout nettoyer, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.teo</span>, qui est le r&eacute;pertoire contenant les fichiers *`teo.cfg`* et *`autosave.img`*.
+Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal. Et pour vraiment tout nettoyer, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.local/share/applications/teo</span>, qui est le r&eacute;pertoire contenant les fichiers de configuration de Teo.
 

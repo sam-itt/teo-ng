@@ -21,22 +21,32 @@
 
 <h5>Installation<a name="installation"></a></h5>
 
-<p>The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 3.0 and later of the GTK+ toolkit is required and might require a system update (RedHat 5.x, SuSE 5.x). It is available <a href="http://www.gtk.org">here</a>.</p>
+<p>The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 3.0 and later of the GTK+ toolkit is required and might require a system update. It is available <a href="http://www.gtk.org">here</a>.</p>
 
 <p>You can install the emulator in two ways:</p>
 
 <ul>
-<li>Launch <em><code>teo-1.8.2-i586.deb</code></em>. The launch of <em><code>Teo</code></em> will be done through the <em><code>Applications/Games/Teo emulator</code></em> shortcut menu.</li>
+<li>Launch <em><code>teo-1.8.2-i586.deb</code></em>.</li>
 <li>Unzip <em><code>teo-1.8.2-i586.tar.gz</code></em>. The executable is named <em><code>teo</code></em>.</li>
 </ul>
 
 <h5>Launching<a name="launching"></a></h5>
 
-<p>To add some launching options for <em><code>.deb</code></em> installation, choose <em><code>System/Preferences/Main menu</code></em>, then select <em><code>Games/Teo emulator</code></em>, click on <em><code>Properties</code></em> and change the options by default of the executable.</p>
+<p>The launch of <em><code>Teo</code></em> will be done by clicking the icon of Teo. If you right-click on it, you can choose between simply lauching it, or lauching it with a hard reset.</p>
 
 <h5>Keyboard<a name="keyboard"></a></h5>
 
-<p>If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: <em><code>System/Preferences/Keyboard/Layouts/Options/Key</code></em> to choose 3rd level options.</p>
+<p>If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: <em><code>Keyboard layout/Options/</code></em> from 'System Parameters' to choose 3rd level options.</p>
+
+<p>If your keyboard is other than AZERTY, you have access to the French keyboard by using the following procedure :</p>
+
+<ul>
+<li>Quit Teo</li>
+<li>Launch <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> in a Terminal</li>
+<li>Launch Teo again</li>
+</ul>
+
+<p>The only problem is that during the time the French keyboard is enabled, it will be for all applications. To go back to your natural keyboard, simply run <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap <your_keyboard_layout> ... or restart your Linux distribution.</p>
 
 <h5>Sound generator<a name="sound"></a></h5>
 
@@ -85,7 +95,7 @@
 
 <p>If installation has been made with <em><code>tar.gz</code></em> packages, just remove the root folder <em><code>teo</code></em>.</p>
 
-<p>If installation has been made with <em><code>.deb</code></em> packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal. The menu shortcut <em><code>Applications/Games/Teo emulator</code></em> might not disappear. Then execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm ~/.local/share/applications/teo.desktop</span>. And to clean everything, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.teo</span>, which is the folder that contains <em><code>teo.cfg</code></em> and *<code>autosave.img*</code> files.</p>
+<p>If installation has been made with <em><code>.deb</code></em> packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal. And to clean everything, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.local/share/applications/teo</span>, which is the folder that contains the configuration files of Teo.</p>
 
 <p><center>Document originally translated from French by Samuel Devulder<center></p>
 

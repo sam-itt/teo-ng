@@ -9,20 +9,28 @@
 
 #####Installation<a name="installation"></a>
 
-The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 3.0 and later of the GTK+ toolkit is required and might require a system update (RedHat 5.x, SuSE 5.x). It is available <a href="http://www.gtk.org">here</a>.
+The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 3.0 and later of the GTK+ toolkit is required and might require a system update. It is available <a href="http://www.gtk.org">here</a>.
 
 You can install the emulator in two ways:
 
-* Launch *`teo-1.8.2-i586.deb`*. The launch of *`Teo`* will be done through the *`Applications/Games/Teo emulator`* shortcut menu.
+* Launch *`teo-1.8.2-i586.deb`*.
 * Unzip *`teo-1.8.2-i586.tar.gz`*. The executable is named *`teo`*.
 
 #####Launching<a name="launching"></a>
 
-To add some launching options for *`.deb`* installation, choose *`System/Preferences/Main menu`*, then select *`Games/Teo emulator`*, click on *`Properties`* and change the options by default of the executable.
+The launch of *`Teo`* will be done by clicking the icon of Teo. If you right-click on it, you can choose between simply lauching it, or lauching it with a hard reset.
 
 #####Keyboard<a name="keyboard"></a>
 
-If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: *`System/Preferences/Keyboard/Layouts/Options/Key`* to choose 3rd level options.
+If the ALTGR key doesn't do anything, have a look at you keyboard layout with respect to the third level chooser: *`Keyboard layout/Options/`* from 'System Parameters' to choose 3rd level options.
+
+If your keyboard is other than AZERTY, you have access to the French keyboard by using the following procedure :
+
+* Quit Teo
+* Launch <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> in a Terminal
+* Launch Teo again
+
+The only problem is that during the time the French keyboard is enabled, it will be for all applications. To go back to your natural keyboard, simply run <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap <your_keyboard_layout> ... or restart your Linux distribution.
 
 #####Sound generator<a name="sound"></a>
 
@@ -63,7 +71,7 @@ If the direct access has still difficulties to work (like I/O errors, for exampl
 
 If installation has been made with *`tar.gz`* packages, just remove the root folder *`teo`*.
 
-If installation has been made with *`.deb`* packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal. The menu shortcut *`Applications/Games/Teo emulator`* might not disappear. Then execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm ~/.local/share/applications/teo.desktop</span>. And to clean everything, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.teo</span>, which is the folder that contains *`teo.cfg`* and *`autosave.img*` files.
+If installation has been made with *`.deb`* packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal. And to clean everything, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.local/share/applications/teo</span>, which is the folder that contains the configuration files of Teo.
 
 <center>Document originally translated from French by Samuel Devulder<center>
 

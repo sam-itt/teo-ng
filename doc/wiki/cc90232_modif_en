@@ -2,7 +2,13 @@
 
 <center><i>This achievement is an original idea of OncleTom and Prehisto</i></center>
 
-<center><img src="modif1.jpg" alt="CC90-232 interface unfolded"></center>
+<b>CC90</b> is a 38400 baud serial transfer program (about 4ko every second) between today computers and the Thomson. To make it work right, you need some material :
+
+* An USB/RS232 adapter (or USB-Serial) you could find it in the shops or on the Internet. Choose a Prolific PL2303 chipset, whose technology is compatible with most of platforms.
+* A CC90-232 interface, that you already have or you will find on the Internet, and that you will have to modify.
+* A DB25/DB9 adapter fully wired (no 'null modem'!).
+
+The little electronic modification won't alter your interface faculties.
 
 * <a href="#a">Equipment</a>
 * <a href="#b">Scraping off the stripboard</a>
@@ -90,6 +96,4 @@ Now wrap your wiring in a thin cardboard to avoid short circuits.
 Place all at the location of the desoldered components and close the interface. Don't forget to replace the insulating sheet between the two parts of printed circuit boards.
 
 <p>Your interface is ready for use.</p>
-
-<center><img src="modif13.jpg" alt="Interface plugged to a TO9+" border="1"></center>
 

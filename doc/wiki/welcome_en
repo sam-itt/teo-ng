@@ -9,7 +9,7 @@ Teo is a TO8 emulator for Personal Computers. It tries to mimic as closely as po
 * [Sap2](../sap2_en) to import/export disks
 * [Sapfs](../sapfs_en) to manage the SAP file system
 * [Wav2k7](../wav2k7_en) to import/export tapes
-* [cc90hfe](../cc90hfe_en) to import/export disks in MFM format
+* [cc90hfe](../cc90hfe_en) to create true images of Thomson double density floppies
 * [LibSap](../libsap_en) a library of C functions to develop in C with SAP format
 * [Changes](../teo_changes_en)
 * [Licence](../licence_en)

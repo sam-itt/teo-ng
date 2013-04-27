@@ -1,5 +1,25 @@
 ###Changements
 
+#####Version 1.8.2 (Juin 2012-Avril 2013)
+
+- &eacute;mulation du contr&ocirc;leur disque THMFC1
+- gestion des formats de disquettes en acc&egrave;s direct, SAP, HFE et des formats raw (FD)
+- cr&eacute;ation de CC90hFE (avec CC90 version 2.0) pour cr&eacute;er des images fid&egrave;les des disquettes Thomson en double densit&eacute;
+- s&eacute;lection des faces pour les disquettes multiface
+- acc&egrave;s direct en &eacute;criture par d&eacute;faut (travailler sur des copies de disquettes si l'&eacute;criture est requise!)
+- &eacute;mulation des imprimantes PR90-582 et PR90-042
+- sous Windows :
+    - am&eacute;lioration du mode vid&eacute;o entrelac&eacute; (merci &agrave; Samuel)
+- sous Linux :
+    - passage &agrave; GTK+3.0
+    - r&eacute;duction de l'usage CPU
+
+- Correction de bugs :
+    - restauration du son en g&eacute;n&eacute;ration continue (la g&eacute;n&eacute;ration "utile" est un &eacute;chec)
+    - nom de cartouche d&eacute;sormais effac&eacute; au reset de combo (sinon il r&eacute;apparait au lancement suivant)
+    - correction du risque de freeze pour SYNC, CWAI et HCF
+    - Limitation de la valeur pass&eacute;e &agrave; SetDeviceRegister &agrave; 8 bits (&eacute;vite le freeze de l'&eacute;mulateur lors d'un bug de programme 6809)
+
 #####Version 1.8.1 (Janvier-Mai 2012)
 
 - ROMs incluses dans les packages
