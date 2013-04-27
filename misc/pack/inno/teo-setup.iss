@@ -89,14 +89,6 @@ Source: system\printer\612\picas.txt; DestDir: {app}\system\printer\612;
 Source: system\printer\612\scrpc.txt; DestDir: {app}\system\printer\612;
 Source: system\printer\612\table.txt; DestDir: {app}\system\printer\612;
 ; --------------------- Documentation images ----------------------------
-Source: doc\images\adapt1.jpg; DestDir: {app}\doc\images;
-Source: doc\images\adapt2.jpg; DestDir: {app}\doc\images;
-Source: doc\images\adapt3.jpg; DestDir: {app}\doc\images;
-Source: doc\images\index1.jpg; DestDir: {app}\doc\images;
-Source: doc\images\index2.jpg; DestDir: {app}\doc\images;
-Source: doc\images\index3.jpg; DestDir: {app}\doc\images;
-Source: doc\images\index4.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif1.jpg; DestDir: {app}\doc\images;
 Source: doc\images\modif2.jpg; DestDir: {app}\doc\images;
 Source: doc\images\modif3.jpg; DestDir: {app}\doc\images;
 Source: doc\images\modif3a.gif; DestDir: {app}\doc\images;
@@ -110,8 +102,6 @@ Source: doc\images\modif9.gif; DestDir: {app}\doc\images;
 Source: doc\images\modif10.jpg; DestDir: {app}\doc\images;
 Source: doc\images\modif11.jpg; DestDir: {app}\doc\images;
 Source: doc\images\modif12.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif13.jpg; DestDir: {app}\doc\images;
-Source: doc\images\thomson1.gif; DestDir: {app}\doc\images;
 ; --------------------- Documentation html ----------------------------
 Source: doc\cc90hfe_en.htm; DestDir: {app}\doc; Languages: en
 Source: doc\cc90hfe_fr.htm; DestDir: {app}\doc; Languages: fr
