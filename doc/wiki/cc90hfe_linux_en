@@ -1,0 +1,16 @@
+###Use of CC90HFE under Linux
+
+Normally, the serial port is automatically detected by CC90HFE. But if this is not the case, you can still force the name of the serial port in the cc90hfe.ini file - that will be created after running and quitting CC90HFE - in <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">~/.local/share/applications/teo</span> facing the *`port_name`* key in the *`[serial]`* section.
+
+If access to the serial port is denied, then use the Terminal command <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER dialout</span> and restart Linux.
+
+#####Using the command line
+
+cc90hfe can be used on the command line. Use the '-h' or '- help' to display the help.
+
+#####Uninstall
+
+If the installation was done with the *`tar.gz`* file, simply remove *`cc90hfe`* root directory.
+
+If the installation was done with the *`deb`* files, run <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove -purge cc90hfe</span> in a Terminal.
+
