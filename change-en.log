@@ -22,6 +22,8 @@ Bugs fixes :
 - correction of freezing risk for SYNC, CWAI and HCF
 - Limiting the value passed to SetDeviceRegister to 8 bits (to avoid
   freezing the emulator at a 6809 program bug)
+- No inopportune reaction of keyboard when $E7C3 (PRC) set (thanks to
+  Julien)
 
 ========================================================================
 ==== Version 1.8.1 (January-May 2012)                               ====

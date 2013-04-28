@@ -24,6 +24,8 @@ Correction de bugs :
 - correction du risque de freeze pour SYNC, CWAI et HCF
 - Limitation de la valeur passée à SetDeviceRegister à 8 bits (évite le
   freeze de l'émulateur lors d'un bug de programme 6809)
+- Plus de réaction intempestive du clavier par $E7C3 (PRC) (merci à
+  Julien)
 
 ========================================================================
 ==== Version 1.8.1 (Janvier-Mai 2012)                               ====

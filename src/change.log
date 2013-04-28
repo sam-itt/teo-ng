@@ -39,6 +39,8 @@
 
   Changements locaux ---------------------------------------------------
 
+- include/defs.h
+          force TRUE à 1 dans toutes les distributions
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
@@ -63,8 +65,12 @@
           Optimisation de l'occupation mémoire
 - win/wgui/wprinter.c
 - linux/ugui/uprinter.c
+- src/alleg/agui.c
+          Traitement des messages d'erreur longs
 - alleg/agui/aprinter.c
           Change le texte pour DIP
+          Désactive les checkboxes DIP et NLQ s'il ne sont pas
+          supportés par l'imprimante
 - misc/pack/djmake.bat
 - misc/pack/pack.sh
 - misc/pack/mgwmake.bat
@@ -78,6 +84,8 @@
 - src/win/wgui/wcass.c
 - src/linux/ugui/ucass.c
           Gadgets désactivés quand pas de support
+- src/media/keyboard.c
+          Pas d'aknowledge si kb_data=0
 - src/hardware.c
 - src/dos/ddebug.c
 - src/linux/ugui/udebug.c
