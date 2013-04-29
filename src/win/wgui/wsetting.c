@@ -67,8 +67,30 @@
 #define PAGE_STEP  16
 
 
-static void init_bar(HWND volume_bar)
+static void update_state (HWND hDlg)
 {
+    int volume_state = FALSE;
+    int sound_state = FALSE;
+
+    if (teo.sound_enabled)
+    {
+        if (teo.setting.exact_speed)
+        {
+            sound_state = TRUE;
+            if (teo.setting.sound_enabled)
+                volume_state = TRUE;
+        }
+    }
+    EnableWindow(GetDlgItem(hDlg, SOUND_CHECK), sound_state);
+    EnableWindow(GetDlgItem(hDlg, VOLUME_BAR), volume_state);
+}
+
+
+
+static void init_bar (HWND hDlg)
+{
+   HWND volume_bar = GetDlgItem(hDlg, VOLUME_BAR);
+
    SendMessage(volume_bar, TBM_SETRANGE, TRUE, MAKELONG(MIN_POS, MAX_POS));
    SendMessage(volume_bar, TBM_SETLINESIZE, TRUE, LINE_STEP);
    SendMessage(volume_bar, TBM_SETPAGESIZE, TRUE, PAGE_STEP);
@@ -76,13 +98,10 @@ static void init_bar(HWND volume_bar)
 
    SendMessage(volume_bar, TBM_SETPOS, TRUE, teo.setting.sound_volume);
    asound_SetVolume(teo.setting.sound_volume);
-   
-   if (!teo.setting.sound_enabled || !teo.setting.exact_speed)
-      EnableWindow(volume_bar, FALSE);
 }
 
 
-static void update_bar(HWND volume_bar, WPARAM wParam)
+static void update_bar(WPARAM wParam)
 {
    int pos = asound_GetVolume()-1;
 
@@ -128,27 +147,6 @@ static void update_bar(HWND volume_bar, WPARAM wParam)
 
 
 
-static void update_sound_check(HWND hDlg, HWND volume_bar)
-{
-    int state;
-
-    if (teo.sound_enabled)
-    {
-        state = (IsDlgButtonChecked(hDlg, SOUND_CHECK) == BST_CHECKED);
-        teo.setting.sound_enabled = state ? TRUE : FALSE;
-        EnableWindow(volume_bar, state ? TRUE : FALSE);
-    }
-    else
-    {
-        MessageBox(hDlg, is_fr? "Carte son non detectée"
-                              : "Sound card not detected",
-                              PROGNAME_STR, MB_OK | MB_ICONERROR);
-        CheckDlgButton(hDlg, SOUND_CHECK, BST_UNCHECKED);
-        EnableWindow(volume_bar, FALSE);
-    }
-}
-
-
 /* ------------------------------------------------------------------------- */
 
 
@@ -157,9 +155,6 @@ static void update_sound_check(HWND hDlg, HWND volume_bar)
  */
 int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-   static HWND sound_check;
-   static HWND volume_bar;
-
    switch(uMsg)
    {
       case WM_INITDIALOG:
@@ -189,10 +184,9 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
                                                 ? BST_CHECKED : BST_UNCHECKED);
 
          /* initialisation de la barre du volume */
-         volume_bar = GetDlgItem(hDlg, VOLUME_BAR);
-         sound_check = GetDlgItem(hDlg, SOUND_CHECK);
-         init_bar(volume_bar);
+         init_bar (hDlg);
 
+         update_state (hDlg);
          return TRUE;
 
       case WM_COMMAND:
@@ -200,14 +194,12 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
          {
             case EXACT_SPEED_BUTTON:
                teo.setting.exact_speed = TRUE;
-               EnableWindow(volume_bar, TRUE);
-               EnableWindow(sound_check, TRUE);
+               update_state (hDlg);
                break;
 
             case MAX_SPEED_BUTTON:
                teo.setting.exact_speed = FALSE;
-               EnableWindow(volume_bar, FALSE);
-               EnableWindow(sound_check, FALSE);
+               update_state (hDlg);
                break;
 
             case INTERLACED_CHECK:
@@ -217,14 +209,17 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
                break;
                
             case SOUND_CHECK:
-               update_sound_check(hDlg, volume_bar);
+               teo.setting.sound_enabled =
+                    (IsDlgButtonChecked(hDlg, SOUND_CHECK) == BST_CHECKED)
+                         ? TRUE : FALSE;
+               update_state (hDlg);
                break;
          }
          return TRUE;
 
       case WM_HSCROLL:
-         if ((HWND)lParam == volume_bar)
-               update_bar(volume_bar, wParam);
+         if ((HWND)lParam == GetDlgItem(hDlg, VOLUME_BAR))
+               update_bar(wParam);
          return TRUE;
 
       default:
