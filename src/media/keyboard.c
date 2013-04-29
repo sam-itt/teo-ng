@@ -210,18 +210,27 @@ void keyboard_SetACK(int state)
     }
     else
     {
-        if (kb_data != 0)
+        if (!(mc6846.crc&0x80))  /* CP1 à 0? */
         {
-            if (!(mc6846.crc&0x80))  /* CP1 à 0? */
+            if (kb_data == 0)
+            {
+                /* if no key pressed, simulates a CAPS LOCK
+                   key pressed to go out the keyboard routine
+                   and not write the code into the keyboard
+                   buffer */
+                mem.mon.bank[1][0x10F8] = 0x40;
+                mem.mon.bank[1][0x1125] = 0;
+            }
+            else
             {
                 mem.mon.bank[1][0x10F8] = kb_data;
                 mem.mon.bank[1][0x1125] = (kb_state&TEO_KEY_F_CTRL ? 1 : 0);
             }
-            else
-                mc6846_SetCP1(&mc6846, 0);
-
-            start_time = mc6809_clock();
         }
+        else
+            mc6846_SetCP1(&mc6846, 0);
+
+        start_time = mc6809_clock();
     }
 }
 
