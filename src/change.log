@@ -85,7 +85,8 @@
 - src/linux/ugui/ucass.c
           Gadgets désactivés quand pas de support
 - src/media/keyboard.c
-          Pas d'aknowledge si kb_data=0
+          Pas d'écriture du code caractère dans le buffer clavier du
+          Thomson si pas de touche appuyée
 - src/hardware.c
 - src/dos/ddebug.c
 - src/linux/ugui/udebug.c
