@@ -69,6 +69,9 @@
 
 #define NDISKS 4
 
+#define MIN(a,b)   (((a)<(b))?(a):(b))
+
+
 static int direct_disk_support=0;
 
 struct FILE_VECTOR {
@@ -83,196 +86,6 @@ struct FILE_VECTOR {
 };
 
 static struct FILE_VECTOR vector[NDISKS];
-
-
-
-/* update_params:
- *  Sauve les paramètres d'un disque.
- */
-static void update_params (HWND hWnd, struct FILE_VECTOR *vector)
-{
-    int state = IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id);
-
-    teo.disk[vector->id].write_protect = (state == BST_CHECKED) ? TRUE : FALSE;
-    vector->combo_index = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id,
-                                             CB_GETCURSEL, 0, 0);
-
-    if ((vector->combo_index == 0)
-     || ((vector->combo_index == 1) && (vector->direct)))
-    {
-        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), FALSE);
-        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), FALSE);
-        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), FALSE);
-    }
-    else
-    {
-        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), TRUE);
-        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), TRUE);
-        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), TRUE);
-    }
-}
-
-
-
-/* toggle_check_disk:
- *  Change la protection disque.
- */
-static void toggle_check_disk(HWND hWnd, struct FILE_VECTOR *vector)
-{
-    if (IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id) == BST_CHECKED)
-    {
-        disk_SetProtection (vector->id, TRUE);
-    }
-    else
-    if (disk_SetProtection (vector->id, FALSE)==TRUE)
-    {
-        MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
-                              :"Warning: writing unavailable on this device."
-                       , PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
-        CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, BST_CHECKED);
-        teo.disk[vector->id].write_protect = TRUE;
-    }
-    update_params (hWnd, vector);
-}
-
-
-
-#if 0
-/* 
- *  Positionne le checkbox de protection de disquette.
- */
-static void set_access_mode (HWND hWnd, struct FILE_VECTOR *vector)
-{
-    int ret = disk_SetVirtual(vector->id);
-    int index = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
-
-    ret = (teo.disk[vector->id].write_protect == TRUE)
-                      ? TEO_STATUS_READ_ONLY : TEO_STATUS_READ_WRITE;
-    if ((vector->direct) && (index == 1))
-        ret = disk_SetDirect(vector->id);
-    CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id,
-                   (ret==TEO_STATUS_READ_ONLY) ? BST_CHECKED : BST_UNCHECKED);
-    update_params (hWnd, vector);
-    (void)hWnd;
-    (void)vector;
-}
-#endif
-
-
-
-/* add_combo_entry:
- *  Ajoute une entrée dans le combobox si inexistante et
- *  charge le fichier SAP correspondant si existante
- */
-static void add_combo_entry (HWND hWnd, const char *path, struct FILE_VECTOR *vector)
-{
-    struct DISK_VECTOR *disk_vector = NULL;
-
-    int index = disk_DiskVectorIndex (vector->path_list, path);
-
-    if (index >= 0)
-    {
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL, index, 0);
-        disk_vector = disk_DiskVectorPtr (vector->path_list, index);
-        teo.disk[vector->id].side = disk_vector->side;
-        disk[vector->id].side_count = disk_vector->side_count;
-    }
-    else
-    {
-        vector->path_list = disk_DiskVectorAppend (vector->path_list, path,
-                                                   teo.disk[vector->id].side,
-                                                   disk[vector->id].side_count);
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_ADDSTRING, 0,
-                           (LPARAM) std_BaseName((char *)path));
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL,
-                           vector->entry_max, 0);
-        vector->entry_max++;
-    }
-//    set_access_mode (hWnd, vector);
-}
-
-
-
-/* free_disk_entry:
- *  Libère la mémoire utilisée par la liste des disquettes.
- */
-static void free_disk_entry (struct FILE_VECTOR *vector)
-{
-    disk_DiskVectorFree (vector->path_list);
-    vector->path_list=NULL;
-    vector->entry_max = 0;
-    vector->combo_index=0;
-}
-
-
-
-/* reset_side_combo:
- *  Reinitialize the combo for sides.
- */
-static void reset_side_combo (HWND hWnd, int selected_side, struct FILE_VECTOR *vector)
-{
-    int side = 0;
-    char *str = NULL;
-
-    SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
-    do
-    {
-        str = std_strdup_printf ("%d", side);
-        SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_ADDSTRING, 0,
-                           (LPARAM)str);
-        str = std_free (str);
-        side++;
-    } while (side < disk[vector->id].side_count);
-    
-    SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_SETCURSEL,
-                           selected_side, 0);
-    teo.disk[vector->id].side = selected_side;
-}
-
-
-
-/* side_combo_changed:
- *  Changement de sélection du side combobox.
- */
-static void side_combo_changed (HWND hWnd, struct FILE_VECTOR *vector)
-{
-    int active_row;
-    struct DISK_VECTOR *p;
-
-    teo.disk[vector->id].side = SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_GETCURSEL, 0, 0);
-    active_row = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
-    p = disk_DiskVectorPtr (vector->path_list, active_row);
-    p->side = teo.disk[vector->id].side;
-    dkc->WriteUpdateTrack();
-    disk[vector->id].info->track = -1;
-}
-
-
-
-/* init_combo:
- *  Remplit un combo vide.
- */
-static void init_combo (HWND hWnd, struct FILE_VECTOR *vector)
-{
-    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)", vector);
-    if (vector->direct)
-        add_combo_entry (hWnd, is_fr?"(Accès Direct)":"(Direct Access)", vector);
-//    set_access_mode (hWnd, vector);
-}
-
-
-
-/* reset_combo:
- *  Vide un combo.
- */
-static void reset_combo (HWND hWnd, struct FILE_VECTOR *vector)
-{
-     free_disk_entry (vector);
-     SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
-     disk_Eject(vector->id);
-     init_combo (hWnd, vector);
-     update_params (hWnd, vector);
-}
 
 
 
@@ -301,30 +114,178 @@ static int load_virtual_disk (HWND hWnd, char *filename, struct FILE_VECTOR *vec
 
 
 
+/* set_protection_check:
+ *  Set the disk protection.
+ */
+static void set_protection_check (HWND hWnd, struct FILE_VECTOR *vector)
+{
+    struct DISK_VECTOR *disk_vector = NULL;
+    int row = ComboBox_GetCurSel(GetDlgItem (hWnd, DISK0_COMBO+vector->id));
+    int protection = (IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id) == BST_CHECKED) ? TRUE : FALSE;
+
+    if ((protection == FALSE)
+     && (disk_Protection (vector->id, FALSE) == TRUE))
+    {
+        MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
+                              :"Warning: writing unavailable on this device."
+                       , PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
+        CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, BST_CHECKED);
+    }
+
+    disk_vector = disk_DiskVectorPtr (vector->path_list, row);
+    disk_vector->write_protect = protection;
+    teo.disk[vector->id].write_protect = protection;
+}
+
+
+
+/* set_side_combo:
+ *  Set the disk sides.
+ */
+static void set_side_combo (HWND hWnd, struct FILE_VECTOR *vector)
+{
+    struct DISK_VECTOR *disk_vector = NULL;
+    int row = ComboBox_GetCurSel(GetDlgItem (hWnd, DISK0_COMBO+vector->id));
+    int side = ComboBox_GetCurSel(GetDlgItem (hWnd,DISK0_SIDE_COMBO+vector->id));
+
+    disk_vector = disk_DiskVectorPtr (vector->path_list, row);
+    disk_vector->side = side;
+    teo.disk[vector->id].side = side;
+
+    dkc->WriteUpdateTrack();
+    disk[vector->id].info->track = -1;
+}
+
+
+
+/* reset_side_combo:
+ *  Reinitialize the combo for sides.
+ */
+static void reset_side_combo (HWND hWnd, int side_count, struct FILE_VECTOR *vector)
+{
+    int side = 0;
+    char *str = NULL;
+
+    SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
+    for (side=0; side<side_count; side++)
+    {
+        str = std_strdup_printf ("%d", side);
+        SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_ADDSTRING, 0,
+                           (LPARAM)str);
+        str = std_free (str);
+    }
+}
+
+
+    
+/* add_combo_entry:
+ *  Ajoute une entrée dans le combobox si inexistante et
+ *  charge le fichier SAP correspondant si existante
+ */
+static void add_combo_entry (HWND hWnd, const char path[], int side, int side_count,
+                             int protection, struct FILE_VECTOR *vector)
+{
+    int index = disk_DiskVectorIndex (vector->path_list, path);
+
+    if (index >= 0)
+    {
+        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL, index, 0);
+    }
+    else
+    {
+        vector->path_list = disk_DiskVectorAppend (vector->path_list,
+                                                   path,
+                                                   side,
+                                                   side_count,
+                                                   protection);
+        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_ADDSTRING, 0,
+                           (LPARAM) std_BaseName((char *)path));
+        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL,
+                           vector->entry_max, 0);
+        vector->combo_index = vector->entry_max;
+        vector->entry_max++;
+    }
+}
+
+
+
 /* combo_changed:
  *  Changement de sélection du combobox.
  */
 static void combo_changed (HWND hWnd, struct FILE_VECTOR *vector)
 {
-    struct DISK_VECTOR *p=NULL;
     int active_row = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
+    struct DISK_VECTOR *p = disk_DiskVectorPtr (vector->path_list, active_row);
 
-    if (active_row != vector->combo_index)
+    vector->combo_index = active_row;
+    if (active_row == 0)
     {
-        if (active_row == 0)
-            disk_Eject(vector->id);
-        else
-        if ((active_row == 1) && (vector->direct))
-            (void)daccess_LoadDisk (vector->id, "");
-        else
-        {
-            p = disk_DiskVectorPtr (vector->path_list, active_row);
-            (void)load_virtual_disk (hWnd, p->str, vector);
-            reset_side_combo (hWnd, p->side, vector);
-        }
-        update_params (hWnd, vector);
-//        set_access_mode (hWnd, vector);
+        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), FALSE);
+        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), FALSE);
+        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), FALSE);
+        disk_Eject(vector->id);
     }
+    else
+    if ((active_row == 1) && (vector->direct))
+    {
+        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), FALSE);
+        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), FALSE);
+        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), TRUE);
+        (void)daccess_LoadDisk (vector->id, "");
+    }
+    else
+    {
+        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), TRUE);
+        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), TRUE);
+        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), TRUE);
+        (void)load_virtual_disk (hWnd, p->str, vector);
+    }
+    reset_side_combo (hWnd, p->side_count, vector);
+    SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_SETCURSEL, p->side, 0);
+    set_side_combo (hWnd, vector);
+    CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, (p->write_protect)?BST_CHECKED:BST_UNCHECKED);
+    set_protection_check (hWnd, vector);
+}
+
+
+
+/* free_disk_entry:
+ *  Libère la mémoire utilisée par la liste des disquettes.
+ */
+static void free_disk_entry (struct FILE_VECTOR *vector)
+{
+    disk_DiskVectorFree (vector->path_list);
+    vector->path_list=NULL;
+    vector->entry_max = 0;
+    vector->combo_index=0;
+}
+
+
+
+/* init_combo:
+ *  Remplit un combo vide.
+ */
+static void init_combo (HWND hWnd, struct FILE_VECTOR *vector)
+{
+    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)", 0, 1, FALSE, vector);
+    if (vector->direct)
+        add_combo_entry (hWnd, is_fr?"(Accès Direct)":"(Direct Access)",
+                         vector->id, vector->id+1, TRUE, vector);
+}
+
+
+
+/* emptying_button_clicked:
+ *  Ejecte la disquette et vide le combobox.
+ *  (sauf l'entrée "aucune cartouche" et "direct access") 
+ */
+static void emptying_button_clicked (HWND hWnd, struct FILE_VECTOR *vector)
+{
+     disk_Eject(vector->id);
+     free_disk_entry (vector);
+     SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
+     init_combo (hWnd, vector);
+     combo_changed (hWnd, vector);
 }
 
 
@@ -371,12 +332,15 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
     {
         if (load_virtual_disk (hWnd, ofn.lpstrFile, vector) >= 0)
         {
-            add_combo_entry (hWnd, teo.disk[vector->id].file, vector);
-            reset_side_combo (hWnd, teo.disk[vector->id].side, vector);
+            add_combo_entry (hWnd, teo.disk[vector->id].file,
+                             MIN (teo.disk[vector->id].side, disk[vector->id].side_count-1),
+                             disk[vector->id].side_count,
+                             teo.disk[vector->id].write_protect,
+                             vector);
+            combo_changed(hWnd, vector);
             teo.default_folder = std_free (teo.default_folder);
             teo.default_folder = std_strdup_printf ("%s", teo.disk[vector->id].file);
             (void)snprintf (current_file, MAX_PATH, "%s", teo.disk[vector->id].file);
-            update_params (hWnd, vector);
         }
     }
 }
@@ -405,7 +369,7 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    static int first=1;
    int i;
-   int state;
+//   int state;
    HANDLE himg;
    struct DISK_VECTOR *slist;
 
@@ -414,37 +378,6 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_INITDIALOG:
          for (i=0; i<NBDRIVE; i++)
          {
-             if (first)
-             {
-                 /* initialisation du sélecteur de disquettes */
-                 memset (&vector[i], 0x00, sizeof (struct FILE_VECTOR));
-                 vector[i].id=i;
-                 vector[i].direct=(direct_disk_support>>i)&1;
-                 init_combo (hWnd, &vector[i]);
-                 if (teo.disk[i].file != NULL)
-                 {
-                     add_combo_entry (hWnd, teo.disk[i].file, &vector[i]);
-                     vector[i].current_dir = std_strdup_printf ("%s",
-                                                         teo.disk[i].file);
-                 }
-//                 set_access_mode (hWnd, &vector[drive]);
-                 update_params (hWnd, &vector[i]);
-             }
-             /* initialisation du combo des noms de fichiers */
-             SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_RESETCONTENT, 0, 0);
-             for (slist=vector[i].path_list; slist!=NULL; slist=slist->next)
-                 SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_ADDSTRING, 0,
-                                    (LPARAM) std_BaseName(slist->str));
-             SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_SETCURSEL,
-                                vector[i].combo_index, 0);
-
-             /* initialisation du combo des faces de disquettes */
-             reset_side_combo (hWnd, teo.disk[i].side, &vector[i]);
-
-             /* initialisation de la protection */
-             state = (teo.disk[i].write_protect == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-             CheckDlgButton(hWnd, DISK0_PROT_CHECK+i, state);
-
              /* initialisation des images */
              himg=LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0,
                              LR_DEFAULTCOLOR);
@@ -468,7 +401,46 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              wgui_CreateTooltip (hWnd, DISK0_MORE_BUTTON+i,
                                  is_fr?"Ouvrir un fichier disquette"
                                       :"Open a disk file");
-             update_params (hWnd, &vector[i]);
+
+             if (first)
+             {
+                 /* initialisation du sélecteur de disquettes */
+                 memset (&vector[i], 0x00, sizeof (struct FILE_VECTOR));
+                 vector[i].id=i;
+                 vector[i].direct=(direct_disk_support>>i)&1;
+             }
+
+             /* initialisation du combo des noms de fichiers */
+             SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_RESETCONTENT, 0, 0);
+             for (slist=vector[i].path_list; slist!=NULL; slist=slist->next)
+                 SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_ADDSTRING, 0,
+                                    (LPARAM) std_BaseName(slist->str));
+
+#if 0
+             /* initialisation du combo des faces de disquettes */
+             reset_side_combo (hWnd, teo.disk[i].side, &vector[i]);
+
+             /* initialisation de la protection */
+             state = (teo.disk[i].write_protect == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+             CheckDlgButton(hWnd, DISK0_PROT_CHECK+i, state);
+#endif
+             if (first)
+             {
+                 init_combo (hWnd, &vector[i]);
+                 if (teo.disk[i].file != NULL)
+                 {
+                     add_combo_entry (hWnd,
+                                      teo.disk[i].file,
+                                      teo.disk[i].side,
+                                      disk[i].side_count,
+                                      teo.disk[i].write_protect,
+                                      &vector[i]);
+                     vector[i].current_dir = std_strdup_printf ("%s",
+                                                         teo.disk[i].file);
+                 }
+             }
+             ComboBox_SetCurSel (GetDlgItem(hWnd, DISK0_COMBO+i), vector[i].combo_index);
+             combo_changed(hWnd, &vector[i]);
          }
          first=0;
          return TRUE;
@@ -480,7 +452,7 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case DISK1_EJECT_BUTTON:
             case DISK2_EJECT_BUTTON:
             case DISK3_EJECT_BUTTON: 
-               reset_combo(hWnd, &vector[LOWORD(wParam)-DISK0_EJECT_BUTTON]);
+               emptying_button_clicked(hWnd, &vector[LOWORD(wParam)-DISK0_EJECT_BUTTON]);
                break;
 
             case DISK0_MORE_BUTTON:
@@ -503,14 +475,14 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case DISK2_SIDE_COMBO:
             case DISK3_SIDE_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
-                   side_combo_changed(hWnd, &vector[LOWORD(wParam)-DISK0_SIDE_COMBO]);
+                   set_side_combo(hWnd, &vector[LOWORD(wParam)-DISK0_SIDE_COMBO]);
                break;
 
             case DISK0_PROT_CHECK:
             case DISK1_PROT_CHECK:
             case DISK2_PROT_CHECK:
             case DISK3_PROT_CHECK: 
-               toggle_check_disk(hWnd, &vector[LOWORD(wParam)-DISK0_PROT_CHECK]);
+               set_protection_check(hWnd, &vector[LOWORD(wParam)-DISK0_PROT_CHECK]);
                break;
          }
          return TRUE;
