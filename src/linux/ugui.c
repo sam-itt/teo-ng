@@ -151,7 +151,7 @@ void ugui_Init(void)
     gtk_window_set_transient_for (GTK_WINDOW(wControl), GTK_WINDOW(wMain));
     gtk_window_set_destroy_with_parent (GTK_WINDOW(wControl), TRUE);
     gtk_window_set_modal (GTK_WINDOW(wControl), TRUE);
-    
+
     content_area = gtk_dialog_get_content_area (GTK_DIALOG(wControl));
     action_area = gtk_dialog_get_action_area (GTK_DIALOG(wControl));
     
