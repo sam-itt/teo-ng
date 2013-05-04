@@ -60,8 +60,8 @@
 #include "linux/sound.h"
 
 
-#define DISK_RETRY    5
-#define RESET_RETRY   5
+#define DISK_RETRY    1
+#define RESET_RETRY   1
 
 static int fd[2] = {-1, -1};
 static int drive_type[2];
