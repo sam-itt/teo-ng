@@ -374,7 +374,8 @@ char *disk_DiskVectorText (struct DISK_VECTOR *p, int index)
  *  Ajoute un élément au DISK_VECTOR.
  */
 struct DISK_VECTOR *disk_DiskVectorAppend (struct DISK_VECTOR *p,
-                      const char str[], int side, int side_count)
+                      const char str[], int side, int side_count,
+                      int write_protect)
 {
     struct DISK_VECTOR *last_str = disk_DiskVectorLast (p);
     struct DISK_VECTOR *new_str = NULL;
@@ -388,6 +389,7 @@ struct DISK_VECTOR *disk_DiskVectorAppend (struct DISK_VECTOR *p,
             new_str->str = std_strdup_printf ("%s", str);
             new_str->side = side;
             new_str->side_count = side_count;
+            new_str->write_protect = write_protect;
         }
 
         if ((last_str!=NULL) && (last_str->str!=NULL))
@@ -473,11 +475,13 @@ void disk_Eject(int drive)
     teo.disk[drive].file = std_free (teo.disk[drive].file);
     teo.disk[drive].side = 0;
     disk[drive].state = TEO_DISK_ACCESS_NONE;
+    disk[drive].write_protect = FALSE;
     disk[drive].ReadCtrlTrack = NULL;
     disk[drive].WriteCtrlTrack = NULL;
     disk[drive].ReadCtrlSector = NULL;
     disk[drive].WriteCtrlSector = NULL;
     disk[drive].FormatCtrlTrack = NULL;
+    disk[drive].IsWritable = NULL;
 }
 
 
@@ -502,41 +506,41 @@ int disk_CheckFile (const char filename[], int protection)
 
 
 
-/* disk_SetProtection:
+/* disk_Protection:
  *  Fixe le mode d'accès à la disquette.
- *  (lecture seule ou lecture écriture)
+ *  (lecture seule ou lecture/écriture)
  */ 
-int disk_SetProtection(int drive, int protection)
+int disk_Protection (int drive, int protection)
 {
-    int ret = protection;
-
-    if (teo.disk[drive].write_protect == protection)
-        ret = teo.disk[drive].write_protect;
-    else
+    switch (disk[drive].state)
     {
-        switch (disk[drive].state)
-        {
-            case TEO_DISK_ACCESS_NONE:
-                ret = teo.disk[drive].write_protect = protection;
-                break;
+        case TEO_DISK_ACCESS_NONE:
+            break;
 
-            case TEO_DISK_ACCESS_DIRECT:
-                if ((protection == FALSE) && !teo_DirectWriteSector)
-                    protection = TRUE;  
-                ret = teo.disk[drive].write_protect = protection;
-                break;
+        case TEO_DISK_ACCESS_DIRECT:
+            if (!teo_DirectWriteSector)
+                protection = TRUE;  
+            break;
 
-            case TEO_DISK_ACCESS_SAP:
-            case TEO_DISK_ACCESS_HFE:
-            default:
-                ret=disk_CheckFile(teo.disk[drive].file, protection);
-                if (ret >= 0)
-                    teo.disk[drive].write_protect = ret;
-                break;
-        }
-
+        default:
+            if (teo.disk[drive].write_protect != protection)
+                protection = disk_CheckFile(teo.disk[drive].file, protection);
+            break;
     }
-    return ret;
+
+    if (protection >= 0)
+    {
+        /* manage disk protection by function */
+        if ((disk[drive].IsWritable != NULL)
+         && (disk[drive].IsWritable (drive) == 0))
+            protection = TRUE;
+
+        /* manage disk protection by flag */
+        if (disk[drive].write_protect == TRUE)
+            protection = TRUE;
+    }
+
+    return protection;
 }
 
 
@@ -627,6 +631,11 @@ int disk_IsSDFloppySector (int sector, struct DISK_INFO *info)
 
 int disk_Load (int drive, const char filename[])
 {
+    /* limite la valeur des faces */
+    if ((teo.disk[drive].side < 0)
+     || (teo.disk[drive].side > NBDRIVE))
+        teo.disk[drive].side = 0;
+
     if ((sap_LoadDisk(drive, filename) < 0)
      && (hfe_LoadDisk(drive, filename) < 0)
      && (fd_LoadDisk(drive, filename) < 0))
@@ -674,13 +683,17 @@ void disk_FirstLoad (void)
 
     for (drive=0; drive<NBDRIVE; drive++)
     {
+        /* charge la disquette */
         if ((teo.disk[drive].file != NULL)
          && (*teo.disk[drive].file != '\0'))
         {
             name = teo.disk[drive].file;
             teo.disk[drive].file = NULL;
             if (disk_Load (drive, name) < 0)
+            {
                 main_DisplayMessage (teo_error_msg);
+                disk_Eject(drive);
+            }
             name = std_free (name);
         }
     }
