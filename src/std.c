@@ -250,6 +250,18 @@ int std_IsDir (const char filename[])
 
 
 
+/* std_FileSize:
+ *  Retourne la taille d'un fichier.
+ */
+size_t std_FileSize (const char filename[])
+{
+    struct stat st;
+ 
+    return (stat(filename, &st) == 0) ? (size_t)st.st_size : 0;
+}
+
+
+
 /* std_rtrim:
  *  Elimine les caractères de contrôle en fin de chaîne.
  */
