@@ -321,6 +321,10 @@ static int file_protection (const char filename[], int protection)
 
         if (strcmp(filename+name_length-3, fd_list[fd_type].suffix) != 0)
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
+
+        /* check number_of_tracks */
+        if (fd_list[fd_type].track_count != TEO_DISK_TRACK_NUMBER_MAX)
+            return error_Message (TEO_ERROR_FILE_FORMAT, filename);
     }
     return protection;
 }
@@ -351,10 +355,6 @@ int fd_LoadDisk(int drive, const char filename[])
 
     if (protection >= 0)
     {
-        /* check size of file */
-        if (fd_list[fd_type].fat_size!= 160)
-            return error_Message (TEO_ERROR_FILE_FORMAT, filename);
-
         switch (fd_list[fd_type].sector_size)
         {
             case 128 :
@@ -375,11 +375,13 @@ int fd_LoadDisk(int drive, const char filename[])
         teo.disk[drive].file = std_strdup_printf ("%s", filename);
         teo.disk[drive].write_protect = protection;
         disk[drive].state = TEO_DISK_ACCESS_FD;
+        disk[drive].write_protect = FALSE;
         disk[drive].ReadCtrlTrack = read_ctrl_track;
         disk[drive].WriteCtrlTrack = write_ctrl_track;
         disk[drive].ReadCtrlSector = NULL;
         disk[drive].WriteCtrlSector = NULL;
         disk[drive].FormatCtrlTrack = NULL;
+        disk[drive].IsWritable = NULL;
         disk[drive].side_count = fd_list[fd_type].side_count;
     }
     return protection;

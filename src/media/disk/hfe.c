@@ -99,7 +99,7 @@ typedef struct pictrack_
 } pictrack;
 
 static picfileformatheader hfe_hd;
-static pictrack track_list[2][80];
+static pictrack track_list[2][TEO_DISK_TRACK_NUMBER_MAX];
 
 #define MFM_SYNCHRO_WORD  0x2291      /* == 4489 */
 #define FM_SYNCHRO_CLOCK  0x22002022  /* == 0xc7 */
@@ -554,7 +554,7 @@ static int write_ctrl_track (const char filename [], struct DISK_INFO *info)
 
 static int file_mode_error (int error, const char filename[], FILE *file)
 {
-    fclose (file);
+    (void)std_fclose (file);
     return error_Message (error, filename);
 }
 
@@ -565,21 +565,20 @@ static int file_mode_error (int error, const char filename[], FILE *file)
  */
 static int file_protection (const char filename[], int protection)
 {
-    FILE *file;
+    size_t file_size;
+    FILE *file = NULL;
     
     protection = disk_CheckFile(filename, protection);
 
     if (protection >= 0)
     {
         /* check size of file */
-        file = fopen (filename, "rb");
-        if ((file == NULL)
-         || (fseek (file, 0, SEEK_END) != 0)
-         || (ftell (file) < 512*20))
+        file_size = std_FileSize (filename);
+        if (file_size != 3922*512)
             return file_mode_error (TEO_ERROR_FILE_FORMAT, filename, file);
 
         /* load header */
-        fseek (file, 0, SEEK_SET);
+        file = fopen (filename, "rb");
         if (fread (hfe_hd.HEADERSIGNATURE, 1, 8, file) != 8)
             return file_mode_error (TEO_ERROR_FILE_READ, filename, file);
 
@@ -602,8 +601,8 @@ static int file_protection (const char filename[], int protection)
         if (hfe_hd.formatrevision != 0)
             return file_mode_error (TEO_ERROR_FILE_FORMAT, filename, file);
         
-        /* check number_of_track */
-        if (hfe_hd.number_of_track > TEO_DISK_TRACK_NUMBER_MAX)
+        /* check number_of_tracks */
+        if (hfe_hd.number_of_track != TEO_DISK_TRACK_NUMBER_MAX)
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
     }
     return protection;
@@ -641,11 +640,8 @@ int hfe_LoadDisk(int drive, const char filename[])
         {
             case ISOIBM_FM_ENCODING :
             case EMU_FM_ENCODING :
-                     return error_Message (TEO_ERROR_FILE_FORMAT, filename);
-                     /*
                      disk[drive].info->sector_size  = 128;
                      disk[drive].info->byte_rate    = 125000/8;
-                     */
                      break;
 
             case ISOIBM_MFM_ENCODING :
@@ -680,11 +676,13 @@ int hfe_LoadDisk(int drive, const char filename[])
         teo.disk[drive].file = std_strdup_printf ("%s", filename);
         teo.disk[drive].write_protect = protection;
         disk[drive].state = TEO_DISK_ACCESS_HFE;
+        disk[drive].write_protect = (hfe_hd.write_allowed != 0xff) ? TRUE : FALSE;
         disk[drive].ReadCtrlTrack = read_ctrl_track;
         disk[drive].WriteCtrlTrack = write_ctrl_track;
         disk[drive].ReadCtrlSector = NULL;
         disk[drive].WriteCtrlSector = NULL;
         disk[drive].FormatCtrlTrack = NULL;
+        disk[drive].IsWritable = NULL;
         disk[drive].side_count = 2;
     }
 
