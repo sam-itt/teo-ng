@@ -32,6 +32,7 @@ copy teow.exe misc\pack\mingw
 ren misc\pack\mingw\teow.exe teow-fr.exe
 
 mingw32-make depend
+mingw32-make clean
 
 REM ---- Compiles English version of CC90HFE ----
 
@@ -76,6 +77,8 @@ mingw32-make clean
 mingw32-make RELEASE_MODE=1 CONSOLE_MODE=1
 copy cc90hfe.exe ..\..\misc\pack\mingw
 ren ..\..\misc\pack\mingw\cc90hfe.exe cc90hfe-com-fr.exe
+
+mingw32-make clean
 
 cd ..
 cd ..
