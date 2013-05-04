@@ -54,26 +54,11 @@
    #include <shlobj.h>
 #endif
 
-#include "win/dialog.rh"
-#include "win/gui.h"
 #include "std.h"
 #include "teo.h"
-
-#define PRINTER_NUMBER 5
-
-struct PRINTER_CODE_LIST {
-    char name[9];
-    int  number;
-};
-
-static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
-    { "PR90-042",  42 },
-    { "PR90-055",  55 },
-    { "PR90-582", 582 },
-    { "PR90-600", 600 },
-    { "PR90-612", 612 }
-};
-
+#include "media/printer.h"
+#include "win/dialog.rh"
+#include "win/gui.h"
 
 
 static void update_options (HWND hWnd, int number)
@@ -81,7 +66,7 @@ static void update_options (HWND hWnd, int number)
     if (number >= PRINTER_NUMBER)
         number = 0;
 
-    teo.lprt.number = prt_list[number].number;
+    teo.lprt.number = printer_code_list[number].number;
 
     if (teo.lprt.number < 600)
     {
@@ -172,8 +157,8 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          for (i=0; i<PRINTER_NUMBER; i++)
          {
              SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_ADDSTRING, 0,
-                                (LPARAM) prt_list[i].name);
-             if (teo.lprt.number == prt_list[i].number)
+                                (LPARAM) printer_code_list[i].name);
+             if (teo.lprt.number == printer_code_list[i].number)
                  combo_index = i;
          }
          SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_SETCURSEL,

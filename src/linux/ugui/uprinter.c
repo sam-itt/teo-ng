@@ -55,21 +55,6 @@
 #include "media/printer.h"
 #include "linux/gui.h"
 
-#define PRINTER_NUMBER 5
-
-struct PRINTER_CODE_LIST {
-    char name[9];
-    int  number;
-};
-
-static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
-    { "PR90-042",  42 },
-    { "PR90-055",  55 },
-    { "PR90-582", 582 },
-    { "PR90-600", 600 },
-    { "PR90-612", 612 }
-};
-
 GtkWidget *widget_nlq = NULL;
 GtkWidget *widget_dip = NULL;
 
@@ -104,7 +89,9 @@ static void check_button_toggled (GtkToggleButton *button, int *reg)
  */
 static void combo_changed (GtkComboBox *combo, gpointer user_data)
 {
-    teo.lprt.number = (prt_list[gtk_combo_box_get_active (GTK_COMBO_BOX(combo))].number);
+    int combo_index = gtk_combo_box_get_active (GTK_COMBO_BOX(combo));
+
+    teo.lprt.number = (printer_code_list[combo_index].number);
     if (teo.lprt.number < 600)
     {
         gtk_widget_set_sensitive (widget_nlq, FALSE);
@@ -166,8 +153,8 @@ void uprinter_Init (GtkWidget *notebook)
     combo=gtk_combo_box_text_new();
     for (i=0; i<PRINTER_NUMBER; i++)
     {
-        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, prt_list[i].name);
-        if (teo.lprt.number == prt_list[i].number)
+        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, printer_code_list[i].name);
+        if (teo.lprt.number == printer_code_list[i].number)
             combo_index = i;
     }
     g_signal_connect(G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);

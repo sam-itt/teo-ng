@@ -51,31 +51,19 @@
    #include <allegro.h>
 #endif
 
+#include "std.h"
+#include "teo.h"
 #include "alleg/gui.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
-#include "std.h"
-#include "teo.h"
+#include "media/printer.h"
 
-/* Liste des imprimantes */
-#define PRINTER_NUMBER 5
-struct PRINTER_CODE_LIST {
-    char name[9];
-    int  number;
-}; 
-static struct PRINTER_CODE_LIST prt_list[PRINTER_NUMBER] = {
-    { "PR90-042",  42 },
-    { "PR90-055",  55 },
-    { "PR90-582", 582 },
-    { "PR90-600", 600 },
-    { "PR90-612", 612 }
-};
 
 /* Procédure pour la text_list */
 static char *listbox_getter(int index, int *list_size)
 {
     if (index >= 0)
-        return prt_list[index].name;
+        return printer_code_list[index].name;
     *list_size = PRINTER_NUMBER;
     return NULL;
 }
@@ -111,7 +99,7 @@ static DIALOG printerdial[]={
 { d_check_proc,      152, 142,  50,  14, 0, 0, 't',  0,     0, 0, "&text" },
 { d_check_proc,      214, 142,  66,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
 #endif
-{ d_button_proc,     210, 170,  70,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
+{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
@@ -138,6 +126,7 @@ void aprinter_Panel(void)
     int i;
     static int first = 1;
     static char printer_folder[MAX_PATH+1] = "";
+    int printer_number = 0;
 
     centre_dialog(printerdial);
     if (first)
@@ -160,9 +149,11 @@ void aprinter_Panel(void)
             printerdial[PRINTERDIAL_GFX_OUTPUT].flags|=D_SELECTED;
         for (i=0; i<PRINTER_NUMBER; i++)
         {
-            if (teo.lprt.number == prt_list[i].number)
-                printerdial[PRINTERDIAL_LIST].d1 = i;
+            if (teo.lprt.number == printer_code_list[i].number)
+                printer_number = i;
         }
+        printerdial[PRINTERDIAL_LIST].d1 = printer_number;
+
         first = 0;
     }
 
@@ -192,7 +183,7 @@ void aprinter_Panel(void)
 
             case -1:  /* ESC */
             case PRINTERDIAL_OK:
-                teo.lprt.number = prt_list[printerdial[PRINTERDIAL_LIST].d1].number;
+                teo.lprt.number = printer_code_list[printerdial[PRINTERDIAL_LIST].d1].number;
                 teo.lprt.dip = (printerdial[PRINTERDIAL_DIP].flags & D_SELECTED) ? TRUE : FALSE;
                 teo.lprt.nlq = (printerdial[PRINTERDIAL_NLQ].flags & D_SELECTED) ? TRUE : FALSE;
                 teo.lprt.raw_output = (printerdial[PRINTERDIAL_RAW_OUTPUT].flags & D_SELECTED) ? TRUE : FALSE;

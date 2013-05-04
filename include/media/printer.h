@@ -73,6 +73,14 @@ struct PRINTER {
 
 extern struct PRINTER printer;
 
+#define PRINTER_NUMBER 5
+struct PRINTER_CODE_LIST {
+    char name[9];
+    int  number;
+};
+
+extern struct PRINTER_CODE_LIST printer_code_list[];
+
 /* printer commands */
 extern void printer_DigitCounter (int length, void (*jump)());
 extern void printer_BinaryCounter (int length, void (*jump)());
