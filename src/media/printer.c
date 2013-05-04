@@ -68,6 +68,14 @@
 #define FONT_CHAR_SIZE    (FONT_CHAR_WIDTH<<4)
 #define BUFFER_HEIGHT     96
 
+struct PRINTER_CODE_LIST printer_code_list[PRINTER_NUMBER] = {
+    { "PR90-042",  42 },
+    { "PR90-055",  55 },
+    { "PR90-582", 582 },
+    { "PR90-600", 600 },
+    { "PR90-612", 612 }
+};
+
 struct CHAR_EQUIVALENCE {
     int   chr;
     int   gfx;
@@ -560,6 +568,7 @@ static void print_gfx16_data (void)
 static void print_screen_data (void)
 {
     int i;
+    int paper_width_temp;
     mc6809_clock_t delay = (printer.screenprint_delay * TEO_CPU_FREQ) / 1000;
 
     if (mc6809_clock() - last_data_time > delay)
@@ -573,7 +582,12 @@ static void print_screen_data (void)
     for (i=0x80; i>0; i>>=1)
     {
         if (printer.data & i)
+        {
+           paper_width_temp = paper_width;
+           paper_width = paper_width_max;
            draw_dot (0, screen_pixel_size, screen_pixel_size);
+           paper_width = paper_width_temp;
+        }
         paper_x += screen_pixel_size;
     }
     if ((gfx_counter % 40) == 0)
