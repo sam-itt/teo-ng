@@ -58,6 +58,7 @@ struct DISK_VECTOR {
     char   *str;
     int    side;
     int    side_count;
+    int    write_protect;
     struct DISK_VECTOR *next;
 };
 
@@ -74,11 +75,13 @@ typedef struct {
     int   side_count;
     char  *tmp;
     int   format;
+    int   write_protect;
     int   (*WriteCtrlTrack) (const char filename [], struct DISK_INFO *info);
     int   (*ReadCtrlTrack) (const char filename [], struct DISK_INFO *info);
     int   (*ReadCtrlSector) (const char filename [], struct DISK_INFO *info);
     int   (*WriteCtrlSector) (const char filename [], int buffer, struct DISK_INFO *info);
     int   (*FormatCtrlTrack) (const char filename [], struct DISK_INFO *info);
+    int   (*IsWritable) (int drive);
     struct DISK_INFO *info;
 } DISK_PARAMETER;
 
@@ -88,7 +91,7 @@ extern int   disk_Init (void);
 extern void  disk_UnloadAll (void);
 extern void  disk_FirstLoad (void);
 extern int   disk_IsDisk (const char filename[]);
-extern int   disk_SetProtection(int drive, int mode);
+extern int   disk_Protection(int drive, int protection);
 extern void  disk_Eject(int drive);
 
 extern int   disk_IsSDFloppySector (int sector, struct DISK_INFO *info);
@@ -110,7 +113,7 @@ extern int   disk_DiskVectorIndex (struct DISK_VECTOR *p, const char str[]);
 extern int   disk_DiskVectorLength (struct DISK_VECTOR *p);
 extern char *disk_DiskVectorText (struct DISK_VECTOR *p, int index);
 extern struct DISK_VECTOR *disk_DiskVectorPtr (struct DISK_VECTOR *p, int index);
-extern struct DISK_VECTOR *disk_DiskVectorAppend (struct DISK_VECTOR *p, const char str[], int side, int side_count);
+extern struct DISK_VECTOR *disk_DiskVectorAppend (struct DISK_VECTOR *p, const char str[], int side, int side_count, int write_protect);
 extern void  disk_DiskVectorFree (struct DISK_VECTOR *p);
 
 #endif
