@@ -300,7 +300,6 @@ static void write_update_track (void)
                             teo.disk[dkc->info.drive].file,
                             disk[dkc->info.drive].info);
         if (err < 0)
-//            clear_track();
             main_DisplayMessage(teo_error_msg);
     }
     track_written = 0;
@@ -340,17 +339,6 @@ static void write_update_timeout (void)
 
 
 
-/* is_writting_finished:
- *  Force to update the track if it has been written (no access left).
- */
- /*
-static int is_writting_finished (void)
-{
-    return (track_written == 0) ? TRUE : FALSE;
-}
-*/
-
-
 /* update_track:
  *  Update the track if it has been written and load the new track.
  */
@@ -380,12 +368,12 @@ static void update_track (void)
                                 teo.disk[dkc->info.drive].file,
                                 disk[dkc->info.drive].info);
                if (err < 0)
-//                   clear_track();
+               {
                    main_DisplayMessage(teo_error_msg);
+                   clear_track();
+               }
             }
         }
-//        else
-//            clear_track();
     }
 }
 
@@ -416,7 +404,6 @@ static void write_sector (void)
                             LOAD_WORD(0x604F),
                             disk[dkc->info.drive].info);
         if (err != 0)
-//            clear_track();
             main_DisplayMessage(teo_error_msg);
     }
 }
@@ -450,8 +437,10 @@ static void read_sector (void)
                         teo.disk[dkc->info.drive].file,
                         disk[dkc->info.drive].info);
        if (err < 0)
-//           main_DisplayMessage(teo_error_msg);
+       {
+           main_DisplayMessage(teo_error_msg);
            clear_track();
+       }
     }
 }
 
@@ -483,7 +472,6 @@ static int format_track (void)
                             teo.disk[dkc->info.drive].file,
                             disk[dkc->info.drive].info);
             if (err < 0)
-//                clear_track();
                 main_DisplayMessage(teo_error_msg);
         }
     }
@@ -891,7 +879,7 @@ static void (*auto_read_address_process[])(void) = {
 };
 
 
-/* ____________________________ registers management ___________________________ */
+/* __________________________ registers management _________________________ */
 
 
 /* get_reg0:
@@ -933,7 +921,7 @@ static int get_reg0 (void)
     }
     return dkc->rr0;
 }
-                
+
 
 
 /* get_reg1:
@@ -944,18 +932,9 @@ static int get_reg1 (void)
     /* only if motor on */
     if (dkc->motor_clock[ctrl] == 0L)
     {
-        dkc->rr1 &= ~STAT1_WRITE_PROTECTED;
-
-        /* manage direct access disk protection */
-        if (disk[dkc->drive].state == TEO_DISK_ACCESS_DIRECT)
-        {
-            if ((teo_DirectIsDiskWritable != NULL)
-             && (teo_DirectIsDiskWritable (dkc->drive) == 0))
-                dkc->rr1 |= STAT1_WRITE_PROTECTED;
-        }
-
         /* manage disk protection */
-        if (teo.disk[dkc->drive].write_protect != 0)
+        dkc->rr1 &= ~STAT1_WRITE_PROTECTED;
+        if (disk_Protection (dkc->drive, FALSE) == TRUE)
             dkc->rr1 |= STAT1_WRITE_PROTECTED;
 
         /* manage index detection */
