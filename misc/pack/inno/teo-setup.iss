@@ -113,6 +113,10 @@ Source: doc\cc90232_faq_en.htm; DestDir: {app}\doc; Languages: en
 Source: doc\cc90232_faq_fr.htm; DestDir: {app}\doc; Languages: fr
 Source: doc\cc90232_modif_en.htm; DestDir: {app}\doc; Languages: en
 Source: doc\cc90232_modif_fr.htm; DestDir: {app}\doc; Languages: fr
+Source: doc\cc90hfe_linux_en.htm; DestDir: {app}\doc; Languages: en
+Source: doc\cc90hfe_linux_fr.htm; DestDir: {app}\doc; Languages: fr
+Source: doc\cc90hfe_windows_en.htm; DestDir: {app}\doc; Languages: en
+Source: doc\cc90hfe_windows_fr.htm; DestDir: {app}\doc; Languages: fr
 Source: doc\doc.css; DestDir: {app}\doc;
 Source: doc\libsap_en.htm; DestDir: {app}\doc; Languages: en
 Source: doc\libsap_fr.htm; DestDir: {app}\doc; Languages: fr
