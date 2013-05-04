@@ -109,10 +109,10 @@ static DIALOG diskdial[]={
   /* direct disk */
 #ifdef FRENCH_LANG
 { d_button_proc,     30, 136, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "Accès &direct" },
-{ d_text_proc,      200,  30,   0,   0, 0, 0,   0,   0,    0, 0, "face" },
+{ d_text_proc,      198,  30,   0,   0, 0, 0,   0,   0,    0, 0, "face" },
 #else
 { d_button_proc,     30, 146, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Direct access" },
-{ d_text_proc,      200,  30,   0,   0, 0, 0,   0,   0,    0, 0, "side" },
+{ d_text_proc,      198,  30,   0,   0, 0, 0,   0,   0,    0, 0, "side" },
 #endif
 { d_text_proc,      255,  30,   0,   0, 0, 0,   0,   0,    0, 0, "prot." },
 { d_button_proc,    210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
@@ -150,7 +150,20 @@ static DIALOG diskdial[]={
 
 
 
-/* :
+/* update_params:
+ *  Sauve les paramètres d'un disque.
+ */
+static void update_params (int dial_nbr, int drive)
+{
+    int state = diskdial[dial_nbr].flags & D_SELECTED;
+
+    diskdial[dial_nbr].d2 = (state) ? 1 : 0;
+    teo.disk[drive].write_protect = (state) ? TRUE : FALSE;
+}
+
+
+
+/* update_side_button:
  *  Update the button for side.
  */
 static void update_side_button(int drive)
@@ -220,11 +233,8 @@ void adisk_Panel(void)
             /* init disk protection */
             dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
             if (teo.disk[drive].write_protect)
-            {
-                disk_SetProtection (drive, TRUE);
                 diskdial[dial_nbr].flags |= D_SELECTED;
-                diskdial[dial_nbr].d2 = 1;
-            }
+            update_params (dial_nbr, drive);
 
             /* init disk side */
             update_side_button(drive);
@@ -281,14 +291,13 @@ void adisk_Panel(void)
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
                         diskdial[dial_nbr].flags &= ~D_SELECTED;
-                        diskdial[dial_nbr].d2=0;
                         if (ret2==TRUE)
                         {
                             agui_PopupMessage(is_fr?"Attention: écriture impossible."
                                                    :"Warning: writing unavailable.");
                             diskdial[dial_nbr].flags|=D_SELECTED;
-                            diskdial[dial_nbr].d2=1;
                         }
+                        update_params (dial_nbr, drive);
                         update_side_button(drive);
                     }
                 }
@@ -313,29 +322,18 @@ void adisk_Panel(void)
             case DISKDIAL_CHECK3:
                 drive=(ret-DISKDIAL_CHECK0)/(DISKDIAL_CHECK1-DISKDIAL_CHECK0);
             
-//                if ((diskdial[ret].flags&D_SELECTED) == 0)
+                diskdial[ret].flags|=D_SELECTED;
                 if (diskdial[ret].d2)
                 {
-                    if (disk_SetProtection(drive, FALSE)==TRUE)
+                    diskdial[ret].flags&=~D_SELECTED;
+                    if (disk_Protection(drive, FALSE) == TRUE)
                     {
                         agui_PopupMessage(is_fr?"Ecriture impossible sur ce support."
                                                :"Writing unavailable on this device.");
                         diskdial[ret].flags|=D_SELECTED;
-                        diskdial[ret].d2=1;
-                    }
-                    else
-                    {
-                        diskdial[ret].flags&=~D_SELECTED;
-                        diskdial[ret].d2=0;
                     }
                 }
-                
-                else
-                {
-                    disk_SetProtection(drive, TRUE);
-                    diskdial[ret].flags|=D_SELECTED;
-                    diskdial[ret].d2=1;
-                }
+                update_params (ret, drive);
                 break;
 
             case DISKDIAL_DIRECT:
@@ -354,28 +352,16 @@ void adisk_Panel(void)
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
 
+                        diskdial[dial_nbr].flags&=~D_SELECTED;
                         if (daccess_LoadDisk (drive, "") == TRUE)
-                        {
                             diskdial[dial_nbr].flags|=D_SELECTED;
-                            diskdial[dial_nbr].d2=1;
-                        }
-                        else
-                        {
-                            diskdial[dial_nbr].flags&=~D_SELECTED;
-                            diskdial[dial_nbr].d2=0;
-                        }
+                        update_params (dial_nbr, drive);
                     }
                 }
                 break;
 
             case -1:  /* ESC */
             case DISKDIAL_OK:
-                for (drive=0; drive<4; drive++)
-                {
-                    dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
-                    teo.disk[drive].write_protect = (diskdial[dial_nbr].flags & D_SELECTED)
-                                                     ? TRUE : FALSE;
-                }
                 return;
         }
     }
