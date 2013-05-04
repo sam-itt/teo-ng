@@ -81,6 +81,7 @@ struct EMUTEO teo;
 
 static int reset = FALSE;
 static int gfx_mode = GFX_WINDOW;
+static int windowed_mode = TRUE;
 struct STRING_LIST *remain_name = NULL;
 
 int frame;                  /* compteur de frame vidéo */
@@ -109,7 +110,7 @@ static void RetraceCallback(void)
 /* RunTO8:
  *  Boucle principale de l'émulateur.
  */
-static void RunTO8(int windowed_mode)
+static void RunTO8(void)
 {
     amouse_Install(TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
     RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
@@ -270,8 +271,15 @@ static void read_command_line(int argc, char *argv[])
  */
 void main_DisplayMessage(const char msg[])
 {
-    MessageBox(NULL, (const char*)msg, is_fr?"Teo - Erreur":"Teo - Error",
-                MB_OK | MB_ICONERROR);
+    if (windowed_mode)
+    {
+        MessageBox(NULL, (const char*)msg, is_fr?"Teo - Erreur":"Teo - Error",
+                    MB_OK | MB_ICONERROR);
+    }
+    else
+    {
+        agui_PopupMessage (msg);
+    }
 }
 
 
@@ -310,7 +318,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #else
     char **argv;
 #endif
-    int windowed_mode=FALSE;
     int njoy = 0;
     struct STRING_LIST *str_list;
 
@@ -389,12 +396,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
             if (!agfxdrv_Init(GFX_MODE40, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
                 main_ExitMessage(is_fr?"Mode graphique non supporté."
                                       :"Unsupported graphic mode");
+            windowed_mode = FALSE;
             break;
 
         case GFX_MODE80:
             if (!agfxdrv_Init(GFX_MODE80, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
                 main_ExitMessage(is_fr?"Mode graphique non supporté."
                                       :"Unsupported graphic mode");
+            windowed_mode = FALSE;
             break;
 
         case GFX_TRUECOLOR:
@@ -404,6 +413,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
                         if (!agfxdrv_Init(GFX_TRUECOLOR, 32, GFX_AUTODETECT_FULLSCREEN, FALSE))
                             main_ExitMessage(is_fr?"Mode graphique non supporté."
                                                   :"Unsupported graphic mode");
+            windowed_mode = FALSE;
             break;
 
         case GFX_WINDOW:
@@ -471,7 +481,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
             image_Load("autosave.img");
 
     /* et c'est parti !!! */
-    RunTO8(windowed_mode);
+    RunTO8();
 
     /* désinstallation du callback *avant* la sortie du mode graphique */
     remove_display_switch_callback(RetraceCallback);
