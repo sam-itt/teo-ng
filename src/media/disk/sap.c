@@ -478,39 +478,41 @@ int sap_LoadDisk(int drive, const char filename[])
 {
     int protection = file_protection (filename, teo.disk[drive].write_protect);
 
-    if (protection < 0)
-        return TEO_ERROR;
-
-    switch (*sap_read_header)
+    if (protection >= 0)
     {
-        case '\1' : disk[drive].info->sector_size  = 256;
-                    disk[drive].info->fat_size     = 160;
-                    disk[drive].info->track_count  = 80;
-                    disk[drive].info->byte_rate    = 250000/8;
-                    break;
+        switch (*sap_read_header)
+        {
+            case '\1' : disk[drive].info->sector_size  = 256;
+                        disk[drive].info->fat_size     = 160;
+                        disk[drive].info->track_count  = 80;
+                        disk[drive].info->byte_rate    = 250000/8;
+                        break;
                      
-        case '\2' : return error_Message (TEO_ERROR_FILE_FORMAT, filename);
+            case '\2' : return error_Message (TEO_ERROR_FILE_FORMAT, filename);
 /*
-                    disk[drive].info->sector_size  = 128;
-                    disk[drive].info->fat_size     = 80;
-                    disk[drive].info->track_count  = 40;
-                    disk[drive].info->byte_rate    = 125000/8;
+                        disk[drive].info->sector_size  = 128;
+                        disk[drive].info->fat_size     = 80;
+                        disk[drive].info->track_count  = 40;
+                        disk[drive].info->byte_rate    = 125000/8;
 */
-                    break;
-    }
-    disk[drive].info->track = -1;  /* force track to be loaded */
+                        break;
+        }
+        disk[drive].info->track = -1;  /* force track to be loaded */
 
-    /* update parameters */
-    teo.disk[drive].file = std_free (teo.disk[drive].file);
-    teo.disk[drive].file = std_strdup_printf ("%s", filename);
-    teo.disk[drive].write_protect = protection;
-    disk[drive].state = TEO_DISK_ACCESS_SAP;
-    disk[drive].ReadCtrlTrack = read_ctrl_track;
-    disk[drive].WriteCtrlTrack = write_ctrl_track;
-    disk[drive].ReadCtrlSector = NULL;
-    disk[drive].WriteCtrlSector = NULL;
-    disk[drive].FormatCtrlTrack = NULL;
-    disk[drive].side_count = 1;
+        /* update parameters */
+        teo.disk[drive].file = std_free (teo.disk[drive].file);
+        teo.disk[drive].file = std_strdup_printf ("%s", filename);
+        teo.disk[drive].write_protect = protection;
+        disk[drive].state = TEO_DISK_ACCESS_SAP;
+        disk[drive].write_protect = FALSE;
+        disk[drive].ReadCtrlTrack = read_ctrl_track;
+        disk[drive].WriteCtrlTrack = write_ctrl_track;
+        disk[drive].ReadCtrlSector = NULL;
+        disk[drive].WriteCtrlSector = NULL;
+        disk[drive].FormatCtrlTrack = NULL;
+        disk[drive].IsWritable = NULL;
+        disk[drive].side_count = 1;
+    }
 
     return protection;
 }

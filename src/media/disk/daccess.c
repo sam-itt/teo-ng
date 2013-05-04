@@ -252,11 +252,13 @@ int daccess_LoadDisk (int drive, const char filename[])
         teo.disk[drive].file = std_free (teo.disk[drive].file);
         teo.disk[drive].write_protect = protection;
         disk[drive].state = TEO_DISK_ACCESS_DIRECT;
+        disk[drive].write_protect = FALSE;
         disk[drive].ReadCtrlTrack = NULL;
         disk[drive].WriteCtrlTrack = NULL;
         disk[drive].ReadCtrlSector = read_mfm_sector;
         disk[drive].WriteCtrlSector = write_mfm_sector;
         disk[drive].FormatCtrlTrack = format_mfm_track;
+        disk[drive].IsWritable = teo_DirectIsDiskWritable;
         disk[drive].side_count = 2;
     }
     return protection;
