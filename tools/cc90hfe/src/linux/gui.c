@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2013 FranÃ§ois Mouret
+ *  Copyright (C) 2012-2013 François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 /*
  *  Module     : linux/gui.c
  *  Version    : 0.5.0
- *  CrÃ©Ã© par   : FranÃ§ois Mouret 27/02/2013
- *  ModifiÃ© par:
+ *  Créé par   : François Mouret 27/02/2013
+ *  Modifié par:
  *
  *  Archive callback.
  */
@@ -87,7 +87,7 @@ static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
                              GTK_MESSAGE_INFO,
                              GTK_BUTTONS_OK_CANCEL,
                              is_fr?encode_String(
-                             "Un processus est encore en cours d'exÃ©cution.\n" \
+                             "Un processus est encore en cours d'exécution.\n" \
                              "Voulez-vous vraiment quitter ?")
                             :"A process is still running\n" \
                              "Do you really want to quit ?",
@@ -109,7 +109,7 @@ static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
 
 
 /* udisplay_Window:
- *   CrÃ©e la fenÃªtre principale.
+ *   Crée la fenêtre principale.
  */
 static void display_window(void)
 {
@@ -127,7 +127,7 @@ static void display_window(void)
     g_signal_connect (G_OBJECT (main_window), "configure-event",
                       G_CALLBACK (main_window_moved), NULL);
 
-    /* boÃ®te verticale principale */
+    /* boîte verticale principale */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(main_window), vbox);
@@ -165,7 +165,7 @@ static void display_window(void)
     widget = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start (GTK_BOX(vbox), widget, FALSE, FALSE, 0);
 
-    /* boÃ®te forizontale */
+    /* boîte forizontale */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start (GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -173,15 +173,15 @@ static void display_window(void)
     progress_label=gtk_label_new ("");
     gtk_box_pack_start (GTK_BOX(hbox), progress_label, FALSE, FALSE, 0);
 
-    /* boÃ®te horizontale */
+    /* boîte horizontale */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_pack_start (GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-    /* boÃ®te horizontale */
+    /* boîte horizontale */
     hbox2=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_pack_start (GTK_BOX(hbox), hbox2, TRUE, TRUE, 0);
 
-    /* boÃ®te verticale */
+    /* boîte verticale */
     vbox2=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_set_homogeneous (GTK_BOX(vbox2), TRUE);
     gtk_box_pack_start (GTK_BOX(hbox2), vbox2, TRUE, TRUE, 0);
@@ -190,7 +190,7 @@ static void display_window(void)
     progress_bar = gtk_progress_bar_new ();
     gtk_box_pack_start (GTK_BOX(vbox2), progress_bar, FALSE, FALSE, 0);
 
-    /* boÃ®te horizontale */
+    /* boîte horizontale */
     hbox2=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
     gtk_box_pack_start (GTK_BOX(hbox), hbox2, FALSE, FALSE, 0);
 
