@@ -296,7 +296,6 @@ static int write_ctrl_track (const char filename [], struct DISK_INFO *info)
  */
 static int file_protection (const char filename[], int protection)
 {
-    FILE *file = NULL;
     size_t file_size;
     size_t name_length;
     
@@ -305,11 +304,7 @@ static int file_protection (const char filename[], int protection)
     if (protection >= 0)
     {
         /* check size of file */
-        file = fopen (filename, "rb");
-        fseek (file, 0, SEEK_END);
-        file_size = ftell (file);
-        (void)fclose(file);
-
+        file_size = std_FileSize(filename);
         for (fd_type=0; file_size != fd_list[fd_type].file_size; fd_type++)
            if (fd_type == 7)
                return error_Message (TEO_ERROR_FILE_FORMAT, filename);

@@ -320,19 +320,19 @@ int hfe_WriteTrack (void)
 int hfe_ReadOpen (const char filename[])
 {
     int i;
+    size_t file_size;
 
     /* check size of file */
+    file_size = std_FileSize (filename);
+    if (file_size != 3922*512)
+        return error_Message (CC90HFE_ERROR_FILE_FORMAT, filename);
+
+    /* load header */
     file = fopen (filename, "rb");
     if (file == NULL)
         return error_Message (CC90HFE_ERROR_FILE_OPEN, filename);
     
-    if ((fseek (file, 0, SEEK_END) != 0)
-     || (ftell (file) < 512*20))
-        return format_error (filename);
-
-    /* load header */
-    if ((fseek (file, 0, SEEK_SET) != 0)
-     || (fread (hfe_hd.HEADERSIGNATURE, 1, 8, file) != 8))
+    if (fread (hfe_hd.HEADERSIGNATURE, 1, 8, file) != 8)
         return format_error (filename);
     hfe_hd.formatrevision      = (unsigned char)fgetc(file);
     hfe_hd.number_of_track     = (unsigned char)fgetc(file);

@@ -53,6 +53,7 @@ extern void   *std_stralloc (void *p, char *s);
 extern FILE   *std_fclose (FILE *fp);
 extern int    std_IsFile (const char filename[]);
 extern int    std_IsDir (const char filename[]);
+extern size_t std_FileSize (const char filename[]);
 extern void   std_rtrim (char *s);
 extern char   *std_skpspc(char *p);
 extern char   *std_strdup_printf (char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
