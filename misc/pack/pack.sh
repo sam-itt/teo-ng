@@ -92,9 +92,9 @@ teo/*.dll"
 
 # list of common files for executable packages
 common_exec="
-teo/disks
-teo/memo7
-teo/k7
+teo/disk
+teo/memo
+teo/cass
 teo/system
 teo/doc/images/*.*
 teo/doc/*.htm
@@ -122,9 +122,9 @@ cd ..
 
 # ----------------- clean all
 
-rm -r -f ./disks
-rm -r -f ./memo7
-rm -r -f ./k7
+rm -r -f ./disk
+rm -r -f ./memo
+rm -r -f ./cass
 rm -f $current_folder/$packDir/teo-*.tar* $current_folder/$packDir/teo-*.zip $current_folder/$packDir/teo-*.deb
 rm -f $current_folder/$packDir/cc90hfe-*.tar* $current_folder/$packDir/cc90hfe-*.zip $current_folder/$packDir/cc90hfe-*.deb
 
@@ -213,6 +213,7 @@ mkdir ~/$deb_dir/doc/images
 cp teo/tools/cc90hfe/cc90hfe     ~/$deb_name/usr/games/
 cp teo/cc90.sap                  ~/$deb_dir
 cp teo/cc90.fd                   ~/$deb_dir
+cp teo/cc90.hfe                  ~/$deb_dir
 cp teo/doc/doc.css               ~/$deb_dir/doc
 cp teo/doc/images/*.*            ~/$deb_dir/doc/images
 cp teo/doc/cc90*.htm             ~/$deb_dir/doc
@@ -224,9 +225,9 @@ build_debian_package $deb_name $current_folder/$packDir
 
 # ----------------- Create media folders
 
-mkdir teo/disks
-mkdir teo/memo7
-mkdir teo/k7
+mkdir teo/disk
+mkdir teo/memo
+mkdir teo/cass
 
 # ----------------- Linux executable package
 
@@ -270,7 +271,8 @@ teo/sapfs
 teo/wav2k7
 teo/cc90hfe
 teo/cc90.sap
-teo/cc90.fd"
+teo/cc90.fd
+teo/cc90.hfe"
 packFile="$current_folder/$packDir/teo-$teoversion-i586.tar"
 tar -cf $packFile $common_exec $linux_exec teo/*-??.*
 gzip $gzipOptions $packFile
@@ -361,6 +363,7 @@ teo/cc90hfe.exe
 teo/cc90hfe-com.exe
 teo/cc90.sap
 teo/cc90.fd
+teo/cc90.hfe
 teo/*.dll"
 
 echo "Creating ZIP packages for Windows executables in French..."
