@@ -188,42 +188,48 @@ int main_ExtractDisk (void)
 
 
 
+char *main_DataFile (const char filename[])
+{
+    static char *fname = NULL;
+
+    fname = NULL;
+
+#ifdef DEBIAN_BUILD
+    /* Création du répertoire pour Cc90hfe (tous les droits) */
+    fname = std_strdup_printf ("%s/%s", getenv("HOME"), DEBIAN_DATAS_DIR);
+    if (access (fname, F_OK) < 0)
+        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    fname = std_free (fname);
+
+    /* Création du fichier */
+    fname = std_strdup_printf ("%s/%s/%s", getenv("HOME"), DEBIAN_DATAS_DIR, filename);
+#else
+    fname = std_strdup_printf ("%s", filename);
+#endif
+    return fname;
+}
+
+    
+
 void main_ConsoleReadCommandLine (int argc, char *argv[])
 {
-#ifdef DEBIAN_BUILD
     char *fname = NULL;
-#endif
 
     if (read_command_line (argc, argv) != NULL)
         console_exit_failure ();
 
-#ifdef DEBIAN_BUILD
     if (debug_option != 0)
     {
-        fname = std_strdup_printf ("%s/.teo/cc90hfe.log", getenv("HOME"));
+        fname = main_DataFile("cc90hfe.log");
         fd_debug = fopen (fname, "wb");
         fname = std_free (fname);
     }
-#else
-    if (debug_option != 0)
-        fd_debug = fopen ("cc90hfe.log", "wb");
-#endif
 }
 
 
 
 void main_InitAll (void)
 {
-#ifdef DEBIAN_BUILD
-    char *fname = NULL;
-
-    /* Création du répertoire pour Cc90hfe (tous les droits) */
-    fname = std_strdup_printf ("%s/.local/share/applications/teo", getenv("HOME"));
-    if (access (fname, F_OK) < 0)
-        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-    fname = std_free (fname);
-#endif
-
     windowed_mode = 0;
 
     /* init info structure */

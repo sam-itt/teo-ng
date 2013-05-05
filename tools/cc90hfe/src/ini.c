@@ -37,6 +37,7 @@
 
 #include "defs.h"
 #include "std.h"
+#include "main.h"
 #include "ini.h"
 #include "serial.h"
 
@@ -110,13 +111,8 @@ static char *value_pointer (char *section, char *key)
 
 static FILE *file_open (const char filename[], const char mode[])
 {
-    char *name = NULL;
+    char *name = main_DataFile (filename);
 
-#ifdef DEBIAN_BUILD
-    name = std_strdup_printf ("%s/.local/share/applications/teo/%s", getenv("HOME"), filename);
-#else
-    name = std_strdup_printf ("%s", filename);
-#endif
     file = fopen(name, mode);
     name = std_free (name);
     return file;

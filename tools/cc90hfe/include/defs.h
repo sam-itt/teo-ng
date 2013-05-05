@@ -46,6 +46,8 @@
 #   define SYSTEMSLASH "\\"
 #endif
 
+#define DEBIAN_DATAS_DIR   ".local/share/applications/teo"
+
 #define PROG_NAME          "CC90HFE"
 #define PROG_VERSION_MAJOR "0"
 #define PROG_VERSION_MINOR "5"
