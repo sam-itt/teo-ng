@@ -32,136 +32,271 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}
 
 [Files]
+Flags: ignoreversion; Languages: en; DestDir: {app}\bin; Source: {#OUTPUTDIR}\mingw\cc90hfe-com-en.exe; DestName: cc90hfe.exe
 ; ------------------------- Executables -------------------------------
-Source: {#OUTPUTDIR}\mingw\teow-en.exe; DestDir: {app}; DestName: teow.exe; Languages: en
-Source: {#OUTPUTDIR}\mingw\teow-fr.exe; DestDir: {app}; DestName: teow.exe; Languages: fr
-Source: {#OUTPUTDIR}\mingw\cc90hfe-en.exe; DestDir: {app}; DestName: cc90hfe.exe; Languages: en
-Source: {#OUTPUTDIR}\mingw\cc90hfe-fr.exe; DestDir: {app}; DestName: cc90hfe.exe; Languages: fr
-Source: {#OUTPUTDIR}\mingw\cc90hfe-com-en.exe; DestDir: {app}\bin; DestName: cc90hfe.exe; Languages: en
-Source: {#OUTPUTDIR}\mingw\cc90hfe-com-fr.exe; DestDir: {app}\bin; DestName: cc90hfe.exe; Languages: fr
-Source: {#OUTPUTDIR}\msdos\wav2k7-en.exe; DestDir: {app}; DestName: wav2k7.exe; Languages: en
-Source: {#OUTPUTDIR}\msdos\wav2k7-fr.exe; DestDir: {app}; DestName: wav2k7.exe; Languages: fr
-Source: {#OUTPUTDIR}\msdos\sap2-en.exe; DestDir: {app}; DestName: sap2.exe; Languages: en
-Source: {#OUTPUTDIR}\msdos\sap2-fr.exe; DestDir: {app}; DestName: sap2.exe; Languages: fr
-Source: {#OUTPUTDIR}\msdos\sapfs-en.exe; DestDir: {app}; DestName: sapfs.exe; Languages: en
-Source: {#OUTPUTDIR}\msdos\sapfs-fr.exe; DestDir: {app}; DestName: sapfs.exe; Languages: fr
+Flags: ignoreversion; Languages: en; DestDir: {app}\bin; Source: {#OUTPUTDIR}\mingw\cc90hfe-com-en.exe; DestName: cc90hfe.exe
+Flags: ignoreversion; Languages: fr; DestDir: {app}\bin; Source: {#OUTPUTDIR}\mingw\cc90hfe-com-fr.exe; DestName: cc90hfe.exe
+Flags: ignoreversion; Languages: en; DestDir: {app}; Source: {#OUTPUTDIR}\mingw\teow-en.exe; DestName: teow.exe
+Flags: ignoreversion; Languages: fr; DestDir: {app}; Source: {#OUTPUTDIR}\mingw\teow-fr.exe; DestName: teow.exe
+Flags: ignoreversion; Languages: en; DestDir: {app}; Source: {#OUTPUTDIR}\mingw\cc90hfe-en.exe; DestName: cc90hfe.exe
+Flags: ignoreversion; Languages: fr; DestDir: {app}; Source: {#OUTPUTDIR}\mingw\cc90hfe-fr.exe; DestName: cc90hfe.exe
+Flags: ignoreversion; Languages: en; DestDir: {app}; Source: {#OUTPUTDIR}\msdos\wav2k7-en.exe; DestName: wav2k7.exe
+Flags: ignoreversion; Languages: fr; DestDir: {app}; Source: {#OUTPUTDIR}\msdos\wav2k7-fr.exe; DestName: wav2k7.exe
+Flags: ignoreversion; Languages: en; DestDir: {app}; Source: {#OUTPUTDIR}\msdos\sap2-en.exe; DestName: sap2.exe
+Flags: ignoreversion; Languages: fr; DestDir: {app}; Source: {#OUTPUTDIR}\msdos\sap2-fr.exe; DestName: sap2.exe
+Flags: ignoreversion; Languages: en; DestDir: {app}; Source: {#OUTPUTDIR}\msdos\sapfs-en.exe; DestName: sapfs.exe
+Flags: ignoreversion; Languages: fr; DestDir: {app}; Source: {#OUTPUTDIR}\msdos\sapfs-fr.exe; DestName: sapfs.exe
 ; ------------------------- Root files -------------------------------
-Source: readme-en.txt; DestDir: {app}; DestName: readme.txt; Languages: en; Flags: isreadme
-Source: readme-fr.txt; DestDir: {app}; DestName: readme.txt; Languages: fr; Flags: isreadme
-Source: change-en.log; DestDir: {app}; DestName: change.log; Languages: en
-Source: change-fr.log; DestDir: {app}; DestName: change.log; Languages: fr
-Source: licence-en.txt; DestDir: {app}; DestName: license.txt; Languages: en
-Source: licence-fr.txt; DestDir: {app}; DestName: license.txt; Languages: fr
-Source: allegro.cfg; DestDir: {app};
-Source: language.dat; DestDir: {app}
-Source: keyboard.dat; DestDir: {app}
-Source: alleg40.dll; DestDir: {app}
-Source: libpng3.dll; DestDir: {app}
-Source: zlib1.dll; DestDir: {app}
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+Flags: ignoreversion; DestDir: {app}; Source: readme-en.txt; DestName: readme.txt; Languages: en
+Flags: ignoreversion; DestDir: {app}; Source: readme-fr.txt; DestName: readme.txt; Languages: fr
+Flags: ignoreversion; DestDir: {app}; Source: change-en.log; DestName: change.log; Languages: en
+Flags: ignoreversion; DestDir: {app}; Source: change-fr.log; DestName: change.log; Languages: fr
+Flags: ignoreversion; DestDir: {app}; Source: licence-en.txt; DestName: license.txt; Languages: en
+Flags: ignoreversion; DestDir: {app}; Source: licence-fr.txt; DestName: license.txt; Languages: fr
+Flags: ignoreversion; DestDir: {app}; Source: allegro.cfg
+Flags: ignoreversion; DestDir: {app}; Source: language.dat
+Flags: ignoreversion; DestDir: {app}; Source: keyboard.dat
+Flags: ignoreversion; DestDir: {app}; Source: alleg40.dll
+Flags: ignoreversion; DestDir: {app}; Source: libpng3.dll
+Flags: ignoreversion; DestDir: {app}; Source: zlib1.dll
+Flags: ignoreversion; DestDir: {app}; Source: cwsdpmi.exe
 ; ------------------------- ROMs -------------------------------
-Source: system\rom\basic512.rom; DestDir: {app}\system\rom;
-Source: system\rom\extramon.rom; DestDir: {app}\system\rom;
-Source: system\rom\basic1.rom; DestDir: {app}\system\rom;
-Source: system\rom\expl.rom; DestDir: {app}\system\rom;
-Source: system\rom\monitor1.rom; DestDir: {app}\system\rom;
-Source: system\rom\monitor2.rom; DestDir: {app}\system\rom;
+Flags: ignoreversion; DestDir: {app}\system\rom; Source: system\rom\basic512.rom
+Flags: ignoreversion; DestDir: {app}\system\rom; Source: system\rom\extramon.rom
+Flags: ignoreversion; DestDir: {app}\system\rom; Source: system\rom\basic1.rom
+Flags: ignoreversion; DestDir: {app}\system\rom; Source: system\rom\expl.rom
+Flags: ignoreversion; DestDir: {app}\system\rom; Source: system\rom\monitor1.rom
+Flags: ignoreversion; DestDir: {app}\system\rom; Source: system\rom\monitor2.rom
 ; ------------------------- Printer -------------------------------
-Source: system\printer\042\picas.txt; DestDir: {app}\system\printer\042;
-Source: system\printer\055\picas.txt; DestDir: {app}\system\printer\055;
-Source: system\printer\582\conds.txt; DestDir: {app}\system\printer\582;
-Source: system\printer\582\italc.txt; DestDir: {app}\system\printer\582;
-Source: system\printer\582\picac.txt; DestDir: {app}\system\printer\582;
-Source: system\printer\582\picas.txt; DestDir: {app}\system\printer\582;
-Source: system\printer\582\scrpc.txt; DestDir: {app}\system\printer\582;
-Source: system\printer\582\table.txt; DestDir: {app}\system\printer\582;
-Source: system\printer\600\elitc.txt; DestDir: {app}\system\printer\600;
-Source: system\printer\600\italc.txt; DestDir: {app}\system\printer\600;
-Source: system\printer\600\itals.txt; DestDir: {app}\system\printer\600;
-Source: system\printer\600\picac.txt; DestDir: {app}\system\printer\600;
-Source: system\printer\600\picas.txt; DestDir: {app}\system\printer\600;
-Source: system\printer\600\scrpc.txt; DestDir: {app}\system\printer\600;
-Source: system\printer\612\elitc.txt; DestDir: {app}\system\printer\612;
-Source: system\printer\612\italc.txt; DestDir: {app}\system\printer\612;
-Source: system\printer\612\itals.txt; DestDir: {app}\system\printer\612;
-Source: system\printer\612\picac.txt; DestDir: {app}\system\printer\612;
-Source: system\printer\612\picas.txt; DestDir: {app}\system\printer\612;
-Source: system\printer\612\scrpc.txt; DestDir: {app}\system\printer\612;
-Source: system\printer\612\table.txt; DestDir: {app}\system\printer\612;
+Flags: ignoreversion; DestDir: {app}\system\printer\042; Source: system\printer\042\picas.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\055; Source: system\printer\055\picas.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\582; Source: system\printer\582\conds.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\582; Source: system\printer\582\italc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\582; Source: system\printer\582\picac.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\582; Source: system\printer\582\picas.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\582; Source: system\printer\582\scrpc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\582; Source: system\printer\582\table.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\600; Source: system\printer\600\elitc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\600; Source: system\printer\600\italc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\600; Source: system\printer\600\itals.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\600; Source: system\printer\600\picac.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\600; Source: system\printer\600\picas.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\600; Source: system\printer\600\scrpc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\elitc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\italc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\itals.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\picac.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\picas.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\scrpc.txt
+Flags: ignoreversion; DestDir: {app}\system\printer\612; Source: system\printer\612\table.txt
 ; --------------------- Documentation images ----------------------------
-Source: doc\images\modif2.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif3.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif3a.gif; DestDir: {app}\doc\images;
-Source: doc\images\modif3b.gif; DestDir: {app}\doc\images;
-Source: doc\images\modif4.gif; DestDir: {app}\doc\images;
-Source: doc\images\modif5.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif6.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif7.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif8.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif9.gif; DestDir: {app}\doc\images;
-Source: doc\images\modif10.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif11.jpg; DestDir: {app}\doc\images;
-Source: doc\images\modif12.jpg; DestDir: {app}\doc\images;
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif2.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif3.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif3a.gif
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif3b.gif
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif4.gif
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif5.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif6.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif7.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif8.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif9.gif
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif10.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif11.jpg
+Flags: ignoreversion; DestDir: {app}\doc\images; Source: doc\images\modif12.jpg
 ; --------------------- Documentation html ----------------------------
-Source: doc\cc90hfe_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90hfe_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\cc90_thomson_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90_thomson_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\cc90232_adapt_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90232_adapt_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\cc90232_faq_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90232_faq_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\cc90232_modif_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90232_modif_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\cc90hfe_linux_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90hfe_linux_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\cc90hfe_windows_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\cc90hfe_windows_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\doc.css; DestDir: {app}\doc;
-Source: doc\libsap_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\libsap_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\licence_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\licence_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\sap2_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\sap2_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\sapfs_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\sapfs_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\teo_changes_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\teo_changes_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\teo_dos_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\teo_dos_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\teo_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\teo_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\teo_linux_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\teo_linux_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\teo_windows_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\teo_windows_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\wav2k7_en.htm; DestDir: {app}\doc; Languages: en
-Source: doc\wav2k7_fr.htm; DestDir: {app}\doc; Languages: fr
-Source: doc\welcome_fr.htm; DestDir: {app}\doc; Languages: fr; DestName: index.htm;
-Source: doc\welcome_en.htm; DestDir: {app}\doc; Languages: en; DestName: index.htm;
+Flags: ignoreversion; Source: doc\doc.css; DestDir: {app}\doc
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90hfe_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90hfe_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90_thomson_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90_thomson_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90232_adapt_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90232_adapt_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90232_faq_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90232_faq_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90232_modif_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90232_modif_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90hfe_linux_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90hfe_linux_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\cc90hfe_windows_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\cc90hfe_windows_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\libsap_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\libsap_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\licence_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\licence_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\sap2_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\sap2_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\sapfs_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\sapfs_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\teo_changes_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\teo_changes_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\teo_dos_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\teo_dos_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\teo_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\teo_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\teo_linux_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\teo_linux_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\teo_windows_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\teo_windows_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\wav2k7_en.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\wav2k7_fr.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: en; Source: doc\welcome_en.htm; DestName: index.htm
+Flags: ignoreversion; DestDir: {app}\doc; Languages: fr; Source: doc\welcome_fr.htm; DestName: index.htm
 
 [Icons]
-Name: {group}\Teow; Filename: {app}\teow.exe; IconIndex: 0; Parameters:
-Name: {group}\Cc90hfe; Filename: {app}\cc90hfe.exe; IconIndex: 0; Parameters:
-Name: {group}\Teow + reset; Filename: {app}\teow.exe; IconIndex: 0; Parameters: --reset
-Name: {group}\Manuel de Teow; Filename: {app}\doc\index.htm; IconIndex: 0; Languages: fr
-Name: {group}\Teow's manual; Filename: {app}\doc\index.htm; IconIndex: 0; Languages: en
-Name: {group}\Licence de Teow; Filename: {app}\license.txt; IconIndex: 0; Languages: fr
-Name: {group}\Teow's licence; Filename: {app}\license.txt; IconIndex: 0; Languages: en
-Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: {#WEBSITE}; IconIndex: 0
-Name: {group}\{cm:UninstallProgram,Teow}; Filename: {uninstallexe}; IconIndex: 0
-Name: {commondesktop}\Teow {#TEOVERSION}; Filename: {app}\teow.exe; Tasks: desktopicon; IconIndex: 0; Parameters:
-Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#TEOVERSION}; Filename: {app}\teow.exe; Tasks: quicklaunchicon; IconIndex: 0; Parameters:
-
-[UninstallDelete]
-Name: {app}; Type: filesandordirs
+IconIndex: 0; Name: {group}\Teow; Filename: {app}\teow.exe
+IconIndex: 0; Name: {group}\Cc90hfe; Filename: {app}\cc90hfe.exe
+IconIndex: 0; Name: {group}\Teow + reset; Filename: {app}\teow.exe; Parameters: --reset
+IconIndex: 0; Name: {group}\Manuel de Teow; Filename: {app}\doc\index.htm; Languages: fr
+IconIndex: 0; Name: {group}\Teow's manual; Filename: {app}\doc\index.htm; Languages: en
+IconIndex: 0; Name: {group}\Licence de Teow; Filename: {app}\license.txt; Languages: fr
+IconIndex: 0; Name: {group}\Teow's licence; Filename: {app}\license.txt; Languages: en
+IconIndex: 0; Name: {group}\{cm:ProgramOnTheWeb,Teow}; Filename: {#WEBSITE}
+IconIndex: 0; Name: {group}\{cm:UninstallProgram,Teow}; Filename: {uninstallexe}
+IconIndex: 0; Name: {commondesktop}\Teow {#TEOVERSION}; Filename: {app}\teow.exe; Tasks: desktopicon
+IconIndex: 0; Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#TEOVERSION}; Filename: {app}\teow.exe; Tasks: quicklaunchicon
 
 [Dirs]
-Name: {app}\doc
+Flags: uninsneveruninstall; Name: {app}\disk
+Flags: uninsneveruninstall; Name: {app}\memo
+Flags: uninsneveruninstall; Name: {app}\cass
+
+[Run]
+Languages: fr; Filename: "{app}\readme.txt"; Description: "Voir le fichier README"; Flags: postinstall shellexec skipifsilent unchecked
+Languages: en; Filename: "{app}\readme.txt"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent unchecked
+Languages: fr; Filename: "{app}\teow.exe"; Description: "Lancer l'application"; Flags: postinstall nowait skipifsilent
+Languages: en; Filename: "{app}\teow.exe"; Description: "Launch application"; Flags: postinstall nowait skipifsilent
 
 [InstallDelete]
-Name: {group}; Type: filesandordirs
-Name: {app}; Type: filesandordirs
-Name: {commondesktop}\Teow {#TEOVERSION}; Type: files
-Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Teow {#TEOVERSION}; Type: files
+; version 1.8.1 and older
+Type: files; Name: {app}\teo.cfg
+Type: files; Name: {app}\b512_b0.rom
+Type: files; Name: {app}\b512_b1.rom
+Type: files; Name: {app}\basic1.rom
+Type: files; Name: {app}\fichier.rom
+Type: files; Name: {app}\to8mon1.rom
+Type: files; Name: {app}\to8mon2.rom
+Type: files; Name: {app}\licence_fr.txt
+Type: files; Name: {app}\licence_en.txt
+Type: files; Name: {app}\readme_fr.txt
+Type: files; Name: {app}\readme_en.txt
+; version 1.8.1 specific
+Type: files; Name: {app}\fonts\condc600.txt
+Type: files; Name: {app}\fonts\condc612.txt
+Type: files; Name: {app}\fonts\elitc600.txt
+Type: files; Name: {app}\fonts\elitc612.txt
+Type: files; Name: {app}\fonts\elits600.txt
+Type: files; Name: {app}\fonts\elits612.txt
+Type: files; Name: {app}\fonts\elons055.txt
+Type: files; Name: {app}\fonts\elons600.txt
+Type: files; Name: {app}\fonts\elons612.txt
+Type: files; Name: {app}\fonts\picac600.txt
+Type: files; Name: {app}\fonts\picac612.txt
+Type: files; Name: {app}\fonts\picas055.txt
+Type: files; Name: {app}\fonts\picas600.txt
+Type: files; Name: {app}\fonts\picas612.txt
+Type: files; Name: {app}\fonts\tiny.txt
+Type: dirifempty; Name: {app}\fonts
+Type: files; Name: {app}\doc\wiki\changeen
+Type: files; Name: {app}\doc\wiki\changefr
+Type: files; Name: {app}\doc\wiki\index
+Type: files; Name: {app}\doc\wiki\indexfr
+Type: files; Name: {app}\doc\wiki\libsapen
+Type: files; Name: {app}\doc\wiki\libsapfr
+Type: files; Name: {app}\doc\wiki\licencen
+Type: files; Name: {app}\doc\wiki\licencfr
+Type: files; Name: {app}\doc\wiki\sap2en
+Type: files; Name: {app}\doc\wiki\sap2fr
+Type: files; Name: {app}\doc\wiki\sapfsen
+Type: files; Name: {app}\doc\wiki\sapfsfr
+Type: files; Name: {app}\doc\wiki\teodosen
+Type: files; Name: {app}\doc\wiki\teodosfr
+Type: files; Name: {app}\doc\wiki\teoen
+Type: files; Name: {app}\doc\wiki\teofr
+Type: files; Name: {app}\doc\wiki\teolnxen
+Type: files; Name: {app}\doc\wiki\teolnxfr
+Type: files; Name: {app}\doc\wiki\teowinen
+Type: files; Name: {app}\doc\wiki\teowinfr
+Type: files; Name: {app}\doc\wiki\wav2k7en
+Type: files; Name: {app}\doc\wiki\wav2k7fr
+Type: files; Name: {app}\doc\changeen.htm
+Type: files; Name: {app}\doc\changefr.htm
+Type: files; Name: {app}\doc\indexfr.htm
+Type: files; Name: {app}\doc\libsapen.htm
+Type: files; Name: {app}\doc\libsapfr.htm
+Type: files; Name: {app}\doc\licencen.htm
+Type: files; Name: {app}\doc\licencfr.htm
+Type: files; Name: {app}\doc\sap2en.htm
+Type: files; Name: {app}\doc\sap2fr.htm
+Type: files; Name: {app}\doc\sapfsen.htm
+Type: files; Name: {app}\doc\sapfsfr.htm
+Type: files; Name: {app}\doc\teodosen.htm
+Type: files; Name: {app}\doc\teodosfr.htm
+Type: files; Name: {app}\doc\teoen.htm
+Type: files; Name: {app}\doc\teofr.htm
+Type: files; Name: {app}\doc\teolnxen.htm
+Type: files; Name: {app}\doc\teolnxfr.htm
+Type: files; Name: {app}\doc\teowinen.htm
+Type: files; Name: {app}\doc\teowinfr.htm
+Type: files; Name: {app}\doc\wav2k7en.htm
+Type: files; Name: {app}\doc\wav2k7fr.htm
+; version 1.8.0 specific
+Type: files; Name: {app}\doc\images\en.gif
+Type: files; Name: {app}\doc\images\fr.gif
+Type: files; Name: {app}\doc\images\home.gif
+Type: files; Name: {app}\doc\images\logo.jpg
+Type: files; Name: {app}\doc\images\logoblank.jpg
+Type: files; Name: {app}\doc\images\teo_d1en.gif
+Type: files; Name: {app}\doc\images\teo_d1fr.gif
+Type: files; Name: {app}\doc\images\teo_d2en.gif
+Type: files; Name: {app}\doc\images\teo_d2fr.gif
+Type: files; Name: {app}\doc\images\teo_d3en.gif
+Type: files; Name: {app}\doc\images\teo_d3fr.gif
+Type: files; Name: {app}\doc\images\teo_d4en.gif
+Type: files; Name: {app}\doc\images\teo_d4fr.gif
+Type: files; Name: {app}\doc\images\teo_d5en.gif
+Type: files; Name: {app}\doc\images\teo_d5fr.gif
+Type: files; Name: {app}\doc\images\teo_d6en.gif
+Type: files; Name: {app}\doc\images\teo_d6fr.gif
+Type: files; Name: {app}\doc\images\teo_v1en.gif
+Type: files; Name: {app}\doc\images\teo_v1fr.gif
+Type: files; Name: {app}\doc\images\teo_v2en.gif
+Type: files; Name: {app}\doc\images\teo_v2fr.gif
+Type: files; Name: {app}\doc\images\teo_v3en.gif
+Type: files; Name: {app}\doc\images\teo_v3fr.gif
+Type: files; Name: {app}\doc\images\teo_v4en.gif
+Type: files; Name: {app}\doc\images\teo_v4fr.gif
+Type: files; Name: {app}\doc\images\teo_v5en.gif
+Type: files; Name: {app}\doc\images\teo_v5fr.gif
+Type: files; Name: {app}\doc\images\teo_v6en.gif
+Type: files; Name: {app}\doc\images\teo_v6fr.gif
+Type: files; Name: {app}\doc\images\teo_w0en.gif
+Type: files; Name: {app}\doc\images\teo_w0fr.gif
+Type: files; Name: {app}\doc\images\teo_w1en.gif
+Type: files; Name: {app}\doc\images\teo_w1fr.gif
+Type: files; Name: {app}\doc\images\teo_w2en.gif
+Type: files; Name: {app}\doc\images\teo_w2fr.gif
+Type: files; Name: {app}\doc\images\teo_w3en.gif
+Type: files; Name: {app}\doc\images\teo_w3fr.gif
+Type: files; Name: {app}\doc\images\teo_w4en.gif
+Type: files; Name: {app}\doc\images\teo_w4fr.gif
+Type: files; Name: {app}\doc\images\teo_w5en.gif
+Type: files; Name: {app}\doc\images\teo_w5fr.gif
+Type: files; Name: {app}\doc\images\teo_x1en.png
+Type: files; Name: {app}\doc\images\teo_x1fr.png
+Type: files; Name: {app}\doc\images\teo_x2en.png
+Type: files; Name: {app}\doc\images\teo_x2fr.png
+Type: files; Name: {app}\doc\images\teo_x3en.png
+Type: files; Name: {app}\doc\images\teo_x3fr.png
+Type: files; Name: {app}\doc\images\teo_x4en.png
+Type: files; Name: {app}\doc\images\teo_x4fr.png
+Type: files; Name: {app}\doc\images\teo_x5en.png
+Type: files; Name: {app}\doc\images\teo_x5fr.png
+Type: files; Name: {app}\doc\teo.htm
+Type: files; Name: {app}\doc\teo_dos.htm
+Type: files; Name: {app}\doc\teo_en.htm
+Type: files; Name: {app}\doc\teo_linux.htm
+Type: files; Name: {app}\doc\teo_tech.htm
+Type: files; Name: {app}\doc\teo_tech_en.htm
+Type: files; Name: {app}\doc\teo_win.htm
+; all versions
+Type: files; Name: {group}\*
