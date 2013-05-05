@@ -83,7 +83,7 @@ Les fichiers avec l'extension *`k7`* sont les cassettes virtuelles utilis&eacute
 
 Les fichiers avec l'extension *`m7`* sont les cartouches virtuelles utilis&eacute;es par Teo.
 
-Par d&eacute;faut, chaque bo&icirc;te de dialogue de fichier cherchera &agrave; s'ouvrir dans les r&eacute;pertoires *`disks`* pour les disquettes, *`k7`* pour les cassettes et *`memo7`* pour les cartouches.
+Par d&eacute;faut, chaque bo&icirc;te de dialogue de fichier cherchera &agrave; s'ouvrir dans les r&eacute;pertoires *`disk`* pour les disquettes, *`cass`* pour les cassettes et *`memo`* pour les cartouches.
 
 #####Les imprimantes<a name="printers"></a>
 

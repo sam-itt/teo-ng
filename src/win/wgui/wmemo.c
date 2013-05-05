@@ -186,7 +186,7 @@ static void combo_changed (HWND hWnd)
 static void open_file (HWND hWnd)
 {
    char current_file[BUFFER_SIZE]="";
-   char def_folder[] = ".\\disks";
+   char def_folder[] = ".\\memo";
    OPENFILENAME ofn;
 
    memset(&ofn, 0, sizeof(OPENFILENAME));

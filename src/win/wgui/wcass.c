@@ -264,7 +264,7 @@ static void combo_changed (HWND hWnd)
 static void open_file (HWND hWnd)
 {
     char current_file[MAX_PATH+1]="";
-    char def_folder[] = ".\\k7";
+    char def_folder[] = ".\\cass";
     OPENFILENAME ofn;
 
     memset(&ofn, 0, sizeof(OPENFILENAME));

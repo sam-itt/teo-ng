@@ -296,7 +296,7 @@ static void emptying_button_clicked (HWND hWnd, struct FILE_VECTOR *vector)
 static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
 {
     static char current_file[MAX_PATH+1]="";
-    char def_folder[] = ".\\disks";
+    char def_folder[] = ".\\disk";
     OPENFILENAME ofn;
 
     memset(&ofn, 0, sizeof(OPENFILENAME));

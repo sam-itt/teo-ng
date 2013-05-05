@@ -84,7 +84,7 @@ Files with the extension *`k7`* are the virtual tapes used by Teo. You can impor
 
 Files with the extension *`m7`* are the virtual cartridges used by Teo.
 
-By default, each file dialog will try to open in the directories *`disks`* for floppy, *`k7`* for tapes and *`memo7`* for cartridges.
+By default, each file dialog will try to open in the directories *`disk`* for floppy, *`cass`* for tapes and *`memo`* for cartridges.
 
 #####Printers<a name="printers"></a>
 
