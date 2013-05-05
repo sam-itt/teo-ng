@@ -9,7 +9,7 @@
 <a name="install"></a>
 #####Installer CC90 sans la disquette
 
-Votre syst&egrave;me ne vous permet pas de transf&eacute;rer le fichier cc90.sap sur une disquette Thomson ? CC90 peut &ecirc;tre lanc&eacute; &agrave; partir du PC !
+Votre syst&egrave;me ne vous permet pas de transf&eacute;rer le fichier cc90.sap/cc90.fd/cc90.hfe sur une disquette Thomson ? CC90 peut &ecirc;tre lanc&eacute; &agrave; partir du PC !
 
 Il vous suffit de recopier le programme suivant sur votre Thomson sous Basic, de le sauver et de le lancer :
 
@@ -50,7 +50,7 @@ Il vous suffit de recopier le programme suivant sur votre Thomson sous Basic, de
 165 EXEC D
 </pre></blockquote></blockquote>
 
-Proc&eacute;dez ensuite &agrave; l'installation en lan&ccedil;ant le programme c&ocirc;t&eacute; PC avec l'option -i ou l'option --install (mode console) ou en demandant une installation sans disquette (mode fen&ecirc;tr&eacute;).
+Proc&eacute;dez ensuite &agrave; l'installation en lan&ccedil;ant le programme c&ocirc;t&eacute; PC avec l'option *`-i`* ou l'option *`--install`* (mode console) ou en demandant une installation sans disquette (mode fen&ecirc;tr&eacute;).
 
 <a name="run"></a>
 #####Fonctionnement g&eacute;n&eacute;ral
