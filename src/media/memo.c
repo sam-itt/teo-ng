@@ -186,17 +186,24 @@ int memo_Load(const char filename[])
 /* memo_FirstLoad:
  *  Premier chargement de la memo.
  */
-void memo_FirstLoad (void)
+int memo_FirstLoad (void)
 {
+    int err = 0;
     char *s;
 
     if (teo.memo.file !=NULL) {
         s = std_strdup_printf ("%s", teo.memo.file);
         memo_Eject();
-        if (s != NULL)
+        if ((s != NULL) && (*s != '\0'))
+        {
             if (memo_Load(s) < 0)
+            {
                 main_DisplayMessage (teo_error_msg);
+                err = TEO_ERROR;
+            }
+        }
         s = std_free (s);
     }
+    return err;
 }
 

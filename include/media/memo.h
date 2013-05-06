@@ -48,7 +48,7 @@
 extern int   memo_IsMemo (const char filename[]);
 extern void  memo_Eject(void);
 extern int   memo_Load(const char filename[]);
-extern void  memo_FirstLoad (void);
+extern int   memo_FirstLoad (void);
 
 #endif
 

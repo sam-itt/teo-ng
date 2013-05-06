@@ -131,7 +131,6 @@ static void add_combo_entry (const char *name, const char *path)
         gtk_combo_box_set_active (GTK_COMBO_BOX(combo), entry_max);
         entry_max++;
     }
-    teo.command = TEO_COMMAND_COLD_RESET;
 }
 
 
@@ -246,6 +245,7 @@ static void open_file (GtkButton *button, gpointer data)
             block_all ();
 
             add_combo_entry (teo.memo.label, teo.memo.file);
+            teo.command = TEO_COMMAND_COLD_RESET;
             folder_name = gtk_file_chooser_get_current_folder ((GtkFileChooser *)dialog);
             teo.default_folder = std_free(teo.default_folder);
             if (folder_name != NULL)

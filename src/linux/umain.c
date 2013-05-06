@@ -318,7 +318,8 @@ int main(int argc, char *argv[])
     ugraphic_Init();    /* Initialisation du module graphique */
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
-    memo_FirstLoad ();  /* Chargement de la cartouche éventuelle */
+    if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
+        reset = 1;
 
     /* Chargement des options non définies */
     for (i=0;(remain_name!=NULL)&&(remain_name[i]!=NULL);i++)
@@ -338,7 +339,6 @@ int main(int argc, char *argv[])
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
     g_timeout_add_full (G_PRIORITY_DEFAULT, 2, RunTO8, &idle_data, NULL);
     gtk_main ();
