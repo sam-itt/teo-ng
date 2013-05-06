@@ -4,7 +4,7 @@ Normalement, le port s&eacute;rie est d&eacute;tect&eacute; automatiquement par 
 
 #####Utilisation en ligne de commande
 
-Utilisez le programme cc90hfe-com.exe. Utilisez l'option '-h' ou '--help' pour afficher le mode d'emploi.
+Utilisez le programme *`cc90hfe-com.exe`* ou *`bin\cc90hfe.exe`* que vous trouverez dans le r&eacute;pertoire racine de l'application. Utilisez l'option '-h' ou '--help' pour afficher le mode d'emploi.
 
 #####D&eacute;sinstallation<a name="deinstallation"></a>
 
