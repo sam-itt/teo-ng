@@ -9,6 +9,10 @@
 - direct access in write mode by default (work with copies if writing is
   required!)
 - emulation of PR90-582 and PR90-042 printers
+- hard reset if error when loading memo at init
+- change directories "memo7", "k7" and "disks" into "memo", "cass" and
+  "disk"
+- disks with private protection
 - under Windows
   - improvement of interlace mode (thanks to Samuel)
 - under Linux :

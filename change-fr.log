@@ -10,6 +10,11 @@
 - accès direct en écriture par défaut (travailler sur des copies de
   disquettes si l'écriture est requise!)
 - emulation des imprimantes PR90-582 et PR90-042
+- reset à froid si erreur au chargement de cartouche à l'initialisation
+- change les répertoires "memo7", "k7" et "disks" en "memo", "cass" et
+  "disk"
+- disquettes avec protection individuelle
+
 - sous Windows
   - amélioration du mode vidéo entrelacé (merci à Samuel)
 - sous Linux :

@@ -3,11 +3,15 @@
 #####Version 1.8.2 (June 2012-April 2013)
 
 - emulation of THMFC1 disk controller
-- manage direct access, HFE, SAP, and raw (FD) disk formats
 - creation of CC90hFE (with CC90 version 2.0) to create true images of double density Thomson floppies
+- manage direct access, HFE, SAP, and raw (FD) disk formats
 - selection of sides for multi-sides disks
 - direct access in write mode by default (work with copies if writing is required!)
 - emulation of PR90-582 and PR90-042 printers
+- hard reset if error when loading memo at init
+- change directories *`memo7`*, *`k7`* and *`disks`* into *`memo`*, *`cass`* and *`disk`*
+- disks with private protection
+
 - under Windows :
     - improvement of interlace mode (thanks to Samuel)
 - under Linux :

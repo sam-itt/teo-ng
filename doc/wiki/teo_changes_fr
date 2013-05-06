@@ -3,11 +3,15 @@
 #####Version 1.8.2 (Juin 2012-Avril 2013)
 
 - &eacute;mulation du contr&ocirc;leur disque THMFC1
-- gestion des formats de disquettes en acc&egrave;s direct, SAP, HFE et des formats raw (FD)
 - cr&eacute;ation de CC90hFE (avec CC90 version 2.0) pour cr&eacute;er des images fid&egrave;les des disquettes Thomson en double densit&eacute;
+- gestion des formats de disquettes en acc&egrave;s direct, SAP, HFE et des formats raw (FD)
 - s&eacute;lection des faces pour les disquettes multiface
 - acc&egrave;s direct en &eacute;criture par d&eacute;faut (travailler sur des copies de disquettes si l'&eacute;criture est requise!)
 - &eacute;mulation des imprimantes PR90-582 et PR90-042
+- reset &agrave; froid si erreur au chargement de cartouche &agrave; l'inititialisation
+- change les r&eacute;pertoires *`memo7`*, *`k7`* et *`disks`* en *`memo`*, *`cass`* et *`disk`*
+- disquettes avec protection individuelle
+
 - sous Windows :
     - am&eacute;lioration du mode vid&eacute;o entrelac&eacute; (merci &agrave; Samuel)
 - sous Linux :

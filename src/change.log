@@ -36,6 +36,11 @@
   xxxx_SetMode mais par xxxx_SetProtection)
 - Gestion des messages d'erreur longs selon la GUI
 - Ajout du vecteur de fonction teo_DirectIsDiskWritable()
+- Reset à froid si erreur au chargement de cartouche à l'initialisation
+- Initialisation de la GUI juste avant RunTO8()
+- Change les répertoires "memo7", "k7" et "disks" en "memo", "cass" et
+  "disk"
+- Disquettes avec protection individuelle
 
   Changements locaux ---------------------------------------------------
 
@@ -47,6 +52,8 @@
           fenêtre principale en GtkWindow
           changement de widget_win en wMain
           les events sont traités en callbacks
+- src/std.c
+          création de la fonction std_FileSize()
 - linux/ugui.c
           fenêtre de contrôle en GtkDialog
 - linux/umain.c
@@ -100,6 +107,7 @@
 - misc/pack/debian/teo/usr/share/applications/teo.desktop
 - misc/pack/inno/teo-setup.iss
           Ajoute un raccourci au menu sur Teo + reset à froid
+          Script plus clair et plus sûr
 - src/win/wgui/wsetting.c
           Gestion de la barre de volume sans condition
 - src/linux/usound.c
