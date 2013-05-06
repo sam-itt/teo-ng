@@ -281,6 +281,7 @@ static void ReadCommandLine(int argc, char *argv[])
  */
 void main_DisplayMessage(const char msg[])
 {
+    agui_PopupMessage (msg);
     fprintf(stderr, "%s\n", msg);
 }
 
@@ -454,12 +455,10 @@ int main(int argc, char *argv[])
 
   driver_found:
 
-    /* initialisation de l'interface utilisateur */
-    agui_Init(version_name, gfx_mode, direct_support);
-    
     disk_FirstLoad ();  /* chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* chargement de la cassette éventuelle */
-    memo_FirstLoad ();  /* chargement de la cartouche éventuelle */
+    if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
+        reset = 1;
 
     /* chargement des options non définies */
     for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
@@ -472,6 +471,9 @@ int main(int argc, char *argv[])
         if (access("autosave.img", F_OK) >= 0)
             image_Load ("autosave.img");
 
+    /* initialisation de l'interface utilisateur */
+    agui_Init(version_name, gfx_mode, direct_support);
+    
     /* et c'est parti !!! */
     RunTO8();
 

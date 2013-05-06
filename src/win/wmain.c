@@ -447,16 +447,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
             break;
     }
 
-    /* initialisation de l'interface utilisateur Allegro */
-    if (!windowed_mode)
-    {
-       agui_Init(version_name, gfx_mode, FALSE);
-    }
-    else
-    {
-       set_window_close_hook(close_procedure);
-    }
-
     /* installation de la fonction callback de retraçage de l'écran nécessaire
        pour les modes fullscreen */
     set_display_switch_callback(SWITCH_IN, RetraceCallback);
@@ -467,7 +457,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
-    memo_FirstLoad ();  /* Chargement de la cartouche éventuelle */
+    if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
+        reset = 1;
 
     /* Chargement des options non définies */
     for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
@@ -479,6 +470,16 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     if (reset == 0)  
         if (access("autosave.img", F_OK) >= 0)
             image_Load("autosave.img");
+
+    /* initialisation de l'interface utilisateur Allegro */
+    if (!windowed_mode)
+    {
+       agui_Init(version_name, gfx_mode, FALSE);
+    }
+    else
+    {
+       set_window_close_hook(close_procedure);
+    }
 
     /* et c'est parti !!! */
     RunTO8();
