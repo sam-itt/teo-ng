@@ -123,6 +123,24 @@ static void console_exit_failure (void)
 }
 
 
+static void open_log (void)
+{
+    char *fname = NULL;
+
+    fname = main_DataFile("cc90hfe.log");
+    fd_debug = fopen (fname, "wb");
+    fname = std_free (fname);
+}
+
+
+
+static void close_log (void)
+{
+    std_fclose (fd_debug);
+    fd_debug = NULL;
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -134,6 +152,7 @@ int main_ArchiveDisk (void)
     if ((progress_on == TRUE)
      && ((err = hfe_WriteOpen(disk.file_name)) == 0))
     {
+        open_log ();
         for (track=0;
              (track<disk.track_count)&&(progress_on!=0)&&(err==0);
              track++)
@@ -143,6 +162,7 @@ int main_ArchiveDisk (void)
                 if ((err = cc90_ReadTrack (current_drive, track)) == 0)
                     err = hfe_WriteTrack ();
         }
+        close_log ();
         hfe_Close();
     }
     if (windowed_mode == 0)
@@ -209,14 +229,8 @@ char *main_DataFile (const char filename[])
 
 void main_ConsoleReadCommandLine (int argc, char *argv[])
 {
-    char *fname = NULL;
-
     if (read_command_line (argc, argv) != NULL)
         console_exit_failure ();
-
-    fname = main_DataFile("cc90hfe.log");
-    fd_debug = fopen (fname, "wb");
-    fname = std_free (fname);
 }
 
 
@@ -252,10 +266,6 @@ void main_FreeAll (void)
 
     /* free error message */
     error_msg = std_free (error_msg);
-
-    /* close debug log */
-    std_fclose (fd_debug);
-    fd_debug = NULL;
 
     /* free tracks */
     disk.data[SIDE_0] = std_free (disk.data[SIDE_0]);
