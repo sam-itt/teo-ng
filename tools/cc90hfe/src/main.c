@@ -59,7 +59,6 @@ static int archive_option = 0;
 static int extract_option = 0;
 static int install_option = 0;
 static int version_option = 0;
-static int debug_option   = 0;
 static struct STRING_LIST *file_name_list = NULL;
 
 
@@ -87,9 +86,6 @@ static char *read_command_line(int argc, char *argv[])
         { "version", 'v', OPTION_ARG_BOOL, &version_option,
            is_fr?"Affiche la version du programme"
                 :"Display the program version", NULL },
-        { "log", 'l', OPTION_ARG_BOOL, &debug_option,
-           is_fr?"Crée un fichier log"
-                :"create a log file", NULL },
         { NULL, 0, 0, NULL, NULL, NULL }
     };
     return option_Parse (argc, argv, PROG_NAME, entries, &file_name_list);
@@ -218,12 +214,9 @@ void main_ConsoleReadCommandLine (int argc, char *argv[])
     if (read_command_line (argc, argv) != NULL)
         console_exit_failure ();
 
-    if (debug_option != 0)
-    {
-        fname = main_DataFile("cc90hfe.log");
-        fd_debug = fopen (fname, "wb");
-        fname = std_free (fname);
-    }
+    fname = main_DataFile("cc90hfe.log");
+    fd_debug = fopen (fname, "wb");
+    fname = std_free (fname);
 }
 
 
