@@ -396,6 +396,7 @@ int hfe_WriteOpen (const char filename[])
     fputc     (GENERIC_SHUGGART_DD_FLOPPYMODE, file); /* floppyinterfacemode  */
     fputc     (0x01, file);                /* dnu                  */
     hfe_fputw (0x01, file);                /* track_list_offset    */
+    fputc     (0xFF, file);                /* write_allowed        */
     fputc     (0xFF, file);                /* single_step          */
     fputc     (0xFF, file);                /* track0s0_altencoding */
     fputc     (0x00, file);                /* track0s0_encoding    */
@@ -403,7 +404,7 @@ int hfe_WriteOpen (const char filename[])
     fputc     (0x00, file);                /* track0s1_encoding    */
 
     /* skip to next block */
-    for (i=25;i<512;i++)
+    for (i=26;i<512;i++)
         fputc (0xff, file);  /* gap */
 
     /* write track list */
