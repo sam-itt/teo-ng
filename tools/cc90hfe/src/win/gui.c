@@ -197,7 +197,7 @@ static int RunWindowProg (HINSTANCE hInstance, int nCmdShow)
     if (!RegisterClass(&wc)) return FALSE;
 
     main_window = CreateWindow("CC90HFEClass", PROG_NAME,
-                          WS_SYSMENU | WS_VISIBLE,
+                          WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
                           0, 0, 350, 314,
                           NULL, NULL, hInstance, NULL);
     if (main_window == NULL)
