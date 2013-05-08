@@ -46,6 +46,7 @@
 
 - include/defs.h
           force TRUE à 1 dans toutes les distributions
+          définition de APPLICATION_DIR
 - linux/display.h
           ajout du suffixe 'TEO_' pour les definitions clavier (KEY_*)
 - linux/udisplay.c
@@ -53,7 +54,8 @@
           changement de widget_win en wMain
           les events sont traités en callbacks
 - src/std.c
-          création de la fonction std_FileSize()
+          création des fonctions std_FileSize(), std_ApplicationPath()
+          Fichiers d'application créés dans ~/.config/teo sous DEBIAN
 - linux/ugui.c
           fenêtre de contrôle en GtkDialog
 - linux/umain.c
@@ -62,8 +64,7 @@
 - media/memo.c
           Création des fonctions memo_FirstLoad(), memo_Check()
 - media/disk.c
-          Création des fonctions disk_FirstLoad(), disk_Check(),
-          disk_LoadDir(), disk_UnloadAll(), disk_UnloadDir() suite
+          Création des fonctions disk_FirstLoad(), disk_Check() suite
           à la fusion de xargs de Samuel Devulder
 - media/cass.c
           Création des fonctions cass_FirstLoad(), cass_Check()
@@ -76,7 +77,7 @@
           Traitement des messages d'erreur longs
 - alleg/agui/aprinter.c
           Change le texte pour DIP
-          Désactive les checkboxes DIP et NLQ s'il ne sont pas
+          Désactive les checkboxes DIP et NLQ s'ils ne sont pas
           supportés par l'imprimante
 - misc/pack/djmake.bat
 - misc/pack/pack.sh
@@ -107,7 +108,7 @@
 - misc/pack/debian/teo/usr/share/applications/teo.desktop
 - misc/pack/inno/teo-setup.iss
           Ajoute un raccourci au menu sur Teo + reset à froid
-          Script plus clair et plus sûr
+          Script plus clair et plus sécurisé
 - src/win/wgui/wsetting.c
           Gestion de la barre de volume sans condition
 - src/linux/usound.c
@@ -171,7 +172,8 @@
           Correction du risque de freeze pour synm(), cwai(), hcfm()
 - src/hardware.c
           Limitation de la valeur passée à SetDeviceRegister à 8 bits
-          (évite le freeze lors d'un bug de programme 6809)
+          (évite le freeze lors d'un bug de programme 6809) (merci à
+          Samuel)
 
 ========================================================================
 === Version 1.8.1 (Janvier-Mai 2012)                                 ===
