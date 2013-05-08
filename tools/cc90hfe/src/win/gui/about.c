@@ -53,6 +53,7 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
    static HWND aboutTitle;
    static HWND aboutCopyright;
    static HWND aboutLicense;
+   static HWND aboutText;
    static HFONT hLinkStyle;
    static HFONT hTitleStyle;
    static HFONT hCopyrightStyle;
@@ -65,6 +66,7 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
          aboutTitle = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_TITLE);
          aboutCopyright = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_COPYRIGHT);
          aboutLicense = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_LICENSE);
+         aboutText = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_TITLE);
          hTitleStyle = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE,
                            FALSE, FALSE, DEFAULT_CHARSET,
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
@@ -90,6 +92,9 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
                                   :PROG_NAME" - About");
          SetWindowText(aboutLink, is_fr?PROG_NAME" sur SourceForge (Teo module)"
                                        :PROG_NAME" on SourceForge (Teo module)");
+         SetWindowText(aboutText, "CC90HFE\n Version "PROG_VERSION_MAJOR"."PROG_VERSION_MINOR);
+         SetWindowText(aboutCopyright, "Copyright © 1997-"PROG_CREATION_YEAR"\n Yves Charriau, François Mouret");
+
          SetClassLongPtr(aboutLink, GCLP_HCURSOR,
                          (ULONG_PTR)LoadCursor(NULL, IDC_HAND));
          return TRUE;
