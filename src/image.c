@@ -792,11 +792,7 @@ static FILE *file_open (const char filename[], const char mode[])
 {
     char *name = NULL;
 
-#ifdef DEBIAN_BUILD
-    name = std_strdup_printf ("%s/.local/share/applications/teo/%s", getenv("HOME"), filename);
-#else
-    name = std_strdup_printf ("%s", filename);
-#endif
+    name = std_ApplicationPath (APPLICATION_DIR, filename);
     file = fopen(name, mode);
     name = std_free (name);
     return file;

@@ -127,7 +127,7 @@ static void open_log (void)
 {
     char *fname = NULL;
 
-    fname = main_DataFile("cc90hfe.log");
+    fname = std_ApplicationPath (APPLICATION_DIR, "cc90hfe.log");
     fd_debug = fopen (fname, "wb");
     fname = std_free (fname);
 }
@@ -203,29 +203,6 @@ int main_ExtractDisk (void)
 }
 
 
-
-char *main_DataFile (const char filename[])
-{
-    static char *fname = NULL;
-
-    fname = NULL;
-
-#ifdef DEBIAN_BUILD
-    /* Création du répertoire pour Cc90hfe (tous les droits) */
-    fname = std_strdup_printf ("%s/%s", getenv("HOME"), DEBIAN_DATAS_DIR);
-    if (access (fname, F_OK) < 0)
-        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-    fname = std_free (fname);
-
-    /* Création du fichier */
-    fname = std_strdup_printf ("%s/%s/%s", getenv("HOME"), DEBIAN_DATAS_DIR, filename);
-#else
-    fname = std_strdup_printf ("%s", filename);
-#endif
-    return fname;
-}
-
-    
 
 void main_ConsoleReadCommandLine (int argc, char *argv[])
 {
