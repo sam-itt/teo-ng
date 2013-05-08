@@ -229,6 +229,7 @@ void gui_EnableButtons (int flag)
     gtk_widget_set_sensitive (archive_button, flag);
     gtk_widget_set_sensitive (extract_button, flag);
     gtk_widget_set_sensitive (install_button, flag);
+    gtk_widget_set_sensitive (progress_button, (flag == TRUE) ? FALSE : TRUE);
 }
 
 

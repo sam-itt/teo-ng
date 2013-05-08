@@ -237,6 +237,7 @@ void gui_EnableButtons (int flag)
     Button_Enable(archive_button, flag);
     Button_Enable(extract_button, flag);
     Button_Enable(install_button, flag);
+    Button_Enable(install_button, (flag == TRUE) ? FALSE : TRUE);
 }
 
 
