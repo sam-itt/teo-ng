@@ -57,6 +57,7 @@ extern void std_StringListFree (struct STRING_LIST *p);
 extern void  std_CleanPath (char *filename);
 extern char* std_LastDir(char *fullname);
 extern char* std_BaseName(char *fullname);
+extern char *std_ApplicationPath (const char dirname[], const char filename[]);
 
 extern void *std_free (void *p);
 extern void *std_stralloc (void *p, char *s);

@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "defs.h"
+#include "main.h"
 #include "std.h"
 
 
@@ -177,6 +178,7 @@ void *std_free (void *p)
 {
     if (p != NULL)
         free (p);
+
     return NULL;
 }
 
@@ -340,6 +342,32 @@ int std_StringListLength (struct STRING_LIST *p)
 
     return i;
 }
+
+
+
+char *std_ApplicationPath (const char dirname[], const char filename[])
+{
+    static char *fname = NULL;
+
+    fname = NULL;
+#ifdef DEBIAN_BUILD
+    /* create private directory if necessary */
+    fname = std_strdup_printf ("%s/.config/%s", getenv("HOME"), dirname);
+    if (access (fname, F_OK) < 0)
+    {
+        (void)mkdir (fname, S_IRWXU);
+    }
+    /* set file path */
+    fname = std_free (fname);
+    fname = std_strdup_printf ("%s/.config/%s/%s", getenv("HOME"), dirname, filename);
+#else
+    /* set file path */
+    fname = std_strdup_printf ("%s", filename);
+    dirname = dirname;
+#endif
+    return fname;
+}
+
 
 
 

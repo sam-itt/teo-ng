@@ -360,6 +360,31 @@ int std_StringListLength (struct STRING_LIST *p)
 
 
 
+char *std_ApplicationPath (const char dirname[], const char filename[])
+{
+    static char *fname = NULL;
+
+    fname = NULL;
+#ifdef DEBIAN_BUILD
+    /* create private directory if necessary */
+    fname = std_strdup_printf ("%s/.config/%s", getenv("HOME"), dirname);
+    if (access (fname, F_OK) < 0)
+    {
+        (void)mkdir (fname, S_IRWXU);
+    }
+    /* set file path */
+    fname = std_free (fname);
+    fname = std_strdup_printf ("%s/.config/%s/%s", getenv("HOME"), dirname, filename);
+#else
+    /* set file path */
+    fname = std_strdup_printf ("%s", filename);
+    dirname = dirname;
+#endif
+    return fname;
+}
+
+
+
 /* std_StringListText:
  *  Renvoit le pointeur du texte de l'élément de la stringlist.
  */
