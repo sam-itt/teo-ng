@@ -266,10 +266,6 @@ int main(int argc, char *argv[])
     int drive_type[4];
     char *lang;
 
-#ifdef DEBIAN_BUILD
-    char *fname = NULL;
-#endif
-
     /* Repérage du language utilisé */
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
