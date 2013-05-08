@@ -276,14 +276,6 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
 
-#ifdef DEBIAN_BUILD
-    /* Création du répertoire pour Teo (tous les droits) */
-    fname = std_strdup_printf ("%s/.local/share/applications/teo", getenv("HOME"));
-    if (access (fname, F_OK) < 0)
-        (void)mkdir (fname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-    fname = std_free (fname);
-#endif
- 
     gtk_init (&argc, &argv);     /* Initialisation gtk */
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
