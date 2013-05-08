@@ -43,8 +43,6 @@ extern int   main_ExtractDisk (void);
 extern void  main_FreeAll (void);
 extern void  main_InitAll (void);
 
-extern char *main_DataFile (const char filename[]);
-
 extern void  gui_ErrorDialog (char *message);
 extern void  gui_InitLanguage (void);
 extern void  gui_Main (int argc, char *argv[]);
