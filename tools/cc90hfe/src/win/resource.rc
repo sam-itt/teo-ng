@@ -110,8 +110,8 @@ FONT 8, "Tahoma"
 {
     CONTROL         "teo_gfx", -1, "static", SS_BITMAP, 8, 8, 80, 133
     PUSHBUTTON      "&OK", IDCANCEL, 130, 160, 60, 16, WS_GROUP | WS_TABSTOP
-    CTEXT           "", 70, 6, 180, 42
-    CTEXT           "", IDC_ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 20
-    CONTROL         "", IDC_ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 60, 102, 200, 16
+    CTEXT           "", IDC_ABOUT_CTEXT_TITLE, 70, 6, 180, 42
+    CTEXT           "", IDC_ABOUT_CTEXT_COPYRIGHT, 70, 54, 180, 20
+    CONTROL         "", IDC_ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 60, 94, 200, 16
     CTEXT           "License GPL 2.0", IDC_ABOUT_CTEXT_LICENSE, 70, 130, 180, 16
 }
