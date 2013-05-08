@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2013 FranÃ§ois Mouret
+ *  Copyright (C) 2012-2013 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 /*
  *  Module     : linux/gui/extract.c
  *  Version    : 0.5.0
- *  CrÃ©Ã© par   : FranÃ§ois Mouret 27/02/2013
- *  ModifiÃ© par:
+ *  Créé par   : François Mouret 27/02/2013
+ *  Modifié par:
  *
  *  Extract callback.
  */
@@ -118,7 +118,7 @@ void extract_Callback (GtkButton *button, gpointer user_data)
     ret = gui_InformationDialog (
                      is_fr?"Introduisez une disquette dans le lecteur\n" \
                            "du Thomson et clickez sur OK pour commencer\n" \
-                           "l'Ã©criture.\n"
+                           "l'écriture.\n"
                           :"Insert a disk in the Thomson drive and click\n" \
                            "OK to start the writing.");
 
