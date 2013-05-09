@@ -1,9 +1,11 @@
 @echo off
 
-REM ---- Cleans executable files ----
+REM ---- Cleans destination directories ----
 
-if exist misc\pack\mingw\teow-*.exe    del misc\pack\mingw\teow-*.exe
-if exist misc\pack\mingw\cc90hfe-*.exe del misc\pack\mingw\cc90hfe-*.exe
+if exist misc\pack\mingw\fr\makefile.* del misc\pack\mingw\fr\makefile.*
+if exist misc\pack\mingw\en\makefile.* del misc\pack\mingw\en\makefile.*
+if exist misc\pack\mingw\fr\*.exe del misc\pack\mingw\fr\*.exe
+if exist misc\pack\mingw\en\*.exe del misc\pack\mingw\en\*.exe
 
 REM ---- Configures Teo sources for the Windows (MinGW) platform ----
 
@@ -17,22 +19,23 @@ REM ---- Compiles English version of Teo ----
 
 echo "Creating Teo exec files for Windows setup in English..."
 
-mingw32-make clean
+mingw32-make veryclean
 mingw32-make EN_LANG=1 PROFILEMODE=1
-copy teow.exe misc\pack\mingw
-ren misc\pack\mingw\teow.exe teow-en.exe
+mingw32-make depend
+copy teow.exe misc\pack\mingw\en
+copy obj\mingw32\makefile.dep misc\pack\mingw\en\makefile.dep
 
 REM ---- Compiles French version of Teo ----
 
 echo "Creating Teo exec files for Windows setup in French..."
 
-mingw32-make clean
+mingw32-make veryclean
 mingw32-make FR_LANG=1 PROFILEMODE=1
-copy teow.exe misc\pack\mingw
-ren misc\pack\mingw\teow.exe teow-fr.exe
-
 mingw32-make depend
-mingw32-make clean
+copy teow.exe misc\pack\mingw\fr
+copy obj\mingw32\makefile.dep misc\pack\mingw\fr\makefile.dep
+
+mingw32-make veryclean
 
 REM ---- Compiles English version of CC90HFE ----
 
@@ -48,8 +51,7 @@ echo include makefile.all >> makefile
 
 mingw32-make clean
 mingw32-make RELEASE_MODE=1 ENGLISH=1
-copy cc90hfe.exe ..\..\misc\pack\mingw
-ren ..\..\misc\pack\mingw\cc90hfe.exe cc90hfe-en.exe
+copy cc90hfe.exe ..\..\misc\pack\mingw\en
 
 REM ---- Compiles French version of CC90HFE ----
 
@@ -57,8 +59,7 @@ echo "Creating windowed CC90HFE exec files for Windows setup in French..."
 
 mingw32-make clean
 mingw32-make RELEASE_MODE=1
-copy cc90hfe.exe ..\..\misc\pack\mingw
-ren ..\..\misc\pack\mingw\cc90hfe.exe cc90hfe-fr.exe
+copy cc90hfe.exe ..\..\misc\pack\mingw\fr
 
 REM ---- Compiles English version of CC90HFE ----
 
@@ -66,8 +67,9 @@ echo "Creating CC90HFE-console  exec files for Windows setup in English..."
 
 mingw32-make clean
 mingw32-make RELEASE_MODE=1 CONSOLE_MODE=1 ENGLISH=1
-copy cc90hfe.exe ..\..\misc\pack\mingw
-ren ..\..\misc\pack\mingw\cc90hfe.exe cc90hfe-com-en.exe
+ren  cc90hfe.exe cc90hfe-com.exe
+copy cc90hfe-com.exe ..\..\misc\pack\mingw\en
+del  cc90hfe-com.exe
 
 REM ---- Compiles French version of CC90HFE ----
 
@@ -75,8 +77,9 @@ echo "Creating CC90HFE-console exec files for Windows setup in French..."
 
 mingw32-make clean
 mingw32-make RELEASE_MODE=1 CONSOLE_MODE=1
-copy cc90hfe.exe ..\..\misc\pack\mingw
-ren ..\..\misc\pack\mingw\cc90hfe.exe cc90hfe-com-fr.exe
+ren cc90hfe.exe cc90hfe-com.exe
+copy cc90hfe-com.exe ..\..\misc\pack\mingw\fr
+del  cc90hfe-com.exe
 
 mingw32-make clean
 

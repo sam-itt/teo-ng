@@ -33,18 +33,18 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 
 [Files]
 ; ------------------------- Executables -------------------------------
-Flags: ignoreversion; Languages: en; DestDir: "{app}\bin"; Source: "{#OUTPUTDIR}\mingw\cc90hfe-com-en.exe"; DestName: "cc90hfe.exe"
-Flags: ignoreversion; Languages: fr; DestDir: "{app}\bin"; Source: "{#OUTPUTDIR}\mingw\cc90hfe-com-fr.exe"; DestName: "cc90hfe.exe"
-Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\teow-en.exe"; DestName: "teow.exe"
-Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\teow-fr.exe"; DestName: "teow.exe"
-Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\cc90hfe-en.exe"; DestName: "cc90hfe.exe"
-Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\cc90hfe-fr.exe"; DestName: "cc90hfe.exe"
-Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\wav2k7-en.exe"; DestName: "wav2k7.exe"
-Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\wav2k7-fr.exe"; DestName: "wav2k7.exe"
-Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\sap2-en.exe"; DestName: "sap2.exe"
-Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\sap2-fr.exe"; DestName: "sap2.exe"
-Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\sapfs-en.exe"; DestName: "sapfs.exe"
-Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\sapfs-fr.exe"; DestName: "sapfs.exe"
+Flags: ignoreversion; Languages: en; DestDir: "{app}\bin"; Source: "{#OUTPUTDIR}\mingw\en\cc90hfe-com.exe"; DestName: "cc90hfe.exe"
+Flags: ignoreversion; Languages: fr; DestDir: "{app}\bin"; Source: "{#OUTPUTDIR}\mingw\fr\cc90hfe-com.exe"; DestName: "cc90hfe.exe"
+Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\en\teow.exe"
+Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\fr\teow.exe"
+Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\en\cc90hfe.exe"
+Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\mingw\fr\cc90hfe.exe"
+Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\en\wav2k7.exe"
+Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\fr\wav2k7.exe"
+Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\en\sap2.exe"
+Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\fr\sap2.exe"
+Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\en\sapfs.exe"
+Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\fr\sapfs.exe"
 ; ------------------------- Root files -------------------------------
 Flags: ignoreversion; DestDir: "{app}"; Source: "readme-en.txt"; DestName: "readme.txt"; Languages: en
 Flags: ignoreversion; DestDir: "{app}"; Source: "readme-fr.txt"; DestName: "readme.txt"; Languages: fr
