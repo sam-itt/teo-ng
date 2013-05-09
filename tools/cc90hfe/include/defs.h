@@ -53,8 +53,8 @@
 #define PROG_VERSION_MICRO "0"
 #define PROG_VERSION_STRING PROG_VERSION_MAJOR"."PROG_VERSION_MINOR
 
-#define PROG_CREATION_MONTH "April"
-#define PROG_CREATION_YEAR  "2013"
+#define PROG_CREATION_MONTH "May"
+#define PROG_CREATION_YEAR "2013"
 #define PROG_WEB_SITE       "http://sourceforge.net/projects/teoemulator/"
 #define PROG_DESCRIPTION    "Serial transfers for CC90-232"
 
