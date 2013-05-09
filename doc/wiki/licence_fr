@@ -2,31 +2,35 @@
 
 Ce document d&eacute;crit le copyright et les conditions de distribution des fichiers nomm&eacute;s ci-apr&egrave;s:
 
-#####teo, teo.exe et teow.exe sont Copyright &copy; 1997-2012 Gilles F&eacute;tis, &Eacute;ric Botcazou, Alexandre Pukall, J&eacute;r&eacute;mie Guillaume, Fran&ccedil;ois Mouret, Samuel Devulder.
+#####teo, teo.exe et teow.exe sont Copyright &copy; 1997-2013 Gilles F&eacute;tis, &Eacute;ric Botcazou, Alexandre Pukall, J&eacute;r&eacute;mie Guillaume, Fran&ccedil;ois Mouret, Samuel Devulder.
 
 Ils peuvent &ecirc;tre librement redistribu&eacute;s &agrave; la condition EXPRESSE que le code source soit &eacute;galement inclus sur le support de distribution ou que toutes les informations n&eacute;cessaires &agrave; l'obtention de ce code source soient fournies sur le support de distribution.
 
-Certaines portions sont Copyright &copy; DJ Delorie; elles sont disponibles s&eacute;par&eacute;ment, &agrave; la fois comme code source et fichier binaire, sur le site Web <a href="http://www.delorie.com">http://www.delorie.com</a>.
+Certaines portions sont Copyright &copy; DJ Delorie; elles sont disponibles s&eacute;par&eacute;ment, &agrave; la fois comme code source et fichier binaire, sur le site Web <a href="http://www.delorie.com" target="_blank">http://www.delorie.com</a>.
 
 #####cwsdpmi.exe est Copyright &copy; 1995-1997 Charles W Sandmann
 
-Il est disponible s&eacute;par&eacute;ment, &agrave; la fois comme code source et fichier binaire, sur le site Web <a href="http://www.delorie.com">http://www.delorie.com</a>.
+Il est disponible s&eacute;par&eacute;ment, &agrave; la fois comme code source et fichier binaire, sur le site Web <a href="http://www.delorie.com" target="_blank">http://www.delorie.com</a>.
 
 Il peut &ecirc;tre redistribu&eacute; &agrave; la condition EXPRESSE que le code source soit &eacute;galement inclus sur le support de distribution ou que toutes les informations n&eacute;cessaires &agrave; l'obtention de ce code source soient fournies sur le support de distribution.
 
 #####language.dat et keyboard.dat sont des fichiers librement redistribuables de la librairie Allegro.
 
-La libraire Allegro est disponible s&eacute;par&eacute;ment, &agrave; la fois comme code source et fichier binaire, sur le site Web <a href="http://www.talula.demon.co.uk">http://www.talula.demon.co.uk</a>.
+La libraire Allegro est disponible s&eacute;par&eacute;ment, &agrave; la fois comme code source et fichier binaire, sur le site Web <a href="http://www.talula.demon.co.uk" target="_blank">http://www.talula.demon.co.uk</a>.
 
 #####libpng est Copyright &copy; Glenn Randers-Pehrson & Co
 
-Il est disponible en package binaire sur le site <a href="http://gnuwin32.sourceforge.net/">http://gnuwin32.sourceforge.net/</a> et comme source sur le site <a href="http://sourceforge.net/projects/libpng/">http://sourceforge.net/projects/libpng/</a>.
+Il est disponible en package binaire sur le site <a href="http://gnuwin32.sourceforge.net/" target="_blank">http://gnuwin32.sourceforge.net/</a> et comme source sur le site <a href="http://sourceforge.net/projects/libpng/" target="_blank">http://sourceforge.net/projects/libpng/</a>.
 
-#####zlib est Copyright &copy; Jean-loup Gailly and Mark Adler
+#####zlib est Copyright &copy; Jean-loup Gailly et Mark Adler
 
-Il est disponible en package binaire sur le site <a href="http://gnuwin32.sourceforge.net/">http://gnuwin32.sourceforge.net/</a> et comme source sur le site <a href="http://www.zlib.net/">http://www.zlib.net/</a>.
+Il est disponible en package binaire sur le site <a href="http://gnuwin32.sourceforge.net/" target="_blank">http://gnuwin32.sourceforge.net/</a> et comme source sur le site <a href="http://www.zlib.net/" target="_blank">http://www.zlib.net/</a>.
 
 #####Le format HFE est Copyright &copy; Jean-Fran&ccedil;ois DEL NERO & Co
 
-Vous trouverez une liste compl&egrave;te des contributeurs au projet HxC sur la page <a href="http://hxc2001.free.fr/floppy_drive_emulator/index.html">http://hxc2001.free.fr/floppy_drive_emulator/index.html</a> ainsi que la documentation sur le format HFE.
+Vous trouverez une liste compl&egrave;te des contributeurs au projet HxC sur la page <a href="http://hxc2001.free.fr/floppy_drive_emulator/index.html" target="_blank">http://hxc2001.free.fr/floppy_drive_emulator/index.html</a> ainsi que la documentation sur le format HFE.
+
+#####Inno Setup est Copyright &copy; Jordan Russell. Portions Copyright &copy; Martijn Laan.
+
+Le format binaire ainsi que la documentation sont disponibles &agrave; l'adresse <a href="http://www.jrsoftware.org/" target="_blank">http://www.jrsoftware.org/</a>.
 

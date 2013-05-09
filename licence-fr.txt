@@ -2,7 +2,7 @@ Ce document décrit le copyright et les conditions de distribution des
 fichiers nommés ci-après:
 
 
-* teo, teo.exe et teow.exe sont Copyright (C) 1997-2003 Gilles Fétis,
+* teo, teo.exe et teow.exe sont Copyright (C) 1997-2013 Gilles Fétis,
   Eric Botcazou, Alexandre Pukall, Jérémie Guillaume, François Mouret,
   Samuel Devulder.
 
@@ -41,9 +41,23 @@ http://gnuwin32.sourceforge.net/ et comme source sur le site
 http://sourceforge.net/projects/libpng/
 
 
-* zlib est Copyright (C) Jean-loup Gailly and Mark Adler
+* zlib est Copyright (C) Jean-loup Gailly et Mark Adler
 
 Il est disponible en package binaire sur le site
 http://gnuwin32.sourceforge.net/ et comme source sur le site
 http://www.zlib.net/
+
+
+* Le format HFE est Copyright (C) Jean-François DEL NERO & Co
+
+Vous trouverez une liste complète des contributeurs au projet HxC sur la page
+http://hxc2001.free.fr/floppy_drive_emulator/index.html ainsi que la
+documentation sur le format HFE.
+
+
+* Inno Setup est Copyright (C) Jordan Russell.
+  Portions Copyright (C) Martijn Laan.
+
+Le format binaire ainsi que la documentation sont disponibles à l'adresse
+http://www.jrsoftware.org/
 
