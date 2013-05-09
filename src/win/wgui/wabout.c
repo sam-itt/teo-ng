@@ -53,6 +53,7 @@
    #include <commctrl.h>
 #endif
 
+#include "teo.h"
 #include "win/dialog.rh"
 
 /* ------------------------------------------------------------------------- */
@@ -106,6 +107,10 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SetWindowText(hDlg, "Teo - About");
          SetWindowText(aboutLink, "Teo on SourceForge");
 #endif
+         SetWindowText(aboutCopyright, "Copyright © 1997-"TEO_YEAR_STRING"\n" \
+                           " Gilles Fétis, Eric Botcazou, Alexandre Pukall, " \
+                           "Jérémie Guillaume, François Mouret, " \
+                           "Samuel Devulder" );
          SetClassLongPtr(aboutLink, GCLP_HCURSOR,
                          (ULONG_PTR)LoadCursor(NULL, IDC_HAND));
          return TRUE;

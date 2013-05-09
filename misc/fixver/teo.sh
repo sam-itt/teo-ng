@@ -64,6 +64,7 @@ todayYear=$(date +%Y)
 # patch teo.h
 echo "Patching include/teo.h ..."
 echo "s/\#define TEO_VERSION_STR .*/\#define TEO_VERSION_STR \"$verstr\"/" > $TMPDIR/fixver.sed
+echo "s/\#define TEO_YEAR_STRING .*/\#define TEO_YEAR_STRING \"$todayYear\"/" >> $TMPDIR/fixver.sed
 sed_file include/teo.h
 
 # patch wdialog.rc

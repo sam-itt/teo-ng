@@ -66,7 +66,7 @@ void uabout_Dialog (GtkButton *button, gpointer user_data)
     gtk_show_about_dialog (GTK_WINDOW(wControl),
                            "program-name", "Teo",
                            "version", TEO_VERSION_STR,
-                           "copyright", "Copyright © 1997-2012",
+                           "copyright", "Copyright © 1997-"TEO_YEAR_STRING,
                            "comments", "Linux/X11",
                            "website", "http://sourceforge.net/projects/teoemulator/",
                            "website-label", is_fr?"Teo sur Sourceforge":"Teo on Sourceforge",
