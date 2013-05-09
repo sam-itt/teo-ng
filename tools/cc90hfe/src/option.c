@@ -186,7 +186,7 @@ static char *option_check (int argc, char *argv[],
                 } else {
                    arg_i = strlen (option[option_i].long_name) + 2;
                    if (argv[i][arg_i] == '=')
-                       s = get_string (&option[option_i], std_strdup_printf ("%s", &argv[i][arg_i+3]));
+                       s = get_string (&option[option_i], std_strdup_printf ("%s", &argv[i][arg_i+1]));
                 }
                 if (s==NULL)
                      return std_strdup_printf ("%s %s",
