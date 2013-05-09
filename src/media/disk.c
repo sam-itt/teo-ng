@@ -545,28 +545,6 @@ int disk_Protection (int drive, int protection)
 
 
 
-
-
-/* disk_DDSectorArrangedPos:
- *  Return the position of the DD sector (interleave 7).
- */
-int disk_DDSectorArrangedPos (int sector)
-{
-    return (((sector - 1) * 7) % 16) * MFM_SECTOR_SIZE;
-}
-
-
-
-/* disk_SDSectorArrangedPos:
- *  Return the position of the DD sector (interleave 7).
- */
-int disk_SDSectorArrangedPos (int sector)
-{
-    return (((sector - 1) * 7) % 16) * FM_SECTOR_SIZE;
-}
-
-
-
 /* disk_IsDDFloppyInfo:
  *  Find the wanted DD sector info in raw track.
  */
