@@ -62,7 +62,7 @@ static DIALOG aboutdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key flags    d1 d2 dp */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
-{ d_ctext_proc,      160,  30,   0,   0, 0, 0,   0,  0,     0, 0, "Copyright (c) 1997-2012" },
+{ d_ctext_proc,      160,  30,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 #ifdef FRENCH_LANG
 { d_text_proc,        30,  50,   0,   0, 0, 0,   0,  0,     0, 0, "Auteurs:" },
 #else
@@ -84,8 +84,9 @@ static DIALOG aboutdial[]={
 { NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
 };
 
-#define ABOUTDIAL_VERSION  1
-#define ABOUTDIAL_OK       11
+#define ABOUTDIAL_VERSION   1
+#define ABOUTDIAL_COPYRIGHT 2
+#define ABOUTDIAL_OK        11
 
 
 /* ------------------------------------------------------------------------- */
@@ -133,6 +134,9 @@ void aabout_Init(char version_name[])
 {
     /* Définit le titre de la fenêtre */
     aboutdial[ABOUTDIAL_VERSION].dp = std_strdup_printf ("%s", version_name);
+
+    /* Définit le copyright de la fenêtre */
+    aboutdial[ABOUTDIAL_COPYRIGHT].dp = std_strdup_printf ("Copyright (c) 1997-%s", TEO_YEAR_STRING);
 }
 
 
@@ -143,4 +147,5 @@ void aabout_Init(char version_name[])
 void aabout_Free(void)
 {
     aboutdial[ABOUTDIAL_VERSION].dp = std_free (aboutdial[ABOUTDIAL_VERSION].dp);
+    aboutdial[ABOUTDIAL_COPYRIGHT].dp = std_free (aboutdial[ABOUTDIAL_COPYRIGHT].dp);
 }

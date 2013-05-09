@@ -215,8 +215,7 @@ FONT 8, "Tahoma"
     PUSHBUTTON      "&OK", IDOK, 140, 160, 40, 14, WS_GROUP | WS_TABSTOP
     CTEXT           "Teo (Windows/DirectX)\n Version "\
                     TEO_VERSION_STR, ABOUT_CTEXT_TITLE, 70, 6, 180, 42
-    CTEXT           "Copyright © 1997-2013\n Gilles Fétis, Eric Botcazou, Alexandre Pukall, "\
-                    "Jérémie Guillaume, François Mouret, Samuel Devulder", ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 50
+    CTEXT           "", ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 50
     CONTROL         "", ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 70, 102, 180, 26
     CTEXT           "License GPL 2.0", ABOUT_CTEXT_LICENSE, 70, 130, 180, 16
 }
