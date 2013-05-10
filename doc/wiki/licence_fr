@@ -26,11 +26,11 @@ La libraire Allegro est disponible s&eacute;par&eacute;ment, &agrave; la fois co
 
 #####libpng est Copyright &copy; Glenn Randers-Pehrson & Co
 
-Il est disponible en package binaire sur le site <a href="http://gnuwin32.sourceforge.net/" target="_blank">http://gnuwin32.sourceforge.net/</a> et comme source sur le site <a href="http://sourceforge.net/projects/libpng/" target="_blank">http://sourceforge.net/projects/libpng/</a>.
+Il est disponible en DLL sur le Web (compil&eacute; par des tiers) et comme source sur le site <a href="http://sourceforge.net/projects/libpng/" target="_blank">http://sourceforge.net/projects/libpng/</a>.
 
 #####zlib est Copyright &copy; Jean-loup Gailly et Mark Adler
 
-Il est disponible en package binaire sur le site <a href="http://gnuwin32.sourceforge.net/" target="_blank">http://gnuwin32.sourceforge.net/</a> et comme source sur le site <a href="http://www.zlib.net/" target="_blank">http://www.zlib.net/</a>.
+Il est disponible en DLL sur le Web (compil&eacute; par des tiers) et comme source sur le site <a href="http://www.zlib.net/" target="_blank">http://www.zlib.net/</a>.
 
 #####Le format HFE est Copyright &copy; Jean-Fran&ccedil;ois DEL NERO & Co
 

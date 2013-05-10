@@ -43,18 +43,16 @@ La libraire Allegro est disponible séparément, à la fois comme code source
 et fichier binaire, sur le site Web http://www.talula.demon.co.uk .
 
 
-* libpng est Copyright (C) Glenn Randers-Pehrson
+* libpng est Copyright (C) Glenn Randers-Pehrson & Co
 
-Il est disponible en package binaire sur le site
-http://gnuwin32.sourceforge.net/ et comme source sur le site
-http://sourceforge.net/projects/libpng/
+Il est disponible en DLL sur le Web (compilé par des tiers) et comme source
+sur le site http://sourceforge.net/projects/libpng/
 
 
 * zlib est Copyright (C) Jean-loup Gailly et Mark Adler
 
-Il est disponible en package binaire sur le site
-http://gnuwin32.sourceforge.net/ et comme source sur le site
-http://www.zlib.net/
+Il est disponible en DLL sur le Web (compilé par des tiers) et comme source
+sur le site http://www.zlib.net/
 
 
 * Le format HFE est Copyright (C) Jean-François DEL NERO & Co
