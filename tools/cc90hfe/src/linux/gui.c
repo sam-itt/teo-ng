@@ -208,6 +208,40 @@ static void display_window(void)
 }
 
 
+#ifdef DEBIAN_BUILD
+static void copy_debian_file (const char filename[])
+{
+    char *src_name = NULL;
+    char *dst_name = NULL;
+    FILE *src_file = NULL;
+    FILE *dst_file = NULL;
+    int c;
+
+    src_name = std_strdup_printf ("/usr/share/cc90hfe/%s", filename);
+    dst_name = std_ApplicationPath (APPLICATION_DIR, filename);
+    if ((src_name != NULL) && (*src_name != '\0')
+     && (dst_name != NULL) && (*dst_name != '\0')
+     && (access (dst_name, F_OK) < 0))
+    {
+        src_file = fopen (src_name, "rb");
+        dst_file = fopen (dst_name, "wb");
+
+        while ((src_file != NULL)
+            && (dst_file != NULL)
+            && ((c = fgetc(src_file)) != EOF))
+        {
+            fputc (c, dst_file);
+        }
+
+        src_file = std_fclose (src_file);
+        dst_file = std_fclose (dst_file);
+    }
+    src_name = std_free (src_name);
+    dst_name = std_free (dst_name);
+}        
+#endif
+
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -302,6 +336,12 @@ int main (int argc, char *argv[])
 
     /* set current encoding */
     encode_Set (CODESET_UTF8);
+
+#ifdef DEBIAN_BUILD
+    copy_debian_file ("cc90.sap");
+    copy_debian_file ("cc90.fd");
+    copy_debian_file ("cc90.hfe");
+#endif    
 
     main_InitAll ();
     main_ConsoleReadCommandLine (argc, argv);

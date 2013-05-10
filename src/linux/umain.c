@@ -232,6 +232,43 @@ static void ReadCommandLine(int argc, char *argv[])
 
 
 
+#ifdef DEBIAN_BUILD
+static void copy_debian_file (const char filename[])
+{
+    char *src_name = NULL;
+    char *dst_name = NULL;
+    FILE *src_file = NULL;
+    FILE *dst_file = NULL;
+    int c;
+
+    src_name = std_strdup_printf ("/usr/share/teo/%s", filename);
+    dst_name = std_ApplicationPath (APPLICATION_DIR, filename);
+    if ((src_name != NULL) && (*src_name != '\0')
+     && (dst_name != NULL) && (*dst_name != '\0')
+     && (access (dst_name, F_OK) < 0))
+    {
+        src_file = fopen (src_name, "rb");
+        dst_file = fopen (dst_name, "wb");
+
+        while ((src_file != NULL)
+            && (dst_file != NULL)
+            && ((c = fgetc(src_file)) != EOF))
+        {
+            fputc (c, dst_file);
+        }
+
+        src_file = std_fclose (src_file);
+        dst_file = std_fclose (dst_file);
+    }
+    src_name = std_free (src_name);
+    dst_name = std_free (dst_name);
+}        
+#endif
+            
+
+/* ------------------------------------------------------------------------- */
+
+
 /* DisplayMessage:
  *  Affiche un message.
  */
@@ -275,6 +312,10 @@ int main(int argc, char *argv[])
     gtk_init (&argc, &argv);     /* Initialisation gtk */
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
+
+#ifdef DEBIAN_BUILD
+    copy_debian_file ("empty.hfe");
+#endif    
 
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
