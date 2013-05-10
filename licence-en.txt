@@ -16,6 +16,14 @@ at the same time as source code and binary file, on the Web site
 http://www.delorie.com .
 
 
+* cc90 and cc90hfe are Copyright (C) 2008-2013 Yves Charriau, François Mouret
+
+They are an integral part of Teo.
+
+They may freely be redistributed on condition that all informations needed
+to obtain those programs are provided on the distribution support.
+
+
 * cwsdpmi.exe is Copyright (C) 1995-1997 Charles W Sandmann
 
 It is available separately, at the same time as source code and binary
