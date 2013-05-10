@@ -30,9 +30,9 @@ ex: sapfs --version
 
 **-w, --verify archive \[track\] \[sector\]**<br>
 Check the SAP archive and displays error details for each bad sector.<br>
-<span style="padding-left:30px">**`archive*`* : full name of the SAP archive</span><br>
-<span style="padding-left:30px">**`track*`* : track number which the verification will be limited to</span><br>
-<span style="padding-left:30px">**`sector*`* : sector number (from 1 to 16)</span><br>
+<span style="padding-left:30px">*`archive`* : full name of the SAP archive</span><br>
+<span style="padding-left:30px">*`track`* : track number which the verification will be limited to</span><br>
+<span style="padding-left:30px">*`sector`* : sector number (from 1 to 16)</span><br>
 ex: sapfs --verify foo.sap<br>
 ex: sapfs --verify foo.sap 10
 
