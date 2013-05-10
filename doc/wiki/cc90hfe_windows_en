@@ -4,7 +4,7 @@ Normally, the serial port is automatically detected by CC90HFE. But if this is n
 
 #####Using the command line
 
-Use the program *`cc90hfe-com.exe`* or *`bin\cc90hfe.exe`* of the application root directory. Use the option '-h' or '- help' to display the help.
+Use the program *`cc90hfe-com.exe`* or *`bin/cc90hfe.exe`* of the application root directory. Use the option '-h' or '- help' to display the help.
 
 #####Uninstall
 

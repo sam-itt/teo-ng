@@ -8,7 +8,7 @@
 - s&eacute;lection des faces pour les disquettes multiface
 - acc&egrave;s direct en &eacute;criture par d&eacute;faut (travailler sur des copies de disquettes si l'&eacute;criture est requise!)
 - &eacute;mulation des imprimantes PR90-582 et PR90-042
-- reset &agrave; froid si erreur au chargement de cartouche &agrave; l'inititialisation
+- reset &agrave; froid si erreur au chargement de cartouche &agrave; l'initialisation
 - change les r&eacute;pertoires *`memo7`*, *`k7`* et *`disks`* en *`memo`*, *`cass`* et *`disk`*
 - disquettes avec protection individuelle
 
