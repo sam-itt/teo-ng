@@ -71,5 +71,5 @@ Si toutefois la lecture directe a des difficult&eacute;s &agrave; fonctionner (e
 
 Si l'installation a &eacute;t&eacute; faite avec les fichiers *`tar.gz`*, il suffit d'&eacute;liminer le r&eacute;pertoire *`teo`* racine.
 
-Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal. Et pour vraiment tout nettoyer, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">rm -r ~/.config/teo</span>, qui est le r&eacute;pertoire contenant les fichiers de configuration de Teo.
+Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal.
 
