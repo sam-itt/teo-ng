@@ -1,8 +1,8 @@
 ###Modifying the CC90-232 interface
 
-<center><i>This achievement is an original idea of OncleTom and Prehisto</i></center>
+<center><i>This achievement is an original idea of Yves Charriau and Fran&ccedil;ois Mouret</i></center>
 
-<b>CC90</b> is a 38400 baud serial transfer program (about 4ko every second) between today computers and the Thomson. To make it work right, you need some material :
+<b>CC90</b> is a 38400 baud serial transfer program (about 4ko per second) between today computers and the Thomson. To make it work right, you need some material :
 
 * An USB/RS232 adapter (or USB-Serial) you could find it in the shops or on the Internet. Choose a Prolific PL2303 chipset, whose technology is compatible with most of platforms.
 * A CC90-232 interface, that you already have or you will find on the Internet, and that you will have to modify.
@@ -30,8 +30,8 @@ Nowadays, some components are able to convert a positive voltage into a negative
 What is necessary:
 
 * A 8x8 holes pre-drilled stripboard on 0.1 inch (2.54 mm) centers
-* A DIL component that is able to convert the 12 volts into -12 volts (here: a 7660SCPAZ of Intersil
-* Two capacitors 10&micro;F 35v (as required by the IC... so it depends on the IC ;-)
+* A DIL component that is able to convert the 12 volts into -12 volts (here: a 7660SCPAZ of Intersil)
+* Two capacitors 10&micro;F 35v (as required by the IC... so it depends on the IC)
 * Three  wires to connect the assembled interface
 
 <a name="b"></a>
@@ -53,7 +53,7 @@ A pretty simple wiring. To further facilitate the work, start with straps that y
 <img src="modif5.jpg" alt="Component side of the wiring">
 <img src="modif6.jpg" alt="Copper side of the wiring"></center>
 
-Be sure to solder the IC on the horse and scraped in the direction indicated.
+Be sure to solder the IC straddling the scraped part in the indicated direction.
 
 <a name="d"></a>
 ####Testing the circuit

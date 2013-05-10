@@ -1,6 +1,6 @@
 ###Modification de l'interface CC90-232
 
-<center><i>Cette r&eacute;alisation est originellement une id&eacute;e de OncleTom et Prehisto</i></center>
+<center><i>Cette r&eacute;alisation est originellement une id&eacute;e de Yves Charriau et Fran&ccedil;ois Mouret</i></center>
 
 <b>CC90</b> est un programme de transfert s&eacute;rie &agrave; 38400 bauds (&agrave; peu pr&egrave;s 4 kilooctets par seconde)  entre les ordinateurs r&eacute;cents et les Thomson. Pour le faire fonctionner correctement, il va vous falloir n&eacute;anmoins un
  peu de mat&eacute;riel:
@@ -31,7 +31,7 @@ Il va donc vous falloir :
 
 * Une plaque d'essai pr&eacute;perc&eacute;e &agrave; bandes de 8 trous sur 8 trous (au pas de 2.54)
 * Un composant DIL pouvant convertir le 12 volts en -12 volts (ici : un 7660SCPAZ de chez Intersil vu chez Farnell <a href="http://fr.farnell.com/" TARGET="_blank">http://fr.farnell.com/</a>)
-* Deux condensateurs annexes 10&micro;F 35v (exigés par le CI... donc, &ccedil;a d&eacute;pend du CI.
+* Deux condensateurs annexes 10&micro;F 35v (exigés par le CI... donc, &ccedil;a d&eacute;pend du CI)
 * Trois fils de quelques centim&egrave;tres pour connecter le montage &agrave; l'interface
 
 <a name="b"></a>
