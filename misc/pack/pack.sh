@@ -193,6 +193,7 @@ cp teo/wav2k7         ~/$deb_name/usr/games/
 cp -r teo/system      ~/$deb_dir
 cp teo/*-fr.txt       ~/$deb_dir
 cp teo/*-en.txt       ~/$deb_dir
+cp teo/empty.hfe      ~/$deb_dir
 cp teo/doc/images/*.* ~/$deb_dir/doc/images
 cp teo/doc/doc.css    ~/$deb_dir/doc
 cp teo/doc/*.htm      ~/$deb_dir/doc
@@ -286,7 +287,8 @@ teo/wav2k7
 teo/cc90hfe
 teo/cc90.sap
 teo/cc90.fd
-teo/cc90.hfe"
+teo/cc90.hfe
+teo/empty.hfe"
 packFile="$current_folder/$packDir/teo-$teoversion-i586.tar"
 tar -cf $packFile $common_exec $linux_exec teo/*-??.*
 gzip $gzipOptions $packFile
@@ -394,6 +396,7 @@ teo/cc90hfe-com.exe
 teo/cc90.sap
 teo/cc90.fd
 teo/cc90.hfe
+teo/empy.hfe
 teo/*.dll"
 
 echo "Creating ZIP packages for Windows executables in French..."
