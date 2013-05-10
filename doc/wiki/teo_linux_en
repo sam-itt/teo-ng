@@ -9,7 +9,7 @@
 
 #####Installation<a name="installation"></a>
 
-The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 3.0 and later of the GTK+ toolkit is required and might require a system update. It is available <a href="http://www.gtk.org">here</a>.
+The required configuration to run the emulator is the standard configuration of recent Linux distributions. Version 3.0 and later of the GTK+ toolkit is required and might require a system update. It is available at <a href="http://www.gtk.org" target="_blank">http://www.gtk.org</a>.
 
 You can install the emulator in two ways:
 
