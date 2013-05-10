@@ -58,7 +58,7 @@ SAP_EINVAL : SAP archive identifier (SAPID) is invalid.</p>
 
 <p><b><i>int sap_FillArchive(sapID id, sapsector_t *sapsector);</i></b><br><span style="padding-left:30px"><em>id : identifier of the SAP archive</em></span><br><span style="padding-left:30px"><em>sapsector : pointer to a sector structure</em></span></p>
 
-<p>Fills an archive created by sap_CreateArchive () sector by sector, starting from sector 1 of track 0. At each call, the sector number is incremented by 1 and, if the current track becomes full, the next track is selected.
+<p>Fills an archive created by sap_CreateArchive() sector by sector, starting from sector 1 of track 0. At each call, the sector number is incremented by 1 and, if the current track becomes full, the next track is selected.
 Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_ENOSPC : SAP archive is full.</p>
@@ -77,7 +77,7 @@ SAP_CRC_ERROR : CRC error on data sector.</p>
 <p>On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : archive the SAP is being filled by sap_FillArchive ()</p>
+SAP_EBUSY : archive the SAP is being filled by sap_FillArchive()</p>
 
 <h5>Read a range of SAP sectors<a name="read_sectors"></a></h5>
 
@@ -86,7 +86,7 @@ SAP_EBUSY : archive the SAP is being filled by sap_FillArchive ()</p>
 <p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()</p>
 
 <h5>Write a SAP sector<a name="write_sector"></a></h5>
 
@@ -96,7 +96,7 @@ SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
 Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()</p>
 
 <h5>Write a range of SAP sectors<a name="write_sectors"></a></h5>
 
@@ -105,7 +105,7 @@ SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
 <p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()</p>
 
 <h5>Format a SAP archive<a name="format_archive"></a></h5>
 
@@ -113,7 +113,7 @@ SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
 
 <p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()</p>
 
 <h5>Store the directory of a SAP archive<a name="list_archive"></a></h5>
 
@@ -122,7 +122,7 @@ SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
 <p>Returns the number of lines of the list. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()</p>
 
 <h5>Add a file to a SAP archive<a name="add_file"></a></h5>
 
@@ -131,7 +131,7 @@ SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()</p>
 <p>Returns the size of the file added in bytes. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()
 SAP_ENOENT : the file does not exist.
 SAP_ENFILE : the file is empty.
 SAP_ENOSPC : the SAP archive directory is full.
@@ -144,7 +144,7 @@ SAP_EFBIG : the file is too big compared with the free space of the SAP archive.
 <p>Returns the size of the file(s) deleted in bytes. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()
 SAP_ENOENT : the file does not exist.</p>
 
 <h5>Extract a file from a SAP archive<a name="exract_file"></a></h5>
@@ -154,7 +154,7 @@ SAP_ENOENT : the file does not exist.</p>
 <p>Returns the size of the file(s) extracted in bytes. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()
 SAP_ENOENT : the file does not exist in the SAP archive (invalid error when pattern contains at least one wildcard).
 SAP_EPERM : Can not write the file to the media.</p>
 
@@ -165,7 +165,7 @@ SAP_EPERM : Can not write the file to the media.</p>
 <p>Returns SAP_OK. On failure, SAP_ERROR is returned and the 'sap_errno' variable is set to one of the following error codes:
 SAP_EINVAL : SAP archive identifier (SAPID) is invalid.
 SAP_EEMPTY : SAP archive is empty.
-SAP_EBUSY : SAP archive is being filled by sap_FillArchive ()
+SAP_EBUSY : SAP archive is being filled by sap_FillArchive()
 SAP_ENOENT : the file does not exist.</p>
 </td></tr></table>
 </body>
