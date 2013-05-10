@@ -7,7 +7,7 @@
 
 #####Installation<a name="installation"></a>
 
-To run the emulator, you need at least a 80486 with 8MB of RAM running under Windows 95, Windows 98, Windows Millenium edition, Windows NT4, Windows 2000 or Windows XP. The redistributable component DirectX version 3.0 or higher must be installed. A DirectSound compatible card is required to emulate sound.
+To run the emulator, you need at least a 80486 with 8MB of RAM running under Windows 98, Windows Millenium edition, Windows NT4, Windows 2000, Windows XP and higher. The redistributable component DirectX version 3.0 or higher must be installed. A DirectSound compatible card is required to emulate sound.
 
 You can install the emulator in two ways:
 

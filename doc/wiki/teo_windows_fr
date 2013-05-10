@@ -7,7 +7,7 @@
 
 #####Installation<a name="installation"></a>
 
-Pour faire fonctionner l'&eacute;mulateur, vous devez disposer au minimum d'un 80486 muni de 8 Mo de RAM, tournant sous Windows 95, Windows 98, Windows Millenium edition, Windows NT4, Windows 2000 ou Windows XP; les composants redistribuables DirectX version 3.0 ou sup&eacute;rieure doivent &ecirc;tre install&eacute;s. Une carte son compatible DirectSound est n&eacute;cessaire pour l'&eacute;mulation sonore.
+Pour faire fonctionner l'&eacute;mulateur, vous devez disposer au minimum d'un 80486 muni de 8 Mo de RAM, tournant sous Windows 98, Windows Millenium edition, Windows NT4, Windows 2000, Windows XP ou sup&eacute;rieurs; les composants redistribuables DirectX version 3.0 ou sup&eacute;rieure doivent &ecirc;tre install&eacute;s. Une carte son compatible DirectSound est n&eacute;cessaire pour l'&eacute;mulation sonore.
 
 Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 
@@ -16,7 +16,7 @@ Vous pouvez installer l'&eacute;mulateur de deux fa&ccedil;ons:
 
 #####Lancement<a name="launching"></a>
 
-Le lancement du programme &eacute;x&eacute;cutable provoque l'affichage d'une fen&ecirc;tre de s&eacute;lection du mode graphique s'il n'a pas d&eacute;j&agrave; &eacute;t&eacute; sp&eacute;cifi&eacute; sur la ligne de commande, puis le d&eacute;marrage de l'&eacute;mulation.
+Le lancement du programme ex&eacute;cutable provoque l'affichage d'une fen&ecirc;tre de s&eacute;lection du mode graphique s'il n'a pas d&eacute;j&agrave; &eacute;t&eacute; sp&eacute;cifi&eacute; sur la ligne de commande, puis le d&eacute;marrage de l'&eacute;mulation.
 
 Teo accepte les param&egrave;tres suivants suppl&eacute;mentaires sur la ligne de commande:
 <table border="1" width="100%">

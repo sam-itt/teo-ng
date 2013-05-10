@@ -1,6 +1,6 @@
 ###Survol de Teo
 
-La version originale de l'&eacute;mulateur Teo a &eacute;t&eacute; d&eacute;velopp&eacute;e en 1994 sous MS-DOS avec la librairie Allegro. Pour s'adapter à l'&eacute;volution des OS, des portages ont &eacute;t&eacute; effectu&eacute;s pour win32 (Windows 95/98, XP, Vista et Seven) et pour Linux. Ces trois versions sont actuellement maintenues.
+La version originale de l'&eacute;mulateur Teo a &eacute;t&eacute; d&eacute;velopp&eacute;e en 1994 sous MS-DOS avec la librairie Allegro. Pour s'adapter &agrave; l'&eacute;volution des OS, des portages ont &eacute;t&eacute; effectu&eacute;s pour win32 (Windows 98, XP, Vista et Seven) et pour Linux. Ces trois versions sont actuellement maintenues.
 
 Par ailleurs, <a href="http://www.bannister.org/software/teo.htm">un portage natif MacOS puis MacOSX</a> est g&eacute;r&eacute; par R. Bannister depuis les toutes premi&egrave;res versions de TEO.
 
