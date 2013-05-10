@@ -29,9 +29,6 @@ for i in *;
    echo "<table width=\"100%\"><tr><td>" >> _tmpfile;
    echo "" >> _tmpfile;
    markdown $i >> _tmpfile
-   echo "" >> _tmpfile;
-   echo "<hr>" >> _tmpfile;
-   echo "<center><p>Teo developers &copy; 1997-$todayYear on <a href=\"https://sourceforge.net/projects/teoemulator/\">SourceForge</a></p></center>" >> _tmpfile;
    echo "</td></tr></table>" >> _tmpfile;
    echo "</body>" >> _tmpfile;
    echo "</html>" >> _tmpfile;
