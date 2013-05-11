@@ -6,5 +6,8 @@ Priority: optional
 Maintainer: François Mouret <fjjm@orange.fr>
 Homepage: http://sourceforge.net/projects/teoemulator/
 Installed-Size: <set by pack.sh>
-Description: Transfering between HFE files and Thomson disks
+Description: Creating true images of double density Thomson floppies
+ CC90HFE allows you to save true images of double density floppies used by
+ Thomson microcomputers into HFE file format, so that you can
+ use them with the emulator Teo or with the HxC Floppy Emulator.
 
