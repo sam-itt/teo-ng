@@ -46,12 +46,12 @@ Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msd
 Flags: ignoreversion; Languages: en; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\en\sapfs.exe"
 Flags: ignoreversion; Languages: fr; DestDir: "{app}"; Source: "{#OUTPUTDIR}\msdos\fr\sapfs.exe"
 ; ------------------------- Root files -------------------------------
-Flags: ignoreversion; DestDir: "{app}"; Source: "readme-en.txt"; DestName: "readme.txt"; Languages: en
-Flags: ignoreversion; DestDir: "{app}"; Source: "readme-fr.txt"; DestName: "readme.txt"; Languages: fr
-Flags: ignoreversion; DestDir: "{app}"; Source: "change-en.log"; DestName: "change.log"; Languages: en
-Flags: ignoreversion; DestDir: "{app}"; Source: "change-fr.log"; DestName: "change.log"; Languages: fr
-Flags: ignoreversion; DestDir: "{app}"; Source: "licence-en.txt"; DestName: "license.txt"; Languages: en
-Flags: ignoreversion; DestDir: "{app}"; Source: "licence-fr.txt"; DestName: "license.txt"; Languages: fr
+Flags: ignoreversion; DestDir: "{app}"; Source: "readme-en.txt"; DestName: "README.TXT"; Languages: en
+Flags: ignoreversion; DestDir: "{app}"; Source: "readme-fr.txt"; DestName: "README.TXT"; Languages: fr
+Flags: ignoreversion; DestDir: "{app}"; Source: "change-en.log"; DestName: "CHANGES.TXT"; Languages: en
+Flags: ignoreversion; DestDir: "{app}"; Source: "change-fr.log"; DestName: "CHANGES.TXT"; Languages: fr
+Flags: ignoreversion; DestDir: "{app}"; Source: "licence-en.txt"; DestName: "LICENCE.TXT"; Languages: en
+Flags: ignoreversion; DestDir: "{app}"; Source: "licence-fr.txt"; DestName: "LICENCE.TXT"; Languages: fr
 Flags: ignoreversion; DestDir: "{app}"; Source: "allegro.cfg"
 Flags: ignoreversion; DestDir: "{app}"; Source: "language.dat"
 Flags: ignoreversion; DestDir: "{app}"; Source: "keyboard.dat"
@@ -110,12 +110,12 @@ Flags: ignoreversion; DestDir: "{app}\doc\images"; Source: "doc\images\modif12.j
 Flags: ignoreversion; DestDir: "{app}\doc"; Source: "doc\doc.css"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90hfe_en.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: fr; Source: "doc\cc90hfe_fr.htm"
+Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90_faq_en.htm"
+Flags: ignoreversion; DestDir: "{app}\doc"; Languages: fr; Source: "doc\cc90_faq_fr.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90_thomson_en.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: fr; Source: "doc\cc90_thomson_fr.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90232_adapt_en.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: fr; Source: "doc\cc90232_adapt_fr.htm"
-Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90232_faq_en.htm"
-Flags: ignoreversion; DestDir: "{app}\doc"; Languages: fr; Source: "doc\cc90232_faq_fr.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90232_modif_en.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: fr; Source: "doc\cc90232_modif_fr.htm"
 Flags: ignoreversion; DestDir: "{app}\doc"; Languages: en; Source: "doc\cc90hfe_linux_en.htm"
