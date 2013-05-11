@@ -1,16 +1,186 @@
 #!/bin/bash
-#
-# - Compiles the executable Linux for DEBIAN
-# - Creates the distribuable DEBIAN for the executable
-# - Compiles the executable Linux for TAR.GZ
-# - Creates the TAR.GZ distribuable Linux
-# - Creates the Window distribuable ZIP in French
-# - Creates the Window distribuable ZIP in English
-# - Creates the MsDos distribuable ZIP in French
-# - Creates the MsDos distribuable ZIP in English
-# - Creates the ZIP for the sources
-# - Creates the TAR.GZ for the sources
 
+set -e
+
+#----------------------------------------------------------------
+#
+#              Create packages for Teo and Cc90hfe
+#
+#----------------------------------------------------------------
+
+if [ `expr match $PWD '.*/teo$'` = 0 ]
+   then
+      echo "Usage: ./misc/pack/pack.sh from teo/ folder"
+      exit 1
+fi
+
+# always set TMPDIR to something writable into!
+if [ -z $TMPDIR ]; then
+   TMPDIR="/tmp"
+fi
+
+teo_version='1.8.2'
+cc90hfe_version='0.5.0'
+pack_dir="teo/misc/pack"
+zip_options="-q -9"
+gzip_options="-9"
+
+# list of source files
+source_files="
+teo/src
+teo/include
+teo/system
+teo/doc
+teo/tests
+teo/tools/sap
+teo/tools/k7tools
+teo/tools/cc90hfe/include
+teo/tools/cc90hfe/obj/linux/blank.txt
+teo/tools/cc90hfe/obj/win/blank.txt
+teo/tools/cc90hfe/src
+teo/tools/cc90hfe/makefile.*
+teo/tools/cc90hfe/fix*.*
+teo/obj/linux/*.dep
+teo/obj/djgpp/*.dep
+teo/obj/mingw32/*.dep
+teo/misc/fix*.sh
+teo/misc/fixver/*.sh
+teo/misc/pack/*.txt
+teo/misc/pack/*.bat
+teo/misc/pack/*.sh
+teo/misc/pack/inno/*.iss
+teo/misc/pack/inno/*.bmp
+teo/misc/pack/debian
+teo/change-*.log
+teo/licence-*.txt
+teo/readme-*.txt
+teo/fix*.*
+teo/makefile*
+teo/allegro.cfg
+teo/language.dat
+teo/keyboard.dat
+teo/alleg40.dll
+teo/zlib1.dll
+teo/libpng3.dll"
+
+# list of common files for executable packages
+common_exec="
+teo/disk
+teo/memo
+teo/cass
+teo/system
+teo/doc/images/*.*
+teo/doc/*.htm
+teo/doc/*.css
+teo/system/rom/*.rom
+teo/system/printer/042/*.txt
+teo/system/printer/055/*.txt
+teo/system/printer/582/*.txt
+teo/system/printer/600/*.txt
+teo/system/printer/612/*.txt"
+
+
+
+######################################################################
+echo "Preparing working directories..."
+#---------------------------------------------------------------------
+#   Copy to temporary folder
+#---------------------------------------------------------------------
+cd ..
+current_folder=$PWD
+pack_storage="$current_folder/$pack_dir"
+rm -f -r $TMPDIR/teo
+cp -r ./teo $TMPDIR
+cd $TMPDIR
+#---------------------------------------------------------------------
+#   Convert files from DOS to UNIX
+#---------------------------------------------------------------------
+cd teo
+./fixunix.sh
+cd ..
+#---------------------------------------------------------------------
+#   Clean user directories
+#---------------------------------------------------------------------
+rm -f -r ./disk
+rm -f -r ./memo
+rm -f -r ./cass
+#---------------------------------------------------------------------
+#   Clean package files
+#---------------------------------------------------------------------
+rm -f $pack_storage/*.tar*
+rm -f $pack_storage/*.zip
+rm -f $pack_storage/*.deb
+#---------------------------------------------------------------------
+#   Clean object files
+#---------------------------------------------------------------------
+rm -f -r ./teo/obj/mingw32
+rm -f -r ./teo/obj/djgpp
+rm -f -r ./teo/obj/linux
+mkdir ./teo/obj/mingw32
+mkdir ./teo/obj/djgpp
+mkdir ./teo/obj/linux
+#---------------------------------------------------------------------
+#   Copy MsDos and Windows files (force file and directory names to lowercase)
+#---------------------------------------------------------------------
+name_to_lowercase()
+{
+   lowercase_name="$(echo $1 | tr [:upper:] [:lower:])"
+    if [ $1 != $lowercase_name ]
+        then
+            mv $1 $lowercase_name
+    fi
+}
+
+name_to_lowercase "./$pack_dir/MSDOS"
+name_to_lowercase "./$pack_dir/msdos/EN"
+name_to_lowercase "./$pack_dir/msdos/FR"
+for i in ./$pack_dir/msdos/fr/*
+   do
+      name_to_lowercase $i
+done
+for i in ./$pack_dir/msdos/en/*
+   do
+      name_to_lowercase $i
+done
+cp $pack_dir/mingw/fr/makefile.dep ./teo/obj/mingw32/
+cp $pack_dir/msdos/fr/makefile.dep ./teo/obj/djgpp/
+
+
+
+######################################################################
+echo "Preparing executable for Teo DEBIAN..."
+#---------------------------------------------------------------------
+#   Compile Teo
+#---------------------------------------------------------------------
+cd teo
+make veryclean
+make DEBIAN=1
+make depend
+cd ..
+#---------------------------------------------------------------------
+#   Compile SapTools
+#---------------------------------------------------------------------
+cd teo/tools/sap
+make clean
+make
+cd ../../..
+cp teo/tools/sap/sap2  teo/
+cp teo/tools/sap/sapfs teo/
+#---------------------------------------------------------------------
+#   Compile K7Tools
+#---------------------------------------------------------------------
+cd teo/tools/k7tools
+make clean
+make
+cd ../../..
+cp teo/tools/k7tools/wav2k7 teo/
+
+
+
+######################################################################
+#---------------------------------------------------------------------
+#   Function to build DEBIAN packages
+#---------------------------------------------------------------------
 build_debian_package()
 {
     local unpacked_size
@@ -39,247 +209,141 @@ build_debian_package()
 }
 
 
-if [ `expr match $PWD '.*/teo$'` = 0 ]
-   then
-      echo "Usage: ./misc/pack/pack.sh from teo/ folder"
-      exit
-fi
 
-# always set TMPDIR to something writable into!
-if [ -z $TMPDIR ]; then
-   TMPDIR=/tmp
-fi
+######################################################################
+echo "Creating Teo DEBIAN package..."
+prog_name=teo-$teo_version-i586
+#---------------------------------------------------------------------
+#   Transfert DEBIAN file structure
+#---------------------------------------------------------------------
+sudo rm -r -f ~/$prog_name
+cp -r $pack_dir/debian/teo ~
+mv -f ~/teo ~/$prog_name
+#---------------------------------------------------------------------
+#   Create missing folders
+#---------------------------------------------------------------------
+mkdir ~/$prog_name/usr/games/
+mkdir ~/$prog_name/usr/share/doc
+mkdir ~/$prog_name/usr/share/doc/teo
+mkdir ~/$prog_name/usr/share/teo
+mkdir ~/$prog_name/usr/share/teo/system
+mkdir ~/$prog_name/usr/share/teo/doc
+mkdir ~/$prog_name/usr/share/teo/doc/images
+#---------------------------------------------------------------------
+#   Copy files into file structure
+#---------------------------------------------------------------------
+cp teo/teo            ~/$prog_name/usr/games/
+cp teo/sap2           ~/$prog_name/usr/games/
+cp teo/sapfs          ~/$prog_name/usr/games/
+cp teo/wav2k7         ~/$prog_name/usr/games/
+cp -r teo/system      ~/$prog_name/usr/share/teo
+cp teo/empty.hfe      ~/$prog_name/usr/share/teo
+cp teo/doc/images/*.* ~/$prog_name/usr/share/teo/doc/images
+cp teo/doc/doc.css    ~/$prog_name/usr/share/teo/doc
+cp teo/doc/*.htm      ~/$prog_name/usr/share/teo/doc
+cp teo/readme-en.txt  ~/$prog_name/usr/share/doc/teo/README
+cp teo/licence-en.txt ~/$prog_name/usr/share/doc/teo/copyright
+cp teo/change-en.log  ~/$prog_name/usr/share/doc/teo/changelog
 
-teoversion='1.8.2'
-cc90hfeversion='0.5.0'
-packDir="teo/misc/pack"
-zipOptions="-q -9"
-gzipOptions="-9"
-
-# list of source files
-source_files="
-teo/src
-teo/tools/sap
-teo/tools/k7tools/
-teo/tools/cc90hfe/include/
-teo/tools/cc90hfe/obj/linux/blank.txt
-teo/tools/cc90hfe/obj/win/blank.txt
-teo/tools/cc90hfe/src/
-teo/tools/cc90hfe/makefile.*
-teo/tools/cc90hfe/fix*.*
-teo/include
-teo/system
-teo/doc
-teo/tests
-teo/obj/linux/*.dep
-teo/obj/djgpp/*.dep
-teo/obj/mingw32/*.dep
-teo/misc/fix*.sh
-teo/misc/fixver/*.sh
-$packDir/*.txt
-$packDir/*.bat
-$packDir/*.sh
-$packDir/inno/*.iss
-$packDir/inno/*.bmp
-$packDir/debian
-$packDir/msdos/en/makefile.dep
-$packDir/mingw/fr/makefile.dep
-teo/*-??.*
-teo/fix*.*
-teo/makefile*
-teo/*.cfg
-teo/*.dll"
-
-# list of common files for executable packages
-common_exec="
-teo/disk
-teo/memo
-teo/cass
-teo/system
-teo/doc/images/*.*
-teo/doc/*.htm
-teo/doc/*.css
-teo/system/rom/*.rom
-teo/system/printer/042/*.txt
-teo/system/printer/055/*.txt
-teo/system/printer/582/*.txt
-teo/system/printer/600/*.txt
-teo/system/printer/612/*.txt"
+#---------------------------------------------------------------------
+#   Build DEBIAN package
+#---------------------------------------------------------------------
+build_debian_package $prog_name $pack_storage
 
 
 
-# copy to temporary folder
-cd ..
-current_folder=$PWD
-cp -r ./teo $TMPDIR
-cd $TMPDIR
-
-
-# convert files from DOS to UNIX and copy makefile.dep
-
-cd teo
-./fixunix.sh
-cd ..
-
-# clean all
-
-rm -r -f ./disk
-rm -r -f ./memo
-rm -r -f ./cass
-rm -f $current_folder/$packDir/teo-*.tar* $current_folder/$packDir/teo-*.zip $current_folder/$packDir/teo-*.deb
-rm -f $current_folder/$packDir/cc90hfe-*.tar* $current_folder/$packDir/cc90hfe-*.zip $current_folder/$packDir/cc90hfe-*.deb
-rm -r -f ./teo/obj/mingw32
-rm -r -f ./teo/obj/djgpp
-rm -r -f ./teo/obj/linux
-mkdir ./teo/obj/mingw32
-mkdir ./teo/obj/djgpp
-mkdir ./teo/obj/linux
-cp $current_folder/$packDir/mingw/fr/makefile.dep ./teo/obj/mingw32/
-if [ -e $current_folder/$packDir/msdos/fr/MAKEFILE.DEP ]
-   then
-       cp $current_folder/$packDir/msdos/fr/MAKEFILE.DEP ./teo/obj/djgpp/makefile.dep
-   else
-       cp $current_folder/$packDir/msdos/fr/makefile.dep ./teo/obj/djgpp/
-fi
-
-#*********************************************************************
-
-echo "Creating DEBIAN package for Linux executable..."
-
-# Compile Teo
-cd teo
-make veryclean
-make DEBIAN=1
-make depend
-cd ..
-
-# Compile saptools
-cd teo/tools/sap
-make clean
-make
-cd ../../..
-cp teo/tools/sap/sap2  teo/
-cp teo/tools/sap/sapfs teo/
-
-# Compile k7tools
-cd teo/tools/k7tools
-make clean
-make
-cd ../../..
-cp teo/tools/k7tools/wav2k7 teo/
-
-# ---------------- Teo Debian ----------------------
-
-deb_name=teo-$teoversion-i586
-deb_dir=$deb_name/usr/share/teo
-
-# Transfert DEBIAN file structure
-sudo rm -r -f ~/$deb_name
-cp -r $packDir/debian/teo ~
-mv -f ~/teo ~/$deb_name
-
-# Create missing folders
-mkdir ~/$deb_name/usr/games/
-mkdir ~/$deb_dir
-mkdir ~/$deb_dir/system
-mkdir ~/$deb_dir/doc
-mkdir ~/$deb_dir/doc/images
-
-# Copy files into file structure
-cp teo/teo            ~/$deb_name/usr/games/
-cp teo/sap2           ~/$deb_name/usr/games/
-cp teo/sapfs          ~/$deb_name/usr/games/
-cp teo/wav2k7         ~/$deb_name/usr/games/
-cp -r teo/system      ~/$deb_dir
-cp teo/*-fr.txt       ~/$deb_dir
-cp teo/*-en.txt       ~/$deb_dir
-cp teo/empty.hfe      ~/$deb_dir
-cp teo/doc/images/*.* ~/$deb_dir/doc/images
-cp teo/doc/doc.css    ~/$deb_dir/doc
-cp teo/doc/*.htm      ~/$deb_dir/doc
-
-# Build DEBIAN package
-build_debian_package $deb_name $current_folder/$packDir
-
-# ---------------- cc90hfe Debian ----------------------
-
-deb_name=cc90hfe-$cc90hfeversion-i586
-deb_dir=$deb_name/usr/share/cc90hfe
-
-# Compile cc90hfe
+######################################################################
+echo "Preparing executable for Cc90hfe DEBIAN..."
 cd teo/tools/cc90hfe
 ./fixunix.sh
 make clean
 make DEBIAN=1
 cd ../../..
 
-# Transfert DEBIAN file structure
-sudo rm -r -f ~/$deb_name
-cp -r $packDir/debian/cc90hfe ~
-mv -f ~/cc90hfe ~/$deb_name
 
-# Create missing folders
-mkdir ~/$deb_name/usr/games/
-mkdir ~/$deb_dir
-mkdir ~/$deb_dir/doc
-mkdir ~/$deb_dir/doc/images
 
-# Copy files into file structure
-cp teo/tools/cc90hfe/cc90hfe     ~/$deb_name/usr/games/
-cp teo/cc90.sap                  ~/$deb_dir
-cp teo/cc90.fd                   ~/$deb_dir
-cp teo/cc90.hfe                  ~/$deb_dir
-cp teo/doc/doc.css               ~/$deb_dir/doc
-cp teo/doc/images/*.*            ~/$deb_dir/doc/images
-cp teo/doc/cc90*.htm             ~/$deb_dir/doc
-mv ~/$deb_dir/doc/cc90hfe_en.htm ~/$deb_dir/doc/index.htm
-mv ~/$deb_dir/doc/cc90hfe_fr.htm ~/$deb_dir/doc/index_fr.htm
+######################################################################
+echo "Creating Cc90hfe DEBIAN package..."
+prog_name="cc90hfe-$cc90hfe_version-i586"
+#---------------------------------------------------------------------
+#   Transfert DEBIAN file structure
+#---------------------------------------------------------------------
+sudo rm -r -f ~/$prog_name
+cp -r $pack_dir/debian/cc90hfe ~
+mv -f ~/cc90hfe ~/$prog_name
+#---------------------------------------------------------------------
+#   Create missing folders
+#---------------------------------------------------------------------
+mkdir ~/$prog_name/usr/games/
+mkdir ~/$prog_name/usr/share/cc90hfe
+mkdir ~/$prog_name/usr/share/cc90hfe/doc
+mkdir ~/$prog_name/usr/share/cc90hfe/doc/images
+#---------------------------------------------------------------------
+#   Copy files into file structure
+#---------------------------------------------------------------------
+cp teo/tools/cc90hfe/cc90hfe ~/$prog_name/usr/games/
+cp teo/cc90.sap              ~/$prog_name/usr/share/cc90hfe
+cp teo/cc90.fd               ~/$prog_name/usr/share/cc90hfe
+cp teo/cc90.hfe              ~/$prog_name/usr/share/cc90hfe
+cp teo/doc/doc.css           ~/$prog_name/usr/share/cc90hfe/doc
+cp teo/doc/images/*.*        ~/$prog_name/usr/share/cc90hfe/doc/images
+cp teo/doc/cc90*.htm         ~/$prog_name/usr/share/cc90hfe/doc
+move_dir="$prog_name/usr/share/cc90hfe/doc"
+mv ~/$move_dir/cc90hfe_en.htm ~/$move_dir/index.htm
+mv ~/$move_dir/cc90hfe_fr.htm ~/$move_dir/index_fr.htm
+#---------------------------------------------------------------------
+#   Build DEBIAN package
+#---------------------------------------------------------------------
+build_debian_package $prog_name $pack_storage
 
-# Build DEBIAN package
-build_debian_package $deb_name $current_folder/$packDir
 
-# Create media folders
 
+######################################################################
+echo "Creating Teo TAR.GZ package..."
+#---------------------------------------------------------------------
+#   Create media folders
+#---------------------------------------------------------------------
 mkdir teo/disk
 mkdir teo/memo
 mkdir teo/cass
-
-#*********************************************************************
-
-echo "Creating TAR.GZ package for Linux executable..."
-
-# Compile Teo
+#---------------------------------------------------------------------
+#   Compile Teo
+#---------------------------------------------------------------------
 cd teo
 make veryclean
 make
 make depend
 cd ..
-
-# Compile saptools
+#---------------------------------------------------------------------
+#   Compile saptools
+#---------------------------------------------------------------------
 cd teo/tools/sap
 make clean
 make
 cd ../../..
 cp teo/tools/sap/sap2  teo/
 cp teo/tools/sap/sapfs teo/
-
-# Compile k7tools
+#---------------------------------------------------------------------
+#    Compile k7tools
+#---------------------------------------------------------------------
 cd teo/tools/k7tools
 make clean
 make
 cd ../../..
 cp teo/tools/k7tools/wav2k7 teo/
-
-# Compile cc90hfe
+#---------------------------------------------------------------------
+#   Compile cc90hfe
+#---------------------------------------------------------------------
 cd teo/tools/cc90hfe
 ./fixunix.sh
 make clean
 make
 cd ../../..
 cp teo/tools/cc90hfe/cc90hfe teo/
-
-# Create executable package
-linux_exec="
+#---------------------------------------------------------------------
+#   Create executable package
+#---------------------------------------------------------------------
+exec_list="
 teo/teo
 teo/sap2
 teo/sapfs
@@ -288,52 +352,69 @@ teo/cc90hfe
 teo/cc90.sap
 teo/cc90.fd
 teo/cc90.hfe
-teo/empty.hfe"
-packFile="$current_folder/$packDir/teo-$teoversion-i586.tar"
-tar -cf $packFile $common_exec $linux_exec teo/*-??.*
-gzip $gzipOptions $packFile
+teo/empty.hfe
+teo/change-*.log
+teo/licence-*.txt
+teo/readme-*.txt"
+pack_file="$pack_storage/teo-$teo_version-i586.tar"
+tar -cf $pack_file $common_exec $exec_list
+gzip $gzip_options $pack_file
 
-# clean Linux executables
 
-# Clean Teo
+
+######################################################################
+echo "Clean Linux executables..."
+#---------------------------------------------------------------------
+#   Clean Teo
+#---------------------------------------------------------------------
 cd teo
 make clean
 cd ..
-
-# Clean saptools
+#---------------------------------------------------------------------
+#   Clean saptools
+#---------------------------------------------------------------------
 cd teo/tools/sap
 make clean
 cd ../../..
 rm teo/sap2
 rm teo/sapfs
-
-# Clean k7tools
+#---------------------------------------------------------------------
+#   Clean k7tools
+#---------------------------------------------------------------------
 cd teo/tools/k7tools
 make clean
 cd ../../..
 rm teo/wav2k7
-
-# Clean cc90hfe
+#---------------------------------------------------------------------
+#   Clean cc90hfe
+#---------------------------------------------------------------------
 cd teo/tools/cc90hfe
 make clean
 cd ../../..
 rm teo/cc90hfe
 
-#*********************************************************************
-
 echo "Creating TAR.GZ package for sources..."
+pack_file="$pack_storage/teo-$teo_version-src.tar"
+tar -cf $pack_file $source_files
+gzip $gzip_options $pack_file
 
-packFile="$current_folder/$packDir/teo-$teoversion-src.tar"
-tar -cf $packFile $source_files
-gzip $gzipOptions $packFile
 
-#*********************************************************************
 
+######################################################################
+#---------------------------------------------------------------------
+#   Convert files from UNIX to DOS
+#---------------------------------------------------------------------
 cd teo
 ./fixdoscr.sh
 cd ..
 
-msdos_exec="
+
+
+######################################################################
+#---------------------------------------------------------------------
+#   List of files to add to MsDos package
+#---------------------------------------------------------------------
+exec_list="
 teo/language.dat
 teo/keyboard.dat
 teo/allegro.cfg
@@ -341,49 +422,61 @@ teo/teo.exe
 teo/sap2.exe
 teo/sapfs.exe
 teo/wav2k7.exe
-teo/cwsdpmi.exe"
+teo/cwsdpmi.exe
+teo/CHANGES.TXT
+teo/LICENCE.TXT
+teo/README.TXT"
 
+
+
+######################################################################
 echo "Creating ZIP packages for MSDOS executables in French..."
+pack_file="$pack_storage/teo-$teo_version-dosexe-fr.zip"
+cp $pack_dir/msdos/fr/teo.exe    teo/
+cp $pack_dir/msdos/fr/sap2.exe   teo/
+cp $pack_dir/msdos/fr/sapfs.exe  teo/
+cp $pack_dir/msdos/fr/wav2k7.exe teo/
+cp $pack_dir/msdos/fr/wav2k7.exe teo/
+cp teo/change-fr.log  teo/CHANGES.TXT
+cp teo/licence-fr.txt teo/LICENCE.TXT
+cp teo/readme-fr.txt  teo/README.TXT
+zip -r $zip_options $pack_file $common_exec $exec_list
+rm teo/teo.exe
+rm teo/sap2.exe
+rm teo/sapfs.exe
+rm teo/wav2k7.exe
+rm teo/CHANGES.TXT
+rm teo/LICENCE.TXT
+rm teo/README.TXT
 
-packFile="$current_folder/$packDir/teo-$teoversion-dosexe-fr.zip"
-if [ -e $packDir/msdos/fr/TEO.EXE ]
-   then
-       cp $packDir/msdos/fr/TEO.EXE    teo/teo.exe
-       cp $packDir/msdos/fr/SAP2.EXE   teo/sap2.exe
-       cp $packDir/msdos/fr/SAPFS.EXE  teo/sapfs.exe
-       cp $packDir/msdos/fr/WAV2K7.EXE teo/wav2k7.exe
-   else
-       cp $packDir/msdos/fr/teo.exe    teo/teo.exe
-       cp $packDir/msdos/fr/sap2.exe   teo/sap2.exe
-       cp $packDir/msdos/fr/sapfs.exe  teo/sapfs.exe
-       cp $packDir/msdos/fr/wav2k7.exe teo/wav2k7.exe
-fi
-zip -r $zipOptions $packFile $common_exec $msdos_exec teo/*-fr.*
-rm teo/teo.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 
-#*********************************************************************
 
+######################################################################
 echo "Creating ZIP packages for MSDOS executables in English..."
+pack_file="$pack_storage/teo-$teo_version-dosexe-en.zip"
+cp $pack_dir/msdos/en/teo.exe    teo/
+cp $pack_dir/msdos/en/sap2.exe   teo/
+cp $pack_dir/msdos/en/sapfs.exe  teo/
+cp $pack_dir/msdos/en/wav2k7.exe teo/
+cp teo/change-en.log  teo/CHANGES.TXT
+cp teo/licence-en.txt teo/LICENCE.TXT
+cp teo/readme-en.txt  teo/README.TXT
+zip -r $zip_options $pack_file $common_exec $exec_list
+rm teo/teo.exe
+rm teo/sap2.exe
+rm teo/sapfs.exe
+rm teo/wav2k7.exe
+rm teo/CHANGES.TXT
+rm teo/LICENCE.TXT
+rm teo/README.TXT
 
-packFile="$current_folder/$packDir/teo-$teoversion-dosexe-en.zip"
-if [ -e $packDir/msdos/en/TEO.EXE ]
-   then
-       cp $packDir/msdos/en/TEO.EXE    teo/teo.exe
-       cp $packDir/msdos/en/SAP2.EXE   teo/sap2.exe
-       cp $packDir/msdos/en/SAPFS.EXE  teo/sapfs.exe
-       cp $packDir/msdos/en/WAV2K7.EXE teo/wav2k7.exe
-   else
-       cp $packDir/msdos/en/teo.exe    teo/teo.exe
-       cp $packDir/msdos/en/sap2.exe   teo/sap2.exe
-       cp $packDir/msdos/en/sapfs.exe  teo/sapfs.exe
-       cp $packDir/msdos/en/wav2k7.exe teo/wav2k7.exe
-fi
-zip -r $zipOptions $packFile $common_exec $msdos_exec teo/*-en.*
-rm teo/teo.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe
 
-#*********************************************************************
 
-windows_exec="
+######################################################################
+#---------------------------------------------------------------------
+#   List of files to add to Windows package
+#---------------------------------------------------------------------
+exec_list="
 teo/language.dat
 teo/keyboard.dat
 teo/allegro.cfg
@@ -397,58 +490,78 @@ teo/cc90.sap
 teo/cc90.fd
 teo/cc90.hfe
 teo/empy.hfe
-teo/*.dll"
+teo/*.dll
+teo/CHANGES.TXT
+teo/LICENCE.TXT
+teo/README.TXT"
 
+
+
+######################################################################
 echo "Creating ZIP packages for Windows executables in French..."
+packFile="$pack_storage/teo-$teo_version-winexe-fr.zip"
+cp $pack_dir/mingw/fr/teow.exe        teo/
+cp $pack_dir/mingw/fr/cc90hfe.exe     teo/
+cp $pack_dir/mingw/fr/cc90hfe-com.exe teo/
+cp $pack_dir/msdos/fr/sap2.exe        teo/
+cp $pack_dir/msdos/fr/sapfs.exe       teo/
+cp $pack_dir/msdos/fr/wav2k7.exe      teo/
+cp teo/change-fr.log  teo/CHANGES.TXT
+cp teo/licence-fr.txt teo/LICENCE.TXT
+cp teo/readme-fr.txt  teo/README.TXT
+zip -r $zip_options $packFile $common_exec $exec_list
+rm teo/teow.exe
+rm teo/sap2.exe
+rm teo/sapfs.exe
+rm teo/wav2k7.exe
+rm teo/cc90hfe.exe
+rm teo/cc90hfe-com.exe
+rm teo/CHANGES.TXT
+rm teo/LICENCE.TXT
+rm teo/README.TXT
 
-packFile="$current_folder/$packDir/teo-$teoversion-winexe-fr.zip"
-cp $packDir/mingw/fr/teow.exe        teo/teow.exe
-cp $packDir/mingw/fr/cc90hfe.exe     teo/cc90hfe.exe
-cp $packDir/mingw/fr/cc90hfe-com.exe teo/cc90hfe-com.exe
-if [ -e $packDir/msdos/fr/TEO.EXE ]
-   then
-       cp $packDir/msdos/fr/SAP2.EXE   teo/sap2.exe
-       cp $packDir/msdos/fr/SAPFS.EXE  teo/sapfs.exe
-       cp $packDir/msdos/fr/WAV2K7.EXE teo/wav2k7.exe
-   else
-       cp $packDir/msdos/fr/sap2.exe   teo/sap2.exe
-       cp $packDir/msdos/fr/sapfs.exe  teo/sapfs.exe
-       cp $packDir/msdos/fr/wav2k7.exe teo/wav2k7.exe
-fi
-zip -r $zipOptions $packFile $common_exec $windows_exec teo/*-fr.*
-rm teo/teow.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe teo/cc90hfe.exe teo/cc90hfe-com.exe
 
-#*********************************************************************
 
+######################################################################
 echo "Creating ZIP packages for Windows executables in English..."
+packFile="$pack_storage/teo-$teo_version-winexe-en.zip"
+cp $pack_dir/mingw/en/teow.exe        teo/
+cp $pack_dir/mingw/en/cc90hfe.exe     teo/
+cp $pack_dir/mingw/en/cc90hfe-com.exe teo/
+cp $pack_dir/msdos/en/sap2.exe        teo/
+cp $pack_dir/msdos/en/sapfs.exe       teo/
+cp $pack_dir/msdos/en/wav2k7.exe      teo/
+cp teo/change-en.log  teo/CHANGES.TXT
+cp teo/licence-en.txt teo/LICENCE.TXT
+cp teo/readme-en.txt  teo/README.TXT
+zip -r $zip_options $packFile $common_exec $exec_list
+rm teo/teow.exe
+rm teo/sap2.exe
+rm teo/sapfs.exe
+rm teo/wav2k7.exe
+rm teo/cc90hfe.exe
+rm teo/cc90hfe-com.exe
+rm teo/CHANGES.TXT
+rm teo/LICENCE.TXT
+rm teo/README.TXT
 
-packFile="$current_folder/$packDir/teo-$teoversion-winexe-en.zip"
-cp $packDir/mingw/en/teow.exe        teo/teow.exe
-cp $packDir/mingw/en/cc90hfe.exe     teo/cc90hfe.exe
-cp $packDir/mingw/en/cc90hfe-com.exe teo/cc90hfe-com.exe
-if [ -e $packDir/msdos/en/TEO.EXE ]
-   then
-       cp $packDir/msdos/en/SAP2.EXE   teo/sap2.exe
-       cp $packDir/msdos/en/SAPFS.EXE  teo/sapfs.exe
-       cp $packDir/msdos/en/WAV2K7.EXE teo/wav2k7.exe
-   else
-       cp $packDir/msdos/en/sap2.exe   teo/sap2.exe
-       cp $packDir/msdos/en/sapfs.exe  teo/sapfs.exe
-       cp $packDir/msdos/en/wav2k7.exe teo/wav2k7.exe
-fi
-zip -r $zipOptions $packFile $common_exec $windows_exec teo/*-en.*
-rm teo/teow.exe teo/sap2.exe teo/sapfs.exe teo/wav2k7.exe teo/cc90hfe.exe teo/cc90hfe-com.exe
 
-#*********************************************************************
 
+######################################################################
 echo "Creating ZIP package for sources..."
+packFile="$pack_storage/teo-$teo_version-src.zip"
+zip -r $zip_options $packFile $source_files
 
-packFile="$current_folder/$packDir/teo-$teoversion-src.zip"
-zip -r $zipOptions $packFile $source_files teo/allegro.cfg
 
-#*********************************************************************
 
+
+######################################################################
+echo "Clean working directories..."
 rm -r ./teo
 cd $current_folder/teo
+
+
+
+######################################################################
 echo "Packages created in ./misc/pack/!"
 
