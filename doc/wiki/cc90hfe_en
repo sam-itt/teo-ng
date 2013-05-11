@@ -1,6 +1,6 @@
 ###CC90HFE
 
-*`CC90HFE`* allows you to create true images of your Thomson double density floppies into the HFE format, which is supported by Teo.
+*`CC90HFE`* allows you to create true images of your Thomson double density floppies into the HFE format, which is supported by Teo and is the format used by the <a href="http://hxc2001.free.fr/floppy_drive_emulator/" target="_blank">HxC Floppy Emulator</a>.
 
 * [Modifying the CC90-232 interface](../cc90232_modif_en)
 * [The DB25-DB9 adaptor](../cc90232_adapt_en)

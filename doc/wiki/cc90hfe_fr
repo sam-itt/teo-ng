@@ -1,6 +1,6 @@
 ###CC90HFE
 
-*`CC90HFE`* va vous permettre de cr&eacute;er des images fid&egrave;les de vos disquettes Thomson double densit&eacute; au format HFE, format qui est support&eacute; par Teo.
+*`CC90HFE`* va vous permettre de cr&eacute;er des images fid&egrave;les de vos disquettes Thomson double densit&eacute; au format HFE, format qui est support&eacute; par Teo et qui est le format utilis&eacute; par le <a href="http://hxc2001.free.fr/floppy_drive_emulator/" target="_blank">HxC Floppy Emulator</a>.
 
 * [Modification de l'interface](../cc90232_modif_fr)
 * [L'adaptateur DB25-DB9](../cc90232_adapt_fr)
