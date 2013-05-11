@@ -8,6 +8,7 @@
   Changements généraux -------------------------------------------------
 
 - émulation du contrôleur disque THMFC1
+- ajout de la disquette empty.hfe
 - création du répertoire system/, dans lequel se trouvent désormais les
   roms et les jeux de caractères pour l'imprimante
 - Ajout du checkbox pour le son sur le tableau de contrôle
