@@ -25,12 +25,28 @@ pack_dir="teo/misc/pack"
 zip_options="-q -9"
 gzip_options="-9"
 
+# list of system files
+system_files="
+teo/system/rom/*.rom
+teo/system/printer/042/*.txt
+teo/system/printer/055/*.txt
+teo/system/printer/582/*.txt
+teo/system/printer/600/*.txt
+teo/system/printer/612/*.txt"
+
+# list of common files for executable packages + users directories
+common_exec="
+$system_files
+teo/disk
+teo/memo
+teo/cass"
+
 # list of source files
 source_files="
+$system_files
+teo/doc/wiki/*
 teo/src
 teo/include
-teo/system
-teo/doc
 teo/tests
 teo/tools/sap
 teo/tools/k7tools
@@ -55,29 +71,13 @@ teo/change-*.log
 teo/licence-*.txt
 teo/readme-*.txt
 teo/fix*.*
-teo/makefile*
+teo/makefile.*
 teo/allegro.cfg
 teo/language.dat
 teo/keyboard.dat
 teo/alleg40.dll
 teo/zlib1.dll
 teo/libpng3.dll"
-
-# list of common files for executable packages
-common_exec="
-teo/disk
-teo/memo
-teo/cass
-teo/system
-teo/doc/images/*.*
-teo/doc/*.htm
-teo/doc/*.css
-teo/system/rom/*.rom
-teo/system/printer/042/*.txt
-teo/system/printer/055/*.txt
-teo/system/printer/582/*.txt
-teo/system/printer/600/*.txt
-teo/system/printer/612/*.txt"
 
 
 
@@ -124,21 +124,16 @@ mkdir ./teo/obj/linux
 #---------------------------------------------------------------------
 name_to_lowercase()
 {
-   lowercase_name="$(echo $1 | tr [:upper:] [:lower:])"
-    if [ $1 != $lowercase_name ]
+    if [ $1 != ${1,,*} ]
         then
-            mv $1 $lowercase_name
+            mv $1 ${1,,*}
     fi
 }
 
 name_to_lowercase "./$pack_dir/MSDOS"
 name_to_lowercase "./$pack_dir/msdos/EN"
 name_to_lowercase "./$pack_dir/msdos/FR"
-for i in ./$pack_dir/msdos/fr/*
-   do
-      name_to_lowercase $i
-done
-for i in ./$pack_dir/msdos/en/*
+for i in ./$pack_dir/msdos ./$pack_dir/msdos/fr/* ./$pack_dir/msdos/en/*
    do
       name_to_lowercase $i
 done
@@ -353,6 +348,9 @@ teo/cc90.sap
 teo/cc90.fd
 teo/cc90.hfe
 teo/empty.hfe
+teo/doc/images/*.*
+teo/doc/*.htm
+teo/doc/*.css
 teo/change-*.log
 teo/licence-*.txt
 teo/readme-*.txt"
@@ -394,19 +392,45 @@ cd ../../..
 rm teo/cc90hfe
 
 echo "Creating TAR.GZ package for sources..."
+pack_doc="
+teo/doc/images/*.*
+teo/doc/*.htm
+teo/doc/*.css"
 pack_file="$pack_storage/teo-$teo_version-src.tar"
-tar -cf $pack_file $source_files
+tar -cf $pack_file $source_files $pack_doc
 gzip $gzip_options $pack_file
 
 
 
 ######################################################################
 #---------------------------------------------------------------------
-#   Convert files from UNIX to DOS
+#   Convert files from UNIX to DOS / functions for docs
 #---------------------------------------------------------------------
 cd teo
 ./fixdoscr.sh
 cd ..
+
+open_doc()
+{
+    local i
+    rm -f -r teo/doc_tmp
+    cp -r teo/doc teo/doc_tmp
+
+    for i in teo/doc/*.htm
+    do
+        if [ ! ${i##*_} = "$1.htm" ]
+          then
+            rm "$i"
+        fi
+    done
+    mv teo/doc/welcome_$1.htm teo/doc/index.htm
+}
+
+close_doc()
+{
+    rm -f -r teo/doc
+    mv teo/doc_tmp/ teo/doc
+}
 
 
 
@@ -417,21 +441,26 @@ cd ..
 exec_list="
 teo/language.dat
 teo/keyboard.dat
-teo/allegro.cfg
 teo/teo.exe
 teo/sap2.exe
 teo/sapfs.exe
 teo/wav2k7.exe
 teo/cwsdpmi.exe
+teo/allegro.cfg
+teo/alleg40.dll
 teo/CHANGES.TXT
 teo/LICENCE.TXT
-teo/README.TXT"
+teo/README.TXT
+teo/doc/*.htm
+teo/doc/images/*.*
+teo/doc/*.css"
 
 
 
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in French..."
 pack_file="$pack_storage/teo-$teo_version-dosexe-fr.zip"
+open_doc "fr"
 cp $pack_dir/msdos/fr/teo.exe    teo/
 cp $pack_dir/msdos/fr/sap2.exe   teo/
 cp $pack_dir/msdos/fr/sapfs.exe  teo/
@@ -448,12 +477,14 @@ rm teo/wav2k7.exe
 rm teo/CHANGES.TXT
 rm teo/LICENCE.TXT
 rm teo/README.TXT
+close_doc
 
 
 
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in English..."
 pack_file="$pack_storage/teo-$teo_version-dosexe-en.zip"
+open_doc "en"
 cp $pack_dir/msdos/en/teo.exe    teo/
 cp $pack_dir/msdos/en/sap2.exe   teo/
 cp $pack_dir/msdos/en/sapfs.exe  teo/
@@ -469,6 +500,7 @@ rm teo/wav2k7.exe
 rm teo/CHANGES.TXT
 rm teo/LICENCE.TXT
 rm teo/README.TXT
+close_doc
 
 
 
@@ -479,7 +511,6 @@ rm teo/README.TXT
 exec_list="
 teo/language.dat
 teo/keyboard.dat
-teo/allegro.cfg
 teo/teow.exe
 teo/sap2.exe
 teo/sapfs.exe
@@ -490,16 +521,23 @@ teo/cc90.sap
 teo/cc90.fd
 teo/cc90.hfe
 teo/empy.hfe
-teo/*.dll
+teo/allegro.cfg
+teo/alleg40.dll
+teo/zlib1.dll
+teo/libpng3.dll
 teo/CHANGES.TXT
 teo/LICENCE.TXT
-teo/README.TXT"
+teo/README.TXT
+teo/doc/*.htm
+teo/doc/images/*.*
+teo/doc/*.css"
 
 
 
 ######################################################################
 echo "Creating ZIP packages for Windows executables in French..."
 packFile="$pack_storage/teo-$teo_version-winexe-fr.zip"
+open_doc "fr"
 cp $pack_dir/mingw/fr/teow.exe        teo/
 cp $pack_dir/mingw/fr/cc90hfe.exe     teo/
 cp $pack_dir/mingw/fr/cc90hfe-com.exe teo/
@@ -519,12 +557,13 @@ rm teo/cc90hfe-com.exe
 rm teo/CHANGES.TXT
 rm teo/LICENCE.TXT
 rm teo/README.TXT
-
+close_doc
 
 
 ######################################################################
 echo "Creating ZIP packages for Windows executables in English..."
 packFile="$pack_storage/teo-$teo_version-winexe-en.zip"
+open_doc "en"
 cp $pack_dir/mingw/en/teow.exe        teo/
 cp $pack_dir/mingw/en/cc90hfe.exe     teo/
 cp $pack_dir/mingw/en/cc90hfe-com.exe teo/
@@ -544,14 +583,18 @@ rm teo/cc90hfe-com.exe
 rm teo/CHANGES.TXT
 rm teo/LICENCE.TXT
 rm teo/README.TXT
+close_doc
 
 
 
 ######################################################################
 echo "Creating ZIP package for sources..."
 packFile="$pack_storage/teo-$teo_version-src.zip"
-zip -r $zip_options $packFile $source_files
-
+doc_files="
+teo/doc/*.htm
+teo/doc/images/*.*
+teo/doc/*.css"
+zip -r $zip_options $packFile $source_files $doc_files
 
 
 
