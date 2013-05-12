@@ -13,12 +13,11 @@ find . -type d "(" \
       -name "*.txt" -o -name "*.log" -o -name "*.bat" -o \
       -name "*.BAT"  -o -name "*.htm*"\
       ")" \
-      -exec sh -c "echo -n '.';
+      -exec sh -c "echo -n '\r                                                     \r{}';
                    mv {} _tmpfile;
                    sed 's/\x0d$//' _tmpfile > _tmpfile2;
                    sed 's/$/\r/' _tmpfile2 > {};
                    touch -r _tmpfile {};
                    rm _tmpfile _tmpfile2" \;
 echo
-echo "Done!"
 

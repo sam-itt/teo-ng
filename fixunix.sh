@@ -16,7 +16,7 @@ if [ "$1" != "--quick" ]; then
       -name "*.txt" -o -name "*.log" -o -name "*.bat" -o \
       -name "*.BAT"  -o -name "*.htm*"\
       ")" \
-      -exec sh -c "echo -n '.';
+      -exec sh -c "echo -n '\r                                                     \r{}';
                    mv {} _tmpfile;
                    tr -d \\\r < _tmpfile > {};
                    touch -r _tmpfile {};
@@ -28,10 +28,9 @@ if [ "$1" != "--quick" ]; then
       -type f "(" \
       -name "*.sh" \
       ")" \
-      -exec sh -c "echo -n '-';
+      -exec sh -c "echo -n '\r                                                     \r{}';
                    chmod +x {};" \;
 
    echo
 fi
 
-echo "Done!"
