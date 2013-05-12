@@ -80,7 +80,7 @@ ifdef UNIX_TOOLS
 	rm -f $(FILES_TO_CLEAN)
 else
    define RM_FILES
-      $(foreach file, $(FILES_TO_CLEAN), del $(subst /,\,$(file))
+      $(foreach file, $(FILES_TO_CLEAN), if exist $(subst /,\,$(file)) del $(subst /,\,$(file))
       )
    endef
 	$(RM_FILES)

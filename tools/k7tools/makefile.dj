@@ -36,6 +36,6 @@ wav2k7.exe: wav2k7.c
 	$(CC) -s $(CFLAGS) -o wav2k7.exe wav2k7.c
 
 clean:
-	del getmemo7.exe
-	del getrom.exe
-	del wav2k7.exe
+	if exist getmemo7.exe del getmemo7.exe
+	if exist getrom.exe del getrom.exe
+	if exist wav2k7.exe del wav2k7.exe

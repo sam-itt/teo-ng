@@ -197,7 +197,7 @@ ifdef UNIX_TOOLS
 	rm -f $(CLEAN_FILES)
 else
    define RM_FILES
-      $(foreach file, $(CLEAN_FILES), del $(subst /,\,$(file))
+      $(foreach file, $(CLEAN_FILES), if exist $(subst /,\,$(file)) del $(subst /,\,$(file))
       )
    endef
 	-$(RM_FILES)
@@ -207,7 +207,7 @@ veryclean: clean
 ifdef UNIX_TOOLS
 	rm -f $(OBJ_DIR)/makefile.dep
 else
-	-del $(subst /,\,$(OBJ_DIR)/makefile.dep)
+	-if exist $(subst /,\,$(OBJ_DIR)/makefile.dep) del $(subst /,\,$(OBJ_DIR)/makefile.dep)
 endif
 
 

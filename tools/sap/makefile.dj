@@ -48,8 +48,8 @@ endif
 all: sap2.exe sapfs.exe
 
 clean:
-	del sap2.exe
-	del sapfs.exe
+	if exist sap2.exe del sap2.exe
+	if exist sapfs.exe del sapfs.exe
 	del $(OBJ_DIR)*.o
 
 sap2.exe: $(OBJ_SAP)
