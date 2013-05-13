@@ -37,14 +37,12 @@ DESCRIPTION = optimized
 endif
 endif
 
-ifdef DEBIAN
+ifdef DEBIANBUILD
 CFLAGS += -DDEBIAN_BUILD
 endif
 
 CFLAGS += `pkg-config gtk+-3.0 --cflags` -DGTK_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DG_DISABLE_DEPRECATED -DGSEAL_ENABLE
-LIB = `pkg-config gtk+-3.0 --libs`
-
-LIB += -lasound -lpng
+LIB = `pkg-config gtk+-3.0 --libs` -lasound -lpng
 
 # ------ plateform-dependant objects and executables ------
 
