@@ -51,14 +51,14 @@ teo/tests
 teo/tools/sap
 teo/tools/k7tools
 teo/tools/cc90hfe/include
-teo/tools/cc90hfe/obj/linux/blank.txt
-teo/tools/cc90hfe/obj/win/blank.txt
+teo/tools/cc90hfe/obj/linux/makefile.dep
+teo/tools/cc90hfe/obj/win/makefile.dep
 teo/tools/cc90hfe/src
 teo/tools/cc90hfe/makefile.*
 teo/tools/cc90hfe/fix*.*
-teo/obj/linux/*.dep
-teo/obj/djgpp/*.dep
-teo/obj/mingw32/*.dep
+teo/obj/linux/makefile.dep
+teo/obj/djgpp/makefile.dep
+teo/obj/mingw32/makefile.dep
 teo/misc/fix*.sh
 teo/misc/fixver/*.sh
 teo/misc/pack/*.txt
@@ -133,42 +133,16 @@ name_to_lowercase()
 name_to_lowercase "./$pack_dir/MSDOS"
 name_to_lowercase "./$pack_dir/msdos/EN"
 name_to_lowercase "./$pack_dir/msdos/FR"
-for i in ./$pack_dir/msdos ./$pack_dir/msdos/fr/* ./$pack_dir/msdos/en/*
+for i in ./$pack_dir/msdos/fr/* ./$pack_dir/msdos/en/*
    do
       name_to_lowercase $i
 done
-cp $pack_dir/mingw/fr/makefile.dep ./teo/obj/mingw32/
-cp $pack_dir/msdos/fr/makefile.dep ./teo/obj/djgpp/
-
-
-
-######################################################################
-echo "Preparing executable for Teo DEBIAN..."
 #---------------------------------------------------------------------
-#   Compile Teo
+#   Copy makefile.dep's
 #---------------------------------------------------------------------
-cd teo
-make veryclean
-make DEBIAN=1
-make depend
-cd ..
-#---------------------------------------------------------------------
-#   Compile SapTools
-#---------------------------------------------------------------------
-cd teo/tools/sap
-make clean
-make
-cd ../../..
-cp teo/tools/sap/sap2  teo/
-cp teo/tools/sap/sapfs teo/
-#---------------------------------------------------------------------
-#   Compile K7Tools
-#---------------------------------------------------------------------
-cd teo/tools/k7tools
-make clean
-make
-cd ../../..
-cp teo/tools/k7tools/wav2k7 teo/
+cp -f $pack_dir/mingw/fr/teo.dep ./teo/obj/mingw32/makefile.dep
+cp -f $pack_dir/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
+cp -f $pack_dir/mingw/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/win/makefile.dep
 
 
 
@@ -202,6 +176,36 @@ build_debian_package()
     sudo rm -r -f ~/$1
     sudo rm -r -f ~/$1.deb
 }
+
+
+
+######################################################################
+echo "Preparing executable for Teo DEBIAN..."
+#---------------------------------------------------------------------
+#   Compile Teo
+#---------------------------------------------------------------------
+cd teo
+make veryclean
+make DEBIANBUILD=1
+make depend
+cd ..
+#---------------------------------------------------------------------
+#   Compile SapTools
+#---------------------------------------------------------------------
+cd teo/tools/sap
+make clean
+make
+cd ../../..
+cp teo/tools/sap/sap2  teo/
+cp teo/tools/sap/sapfs teo/
+#---------------------------------------------------------------------
+#   Compile K7Tools
+#---------------------------------------------------------------------
+cd teo/tools/k7tools
+make clean
+make
+cd ../../..
+cp teo/tools/k7tools/wav2k7 teo/
 
 
 
@@ -249,10 +253,14 @@ build_debian_package $prog_name $pack_storage
 
 ######################################################################
 echo "Preparing executable for Cc90hfe DEBIAN..."
+#---------------------------------------------------------------------
+#   Compile Cc90hfe
+#---------------------------------------------------------------------
 cd teo/tools/cc90hfe
 ./fixunix.sh
-make clean
-make DEBIAN=1
+make veryclean
+make DEBIANBUILD=1
+make depend
 cd ../../..
 
 
@@ -331,8 +339,9 @@ cp teo/tools/k7tools/wav2k7 teo/
 #---------------------------------------------------------------------
 cd teo/tools/cc90hfe
 ./fixunix.sh
-make clean
+make veryclean
 make
+make depend
 cd ../../..
 cp teo/tools/cc90hfe/cc90hfe teo/
 #---------------------------------------------------------------------
