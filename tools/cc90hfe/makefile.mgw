@@ -1,41 +1,97 @@
-#*******************************************************************#
-# makefile for Windows
-#*******************************************************************#
+#
+#  Rules for building Teo with MinGW. This file is included
+#  by the primary makefile, and should not be used directly.
+#
+#  The "depend" target uses sed.
+#
+#  See makefile.all for a list of the available targets.
 
 ifneq (,$(findstring /sh.exe,$(SHELL)))
   UNIX_TOOLS = 1
 endif
 
-PROGRAM_FILES += $(WINDOWS_FILES)
-VPATH += src/win src/win/gui
-OBJ_DIR = obj/win
-CFLAGS+= -D_WIN32_IE=0x300 -DWINDOWS_SYSTEM
-LDFLAGS += -lkernel32 -lcomctl32 -luser32 -lgdi32 -lcomdlg32 -lole32 -lshell32
-FILES_TO_CLEAN = $(OBJ_DIR)/*.o $(OBJ_DIR)/*.d $(EXE_NAME).exe
-# For release mode
-ifdef RELEASE_MODE
-    ifdef CONSOLE_MODE
-	CFLAGS+= -DCONSOLE_MODE=1
-	LDFLAGS+=-Wl,--subsystem,console
-	else
-	LDFLAGS+=-Wl,--subsystem,windows
-	endif
+
+# ------ compiler flags ------
+
+WRES = windres
+
+ifdef DEBUGMODE
+
+# -- debugging build --
+CFLAGS = -g -DDEBUG $(WFLAGS)
+LFLAGS = -g -Wl,--subsystem,console
+DESCRIPTION = debugging
+
 else
-# For debug mode
-	CFLAGS+= -DDEBUG_MODE=1
-	LDFLAGS+=-Wl,--subsystem,console
-# For console mode
-	ifdef CONSOLE_MODE
-	CFLAGS+= -DCONSOLE_MODE=1
-	endif
+ifdef CONSOLEMODE
+
+# -- console build --
+CFLAGS = -DCONSOLE_MODE $(WFLAGS) $(OFLAGS)
+LFLAGS = -s -Wl,--subsystem,console
+DESCRIPTION = console
+
+else
+ifdef PROFILEMODE
+
+# -- profiling build --
+CFLAGS = -pg $(WFLAGS) $(OFLAGS)
+LFLAGS = -pg -Wl,--subsystem,windows
+DESCRIPTION = profiling
+
+else
+
+# -- optimised build --
+CFLAGS = $(WFLAGS) $(OFLAGS)
+LFLAGS = -s -Wl,--subsystem,windows
+DESCRIPTION = optimized
+
 endif
-# Translation
-ifdef ENGLISH
-	CFLAGS+= -DENGLISH_LANGUAGE=1
-else
-	CFLAGS+= -DFRENCH_LANGUAGE=1
+endif
 endif
 
+
+ifdef ENGLISH
+CFLAGS += -DENGLISH_LANGUAGE
+else
+CFLAGS += -DFRENCH_LANGUAGE
+endif
+
+
+LIB += -lkernel32 -lcomctl32 -luser32 -lgdi32 -lcomdlg32 -lole32 -lshell32
+
+
+# ------ plateform-dependant objects and executables ------
+
+HOME = c:/home
+EXE_NAME = cc90hfe.exe
+PLATFORM = mingw32
+
+OBJ_DIR = obj/win
+
+VPATH += src/win src/win/gui
+
+OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(CC90HFE_SRC_WIN_FILES)))
+
+
+# ------ special file rules ------
+
 $(OBJ_DIR)/%.o: %.rc
-	windres --include-dir ./include -o $@ -i $<
+	$(WRES) --include-dir ./include -o $@ -i $<
+
+
+# ------ dependency generation -------
+
+DEPEND_PARAMS = -MM -MG -DSCAN_DEPEND -I./include
+
+depend:
+	$(CC) $(DEPEND_PARAMS) src/*.c src/win/*.c src/win/gui/*.c > _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/win\/\1/" _depend2.tmp > obj\win\makefile.dep
+ifdef UNIX_TOOLS
+	rm _depend.tmp
+	rm _depend2.tmp
+else
+	del _depend.tmp
+	del _depend2.tmp
+endif
 

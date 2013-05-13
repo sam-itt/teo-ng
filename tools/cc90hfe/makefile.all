@@ -1,11 +1,39 @@
-#*******************************************************************#
-# make                Compilation avec debugger
-#   + RELEASE_MODE=1  Compilation sans debugger (Windows)
-#   + CONSOLE_MODE=1  Compilation pour console (Windows)
-#   + DEBIAN=1        Compilation pour DEBIAN (Linux)
-#   + ENGLISH=1       Compilation en Anglais (Windows)
-#   + clean           Effacement des fichiers exécutables et '.o'
-#*******************************************************************#
+#
+#  Shared makefile for building Cc90hfe. Requires GNU make.
+#
+#  Available options:
+#
+#     Environment variables:
+#        DEBUGMODE=1       selects a debug build.
+#        CONSOLEMODE=1     selects a console build (mingw32 only).
+#        PROFILEMODE=1     selects a profiling build.
+#        STATICLINK=1      use static linking (mingw32 only).
+#        PGCC=1            use PGCC compiler switches (djgpp and mingw32 only).
+#        PENTIUMONLY=1     make the library faster, but pentium-only.
+#        DEBIAN=1          adapt pathes for DEBIAN build (Linux only)
+#        FRENCH=1          (by default) create a french build (djgpp and mingw32 only).
+#        ENGLISH=1         create an english build (djgpp and mingw32 only).
+#
+#     Targets: 
+#        default:          build cc90hfe
+#        install:          build and install cc90hfe in $(HOME)/emu/teo
+#        compress:         compress the executable files (mingw32 and djgpp only).
+#        all:              build, compress and install cc90hfe
+#        clean:            remove objects and executable files.
+#        veryclean:        remove all generated files.
+#        depend:           regenerate the dependency files.
+#
+#  The "clean" and "veryclean" targets require a Unix-style rm command
+#  to be installed, eg. from the djgpp fileutils package.
+#
+#  The "depend" target requires long command line support and the stream
+#  editor sed to be installed. 
+
+
+.PHONY: _default
+
+_default: default
+
 
 CC=gcc
 CFLAGS= -W -Wall -Werror
@@ -15,7 +43,7 @@ LFLAGS = -s
 
 # ----- Files list -----
 
-PROGRAM_FILES = \
+CC90HFE_SRC_FILES = \
     src/cc90.c    \
     src/hfe.c     \
     src/ini.c     \
@@ -25,7 +53,7 @@ PROGRAM_FILES = \
     src/std.c     \
     src/main.c
 
-LINUX_FILES = \
+CC90HFE_SRC_LINUX_FILES = \
     src/linux/progress.c    \
     src/linux/serial.c      \
     src/linux/port.c        \
@@ -35,7 +63,7 @@ LINUX_FILES = \
     src/linux/gui/install.c \
     src/linux/gui/about.c   \
 
-WINDOWS_FILES = \
+CC90HFE_SRC_WIN_FILES = \
     src/win/progress.c    \
     src/win/serial.c      \
     src/win/port.c        \
@@ -47,41 +75,88 @@ WINDOWS_FILES = \
     src/win/resource.rc
 
 
+# ------ compiler flags ------ 
+
+CC = gcc
+
+WFLAGS = -Wall -Werror
+
+ifdef PGCC
+   OFLAGS = -O6 -ffast-math
+else
+ifdef PENTIUMONLY
+   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
+else
+   OFLAGS = -O2 -funroll-loops -ffast-math
+endif
+endif
+
+# ------ object files ------
+
+VPATH = src
+
+COMMON_OBJ_LIST = $(basename $(notdir $(CC90HFE_SRC_FILES)))
+
 include $(MAKEFILE_INC)
 
+CFLAGS += -fsigned-char
+
 ifdef UNIX_TOOLS
-CFLAGS+= -DUNIX_TOOL=1
+CFLAGS += -DUNIX_TOOL
 endif
 
+OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o , $(OBJ_LIST)))
 
-# ----- Rules -----
+CLEAN_FILES = $(OBJ) $(EXE_NAME)
 
-CC90HFE_OBJ = $(basename $(notdir $(PROGRAM_FILES)))
-OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o,$(CC90HFE_OBJ)))
 
-all: $(OBJECTS)
-	$(CC) -o $(EXE_NAME) $(OBJECTS) $(LDFLAGS)
+$(OBJ_DIR)/%.o: %.c
+	$(CC) -c $(CFLAGS) -I./include -o $@ $<
 
-$(OBJ_DIR)/%.o : %.c
-	$(CC) -c -I./include $(CFLAGS) -o $@ $< -MMD
 
-ifeq ($(SYSTEM_NAME),windows)
-$(OBJ_DIR)/%.o: %.rc
-	windres --include-dir ./include -o $@ -i $<
+$(EXE_NAME): $(OBJ)
+	$(CC) $(LFLAGS) -o $(EXE_NAME) $(OBJ) $(LIB)
+
+
+
+# ------ target rules ------ 
+
+.PHONY: default install compress all clean veryclean depend
+
+default: $(EXE_NAME)
+	@echo The $(DESCRIPTION) $(PLATFORM) version has been compiled.
+
+install: $(EXE_NAME)
+ifdef UNIX_TOOLS
+	mv $(EXE_NAME) $(HOME)/emu/teo
+else
+	move $(EXE_NAME) $(subst /,\,$(HOME)/emu/teo)
 endif
 
+compress: $(EXE_NAME)
+	upx $(EXE_NAME)
 
--include $(OBJ_DIR)/*.d
-
-# ----- Options -----
+all: $(EXE_NAME) compress install
 
 clean:
 ifdef UNIX_TOOLS
-	rm -f $(FILES_TO_CLEAN)
+	rm -f $(CLEAN_FILES)
 else
    define RM_FILES
-      $(foreach file, $(FILES_TO_CLEAN), if exist $(subst /,\,$(file)) del $(subst /,\,$(file))
+      $(foreach file, $(CLEAN_FILES), if exist $(subst /,\,$(file)) del $(subst /,\,$(file))
       )
    endef
-	$(RM_FILES)
+	-$(RM_FILES)
 endif
+
+veryclean: clean
+ifdef UNIX_TOOLS
+	rm -f $(OBJ_DIR)/makefile.dep
+else
+	-if exist $(subst /,\,$(OBJ_DIR)/makefile.dep) del $(subst /,\,$(OBJ_DIR)/makefile.dep)
+endif
+
+
+# ------ automatic source dependencies ------
+
+-include $(OBJ_DIR)/makefile.dep
