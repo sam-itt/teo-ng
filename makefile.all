@@ -9,9 +9,9 @@
 #        STATICLINK=1      use static linking (mingw32 only).
 #        PGCC=1            use PGCC compiler switches (djgpp and mingw32 only).
 #        PENTIUMONLY=1     make the library faster, but pentium-only.
-#        DEBIAN=1          adapt pathes for DEBIAN build (Linux only)
-#        FR_LANG=1         (by default) create a french build (djgpp and mingw32 only).
-#        EN_LANG=1         create an english build (djgpp and mingw32 only).
+#        DEBIANBUILD=1     adapt pathes for DEBIAN build (Linux only)
+#        FRENCH=1          (by default) create a french build (djgpp and mingw32 only).
+#        ENGLISH=1         create an english build (djgpp and mingw32 only).
 #
 #     Targets: 
 #        default:          build teo
@@ -151,12 +151,6 @@ CFLAGS += -fsigned-char
 
 ifdef UNIX_TOOLS
 CFLAGS += -DUNIX_TOOL
-endif
-
-ifdef EN_LANG
-CFLAGS += -DENGLISH_LANG
-else
-CFLAGS += -DFRENCH_LANG
 endif
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o , $(OBJ_LIST)))

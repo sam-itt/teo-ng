@@ -45,6 +45,13 @@ endif
 endif
 
 
+ifdef ENGLISH
+CFLAGS += -DENGLISH_LANGUAGE
+else
+CFLAGS += -DFRENCH_LANGUAGE
+endif
+
+
 ifdef STATICLINK
    CFLAGS += -DALLEGRO_STATICLINK
    LIB = $(ALLEG_LIB)_s

@@ -43,6 +43,12 @@ endif
 endif
 
 
+ifdef ENGLISH
+CFLAGS += -DENGLISH_LANGUAGE
+else
+CFLAGS += -DFRENCH_LANGUAGE
+endif
+
 # ------ plateform-dependant objects and executables ------
 
 PLATFORM = djgpp
