@@ -29,7 +29,9 @@
  */
 
 
-#include <windows.h>
+#ifndef SCAN_DEPEND
+   #include <windows.h>
+#endif
 
 #include "defs.h"
 #include "win/resource.h"

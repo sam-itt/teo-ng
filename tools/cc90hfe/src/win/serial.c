@@ -29,10 +29,12 @@
  */
 
 
-#include <stdio.h>
-#include <windows.h>
-#include <assert.h>
-#include <winioctl.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <windows.h>
+   #include <assert.h>
+   #include <winioctl.h>
+#endif
 
 #include "defs.h"
 #include "std.h"

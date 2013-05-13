@@ -28,10 +28,12 @@
  *  Gui functions.
  */
 
-#include <stdio.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <windows.h>
+   #include <windowsx.h>
+   #include <commctrl.h>
+#endif
 
 #include "defs.h"
 #include "main.h"

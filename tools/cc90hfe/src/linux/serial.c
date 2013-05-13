@@ -29,13 +29,15 @@
  */
 
 
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <termios.h>
+#ifndef SCAN_DEPEND
+   #include <unistd.h>
+   #include <string.h>
+   #include <stdlib.h>
+   #include <fcntl.h>
+   #include <sys/time.h>
+   #include <sys/ioctl.h>
+   #include <termios.h>
+#endif
 
 #include "defs.h"
 #include "error.h"

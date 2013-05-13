@@ -28,12 +28,14 @@
  *  Management of serial port.
  */
 
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <gtk/gtk.h>
-#include <gtk/gtkx.h>
-#include <gdk/gdkx.h>
+#ifndef SCAN_DEPEND
+   #include <unistd.h>
+   #include <string.h>
+   #include <stdlib.h>
+   #include <gtk/gtk.h>
+   #include <gtk/gtkx.h>
+   #include <gdk/gdkx.h>
+#endif
 
 #include "defs.h"
 #include "error.h"

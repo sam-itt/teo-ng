@@ -29,11 +29,13 @@
  */
 
 
-#include <stdio.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
-#include <shlobj.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <windows.h>
+   #include <windowsx.h>
+   #include <commctrl.h>
+   #include <shlobj.h>
+#endif
 
 #include "defs.h"
 #include "main.h"

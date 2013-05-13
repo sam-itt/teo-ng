@@ -28,9 +28,11 @@
  *  Management of errors.
  */
 
-#include <stdio.h>
-#include <stddef.h>
-#include <string.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stddef.h>
+   #include <string.h>
+#endif
 
 #include "defs.h"
 #include "std.h"

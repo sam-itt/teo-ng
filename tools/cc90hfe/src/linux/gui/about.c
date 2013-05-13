@@ -28,8 +28,10 @@
  *  Linux About window.
  */
 
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
+#ifndef SCAN_DEPEND
+   #include <gdk/gdkx.h>
+   #include <gtk/gtk.h>
+#endif
 
 #include "defs.h"
 #include "linux/gui.h"

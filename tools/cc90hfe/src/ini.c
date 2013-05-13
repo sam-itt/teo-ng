@@ -28,12 +28,14 @@
  *  Management of INI file.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <ctype.h>
+   #include <sys/stat.h>
+   #include <unistd.h>
+#endif
 
 #include "defs.h"
 #include "std.h"

@@ -29,11 +29,13 @@
  */
 
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <gtk/gtk.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <unistd.h>
+   #include <stdlib.h>
+   #include <pthread.h>
+   #include <gtk/gtk.h>
+#endif
 
 #include "main.h"
 #include "errors.h"

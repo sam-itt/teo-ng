@@ -29,13 +29,15 @@
  */
 
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <gtk/gtk.h>
-#include <gtk/gtkx.h>
-#include <gdk/gdkx.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <unistd.h>
+   #include <stdlib.h>
+   #include <sys/stat.h>
+   #include <gtk/gtk.h>
+   #include <gtk/gtkx.h>
+   #include <gdk/gdkx.h>
+#endif
 
 #include "defs.h"
 #include "std.h"

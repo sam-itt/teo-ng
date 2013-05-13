@@ -29,12 +29,14 @@
  */
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <windows.h>
-#include <shellapi.h>
-#include <commctrl.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <string.h>
+   #include <windows.h>
+   #include <shellapi.h>
+   #include <commctrl.h>
+#endif
 
 #include "defs.h"
 #include "main.h"

@@ -29,12 +29,14 @@
  */
 
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#ifdef DEBIAN_BUILD
-#    include <sys/stat.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <string.h>
+   #include <unistd.h>
+   #include <stdlib.h>
+   #ifdef DEBIAN_BUILD
+      #include <sys/stat.h>
+   #endif
 #endif
 
 #include "defs.h"
