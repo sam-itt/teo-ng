@@ -66,7 +66,7 @@ static char filename[MAX_PATH+1] = "";
 static DIALOG m7dial[]={
 /*  dialog proc        x    y    w    h  fg bg  key flags  d1 d2  dp */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Lecteur de cartouches" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Cartridge reader" },

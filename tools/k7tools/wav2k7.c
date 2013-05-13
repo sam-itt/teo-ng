@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   char outputname[1024];
   
 #ifdef DJGPP
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
     is_fr = 1;
 #else
     is_fr = 0;

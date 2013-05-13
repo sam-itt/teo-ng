@@ -73,7 +73,7 @@ static int direct_disk = 0;
 static DIALOG diskdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key flags  d1  d2 dp */
 { d_shadow_box_proc, 20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Lecteurs de disquettes" },
 #else
 { d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Disk drives" },
@@ -107,7 +107,7 @@ static DIALOG diskdial[]={
 { d_button_proc,    228, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
 { d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
   /* direct disk */
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_button_proc,     30, 136, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "Accès &direct" },
 { d_text_proc,      198,  30,   0,   0, 0, 0,   0,   0,    0, 0, "face" },
 #else

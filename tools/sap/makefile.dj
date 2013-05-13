@@ -32,10 +32,10 @@ else
    CFLAGS = $(WFLAGS) $(OFLAGS)
 endif
 
-ifdef EN_LANG
-    CFLAGS += -DENGLISH_LANG
+ifdef ENGLISH
+    CFLAGS += -DENGLISH_LANGUAGE
 else
-    CFLAGS += -DFRENCH_LANG
+    CFLAGS += -DFRENCH_LANGUAGE
 endif
 
 

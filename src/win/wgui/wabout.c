@@ -100,7 +100,7 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SendMessage(aboutTitle, WM_SETFONT, (WPARAM)hTitleStyle, TRUE);
          SendMessage(aboutLicense, WM_SETFONT, (WPARAM)hLicenseStyle, TRUE);
          SendMessage(aboutCopyright, WM_SETFONT, (WPARAM)hCopyrightStyle, TRUE);
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
          SetWindowText(hDlg, "Teo - A propos");
          SetWindowText(aboutLink, "Teo sur SourceForge");
 #else

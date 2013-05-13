@@ -64,7 +64,7 @@
 #define MENU_POS_X  4
 #define MENU_POS_Y 42
 
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 static char menu_line[MENU_NLINES][50]={ "Commandes:",
                                          " c: continuer",
                                          " n: ‚x‚cuter l'instruction locale suivante",
@@ -87,7 +87,7 @@ static char menu_line[MENU_NLINES][50]={ "Commands:",
 #define DASM_NLINES 40
 
 #define BREAK_MENU_NLINES 4
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 static char
 break_menu_line[BREAK_MENU_NLINES][32]={ "Commandes:                    ",
                                          " b: ajouter un point d'arrˆt  ",

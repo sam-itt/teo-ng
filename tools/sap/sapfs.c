@@ -760,7 +760,7 @@ int main(int argc, char *argv[])
    char *star = "*";
 
 #ifdef DJGPP
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
     is_fr = 1;
 #else
     is_fr = 0;

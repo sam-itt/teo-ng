@@ -78,7 +78,7 @@ static int down_button_proc(int msg, DIALOG *d, int c);
 static DIALOG k7dial[]={
 /* (dialog proc)      x    y    w    h   fg bg key flags   d1 d2  dp */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Lecteur de cassettes" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Tape recorder" },
@@ -89,7 +89,7 @@ static DIALOG k7dial[]={
 { d_button_proc,     220,  40,  30,  16, 0, 0, 'k', D_EXIT, 0, 0, "..." },
 { d_check_proc,      260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 1, "" },
 { d_text_proc,       255,  30,   0,   0, 0, 0,   0,  0,     0, 0, "prot." },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Compteur:" },
 #else
 { d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Counter:" },
@@ -98,7 +98,7 @@ static DIALOG k7dial[]={
 { updown_edit_proc,  108,  69,  32,  10, 0, 0,   0,  0,     3, 3, k7_counter_str },
 { up_button_proc,    145,  63,  19,  10, 0, 0,   0, D_EXIT, 0, 0, "+" },
 { down_button_proc,  145,  74,  19,  10, 0, 0,   0,  0,     0, 0, "-" },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rembobiner" },
 #else
 { d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rewind" },

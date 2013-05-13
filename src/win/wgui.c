@@ -132,7 +132,7 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
    switch(uMsg)
    {
       case WM_INITDIALOG:
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
          SetWindowText(hDlg, "Panneau de contrôle");
          SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Réinitialiser le TO8");
          SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Redémarrer à froid le TO8");

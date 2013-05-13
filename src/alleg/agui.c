@@ -80,7 +80,7 @@ static DIALOG questdial[]={
 /*  dialog proc      x    y    w    h  fg bg  key  flags  d1  d2 dp */
 { d_shadow_box_proc, 10,  10,   0,  50, 0, 0,   0,   0,    0, 0, NULL },
 { d_ctext_proc,      10,  20,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_button_proc,     30,  40,  32,  16, 0, 0, 'o', D_EXIT, 0, 0, "&Oui" },
 { d_button_proc,    130,  40,  32,  16, 0, 0, 'n', D_EXIT, 0, 0, "&Non" },
 #else
@@ -138,7 +138,7 @@ if (PopupQuestion(is_fr?"Voulez-vous vraiment quitter ?":"Do you really want to 
 static DIALOG controldial[]={
 /*  dialog proc       x    y    w    h  fg bg  key  flags  d1 d2  dp  */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,  0,    0,    0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Panneau de contrôle" },
 { d_button_proc,      30,  35, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "Redémarrer à &chaud le TO8" },
 { d_button_proc,      30,  53, 260,  16, 0, 0, 'f', D_EXIT, 0, 0, "Redémarrer à &froid le TO8" },

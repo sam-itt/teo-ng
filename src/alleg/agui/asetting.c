@@ -61,7 +61,7 @@
 static DIALOG commdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Réglages" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
 { d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },

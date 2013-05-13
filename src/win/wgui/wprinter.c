@@ -188,7 +188,7 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
                             is_fr?"Imprimante : ":"Printer : ");
          SetWindowText(GetDlgItem(hWnd, PRINTER_DIP_CHECK),
                             is_fr?"Double interligne":"Double spacing");
-#ifndef FRENCH_LANG
+#ifndef FRENCH_LANGUAGE
          MoveWindow (GetDlgItem(hWnd, PRINTER_DIP_CHECK), 58, 53, 140, 16, FALSE);
 #endif
          SetWindowText(GetDlgItem(hWnd, PRINTER_NLQ_CHECK),

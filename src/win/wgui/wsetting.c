@@ -158,7 +158,7 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
    switch(uMsg)
    {
       case WM_INITDIALOG:
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
          SetWindowText(GetDlgItem(hDlg, SPEED_LTEXT), "Vitesse:");
          SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exacte");
          SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "rapide");

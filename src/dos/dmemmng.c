@@ -71,7 +71,7 @@
 #define DIALOG_POS_Y   39
 
 static char map_line[11][81]={
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 "                          Gestionnaire de m‚moire du TO8                        ",
 #else
 "                               TO8 memory manager                               ",
@@ -88,7 +88,7 @@ static char map_line[11][81]={
 "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ                   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
 };
 
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 static char menu_line[MENU_NLINE][30]={ "Commandes:",
                                         " c: charger un bloc m‚moire",
                                         " s: sauver un bloc m‚moire",

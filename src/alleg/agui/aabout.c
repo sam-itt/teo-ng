@@ -63,7 +63,7 @@ static DIALOG aboutdial[]={
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
 { d_ctext_proc,      160,  30,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_text_proc,        30,  50,   0,   0, 0, 0,   0,  0,     0, 0, "Auteurs:" },
 #else
 { d_text_proc,        30,  50,   0,   0, 0, 0,   0,  0,     0, 0, "Authors:" },
@@ -71,7 +71,7 @@ static DIALOG aboutdial[]={
 { d_ctext_proc,      160,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Gilles Fétis - Eric Botcazou" },
 { d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "Alex Pukall - Jérémie Guillaume" },
 { d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "François Mouret - Samuel Devulder" },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, "Teo sur SourceForge:" },
 #else
 { d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, "Teo on SourceForge:" },

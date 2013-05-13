@@ -305,7 +305,7 @@ void main_ExitMessage(const char msg[])
 int main(int argc, char *argv[])
 {
     char version_name[]="Teo "TEO_VERSION_STR" (MSDOS/DPMI)";
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
     char *mode_desc[3]= {
         " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
         " 2. Mode 80 colonnes 16 couleurs\n    (pour les applications fonctionnant en 80 colonnes)",
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
     int scancode, i;
     struct STRING_LIST *str_list = NULL;
 
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
     is_fr = 1;
 #else
     is_fr = 0;

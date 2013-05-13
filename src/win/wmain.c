@@ -321,7 +321,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     int njoy = 0;
     struct STRING_LIST *str_list;
 
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
     is_fr = 1;
 #else
     is_fr = 0;

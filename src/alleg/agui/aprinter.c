@@ -72,7 +72,7 @@ static char *listbox_getter(int index, int *list_size)
 static DIALOG printerdial[]={
 /*  dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANG
+#ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimantes matricielles" },
 { d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Sauver dans:" },
 { d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, NULL },
