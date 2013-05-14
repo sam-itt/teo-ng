@@ -62,8 +62,8 @@ OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_S
 
 # ------ special file rules ------
 
-$(OBJ_DIR)/to8.o: src/to8.c
-	$(CC) -c $(CFLAGS) -DTO8_NO_BORDER -I./include -o $(OBJ_DIR)/to8.o src/to8.c
+$(OBJ_DIR)/teo.o: src/teo.c
+	$(CC) -c $(CFLAGS) -DTO8_NO_BORDER -I./include -o $(OBJ_DIR)/teo.o src/teo.c
 
 
 # ------ dependency generation -------
@@ -71,7 +71,7 @@ $(OBJ_DIR)/to8.o: src/to8.c
 DEPEND_PARAMS = -MM -MG -DSCAN_DEPEND -I./include
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/alleg/*.c src/dos/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/media/*.c src/media/disk/*.c src/media/disk/controlr/*.c src/media/printer/*.c src/alleg/*.c src/alleg/agui/*.c src/dos/*.c src/file/bmp.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/djgpp\/\1/" _depend2.tmp > obj/djgpp/makefile.dep
 	del _depend.tmp
