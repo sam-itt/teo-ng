@@ -121,7 +121,7 @@ TEO_SRC_WIN_FILES =        \
    src/win/wgui/wprinter.c \
    src/win/wgui/wmemo.c    \
    src/win/wdialog.rc
-   
+
 
 # ------ compiler flags ------ 
 
