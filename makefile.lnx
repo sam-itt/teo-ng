@@ -64,7 +64,7 @@ OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_LINUX_FILES)))
 DEPEND_PARAMS = -MM -MG -DSCAN_DEPEND -I./include
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/linux/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/media/*.c src/media/disk/*.c src/media/disk/controlr/*.c src/media/printer/*.c src/linux/*.c src/linux/ugui/*.c src/file/png.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/linux\/\1/" _depend2.tmp > obj/linux/makefile.dep
 	rm _depend.tmp _depend2.tmp
