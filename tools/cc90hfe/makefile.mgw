@@ -66,7 +66,7 @@ HOME = c:/home
 EXE_NAME = cc90hfe.exe
 PLATFORM = mingw32
 
-OBJ_DIR = obj/win
+OBJ_DIR = obj/mingw32
 
 VPATH += src/win src/win/gui
 
@@ -86,7 +86,7 @@ DEPEND_PARAMS = -MM -MG -DSCAN_DEPEND -I./include
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/win/*.c src/win/gui/*.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
-	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/win\/\1/" _depend2.tmp > obj\win\makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/mingw32\/\1/" _depend2.tmp > obj\mingw32\makefile.dep
 ifdef UNIX_TOOLS
 	rm _depend.tmp
 	rm _depend2.tmp

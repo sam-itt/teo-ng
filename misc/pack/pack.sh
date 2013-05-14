@@ -52,7 +52,7 @@ teo/tools/sap
 teo/tools/k7tools
 teo/tools/cc90hfe/include
 teo/tools/cc90hfe/obj/linux/makefile.dep
-teo/tools/cc90hfe/obj/win/makefile.dep
+teo/tools/cc90hfe/obj/mingw32/makefile.dep
 teo/tools/cc90hfe/src
 teo/tools/cc90hfe/makefile.*
 teo/tools/cc90hfe/fix*.*
@@ -67,6 +67,8 @@ teo/misc/pack/*.sh
 teo/misc/pack/inno/*.iss
 teo/misc/pack/inno/*.bmp
 teo/misc/pack/debian
+teo/cc90.*
+teo/empty.hfe
 teo/change-*.log
 teo/licence-*.txt
 teo/readme-*.txt
@@ -142,7 +144,7 @@ done
 #---------------------------------------------------------------------
 cp -f $pack_dir/mingw/fr/teo.dep ./teo/obj/mingw32/makefile.dep
 cp -f $pack_dir/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
-cp -f $pack_dir/mingw/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/win/makefile.dep
+cp -f $pack_dir/mingw/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
 
 
 
@@ -460,6 +462,7 @@ teo/alleg40.dll
 teo/CHANGES.TXT
 teo/LICENCE.TXT
 teo/README.TXT
+teo/empty.hfe
 teo/doc/*.htm
 teo/doc/images/*.*
 teo/doc/*.css"
@@ -529,7 +532,7 @@ teo/cc90hfe-com.exe
 teo/cc90.sap
 teo/cc90.fd
 teo/cc90.hfe
-teo/empy.hfe
+teo/empty.hfe
 teo/allegro.cfg
 teo/alleg40.dll
 teo/zlib1.dll

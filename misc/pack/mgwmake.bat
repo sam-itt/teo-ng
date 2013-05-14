@@ -66,7 +66,7 @@ cd ..
 if exist misc\pack\mingw\en\cc90hfe.exe del misc\pack\mingw\en\cc90hfe.exe
 copy tools\cc90hfe\cc90hfe.exe misc\pack\mingw\en\cc90hfe.exe
 if exist misc\pack\mingw\en\cc90hfe.dep del misc\pack\mingw\en\cc90hfe.dep
-copy tools\cc90hfe\obj\win\makefile.dep misc\pack\mingw\en\cc90hfe.dep
+copy tools\cc90hfe\obj\mingw32\makefile.dep misc\pack\mingw\en\cc90hfe.dep
 
 echo -------------------------------------------------------------------
 echo Creating windowed CC90HFE exec files for Windows setup in French...
@@ -82,7 +82,7 @@ cd ..
 if exist misc\pack\mingw\fr\cc90hfe.exe del misc\pack\mingw\fr\cc90hfe.exe
 copy tools\cc90hfe\cc90hfe.exe misc\pack\mingw\fr\cc90hfe.exe
 if exist misc\pack\mingw\fr\cc90hfe.dep del misc\pack\mingw\fr\cc90hfe.dep
-copy tools\cc90hfe\obj\win\makefile.dep misc\pack\mingw\fr\cc90hfe.dep
+copy tools\cc90hfe\obj\mingw32\makefile.dep misc\pack\mingw\fr\cc90hfe.dep
 
 echo -------------------------------------------------------------------
 echo Creating CC90HFE-console exec files for Windows setup in English...
