@@ -1,0 +1,60 @@
+obj/mingw32/errors.o: src/errors.c include/defs.h include/mc68xx/mc6809.h \
+  include/std.h include/errors.h include/teo.h
+obj/mingw32/hardware.o: src/hardware.c include/defs.h include/mc68xx/mc6809.h \
+  include/teo.h include/errors.h include/hardware.h \
+  include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
+  include/media/disk/controlr.h include/media/disk.h \
+  include/media/keyboard.h include/media/cass.h include/media/mouse.h \
+  include/media/printer.h
+obj/mingw32/image.o: src/image.c include/defs.h include/mc68xx/mc6809.h include/teo.h \
+  include/mc68xx/mc6846.h include/mc68xx/mc6821.h \
+  include/media/disk/controlr.h include/media/disk.h include/errors.h \
+  include/std.h include/hardware.h
+obj/mingw32/ini.o: src/ini.c include/defs.h include/mc68xx/mc6809.h include/teo.h \
+  include/media/printer.h include/std.h
+obj/mingw32/option.o: src/option.c include/defs.h include/mc68xx/mc6809.h \
+  include/teo.h include/option.h include/std.h include/main.h \
+  include/ini.h include/errors.h include/media/disk/controlr.h \
+  include/media/disk.h include/media/memo.h include/media/cass.h
+obj/mingw32/std.o: src/std.c include/defs.h include/mc68xx/mc6809.h include/std.h \
+  include/teo.h include/media/printer.h
+obj/mingw32/teo.o: src/teo.c include/defs.h include/mc68xx/mc6809.h include/teo.h \
+  include/errors.h include/image.h include/ini.h include/std.h \
+  include/hardware.h include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
+  include/media/disk/controlr.h include/media/disk.h \
+  include/media/joystick.h include/media/keyboard.h include/media/cass.h \
+  include/media/mouse.h include/media/printer.h
+obj/mingw32/dasm6809.o: src/mc68xx/dasm6809.c include/mc68xx/dasm6809.h \
+  include/mc68xx/mc6809.h
+obj/mingw32/mc6809.o: src/mc68xx/mc6809.c include/mc68xx/mc6809.h include/teo.h
+obj/mingw32/mc6821.o: src/mc68xx/mc6821.c
+obj/mingw32/mc6846.o: src/mc68xx/mc6846.c include/mc68xx/mc6809.h \
+  include/mc68xx/mc6846.h
+obj/mingw32/acolor8.o: src/alleg/acolor8.c include/alleg/color8.h \
+  include/alleg/gfxdrv.h include/alleg/gui.h include/teo.h include/defs.h \
+  include/mc68xx/mc6809.h
+obj/mingw32/agfxdrv.o: src/alleg/agfxdrv.c include/alleg/gfxdrv.h \
+  include/alleg/mouse.h include/std.h include/teo.h
+obj/mingw32/agui.o: src/alleg/agui.c include/alleg/sound.h include/alleg/gfxdrv.h \
+  include/alleg/gui.h include/std.h include/teo.h
+obj/mingw32/ajoyint.o: src/alleg/ajoyint.c include/media/joystick.h include/teo.h
+obj/mingw32/amode40.o: src/alleg/amode40.c include/alleg/color8.h \
+  include/alleg/gfxdrv.h include/teo.h
+obj/mingw32/amode80.o: src/alleg/amode80.c include/alleg/color8.h \
+  include/alleg/gfxdrv.h include/teo.h
+obj/mingw32/amouse.o: src/alleg/amouse.c include/alleg/gfxdrv.h include/alleg/mouse.h \
+  include/media/mouse.h include/teo.h
+obj/mingw32/asound.o: src/alleg/asound.c include/teo.h
+obj/mingw32/atruecol.o: src/alleg/atruecol.c include/alleg/gfxdrv.h \
+  include/alleg/gui.h include/teo.h
+obj/mingw32/wgui.o: src/win/wgui.c include/alleg/gfxdrv.h include/win/dialog.rh \
+  include/win/gui.h include/teo.h
+obj/mingw32/wkeybint.o: src/win/wkeybint.c include/teo.h include/to8keys.h \
+  include/media/keyboard.h
+obj/mingw32/wmain.o: src/win/wmain.c include/defs.h include/mc68xx/mc6809.h \
+  include/teo.h include/option.h include/std.h include/ini.h \
+  include/image.h include/main.h include/errors.h \
+  include/media/disk/controlr.h include/media/disk.h include/media/cass.h \
+  include/media/memo.h include/media/printer.h include/alleg/gfxdrv.h \
+  include/alleg/gui.h include/alleg/joyint.h include/alleg/mouse.h \
+  include/alleg/sound.h include/win/keybint.h include/win/gui.h

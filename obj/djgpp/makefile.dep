@@ -1,0 +1,81 @@
+obj/djgpp/errors.o: src/errors.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/std.h include/errors.h include/teo.h
+obj/djgpp/hardware.o: src/hardware.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/errors.h \
+ include/hardware.h include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
+ include/media/disk/controlr.h include/media/disk.h \
+ include/media/keyboard.h include/media/cass.h include/media/mouse.h \
+ include/media/printer.h
+obj/djgpp/image.o: src/image.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/mc68xx/mc6846.h \
+ include/mc68xx/mc6821.h include/media/disk/controlr.h \
+ include/media/disk.h include/errors.h include/std.h \
+ include/hardware.h
+obj/djgpp/ini.o: src/ini.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/media/printer.h \
+ include/std.h
+obj/djgpp/option.o: src/option.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/option.h include/std.h \
+ include/main.h include/ini.h include/errors.h \
+ include/media/disk/controlr.h include/media/disk.h \
+ include/media/memo.h include/media/cass.h
+obj/djgpp/std.o: src/std.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/std.h include/teo.h \
+ include/media/printer.h
+obj/djgpp/teo.o: src/teo.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/errors.h \
+ include/image.h include/ini.h include/std.h include/hardware.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
+ include/media/disk/controlr.h include/media/disk.h \
+ include/media/joystick.h include/media/keyboard.h \
+ include/media/cass.h include/media/mouse.h include/media/printer.h
+obj/djgpp/dasm6809.o: src/mc68xx/dasm6809.c c:/djgpp/lib/djgpp.ver \
+ include/mc68xx/dasm6809.h include/mc68xx/mc6809.h
+obj/djgpp/mc6809.o: src/mc68xx/mc6809.c c:/djgpp/lib/djgpp.ver \
+ include/mc68xx/mc6809.h include/teo.h
+obj/djgpp/mc6821.o: src/mc68xx/mc6821.c c:/djgpp/lib/djgpp.ver
+obj/djgpp/mc6846.o: src/mc68xx/mc6846.c c:/djgpp/lib/djgpp.ver \
+ include/mc68xx/mc6809.h include/mc68xx/mc6846.h
+obj/djgpp/acolor8.o: src/alleg/acolor8.c c:/djgpp/lib/djgpp.ver \
+ include/alleg/color8.h include/alleg/gfxdrv.h include/alleg/gui.h \
+ include/teo.h include/defs.h include/mc68xx/mc6809.h
+obj/djgpp/agfxdrv.o: src/alleg/agfxdrv.c c:/djgpp/lib/djgpp.ver \
+ include/alleg/gfxdrv.h include/alleg/mouse.h include/std.h \
+ include/teo.h
+obj/djgpp/agui.o: src/alleg/agui.c c:/djgpp/lib/djgpp.ver include/alleg/sound.h \
+ include/alleg/gfxdrv.h include/alleg/gui.h include/std.h \
+ include/teo.h
+obj/djgpp/ajoyint.o: src/alleg/ajoyint.c c:/djgpp/lib/djgpp.ver \
+ include/media/joystick.h include/teo.h
+obj/djgpp/amode40.o: src/alleg/amode40.c c:/djgpp/lib/djgpp.ver \
+ include/alleg/color8.h include/alleg/gfxdrv.h include/teo.h
+obj/djgpp/amode80.o: src/alleg/amode80.c c:/djgpp/lib/djgpp.ver \
+ include/alleg/color8.h include/alleg/gfxdrv.h include/teo.h
+obj/djgpp/amouse.o: src/alleg/amouse.c c:/djgpp/lib/djgpp.ver \
+ include/alleg/gfxdrv.h include/alleg/mouse.h include/media/mouse.h \
+ include/teo.h
+obj/djgpp/asound.o: src/alleg/asound.c c:/djgpp/lib/djgpp.ver include/teo.h
+obj/djgpp/atruecol.o: src/alleg/atruecol.c c:/djgpp/lib/djgpp.ver \
+ include/alleg/gfxdrv.h include/alleg/gui.h include/teo.h
+obj/djgpp/ddebug.o: src/dos/ddebug.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/mc68xx/dasm6809.h \
+ include/alleg/gfxdrv.h include/dos/memmng.h \
+ include/media/disk/controlr.h include/media/disk.h include/debug.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h
+obj/djgpp/dfloppy.o: src/dos/dfloppy.c c:/djgpp/lib/djgpp.ver include/teo.h
+obj/djgpp/dkeybint.o: src/dos/dkeybint.c c:/djgpp/lib/djgpp.ver include/teo.h \
+ include/to8keys.h include/media/keyboard.h
+obj/djgpp/dmain.o: src/dos/dmain.c c:/djgpp/lib/djgpp.ver include/defs.h \
+ include/mc68xx/mc6809.h include/teo.h include/option.h include/std.h \
+ include/ini.h include/image.h include/main.h include/errors.h \
+ include/media/disk/controlr.h include/media/disk.h \
+ include/media/cass.h include/media/memo.h include/media/printer.h \
+ include/alleg/gfxdrv.h include/alleg/gui.h include/alleg/joyint.h \
+ include/alleg/mouse.h include/alleg/sound.h include/dos/keybint.h \
+ include/dos/floppy.h include/dos/debug.h
+obj/djgpp/dmemmng.o: src/dos/dmemmng.c c:/djgpp/lib/djgpp.ver \
+ include/mc68xx/dasm6809.h include/mc68xx/mc6809.h include/debug.h \
+ include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/defs.h \
+ include/teo.h
+obj/djgpp/dvga.o: src/dos/dvga.c c:/djgpp/lib/djgpp.ver include/alleg/color8.h \
+ include/alleg/gfxdrv.h include/teo.h

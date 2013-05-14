@@ -1,0 +1,35 @@
+obj/linux/cc90.o: src/cc90.c include/defs.h include/main.h include/cc90.h \
+ include/serial.h include/port.h include/std.h include/errors.h
+obj/linux/encode.o: src/encode.c include/defs.h include/encode.h
+obj/linux/errors.o: src/errors.c include/defs.h include/std.h include/encode.h \
+ include/errors.h
+obj/linux/hfe.o: src/hfe.c include/defs.h include/errors.h include/std.h
+obj/linux/ini.o: src/ini.c include/defs.h include/std.h include/main.h \
+ include/ini.h include/serial.h
+obj/linux/main.o: src/main.c include/defs.h include/std.h include/ini.h \
+ include/errors.h include/option.h include/encode.h include/cc90.h \
+ include/main.h include/hfe.h include/serial.h
+obj/linux/option.o: src/option.c include/defs.h include/main.h include/std.h \
+ include/option.h include/ini.h include/encode.h include/errors.h
+obj/linux/std.o: src/std.c include/defs.h include/main.h include/std.h
+obj/linux/gui.o: src/linux/gui.c include/defs.h include/main.h include/std.h \
+ include/ini.h include/errors.h include/option.h include/encode.h \
+ include/cc90.h include/hfe.h include/serial.h include/linux/progress.h \
+ include/linux/gui.h
+obj/linux/port.o: src/linux/port.c include/defs.h include/std.h include/errors.h \
+ include/serial.h include/encode.h include/main.h \
+ include/linux/progress.h include/linux/gui.h
+obj/linux/progress.o: src/linux/progress.c include/main.h include/errors.h \
+ include/cc90.h include/linux/progress.h include/linux/gui.h
+obj/linux/serial.o: src/linux/serial.c include/defs.h include/std.h \
+ include/errors.h include/serial.h
+obj/linux/about.o: src/linux/gui/about.c include/defs.h include/linux/gui.h
+obj/linux/archive.o: src/linux/gui/archive.c include/defs.h include/std.h \
+ include/errors.h include/main.h include/linux/progress.h \
+ include/linux/gui.h
+obj/linux/extract.o: src/linux/gui/extract.c include/defs.h include/std.h \
+ include/errors.h include/main.h include/linux/progress.h \
+ include/linux/gui.h
+obj/linux/install.o: src/linux/gui/install.c include/defs.h include/std.h \
+ include/cc90.h include/encode.h include/errors.h include/main.h \
+ include/linux/gui.h

@@ -1,0 +1,36 @@
+obj/mingw32/cc90.o: src/cc90.c include/defs.h include/main.h include/cc90.h \
+  include/serial.h include/port.h include/std.h include/errors.h
+obj/mingw32/encode.o: src/encode.c include/defs.h include/encode.h
+obj/mingw32/errors.o: src/errors.c include/defs.h include/std.h include/encode.h \
+  include/errors.h
+obj/mingw32/hfe.o: src/hfe.c include/defs.h include/errors.h include/std.h
+obj/mingw32/ini.o: src/ini.c include/defs.h include/std.h include/main.h \
+  include/ini.h include/serial.h
+obj/mingw32/main.o: src/main.c include/defs.h include/std.h include/ini.h \
+  include/errors.h include/option.h include/encode.h include/cc90.h \
+  include/main.h include/hfe.h include/serial.h
+obj/mingw32/option.o: src/option.c include/defs.h include/main.h include/std.h \
+  include/option.h include/ini.h include/encode.h include/errors.h
+obj/mingw32/std.o: src/std.c include/defs.h include/main.h include/std.h
+obj/mingw32/gui.o: src/win/gui.c include/defs.h include/main.h include/std.h \
+  include/errors.h include/encode.h include/win/gui.h \
+  include/win/progress.h include/win/resource.h
+obj/mingw32/port.o: src/win/port.c include/defs.h include/std.h include/errors.h \
+  include/serial.h include/encode.h include/main.h include/win/gui.h \
+  include/win/resource.h
+obj/mingw32/progress.o: src/win/progress.c include/defs.h include/main.h \
+  include/errors.h include/cc90.h include/win/gui.h \
+  include/win/progress.h include/win/resource.h
+obj/mingw32/serial.o: src/win/serial.c include/defs.h include/std.h include/errors.h \
+  include/serial.h
+obj/mingw32/about.o: src/win/gui/about.c include/defs.h include/main.h \
+  include/win/resource.h
+obj/mingw32/archive.o: src/win/gui/archive.c include/defs.h include/main.h \
+  include/std.h include/errors.h include/encode.h include/win/gui.h \
+  include/win/progress.h include/win/resource.h
+obj/mingw32/extract.o: src/win/gui/extract.c include/defs.h include/main.h \
+  include/std.h include/errors.h include/encode.h include/win/gui.h \
+  include/win/progress.h include/win/resource.h
+obj/mingw32/install.o: src/win/gui/install.c include/defs.h include/main.h \
+  include/std.h include/encode.h include/errors.h include/cc90.h \
+  include/win/gui.h include/win/resource.h
