@@ -302,16 +302,15 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
     memset(&ofn, 0, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hWnd;
-    ofn.lpstrFilter = is_fr?"Fichiers HFE\0*.hfe\0" \
+    ofn.lpstrFilter = is_fr?
+                            "Tous les fichiers\0*.*\0" \
+                            "Fichiers HFE\0*.hfe\0" \
                             "Fichiers SAP\0*.sap\0" \
-                            "Fichiers disque bruts\0*.fd\0" \
-                            "Fichiers QDD bruts\0*.qd\0" \
-                            "Tous les fichiers\0*.*\0"
-                           :"HFE files\0*.hfe\0" \
+                            "Fichiers disque bruts\0*.fd\0"
+                           :"All files\0*.*\0" \
+                            "HFE files\0*.hfe\0" \
                             "SAP files\0*.sap\0" \
-                            "Raw floppy files\0*.fd\0" \
-                            "Raw QDD files\0*.qd\0" \
-                            "All files\0*.*\0";
+                            "Raw floppy files\0*.fd\0";
     ofn.nFilterIndex = 1;
     ofn.lpstrFile = current_file;
     ofn.nMaxFile = BUFFER_SIZE;
