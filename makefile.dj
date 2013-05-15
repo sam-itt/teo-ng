@@ -63,7 +63,7 @@ OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_S
 # ------ special file rules ------
 
 $(OBJ_DIR)/teo.o: src/teo.c
-	$(CC) -c $(CFLAGS) -DTO8_NO_BORDER -I./include -o $(OBJ_DIR)/teo.o src/teo.c
+	$(CC) -c $(CFLAGS) -DTEO_NO_BORDER -I./include -o $(OBJ_DIR)/teo.o src/teo.c
 
 
 # ------ dependency generation -------
