@@ -56,6 +56,7 @@
 #define PROG_CREATION_MONTH "May"
 #define PROG_CREATION_YEAR "2013"
 #define PROG_WEB_SITE       "http://sourceforge.net/projects/teoemulator/"
+#define PROG_WEB_FORUM      "http://www.logicielsmoto.com/"
 #define PROG_DESCRIPTION    "Serial transfers for CC90-232"
 
 #define MFM_GAP_DATA_VALUE       0x4e

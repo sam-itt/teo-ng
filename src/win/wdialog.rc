@@ -216,6 +216,7 @@ FONT 8, "Tahoma"
     CTEXT           "Teo (Windows/DirectX)\n Version "\
                     TEO_VERSION_STR, ABOUT_CTEXT_TITLE, 70, 6, 180, 42
     CTEXT           "", ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 50
-    CONTROL         "", ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 70, 102, 180, 26
+    CONTROL         "", ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 70, 94, 180, 16
+    CONTROL         "", ABOUT_STATIC_FORUM, "static", SS_NOTIFY | SS_CENTER, 70, 108, 180, 16
     CTEXT           "License GPL 2.0", ABOUT_CTEXT_LICENSE, 70, 130, 180, 16
 }

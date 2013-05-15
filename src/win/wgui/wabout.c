@@ -65,6 +65,7 @@
 int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    static HWND aboutLink;
+   static HWND aboutForum;
    static HWND aboutTitle;
    static HWND aboutCopyright;
    static HWND aboutLicense;
@@ -77,6 +78,7 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
    {
       case WM_INITDIALOG:
          aboutLink  = GetDlgItem (hDlg, ABOUT_STATIC_LINK);
+         aboutForum = GetDlgItem (hDlg, ABOUT_STATIC_FORUM);
          aboutTitle = GetDlgItem (hDlg, ABOUT_CTEXT_TITLE);
          aboutCopyright = GetDlgItem (hDlg, ABOUT_CTEXT_COPYRIGHT);
          aboutLicense = GetDlgItem (hDlg, ABOUT_CTEXT_LICENSE);
@@ -97,15 +99,18 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                            DEFAULT_QUALITY, DEFAULT_PITCH, "Tahoma");
          SendMessage(aboutLink, WM_SETFONT, (WPARAM)hLinkStyle, TRUE);
+         SendMessage(aboutForum, WM_SETFONT, (WPARAM)hLinkStyle, TRUE);
          SendMessage(aboutTitle, WM_SETFONT, (WPARAM)hTitleStyle, TRUE);
          SendMessage(aboutLicense, WM_SETFONT, (WPARAM)hLicenseStyle, TRUE);
          SendMessage(aboutCopyright, WM_SETFONT, (WPARAM)hCopyrightStyle, TRUE);
 #ifdef FRENCH_LANGUAGE
          SetWindowText(hDlg, "Teo - A propos");
          SetWindowText(aboutLink, "Teo sur SourceForge");
+         SetWindowText(aboutForum, "Forum sur le Web");
 #else
          SetWindowText(hDlg, "Teo - About");
          SetWindowText(aboutLink, "Teo on SourceForge");
+         SetWindowText(aboutForum, "Web forum");
 #endif
          SetWindowText(aboutCopyright, "Copyright © 1997-"TEO_YEAR_STRING"\n" \
                            " Gilles Fétis, Eric Botcazou, Alexandre Pukall, " \
@@ -129,6 +134,12 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               return (BOOL)GetStockObject(HOLLOW_BRUSH);
           }
           if ((HWND)lParam == aboutLink)
+          {
+              SetTextColor((HDC)wParam, RGB(0, 0, 255));
+              SetBkMode((HDC)wParam, TRANSPARENT);
+              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+          }
+          if ((HWND)lParam == aboutForum)
           {
               SetTextColor((HDC)wParam, RGB(0, 0, 255));
               SetBkMode((HDC)wParam, TRANSPARENT);
@@ -167,6 +178,11 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case ABOUT_STATIC_LINK :
                ShellExecute(NULL, "open",
                             "http://sourceforge.net/projects/teoemulator/",
+                            0, 0, SW_SHOWNORMAL);
+
+            case ABOUT_STATIC_FORUM :
+               ShellExecute(NULL, "open",
+                            "http://www.logicielsmoto.com/",
                             0, 0, SW_SHOWNORMAL);
                break;
 

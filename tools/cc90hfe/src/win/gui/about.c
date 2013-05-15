@@ -52,6 +52,7 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
                                        WPARAM wParam, LPARAM lParam)
 {
    static HWND aboutLink;
+   static HWND aboutForum;
    static HWND aboutTitle;
    static HWND aboutCopyright;
    static HWND aboutLicense;
@@ -64,6 +65,7 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
    {
       case WM_INITDIALOG:
          aboutLink  = GetDlgItem (hDlg, IDC_ABOUT_STATIC_LINK);
+         aboutForum = GetDlgItem (hDlg, IDC_ABOUT_STATIC_FORUM);
          aboutTitle = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_TITLE);
          aboutCopyright = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_COPYRIGHT);
          aboutLicense = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_LICENSE);
@@ -84,6 +86,7 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                            DEFAULT_QUALITY, DEFAULT_PITCH, "Tahoma");
          SendMessage(aboutLink, WM_SETFONT, (WPARAM)hLinkStyle, TRUE);
+         SendMessage(aboutForum, WM_SETFONT, (WPARAM)hLinkStyle, TRUE);
          SendMessage(aboutTitle, WM_SETFONT, (WPARAM)hTitleStyle, TRUE);
          SendMessage(aboutLicense, WM_SETFONT, (WPARAM)hLicenseStyle, TRUE);
          SendMessage(aboutCopyright, WM_SETFONT, (WPARAM)hCopyrightStyle, TRUE);
@@ -92,6 +95,7 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
                                   :PROG_NAME" - About");
          SetWindowText(aboutLink, is_fr?PROG_NAME" sur SourceForge (Teo module)"
                                        :PROG_NAME" on SourceForge (Teo module)");
+         SetWindowText(aboutForum, "Forum");
          SetWindowText(aboutTitle, "CC90HFE\n Version "PROG_VERSION_MAJOR"."PROG_VERSION_MINOR);
          SetWindowText(aboutCopyright, "Copyright © 1997-"PROG_CREATION_YEAR"\n Yves Charriau, François Mouret");
 
@@ -113,6 +117,12 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
               return (BOOL)GetStockObject(HOLLOW_BRUSH);
           }
           if ((HWND)lParam == aboutLink)
+          {
+              SetTextColor((HDC)wParam, RGB(0, 0, 255));
+              SetBkMode((HDC)wParam, TRANSPARENT);
+              return (BOOL)GetStockObject(HOLLOW_BRUSH);
+          }
+          if ((HWND)lParam == aboutForum)
           {
               SetTextColor((HDC)wParam, RGB(0, 0, 255));
               SetBkMode((HDC)wParam, TRANSPARENT);
@@ -144,6 +154,9 @@ static LRESULT CALLBACK about_Procedure(HWND hDlg, UINT uMsg,
                ShellExecute(NULL, "open", PROG_WEB_SITE, 0, 0, SW_SHOWNORMAL);
                break;
 
+            case IDC_ABOUT_STATIC_FORUM :
+               ShellExecute(NULL, "open", PROG_WEB_FORUM, 0, 0, SW_SHOWNORMAL);
+               break;
          }
          return TRUE;
 
