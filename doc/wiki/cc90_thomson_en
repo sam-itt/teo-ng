@@ -1,6 +1,6 @@
 ###Using CC90 (Thomson side)
 
-*<center>Don't use CC90 version 2.0 with programs that require the 1.03 or earlier versions of CC90: they are not compatible.</center>*
+*<center>CAUTION: Don't use CC90 version 2.0 with programs that require the 1.03 or earlier versions of CC90: they are not compatible.</center>*
 
 * <a href="./#install">Install CC90 without disk</a>
 * <a href="./#run">General working</a>
