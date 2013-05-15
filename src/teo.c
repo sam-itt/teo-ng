@@ -661,10 +661,6 @@ void teo_Exit(void)
     if (!teo_alive)
         return;
 
-    /* Sauvegarde de l'état de l'émulateur */
-    ini_Save();
-    image_Save ("autosave.img");
-
     /* Referme l'imprimante */
     printer_Close();
 

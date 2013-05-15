@@ -484,6 +484,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* et c'est parti !!! */
     RunTO8();
 
+    /* Sauvegarde de l'état de l'émulateur */
+    ini_Save();
+    image_Save ("autosave.img");
+
     /* désinstallation du callback *avant* la sortie du mode graphique */
     remove_display_switch_callback(RetraceCallback);
 

@@ -373,6 +373,10 @@ int main(int argc, char *argv[])
     gtk_main ();
     g_timer_destroy (timer);
 
+    /* Sauvegarde de l'état de l'émulateur */
+    ini_Save();
+    image_Save ("autosave.img");
+
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
     ugui_Free ();   /* Libère la mémoire utilisée par la GUI */
     usound_Close(); /* Referme le périphérique audio*/
