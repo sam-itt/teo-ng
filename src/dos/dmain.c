@@ -223,6 +223,17 @@ static void RunTO8(void)
 
 
 
+/* main_ErrorMessage:
+ *  Affiche un message d'erreur et sort du programme.
+ */
+static void main_ErrorMessage(const char msg[])
+{
+    fprintf(stderr, "%s\n", msg);
+    exit(EXIT_FAILURE);
+}
+
+
+
 /* ReadCommandLine:
  *  Lit la ligne de commande
  */
@@ -267,7 +278,7 @@ static void ReadCommandLine(int argc, char *argv[])
     };
     message = option_Parse (argc, argv, "teo", entries, &remain_name);
     if (message != NULL)
-        main_ExitMessage(message);
+        main_ErrorMessage(message);
         
     if (mode40)    gfx_mode = GFX_MODE40   ; else
     if (mode80)    gfx_mode = GFX_MODE80   ; else
@@ -276,13 +287,15 @@ static void ReadCommandLine(int argc, char *argv[])
 
 
 
-/* main_ExitMessage:
+/* ------------------------------------------------------------------------- */
+
+
+/* main_DisplayMessage:
  *  Affiche un message de sortie et sort du programme.
  */
 void main_DisplayMessage(const char msg[])
 {
     agui_PopupMessage (msg);
-    fprintf(stderr, "%s\n", msg);
 }
 
 
@@ -366,7 +379,7 @@ int main(int argc, char *argv[])
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
 
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
-        main_ExitMessage(teo_error_msg);
+        main_ErrorMessage(teo_error_msg);
 
     printf("ok\n");
 
@@ -451,7 +464,7 @@ int main(int argc, char *argv[])
            break;
     }
 
-    main_ExitMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
+    main_ErrorMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
 
   driver_found:
 
@@ -476,6 +489,10 @@ int main(int argc, char *argv[])
     
     /* et c'est parti !!! */
     RunTO8();
+
+    /* Sauvegarde de l'état de l'émulateur */
+    ini_Save();
+    image_Save ("autosave.img");
 
     /* libère la mémoire de la GUI */
     agui_Free();
