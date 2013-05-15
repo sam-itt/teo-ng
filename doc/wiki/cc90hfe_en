@@ -1,6 +1,10 @@
 ###CC90HFE
 
+*<center>CAUTION: Don't use CC90 version 2.0 with programs that require the 1.03 or earlier versions of CC90: they are not compatible.</center>*
+
 *`CC90HFE`* allows you to create true images of your Thomson double density floppies into the HFE format, which is supported by Teo and is the format used by the <a href="http://hxc2001.free.fr/floppy_drive_emulator/" target="_blank">HxC Floppy Emulator</a>.
+
+You can send us by email your HFE disks created with CC90HFE. They will be published on <a href="http://www.logicielsmoto.com/searchsoft.php" target="_blank">the software page of LogicielsMoto</a>.
 
 * [Modifying the CC90-232 interface](../cc90232_modif_en)
 * [The DB25-DB9 adaptor](../cc90232_adapt_en)

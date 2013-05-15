@@ -1,6 +1,10 @@
 ###CC90HFE
 
+*<center>AVERTISSEMENT: N'utilisez pas CC90 version 2.0 avec les programmes n&eacute;cessitant les versions 1.03 ou ant&eacute;rieures de CC90 : elles ne sont pas compatibles.</center>*
+
 *`CC90HFE`* va vous permettre de cr&eacute;er des images fid&egrave;les de vos disquettes Thomson double densit&eacute; au format HFE, format qui est support&eacute; par Teo et qui est le format utilis&eacute; par le <a href="http://hxc2001.free.fr/floppy_drive_emulator/" target="_blank">HxC Floppy Emulator</a>.
+
+Vous pouvez nous envoyer par mail vos disquettes HFE cr&eacute;&eacute;es avec CC90HFE. Elles seront publi&eacute;es sur le site <a href="http://www.logicielsmoto.com/searchsoft.php" target="_blank">LogicielsMoto &agrave; la page des logiciels</a>.
 
 * [Modification de l'interface](../cc90232_modif_fr)
 * [L'adaptateur DB25-DB9](../cc90232_adapt_fr)
