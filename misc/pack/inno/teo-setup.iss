@@ -29,7 +29,6 @@ Name: fr; MessagesFile: compiler:Languages\French.isl
 
 [Tasks]
 Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}
-Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons}
 
 [Files]
 ; ------------------------- Executables -------------------------------
@@ -151,8 +150,8 @@ IconIndex: 0; Name: "{group}\Cc90hfe"; Filename: "{app}\cc90hfe.exe"
 IconIndex: 0; Name: "{group}\Teow + reset"; Filename: "{app}\teow.exe"; Parameters: "--reset"
 IconIndex: 0; Name: "{group}\Manuel de Teow"; Filename: "{app}\doc\index.htm"; Languages: fr
 IconIndex: 0; Name: "{group}\Teow's manual"; Filename: "{app}\doc\index.htm"; Languages: en
-IconIndex: 0; Name: "{group}\Licence de Teow"; Filename: "{app}\license.txt"; Languages: fr
-IconIndex: 0; Name: "{group}\Teow's licence"; Filename: "{app}\license.txt"; Languages: en
+IconIndex: 0; Name: "{group}\Licence de Teow"; Filename: "{app}\licence.txt"; Languages: fr
+IconIndex: 0; Name: "{group}\Teow's licence"; Filename: "{app}\licence.txt"; Languages: en
 IconIndex: 0; Name: "{group}\{cm:ProgramOnTheWeb,Teow}"; Filename: "{#WEBSITE}"
 IconIndex: 0; Name: "{group}\{cm:UninstallProgram,Teow}"; Filename: "{uninstallexe}"
 IconIndex: 0; Name: "{commondesktop}\Teow {#TEOVERSION}"; Filename: "{app}\teow.exe"; Tasks: desktopicon
