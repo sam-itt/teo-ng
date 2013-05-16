@@ -34,7 +34,7 @@ for i in *;
    echo "</html>" >> _tmpfile;
    sed 's/\\//g' _tmpfile > _tmpfile2;
    sed 's/\&amp\;/\&/g' _tmpfile2 > _tmpfile;
-   sed 's/<img src=\"\([a-zA-Z0-9_-\.]*\)\"/<img src=\"images\/\1\"/g' _tmpfile > _tmpfile2;
+   sed 's/<img src=\"[a-zA-Z0-9_-\.]*\/attachment\/\([a-zA-Z0-9_-\.]*\)\"/<img src=\"images\/\1\"/g' _tmpfile > _tmpfile2;
    sed 's/href=\"\.\.\/\([a-zA-Z0-9_-]*\)\">/href=\"\1.htm\">/g' _tmpfile2 > _tmpfile;
    sed 's/href=\"\.\/#/href=\"\#/g' _tmpfile > ../$i.htm;
    rm _tmpfile _tmpfile2;
