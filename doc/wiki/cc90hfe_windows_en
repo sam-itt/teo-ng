@@ -1,6 +1,6 @@
 ###Using CC90HFE under Windows
 
-Normally, the serial port is automatically detected by CC90HFE. But if this is not the case, you can still force the name of the serial port in the cc90hfe.ini file - that will be created after running and quitting CC90HFE - in *`teo`* directory facing the *`port_name`* key in the *`[serial]`* section.
+Normally, the serial port is automatically detected by CC90HFE. But if this is not the case, you can still force the name of the serial port in the cc90hfe.ini file - that will be created after running and quitting CC90HFE - in *`teo`* directory facing the *`port_name`* key in the *`\[serial\]`* section.
 
 #####Using the command line
 

@@ -1,6 +1,6 @@
 ###Usage de CC90HFE sous Windows
 
-Normalement, le port s&eacute;rie est d&eacute;tect&eacute; automatiquement par CC90HFE. Mais si tel n'est pas le cas, vous pouvez toujours forcer le nom du port s&eacute;rie dans le fichier cc90hfe.ini qui sera cr&eacute;&eacute; apr&egrave;s avoir lanc&eacute; puis quitt&eacute; CC90HFE, dans le r&eacute;pertoire *`teo`* en face de la clef 'port_name' dans la section '[serial]'.
+Normalement, le port s&eacute;rie est d&eacute;tect&eacute; automatiquement par CC90HFE. Mais si tel n'est pas le cas, vous pouvez toujours forcer le nom du port s&eacute;rie dans le fichier cc90hfe.ini qui sera cr&eacute;&eacute; apr&egrave;s avoir lanc&eacute; puis quitt&eacute; CC90HFE, dans le r&eacute;pertoire *`teo`* en face de la clef *`port_name`* dans la section *`\[serial\]`*.
 
 #####Utilisation en ligne de commande
 
