@@ -91,7 +91,7 @@ echo -------------------------------------------------------------------
 cd tools
 cd cc90hfe
 mingw32-make clean
-mingw32-make ENGLISH=1 CONSOLE_MODE=1
+mingw32-make ENGLISH=1 CONSOLEMODE=1
 cd ..
 cd ..
 if exist misc\pack\mingw\en\cc90hfe-com.exe del misc\pack\mingw\en\cc90hfe-com.exe
@@ -104,7 +104,7 @@ echo ------------------------------------------------------------------
 cd tools
 cd cc90hfe
 mingw32-make clean
-mingw32-make FRENCH=1 CONSOLE_MODE=1
+mingw32-make FRENCH=1 CONSOLEMODE=1
 cd ..
 cd ..
 if exist misc\pack\mingw\fr\cc90hfe-com.exe del misc\pack\mingw\fr\cc90hfe-com.exe
