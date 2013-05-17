@@ -319,6 +319,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     char **argv;
 #endif
     int njoy = 0;
+    TCHAR sapfs_exe[MAX_PATH];
     struct STRING_LIST *str_list;
 
 #ifdef FRENCH_LANGUAGE
@@ -326,6 +327,24 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #else
     is_fr = 0;
 #endif
+
+    /* On s'assure que "allegro.cfg" est dispo dans le repertoire courant sinon TEO échoue. */
+    do {
+        FILE *f = fopen("allegro.cfg", "rb");
+        if(f==NULL) {
+            /* On a pas trouvé le fichier. On regarde dans le path et on se positionne dans le
+               bon repertoire. */
+            char *buf = sapfs_exe;  /* optim: on utilise le buffer sapfs_exe */
+            int len = SearchPath(NULL, "allegro", ".cfg", sizeof(sapfs_exe)/sizeof(TCHAR), buf, NULL);
+            if(len) {
+                char *s = buf;
+                while(*s) ++s; 
+                while(s>buf && *s!='/' && *s!='\\') --s;
+                if(*s=='/' || *s=='\\') *s = '\0';
+                SetCurrentDirectory(buf);
+            }
+        } else fclose(f);
+    } while(0);
 
     /* conversion de la ligne de commande Windows */
     prog_inst = hInst;
