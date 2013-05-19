@@ -352,7 +352,8 @@ int main(int argc, char *argv[])
 
     /* Chargement des options non définies */
     for (i=0;(remain_name!=NULL)&&(remain_name[i]!=NULL);i++)
-        option_Undefined (remain_name[i]);
+        if (option_Undefined (remain_name[i]) == 1)
+            reset = 1;
     g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
 
     /* Initialise le son */

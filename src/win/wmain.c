@@ -481,7 +481,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* Chargement des options non définies */
     for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
-        option_Undefined (str_list->str);
+        if (option_Undefined (str_list->str) == 1)
+            reset = 1;
     std_StringListFree (remain_name);
 
     /* reset éventuel de l'émulateur */

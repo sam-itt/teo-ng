@@ -67,7 +67,7 @@ extern char *option_Parse (int argc, char *argv[],
                           char *internal_prog_name,
                           struct OPTION_ENTRY program_option[],
                           struct STRING_LIST **remain_option);
-extern void option_Undefined (char *fname);
+extern int  option_Undefined (char *fname);
 
                           
 #endif

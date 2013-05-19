@@ -260,38 +260,43 @@ char *option_Parse (int argc, char *argv[],
 /* option_Undefined:
  *     Charge les options indéfinies
  */
-void option_Undefined (char *fname)
+int option_Undefined (char *fname)
 {
     int err = 0;
+    static int drive = 0;
+    static int reset = 0;
 
-    if (fname == NULL)
-        return;
-
-    /* si on a un fichier disque sans option ou un dossier, on trouve le 1er
-       disque libre */
-    if (disk_IsDisk(fname) == 0)
+    if (fname != NULL)
     {
-        if (teo.disk[0].file == NULL) err = disk_Load (0, fname); else
-        if (teo.disk[1].file == NULL) err = disk_Load (1, fname); else
-        if (teo.disk[2].file == NULL) err = disk_Load (2, fname); else
-        if (teo.disk[3].file == NULL) err = disk_Load (3, fname); else
-        err = error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
-    }
-    else
-    /* traitement d'un fichier memo */
-    if (memo_IsMemo (fname) == TRUE)
-        err = (teo.memo.file == NULL) ? memo_Load (fname)
-                                      : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
-    else
-    /* traitement d'un fichier cassette */
-    if (cass_IsCass (fname))
-        err = (teo.cass.file == NULL) ? cass_Load (fname)
-                                      : error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
-    else
-    /* fichier non reconnu */
-    err = error_Message (TEO_ERROR_FILE_OPEN, fname);
+        /* traitement d'un fichier disque */
+        if (disk_IsDisk(fname) == 0)
+        {
+            if (drive < NBDRIVE)
+            {
+                err = disk_Load (drive, fname);
+                drive++;
+            }
+            else
+                err = error_Message (TEO_ERROR_MEDIA_ALREADY_SET, fname);
+        }
+        else
+        /* traitement d'un fichier memo */
+        if (memo_IsMemo (fname) == TRUE)
+        {
+            err = memo_Load (fname);
+            reset = 1;
+        }
+        else
+        /* traitement d'un fichier cassette */
+        if (cass_IsCass (fname))
+            err = cass_Load (fname);
+        else
+        /* fichier non reconnu */
+        err = error_Message (TEO_ERROR_FILE_OPEN, fname);
     
-    if (err < 0)
-        main_DisplayMessage (teo_error_msg);
+        if (err < 0)
+            main_DisplayMessage (teo_error_msg);
+    }
+    return reset;
 }
 
