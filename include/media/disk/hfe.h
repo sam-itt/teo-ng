@@ -41,6 +41,12 @@
  *  Gestion des disquettes HFE.
  */
 
+/*
+ * The HFE format is Copyright © Jean-François DEL NERO & Co
+ * You will find a complete list of HxC contributors at
+ * http://hxc2001.free.fr/floppydriveemulator/index.html
+ * and the documentation about the HFE file format.
+ */
 
 #ifndef MEDIA_DISK_HFE_H
 #define MEDIA_DISK_HFE_H
