@@ -77,7 +77,7 @@
 
 #define TEO_DISK_MFM_TRACK_SIZE  (0x61b0/4)
 
-/* return position of sector in track memeory (interleave 7) */
+/* return position of sector in track memory (interleave 7) */
 #define DDSECTORPOS(sector)  (((((sector) - 1) * 7) % 16) * MFM_SECTOR_SIZE)
 #define SDSECTORPOS(sector)  (((((sector) - 1) * 7) % 16) * FM_SECTOR_SIZE)
 
