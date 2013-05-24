@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/display.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 30/07/2011 02/06/2012 29/09/2012

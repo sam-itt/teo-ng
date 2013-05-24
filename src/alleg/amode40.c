@@ -35,7 +35,7 @@
 
 /*
  *  Module     : alleg/mode40.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/0/2003
  *               Samuel Devulder 30/07/2011

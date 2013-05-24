@@ -13,7 +13,7 @@
                   TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
 
                         The Thomson TO8 emulator
-                              version 1.8.2
+                              version 1.8.3
 
     Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
                             Jérémie Guillaume, François Mouret,

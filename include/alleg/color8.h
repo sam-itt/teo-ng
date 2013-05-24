@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/color8.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou mai 2000
  *  Modifié par: François Mouret 01/11/2012
  *

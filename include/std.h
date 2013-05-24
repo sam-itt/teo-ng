@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/std.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : François Mouret 28/09/2012
  *  Modifié par:
  *

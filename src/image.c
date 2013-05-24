@@ -34,7 +34,7 @@
 
 /*
  *  Module     : image.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou 30/11/2000
  *  Modifié par: François Mouret 26/01/2010 05/10/2012 02/11/2012
  *

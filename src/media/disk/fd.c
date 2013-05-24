@@ -35,7 +35,7 @@
 
 /*
  *  Module     : media/disk/fd.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : François Mouret 21/01/2013
  *  Modifié par: 
  *

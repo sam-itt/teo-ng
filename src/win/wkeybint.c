@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/keybint.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 17/09/2001
  *               François Mouret 01/11/2012

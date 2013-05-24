@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/graphic.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: François Mouret 06/11/2012
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : dos/main.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 04/11/2003
  *               Samuel Devulder 08/2011

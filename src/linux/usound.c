@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/sound.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou août 1999
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Gilles Fétis 07/2011

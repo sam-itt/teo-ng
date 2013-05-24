@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/hardware.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 1/12/2000
  *               François Mouret 18/09/2006 02/11/2012

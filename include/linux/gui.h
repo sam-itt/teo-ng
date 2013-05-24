@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/gui.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 30/07/2011

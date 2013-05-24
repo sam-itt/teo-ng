@@ -35,7 +35,7 @@
 
 /*
  *  Module     : to8.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
@@ -63,7 +63,7 @@
 /* paramètres et symboles de l'émulation */
 #define APPLICATION_DIR "teo"
 #define TEO_YEAR_STRING "2013"
-#define TEO_VERSION_STR "1.8.2"
+#define TEO_VERSION_STR "1.8.3"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : ini.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou 24/09/2001
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 28/01/2010 14/09/2011 17/01/2012 25/04/2012

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : file/bmp.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Mouret François 24/11/2012
  *  Modifié par:
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : png.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : François Mouret 24/11/2012
  *  Modifié par: Samuel Devulder 10/02/2013
  *

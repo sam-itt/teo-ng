@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/cass.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 15/05/2000
  *               François Mouret 05/10/2012 01/11/2012

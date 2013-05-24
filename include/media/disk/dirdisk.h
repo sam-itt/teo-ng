@@ -34,7 +34,7 @@
 
 /*
  *  Module     : media/disk/dirdisk.h
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Samuel Devulder 30/07/2011
  *  Modifié par: François Mouret 20/11/2012
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : media/printer/pr906xx.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : François Mouret 26/11/2012
  *  Modifié par:
  *

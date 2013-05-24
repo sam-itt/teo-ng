@@ -35,7 +35,7 @@
 
 /*
  *  Module     : cass.c
- *  Version    : 1.8.2
+ *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 28/10/2003
  *               Samuel Devulder 05/02/2012
