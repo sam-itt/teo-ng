@@ -180,6 +180,8 @@ Type: files; Name: "{app}\licence_fr.txt"
 Type: files; Name: "{app}\licence_en.txt"
 Type: files; Name: "{app}\readme_fr.txt"
 Type: files; Name: "{app}\readme_en.txt"
+Type: files; Name: "{app}\change_fr.log"
+Type: files; Name: "{app}\change_en.log"
 ; version 1.8.1 specific
 Type: files; Name: "{app}\fonts\condc600.txt"
 Type: files; Name: "{app}\fonts\condc612.txt"
