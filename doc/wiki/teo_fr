@@ -6,6 +6,7 @@ Par ailleurs, <a href="http://www.bannister.org/software/teo.htm" target="_blank
 
 * <a href="./#options">Les options de lancement</a>
 * <a href="./#control_panel">Le panneau de contr&ocirc;le</a>
+* <a href="./#sound">Le son</a>
 * <a href="./#keyboard">Le clavier</a>
 * <a href="./#joysticks">Les joysticks</a>
 * <a href="./#disks">Les disquettes</a>
@@ -33,6 +34,10 @@ Teo accepte ces principaux param&egrave;tres en ligne de commande:
 #####Le panneau de contr&ocirc;le<a name="control_panel"></a>
 
 L'appui sur la touche \[ESC\] ouvre le Panneau de contr&ocirc;le. Vous pouvez alors effectuer les op&eacute;rations d&eacute;sir&eacute;es.
+
+#####Le son<a name="sound"></a>
+
+Si vous rencontrez quelques probl&egrave;mes de son (un son avec des cr&eacute;pitements, par exemple), relancer Teo avec reset. Cela corrigera de nombreux probl&egrave;mes de son, et de nombreux probl&egrave;mes en g&eacute;n&eacute;ral.
 
 #####Le clavier<a name="keyboard"></a>
 
