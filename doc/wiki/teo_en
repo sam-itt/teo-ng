@@ -6,6 +6,7 @@ Besides, <a href="http://www.bannister.org/software/teo.htm" target="_blank">a n
 
 * <a href="./#options">Launching options</a>
 * <a href="./#control_panel">Control panel</a>
+* <a href="./#sound">Sound</a>
 * <a href="./#keyboard">Keyboard</a>
 * <a href="./#joysticks">Joysticks</a>
 * <a href="./#mouse">Light-pen and mouse</a>
@@ -34,6 +35,10 @@ Teo accepts the following options on command line:
 #####Control panel<a name="control_panel"></a>
 
 Pressing the \[ESC\] key on the PC opens the control panel.
+
+#####Sounds<a name="sound"></a>
+
+If you have some problem with the sound (sound with crackles, for example), launch Teo with reset. It will fix several sound problems and problems in general.
 
 #####Keyboard<a name="keyboard"></a>
 
