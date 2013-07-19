@@ -19,7 +19,7 @@ if [ -z $TMPDIR ]; then
    TMPDIR="/tmp"
 fi
 
-teo_version='1.8.2'
+teo_version='1.8.3'
 cc90hfe_version='0.5.0'
 pack_dir="teo/misc/pack"
 zip_options="-q -9"
@@ -132,19 +132,31 @@ name_to_lowercase()
     fi
 }
 
-name_to_lowercase "./$pack_dir/MSDOS"
-name_to_lowercase "./$pack_dir/msdos/EN"
-name_to_lowercase "./$pack_dir/msdos/FR"
-for i in ./$pack_dir/msdos/fr/* ./$pack_dir/msdos/en/*
-   do
-      name_to_lowercase $i
-done
+if [ -e "./$pack_dir/MSDOS" ]
+    then
+        name_to_lowercase "./$pack_dir/MSDOS"
+        name_to_lowercase "./$pack_dir/msdos/EN"
+        name_to_lowercase "./$pack_dir/msdos/FR"
+        for i in ./$pack_dir/msdos/fr/* ./$pack_dir/msdos/en/*
+           do
+              name_to_lowercase $i
+        done
+fi
 #---------------------------------------------------------------------
 #   Copy makefile.dep's
 #---------------------------------------------------------------------
-cp -f $pack_dir/mingw/fr/teo.dep ./teo/obj/mingw32/makefile.dep
-cp -f $pack_dir/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
-cp -f $pack_dir/mingw/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
+if [ -e $pack_dir/mingw/fr/teo.dep ]
+    then
+        cp -f $pack_dir/mingw/fr/teo.dep ./teo/obj/mingw32/makefile.dep
+fi
+if [ -e $pack_dir/msdos/fr/teo.dep ]
+    then
+        cp -f $pack_dir/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
+fi
+if [ -e $pack_dir/mingw/fr/cc90hfe.dep ]
+    then
+        cp -f $pack_dir/mingw/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
+fi
 
 
 
@@ -408,8 +420,11 @@ teo/doc/images/*.*
 teo/doc/*.htm
 teo/doc/*.css"
 pack_file="$pack_storage/teo-$teo_version-src.tar"
-tar -cf $pack_file $source_files $pack_doc
-gzip $gzip_options $pack_file
+if [ -e "teo/obj/djgpp/makefile.dep" ]
+    then
+        tar -cf $pack_file $source_files $pack_doc
+        gzip $gzip_options $pack_file
+fi
 
 
 
@@ -472,47 +487,53 @@ teo/doc/*.css"
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in French..."
 pack_file="$pack_storage/teo-$teo_version-dosexe-fr.zip"
-open_doc "fr"
-cp $pack_dir/msdos/fr/teo.exe    teo/
-cp $pack_dir/msdos/fr/sap2.exe   teo/
-cp $pack_dir/msdos/fr/sapfs.exe  teo/
-cp $pack_dir/msdos/fr/wav2k7.exe teo/
-cp $pack_dir/msdos/fr/wav2k7.exe teo/
-cp teo/change-fr.log  teo/CHANGES.TXT
-cp teo/licence-fr.txt teo/LICENCE.TXT
-cp teo/readme-fr.txt  teo/README.TXT
-zip -r $zip_options $pack_file $common_exec $exec_list
-rm teo/teo.exe
-rm teo/sap2.exe
-rm teo/sapfs.exe
-rm teo/wav2k7.exe
-rm teo/CHANGES.TXT
-rm teo/LICENCE.TXT
-rm teo/README.TXT
-close_doc
+if [ -e "$pack_dir/msdos/fr/teo.exe" ]
+    then
+        open_doc "fr"
+        cp $pack_dir/msdos/fr/teo.exe    teo/
+        cp $pack_dir/msdos/fr/sap2.exe   teo/
+        cp $pack_dir/msdos/fr/sapfs.exe  teo/
+        cp $pack_dir/msdos/fr/wav2k7.exe teo/
+        cp $pack_dir/msdos/fr/wav2k7.exe teo/
+        cp teo/change-fr.log  teo/CHANGES.TXT
+        cp teo/licence-fr.txt teo/LICENCE.TXT
+        cp teo/readme-fr.txt  teo/README.TXT
+        zip -r $zip_options $pack_file $common_exec $exec_list
+        rm teo/teo.exe
+        rm teo/sap2.exe
+        rm teo/sapfs.exe
+        rm teo/wav2k7.exe
+        rm teo/CHANGES.TXT
+        rm teo/LICENCE.TXT
+        rm teo/README.TXT
+        close_doc
+fi
 
 
 
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in English..."
 pack_file="$pack_storage/teo-$teo_version-dosexe-en.zip"
-open_doc "en"
-cp $pack_dir/msdos/en/teo.exe    teo/
-cp $pack_dir/msdos/en/sap2.exe   teo/
-cp $pack_dir/msdos/en/sapfs.exe  teo/
-cp $pack_dir/msdos/en/wav2k7.exe teo/
-cp teo/change-en.log  teo/CHANGES.TXT
-cp teo/licence-en.txt teo/LICENCE.TXT
-cp teo/readme-en.txt  teo/README.TXT
-zip -r $zip_options $pack_file $common_exec $exec_list
-rm teo/teo.exe
-rm teo/sap2.exe
-rm teo/sapfs.exe
-rm teo/wav2k7.exe
-rm teo/CHANGES.TXT
-rm teo/LICENCE.TXT
-rm teo/README.TXT
-close_doc
+if [ -e "$pack_dir/msdos/en/teo.exe" ]
+    then
+        open_doc "en"
+        cp $pack_dir/msdos/en/teo.exe    teo/
+        cp $pack_dir/msdos/en/sap2.exe   teo/
+        cp $pack_dir/msdos/en/sapfs.exe  teo/
+        cp $pack_dir/msdos/en/wav2k7.exe teo/
+        cp teo/change-en.log  teo/CHANGES.TXT
+        cp teo/licence-en.txt teo/LICENCE.TXT
+        cp teo/readme-en.txt  teo/README.TXT
+        zip -r $zip_options $pack_file $common_exec $exec_list
+        rm teo/teo.exe
+        rm teo/sap2.exe
+        rm teo/sapfs.exe
+        rm teo/wav2k7.exe
+        rm teo/CHANGES.TXT
+        rm teo/LICENCE.TXT
+        rm teo/README.TXT
+        close_doc
+fi
 
 
 
@@ -549,53 +570,60 @@ teo/doc/*.css"
 ######################################################################
 echo "Creating ZIP packages for Windows executables in French..."
 packFile="$pack_storage/teo-$teo_version-winexe-fr.zip"
-open_doc "fr"
-cp $pack_dir/mingw/fr/teow.exe        teo/
-cp $pack_dir/mingw/fr/cc90hfe.exe     teo/
-cp $pack_dir/mingw/fr/cc90hfe-com.exe teo/
-cp $pack_dir/msdos/fr/sap2.exe        teo/
-cp $pack_dir/msdos/fr/sapfs.exe       teo/
-cp $pack_dir/msdos/fr/wav2k7.exe      teo/
-cp teo/change-fr.log  teo/CHANGES.TXT
-cp teo/licence-fr.txt teo/LICENCE.TXT
-cp teo/readme-fr.txt  teo/README.TXT
-zip -r $zip_options $packFile $common_exec $exec_list
-rm teo/teow.exe
-rm teo/sap2.exe
-rm teo/sapfs.exe
-rm teo/wav2k7.exe
-rm teo/cc90hfe.exe
-rm teo/cc90hfe-com.exe
-rm teo/CHANGES.TXT
-rm teo/LICENCE.TXT
-rm teo/README.TXT
-close_doc
+if [ -e "$pack_dir/mingw/fr/teow.exe" ]
+    then
+        open_doc "fr"
+        cp $pack_dir/mingw/fr/teow.exe        teo/
+        cp $pack_dir/mingw/fr/cc90hfe.exe     teo/
+        cp $pack_dir/mingw/fr/cc90hfe-com.exe teo/
+        cp $pack_dir/msdos/fr/sap2.exe        teo/
+        cp $pack_dir/msdos/fr/sapfs.exe       teo/
+        cp $pack_dir/msdos/fr/wav2k7.exe      teo/
+        cp teo/change-fr.log  teo/CHANGES.TXT
+        cp teo/licence-fr.txt teo/LICENCE.TXT
+        cp teo/readme-fr.txt  teo/README.TXT
+        zip -r $zip_options $packFile $common_exec $exec_list
+        rm teo/teow.exe
+        rm teo/sap2.exe
+        rm teo/sapfs.exe
+        rm teo/wav2k7.exe
+        rm teo/cc90hfe.exe
+        rm teo/cc90hfe-com.exe
+        rm teo/CHANGES.TXT
+        rm teo/LICENCE.TXT
+        rm teo/README.TXT
+        close_doc
+fi
+
 
 
 ######################################################################
 echo "Creating ZIP packages for Windows executables in English..."
 packFile="$pack_storage/teo-$teo_version-winexe-en.zip"
-open_doc "en"
-cp $pack_dir/mingw/en/teow.exe        teo/
-cp $pack_dir/mingw/en/cc90hfe.exe     teo/
-cp $pack_dir/mingw/en/cc90hfe-com.exe teo/
-cp $pack_dir/msdos/en/sap2.exe        teo/
-cp $pack_dir/msdos/en/sapfs.exe       teo/
-cp $pack_dir/msdos/en/wav2k7.exe      teo/
-cp teo/change-en.log  teo/CHANGES.TXT
-cp teo/licence-en.txt teo/LICENCE.TXT
-cp teo/readme-en.txt  teo/README.TXT
-zip -r $zip_options $packFile $common_exec $exec_list
-rm teo/teow.exe
-rm teo/sap2.exe
-rm teo/sapfs.exe
-rm teo/wav2k7.exe
-rm teo/cc90hfe.exe
-rm teo/cc90hfe-com.exe
-rm teo/CHANGES.TXT
-rm teo/LICENCE.TXT
-rm teo/README.TXT
-close_doc
+if [ -e "$pack_dir/mingw/en/teow.exe" ]
+    then
+        open_doc "en"
+        cp $pack_dir/mingw/en/teow.exe        teo/
+        cp $pack_dir/mingw/en/cc90hfe.exe     teo/
+        cp $pack_dir/mingw/en/cc90hfe-com.exe teo/
+        cp $pack_dir/msdos/en/sap2.exe        teo/
+        cp $pack_dir/msdos/en/sapfs.exe       teo/
+        cp $pack_dir/msdos/en/wav2k7.exe      teo/
+        cp teo/change-en.log  teo/CHANGES.TXT
+        cp teo/licence-en.txt teo/LICENCE.TXT
+        cp teo/readme-en.txt  teo/README.TXT
+        zip -r $zip_options $packFile $common_exec $exec_list
+        rm teo/teow.exe
+        rm teo/sap2.exe
+        rm teo/sapfs.exe
+        rm teo/wav2k7.exe
+        rm teo/cc90hfe.exe
+        rm teo/cc90hfe-com.exe
+        rm teo/CHANGES.TXT
+        rm teo/LICENCE.TXT
+        rm teo/README.TXT
+        close_doc
+fi
 
 
 
