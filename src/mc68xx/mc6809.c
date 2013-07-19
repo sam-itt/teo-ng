@@ -52,7 +52,7 @@
  *               émulation des postcodes non standard pour TFR/EXG
  *               émulation des postcodes non standard pour indexé
  *               émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
- *  version 2.8.1: Correction du risque de freeze pour synm(), cwai()
+ *          2.8.1: Correction du risque de freeze pour synm(), cwai()
  *                 et hcfm()
  */
 
