@@ -52,8 +52,6 @@ static void TimerCallback(void *data)
 }
 
 
-#ifdef DEBUG  /* les fonctions ne sont pas inlinées */
-
 void mc6846_SetTcr(struct MC6846_PIA *mc6846, int val)
 {
     mc6846->tcr=val;
@@ -165,9 +163,6 @@ void mc6846_WriteData(struct MC6846_PIA *mc6846, int val)
     mc6846->prc = (mc6846->prc&(mask^0xFF)) | (val&mask);
 }
 
-#endif
-
-
 
 /* Init:
  *  Initialise le PIA MC6846 spécifié.
@@ -190,3 +185,4 @@ void mc6846_Init(struct MC6846_PIA *mc6846, int crc, int prc, int w_mask)
        de l'émulateur à partir d'un fichier image */
     mc6809_SetTimer(MC6809_TIMER_DISABLED, mc6846->callback, (void *)mc6846);
 }
+
