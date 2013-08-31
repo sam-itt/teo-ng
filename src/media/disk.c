@@ -39,7 +39,7 @@
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
- *                               29/09/2012
+ *                               29/09/2012 31/08/2013
  *               Samuel Devulder 05/02/2012 30/07/2011
  *
  *  Gestion des disquettes.
@@ -71,6 +71,10 @@
 #define NBTRACK   80
 #define NBSECT    16
 #define SECTSIZE 256
+
+static int track_written = 0;
+static int byte_written = 0;
+
 
 struct DISK_CONTROLLER *dkc;
 
@@ -227,7 +231,18 @@ static struct DISK_VECTOR *disk_DiskVectorLast (struct DISK_VECTOR *p)
 }
 
 
-/* ------------------------------------------------------------------------- */
+
+/* clear_track:
+ *  Clear the current track so that the reading will generate an I/O error
+ */
+static void clear_track (void)
+{
+    memset (dkc->info.data, 0x00, dkc->info.track_size);
+    memset (dkc->info.data, 0x00, dkc->info.track_size);
+}
+
+
+/* ------------------------- Sector management ---------------------------- */
 
 
 void disk_CreateDDFloppySector (int track, int sector, uint8 *sector_buffer,
@@ -310,6 +325,222 @@ void disk_CreateSDFloppySector (int track, int sector, uint8 *sector_buffer,
     memset (data+168, MFM_GAP_DATA_VALUE, 6);
 }
 
+
+/* --------------------------- Disk Controller ---------------------------- */
+
+
+/* disk_ControllerWritten:
+ *  
+ */
+void disk_ControllerWritten (void)
+{
+    track_written = 1;
+    byte_written = 1;
+}
+
+
+
+/* disk_ControllerWriteUpdateTrack:
+ *  Update the track if it has been written.
+ */
+void disk_ControllerWriteUpdateTrack (void)
+{
+    int err = 0;
+
+    if ((track_written != 0)
+     && (dkc->info.track >= 0)
+     && (dkc->info.track < dkc->info.track_count)
+     && (disk[dkc->info.drive].WriteCtrlTrack != NULL))
+    {
+#ifdef DO_PRINTF
+        printf ("writing track %d drive %d\n", dkc->info.track,
+                                               dkc->info.drive);
+        fflush (stdout);
+#endif
+        err = disk[dkc->info.drive].WriteCtrlTrack (
+                            teo.disk[dkc->info.drive].file,
+                            disk[dkc->info.drive].info);
+        if (err < 0)
+            main_DisplayMessage(teo_error_msg);
+    }
+    track_written = 0;
+}
+
+
+
+/* disk_ControllerClearWriteFlag:
+ *  Clear the write_update flag.
+ */
+void disk_ControllerClearWriteFlag (void)
+{
+    byte_written = 0;
+}
+
+
+
+/* disk_ControllerWriteUpdateTimeout:
+ *  Force to update the track if it has been written (no access left).
+ */
+void disk_ControllerWriteUpdateTimeout (void)
+{
+    static int counter = 0;
+
+    if ((byte_written == 0) && (track_written != 0))
+    {
+        if (dkc->StillWriting () == FALSE)
+        {
+            if (++counter > 10) /* 1/5 second waiting */
+            {
+                disk_ControllerWriteUpdateTrack ();
+                counter = 0;
+            }
+        }
+    }
+}
+
+
+
+/* disk_ControllerUpdateTrack:
+ *  Update the track if it has been written and load the new track.
+ */
+void disk_ControllerUpdateTrack (void)
+{
+    int err = 0;
+
+    if ((dkc->drive != dkc->info.drive)
+     || (dkc->track[dkc->drive>>1] != dkc->info.track))
+    {
+        disk_ControllerWriteUpdateTrack ();
+        if ((dkc->track[dkc->drive>>1] >= 0)
+         && (dkc->track[dkc->drive>>1] < dkc->info.track_count)
+         && (disk[dkc->drive].ReadCtrlTrack != NULL))
+        {
+            dkc->info.drive = dkc->drive;
+            dkc->info.track = dkc->track[dkc->drive>>1];
+            if (disk[dkc->drive].format == 0)
+            {
+#ifdef DO_PRINTF
+               printf ("reading track %d (WTRK:%d)[current:%d] drive %d\n",
+                              dkc->track[dkc->drive>>1], dkc->wr6,
+                            dkc->info.track, dkc->info.drive);
+               fflush (stdout);
+#endif
+               err = disk[dkc->info.drive].ReadCtrlTrack (
+                                teo.disk[dkc->info.drive].file,
+                                disk[dkc->info.drive].info);
+               if (err < 0)
+               {
+                   main_DisplayMessage(teo_error_msg);
+                   clear_track();
+               }
+            }
+        }
+    }
+}
+
+
+
+/* disk_ControllerWriteSector:
+ *  Write a sector.
+ */
+void disk_ControllerWriteSector (void)
+{
+    int err = 0;
+
+    if (disk[dkc->info.drive].WriteCtrlSector != NULL)
+    {
+        disk_ControllerWriteUpdateTrack ();
+        dkc->info.drive = dkc->drive;
+        dkc->info.track = dkc->track[dkc->drive>>1];
+        dkc->info.sector = LOAD_BYTE(0x604C);
+#ifdef DO_PRINTF
+        printf ("writing sector %d track %d drive %d\n",
+                          dkc->info.sector,
+                          dkc->info.track,
+                          dkc->info.drive);
+        fflush (stdout);
+#endif
+        err = disk[dkc->info.drive].WriteCtrlSector (
+                            teo.disk[dkc->info.drive].file,
+                            LOAD_WORD(0x604F),
+                            disk[dkc->info.drive].info);
+        if (err != 0)
+            main_DisplayMessage(teo_error_msg);
+    }
+}
+
+
+
+/* disk_ControllerReadSector:
+ *  Load a sector.
+ */
+void disk_ControllerReadSector (void)
+{
+    int err = 0;
+
+    if ((dkc->track[dkc->drive>>1] >= 0)
+     && (dkc->track[dkc->drive>>1] < dkc->info.track_count)
+     && (disk[dkc->drive].ReadCtrlSector != NULL))
+    {
+        disk_ControllerWriteUpdateTrack ();
+        dkc->info.drive = dkc->drive;
+        dkc->info.track = dkc->track[dkc->drive>>1];
+        dkc->info.sector = LOAD_BYTE(0x604C);
+#ifdef DO_PRINTF
+       printf ("reading sector %d track %d (WTRK:%d)[current:%d] drive %d\n",
+                    dkc->info.sector,
+                    dkc->track[dkc->drive>>1], dkc->wr6,
+                    dkc->info.track, dkc->info.drive);
+       fflush (stdout);
+#endif
+
+       err = disk[dkc->info.drive].ReadCtrlSector (
+                        teo.disk[dkc->info.drive].file,
+                        disk[dkc->info.drive].info);
+       if (err < 0)
+       {
+           main_DisplayMessage(teo_error_msg);
+           clear_track();
+       }
+    }
+}
+
+
+
+/* difk_ControllerFormatTrack:
+ *  Update the track if it has been formatted.
+ */
+int disk_ControllerFormatTrack (void)
+{
+    int err = 0;
+
+    if ((dkc->drive != dkc->info.drive)
+     || (dkc->track[dkc->drive>>1] != dkc->info.track))
+    {
+        disk_ControllerWriteUpdateTrack ();
+        if ((dkc->info.track >= 0)
+         && (dkc->info.track < dkc->info.track_count)
+         && (disk[dkc->info.drive].FormatCtrlTrack != NULL))
+        {
+            dkc->info.drive = dkc->drive;
+            dkc->info.track = dkc->track[dkc->drive>>1];
+#ifdef DO_PRINTF
+            printf ("formatting track %d drive %d\n", dkc->info.track,
+                                               dkc->info.drive);
+            fflush (stdout);
+#endif
+            err = disk[dkc->info.drive].FormatCtrlTrack (
+                            teo.disk[dkc->info.drive].file,
+                            disk[dkc->info.drive].info);
+            if (err < 0)
+                main_DisplayMessage(teo_error_msg);
+        }
+    }
+    return err;
+}
+
+
+/* ---------------------------- Disk Vectors ------------------------------ */
 
 
 /* disk_DiskVectorIndex:
@@ -418,9 +649,11 @@ void disk_DiskVectorFree (struct DISK_VECTOR *p)
 }
 
 
+/* -------------------------- Low level functions ------------------------- */
+
 
 /* disk_ComputeCrc:
- *  Calcule le CRC Thomson d'une zone.
+ *  Compute the Thomson CRC of a memory range.
  */
 int disk_ComputeCrc (uint8 *buffer, int length, int start_value)
 {
@@ -607,6 +840,9 @@ int disk_IsSDFloppySector (int sector, struct DISK_INFO *info)
 
 
 
+/* disk_Load:
+ *  Load a disk.
+ */
 int disk_Load (int drive, const char filename[])
 {
     /* limite la valeur des faces */
@@ -652,7 +888,7 @@ int disk_AllocRawTracks (int track_size, struct DISK_INFO *info)
 
 
 /* disk_FirstLoad:
- *  Premier chargement des disquettes.
+ *  First load of disks.
  */
 void disk_FirstLoad (void)
 {
@@ -679,6 +915,9 @@ void disk_FirstLoad (void)
 
 
 
+/* disk_IsDisk:
+ *  Check if disk file format is valid.
+ */
 int disk_IsDisk (const char filename[])
 {
     if ((sap_IsSap (filename) < 0)
@@ -692,6 +931,9 @@ int disk_IsDisk (const char filename[])
 
 
 
+/* disk_Init:
+ *  Initialize controller.
+ */
 int disk_Init (void)
 {
     int drive;
@@ -715,6 +957,9 @@ int disk_Init (void)
 
 
 
+/* disk_Free:
+ *  Free controller memory.
+ */
 void disk_Free (void)
 {
     thmfc1_Free (thmfc1_controller);

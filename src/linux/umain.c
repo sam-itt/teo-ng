@@ -137,13 +137,13 @@ static gboolean RunTO8 (gpointer user_data)
 
     if (teo.command == TEO_COMMAND_QUIT)
     {
-        dkc->WriteUpdateTrack();
+        disk_ControllerWriteUpdateTrack();
         mc6809_FlushExec();
         gtk_main_quit ();
         return FALSE;
     }
 
-    dkc->ClearWriteFlag();
+    disk_ControllerClearWriteFlag();
     teo.command = TEO_COMMAND_NONE;
 
     ugraphic_Refresh ();
@@ -151,7 +151,7 @@ static gboolean RunTO8 (gpointer user_data)
      && (teo.setting.sound_enabled))
         usound_Play ();
 
-    dkc->WriteUpdateTimeout();
+    disk_ControllerWriteUpdateTimeout();
 
     return TRUE;
     (void)user_data;

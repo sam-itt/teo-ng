@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 24/10/2003
- *               François Mouret 05/10/2012
+ *               François Mouret 05/10/2012 31/08/2013
  *
  *  Gestion des disquettes.
  */
@@ -108,13 +108,23 @@ extern int   disk_Load(int drive, const char filename[]);
 extern int   disk_ReadCtrlTrack (int drive);
 extern int   disk_WriteCtrlTrack (int drive);
 extern void  disk_BuildSectorMap (int *sector_map, int factor);
-
+/* GUI vectors */
 extern int   disk_DiskVectorIndex (struct DISK_VECTOR *p, const char str[]);
 extern int   disk_DiskVectorLength (struct DISK_VECTOR *p);
 extern char *disk_DiskVectorText (struct DISK_VECTOR *p, int index);
 extern struct DISK_VECTOR *disk_DiskVectorPtr (struct DISK_VECTOR *p, int index);
 extern struct DISK_VECTOR *disk_DiskVectorAppend (struct DISK_VECTOR *p, const char str[], int side, int side_count, int write_protect);
 extern void  disk_DiskVectorFree (struct DISK_VECTOR *p);
+/* Controller */
+extern void  disk_ControllerWritten (void);
+extern void  disk_ControllerWriteUpdateTrack (void);
+extern void  disk_ControllerClearWriteFlag (void);
+extern void  disk_ControllerWriteUpdateTimeout (void);
+extern void  disk_ControllerUpdateTrack (void);
+
+extern void  disk_ControllerWriteSector (void);
+extern void  disk_ControllerReadSector (void);
+extern int   disk_ControllerFormatTrack (void);
 
 #endif
 

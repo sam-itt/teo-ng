@@ -37,7 +37,7 @@
  *  Module     : media/disk/controlr/thmfc1.c
  *  Version    : 1.8.3
  *  Créé par   : Francois Mouret 24/05/2012
- *  Modifié par:
+ *  Modifié par: François Mouret 31/08/2013
  *
  *  Contrôleur THMFC1.
  */
@@ -255,8 +255,6 @@
 // #define DO_PRINTF 1
 
 static mc6809_clock_t clock = 0;
-static int track_written = 0;
-static int byte_written = 0;
 static int ctrl = 0;
 static int pos;
 static int track_i = 0;
@@ -265,219 +263,11 @@ static uint8 tmp_uint8 = 0;
 static struct MC6809_REGS regs;
 
 
-/* __________________ read/write track/sector functions ___________________ */
 
-
-/* clear_track:
- *  Clear the current track so that it will generate an I/O error
- */
-static void clear_track (void)
+static int controller_still_writing (void)
 {
-    memset (dkc->info.data, 0x00, dkc->info.track_size);
-    memset (dkc->info.data, 0x00, dkc->info.track_size);
+    return ((dkc->wr0 & (CMD0_WRITE | CMD0_OP_MASK)) == 0) ? FALSE : TRUE;
 }
-
-
-
-/* write_update_track:
- *  Update the track if it has been written.
- */
-static void write_update_track (void)
-{
-    int err = 0;
-
-    if ((track_written != 0)
-     && (dkc->info.track >= 0)
-     && (dkc->info.track < dkc->info.track_count)
-     && (disk[dkc->info.drive].WriteCtrlTrack != NULL))
-    {
-#ifdef DO_PRINTF
-        printf ("writing track %d drive %d\n", dkc->info.track,
-                                               dkc->info.drive);
-        fflush (stdout);
-#endif
-        err = disk[dkc->info.drive].WriteCtrlTrack (
-                            teo.disk[dkc->info.drive].file,
-                            disk[dkc->info.drive].info);
-        if (err < 0)
-            main_DisplayMessage(teo_error_msg);
-    }
-    track_written = 0;
-}
-
-
-
-/* clear_write_flag:
- *  Clear the write_update flag.
- */
-static void clear_write_flag (void)
-{
-    byte_written = 0;
-}
-
-
-
-/* write_update_timeout:
- *  Force to update the track if it has been written (no access left).
- */
-static void write_update_timeout (void)
-{
-    static int counter = 0;
-
-    if ((byte_written == 0) && (track_written != 0))
-    {
-        if ((dkc->wr0 & (CMD0_WRITE | CMD0_OP_MASK)) == 0)
-        {
-            if (++counter > 10) /* 1/5 second waiting */
-            {
-                write_update_track ();
-                counter = 0;
-            }
-        }
-    }
-}
-
-
-
-/* update_track:
- *  Update the track if it has been written and load the new track.
- */
-static void update_track (void)
-{
-    int err = 0;
-
-    if ((dkc->drive != dkc->info.drive)
-     || (dkc->track[ctrl] != dkc->info.track))
-    {
-        write_update_track ();
-        if ((dkc->track[ctrl] >= 0)
-         && (dkc->track[ctrl] < dkc->info.track_count)
-         && (disk[dkc->drive].ReadCtrlTrack != NULL))
-        {
-            dkc->info.drive = dkc->drive;
-            dkc->info.track = dkc->track[ctrl];
-            if (disk[dkc->drive].format == 0)
-            {
-#ifdef DO_PRINTF
-               printf ("reading track %d (WTRK:%d)[current:%d] drive %d\n",
-                              dkc->track[ctrl], dkc->wr6,
-                            dkc->info.track, dkc->info.drive);
-               fflush (stdout);
-#endif
-               err = disk[dkc->info.drive].ReadCtrlTrack (
-                                teo.disk[dkc->info.drive].file,
-                                disk[dkc->info.drive].info);
-               if (err < 0)
-               {
-                   main_DisplayMessage(teo_error_msg);
-                   clear_track();
-               }
-            }
-        }
-    }
-}
-
-
-
-/* write_sector:
- *  Write a sector.
- */
-static void write_sector (void)
-{
-    int err = 0;
-
-    if (disk[dkc->info.drive].WriteCtrlSector != NULL)
-    {
-        write_update_track ();
-        dkc->info.drive = dkc->drive;
-        dkc->info.track = dkc->track[ctrl];
-        dkc->info.sector = LOAD_BYTE(0x604C);
-#ifdef DO_PRINTF
-        printf ("writing sector %d track %d drive %d\n",
-                          dkc->info.sector,
-                          dkc->info.track,
-                          dkc->info.drive);
-        fflush (stdout);
-#endif
-        err = disk[dkc->info.drive].WriteCtrlSector (
-                            teo.disk[dkc->info.drive].file,
-                            LOAD_WORD(0x604F),
-                            disk[dkc->info.drive].info);
-        if (err != 0)
-            main_DisplayMessage(teo_error_msg);
-    }
-}
-
-
-
-/* read_sector:
- *  Load a sector.
- */
-static void read_sector (void)
-{
-    int err = 0;
-
-    if ((dkc->track[ctrl] >= 0)
-     && (dkc->track[ctrl] < dkc->info.track_count)
-     && (disk[dkc->drive].ReadCtrlSector != NULL))
-    {
-        write_update_track ();
-        dkc->info.drive = dkc->drive;
-        dkc->info.track = dkc->track[ctrl];
-        dkc->info.sector = LOAD_BYTE(0x604C);
-#ifdef DO_PRINTF
-       printf ("reading sector %d track %d (WTRK:%d)[current:%d] drive %d\n",
-                    dkc->info.sector,
-                    dkc->track[ctrl], dkc->wr6,
-                    dkc->info.track, dkc->info.drive);
-       fflush (stdout);
-#endif
-
-       err = disk[dkc->info.drive].ReadCtrlSector (
-                        teo.disk[dkc->info.drive].file,
-                        disk[dkc->info.drive].info);
-       if (err < 0)
-       {
-           main_DisplayMessage(teo_error_msg);
-           clear_track();
-       }
-    }
-}
-
-
-
-/* format_track:
- *  Update the track if it has been formatted.
- */
-static int format_track (void)
-{
-    int err = 0;
-
-    if ((dkc->drive != dkc->info.drive)
-     || (dkc->track[ctrl] != dkc->info.track))
-    {
-        write_update_track ();
-        if ((dkc->info.track >= 0)
-         && (dkc->info.track < dkc->info.track_count)
-         && (disk[dkc->info.drive].FormatCtrlTrack != NULL))
-        {
-            dkc->info.drive = dkc->drive;
-            dkc->info.track = dkc->track[ctrl];
-#ifdef DO_PRINTF
-            printf ("formatting track %d drive %d\n", dkc->info.track,
-                                               dkc->info.drive);
-            fflush (stdout);
-#endif
-            err = disk[dkc->info.drive].FormatCtrlTrack (
-                            teo.disk[dkc->info.drive].file,
-                            disk[dkc->info.drive].info);
-            if (err < 0)
-                main_DisplayMessage(teo_error_msg);
-        }
-    }
-    return err;
-}
-
 
 
 /* _________________________ read/write function __________________________ */
@@ -509,8 +299,7 @@ static void flush_bus (void)
                 dkc->info.clck[pos] = DATA_CLOCK_MARK_WRITE;
             else
                 dkc->info.clck[pos] = SYNCHRO_CLOCK_MARK_WRITE;
-            track_written = 1;
-            byte_written = 1;
+            disk_ControllerWritten();
         }
         else
         /* read data if requested */
@@ -887,7 +676,7 @@ static void (*auto_read_address_process[])(void) = {
  */
 static int get_reg0 (void)
 {
-    update_track();
+    disk_ControllerUpdateTrack();
 
     /* only if motor on */
     if (dkc->motor_clock[ctrl] == 0L)
@@ -896,22 +685,22 @@ static int get_reg0 (void)
 
         if ((dkc->rr0 & STAT0_DRQ) != 0)
         {
-            switch (dkc->wr0 & CMD0_OP_MASK)
+            if ((dkc->rr0 & STAT0_FINISHED) == 0)
             {
-                case CMD0_OP_READ_ADDRESS :
-                    if ((dkc->rr0 & STAT0_FINISHED) == 0)
+                switch (dkc->wr0 & CMD0_OP_MASK)
+                {
+                    case CMD0_OP_READ_ADDRESS :
                         ((*(auto_read_address_process[dkc->process]))());
-                    break;
+                        break;
 
-                case CMD0_OP_READ_SECTOR :
-                    if ((dkc->rr0 & STAT0_FINISHED) == 0)
+                    case CMD0_OP_READ_SECTOR :
                         ((*(auto_read_process[dkc->process]))());
-                    break;
+                        break;
 
-                case CMD0_OP_WRITE_SECTOR :
-                    if ((dkc->rr0 & STAT0_FINISHED) == 0)
+                    case CMD0_OP_WRITE_SECTOR :
                         ((*(auto_write_process[dkc->process]))());
-                    break;
+                        break;
+                }
             }
             dkc->rr0 &= ~STAT0_SYNCHRO_ON;
             if ((dkc->wr0 & CMD0_DETECT_SYNCHRO) != 0)
@@ -1054,7 +843,7 @@ static void reset_controller_regs (struct DISK_CONTROLLER *controller)
  */
 static void set_reg0 (int val)
 {
-    update_track();
+    disk_ControllerUpdateTrack();
 
     dkc->wr0 = val;
 
@@ -1092,15 +881,15 @@ static void set_reg0 (int val)
                 switch (val)
                 {
                     case 0x19 :   /* write sector */
-                        write_sector ();
+                        disk_ControllerWriteSector ();
                         break;
 
                     case 0x1b :   /* read sector */
-                        read_sector ();
+                        disk_ControllerReadSector ();
                         break;
 
                     case 0x04 :   /* format track */
-                        format_track ();
+                        disk_ControllerFormatTrack ();
                         break;
                 }
             }
@@ -1218,7 +1007,7 @@ static void set_reg2 (int val)
         }
         ctrl = dkc->drive>>1;
         if (dkc->drive != dkc->info.drive)
-            update_track();
+            disk_ControllerUpdateTrack();
         /* writing a valid drive code in CMD2 reactivate the motor */
         floppy_motor_on ();
     }
@@ -1249,7 +1038,7 @@ static void set_reg2 (int val)
                 if (dkc->track[ctrl] < dkc->info.track_count)
                 {
                     dkc->track[ctrl]++;
-                    write_update_track();
+                    disk_ControllerWriteUpdateTrack();
                 }
                 dkc->rr1 &= ~STAT1_FLOPPY_TRACK0;
             }
@@ -1258,7 +1047,7 @@ static void set_reg2 (int val)
                 if (dkc->track[ctrl] > 0)
                 {
                     dkc->track[ctrl]--;
-                    write_update_track();
+                    disk_ControllerWriteUpdateTrack();
                 }
                 else
                     dkc->rr1 |= STAT1_FLOPPY_TRACK0;
@@ -1266,7 +1055,7 @@ static void set_reg2 (int val)
         }
     }
     else
-        update_track ();
+        disk_ControllerUpdateTrack ();
 }
 
 
@@ -1395,9 +1184,7 @@ struct DISK_CONTROLLER *thmfc1_Alloc (void)
     thmfc1->GetReg9 = get_reg9;
 
     /* functions */
-    thmfc1->ClearWriteFlag = clear_write_flag;
-    thmfc1->WriteUpdateTimeout = write_update_timeout;
-    thmfc1->WriteUpdateTrack = write_update_track;
+    thmfc1->StillWriting = controller_still_writing;
     
     return thmfc1;
 }

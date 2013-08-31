@@ -36,7 +36,7 @@
  *  Module     : media/disk/controlr/thmfc1.h
  *  Version    : 1.8.3
  *  Créé par   : François Mouret 20/11/2012
- *  Modifié par:
+ *  Modifié par: François Mouret 31/08/2013
  *
  *  Controller.
  */
@@ -149,9 +149,7 @@ struct DISK_CONTROLLER {
     void   (*SetReg8) (int val);
     void   (*SetReg9) (int val);
     /* functions */
-    void   (*ClearWriteFlag) (void);
-    void   (*WriteUpdateTimeout) (void);
-    void   (*WriteUpdateTrack) (void);
+    int    (*StillWriting) (void);
     /* extra registers */
     int    ctrl;
     int    drive;
