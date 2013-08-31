@@ -23,7 +23,7 @@
  *  Module     : linux/gui.c
  *  Version    : 0.5.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 26/07/2013
  *
  *  Archive callback.
  */
@@ -62,17 +62,7 @@ GtkWidget *install_button;
 GtkWidget *progress_label;
 GtkWidget *progress_bar;
 GtkWidget *progress_button;
-
-
-static gboolean main_window_moved (GtkWidget *widget, GdkEvent *event,
-                                   gpointer user_data)
-{
-    gui.window_x = event->configure.x;
-    gui.window_y = event->configure.y;
-    return FALSE;
-    (void)widget;
-    (void)user_data;
-}
+GtkWidget *thomson_check;
 
 
 static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
@@ -110,6 +100,14 @@ static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
 
 
 
+static void thomson_check_toggled (GtkToggleButton *button, gpointer user_data)
+{
+    gui.thomson_check = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(thomson_check));
+    (void)user_data;
+}
+
+
+
 /* udisplay_Window:
  *   Crée la fenêtre principale.
  */
@@ -121,13 +119,10 @@ static void display_window(void)
     main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_resizable (GTK_WINDOW(main_window), FALSE);
     gtk_window_set_title (GTK_WINDOW(main_window), "CC90HFE");
-    gtk_window_move (GTK_WINDOW(main_window), gui.window_x, gui.window_y);
     gtk_widget_set_size_request (main_window, 300, -1);
     gtk_widget_add_events (main_window, GDK_CONFIGURE);
     g_signal_connect (G_OBJECT (main_window), "delete-event",
                       G_CALLBACK (try_to_quit), NULL);
-    g_signal_connect (G_OBJECT (main_window), "configure-event",
-                      G_CALLBACK (main_window_moved), NULL);
 
     /* boîte verticale principale */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
@@ -167,7 +162,18 @@ static void display_window(void)
     widget = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start (GTK_BOX(vbox), widget, FALSE, FALSE, 0);
 
-    /* boîte forizontale */
+    /* boîte horizontale */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_pack_start (GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    /* Thomson disk check box */
+    thomson_check=gtk_check_button_new_with_label(is_fr?"Disquette Thomson":"Thomson disk");
+    gtk_box_pack_start (GTK_BOX(hbox), thomson_check, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(thomson_check), gui.thomson_check);
+    g_signal_connect(G_OBJECT(thomson_check), "toggled",
+                     G_CALLBACK(thomson_check_toggled), NULL);
+
+    /* boîte horizontale */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start (GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -265,6 +271,7 @@ void gui_EnableButtons (int flag)
     gtk_widget_set_sensitive (archive_button, flag);
     gtk_widget_set_sensitive (extract_button, flag);
     gtk_widget_set_sensitive (install_button, flag);
+    gtk_widget_set_sensitive (thomson_check, flag);
     gtk_widget_set_sensitive (progress_button, (flag == TRUE) ? FALSE : TRUE);
 }
 

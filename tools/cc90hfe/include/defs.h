@@ -23,7 +23,7 @@
  *  Module     : defs.h
  *  Version    : 0.5.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 26/07/2013
  *
  *  Definitions.
  */
@@ -99,6 +99,7 @@ struct GUI_INFO {
     char  *default_folder;
     char  *archive_folder;
     char  *extract_folder;
+    int   thomson_check;
     char  *port_name;
     int   timeout;
 };

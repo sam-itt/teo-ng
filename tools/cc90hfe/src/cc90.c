@@ -23,7 +23,7 @@
  *  Module     : cc90.c
  *  Version    : 0.5.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 27/07/2013
  *
  *  Management of CC90 interface.
  */
@@ -1080,7 +1080,7 @@ static int write_sectored_track (int side)
 
 
 /* read_cc90_track:
- *  Read a Thomson track vie CC90.
+ *  Read a Thomson track via CC90.
  */
 static int read_cc90_track (int drive, int side, int track)
 {
@@ -1123,6 +1123,8 @@ static void unpack_cc90_track (void)
 static int read_track (int drive, int side, int track)
 {
     int err = 0;
+    int count = 0;
+    int stop;
 
     disk.data[side] = std_free (disk.data[side]);
     disk.clck[side] = std_free (disk.clck[side]);
@@ -1135,24 +1137,37 @@ static int read_track (int drive, int side, int track)
     {
         display_position ("Reading", drive*2+side, track);
 
-        if ((err = read_cc90_track (drive, side, track)) == 0)
+        do
         {
-            unpack_cc90_track ();
-            if ((write_thomson_track (side) == TRACK_ERROR)
-             && (write_sectored_track (side) == TRACK_ERROR))
+            stop = TRUE;
+            if ((err = read_cc90_track (drive, side, track)) == 0)
             {
-                /* otherwise, raw-copy of the track */
-                memcpy (disk.data[side], tmp_data, disk.track_size);
-                memcpy (disk.clck[side], tmp_clck, disk.track_size);
-
-                if (fd_debug != NULL)
+                unpack_cc90_track ();
+                if (write_thomson_track (side) == TRACK_ERROR)
                 {
-                    fprintf (fd_debug, "%4sundefined track\n", "");
-                    display_range (0, disk.track_size,
-                                   disk.data[side], disk.clck[side]);
+                    if (gui.thomson_check == TRUE)
+                    {
+                        err = error_Message (CC90HFE_ERROR_TRACK_READ, NULL);
+                        if (++count < 15)
+                            stop = FALSE;
+                    }
+                    else
+                    if (write_sectored_track (side) == TRACK_ERROR)
+                    {
+                        /* otherwise, raw-copy of the track */
+                        memcpy (disk.data[side], tmp_data, disk.track_size);
+                        memcpy (disk.clck[side], tmp_clck, disk.track_size);
+
+                        if (fd_debug != NULL)
+                        {
+                            fprintf (fd_debug, "%4sundefined track\n", "");
+                            display_range (0, disk.track_size,
+                                           disk.data[side], disk.clck[side]);
+                        }
+                    }
                 }
-             }
-        }
+            }
+        } while (stop == FALSE);
     }
     else
         err = error_Message (CC90HFE_ERROR_ALLOC, NULL);

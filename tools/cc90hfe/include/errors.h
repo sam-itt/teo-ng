@@ -23,7 +23,7 @@
  *  Module     : errors.h
  *  Version    : 0.5.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 26/07/2013
  *
  *  Management of errors.
  */
@@ -49,6 +49,7 @@ enum {
     CC90HFE_ERROR_FILE_OPEN,
     CC90HFE_ERROR_FILE_READ,
     CC90HFE_ERROR_FILE_WRITE,
+    CC90HFE_ERROR_TRACK_READ,
     CC90HFE_ERROR_PORT_NONE,
     CC90HFE_ERROR_SERIAL_OPEN,
     CC90HFE_ERROR_SERIAL_IO,

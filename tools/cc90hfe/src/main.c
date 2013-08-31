@@ -23,7 +23,7 @@
  *  Module     : main.c
  *  Version    : 0.5.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 26/07/2013
  *
  *  Main functions.
  */
@@ -224,6 +224,7 @@ void main_InitAll (void)
     disk.track_count = 80;
     memset (&gui, 0x00, sizeof(struct GUI_INFO));
     gui.timeout = SERIAL_TIME_OUT;
+    gui.thomson_check = TRUE;
 
     /* load INI file */
     ini_Load ();

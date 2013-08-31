@@ -23,7 +23,7 @@
  *  Module     : errors.c
  *  Version    : 0.5.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 26/07/2013
  *
  *  Management of errors.
  */
@@ -93,6 +93,9 @@ static struct ERROR_TABLE error_table[]= {
     { CC90HFE_ERROR_FILE_WRITE,
          "Erreur d'écriture du fichier",
          "Error while writing file"},
+    { CC90HFE_ERROR_TRACK_READ,
+         "Erreur de lecture dd'une piste",
+         "Error while reading a track"},
     { CC90HFE_ERROR_PORT_NONE,
           "Aucun port série valide n'a été trouvé.\n\n" \
           "Vérifiez que le Thomson est allumé, " \
