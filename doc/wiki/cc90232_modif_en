@@ -80,14 +80,18 @@ Connect the green wire to the + of D3, the black wire to the - of D3, and the wh
 
 <center><img src="cc90232_modif_en/attachment/modif10.jpg" alt="Wiring of the voltage converter"> <img src="cc90232_modif_en/attachment/modif11.jpg" alt="Close up of the wiring" style="border:1px solid #000000"></center>
 
-Now wrap your wiring in a thin cardboard to avoid short circuits.
+Now wrap your wiring in a thin cardboard to avoid short circuits. Place all at the location of the desoldered components.
 
 <center><img src="cc90232_modif_en/attachment/modif12.jpg" alt="Integration of the voltage converter"></center>
+
+... or just stick it with a hot-melt adhesive (thanks to Gilles F&eacute;tis):
+
+<center><img src="cc90232_modif_en/attachment/modif13.jpg" alt="Integration of the voltage converter with hot glue"></center>
 
 <a name="g"></a>
 ####Integrating the voltage converter
 
-Place all at the location of the desoldered components and close the interface. Don't forget to replace the insulating sheet between the two parts of printed circuit boards.
+Close the interface. Don't forget to replace the insulating sheet between the two parts of printed circuit boards.
 
 <p>Your interface is ready for use.</p>
 

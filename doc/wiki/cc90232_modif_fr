@@ -77,11 +77,15 @@ Reliez le fil vert sur le + de D3, le fil noir sur le - de D3, et le blanc au 12
 
 <center><img src="cc90232_modif_en/attachment/modif10.jpg" alt="Montage du convertisseur de tension"> <img src="cc90232_modif_en/attachment/modif11.jpg" alt="Gros plan sur le c&acirc;blage du convertisseur de tension" style="border:1px solid #000000"></center>
 
-Vous pouvez maintenant encapsuler votre petit montage dans un carton fin (du carton de chemise, par exemple) pour &eacute;viter les courts-circuits.
+Vous pouvez maintenant encapsuler votre petit montage dans un carton fin (du carton de chemise, par exemple) pour &eacute;viter les courts-circuits. Placer le tout &agrave; l'endroit des composants dessoud&eacute;s.
 
 <center><img src="cc90232_modif_en/attachment/modif12.jpg" alt="Int&eacute;gration du convertisseur de tension"></center>
 
-Placer le tout &agrave; l'endroit des composants dessoud&eacute;s et refermez l'interface, en n'oubliant pas de replacer la feuille isolante entre les deux volets de circuits imprim&eacute;s.
+... ou collez-le au pistolet à colle (merci &agrave; Gilles F&eacute;tis):
+
+<center><img src="cc90232_modif_en/attachment/modif13.jpg" alt="Int&eacute;gration du convertisseur de tension avec de la colle"></center>
+
+Refermez l'interface, en n'oubliant pas de replacer la feuille isolante entre les deux volets de circuits imprim&eacute;s.
 
 Votre interface est pr&ecirc;te &agrave; l'emploi.
 
