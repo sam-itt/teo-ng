@@ -21,7 +21,7 @@
 
 /*
  *  Module     : windows/resource.rc
- *  Version    : 0.5.0
+ *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
  *  Modifié par:
  *
@@ -41,8 +41,8 @@ IDI_ICON1 ICON DISCARDABLE "src\\win\\thomson.ico"
 teo_gfx BITMAP "src\\win\\to8.bmp"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 0, 5, 0, 0
-PRODUCTVERSION 0, 5, 0, 0
+FILEVERSION 0, 7, 0, 0
+PRODUCTVERSION 0, 7, 0, 0
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
 {

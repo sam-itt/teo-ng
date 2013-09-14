@@ -21,7 +21,7 @@
 
 /*
  *  Module     : defs.h
- *  Version    : 0.5.0
+ *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
  *  Modifié par: François Mouret 26/07/2013
  *
@@ -49,11 +49,11 @@
 #define APPLICATION_DIR    "teo"
 #define PROG_NAME          "CC90HFE"
 #define PROG_VERSION_MAJOR "0"
-#define PROG_VERSION_MINOR "5"
+#define PROG_VERSION_MINOR "7"
 #define PROG_VERSION_MICRO "0"
 #define PROG_VERSION_STRING PROG_VERSION_MAJOR"."PROG_VERSION_MINOR
 
-#define PROG_CREATION_MONTH "May"
+#define PROG_CREATION_MONTH "September"
 #define PROG_CREATION_YEAR "2013"
 #define PROG_WEB_SITE       "http://sourceforge.net/projects/teoemulator/"
 #define PROG_WEB_FORUM      "http://www.logicielsmoto.com/"

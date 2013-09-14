@@ -21,9 +21,9 @@
 
 /*
  *  Module     : ini.c
- *  Version    : 0.5.0
+ *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par: François Mouret 27/07/2013
+ *  Modifié par: François Mouret 27/07/2013 14/10/2013
  *
  *  Management of INI file.
  */
@@ -63,15 +63,15 @@ struct INI_LIST {
 static FILE *file = NULL;
 static struct STRING_LIST *list_start = NULL;
 static const struct INI_LIST ini_entry[] = {
-    { "cc90hfe" , "default_folder"   , IARG_STR , &gui.default_folder },
-    { "cc90hfe" , "archive_folder"   , IARG_STR , &gui.archive_folder },
-    { "cc90hfe" , "extract_folder"   , IARG_STR , &gui.extract_folder },
-    { "cc90hfe", "thomson_like_0"    , IARG_BOOL, &gui.side_check[0]  },
-    { "cc90hfe", "thomson_like_1"    , IARG_BOOL, &gui.side_check[1]  },
-    { "cc90hfe", "read_retry_max"    , IARG_INT , &gui.read_retry_max },
-    { "serial" , "port_name"         , IARG_STR , &gui.port_name      },
-    { "serial" , "timeout"           , IARG_INT , &gui.timeout        },
-    { NULL     , NULL                , 0        , NULL                }
+    { "cc90hfe", "default_folder"     , IARG_STR , &gui.default_folder },
+    { "cc90hfe", "archive_folder"     , IARG_STR , &gui.archive_folder },
+    { "cc90hfe", "extract_folder"     , IARG_STR , &gui.extract_folder },
+    { "cc90hfe", "side_0_thomson_like", IARG_BOOL, &gui.side_check[0]  },
+    { "cc90hfe", "side_1_thomson_like", IARG_BOOL, &gui.side_check[1]  },
+    { "cc90hfe", "read_retry_max"     , IARG_INT , &gui.read_retry_max },
+    { "serial" , "port_name"          , IARG_STR , &gui.port_name      },
+    { "serial" , "timeout"            , IARG_INT , &gui.timeout        },
+    { NULL     , NULL                 , 0        , NULL                }
 };
 
 

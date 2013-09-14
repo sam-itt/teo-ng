@@ -21,7 +21,7 @@
 
 /*
  *  Module     : port.h
- *  Version    : 0.5.0
+ *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
  *  Modifié par:
  *
