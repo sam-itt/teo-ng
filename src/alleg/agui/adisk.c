@@ -311,7 +311,7 @@ void adisk_Panel(void)
                 teo.disk[drive].side++;
                 if (teo.disk[drive].side >= disk[drive].side_count)
                     teo.disk[drive].side = 0;
-                dkc->WriteUpdateTrack();
+                disk_ControllerWriteUpdateTrack();
                 disk[drive].info->track = -1;
                 update_side_button(drive);
                 break;

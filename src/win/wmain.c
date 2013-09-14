@@ -137,7 +137,7 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
-            dkc->ClearWriteFlag();
+            disk_ControllerClearWriteFlag();
             teo_DoFrame(FALSE);
 
             /* rafraîchissement de la palette */
@@ -160,7 +160,7 @@ static void RunTO8(void)
                    Sleep(0);
             }
 
-            dkc->WriteUpdateTimeout();
+            disk_ControllerWriteUpdateTimeout();
             frame++;
         }
         while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
@@ -200,7 +200,7 @@ static void RunTO8(void)
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
 
     /* Finit de sauver les données disquettes */
-    dkc->WriteUpdateTrack();
+    disk_ControllerWriteUpdateTrack();
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();

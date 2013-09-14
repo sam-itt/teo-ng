@@ -152,7 +152,7 @@ static void set_side_combo (HWND hWnd, struct FILE_VECTOR *vector)
     disk_vector->side = side;
     teo.disk[vector->id].side = side;
 
-    dkc->WriteUpdateTrack();
+    disk_ControllerWriteUpdateTrack();
     disk[vector->id].info->track = -1;
 }
 

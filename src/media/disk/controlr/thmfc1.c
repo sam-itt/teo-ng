@@ -252,8 +252,6 @@
 #define WCELL_SEPARATOR_MASK  0x7f
 
 
-// #define DO_PRINTF 1
-
 static mc6809_clock_t clock = 0;
 static int ctrl = 0;
 static int pos;
