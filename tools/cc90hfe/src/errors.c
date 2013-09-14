@@ -94,7 +94,7 @@ static struct ERROR_TABLE error_table[]= {
          "Erreur d'écriture du fichier",
          "Error while writing file"},
     { CC90HFE_ERROR_TRACK_READ,
-         "Erreur de lecture dd'une piste",
+         "Erreur de lecture d'une piste",
          "Error while reading a track"},
     { CC90HFE_ERROR_PORT_NONE,
           "Aucun port série valide n'a été trouvé.\n\n" \
