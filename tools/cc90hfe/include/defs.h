@@ -99,7 +99,8 @@ struct GUI_INFO {
     char  *default_folder;
     char  *archive_folder;
     char  *extract_folder;
-    int   thomson_check;
+    int   read_retry_max;
+    int   side_check[2];
     char  *port_name;
     int   timeout;
 };

@@ -52,12 +52,34 @@ static HWND archive_button;
 static HWND extract_button;
 static HWND install_button;
 static HWND about_button;
-static HWND progres_ltext;
+static HWND options_groupbox;
+static HWND side0_checkbox;
+static HWND side1_checkbox;
+static HWND retry_rtext;
+static HWND retry_edit;
+static HWND progress_ltext;
 static HWND progress_bar;
 static HWND cancel_button;
 
 
 #define BUFFER_SIZE  1024
+
+
+
+static void gui_EnableRetry (int flag)
+{
+    if ((gui.side_check[0] == FALSE) && (gui.side_check[1] == FALSE))
+    {
+        Edit_Enable (retry_edit, FALSE);
+        Static_Enable (retry_rtext, FALSE);
+    }
+    else
+    {
+        Edit_Enable (retry_edit, flag);
+        Static_Enable (retry_rtext, flag);
+    }
+}
+
 
 
 /* MainWndProc:
@@ -66,6 +88,8 @@ static HWND cancel_button;
 static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
                                     WPARAM wParam, LPARAM lParam)
 {
+   int flag;
+
     switch(uMsg)
     {
         case WM_INITDIALOG:
@@ -74,7 +98,13 @@ static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
             extract_button = GetDlgItem (hDlg, IDC_MAIN_EXTRACT_BUTTON);
             install_button = GetDlgItem (hDlg, IDC_MAIN_INSTALL_BUTTON);
             about_button   = GetDlgItem (hDlg, IDC_MAIN_ABOUT_BUTTON);
-            progres_ltext  = GetDlgItem (hDlg, IDC_MAIN_PROGRESS_LTEXT);
+            options_groupbox = GetDlgItem (hDlg, IDC_MAIN_OPTION_GROUPBOX);
+            side0_checkbox = GetDlgItem (hDlg, IDC_MAIN_SIDE0_CHECKBOX);
+            side1_checkbox = GetDlgItem (hDlg, IDC_MAIN_SIDE1_CHECKBOX);
+            retry_rtext    = GetDlgItem (hDlg, IDC_MAIN_RETRY_RTEXT);
+            retry_edit     = GetDlgItem (hDlg, IDC_MAIN_RETRY_EDIT);
+            
+            progress_ltext = GetDlgItem (hDlg, IDC_MAIN_PROGRESS_LTEXT);
             progress_bar   = GetDlgItem (hDlg, IDC_MAIN_PROGRESS_BAR);
             cancel_button  = GetDlgItem (hDlg, IDC_MAIN_CANCEL);
             Button_SetText (archive_button,
@@ -89,9 +119,27 @@ static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
             Button_SetText (about_button,
                             is_fr?"A propos..."
                                  :"About...");
+            Static_SetText (options_groupbox, "Options");
+            Static_SetText (side0_checkbox,
+                            is_fr?"Face 0, format Thomson"
+                                 :"Side 0, Thomson like");
+            Static_SetText (side1_checkbox,
+                            is_fr?"Face 1, format Thomson"
+                                 :"Side 1, Thomson like");
+            Static_SetText (retry_rtext,
+                            is_fr?"Nombre de relectures maximum :"
+                                 :"Maximum count of rereadings :");
             Button_SetText (cancel_button,
                             is_fr?"Annuler"
                                  :"Cancel");
+            
+            SetDlgItemInt(hDlg, IDC_MAIN_RETRY_EDIT, gui.read_retry_max, FALSE);
+
+            flag = (gui.side_check[0] == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+            Button_SetCheck (side0_checkbox, flag);
+            flag = (gui.side_check[1] == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+            Button_SetCheck (side1_checkbox, flag);
+            gui_EnableRetry (TRUE);
             gui_ResetProgress ();
             return 0;
 
@@ -112,6 +160,25 @@ static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
 
                 case IDC_MAIN_ABOUT_BUTTON :
                      about_Prog (hInst, hDlg);
+                     break;
+
+                case IDC_MAIN_RETRY_EDIT :
+                     gui.read_retry_max = GetDlgItemInt(hDlg,
+                                                        IDC_MAIN_RETRY_EDIT,
+                                                        NULL,
+                                                        FALSE);
+                     break;
+
+                case IDC_MAIN_SIDE0_CHECKBOX :
+                     flag = Button_GetCheck (side0_checkbox);
+                     gui.side_check[0] = (flag == BST_CHECKED) ? TRUE : FALSE;
+                     gui_EnableRetry (TRUE);
+                     break;
+
+                case IDC_MAIN_SIDE1_CHECKBOX :
+                     flag = Button_GetCheck (side1_checkbox);
+                     gui.side_check[1] = (flag == BST_CHECKED) ? TRUE : FALSE;
+                     gui_EnableRetry (TRUE);
                      break;
 
                 case IDC_MAIN_CANCEL :
@@ -229,7 +296,7 @@ void gui_EmitStop (void)
 
 void gui_SetProgressText (char *message)
 {
-    Static_SetText (progres_ltext, message);
+    Static_SetText (progress_ltext, message);
 }
 
 
@@ -239,14 +306,17 @@ void gui_EnableButtons (int flag)
     Button_Enable(archive_button, flag);
     Button_Enable(extract_button, flag);
     Button_Enable(install_button, flag);
+    Button_Enable(side0_checkbox, flag);
+    Button_Enable(side1_checkbox, flag);
     Button_Enable(cancel_button, (flag == TRUE) ? FALSE : TRUE);
+    gui_EnableRetry (flag);
 }
 
 
 
 void gui_ResetProgress (void)
 {
-    Static_SetText (progres_ltext, is_fr?"En attente.":"Waiting.");
+    Static_SetText (progress_ltext, is_fr?"En attente.":"Waiting.");
    (void)SendMessage (progress_bar, PBM_SETRANGE, 0, MAKELPARAM (0, BAR_LENGTH));
    (void)SendMessage (progress_bar, PBM_SETPOS, 0, 0);
    gui_EnableButtons (TRUE);
@@ -295,7 +365,7 @@ int gui_OpenFile (int flags, char *title)
     ofn.lpstrFilter = is_fr?"Fichiers HFE\0*.hfe\0" \
                            :"HFE files\0*.hfe\0";
     ofn.nFilterIndex = 1;
-    ofn.lpstrFile = current_file;
+    ofn.lpstrFile = std_BaseName(current_file);
     ofn.nMaxFile = BUFFER_SIZE;
     ofn.lpstrTitle = title;
     ofn.Flags = flags;

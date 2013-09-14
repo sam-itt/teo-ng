@@ -1123,7 +1123,7 @@ static void unpack_cc90_track (void)
 static int read_track (int drive, int side, int track)
 {
     int err = 0;
-    int count = 0;
+    int count[2] = { 0, 0 };
     int stop;
 
     disk.data[side] = std_free (disk.data[side]);
@@ -1145,10 +1145,10 @@ static int read_track (int drive, int side, int track)
                 unpack_cc90_track ();
                 if (write_thomson_track (side) == TRACK_ERROR)
                 {
-                    if (gui.thomson_check == TRUE)
+                    if (gui.side_check[side&1] == TRUE)
                     {
                         err = error_Message (CC90HFE_ERROR_TRACK_READ, NULL);
-                        if (++count < 15)
+                        if (++count[side&1] < gui.read_retry_max)
                             stop = FALSE;
                     }
                     else
@@ -1167,7 +1167,7 @@ static int read_track (int drive, int side, int track)
                     }
                 }
             }
-        } while (stop == FALSE);
+        } while ((stop == FALSE) && (progress_on!=0));
     }
     else
         err = error_Message (CC90HFE_ERROR_ALLOC, NULL);

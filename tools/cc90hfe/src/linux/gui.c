@@ -62,7 +62,36 @@ GtkWidget *install_button;
 GtkWidget *progress_label;
 GtkWidget *progress_bar;
 GtkWidget *progress_button;
-GtkWidget *thomson_check;
+GtkWidget *side0_check;
+GtkWidget *side1_check;
+GtkWidget *retry_label;
+GtkWidget *retry_spinbutton;
+
+
+
+static void gui_EnableRetry (int flag)
+{
+    if ((gui.side_check[0] == FALSE) && (gui.side_check[1] == FALSE))
+    {
+        gtk_widget_set_sensitive (retry_label, FALSE);
+        gtk_widget_set_sensitive (retry_spinbutton, FALSE);
+    }
+    else
+    {
+        gtk_widget_set_sensitive (retry_label, flag);
+        gtk_widget_set_sensitive (retry_spinbutton, flag);
+    }
+}
+
+
+
+static void on_spin_value_changed (GtkSpinButton *spin, gpointer user_data)
+{
+    gui.read_retry_max = (int) gtk_spin_button_get_value (spin);
+    /* just in case the value is not an integer */
+    gtk_spin_button_set_value (spin, (gdouble)gui.read_retry_max);
+}
+
 
 
 static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
@@ -100,10 +129,12 @@ static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
 
 
 
-static void thomson_check_toggled (GtkToggleButton *button, gpointer user_data)
+static void side_check_toggled (GtkToggleButton *button, gpointer user_data)
 {
-    gui.thomson_check = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(thomson_check));
-    (void)user_data;
+    int *p = user_data;
+
+    *p = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(button));
+    gui_EnableRetry (TRUE);
 }
 
 
@@ -113,7 +144,7 @@ static void thomson_check_toggled (GtkToggleButton *button, gpointer user_data)
  */
 static void display_window(void)
 {
-    GtkWidget *widget;
+    GtkWidget *widget, *frame;
     GtkWidget *hbox, *hbox2, *vbox, *vbox2;
 
     main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -162,16 +193,67 @@ static void display_window(void)
     widget = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start (GTK_BOX(vbox), widget, FALSE, FALSE, 0);
 
+    /* Frame verticale */
+    frame=gtk_frame_new ("Options");
+    gtk_box_pack_start (GTK_BOX(vbox), frame, TRUE, TRUE, 0);
+
+    /* boîte verticale */
+    vbox2=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_box_set_homogeneous (GTK_BOX(vbox2), TRUE);
+    gtk_container_set_border_width( GTK_CONTAINER(vbox2), 5);
+    gtk_container_add( GTK_CONTAINER(frame), vbox2);
+
     /* boîte horizontale */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-    gtk_box_pack_start (GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
 
-    /* Thomson disk check box */
-    thomson_check=gtk_check_button_new_with_label(is_fr?"Disquette Thomson":"Thomson disk");
-    gtk_box_pack_start (GTK_BOX(hbox), thomson_check, FALSE, FALSE, 0);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(thomson_check), gui.thomson_check);
-    g_signal_connect(G_OBJECT(thomson_check), "toggled",
-                     G_CALLBACK(thomson_check_toggled), NULL);
+    /* Thomson side 0 disk check box */
+    side0_check=gtk_check_button_new_with_label(is_fr?"Face 0, format Thomson"
+                                                     :"Side 0, Thomson like");
+    gtk_box_pack_start (GTK_BOX(hbox), side0_check, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(side0_check),
+                                  gui.side_check[0]);
+    g_signal_connect(G_OBJECT(side0_check),
+                     "toggled",
+                     G_CALLBACK(side_check_toggled),
+                     (gpointer)&gui.side_check[0]);
+
+    /* boîte horizontale */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_pack_start (GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
+
+    /* Thomson side 1 disk check box */
+    side1_check=gtk_check_button_new_with_label(is_fr?"Face 1, format Thomson"
+                                                     :"Side 1, Thomson like");
+    gtk_box_pack_start (GTK_BOX(hbox), side1_check, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(side1_check),
+                                  gui.side_check[1]);
+    g_signal_connect(G_OBJECT(side1_check),
+                     "toggled",
+                     G_CALLBACK(side_check_toggled),
+                     (gpointer)&gui.side_check[1]);
+
+
+    /* boîte horizontale */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_pack_start (GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
+
+    retry_label = gtk_label_new (is_fr?"Nombre de relectures maximum : "
+                                      :"Maximum count of rereadings : ");
+    gtk_box_pack_start (GTK_BOX(hbox), retry_label, FALSE, FALSE, 0);
+
+    /* Retry number spin button */
+    retry_spinbutton = gtk_spin_button_new_with_range ((gdouble)1,
+                                                       (gdouble)15,
+                                                       (gdouble)1);
+    gtk_box_pack_start (GTK_BOX(hbox), retry_spinbutton, FALSE, FALSE, 0);
+    gtk_spin_button_set_value (GTK_SPIN_BUTTON(retry_spinbutton),
+                               (gdouble)gui.read_retry_max);
+    g_signal_connect(G_OBJECT(retry_spinbutton),
+                     "value-changed",
+                     G_CALLBACK(on_spin_value_changed),
+                     (gpointer)NULL);
+    gui_EnableRetry (TRUE);
 
     /* boîte horizontale */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -271,8 +353,10 @@ void gui_EnableButtons (int flag)
     gtk_widget_set_sensitive (archive_button, flag);
     gtk_widget_set_sensitive (extract_button, flag);
     gtk_widget_set_sensitive (install_button, flag);
-    gtk_widget_set_sensitive (thomson_check, flag);
+    gtk_widget_set_sensitive (side0_check, flag);
+    gtk_widget_set_sensitive (side1_check, flag);
     gtk_widget_set_sensitive (progress_button, (flag == TRUE) ? FALSE : TRUE);
+    gui_EnableRetry (flag);
 }
 
 

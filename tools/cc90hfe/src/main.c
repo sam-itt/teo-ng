@@ -224,7 +224,9 @@ void main_InitAll (void)
     disk.track_count = 80;
     memset (&gui, 0x00, sizeof(struct GUI_INFO));
     gui.timeout = SERIAL_TIME_OUT;
-    gui.thomson_check = TRUE;
+    gui.side_check[0] = TRUE;
+    gui.side_check[1] = TRUE;
+    gui.read_retry_max = 3;
 
     /* load INI file */
     ini_Load ();
