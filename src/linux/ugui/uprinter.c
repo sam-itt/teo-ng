@@ -107,6 +107,37 @@ static void combo_changed (GtkComboBox *combo, gpointer user_data)
 }
 
 
+
+static GtkWidget *create_new_frame (GtkWidget *mainbox, const char *title)
+{
+    GtkWidget *vbox;
+    GtkWidget *frame;
+
+    /* frame */
+    frame=gtk_frame_new (title);
+    gtk_box_pack_start (GTK_BOX(mainbox), frame, TRUE, TRUE, 0);
+
+    /* vertical box */
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_set_border_width (GTK_CONTAINER(vbox), 5);
+    gtk_container_add( GTK_CONTAINER(frame), vbox);
+
+    return vbox;
+}
+
+
+
+static GtkWidget *create_new_hbox (GtkWidget *mainbox)
+{
+    GtkWidget *hbox;
+
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    gtk_container_add( GTK_CONTAINER(mainbox), hbox);
+
+    return hbox;
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -117,9 +148,8 @@ void uprinter_Init (GtkWidget *notebook)
 {
     int i;
     int combo_index = 0;
-    GtkWidget *vbox;
-    GtkWidget *hbox;
-    GtkWidget *hbox2;
+    GtkWidget *vbox, *vbox2;
+    GtkWidget *hbox, *hbox2;
     GtkWidget *widget;
     GtkWidget *combo;
     GtkWidget *dialog;
@@ -133,109 +163,129 @@ void uprinter_Init (GtkWidget *notebook)
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
-    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-    gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_set_border_width( GTK_CONTAINER(vbox), 0);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
-    /* boîte horizontale */
-    hbox2=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox2, FALSE, FALSE, 0);
+    hbox2 = create_new_hbox (vbox);
+    widget=gtk_label_new(is_fr?"Ecrire les fichiers de sortie dans"
+                              :"Write output files in");
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, FALSE, FALSE, 0);
+
+    /* dialog pour le répertoire */
+    dialog = gtk_file_chooser_dialog_new (
+             is_fr?"SÃ©lectionner un rÃ©pertoire de sauvegarde"
+                  :"Select the folder to save in",
+             (GtkWindow *) wControl,
+             GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+             GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+    gtk_file_chooser_set_current_folder(
+                     (GtkFileChooser *)dialog,
+                     (teo.lprt.folder == NULL)?"":teo.lprt.folder);
+    g_signal_connect(G_OBJECT(dialog),
+                     "current-folder-changed",
+                     G_CALLBACK(folder_changed),
+                     (gpointer) NULL);
+    widget = gtk_file_chooser_button_new_with_dialog (dialog);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, FALSE, FALSE, 0);
+
+    /* ---------------- Options ------------------- */
 
     /* boîte horizontale */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(hbox2), hbox, TRUE, TRUE, 0);
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
+    gtk_container_set_border_width( GTK_CONTAINER(hbox), 5);
+    gtk_box_set_homogeneous (GTK_BOX(hbox), FALSE);
+    gtk_container_add( GTK_CONTAINER(vbox), hbox);
+
+    /* Création de la frame */
+    vbox2 = create_new_frame (hbox, "Options");
 
     /* label pour l'imprimante */
-    widget=gtk_label_new(is_fr?"Imprimante :":"Printer :");
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    hbox2 = create_new_hbox (vbox2);
+    widget=gtk_label_new(is_fr?"Imprimante ":"Printer ");
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, FALSE, FALSE, 0);
 
     /* combo pour les imprimantes */
     combo=gtk_combo_box_text_new();
     for (i=0; i<PRINTER_NUMBER; i++)
     {
-        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo), NULL, printer_code_list[i].name);
+        gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(combo),
+                                   NULL,
+                                   printer_code_list[i].name);
         if (teo.lprt.number == printer_code_list[i].number)
             combo_index = i;
     }
-    g_signal_connect(G_OBJECT(combo), "changed", G_CALLBACK(combo_changed), (gpointer) NULL);
-    gtk_box_pack_start( GTK_BOX(hbox), combo, FALSE, FALSE, 0);
-
-    /* boîte horizontale */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(hbox2), hbox, TRUE, TRUE, 0);
-
-    /* label pour le répertoire */
-    widget=gtk_label_new(is_fr?"Sauver dans :":"Save in :");
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-
-    /* dialog pour le répertoire */
-    dialog = gtk_file_chooser_dialog_new (
-             is_fr?"SÃ©lectionner un rÃ©pertoire de sauvegarde":"Select the folder to save in",
-             (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-             GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-    gtk_file_chooser_set_current_folder((GtkFileChooser *)dialog, (teo.lprt.folder == NULL)?"":teo.lprt.folder);
-    g_signal_connect(G_OBJECT(dialog), "current-folder-changed", G_CALLBACK(folder_changed), (gpointer) NULL);
-    widget = gtk_file_chooser_button_new_with_dialog (dialog);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-
-    /* boîte horizontale */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-    /* boîte de centrage */
-    widget=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    g_signal_connect(G_OBJECT(combo),
+                     "changed",
+                     G_CALLBACK(combo_changed),
+                     (gpointer) NULL);
+    gtk_box_pack_start( GTK_BOX(hbox2), combo, TRUE, TRUE, 0);
 
     /* bouton check pour le dip */
-    widget_dip=gtk_check_button_new_with_label(is_fr?"Double interligne":"Double spacing");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_dip), teo.lprt.dip);
-    g_signal_connect(G_OBJECT(widget_dip), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.dip);
-    gtk_box_pack_start( GTK_BOX(hbox), widget_dip, FALSE, FALSE, 0);
+    hbox2 = create_new_hbox (vbox2);
+    widget_dip=gtk_check_button_new_with_label(
+                        is_fr?"Double interligne"
+                             :"Double spacing");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_dip),
+                                 teo.lprt.dip);
+    g_signal_connect(G_OBJECT(widget_dip),
+                     "toggled",
+                     G_CALLBACK(check_button_toggled),
+                     (gpointer) &teo.lprt.dip);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget_dip, TRUE, TRUE, 0);
 
     /* bouton check pour le nlq */
-    widget_nlq=gtk_check_button_new_with_label(is_fr?"Imprime en haute qualitÃ©":"High-quality print");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_nlq), teo.lprt.nlq);
-    g_signal_connect(G_OBJECT(widget_nlq), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.nlq);
-    gtk_box_pack_start( GTK_BOX(hbox), widget_nlq, FALSE, FALSE, 0);
+    hbox2 = create_new_hbox (vbox2);
+    widget_nlq=gtk_check_button_new_with_label(
+                        is_fr?"Imprime en haute qualitÃ©"
+                             :"High-quality print");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_nlq),
+                                 teo.lprt.nlq);
+    g_signal_connect(G_OBJECT(widget_nlq),
+                     "toggled",
+                     G_CALLBACK(check_button_toggled),
+                     (gpointer) &teo.lprt.nlq);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget_nlq, TRUE, TRUE, 0);
 
-    /* boîte de centrage */
-    widget=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
-    
-    /* boîte horizontale */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    /* ---------------- Output ------------------- */
 
-    /* boîte de centrage */
-    widget=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    /* Création de la frame */
+    vbox2 = create_new_frame (hbox, is_fr?"Sortie":"Output");
 
-    /* label pour le type de sortie */
-    widget=gtk_label_new(is_fr?"Sortie :":"Output :");
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-
+    /* label pour le répertoire */
     /* bouton check pour la sortie brute */
+    hbox2 = create_new_hbox (vbox2);
     widget=gtk_check_button_new_with_label(is_fr?"brute":"raw");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), teo.lprt.raw_output);
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.raw_output);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
+                                 teo.lprt.raw_output);
+    g_signal_connect(G_OBJECT(widget),
+                     "toggled",
+                     G_CALLBACK(check_button_toggled),
+                     (gpointer) &teo.lprt.raw_output);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, TRUE, TRUE, 0);
 
     /* bouton check pour la sortie texte */
+    hbox2 = create_new_hbox (vbox2);
     widget=gtk_check_button_new_with_label(is_fr?"texte":"text");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), teo.lprt.txt_output);
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.txt_output);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
+                                 teo.lprt.txt_output);
+    g_signal_connect(G_OBJECT(widget),
+                     "toggled",
+                     G_CALLBACK(check_button_toggled),
+                     (gpointer) &teo.lprt.txt_output);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, TRUE, TRUE, 0);
 
     /* bouton check pour la sortie graphique */
+    hbox2 = create_new_hbox (vbox2);
     widget=gtk_check_button_new_with_label(is_fr?"graphique":"graphic");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), teo.lprt.gfx_output);
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(check_button_toggled), (gpointer) &teo.lprt.gfx_output);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
-
-    /* boîte de centrage */
-    widget=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
+                                 teo.lprt.gfx_output);
+    g_signal_connect(G_OBJECT(widget),
+                     "toggled",
+                     G_CALLBACK(check_button_toggled),
+                     (gpointer) &teo.lprt.gfx_output);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, TRUE, TRUE, 0);
 
     /* actualize the combo */
     gtk_combo_box_set_active (GTK_COMBO_BOX(combo), combo_index);

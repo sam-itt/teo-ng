@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 19/10/2012
+ *                               15/09/2013
  *
  *  Gestion des préférences.
  */
@@ -91,6 +92,37 @@ static void toggle_sound (GtkWidget *button, gpointer data)
 }
 
 
+
+static GtkWidget *create_new_frame (GtkWidget *mainbox, const char *title)
+{
+    GtkWidget *vbox;
+    GtkWidget *frame;
+
+    /* frame */
+    frame=gtk_frame_new (title);
+    gtk_box_pack_start (GTK_BOX(mainbox), frame, TRUE, TRUE, 0);
+
+    /* vertical box */
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_set_border_width (GTK_CONTAINER(vbox), 5);
+    gtk_container_add( GTK_CONTAINER(frame), vbox);
+
+    return vbox;
+}
+
+
+
+static GtkWidget *create_new_hbox (GtkWidget *mainbox)
+{
+    GtkWidget *hbox;
+
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
+    gtk_container_add( GTK_CONTAINER(mainbox), hbox);
+
+    return hbox;
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -99,8 +131,8 @@ static void toggle_sound (GtkWidget *button, gpointer data)
  */
 void usetting_Init (GtkWidget *notebook)
 {
-    GtkWidget *hbox;
-    GtkWidget *vbox;
+    GtkWidget *hbox, *hbox2;
+    GtkWidget *vbox, *vbox2;
     GtkWidget *widget;
     GtkWidget *frame;
 
@@ -111,48 +143,76 @@ void usetting_Init (GtkWidget *notebook)
     widget=gtk_label_new((is_fr?"RÃ©glages":"Settings"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
     
-    /* boîte verticale associée à la frame des commandes et réglages */
-    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-    gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
+    /* boîte verticale associée à la frame */
+    vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_set_border_width( GTK_CONTAINER(vbox), 0);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
-    /* boîte horizontale de la vitesse */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    /* boîte horizontale */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
+    gtk_container_set_border_width( GTK_CONTAINER(hbox), 5);
+    gtk_box_set_homogeneous (GTK_BOX(hbox), TRUE);
+    gtk_container_add( GTK_CONTAINER(vbox), hbox);
 
-    /* label de la vitesse */
-    widget=gtk_label_new((is_fr?"Vitesse de l'Ã©mulation:":"Emulation speed:"));
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    /* ---------------- Speed ------------------ */
+
+    /* Création de la frame */
+    vbox2 = create_new_frame (hbox, is_fr?"Vitesse":"Speed");
 
     /* bouton de vitesse maximale */
+    hbox2 = create_new_hbox (vbox2);
     widget=gtk_radio_button_new_with_label(NULL, (is_fr?"rapide":"fast"));
-    gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    gtk_box_pack_end( GTK_BOX(hbox2), widget, TRUE, TRUE, 0);
 
     /* bouton de vitesse exacte */
-    widget=gtk_radio_button_new_with_label_from_widget((GtkRadioButton *) widget, (is_fr?"exacte":"exact"));
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_speed), (gpointer)NULL);
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.setting.exact_speed ? TRUE : FALSE);
-    gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    hbox2 = create_new_hbox (vbox2);
+    widget=gtk_radio_button_new_with_label_from_widget(
+                            GTK_RADIO_BUTTON (widget),
+                            is_fr?"exacte":"exact");
+    gtk_box_pack_end( GTK_BOX(hbox2), widget, TRUE, TRUE, 0);
 
-    /* boîte horizontale du checkbox de son */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    /* Buttons connection */
+    g_signal_connect(G_OBJECT(widget),
+                     "toggled",
+                     G_CALLBACK(toggle_speed),
+                     (gpointer)NULL);
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget),
+                                  teo.setting.exact_speed ? TRUE : FALSE);
+
+    /* ---------------- Sound ------------------ */
+
+
+    /* Création de la frame */
+    vbox2 = create_new_frame (hbox, is_fr?"Son":"Sound");
 
     /* checkbox du son */
-    sound_widget=gtk_check_button_new_with_label((is_fr?"Son":"Sound"));
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(sound_widget), teo.setting.sound_enabled);
-    g_signal_connect(G_OBJECT(sound_widget), "toggled", G_CALLBACK(toggle_sound), (gpointer)NULL);
-    gtk_box_pack_start( GTK_BOX(hbox), sound_widget, TRUE, FALSE, 0);
-    gtk_widget_set_sensitive (sound_widget, teo.setting.exact_speed ? TRUE : FALSE);
+    hbox2 = create_new_hbox (vbox2);
+    sound_widget=gtk_check_button_new_with_label((is_fr?"Actif":"Activated"));
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(sound_widget),
+                                  teo.setting.sound_enabled);
+    g_signal_connect(G_OBJECT(sound_widget),
+                     "toggled",
+                     G_CALLBACK(toggle_sound),
+                     (gpointer)NULL);
+    gtk_box_pack_start( GTK_BOX(hbox2), sound_widget, TRUE, TRUE, 0);
+    gtk_widget_set_sensitive (sound_widget,
+                              teo.setting.exact_speed ? TRUE : FALSE);
 
-    /* boîte horizontale du mode entrelacé */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,2);
-    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    /* ---------------- Display ------------------ */
+
+    /* Création de la frame */
+    vbox2 = create_new_frame (hbox, is_fr?"Affichage":"Display");
 
     /* checkbox du mode entrelacé */
-    widget=gtk_check_button_new_with_label((is_fr?"Affichage vidÃ©o entrelacÃ©":"Interlaced video display"));
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), teo.setting.interlaced_video);
-    g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(toggle_interlace), (gpointer)NULL);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
+    hbox2 = create_new_hbox (vbox2);
+    widget=gtk_check_button_new_with_label((is_fr?"VidÃ©o entrelacÃ©"
+                                                 :"Interlaced video"));
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget),
+                                  teo.setting.interlaced_video);
+    g_signal_connect(G_OBJECT(widget),
+                     "toggled",
+                     G_CALLBACK(toggle_interlace),
+                     (gpointer)NULL);
+    gtk_box_pack_start( GTK_BOX(hbox2), widget, TRUE, TRUE, 0);
 }
 
