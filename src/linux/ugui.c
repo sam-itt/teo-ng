@@ -57,7 +57,6 @@
 #include "linux/gui.h"
 #include "linux/graphic.h"
 #include "teo.h"
-#include "commands.xpm"
 
 enum {
    TEO_RESPONSE_END = 1,
@@ -142,12 +141,13 @@ void ugui_Init(void)
     GtkWidget *action_area;
     GtkWidget *widget;
     GtkWidget *hbox, *vbox;
-    GdkPixbuf *pixbuf;
 
     /* fenêtre d'affichage */
     wControl = gtk_dialog_new ();
     gtk_window_set_resizable (GTK_WINDOW(wControl), FALSE);
-    gtk_window_set_title (GTK_WINDOW(wControl), is_fr?"Panneau de contrÃ´le":"Control panel");
+    gtk_window_set_title (GTK_WINDOW(wControl),
+                          is_fr?"Panneau de contrÃ´le"
+                                :"Control panel");
     gtk_window_set_transient_for (GTK_WINDOW(wControl), GTK_WINDOW(wMain));
     gtk_window_set_destroy_with_parent (GTK_WINDOW(wControl), TRUE);
     gtk_window_set_modal (GTK_WINDOW(wControl), TRUE);
@@ -157,40 +157,51 @@ void ugui_Init(void)
     
     /* bouton de "A Propos" */
     widget=gtk_button_new_from_stock(GTK_STOCK_ABOUT);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(uabout_Dialog), (gpointer)NULL);
     gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK(uabout_Dialog),
+                     (gpointer)NULL);
 
     /* boîte horizontale du titre */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start( GTK_BOX(action_area), hbox, TRUE, TRUE, 0);
 
-    gtk_dialog_add_button (GTK_DIALOG(wControl), GTK_STOCK_QUIT , TEO_RESPONSE_QUIT  );
-    gtk_dialog_add_button (GTK_DIALOG(wControl), GTK_STOCK_OK   , GTK_RESPONSE_ACCEPT);
+    gtk_dialog_add_button (GTK_DIALOG(wControl),
+                           GTK_STOCK_QUIT,
+                           TEO_RESPONSE_QUIT);
+    gtk_dialog_add_button (GTK_DIALOG(wControl),
+                           GTK_STOCK_OK,
+                           GTK_RESPONSE_ACCEPT);
 
     /* crée toutes les widgets de la fenêtre */
-    /* boîte horizontale du titre */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-    gtk_box_pack_start( GTK_BOX(content_area), hbox, TRUE, FALSE, 0);
-
-    /* création du pixbuf */
-    pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)commands_xpm);
-    widget=gtk_image_new_from_pixbuf (pixbuf);
-    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
 
     /* boîte verticale associée à la frame des commandes et réglages */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(content_area), vbox);
 
+    /* boîte horizontale des resets */
+    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
     /* bouton de réinitialisation */
-    widget=gtk_button_new_with_label((is_fr?"RÃ©initialiser le TO8":"TO8 warm reset"));
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) TEO_COMMAND_RESET);
-    gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
+    widget=gtk_button_new_with_label(is_fr?"RÃ©initialiser le TO8"
+                                          :"TO8 warm reset");
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK(do_exit),
+                     (gpointer) TEO_COMMAND_RESET);
 
     /* bouton de redémarrage à froid */
-    widget=gtk_button_new_with_label((is_fr?"RedÃ©marrer Ã  froid le TO8":"TO8 cold reset"));
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_exit), (gpointer) TEO_COMMAND_COLD_RESET);
-    gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, FALSE, 0);
+    widget=gtk_button_new_with_label(is_fr?"RedÃ©marrer Ã  froid le TO8"
+                                          :"TO8 cold reset");
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK(do_exit),
+                     (gpointer) TEO_COMMAND_COLD_RESET);
 
     /* notebook */
     notebook=gtk_notebook_new();
@@ -208,6 +219,7 @@ void ugui_Init(void)
     while (gtk_events_pending ())
         gtk_main_iteration ();
 }
+
 
 
 /* ugui_Panel:
