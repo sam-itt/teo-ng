@@ -118,22 +118,13 @@ static gboolean RunTO8 (gpointer user_data)
         debug = udebug_Panel();
 
     if (teo.command == TEO_COMMAND_PANEL)
-    {
         ugui_Panel();
-        debug = 0;
-    }
 
     if (teo.command == TEO_COMMAND_RESET)
-    {
         teo_Reset();
-        debug = 0;
-    }
 
     if (teo.command == TEO_COMMAND_COLD_RESET)
-    {
         teo_ColdReset();
-        debug = 0;
-    }
 
     if (teo.command == TEO_COMMAND_QUIT)
     {
