@@ -35,7 +35,7 @@
  *  Module     : src/linux/ugui/udebug.c
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis 27/07/2011
- *  Modifié par: François Mouret 18/02/2012  12/06/2012
+ *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013
  *
  *  Débogueur du TO8.
  */
@@ -128,30 +128,71 @@ static char* debug_get_regs(void) {
         if (breakpoint[i]==-1) break;
     	ptr+=sprintf(ptr,"BKPT[%d]=%04X\n",i,breakpoint[i]);
     }
-    ptr+=sprintf(ptr,"IRQ: %d\n" ,mc6809_irq);
-    ptr+=sprintf(ptr," CSR: %02X   CRC: %02X\n",mc6846.csr,mc6846.crc);
-    ptr+=sprintf(ptr,"DDRC: %02X   PRC: %02X\n",mc6846.ddrc,mc6846.prc);
-    ptr+=sprintf(ptr," TCR: %02X  TMSB: %02X  TLSB: %02X\n",mc6846.tcr,mc6846.tmsb, mc6846.tlsb);
-    ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_int.porta.cr,
-                          pia_int.porta.ddr,mc6821_ReadPort(&pia_int.porta));
-    ptr+=sprintf(ptr,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_int.portb.cr,
-                          pia_int.portb.ddr,mc6821_ReadPort(&pia_int.portb));
-    ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",pia_ext.porta.cr,
-                          pia_ext.porta.ddr,mc6821_ReadPort(&pia_ext.porta));
-    ptr+=sprintf(ptr,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",pia_ext.portb.cr,
-                          pia_ext.portb.ddr,mc6821_ReadPort(&pia_ext.portb));
-    ptr+=sprintf(ptr,"P_DATA: %02X   P_ADDR: %02X\n",mode_page.p_data,mode_page.p_addr);
-    ptr+=sprintf(ptr,"LGAMOD: %02X     SYS1: %02X\n",mode_page.lgamod,mode_page.system1);
-    ptr+=sprintf(ptr,"  SYS2: %02X     DATA: %02X\n",mode_page.system2,mode_page.ram_data);
-    ptr+=sprintf(ptr,"  CART: %02X   COMMUT: %02X\n",mode_page.cart,mode_page.commut);
-    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n", dkc->wr0, dkc->wr1, dkc->wr2);
-    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",dkc->rr0, dkc->rr1);
-    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",dkc->wr3, dkc->rr3);
-    ptr+=sprintf(ptr,is_fr?"page de ROM cartouche : %d\n":"ROM cartridge page  : %d\n", mempager.cart.rom_page);
-    ptr+=sprintf(ptr,is_fr?"page de RAM cartouche : %d\n":"RAM cartridge page  : %d\n", mempager.cart.ram_page);
-    ptr+=sprintf(ptr,is_fr?"page de VRAM          : %d\n":"VRAM page           : %d\n", mempager.screen.vram_page);
-    ptr+=sprintf(ptr,is_fr?"page de RAM (registre): %d\n":"RAM page (register) : %d\n", mempager.data.reg_page);
-    ptr+=sprintf(ptr,is_fr?"page de RAM (PIA)     : %d\n":"RAM page (PIA)      : %d\n", mempager.data.pia_page);
+    ptr+=sprintf(ptr,"IRQ: %d\n" ,
+                     mc6809_irq);
+    ptr+=sprintf(ptr," CSR: %02X   CRC: %02X\n",
+                     mc6846.csr,
+                     mc6846.crc);
+    ptr+=sprintf(ptr,"DDRC: %02X   PRC: %02X\n",
+                     mc6846.ddrc,
+                     mc6846.prc);
+    ptr+=sprintf(ptr," TCR: %02X  TMSB: %02X  TLSB: %02X\n",
+                     mc6846.tcr,
+                     mc6846.tmsb,
+                     mc6846.tlsb);
+    ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",
+                     pia_int.porta.cr,
+                     pia_int.porta.ddr,
+                     mc6821_ReadPort(&pia_int.porta));
+    ptr+=sprintf(ptr,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",
+                     pia_int.portb.cr,
+                     pia_int.portb.ddr,
+                     mc6821_ReadPort(&pia_int.portb));
+    ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",
+                     pia_ext.porta.cr,
+                     pia_ext.porta.ddr,
+                     mc6821_ReadPort(&pia_ext.porta));
+    ptr+=sprintf(ptr,"CRB: %02X  DDRB: %02X  PDRB: %02X\n",
+                     pia_ext.portb.cr,
+                     pia_ext.portb.ddr,
+                     mc6821_ReadPort(&pia_ext.portb));
+    ptr+=sprintf(ptr,"P_DATA: %02X   P_ADDR: %02X\n",
+                     mode_page.p_data,
+                     mode_page.p_addr);
+    ptr+=sprintf(ptr,"LGAMOD: %02X     SYS1: %02X\n",
+                     mode_page.lgamod,
+                     mode_page.system1);
+    ptr+=sprintf(ptr,"  SYS2: %02X     DATA: %02X\n",
+                     mode_page.system2,
+                     mode_page.ram_data);
+    ptr+=sprintf(ptr,"  CART: %02X   COMMUT: %02X\n",
+                     mode_page.cart,
+                     mode_page.commut);
+    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n",
+                     dkc->wr0,
+                     dkc->wr1,
+                     dkc->wr2);
+    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",
+                     dkc->rr0,
+                     dkc->rr1);
+    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",
+                     dkc->wr3,
+                     dkc->rr3);
+    ptr+=sprintf(ptr,is_fr?"page de ROM cartouche : %d\n"
+                          :"ROM cartridge page  : %d\n",
+                     mempager.cart.rom_page);
+    ptr+=sprintf(ptr,is_fr?"page de RAM cartouche : %d\n"
+                          :"RAM cartridge page  : %d\n",
+                     mempager.cart.ram_page);
+    ptr+=sprintf(ptr,is_fr?"page de VRAM          : %d\n"
+                          :"VRAM page           : %d\n",
+                     mempager.screen.vram_page);
+    ptr+=sprintf(ptr,is_fr?"page de RAM (registre): %d\n"
+                          :"RAM page (register) : %d\n",
+                     mempager.data.reg_page);
+    ptr+=sprintf(ptr,is_fr?"page de RAM (PIA)     : %d\n"
+                          :"RAM page (PIA)      : %d\n",
+                     mempager.data.pia_page);
     return text_buffer;
 }
 
@@ -167,7 +208,10 @@ static char* debug_get_dasm(void) {
             for (j=0; j<5; j++)
                 fetch_buffer[j]=LOAD_BYTE(pc+j);
 
-            pc=(pc+MC6809_Dasm(string_buffer,(const unsigned char *)fetch_buffer,pc,MC6809_DASM_BINASM_MODE))&0xFFFF;
+            pc=(pc+MC6809_Dasm(string_buffer,
+                               (const unsigned char *)fetch_buffer,
+                               pc,
+                               MC6809_DASM_BINASM_MODE))&0xFFFF;
             if (i==0)
                 ptr+=sprintf(ptr, "%s\n", string_buffer);
             else
@@ -184,18 +228,26 @@ static char* debug_get_dasm(void) {
 static void update_debug_text (void)
 {
     char *markup;
+    char *string;
 
     mc6809_GetRegs(&regs);
-    markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_6809regs());
+
+    string = "<span face=\"Courier\">%s</span>";
+    markup = g_markup_printf_escaped (string, debug_get_6809regs());
     gtk_label_set_markup (GTK_LABEL (label_6809regs), markup);
     g_free (markup);
-    markup = g_markup_printf_escaped ("<span face=\"Courier\"><b>S&gt;</b> %s</span>", debug_get_sr_list());
+
+    string = "<span face=\"Courier\"><b>S&gt;</b> %s</span>";
+    markup = g_markup_printf_escaped (string, debug_get_sr_list());
     gtk_label_set_markup (GTK_LABEL (label_sr_list), markup);
     g_free (markup);
-    markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_dasm());
+
+    string = "<span face=\"Courier\">%s</span>";
+    markup = g_markup_printf_escaped (string, debug_get_dasm());
     gtk_label_set_markup (GTK_LABEL (label_middle_left), markup);
     g_free (markup);
-    markup = g_markup_printf_escaped ("<span face=\"Courier\">%s</span>", debug_get_regs());
+
+    markup = g_markup_printf_escaped (string, debug_get_regs());
     gtk_label_set_markup (GTK_LABEL (label_middle_right), markup);
     g_free (markup);
 }
@@ -308,27 +360,42 @@ static void udebug_Init(void)
 
     widget=gtk_button_new_with_label("Step");
     gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEP);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK (do_command_debug),
+                     (gpointer) DEBUG_CMD_STEP);
 
     widget=gtk_button_new_with_label("Step over");
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_STEPOVER);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK (do_command_debug),
+                     (gpointer) DEBUG_CMD_STEPOVER);
 
     widget=gtk_button_new_with_label("Set BKPT");
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(do_command_debug), (gpointer) DEBUG_CMD_BKPT);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK(do_command_debug),
+                     (gpointer) DEBUG_CMD_BKPT);
 
 //    address_buf=gtk_entry_buffer_new("0000",6);
 //    entry_address=gtk_entry_new_with_buffer(address_buf);
     entry_address=gtk_entry_new ();
     gtk_entry_set_max_length (GTK_ENTRY(entry_address), 4);
     gtk_entry_set_width_chars (GTK_ENTRY(entry_address), 4);
-    g_signal_connect(G_OBJECT(entry_address), "activate", G_CALLBACK(do_command_debug), (gpointer) DEBUG_CMD_BKPT);
+    g_signal_connect(G_OBJECT(entry_address),
+                              "activate",
+                              G_CALLBACK(do_command_debug),
+                              (gpointer) DEBUG_CMD_BKPT);
     gtk_box_pack_start( GTK_BOX(hbox), entry_address, TRUE, FALSE, 0);
 
     widget=gtk_button_new_with_label("Reset BKPT");
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK (do_command_debug), (gpointer) DEBUG_CMD_REMBKPT);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK (do_command_debug),
+                     (gpointer) DEBUG_CMD_REMBKPT);
     
     /* boîte verticale des textes */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
@@ -365,14 +432,17 @@ static void udebug_Init(void)
 
     label_middle_left=gtk_label_new("dasm");
     widget=gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(widget), label_middle_left);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
+                                   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(widget),
+                                          label_middle_left);
     gtk_label_set_selectable (GTK_LABEL(label_middle_left), TRUE);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, FALSE, DEBUG_SPACE);
 
     label_middle_right=gtk_label_new("regs");
     gtk_label_set_selectable (GTK_LABEL(label_middle_right), TRUE);
-    gtk_box_pack_start( GTK_BOX(hbox), label_middle_right, TRUE, FALSE, DEBUG_SPACE);
+    gtk_box_pack_start( GTK_BOX(hbox), label_middle_right,
+                        TRUE, FALSE, DEBUG_SPACE);
 
     /* affiche tout l'intérieur */
     gtk_widget_show_all (content_area);
