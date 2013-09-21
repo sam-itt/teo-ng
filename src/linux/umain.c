@@ -118,22 +118,13 @@ static gboolean RunTO8 (gpointer user_data)
         debug = udebug_Panel();
 
     if (teo.command == TEO_COMMAND_PANEL)
-    {
         ugui_Panel();
-        debug = 0;
-    }
 
     if (teo.command == TEO_COMMAND_RESET)
-    {
         teo_Reset();
-        debug = 0;
-    }
 
     if (teo.command == TEO_COMMAND_COLD_RESET)
-    {
-        teo_ColdReset();
         debug = 0;
-    }
 
     if (teo.command == TEO_COMMAND_QUIT)
     {
@@ -361,9 +352,11 @@ int main(int argc, char *argv[])
         main_DisplayMessage(teo_error_msg);
 
     /* Restitue l'état sauvegardé de l'émulateur */
-    teo_ColdReset();    /* Reset à froid de l'émulateur */
-    if (reset == 0)
-        image_Load ("autosave.img");
+    /* reset éventuel de l'émulateur */
+    teo_ColdReset();
+    if (reset == 0)  
+        if (image_Load("autosave.img" != 0)
+            teo_ColdReset();
 
     ugui_Init();      /* Initialise l'interface graphique */
 
