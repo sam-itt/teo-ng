@@ -488,8 +488,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* reset éventuel de l'émulateur */
     teo_ColdReset();
     if (reset == 0)  
-        if (access("autosave.img", F_OK) >= 0)
-            image_Load("autosave.img");
+        if (image_Load("autosave.img" != 0)
+            teo_ColdReset();
 
     /* initialisation de l'interface utilisateur Allegro */
     if (!windowed_mode)
