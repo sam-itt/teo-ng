@@ -36,7 +36,7 @@
  *  Module     : win/wgui/wprinter.c
  *  Version    : 1.8.3
  *  Créé par   : François Mouret 22/04/2012
- *  Modifié par: François Mouret 24/10/2012
+ *  Modifié par: François Mouret 24/10/2012 20/09/2013
  *
  *  Gestion des imprimantes.
  */
@@ -182,19 +182,16 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg );
 
          /* initialisation des textes */
-         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_RTEXT),
-                            is_fr?"Sauver dans : ":" Save in : ");
+         SetWindowText(GetDlgItem(hWnd, PRINTER_OPTIONS_GROUP),
+                            is_fr?"Options":"Options");
          SetWindowText(GetDlgItem(hWnd, PRINTER_CHOOSE_RTEXT),
                             is_fr?"Imprimante : ":"Printer : ");
          SetWindowText(GetDlgItem(hWnd, PRINTER_DIP_CHECK),
                             is_fr?"Double interligne":"Double spacing");
-#ifndef FRENCH_LANGUAGE
-         MoveWindow (GetDlgItem(hWnd, PRINTER_DIP_CHECK), 58, 53, 140, 16, FALSE);
-#endif
          SetWindowText(GetDlgItem(hWnd, PRINTER_NLQ_CHECK),
                             is_fr?"Imprime en haute qualité":"High quality print");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_OUTPUT_RTEXT),
-                            is_fr?"Sortie : ":"Output : ");
+         SetWindowText(GetDlgItem(hWnd, PRINTER_OUTPUT_GROUP),
+                            is_fr?"Sortie":"Output");
          SetWindowText(GetDlgItem(hWnd, PRINTER_RAW_CHECK),
                             is_fr?"brute":"raw");
          SetWindowText(GetDlgItem(hWnd, PRINTER_TXT_CHECK),
@@ -203,6 +200,9 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
                             is_fr?"graphique":"graphic");
          SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT),
                             std_LastDir(teo.lprt.folder));
+         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_RTEXT),
+                            is_fr?"Sauver les fichiers dans "
+                                 :"Saving output files in ");
 
          /* initialisation des info-bulles */
          wgui_CreateTooltip (hWnd, PRINTER_MORE_BUTTON,
