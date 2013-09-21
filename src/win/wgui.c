@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
- *                               21/09/2012
+ *                               21/09/2012 18/09/2013
  *
  *  Interface utilisateur Windows native.
  */
