@@ -37,6 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou 30/11/2000
  *  Modifié par: François Mouret 26/01/2010 05/10/2012 02/11/2012
+ *                               20/09/2013
  *
  *  Gestion des fichier-images de l'état de l'émulateur.
  */
@@ -85,7 +86,7 @@
 static FILE *file;
 static const char format_id[FORMAT_ID_SIZE] = "TEO IMAGE FILE FORMAT ";
 static const int format_ver = 0x200;
-
+static int bank_range;
 
 /* Computer numeric id table :
  */
@@ -522,20 +523,13 @@ static void mempager_Loader(int chunk_id, int chunk_size)
 static void membank_Loader(int chunk_id, int chunk_size)
 {
     int bank = chunk_id&0xFF;
-    int begin, end, size=chunk_size-2;
+    int begin, size=chunk_size-2;
 
     fread_int16 (&begin);
 
-    if (begin)
-        memset(mem.ram.bank[bank], 0, begin);
-
     if (fread(mem.ram.bank[bank]+begin, 1, size, file) != (size_t)size)
         return;
-
-    end = begin+size;
-
-    if (end < mem.ram.size)
-        memset(mem.ram.bank[bank]+end, 0, mem.ram.size - end);
+    bank_range++;
 }
 
 
@@ -748,15 +742,23 @@ static void mempager_Saver(int chunk_id)
 }
 
 
+
+static uint8 mbto8d (int offset)
+{
+    return (uint8)((((offset+0x80)&0x180) < 0x100) ? 0x00 : 0xff);
+}
+
+
+
 static void membank_Saver(int chunk_id)
 {
     int bank = chunk_id&0xFF;
     int begin = 0, end = mem.ram.size, size;
 
-    while ((begin < mem.ram.size) && (mem.ram.bank[bank][begin] == 0))
+    while ((begin < end) && (mem.ram.bank[bank][begin] == mbto8d(begin)))
         begin++;
 
-    while ((end>begin) && (mem.ram.bank[bank][end-1] == 0))
+    while ((end > begin) && (mem.ram.bank[bank][end-1] == mbto8d(end)))
         end--;
 
     size = end-begin;
@@ -845,6 +847,8 @@ int image_Load(const char filename[])
 
     fseek(file, 6, SEEK_CUR);  /* reserved */
 
+    bank_range = 0;
+
     while (TRUE)
     {
         fread_int16 (&chunk_id);
@@ -864,6 +868,10 @@ int image_Load(const char filename[])
     } 
 
     fclose(file);
+
+    if ((bank_range != 16) && (bank_range != 32))
+        return error_Message(TEO_ERROR_FILE_FORMAT, NULL);
+    teo.setting.bank_range = bank_range;
 
     teo_new_video_params = TRUE;
 
@@ -904,7 +912,7 @@ int image_Save(const char filename[])
     /* sauvegarde des banques mémoire */
     chunk_id = hardware_id[HW_MEMORY_BANK];
 
-    for (i=0; i<mem.ram.nbank; i++)
+    for (i=0; i<teo.setting.bank_range; i++)
     {
         fwrite_int16(chunk_id+i);
         Saver[chunk_id>>8](chunk_id+i);

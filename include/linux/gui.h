@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 30/07/2011
- *               François Mouret 21/03/2012
+ *               François Mouret 21/03/2012 20/09/2013
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
@@ -75,6 +75,7 @@ extern void ucass_UpdateCounter (void);
 extern void ucass_Free (void);
 
 extern void usetting_Init (GtkWidget *notebook);
+extern void usetting_Update (void);
 
 extern void uprinter_Init (GtkWidget *notebook);
 

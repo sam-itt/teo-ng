@@ -39,7 +39,7 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
- *                               19/09/2012
+ *                               19/09/2012 18/09/2013
  *
  *  Gestion des réglages.
  */
@@ -51,6 +51,7 @@
    #include <allegro.h>
 #endif
 
+#include "defs.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
@@ -66,17 +67,23 @@ static DIALOG commdial[]={
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
 { d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },
 { d_radio_proc,      205,  44,  76,   8, 0, 0, 'r',  0,     1, 0, "&rapide" },
-{ d_check_proc,       78,  62, 120,  14, 0, 0, 's',  0,     0, 0, "&Son" },
-{ d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
-{ d_check_proc,       88,  82, 148,  14, 0, 0, 'v',  0,     0, 0, "&Vidéo entrelacée" },
+{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  0,     0, 0, "&Son" },
+{ d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
+{ d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, "Mémoire:" },
+{ d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" },
+{ d_radio_proc,      200,  84,  76,   8, 0, 0, '5',  0,     2, 0, "&512k" },
+{ d_check_proc,       88, 104, 148,  14, 5, 0, 'v',  0,     0, 0, "&Vidéo entrelacée" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Settings" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, " Speed:" },
 { d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exact" },
 { d_radio_proc,      205,  44,  76,   8, 0, 0, 'f',  0,     1, 0, "&fast" },
-{ d_check_proc,       78,  62, 120,  14, 5, 0, 's',  0,     0, 0, "&Sound" },
-{ d_slider_proc,     144,  62, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
-{ d_check_proc,       88,  82, 147,  14, 5, 0, 'i',  0,     0, 0, "&Interlaced video" },
+{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  0,     0, 0, "&Sound" },
+{ d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
+{ d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, "Memory:" },
+{ d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" },
+{ d_radio_proc,      200,  84,  76,   8, 0, 0, '5',  0,     2, 0, "&512k" },
+{ d_check_proc,       88, 104, 147,  14, 5, 0, 'i',  0,     0, 0, "&Interlaced video" },
 #endif
 { d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 { d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
@@ -87,8 +94,10 @@ static DIALOG commdial[]={
 #define COMMDIAL_MAXSPEED    4
 #define COMMDIAL_SOUND       5
 #define COMMDIAL_SLIDER      6
-#define COMMDIAL_INTERLACE   7
-#define COMMDIAL_OK          8
+#define COMMDIAL_256K        8
+#define COMMDIAL_512K        9
+#define COMMDIAL_INTERLACE   10
+#define COMMDIAL_OK          11
 
 
 /* ------------------------------------------------------------------------- */
@@ -99,11 +108,19 @@ static DIALOG commdial[]={
  */
 void asetting_Panel(void)
 {
+    int flag;
     int first = 1;
 
-    commdial[COMMDIAL_EXACTSPEED].flags=(teo.setting.exact_speed) ? D_SELECTED : 0;
-    commdial[COMMDIAL_MAXSPEED].flags=(teo.setting.exact_speed) ? 0 : D_SELECTED;
-    commdial[COMMDIAL_SOUND].flags=(teo.setting.sound_enabled) ? D_SELECTED : 0;
+    flag = (teo.setting.exact_speed) ? D_SELECTED : 0;
+    commdial[COMMDIAL_EXACTSPEED].flags = flag;
+    flag = (teo.setting.exact_speed) ? 0 : D_SELECTED;
+    commdial[COMMDIAL_MAXSPEED].flags = flag;
+    flag = (teo.setting.bank_range == 32) ? 0 : D_SELECTED;
+    commdial[COMMDIAL_256K].flags = flag;
+    flag = (teo.setting.bank_range == 32) ? D_SELECTED : 0;
+    commdial[COMMDIAL_512K].flags = flag;
+    flag = (teo.setting.sound_enabled) ? D_SELECTED : 0;
+    commdial[COMMDIAL_SOUND].flags = flag;
 
     if (first)
     {
@@ -120,11 +137,18 @@ void asetting_Panel(void)
 
     popup_dialog(commdial, COMMDIAL_OK);
 
-    teo.setting.interlaced_video = (commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) ? TRUE : FALSE;
+    flag = (commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) ? TRUE : FALSE;
+    teo.setting.interlaced_video = flag;
     asound_SetVolume(commdial[COMMDIAL_SLIDER].d2+1);
     teo.setting.sound_volume = asound_GetVolume();
-    teo.setting.sound_enabled = (commdial[COMMDIAL_SOUND].flags&D_SELECTED ? TRUE : FALSE);
-    teo.setting.exact_speed=(commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED ? TRUE : FALSE);
+    flag = (commdial[COMMDIAL_SOUND].flags&D_SELECTED) ? TRUE : FALSE;
+    teo.setting.sound_enabled = flag;
+    flag = (commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED) ? TRUE : FALSE;
+    teo.setting.exact_speed = flag;
+    flag = (commdial[COMMDIAL_512K].flags&D_SELECTED) ? 32 : 16;
+    if (flag != teo.setting.bank_range)
+        teo.command = TEO_COMMAND_COLD_RESET;
+    teo.setting.bank_range = flag;
 }
 
 
@@ -148,7 +172,10 @@ void asetting_Init(char version_name[], int gfx_mode)
         commdial[COMMDIAL_INTERLACE].flags |= D_DISABLED;
 
     if (!teo.setting.sound_enabled)
-        commdial[COMMDIAL_SOUND].flags=commdial[COMMDIAL_SLIDER].flags=D_DISABLED;
+    {
+        commdial[COMMDIAL_SOUND].flags = D_DISABLED;
+        commdial[COMMDIAL_SLIDER].flags = D_DISABLED;
+    }
 }
 
 
@@ -158,4 +185,3 @@ void asetting_Init(char version_name[], int gfx_mode)
 void asetting_Free(void)
 {
 }
-

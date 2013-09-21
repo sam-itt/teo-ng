@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou 14/09/2000
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 10/08/2011 17/03/2012 20/09/2012
+ *                               20/09/2013
  *
  *  Définition des boîtes de dialogue.
  */
@@ -60,12 +61,17 @@
 #define QUIT_BUTTON             2124
 
 #define SETTING_TAB             2140
-#define SPEED_LTEXT             2141
+#define SPEED_GROUP             2141
 #define EXACT_SPEED_BUTTON      2142
 #define MAX_SPEED_BUTTON        2143
-#define INTERLACED_CHECK        2144
-#define SOUND_CHECK             2145
-#define VOLUME_BAR              2146
+#define DISPLAY_GROUP           2144
+#define INTERLACED_CHECK        2145
+#define SOUND_GROUP             2146
+#define SOUND_CHECK             2147
+#define VOLUME_BAR              2148
+#define MEMORY_GROUP            2149
+#define MEMORY_256K_RADIO       2150
+#define MEMORY_512K_RADIO       2151
 
 #define MEMO7_TAB               2160
 #define MEMO7_COMBO             2161
@@ -110,17 +116,18 @@
 #define DISK3_PROT_CHECK        2224
 
 #define PRINTER_TAB             2230
-#define PRINTER_MORE_RTEXT      2231
-#define PRINTER_MORE_EDIT       2232
-#define PRINTER_MORE_BUTTON     2233
-#define PRINTER_CHOOSE_RTEXT    2234
-#define PRINTER_CHOOSE_COMBO    2235
-#define PRINTER_DIP_CHECK       2236
-#define PRINTER_NLQ_CHECK       2237
-#define PRINTER_OUTPUT_RTEXT    2238
-#define PRINTER_RAW_CHECK       2239
-#define PRINTER_TXT_CHECK       2240
-#define PRINTER_GFX_CHECK       2241
+#define PRINTER_OPTIONS_GROUP   2231
+#define PRINTER_CHOOSE_RTEXT    2232
+#define PRINTER_CHOOSE_COMBO    2233
+#define PRINTER_DIP_CHECK       2234
+#define PRINTER_NLQ_CHECK       2235
+#define PRINTER_OUTPUT_GROUP    2236
+#define PRINTER_RAW_CHECK       2237
+#define PRINTER_TXT_CHECK       2238
+#define PRINTER_GFX_CHECK       2239
+#define PRINTER_MORE_RTEXT      2240
+#define PRINTER_MORE_EDIT       2241
+#define PRINTER_MORE_BUTTON     2242
 
 #define ABOUT_DIALOG            2250
 #define ABOUT_CTEXT_TITLE       2251

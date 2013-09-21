@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
- *                               01/11/2012
+ *                               01/11/2012 20/09/2013
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -151,6 +151,7 @@ struct EMUTEO {
         int  sound_volume;
         int  sound_enabled;
         int  interlaced_video;
+        int  bank_range;
         } setting;
     struct EMUTEO_DISK {
         int  direct_access_allowed;

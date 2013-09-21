@@ -17,7 +17,7 @@
  *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
- *
+ *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
- *                               02/11/2012
+ *                               02/11/2012 18/09/2013
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -116,6 +116,27 @@ static int LoadFile(const char filename[], unsigned char dest[], int size)
 
 
 
+/* memory_hard_reset:
+ *  Reset à froid de toute la RAM.
+ */
+static void memory_hard_reset(void)
+{
+    int bank;
+    int addr;
+
+    for (bank=0; bank<mem.ram.nbank; bank++)
+    {
+        for (addr=0; addr<mem.ram.size; addr+=512)
+        {
+            memset (&mem.ram.bank[bank][addr], 0x00, 128);
+            memset (&mem.ram.bank[bank][addr+128], 0xff, 256);
+            memset (&mem.ram.bank[bank][addr+384], 0x00, 128);
+        }
+    }
+}
+
+
+
 /* InitMemory:
  *  Initialisation de la carte mémoire et chargement des ROMS.
  */
@@ -132,6 +153,7 @@ static int InitMemory(void)
     for (i=0; i<mem.ram.nbank; i++)
         if ((mem.ram.bank[i] = calloc(mem.ram.size, sizeof(uint8))) == NULL)
             return error_Message(TEO_ERROR_ALLOC, NULL);
+    memory_hard_reset();
 
     /* 16 ko de ROM moniteur */
     for (i=0; i<mem.mon.nbank; i++)
@@ -490,9 +512,7 @@ void teo_ColdReset(void)
     mempager.mon.page = 0;
     mempager.mon.update();
 
-    /* flags de reset à froid */
-    STORE_WORD(0x5FC1, 0);  /* menu principal */
-    STORE_WORD(0x60FE, 0);  /* moniteur       */
+    memory_hard_reset();
 
     mc6809_Reset();
 }

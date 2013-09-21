@@ -38,6 +38,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 18/09/2006 02/02/2012 29/09/2012
+ *                               18/09/2013
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -49,6 +50,7 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
+   #include <stdlib.h>
    #include <time.h>
 #endif
 
@@ -162,7 +164,12 @@ static void update_mon(void)
  */
 static void update_color(int index)
 {
-    static int gamma[16]={0,100,127,147,163,179,191,203,215,223,231,239,243,247,251,255};
+    static int gamma[16] = {
+        0  , 100, 127, 147,
+        163, 179, 191, 203,
+        215, 223, 231, 239,
+        243, 247, 251, 255
+    };
 
     teo_SetColor(index, gamma[ pal_chip.color[index].gr&0xF],
                         gamma[(pal_chip.color[index].gr&0xF0)>>4],
@@ -187,7 +194,10 @@ static void SetDeviceRegister(int addr, int val)
             mc6846_WriteCommand(&mc6846, val);
 
             if ((mc6846.crc&0x30) == 0x30)
-                teo_PutSoundByte(mc6809_clock(), mc6846.crc&8 ? 0x00 : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                teo_PutSoundByte(mc6809_clock(),
+                                 mc6846.crc&8
+                                   ? 0x00
+                                   : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7C2:
@@ -297,7 +307,8 @@ static void SetDeviceRegister(int addr, int val)
             mc6821_WriteData(&pia_ext.portb, val);
 
             if (!(mc6846.crc&8))  /* MUTE son inactif */
-                teo_PutSoundByte(mc6809_clock(), (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                teo_PutSoundByte(mc6809_clock(),
+                                 (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7CE:
@@ -446,13 +457,15 @@ static inline int GetRealValue_lp4(void)
     if ((spot_pos/FULL_LINE_CYCLES)&1)
         spot_pos+=1;
     
-    /* Positionne b7 à 0 si le spot est au dessus ou au dessous de l'écran affichable */
+    /* Positionne b7 à 0 si le spot est au dessus
+       ou au dessous de l'écran affichable */
     spot_point=spot_pos/FULL_LINE_CYCLES;    /* Numéro de ligne */
     if ((spot_point<TOP_SHADOW_LINES+TOP_BORDER_LINES)
         || (spot_point>=TOP_SHADOW_LINES+TOP_BORDER_LINES+WINDOW_LINES))
         lp4&=0x7f;
 
-    /* Positionne b5 à 0 si le spot est à droite ou à gauche de l'écran affichable */
+    /* Positionne b5 à 0 si le spot est à droite
+       ou à gauche de l'écran affichable */
     spot_point=spot_pos%FULL_LINE_CYCLES;    /* Numéro de colonne */
     if ((spot_point<LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES)
         || (spot_point>=LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES+WINDOW_LINE_CYCLES))
@@ -473,10 +486,10 @@ static void StoreWord(int addr, int val)
 
 
 
-/* LoadByte:
+/* GetDeviceRegister:
  *  Lit un octet en mémoire.
  */
-static int LoadByte(int addr)
+static int GetDeviceRegister(int addr)
 {
     int index;
 
@@ -589,20 +602,98 @@ static int LoadByte(int addr)
                 return 0xCC;
 
             case 0xE7E4:
-                return (mode_page.commut&1 ? mode_page.lp1 : mode_page.system2&0xC0);
+                return (mode_page.commut&1 ? mode_page.lp1
+                                           : mode_page.system2&0xC0);
 
             case 0xE7E5:
                 /* Retourne le numéro de banque courante même en mode PIA */
-                return (mode_page.commut&1 ? mode_page.lp2 : mempager.data.page&0x1F);
+                return (mode_page.commut&1 ? mode_page.lp2
+                                           : mempager.data.page&0x1F);
 
             case 0xE7E6:
                 return (mode_page.commut&1 ? mode_page.lp3 : mode_page.cart);
 
             case 0xE7E7:
-                return (/*mode_page.lp4*/ GetRealValue_lp4()&0xFE) | (mode_page.commut&1);
+                return (/*mode_page.lp4*/ GetRealValue_lp4()&0xFE)
+                                        | (mode_page.commut&1);
         }
 
     return LOAD_BYTE(addr);
+}
+
+
+
+/* undefined_ram_byte:
+ *  Return a byte from the extra memory space without extension
+ */
+static int undefined_ram_byte (void)
+{
+    static int count = 0;
+    static int byte = 0;
+
+    if (count-- <= 0)
+    {
+        byte = rand() % 100;
+        count = rand() % 8;
+
+        if (byte < 45)
+             byte = 0xd8;
+        else
+        if (byte < 90)
+             byte = 0xf0;
+        else
+        {
+            count = 1;
+            if (byte < 93) 
+                byte = 0xe3;
+            else
+            if (byte < 95)
+                byte = 0xc1;
+            else
+            if (byte < 97)
+                byte = 0xff;
+            else
+                byte = 0x00;
+        }
+    }
+    return byte;
+}
+
+
+
+/* LoadByte:
+ *  Lit un octet en mémoire.
+ */
+int LoadByte (int addr)
+{
+    int msq=addr>>12;
+
+    switch (msq)
+    {
+        case 0x0: /* espace cartouche */
+        case 0x1:
+        case 0x2:
+        case 0x3:
+            if (mode_page.cart&0x20)  /* l'espace est mappé sur la RAM */
+                if (mempager.cart.ram_page >= teo.setting.bank_range)
+                    return undefined_ram_byte ();
+            break;
+
+        case 0xA: /* espace données */
+        case 0xB:
+        case 0xC:
+        case 0xD:
+            if (mempager.data.page >= teo.setting.bank_range)
+                return undefined_ram_byte ();
+            break;
+
+        case 0xE:
+        case 0xF:
+            if ((0xE7C0<=addr) && (addr<=0xE7FF))
+                return GetDeviceRegister(addr);
+            break;
+    }
+    return LOAD_BYTE (addr);
 }
 
 
@@ -612,10 +703,7 @@ static int LoadByte(int addr)
  */
 static int LoadWord(int addr)
 {
-    if ((0xE7C0-1<=addr) && (addr<=0xE7FF))
-        return (LoadByte(addr)<<8)+LoadByte(addr+1);
-    else
-        return LOAD_WORD(addr);
+    return (LoadByte(addr)<<8)+LoadByte(addr+1);
 }
 
 
@@ -652,7 +740,8 @@ static int BiosCall(struct MC6809_REGS *regs)
             return 0x10; /* LDY immédiat */
 
         case 0x315A:  /* routine de sélection souris/crayon optique */
-            teo_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TEO_STATUS_MOUSE: TEO_STATUS_LIGHTPEN);
+            teo_SetPointer( LOAD_BYTE(0x6074)&0x80 ? TEO_STATUS_MOUSE
+                                                   : TEO_STATUS_LIGHTPEN);
             mouse_Reset();
             return 0x8E; /* LDX immédiat */
 
@@ -723,12 +812,16 @@ void hardware_StoreByte(int addr, int val)
         case 0x3:
             if (mode_page.cart&0x20)  /* l'espace est mappé sur la RAM */
             {
-                if (mode_page.cart&0x40) /* l'écriture est autorisée */
+                if (mempager.cart.ram_page < teo.setting.bank_range)
                 {
-                    STORE_BYTE(addr, val);
+                    if (mode_page.cart&0x40) /* l'écriture est autorisée */
+                    {
+                        STORE_BYTE(addr, val);
 
-                    if ((mempager.screen.vram_page==mempager.cart.ram_page) && mb.direct_screen_mode)
-                        DrawGPL(addr&0x1FFF);
+                        if ((mempager.screen.vram_page==mempager.cart.ram_page)
+                         && mb.direct_screen_mode)
+                            DrawGPL(addr&0x1FFF);
+                    }
                 }
             }
             else if (addr<=0x1FFF)  /* commutation par latchage */
@@ -766,11 +859,14 @@ void hardware_StoreByte(int addr, int val)
         case 0xB:
         case 0xC:
         case 0xD:
-            STORE_BYTE(addr, val);
+            if (mempager.data.page < teo.setting.bank_range)
+            {
+                STORE_BYTE(addr, val);
 
-            if ((mempager.screen.vram_page==mempager.data.page) && mb.direct_screen_mode)
-                DrawGPL(addr&0x1FFF);
-
+                if ((mempager.screen.vram_page==mempager.data.page)
+                 && mb.direct_screen_mode)
+                    DrawGPL(addr&0x1FFF);
+            }
             break;
 
         case 0xE:
@@ -797,6 +893,10 @@ void hardware_Init(void)
                                         hardware_StoreByte,
                                         StoreWord,
                                         BiosCall };
+    time_t t;
+
+    srand((unsigned) time(&t));
+
     mc6809_Init(&interface);
 
     /* circuit de palette vidéo */
@@ -812,6 +912,7 @@ void hardware_Init(void)
     mem.rom.size = 0x4000;
     for (i=0; i<mem.rom.nbank; i++)
         mem.rom.bank[i] = NULL;
+        
 
 #ifdef DEBIAN_BUILD
     strcpy(mem.rom.filename[0], "/usr/share/teo/system/rom/basic512.rom");
@@ -828,6 +929,7 @@ void hardware_Init(void)
     /* 512ko de RAM */
     mem.ram.nbank = 32;            
     mem.ram.size = 0x4000;
+    teo.setting.bank_range = 32;
     for (i=0; i<mem.ram.nbank; i++)
         mem.ram.bank[i] = NULL;
 

@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 26/03/2012 12/06/2012
+ *                               19/09/2013
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
@@ -229,8 +230,9 @@ void ugui_Panel(void)
 {
     gint response;
 
-    /* Mise à jour du compteur de cassettes */
+    /* Mises à jour de la GUI */
     ucass_UpdateCounter ();
+    usetting_Update ();
 
     /* initialisation de la commande */
     teo.command = TEO_COMMAND_NONE;
