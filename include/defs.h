@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 28/04/2012
+ *               François Mouret 28/04/2012 20/09/2013
  *
  *  Définition des structures et constantes internes.
  */
@@ -134,21 +134,6 @@ struct EF9369 {
         int b;
     } color[16];
     void (*update)(int);
-};
-
-struct DISK_CTRL {
-    int cmd0;
-    int cmd1;
-    int cmd2;
-    int stat0;
-    int stat1;
-    int wdata;
-    int rdata;
-    int wclk;
-    int wsect;
-    int wtrck;
-    int wcell;
-    int prot;
 };
 
 typedef unsigned char uint8;  /* unité de mémoire */
