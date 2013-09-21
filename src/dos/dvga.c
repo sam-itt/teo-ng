@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 22/09/2001
  *               Samuel Devulder 07/2011
- *               François Mouret 08/2011 25/04/2012
+ *               François Mouret 08/2011 25/04/2012 20/09/2013
  *
  *  Gestion de l'affichage 40 colonnes du TO8.
  */
@@ -51,6 +51,7 @@
    #include <allegro.h>
 #endif
 
+#include "defs.h"
 #include "alleg/color8.h"
 #include "alleg/gfxdrv.h"
 #include "teo.h"

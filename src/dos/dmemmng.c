@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 23/11/2000
- *               François Mouret 08/2011
+ *               François Mouret 08/2011 20/09/2013
  *
  *  Gestionnaire de mémoire du TO8.
  *   Ce module est indépendant du reste de l'émulateur et vient se greffer
@@ -51,6 +51,7 @@
    #include <conio.h>
 #endif
 
+#include "defs.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
 #include "debug.h"

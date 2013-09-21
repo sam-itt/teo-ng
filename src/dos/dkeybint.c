@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/09/2001
- *               François Mouret 28/12/2012
+ *               François Mouret 28/12/2012 20/09/2013
  *
  *  Interface de gestion du clavier.
  */
@@ -48,6 +48,7 @@
    #include <allegro/internal/aintern.h>
 #endif
 
+#include "defs.h"
 #include "teo.h"
 #include "to8keys.h"
 #include "media/keyboard.h"

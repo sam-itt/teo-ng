@@ -37,6 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
+ *               François Mouret 20/09/2013
  *
  *  Lecture directe des disquettes Thomson.
  */
@@ -50,6 +51,7 @@
    #include <sys/movedata.h>
 #endif
 
+#include "defs.h"
 #include "teo.h"
 
 
