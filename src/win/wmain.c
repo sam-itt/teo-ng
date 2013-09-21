@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou septembre 2000
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011
- *               François Mouret 19/10/2012 24/10/2012
+ *               François Mouret 19/10/2012 24/10/2012 19/09/2013
  *
  *  Boucle principale de l'émulateur.
  */
@@ -485,11 +485,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
             reset = 1;
     std_StringListFree (remain_name);
 
-    /* reset éventuel de l'émulateur */
+    /* Restitue l'état sauvegardé de l'émulateur */
     teo_ColdReset();
-    if (reset == 0)  
-        if (access("autosave.img", F_OK) >= 0)
-            image_Load("autosave.img");
+    if (reset == 0)
+        if (image_Load ("autosave.img") != 0)
+            teo_ColdReset();
 
     /* initialisation de l'interface utilisateur Allegro */
     if (!windowed_mode)

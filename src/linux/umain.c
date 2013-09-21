@@ -39,7 +39,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 26/01/2010 08/2011 23/03/2012
-                                 09/06/2012 19/10/2012
+                                 09/06/2012 19/10/2012 19/09/2013
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -352,14 +352,17 @@ int main(int argc, char *argv[])
         main_DisplayMessage(teo_error_msg);
 
     /* Restitue l'état sauvegardé de l'émulateur */
-    teo_ColdReset();    /* Reset à froid de l'émulateur */
+    teo_ColdReset();
     if (reset == 0)
-        image_Load ("autosave.img");
+        if (image_Load ("autosave.img") != 0)
+            teo_ColdReset();
 
-    ugui_Init();      /* Initialise l'interface graphique */
+    /* Initialise l'interface graphique */
+    ugui_Init();
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
+    teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
     g_timeout_add_full (G_PRIORITY_DEFAULT, 2, RunTO8, &idle_data, NULL);
     gtk_main ();

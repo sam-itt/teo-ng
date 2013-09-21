@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 04/11/2003
  *               Samuel Devulder 08/2011
  *               François Mouret 08/2011 25/04/2012 01/11/2012
+ *                               19/09/2013
  *
  *  Boucle principale de l'émulateur.
  */
@@ -479,11 +480,11 @@ int main(int argc, char *argv[])
             reset = 1;
     std_StringListFree (remain_name);
 
-    /* reset éventuel de l'émulateur */
+    /* Restitue l'état sauvegardé de l'émulateur */
     teo_ColdReset();
     if (reset == 0)
-        if (access("autosave.img", F_OK) >= 0)
-            image_Load ("autosave.img");
+        if (image_Load ("autosave.img") != 0)
+            teo_ColdReset();
 
     /* initialisation de l'interface utilisateur */
     agui_Init(version_name, gfx_mode, direct_support);
