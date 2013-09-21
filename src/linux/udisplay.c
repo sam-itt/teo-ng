@@ -352,15 +352,14 @@ focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 }
 
 
-/* window_state_event:
+/* visibility_notify_event:
  *  Gestion du retraçage de l'écran.
  */
 static gboolean 
-window_state_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+visibility_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    if ((event->window_state.changed_mask & GDK_WINDOW_STATE_ICONIFIED) != 0)
-        if ((event->window_state.new_window_state & GDK_WINDOW_STATE_ICONIFIED) == 0)
-            ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
+    if (event->visibility.state == GDK_VISIBILITY_UNOBSCURED)
+        ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
 
     return FALSE;
     (void)widget;
@@ -411,6 +410,7 @@ void udisplay_Window(void)
 
     gtk_widget_add_events (wMain,
                      GDK_FOCUS_CHANGE_MASK
+                   | GDK_VISIBILITY_NOTIFY_MASK
                    | GDK_KEY_RELEASE_MASK
                    | GDK_KEY_PRESS_MASK
                    | GDK_STRUCTURE_MASK
@@ -433,8 +433,8 @@ void udisplay_Window(void)
                       G_CALLBACK (motion_notify_event), NULL);
     g_signal_connect (G_OBJECT (wMain), "focus-in-event",
                       G_CALLBACK (focus_in_event), NULL);
-    g_signal_connect (G_OBJECT (wMain), "window-state-event",
-                      G_CALLBACK (window_state_event), NULL);
+    g_signal_connect (G_OBJECT (wMain), "visibility-notify-event",
+                      G_CALLBACK (visibility_notify_event), NULL);
 
     /* Set window size */
     hints.min_width = TEO_SCREEN_W*2;
