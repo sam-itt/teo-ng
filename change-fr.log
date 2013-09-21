@@ -1,15 +1,27 @@
 ========================================================================
+=== Version 1.8.3 (Mai 2013 - Septembre 2013)                        ===
+========================================================================
+
+- teo
+  - Réorganisation du panneau de contrôle
+  - Activation/désactivation de l'extension mémoire
+
+- cc90hfe
+  - Ajout d'un checkbox pour forcer la lecture de disque Thomson avec
+    sélection des faces de disquette
+
+========================================================================
 === Version 1.8.2 (Juin 2012 - Avril 2013)                           ===
 ========================================================================
-- émulation du contrôleurdisque THMFC1
+- émulation du contrôleur disque THMFC1
 - gestion des formats de disquettes en accès direct, SAP, HFE et des
   formats raw (FD)
 - création de CC90hFE (avec CC90 version 2.0) pour créer des images
   fidèles des disquettes Thomson en double densité
-- sélection des faces pour les disquettes multiface
+- sélection des faces pour les disquettes multi-face
 - accès direct en écriture par défaut (travailler sur des copies de
   disquettes si l'écriture est requise!)
-- emulation des imprimantes PR90-582 et PR90-042
+- émulation des imprimantes PR90-582 et PR90-042
 - reset à froid si erreur au chargement de cartouche à l'initialisation
 - change les répertoires "memo7", "k7" et "disks" en "memo", "cass" et
   "disk"
@@ -25,7 +37,7 @@ Correction de bugs :
 - restauration du son en génération continue (la génération "utile" est
   un échec)
 - nom de cartouche désormais effacé au reset de combo (sinon il
-  réapparait au lancement suivant)
+  réapparaît au lancement suivant)
 - correction du risque de freeze pour SYNC, CWAI et HCF
 - Limitation de la valeur passée à SetDeviceRegister à 8 bits (évite le
   freeze de l'émulateur lors d'un bug de programme 6809)
@@ -36,7 +48,7 @@ Correction de bugs :
 ==== Version 1.8.1 (Janvier-Mai 2012)                               ====
 ========================================================================
 - ROMs incluses dans les packages
-- Emulation des imprimantes PR90-055, PR90-600, PR90-612
+- Émulation des imprimantes PR90-055, PR90-600, PR90-612
 - exécution cycle par cycle des instructions
 - émulation des instructions non standard
 - émulation des postcodes non standard pour TFR/EXG
@@ -176,7 +188,7 @@ Correction de bugs :
 - sous MSDOS: support des cartes son Windows Sound System
               support du mode VESA 640x400x15
               suppression des modes VESA 640x480x8 et 640x480x16
-- support de la plateforme Windows/DirectX: Windows 95,98,Me,NT4,2000
+- support de la plates-formes Windows/DirectX: Windows 95,98,Me,NT4,2000
                                             DirectX 3.0 ou supérieure
 
 
@@ -200,7 +212,7 @@ Correction de bugs :
 ==== Version 1.1 (Juin 2000)                                        ====
 ========================================================================
 - correction d'un bug du contrôleur de disquettes (La Geste d'Artillac)
-- sous MSDOS: correction du bug d'autodétection de la carte son
+- sous MSDOS: correction du bug d'auto-détection de la carte son
 
 
 ========================================================================

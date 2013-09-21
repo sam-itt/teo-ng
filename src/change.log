@@ -1,4 +1,44 @@
 ========================================================================
+=== Version 1.8.3 (Mai 2013 - Septembre 2013)                        ===
+========================================================================
+
+  Changements locaux ---------------------------------------------------
+
+- include/mc68xx/mc6846.h
+          Les fonctions ne sont plus inlinées
+- src/linux/umain.c
+- src/media/disk/controlr/thmfc1.c
+- src/media/disk.c
+- include/media/disk/controlr.h
+- include/media/disk.h
+- src/win/wgui/wdisk.c
+- src/win/wmain.c
+- src/linux/ugui/udisk.c
+- src/alleg/agui/adisk.c
+- src/media/disk/controlr/thmfc1.c
+          Passage des fonctions disques communes dans disk.c
+- tools/cc90hfe/src/linux/gui.c
+- tools/cc90hfe/src/ini.c
+- tools/cc90hfe/src/cc90.c
+- tools/cc90hfe/src/errors.c
+- tools/cc90hfe/src/main.c
+- tools/cc90hfe/include/linux/gui.h
+- tools/cc90hfe/include/errors.h
+- tools/cc90hfe/src/main.c
+- tools/cc90hfe/src/win/gui.c
+- tools/cc90hfe/include/win/resource.h
+- tools/cc90hfe/src/win/resource.rc
+- tools/cc90hfe/include/defs.h
+          Ajoute le checkbox pour forcer la lecture de disque Thomson
+          Ajoute les checkboxes de face de disquettes
+- doc/wiki/cc90232_modif_en
+- doc/wiki/cc90232_modif_fr
+- doc/cc90232_modif_en.htm
+- doc/cc90232_modif_fr.htm
+          Ajoute l'astuce du point de colle
+
+
+========================================================================
 === Version 1.8.2 (Juin 2012 - Avril 2013)                           ===
 ========================================================================
   Ajout de fichiers source ---------------------------------------------

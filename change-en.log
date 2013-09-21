@@ -1,4 +1,16 @@
 ========================================================================
+=== Version 1.8.3 (May 2013 - September 2013)                        ===
+========================================================================
+
+- teo
+   - Reorganization of the control panel
+   - Activation/deactivation of the memory extension
+
+- cc90hfe
+   - Add a checkbox to force the reading of Thomson-like disc with
+     selection of the disk sides
+
+========================================================================
 === Version 1.8.2 (June 2012 - April 2013)                           ===
 ========================================================================
 - emulation of THMFC1 disk controller
