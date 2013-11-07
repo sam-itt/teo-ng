@@ -11,6 +11,18 @@
      selection of the disk sides
 
 ========================================================================
+=== Updates of version 1.8.2 (April 2013 - November 2013)            ===
+========================================================================
+- Improve image loading
+- Allow debugger reaction whatever the mode is
+- Joystick fire button is now emulated with R-CTRL and R-SHIFT when
+  NUM_LOCK off
+
+under Linux :
+
+- Improve display
+
+========================================================================
 === Version 1.8.2 (June 2012 - April 2013)                           ===
 ========================================================================
 - emulation of THMFC1 disk controller

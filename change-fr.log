@@ -1,14 +1,14 @@
 ========================================================================
-=== Version 1.8.3 (Mai 2013 - Septembre 2013)                        ===
+=== Mises à jour de la version 1.8.2 (Avril 2013 - Novembre 2013)    ===
 ========================================================================
+- Améliore le chargement des images
+- Permet au debogueur de réagir quelque soit le mode
+- Le bouton du joystick est maintenant émulé avec Ctrl droit ou Shift
+  droit lorsque NUMLOCK est éteint (Linux et Windows)
 
-- teo
-  - Réorganisation du panneau de contrôle
-  - Activation/désactivation de l'extension mémoire
+sous Linux :
 
-- cc90hfe
-  - Ajout d'un checkbox pour forcer la lecture de disque Thomson avec
-    sélection des faces de disquette
+- Amélioration de l'affichage
 
 ========================================================================
 === Version 1.8.2 (Juin 2012 - Avril 2013)                           ===

@@ -37,6 +37,17 @@
 - doc/cc90232_modif_fr.htm
           Ajoute l'astuce du point de colle
 
+========================================================================
+=== Mises à jour de la version 1.8.2 (Avril 2013 - Novembre 2013)    ===
+========================================================================
+- Améliore le chargement des images
+- Permet au debogueur de réagir quelque soit le mode
+- Le bouton du joystick est maintenant émulé avec Ctrl droit ou Shift
+  droit lorsque NUMLOCK est éteint (Linux et Windows)
+
+sous Linux :
+
+- Amélioration de l'affichage
 
 ========================================================================
 === Version 1.8.2 (Juin 2012 - Avril 2013)                           ===
