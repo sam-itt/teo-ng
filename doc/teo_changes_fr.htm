@@ -10,6 +10,20 @@
 
 <h3>Changements</h3>
 
+<h5>Mises &agrave; jour de la version 1.8.2 (Avril 2013 - Novembre 2013)</h5>
+
+<ul>
+<li>Am&eacute;liore le chargement des images</li>
+<li>Permet au debogueur de r&eacute;agir quelque soit le mode</li>
+<li>Le bouton du joystick est maintenant &eacute;mul&eacute; avec Ctrl droit ou Shift droit lorsque NUMLOCK est &eacute;teint</li>
+</ul>
+
+<p>sous Linux :</p>
+
+<ul>
+<li>Am&eacute;lioration de l'affichage</li>
+</ul>
+
 <h5>Version 1.8.2 (Juin 2012-Avril 2013)</h5>
 
 <ul>
@@ -21,19 +35,23 @@
 <li>&eacute;mulation des imprimantes PR90-582 et PR90-042</li>
 <li>reset &agrave; froid si erreur au chargement de cartouche &agrave; l'initialisation</li>
 <li>change les r&eacute;pertoires <em><code>memo7</code></em>, <em><code>k7</code></em> et <em><code>disks</code></em> en <em><code>memo</code></em>, <em><code>cass</code></em> et <em><code>disk</code></em></li>
-<li><p>disquettes avec protection individuelle</p></li>
-<li><p>sous Windows :</p>
+<li>disquettes avec protection individuelle</li>
+</ul>
+
+<p>sous Windows :</p>
 
 <ul>
 <li>am&eacute;lioration du mode vid&eacute;o entrelac&eacute; (merci &agrave; Samuel)</li>
-</ul></li>
-<li><p>sous Linux :</p>
+</ul>
+
+<p>sous Linux :</p>
 
 <ul>
 <li>passage &agrave; GTK+3.0</li>
 <li>r&eacute;duction de l'usage CPU</li>
-</ul></li>
-<li><p>Correction de bugs :</p>
+</ul>
+
+<p>Correction de bugs :</p>
 
 <ul>
 <li>restauration du son en g&eacute;n&eacute;ration continue (la g&eacute;n&eacute;ration "utile" est un &eacute;chec)</li>
@@ -41,7 +59,6 @@
 <li>correction du risque de freeze pour SYNC, CWAI et HCF</li>
 <li>Limitation de la valeur pass&eacute;e &agrave; SetDeviceRegister &agrave; 8 bits (&eacute;vite le freeze de l'&eacute;mulateur lors d'un bug de programme 6809)</li>
 <li>Plus de r&eacute;action intempestive du clavier par $E7C3 (PRC) (merci &agrave; Julien)</li>
-</ul></li>
 </ul>
 
 <h5>Version 1.8.1 (Janvier-Mai 2012)</h5>
@@ -56,17 +73,16 @@
 <li>&eacute;mulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU</li>
 <li>ajout et internationalisation des saptools et des k7tools</li>
 <li>plus de message de confirmation &agrave; la sortie de Teo</li>
-<li>sous Linux :
-<ul>
-<li>passage &agrave; GTK+ 2.12</li>
-<li>r&eacute;duction du temps de ralentissement usleep()</li>
-<li>gestion de la configuration lorsque le device impliqu&eacute; n'est pas mont&eacute;</li>
-<li>reset &agrave; chaud de Teo si erreur de configuration</li>
-<li>traitement du son par ALSA plut&ocirc;t que par OSS</li>
-<li>passage au combobox pour les fichiers sous Linux et ajout de boutons pour les vider</li>
-<li>F12 pour l'appel du d&eacute;bogueur</li>
-</ul></li>
 </ul>
+
+<p>sous Linux :
+- passage &agrave; GTK+ 2.12
+- r&eacute;duction du temps de ralentissement usleep()
+- gestion de la configuration lorsque le device impliqu&eacute; n'est pas mont&eacute;
+- reset &agrave; chaud de Teo si erreur de configuration
+- traitement du son par ALSA plut&ocirc;t que par OSS
+- passage au combobox pour les fichiers sous Linux et ajout de boutons pour les vider
+- F12 pour l'appel du d&eacute;bogueur</p>
 
 <h5>Version 1.8.0 (Juillet-Septembre 2011)</h5>
 

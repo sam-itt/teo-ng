@@ -10,6 +10,20 @@
 
 <h3>Changes</h3>
 
+<h5>Updates of version 1.8.2 (April 2013 - November 2013)</h5>
+
+<ul>
+<li>Improve image loading</li>
+<li>Allow debugger reaction whatever the mode is</li>
+<li>Joystick fire button is now emulated with R-CTRL and R-SHIFT when NUM_LOCK off</li>
+</ul>
+
+<p>under Linux :</p>
+
+<ul>
+<li>Improve display</li>
+</ul>
+
 <h5>Version 1.8.2 (June 2012-April 2013)</h5>
 
 <ul>
@@ -21,19 +35,23 @@
 <li>emulation of PR90-582 and PR90-042 printers</li>
 <li>hard reset if error when loading memo at init</li>
 <li>change directories <em><code>memo7</code></em>, <em><code>k7</code></em> and <em><code>disks</code></em> into <em><code>memo</code></em>, <em><code>cass</code></em> and <em><code>disk</code></em></li>
-<li><p>disks with private protection</p></li>
-<li><p>under Windows :</p>
+<li>disks with private protection</li>
+</ul>
+
+<p>Under Windows :</p>
 
 <ul>
 <li>improvement of interlace mode (thanks to Samuel)</li>
-</ul></li>
-<li><p>under Linux :</p>
+</ul>
+
+<p>Under Linux :</p>
 
 <ul>
 <li>upgrade to GTK+3.0</li>
 <li>reducing of CPU usage</li>
-</ul></li>
-<li><p>Bugs fixes</p>
+</ul>
+
+<p>Bugs fixes</p>
 
 <ul>
 <li>restore continuous sound generation ("useful" generation failed)</li>
@@ -41,7 +59,6 @@
 <li>correction of freezing risk for SYNC, CWAI and HCF</li>
 <li>Limiting the value passed to SetDeviceRegister to 8 bits (to avoid freezing the emulator at a 6809 program bug)</li>
 <li>No inopportune reaction of keyboard when $E7C3 (PRC) set (thanks to Julien)</li>
-</ul></li>
 </ul>
 
 <h5>Version 1.8.1 (January-May 2012)</h5>
@@ -56,7 +73,10 @@
 <li>emulation of postcode 0x00 for PSHS/PSHU/PULS/PULU</li>
 <li>add and internationalization of saptools and k7tools</li>
 <li>no more confirmation message when quitting</li>
-<li>on Linux:
+</ul>
+
+<p>Under Linux:</p>
+
 <ul>
 <li>transition to GTK+ 2.12</li>
 <li>reduction of slowdown cpu time with usleep()</li>
@@ -65,7 +85,6 @@
 <li>sound processing with ALSA rather than OSS</li>
 <li>transition to combobox for files and add emptying buttons</li>
 <li>F12 to call the debugger</li>
-</ul></li>
 </ul>
 
 <h5>Version 1.8.0 (July-September 2011)</h5>
@@ -166,13 +185,20 @@
 <li>detection of SAP bad file format</li>
 <li>bug correction for acrtridge loading</li>
 <li>bug correction for the screen edge (Bob Morane SF)</li>
-<li>on MSDOS:
+</ul>
+
+<p>on MSDOS:</p>
+
 <ul>
 <li>bug correction for a 80 columns dialog box display</li>
 <li>support of Windows Sound System sound cards</li>
 <li>support of VESA 640x400x15 mode</li>
 <li>suppressing of VESA 640x480x8 and 640x480x16 modes</li>
-</ul></li>
+</ul>
+
+<p>on Windows:</p>
+
+<ul>
 <li>support of Windows/DirectX plateforms: Windows 95,98,Me,NT4,2000 DirectX 3.0 or later</li>
 </ul>
 

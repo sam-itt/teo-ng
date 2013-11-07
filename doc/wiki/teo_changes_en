@@ -1,5 +1,14 @@
 ###Changes
 
+#####Updates of version 1.8.2 (April 2013 - November 2013)
+- Improve image loading
+- Allow debugger reaction whatever the mode is
+- Joystick fire button is now emulated with R-CTRL and R-SHIFT when NUM_LOCK off
+
+under Linux :
+
+- Improve display
+
 #####Version 1.8.2 (June 2012-April 2013)
 
 - emulation of THMFC1 disk controller
@@ -12,18 +21,22 @@
 - change directories *`memo7`*, *`k7`* and *`disks`* into *`memo`*, *`cass`* and *`disk`*
 - disks with private protection
 
-- under Windows :
-    - improvement of interlace mode (thanks to Samuel)
-- under Linux :
-    - upgrade to GTK+3.0
-    - reducing of CPU usage
+Under Windows :
 
-- Bugs fixes
-    - restore continuous sound generation ("useful" generation failed)
-    - cartridge name now erased at combo reset (otherwise it comes back at next run)
-    - correction of freezing risk for SYNC, CWAI and HCF
-    - Limiting the value passed to SetDeviceRegister to 8 bits (to avoid freezing the emulator at a 6809 program bug)
-    - No inopportune reaction of keyboard when $E7C3 (PRC) set (thanks to Julien)
+- improvement of interlace mode (thanks to Samuel)
+
+Under Linux :
+
+- upgrade to GTK+3.0
+- reducing of CPU usage
+
+Bugs fixes
+
+- restore continuous sound generation ("useful" generation failed)
+- cartridge name now erased at combo reset (otherwise it comes back at next run)
+- correction of freezing risk for SYNC, CWAI and HCF
+- Limiting the value passed to SetDeviceRegister to 8 bits (to avoid freezing the emulator at a 6809 program bug)
+- No inopportune reaction of keyboard when $E7C3 (PRC) set (thanks to Julien)
 
 #####Version 1.8.1 (January-May 2012)
 
@@ -36,14 +49,16 @@
 - emulation of postcode 0x00 for PSHS/PSHU/PULS/PULU
 - add and internationalization of saptools and k7tools
 - no more confirmation message when quitting
-- on Linux:
-    - transition to GTK+ 2.12
-    - reduction of slowdown cpu time with usleep()
-    - configuration management when the involved device is not mounted
-    - warm reset if configuration error
-    - sound processing with ALSA rather than OSS
-    - transition to combobox for files and add emptying buttons
-    - F12 to call the debugger
+
+Under Linux:
+
+- transition to GTK+ 2.12
+- reduction of slowdown cpu time with usleep()
+- configuration management when the involved device is not mounted
+- warm reset if configuration error
+- sound processing with ALSA rather than OSS
+- transition to combobox for files and add emptying buttons
+- F12 to call the debugger
 
 #####Version 1.8.0 (July-September 2011)
 
@@ -122,11 +137,16 @@
 - detection of SAP bad file format
 - bug correction for acrtridge loading
 - bug correction for the screen edge (Bob Morane SF)
-- on MSDOS:
-    - bug correction for a 80 columns dialog box display
-    - support of Windows Sound System sound cards
-    - support of VESA 640x400x15 mode
-    - suppressing of VESA 640x480x8 and 640x480x16 modes
+
+on MSDOS:
+
+- bug correction for a 80 columns dialog box display
+- support of Windows Sound System sound cards
+- support of VESA 640x400x15 mode
+- suppressing of VESA 640x480x8 and 640x480x16 modes
+
+on Windows:
+
 - support of Windows/DirectX plateforms: Windows 95,98,Me,NT4,2000 DirectX 3.0 or later
 
 #####Version 1.2 (July 2000)

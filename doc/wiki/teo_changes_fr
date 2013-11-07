@@ -1,5 +1,15 @@
 ###Changements
 
+#####Mises &agrave; jour de la version 1.8.2 (Avril 2013 - Novembre 2013)
+
+- Am&eacute;liore le chargement des images
+- Permet au debogueur de r&eacute;agir quelque soit le mode
+- Le bouton du joystick est maintenant &eacute;mul&eacute; avec Ctrl droit ou Shift droit lorsque NUMLOCK est &eacute;teint
+
+sous Linux :
+
+- Am&eacute;lioration de l'affichage
+
 #####Version 1.8.2 (Juin 2012-Avril 2013)
 
 - &eacute;mulation du contr&ocirc;leur disque THMFC1
@@ -12,18 +22,22 @@
 - change les r&eacute;pertoires *`memo7`*, *`k7`* et *`disks`* en *`memo`*, *`cass`* et *`disk`*
 - disquettes avec protection individuelle
 
-- sous Windows :
-    - am&eacute;lioration du mode vid&eacute;o entrelac&eacute; (merci &agrave; Samuel)
-- sous Linux :
-    - passage &agrave; GTK+3.0
-    - r&eacute;duction de l'usage CPU
+sous Windows :
 
-- Correction de bugs :
-    - restauration du son en g&eacute;n&eacute;ration continue (la g&eacute;n&eacute;ration "utile" est un &eacute;chec)
-    - nom de cartouche d&eacute;sormais effac&eacute; au reset de combo (sinon il r&eacute;apparait au lancement suivant)
-    - correction du risque de freeze pour SYNC, CWAI et HCF
-    - Limitation de la valeur pass&eacute;e &agrave; SetDeviceRegister &agrave; 8 bits (&eacute;vite le freeze de l'&eacute;mulateur lors d'un bug de programme 6809)
-    - Plus de r&eacute;action intempestive du clavier par $E7C3 (PRC) (merci &agrave; Julien)
+- am&eacute;lioration du mode vid&eacute;o entrelac&eacute; (merci &agrave; Samuel)
+
+sous Linux :
+
+- passage &agrave; GTK+3.0
+- r&eacute;duction de l'usage CPU
+
+Correction de bugs :
+
+- restauration du son en g&eacute;n&eacute;ration continue (la g&eacute;n&eacute;ration "utile" est un &eacute;chec)
+- nom de cartouche d&eacute;sormais effac&eacute; au reset de combo (sinon il r&eacute;apparait au lancement suivant)
+- correction du risque de freeze pour SYNC, CWAI et HCF
+- Limitation de la valeur pass&eacute;e &agrave; SetDeviceRegister &agrave; 8 bits (&eacute;vite le freeze de l'&eacute;mulateur lors d'un bug de programme 6809)
+- Plus de r&eacute;action intempestive du clavier par $E7C3 (PRC) (merci &agrave; Julien)
 
 #####Version 1.8.1 (Janvier-Mai 2012)
 
@@ -36,14 +50,15 @@
 - &eacute;mulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
 - ajout et internationalisation des saptools et des k7tools
 - plus de message de confirmation &agrave; la sortie de Teo
-- sous Linux :
-  - passage &agrave; GTK+ 2.12
-  - r&eacute;duction du temps de ralentissement usleep()
-  - gestion de la configuration lorsque le device impliqu&eacute; n'est pas mont&eacute;
-  - reset &agrave; chaud de Teo si erreur de configuration
-  - traitement du son par ALSA plut&ocirc;t que par OSS
-  - passage au combobox pour les fichiers sous Linux et ajout de boutons pour les vider
-  - F12 pour l'appel du d&eacute;bogueur
+
+sous Linux :
+- passage &agrave; GTK+ 2.12
+- r&eacute;duction du temps de ralentissement usleep()
+- gestion de la configuration lorsque le device impliqu&eacute; n'est pas mont&eacute;
+- reset &agrave; chaud de Teo si erreur de configuration
+- traitement du son par ALSA plut&ocirc;t que par OSS
+- passage au combobox pour les fichiers sous Linux et ajout de boutons pour les vider
+- F12 pour l'appel du d&eacute;bogueur
 
 #####Version 1.8.0 (Juillet-Septembre 2011)
 
