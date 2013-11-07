@@ -3,8 +3,9 @@
 ========================================================================
 - Improve image loading
 - Allow debugger reaction whatever the mode is
-- Joystick fire button is now emulated with R-CTRL and R-SHIFT when
-  NUM_LOCK off
+- Joystick fire button is now emulated by R-CTRL and R-SHIFT when
+  NUM_LOCK off (suggested by Wood)
+- Oops! The cold reset button is doing its job again (thanks to Wood)
 
 under Linux :
 

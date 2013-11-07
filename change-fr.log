@@ -4,7 +4,9 @@
 - Améliore le chargement des images
 - Permet au debogueur de réagir quelque soit le mode
 - Le bouton du joystick est maintenant émulé avec Ctrl droit ou Shift
-  droit lorsque NUMLOCK est éteint (Linux et Windows)
+  droit lorsque NUMLOCK est éteint (suggéré par Wood)
+- Oups! Le bouton de reset à froid fait à nouveau son travail (merci à
+  Wood)
 
 sous Linux :
 
