@@ -124,7 +124,7 @@ static gboolean RunTO8 (gpointer user_data)
         teo_Reset();
 
     if (teo.command == TEO_COMMAND_COLD_RESET)
-        debug = 0;
+        teo_ColdReset();
 
     if (teo.command == TEO_COMMAND_QUIT)
     {
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
     /* reset éventuel de l'émulateur */
     teo_ColdReset();
     if (reset == 0)  
-        if (image_Load("autosave.img" != 0)
+        if (image_Load("autosave.img") != 0)
             teo_ColdReset();
 
     ugui_Init();      /* Initialise l'interface graphique */
