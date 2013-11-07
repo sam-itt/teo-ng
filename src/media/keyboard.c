@@ -306,12 +306,33 @@ void keyboard_Press(int key, int release)
             }
             break;
 
-        case TEO_KEY_LSHIFT:
         case TEO_KEY_RSHIFT:
+            if ((njoy>0) && !(kb_state&TEO_KEY_F_NUMLOCK))
+            {
+                joystick_Button(TEO_NJOYSTICKS-njoy, 0, release ? TEO_JOYSTICK_FIRE_OFF : TEO_JOYSTICK_FIRE_ON);
+            }
+            else
+            {
+#ifdef TEO_DOUBLE_CAPSLOCK
+                if (kb_state&TEO_KEY_F_CAPSLOCK)
+                    key = TEO_KEY_CAPSLOCK;
+                else
+                {
+                    kb_state=(release ? kb_state&~TEO_KEY_F_SHIFT : kb_state|TEO_KEY_F_SHIFT);
+                    break;
+                }
+#else
+                kb_state=(release ? kb_state&~TEO_KEY_F_SHIFT : kb_state|TEO_KEY_F_SHIFT);
+                break;
+#endif
+            }
+            break;
+
+        case TEO_KEY_LSHIFT:
 #ifdef TEO_DOUBLE_CAPSLOCK
         case TEO_KEY_CAPSLOCK:
             if ( ((key == TEO_KEY_CAPSLOCK) && !(kb_state&TEO_KEY_F_CAPSLOCK)) ||
-                 (((key == TEO_KEY_LSHIFT) || (key == TEO_KEY_RSHIFT)) && (kb_state&TEO_KEY_F_CAPSLOCK)) )
+                 ((key == TEO_KEY_LSHIFT) && (kb_state&TEO_KEY_F_CAPSLOCK)) )
                 key = TEO_KEY_CAPSLOCK;
             else
             {
