@@ -482,7 +482,7 @@ int main(int argc, char *argv[])
     /* reset éventuel de l'émulateur */
     teo_ColdReset();
     if (reset == 0)  
-        if (image_Load("autosave.img" != 0)
+        if (image_Load("autosave.img") != 0)
             teo_ColdReset();
 
     /* initialisation de l'interface utilisateur */
