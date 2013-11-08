@@ -13,14 +13,16 @@
 ========================================================================
 === Updates of version 1.8.2 (April 2013 - November 2013)            ===
 ========================================================================
-- Improve image loading
-- Allow debugger reaction whatever the mode is
-- Joystick fire button is now emulated with R-CTRL and R-SHIFT when
-  NUM_LOCK off
+- correction of image loading
+- allow debugger reaction whatever the mode is
+- joystick fire button is now emulated by R-CTRL and R-SHIFT when
+  NUM_LOCK off (suggested by Wood)
+- oops! The cold reset button is doing its job again (thanks to Wood)
 
 under Linux :
 
-- Improve display
+- drawn sprites now displayed each frame when written directly into
+  video memory (thanks to Wood)
 
 ========================================================================
 === Version 1.8.2 (June 2012 - April 2013)                           ===

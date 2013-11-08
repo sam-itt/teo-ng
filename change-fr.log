@@ -1,14 +1,17 @@
 ========================================================================
 === Mises à jour de la version 1.8.2 (Avril 2013 - Novembre 2013)    ===
 ========================================================================
-- Améliore le chargement des images
-- Permet au debogueur de réagir quelque soit le mode
-- Le bouton du joystick est maintenant émulé avec Ctrl droit ou Shift
-  droit lorsque NUMLOCK est éteint (Linux et Windows)
+- conrrection du chargement des images
+- permet au debogueur de réagir quelque soit le mode
+- le bouton du joystick est maintenant émulé avec Ctrl droit ou Shift
+  droit lorsque NUMLOCK est éteint (suggéré par Wood)
+- oups! Le bouton de reset à froid fait à nouveau son travail (merci à
+  Wood)
 
 sous Linux :
 
-- Amélioration de l'affichage
+- les sprites sont affichés à chaque frame quand ils sont écrits
+  directement en mémoire vidéo (merci à Wood)
 
 ========================================================================
 === Version 1.8.2 (Juin 2012 - Avril 2013)                           ===

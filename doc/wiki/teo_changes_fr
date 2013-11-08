@@ -13,13 +13,15 @@ CC90HFE
 
 #####Mises &agrave; jour de la version 1.8.2 (Avril 2013 - Novembre 2013)
 
-- Am&eacute;liore le chargement des images
-- Permet au debogueur de r&eacute;agir quelque soit le mode
-- Le bouton du joystick est maintenant &eacute;mul&eacute; avec Ctrl droit ou Shift droit lorsque NUMLOCK est &eacute;teint
+- correction du chargement des images
+- permet au debogueur de r&eacute;agir quelque soit le mode
+- le bouton du joystick est maintenant &eacute;mul&eacute; avec Ctrl droit ou Shift droit lorsque NUMLOCK est &eacute;teint
+- oups! Le bouton de reset &agrave; froid fait &agrave; nouveau son travail (merci &agrave; Wood)
 
 sous Linux :
 
-- Am&eacute;lioration de l'affichage
+- les sprites sont affich&eacute;s &agrave; chaque frame quand ils sont &eacute;crits
+  directement en m&eacute;moire vid&eacute;o (merci &agrave; Wood)
 
 #####Version 1.8.2 (Juin 2012-Avril 2013)
 
