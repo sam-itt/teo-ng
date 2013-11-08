@@ -166,14 +166,14 @@ static void ReadCommandLine(int argc, char *argv[])
            is_fr?"Charge un disque virtuel (lecteur 0)"
                 :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
         { "disk1", '1', 0, G_OPTION_ARG_FILENAME, &disk_name[1],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
+           is_fr?"Charge un disque virtuel (lecteur 1)"
+                :"Load virtual disk (drive 1)", is_fr?"FICHIER":"FILE" },
         { "disk2", '2', 0, G_OPTION_ARG_FILENAME, &disk_name[2],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
+           is_fr?"Charge un disque virtuel (lecteur 2)"
+                :"Load virtual disk (drive 2)", is_fr?"FICHIER":"FILE" },
         { "disk3", '3', 0, G_OPTION_ARG_FILENAME, &disk_name[3],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
+           is_fr?"Charge un disque virtuel (lecteur 3)"
+                :"Load virtual disk (drive 3)", is_fr?"FICHIER":"FILE" },
         { "cass", 0, 0, G_OPTION_ARG_FILENAME, &cass_name,
            is_fr?"Charge une cassette":"Load a tape", is_fr?"FICHIER":"FILE" },
         { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
