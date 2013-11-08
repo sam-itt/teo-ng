@@ -322,6 +322,7 @@ static void ugraphic_DrawGPL(int mode, int addr, int pt, int col)
 	y = TEO_BORDER_CH + addr/(TEO_WINDOW_CW*TEO_CHAR_SIZE);
 	dirty_cell_row = dirty_cell + y*TEO_SCREEN_CW;
 	dirty_cell_row[x] = True;
+	teo_new_video_params = TRUE;
     }
 }
 
