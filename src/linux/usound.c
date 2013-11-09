@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou août 1999
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Gilles Fétis 07/2011
- *               François Mouret 08/2011 24/01/2012
+ *               François Mouret 08/2011 24/01/2012 09/11/2013
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -67,22 +67,19 @@
 
 static int last_index = 0;
 static unsigned char last_data = 0x00;
-static int end_data = 0;
 static unsigned char *sound_buffer = NULL;
 
 static snd_pcm_t *handle = NULL;
 static snd_pcm_hw_params_t *hwparams;
 static snd_pcm_sw_params_t *swparams;
 static unsigned int rate = ALSA_SOUND_FREQ;
+static int data_type;
 static snd_pcm_sframes_t period_size;
 static int threshold;
 
 static int period_table [TO8_CYCLES_PER_FRAME];
 
 void CloseSound (void);
-static int must_play_sound = 0;
-static int play=0;
-static int dead_sound=1;
 
 
 /* InitSoundError:
@@ -105,36 +102,32 @@ static int Error (const char *error_name, char *error_string)
 static void PutSoundByte(unsigned long long int clock, unsigned char data)
 {
     register int i;
-    register const char char_data = last_data-128;
-    float delta, new_data=end_data;
-    int index=period_table[clock%TO8_CYCLES_PER_FRAME];
+    register char char_data;
+    int index= period_size*(clock%TO8_CYCLES_PER_FRAME)/TO8_CYCLES_PER_FRAME;
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
        théorique, on bloque l'index à sa valeur maximale */
     if (index < last_index)
-	index=period_size;
+        index=period_size;
 
-    if (sound_buffer != NULL) {
-        /* create start ramp */
-        if ((must_play_sound==0) && (dead_sound==1)) {
-            if (index-last_index>1) {
-                delta=(float)(((char_data<<8)-new_data)/((index-last_index)>>1));
-                for (i=last_index; i<(last_index+((index-last_index)>>1)); i++) {
-                     new_data+=delta;
-                     sound_buffer[i<<1]=(char)new_data;
-                     sound_buffer[(i<<1)+1]=(char)((int)new_data>>8);
-                }
-                last_index+=(index-last_index)>>1;
-            }
-        }
+    if (sound_buffer != NULL)
+    {
         /* fill buffer with sound data */
-        for (i=last_index; i<index; i++)
-            sound_buffer[(i<<1)+1]=char_data;
-        must_play_sound=1;
+        switch (data_type)
+        {
+            case SND_PCM_FORMAT_U8 :
+                if ((index-last_index) != 0)
+                    memset (sound_buffer+last_index, last_data, index-last_index);
+                break;
+                
+            case SND_PCM_FORMAT_S16 :
+                char_data = last_data-128;
+                for (i=last_index; i<index; i++)
+                    sound_buffer[(i<<1)+1]=char_data;
+                break;
+        }
     }
-
     last_index=index;
-    end_data=char_data<<8;
     last_data=data;
 }
 
@@ -165,8 +158,9 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
         return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_access())");
 
     /* Initialise le format */
-    if ((err = snd_pcm_hw_params_set_format (handle, params, ALSA_FORMAT)) < 0)
-        return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_format())");
+    if ((err = snd_pcm_hw_params_set_format (handle, params, (data_type=SND_PCM_FORMAT_S16))) < 0)
+        if ((err = snd_pcm_hw_params_set_format (handle, params, (data_type=SND_PCM_FORMAT_U8))) < 0)
+            return Error (snd_strerror(err), "ALSA (snd_pcm_hw_params_set_format())");
 
     /* Initialise le nombre de canaux */
     if ((err = snd_pcm_hw_params_set_channels (handle, params, ALSA_CHANNELS)) < 0)
@@ -302,51 +296,43 @@ int InitSound(void)
 /* PlaySoundBuffer:
  *  Envoie le tampon de streaming audio à la carte son.
  */
-int PlaySoundBuffer(void)
+void PlaySoundBuffer(void)
 {
+    int err;
     register int i;
-    static int size = 0;
 
-    if (sound_buffer != NULL)
+    if ((sound_buffer == NULL) || (handle == NULL))
+        return;
+
+    switch (data_type)
     {
-        play=1;
-        dead_sound=1;
-        /* on remplit la fin du buffer avec la dernière valeur déposée */
-        if (must_play_sound) {
+        case SND_PCM_FORMAT_U8 :
+            if ((period_size-last_index) != 0)
+                memset (sound_buffer+last_index, last_data, period_size-last_index);
+            break;
+
+        case SND_PCM_FORMAT_S16 :
             for (i=last_index; i<period_size; i++)
                 sound_buffer[(i<<1)+1]=last_data-128;
-            end_data = (last_data-128)<<8;
-            dead_sound=0;
+            break;
+    }
+    if ((err = snd_pcm_writei(handle, sound_buffer, period_size)) < 0)
+    {
+        if (err == -EPIPE)
+        {
+            (void)snd_pcm_prepare(handle);
         }
         else
-        /* on fait tendre la valeur vers 0 */
-        if (end_data!=0) {
-            for (i=0; i<period_size; i++) {
-                sound_buffer[i<<1]=end_data;
-                sound_buffer[(i<<1)+1]=end_data>>8;
-                if (end_data<0)
-                    if ((end_data+=DELTA_TO_0_VALUE)>0)
-                         end_data=0;
-                if (end_data>0)
-                    if ((end_data-=DELTA_TO_0_VALUE)<0)
-                         end_data=0;
-            }
-        } else
-        /* on remplit le buffer hardware jusqu'au seuil de déclenchement
-         * et on stoppe la génération du son une fois atteint */
-        if (size==0) play=0;
-
-        if ((play) && (handle != NULL)) {
-            size += snd_pcm_writei (handle, sound_buffer, period_size);
-            if (size >= threshold) size=0;
-        } else
-            play=0;
-
-        /* reset du buffer */
-        memset(sound_buffer, 0x00, (period_size * snd_pcm_format_physical_width(ALSA_FORMAT)) >> 3);
-        last_index=0;
+        if (err == -ESTRPIPE)
+        {
+            while ((err = snd_pcm_resume(handle)) == -EAGAIN)
+                sleep(1); /* wait until the suspend flag is released */
+            if (err < 0)
+                (void)snd_pcm_prepare(handle);
+        }
     }
-    must_play_sound=0;
-    return play;
+    /* snd_pcm_recover (handle, err, TRUE); */
+    
+    last_index=0;
 }
 

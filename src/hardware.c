@@ -37,7 +37,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
- *               François Mouret 18/09/2006 02/02/2012
+ *               François Mouret 18/09/2006 02/02/2012 09/11/2013
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -185,6 +185,12 @@ static void SetDeviceRegister(int addr, int val)
         /* PIA 6846 système */
         case 0xE7C1:
             mc6846_WriteCommand(&mc6846, val);
+
+            if ((mc6846.crc&0x30) == 0x30)
+                to8_PutSoundByte(mc6809_clock(),
+                                 mc6846.crc&8
+                                   ? 0x00
+                                   : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7C2:
@@ -292,10 +298,10 @@ static void SetDeviceRegister(int addr, int val)
 
         case 0xE7CD:
             mc6821_WriteData(&pia_ext.portb, val);
-            if ((!(mc6846.crc&8))  /* MUTE son inactif */
-             && ((mc6821_ReadCommand(&pia_ext.portb)&4) != 0)  /* donnée port B */
-             && (pia_ext.portb.ddr==0x3f))  /* lignes du son activées pour 6 bits */
-                to8_PutSoundByte(mc6809_clock(), (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+
+            if (!(mc6846.crc&8))  /* MUTE son inactif */
+                to8_PutSoundByte(mc6809_clock(),
+                                 (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             break;
 
         case 0xE7CE:
