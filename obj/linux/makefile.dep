@@ -108,8 +108,7 @@ obj/linux/ufloppy.o: src/linux/ufloppy.c include/teo.h include/linux/sound.h
 obj/linux/ugraphic.o: src/linux/ugraphic.c include/linux/display.h \
  include/linux/../teo.h include/teo.h
 obj/linux/ugui.o: src/linux/ugui.c include/linux/display.h include/linux/../teo.h \
- include/linux/gui.h include/linux/graphic.h include/teo.h \
- src/linux/commands.xpm
+ include/linux/gui.h include/linux/graphic.h include/teo.h
 obj/linux/umain.o: src/linux/umain.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/option.h include/std.h include/image.h \
  include/errors.h include/main.h include/std.h include/ini.h \
