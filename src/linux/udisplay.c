@@ -37,7 +37,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
- *               François Mouret 26/01/2010 08/2011
+ *               François Mouret 26/01/2010 08/2011 09/11/2013
  *               Gille Fétis 07/2011
  *
  *  Module d'interface avec le serveur X.
@@ -285,6 +285,26 @@ void InitWindow(int argc, char *argv[], int x, int y, int user_flags)
 }
 
 
+
+/* keycode_to_keysym:
+ *  To replace XKeycodeToKeysym, avoid the using of XkbKeycodeToKeysym,
+ *  still compatible with previous X11 versions and portable.
+ */
+static KeySym keycode_to_keysym (unsigned int keycode)
+{
+    int retkey;
+    KeySym *keysym_list;
+    KeySym keysym;
+
+    keysym_list = XGetKeyboardMapping(display, keycode, 1, &retkey);
+    keysym = keysym_list[0];
+    XFree(keysym_list);
+
+    return keysym;
+}
+
+
+
 /* HandleEvents:
  *  Lit et traite les évènements envoyés par le serveur X.
  */
@@ -302,10 +322,6 @@ void HandleEvents(void)
         {
             case ClientMessage:  /* screen_win */
                 if (atomDeleteScreen == (Atom)ev.xclient.data.l[0])
-                /*
-                    if (ask_box (is_fr?"Voulez-vous vraiment quitter l'Ã©mulateur ?"
-                                                :"Do you really want to quit the emulator ?", widget_win) == TRUE)
-                */
                         teo.command = QUIT;
                 break;
 
@@ -318,7 +334,7 @@ void HandleEvents(void)
                 key = x11_to_dos[ev.xkey.keycode];
                 if (!key)
                     /* Cas spécial du ALTGR à partir de Ubuntu 8.04 */
-                    if (XKeycodeToKeysym(display,ev.xkey.keycode,0) == (KeySym)XK_ISO_Level3_Shift)
+                    if (keycode_to_keysym(ev.xkey.keycode) == (KeySym)XK_ISO_Level3_Shift)
                         key=KEY_ALTGR;
                 to8_HandleKeyPress(key, True);
                 break;
@@ -351,7 +367,7 @@ void HandleEvents(void)
 
                 if (!key)
                     /* Cas spécial du ALTGR à partir de Ubuntu 8.04 */
-                    if (XKeycodeToKeysym(display,ev.xkey.keycode,0) == (KeySym)XK_ISO_Level3_Shift)
+                    if (keycode_to_keysym(ev.xkey.keycode) == (KeySym)XK_ISO_Level3_Shift)
                         key=KEY_ALTGR;
 
                 if (key==KEY_ESC)
