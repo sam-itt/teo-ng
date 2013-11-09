@@ -230,6 +230,8 @@ void agui_Panel(void)
                 return;
 
             case CONTROLDIAL_QUIT:
+                if (teo.command == TEO_COMMAND_COLD_RESET)
+                    teo_ColdReset();
                 teo.command=TEO_COMMAND_QUIT;
                 return;
         }

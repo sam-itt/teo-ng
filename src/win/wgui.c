@@ -274,6 +274,10 @@ void wgui_Panel(void)
 
    ret = DialogBox(prog_inst, "CONTROL_DIALOG", prog_win, ControlDialogProc);
 
-   if (ret == IDCANCEL) 
+   if (ret == IDCANCEL)
+   {
+      if (teo.command == TEO_COMMAND_COLD_RESET)
+          teo_ColdReset();
       teo.command = TEO_COMMAND_QUIT;
+   }
 }

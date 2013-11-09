@@ -243,7 +243,11 @@ void ugui_Panel(void)
     {
         case TEO_RESPONSE_END    : break;
         case GTK_RESPONSE_ACCEPT : break;
-        case TEO_RESPONSE_QUIT   : teo.command=TEO_COMMAND_QUIT; break;
+        case TEO_RESPONSE_QUIT   :
+            if (teo.command == TEO_COMMAND_COLD_RESET)
+                teo_ColdReset();
+            teo.command=TEO_COMMAND_QUIT;
+            break;
    }
    gtk_widget_hide (wControl);
 }
