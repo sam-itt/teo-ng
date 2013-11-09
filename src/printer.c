@@ -37,7 +37,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 30/03/2001
- *               François Mouret 14/04/2012
+ *               François Mouret 14/04/2012 09/11/2013
  *
  *  Emulation des imprimantes PR90-055, PR90-600 et PR90-612.
  */
@@ -1103,6 +1103,7 @@ static void load_font (char *filename, int face)
     }
     font.height += yp;
     fclose(file);
+    (void)res;
 }
 
 

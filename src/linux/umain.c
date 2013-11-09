@@ -38,7 +38,7 @@
  *  Version    : 1.8.1
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 26/01/2010 08/2011 23/03i/2012
+ *               François Mouret 26/01/2010 08/2011 23/03/2012 09/11/2013
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -432,6 +432,8 @@ static void sysExec(char *cmd, const char *dir) {
     i = chdir(dir);
     i = system(cmd);
     i = chdir(cwd);
+    (void)i;
+    (void)tmp;
 }
 
 
@@ -457,6 +459,7 @@ static char *tmpFile(char *buf, int maxlen) {
     strcat(buf, ".sap");
     return buf;
     (void)maxlen;
+    (void)tmp;
 }
 
 
