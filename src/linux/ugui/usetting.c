@@ -221,14 +221,30 @@ void usetting_Init (GtkWidget *notebook)
 
     /* bouton de vitesse maximale */
     hbox = create_new_hbox (vbox);
-    widget=gtk_radio_button_new_with_label(NULL, ("256k (+reset)"));
+    if (teo.setting.bank_range == 16)
+    {
+        widget=gtk_radio_button_new_with_label(NULL, ("256k"));
+    }
+    else
+    {
+        widget=gtk_radio_button_new_with_label(NULL, ("256k (+reset)"));
+    }
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* bouton de vitesse exacte */
     hbox = create_new_hbox (vbox);
-    widget=gtk_radio_button_new_with_label_from_widget(
-                            GTK_RADIO_BUTTON (widget),
-                            "512k (+reset)");
+    if (teo.setting.bank_range == 32)
+    {
+        widget=gtk_radio_button_new_with_label_from_widget(
+                                GTK_RADIO_BUTTON (widget),
+                                "512k");
+    }
+    else
+    {
+        widget=gtk_radio_button_new_with_label_from_widget(
+                                GTK_RADIO_BUTTON (widget),
+                                "512k (+reset)");
+    }
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* Buttons connection */
