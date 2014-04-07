@@ -184,7 +184,6 @@ static void update_color(int index)
  */
 static void SetDeviceRegister(int addr, int val)
 {
-    static int new_lsb;
     int index;
 
     switch (addr)
@@ -367,19 +366,15 @@ static void SetDeviceRegister(int addr, int val)
             if (mode_page.p_addr&1)
             {
                 val = 0xE0|(val&0xF);
-
-                if ((pal_chip.color[index].b != val) || new_lsb)
-                {
-                    pal_chip.color[index].b = val;
-                    pal_chip.update(index);
-                    new_lsb = FALSE;
-                    teo_new_video_params = TRUE;
-                }
+                pal_chip.color[index].b = val;
+                pal_chip.update(index);
+                teo_new_video_params = TRUE;
             }
-            else if (pal_chip.color[index].gr != val)
+            else 
             {
                 pal_chip.color[index].gr = val;
-                new_lsb = TRUE;
+		pal_chip.update(index);
+                teo_new_video_params = TRUE;
             }
 
             mode_page.p_addr=(mode_page.p_addr+1)&0x1F;

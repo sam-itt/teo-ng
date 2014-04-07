@@ -296,7 +296,38 @@ int usound_Init(void)
     return 0;
 }
 
+static int xrun_recovery(snd_pcm_t *handle, int err)
+{
+        if (err == -EPIPE) {    /* under-run */
+                err = snd_pcm_prepare(handle);
+                if (err < 0)
+                        printf("Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
+                return 0;
+        } else if (err == -ESTRPIPE) {
+                while ((err = snd_pcm_resume(handle)) == -EAGAIN)
+                        sleep(1);       /* wait until the suspend flag is released */
+                if (err < 0) {
+                        err = snd_pcm_prepare(handle);
+                        if (err < 0)
+                                printf("Can't recovery from suspend, prepare failed: %s\n", snd_strerror(err));
+                }
+                return 0;
+        }
+        return err;
+}
 
+static int wait_for_poll(snd_pcm_t *handle, struct pollfd *ufds, unsigned int count)
+{
+        unsigned short revents;
+        while (1) {
+                poll(ufds, count, -1);
+                snd_pcm_poll_descriptors_revents(handle, ufds, count, &revents);
+                if (revents & POLLERR)
+                        return -EIO;
+                if (revents & POLLOUT)
+                        return 0;
+        }
+}
 
 /* usound_Play:
  *  Envoie le tampon de streaming audio à la carte son.
@@ -305,6 +336,26 @@ void usound_Play(void)
 {
     int err;
     register int i;
+    static struct pollfd *ufds=NULL;
+    static int count;
+
+    if (ufds==NULL) {
+        count = snd_pcm_poll_descriptors_count (handle);
+        if (count <= 0) {
+                printf("Invalid poll descriptors count\n");
+                return;
+        }
+        ufds = malloc(sizeof(struct pollfd) * count);
+        if (ufds == NULL) {
+                printf("No enough memory\n");
+                return;
+        }
+        if ((err = snd_pcm_poll_descriptors(handle, ufds, count)) < 0) {
+                printf("Unable to obtain poll descriptors for playback: %s\n", snd_strerror(err));
+                return;
+        }
+    }
+
 
     if ((sound_buffer == NULL) || (handle == NULL))
         return;
@@ -321,6 +372,24 @@ void usound_Play(void)
                 sound_buffer[(i<<1)+1]=last_data-128;
             break;
     }
+
+    err = wait_for_poll(handle, ufds, count);
+    if (err < 0) {
+    	if (snd_pcm_state(handle) == SND_PCM_STATE_XRUN ||
+                                    snd_pcm_state(handle) == SND_PCM_STATE_SUSPENDED) {
+                                        err = snd_pcm_state(handle) == SND_PCM_STATE_XRUN ? -EPIPE : -ESTRPIPE;
+                                        if (xrun_recovery(handle, err) < 0) {
+                                                printf("Write error: %s\n", snd_strerror(err));
+                                                exit(EXIT_FAILURE);
+                                        }
+                                        // init = 1;
+                                } else {
+                                        printf("Wait for poll failed\n");
+                                        return;
+                                }
+    }
+
+
     if ((err = snd_pcm_writei(handle, sound_buffer, period_size)) < 0)
     {
         if (err == -EPIPE)

@@ -68,22 +68,79 @@ static Colormap colormap;
 static int *dirty_cell;
 static int border_color;
 static XImage *gpl_buffer, *screen_buffer;
+static XColor xcolorBuf[4096];
 static XColor xcolor[TEO_NCOLORS+4];
 static int pixel_size;
+
+
+static void BuildXColorBuffer(void) 
+{
+    static int gamma[16] = {
+        0  , 100, 127, 147,
+        163, 179, 191, 203,
+        215, 223, 231, 239,
+        243, 247, 251, 255
+    };
+
+    int r,g,b,index;
+    for (r=0;r<16;r++)
+    for (g=0;g<16;g++)
+    for (b=0;b<16;b++) {
+	index=(r<<8)|(g<<4)|b;
+    	xcolorBuf[index].red   = 0x101*gamma[r];
+    	xcolorBuf[index].green = 0x101*gamma[g];
+    	xcolorBuf[index].blue  = 0x101*gamma[b];
+	xcolor[index].flags=DoRed|DoGreen|DoBlue;
+        XAllocColor(display, colormap, &xcolorBuf[index]);
+    }
+
+}
 
 /* SetColor:
  *  Change une couleur de la palette du TO8.
  */
 static void SetColor(int index, int r, int g, int b)
 {
+    static int inv_gamma[256] = {
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 0-9
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 10-19
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 20-29
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 30-39
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 40-49
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 50-59
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 60-69
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 70-79
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 80-89
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 90-99
+        1  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 100-109
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 110-119
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 2  , 0  , 0  , // 120-129
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 130-139
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 3  , 0  , 0  , // 140-149
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 150-159
+        0  , 0  , 0  , 4  , 0    , 0  , 0  , 0  , 0  , 0  , // 160-169
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 5  , // 170-179
+        0  , 0  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 180-189
+        0  , 6  , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 0  , // 190-199
+        0  , 0  , 0  , 7  , 0    , 0  , 0  , 0  , 0  , 0  , // 200-209
+        0  , 0  , 0  , 0  , 0    , 8  , 0  , 0  , 0  , 0  , // 210-219
+        0  , 0  , 0  , 9  , 0    , 0  , 0  , 0  , 0  , 0  , // 220-229
+        0  , 10 , 0  , 0  , 0    , 0  , 0  , 0  , 0  , 11 , // 230-239
+        0  , 0  , 0  , 12 , 0    , 0  , 0  , 13 , 0  , 0  , // 240-249
+        0  , 14 , 0  , 0  , 0    , 15                       // 250-255
+    };
+
+	int i;
+    if (visualinfo.class == TrueColor) {
+	i=(inv_gamma[r]<<8)|(inv_gamma[g]<<4)|inv_gamma[b];
+	memcpy(&xcolor[index],&xcolorBuf[i],sizeof(XColor));
+        // XAllocColor(display, colormap, &xcolor[index]);
+    }
+    else if (visualinfo.class == PseudoColor)
+    {
     xcolor[index].red   = 0x101*r;
     xcolor[index].green = 0x101*g;
     xcolor[index].blue  = 0x101*b;
-
-    if (visualinfo.class == TrueColor)
-        XAllocColor(display, colormap, &xcolor[index]);
-    else if (visualinfo.class == PseudoColor)
-    {
 	xcolor[index].flags=DoRed|DoGreen|DoBlue;
 	XStoreColor(display, colormap, &xcolor[index]);
     }
@@ -504,9 +561,12 @@ void ugraphic_Init(void)
     xcolor[TEO_NCOLORS+3].green = 0xFFFF;
     xcolor[TEO_NCOLORS+3].blue  = 0;
 
-    if (visualinfo.class == TrueColor)
+    if (visualinfo.class == TrueColor) {
 	for (i=0; i<4; i++)
 	    XAllocColor(display, colormap, &xcolor[TEO_NCOLORS+i]);
+
+	BuildXColorBuffer();
+	}
     else if (visualinfo.class == PseudoColor)
     {
 	long int pixels[TEO_NCOLORS+4];
