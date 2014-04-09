@@ -38,7 +38,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 18/09/2006 02/02/2012 29/09/2012
- *                               18/09/2013
+ *                               18/09/2013 09/04/2014
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -413,7 +413,7 @@ static void SetDeviceRegister(int addr, int val)
             break;
 
         case 0xE7E6:  /* commutation de l'espace cartouche */
-            mode_page.cart=val;
+            mode_page.cart=val&0x7f;  /* b7 is a "dead" bit always set to 0 */
             mempager.cart.ram_page=val&0x1F;
             mempager.cart.update();
             break;
