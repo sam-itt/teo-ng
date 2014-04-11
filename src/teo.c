@@ -465,6 +465,10 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
  */
 void teo_Reset(void)
 {
+    /* Back to 40 columns display */
+    mode_page.lgamod=0x00;
+    teo_new_video_params=TRUE;
+
     mc6809_Reset();
 }
 
@@ -512,11 +516,21 @@ void teo_ColdReset(void)
     mempager.mon.page = 0;
     mempager.mon.update();
 
-    memory_hard_reset();
+    STORE_BYTE(0x60FF, 0x00);
 
-    mc6809_Reset();
+    teo_Reset();
 }
 
+
+
+/* ColdReset:
+ *  Simulate an electrical cold reset of a TO8.
+ */
+void teo_FullReset(void)
+{
+    memory_hard_reset();
+    teo_ColdReset();
+}
 
 
 
