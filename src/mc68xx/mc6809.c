@@ -2575,9 +2575,9 @@ static void subd(void) {    /* NxZxVxCx */
 static void synm(void) {
     /* not supported */
     switch (step) {
-    case 20 :  step=0;  /* reset fetch */
+    case 4  :  step=0;  /* reset fetch */
                break;
-    /* Case 2->19 = [Don't Care] */
+    /* Case 2->3 = [Don't Care] */
     default :  break;
     }
 }
@@ -2588,9 +2588,10 @@ static void cwai(void) {
     case 2 :  value=LoadByte(pc);
               pc=(pc+1)&0xffff;
               break;
-    case 4 :  step=0;  /* reset fetch */
+    /* Case 20 = [Don't Care] */
+    case 20 :  step=0;  /* reset fetch */
               break;
-    /* Case 2->3 = [Don't Care] */
+    /* Case 3->19 =  [Don't Care] */
     default : break;
     }
 }
