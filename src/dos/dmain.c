@@ -212,6 +212,12 @@ static void RunTO8(void)
             teo_ColdReset();
             amouse_Install(TEO_STATUS_MOUSE);
         }
+
+        if (teo.command==TEO_COMMAND_FULL_RESET)
+        {
+            teo_FullReset();
+            amouse_Install(TEO_STATUS_MOUSE);
+        }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
 
@@ -481,10 +487,10 @@ int main(int argc, char *argv[])
     std_StringListFree (remain_name);
 
     /* Restitue l'état sauvegardé de l'émulateur */
-    teo_ColdReset();
+    teo_FullReset();
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
-            teo_ColdReset();
+            teo_FullReset();
 
     /* initialisation de l'interface utilisateur */
     agui_Init(version_name, gfx_mode, direct_support);
