@@ -130,6 +130,7 @@ enum teo_command {
     TEO_COMMAND_BREAKPOINT,
     TEO_COMMAND_RESET,
     TEO_COMMAND_COLD_RESET,
+    TEO_COMMAND_FULL_RESET,
     TEO_COMMAND_QUIT
 };
 
@@ -206,6 +207,7 @@ extern int   teo_Init(int num_joy);
 extern void  teo_Exit(void);
 extern void  teo_Reset(void);
 extern void  teo_ColdReset(void);
+extern void  teo_FullReset(void);
 extern void  teo_InputReset(int mask, int value);
 extern int   teo_DoFrame(int debug);
 

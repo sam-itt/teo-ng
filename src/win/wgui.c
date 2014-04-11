@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
- *                               21/09/2012 18/09/2013
+ *                               21/09/2012 18/09/2013 11/04/2014
  *
  *  Interface utilisateur Windows native.
  */
@@ -128,20 +128,23 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 {
    LPNMHDR lpnmhdr;
    int i;
+   int response;
 
    switch(uMsg)
    {
       case WM_INITDIALOG:
 #ifdef FRENCH_LANGUAGE
          SetWindowText(hDlg, "Panneau de contrôle");
-         SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Réinitialiser le TO8");
-         SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Redémarrer à froid le TO8");
+         SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Reset à chaud");
+         SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Reset à froid");
+         SetWindowText(GetDlgItem(hDlg, FULLRESET_BUTTON), "Reset total");
          SetWindowText(GetDlgItem(hDlg, ABOUT_BUTTON), "A propos");
          SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quitter");
 #else
          SetWindowText(hDlg, "Control panel");
-         SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "TO8 warm reset");
-         SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "TO8 cold reset");
+         SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Warm reset");
+         SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Cold reset");
+         SetWindowText(GetDlgItem(hDlg, FULLRESET_BUTTON), "Full reset");
          SetWindowText(GetDlgItem(hDlg, ABOUT_BUTTON), "About");
          SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quit");
 #endif
@@ -158,6 +161,22 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          SetClassLong(hDlg, GCL_HICON,   (LONG) prog_icon);
          SetClassLong(hDlg, GCL_HICONSM, (LONG) prog_icon);
 
+         /* crée les tooltips */
+         wgui_CreateTooltip (hDlg, RESET_BUTTON,
+								 is_fr?"Redémarre à chaud sans " \
+                                       "effacer la mémoire RAM"
+                                      :"Warm reset without to\n"
+                                       "clear the RAM memory");
+         wgui_CreateTooltip (hDlg, COLDRESET_BUTTON,
+                                 is_fr?"Redémarre à froid sans " \
+                                       "effacer la mémoire RAM"
+                                      :"Cold reset without to\n" \
+                                       "clear the RAM memory");
+         wgui_CreateTooltip (hDlg, FULLRESET_BUTTON,
+                                 is_fr?"Redémarre à froid et " \
+                                       "efface la mémoire RAM"
+                                      :"Cold reset and\n" \
+                                       "clear the RAM memory");
          return TRUE;
 
       case WM_DESTROY :
@@ -190,6 +209,18 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
             case COLDRESET_BUTTON:
                teo.command = TEO_COMMAND_COLD_RESET;
                EndDialog(hDlg, IDOK);
+               break;
+
+            case FULLRESET_BUTTON:
+               response = MessageBox(NULL, is_fr?"Toute la mémoire RAM sera effacée."
+                                                :"All the RAM memory will be cleared.",
+                                           is_fr?"Teo - Question":"Teo - Question",
+                                           MB_OKCANCEL | MB_ICONEXCLAMATION);
+		       if (response == IDOK)
+		       {
+                    teo.command = TEO_COMMAND_FULL_RESET;
+                    EndDialog(hDlg, IDOK);
+               }
                break;
 
             case WM_DESTROY:

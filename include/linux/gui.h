@@ -57,8 +57,9 @@ extern void ugui_Free (void);
 extern void ugui_Panel (void);
 
 /* boxes */
-extern void ugui_Error   (const gchar *message, GtkWidget *parent_window);
-extern void ugui_Warning (const gchar *message, GtkWidget *parent_window);
+extern void ugui_Error    (const gchar *message, GtkWidget *parent_window);
+extern void ugui_Warning  (const gchar *message, GtkWidget *parent_window);
+extern int  ugui_Question (const gchar *message, GtkWidget *parent_window);
 
 /* sub panels */
 extern int  udebug_Panel(void);

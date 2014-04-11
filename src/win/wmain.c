@@ -196,6 +196,12 @@ static void RunTO8(void)
             teo_ColdReset();
             amouse_Install(TEO_STATUS_MOUSE);
         }
+
+        if (teo.command==TEO_COMMAND_FULL_RESET)
+        {
+            teo_FullReset();
+            amouse_Install(TEO_STATUS_MOUSE);
+        }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
 
@@ -486,10 +492,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     std_StringListFree (remain_name);
 
     /* Restitue l'état sauvegardé de l'émulateur */
-    teo_ColdReset();
+    teo_FullReset();
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
-            teo_ColdReset();
+            teo_FullReset();
 
     /* initialisation de l'interface utilisateur Allegro */
     if (!windowed_mode)

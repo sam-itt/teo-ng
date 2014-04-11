@@ -140,8 +140,9 @@ static DIALOG controldial[]={
 { d_shadow_box_proc,  20,  10, 280, 180, 0, 0,  0,    0,    0, 0, NULL },
 #ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Panneau de contrôle" },
-{ d_button_proc,      30,  35, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "Redémarrer à &chaud le TO8" },
-{ d_button_proc,      30,  53, 260,  16, 0, 0, 'f', D_EXIT, 0, 0, "Redémarrer à &froid le TO8" },
+{ d_button_proc,      30,  35, 128,  16, 0, 0, 'c', D_EXIT, 0, 0, "Reset à &chaud" },
+{ d_button_proc,     162,  35, 128,  16, 0, 0, 'f', D_EXIT, 0, 0, "Reset à &froid" },
+{ d_button_proc,      93,  53, 128,  16, 0, 0, 'e', D_EXIT, 0, 0, "R&eset total" },
 { d_button_proc,      30,  75, 260,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Réglages..." },
 { d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, "Lecteurs de &disquettes..." },
 { d_button_proc,      30, 111, 260,  16, 0, 0, 's', D_EXIT, 0, 0, "Lecteur de ca&ssettes..." },
@@ -152,8 +153,9 @@ static DIALOG controldial[]={
 { d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Control panel" },
-{ d_button_proc,      30,  35, 260,  16, 0, 0, 'w', D_EXIT, 0, 0, "TO8 &warm reset" },
-{ d_button_proc,      30,  53, 260,  16, 0, 0, 'c', D_EXIT, 0, 0, "TO8 &cold reset" },
+{ d_button_proc,      30,  35, 128,  16, 0, 0, 'w', D_EXIT, 0, 0, "&Warm reset" },
+{ d_button_proc,     162,  35, 128,  16, 0, 0, 'c', D_EXIT, 0, 0, "&Cold reset" },
+{ d_button_proc,      93,  53, 128,  16, 0, 0, 'f', D_EXIT, 0, 0, "&Full reset" },
 { d_button_proc,      30,  75, 260,  16, 0, 0, 's', D_EXIT, 0, 0, "&Settings..." },
 { d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Disk drives..." },
 { d_button_proc,      30, 111, 260,  16, 0, 0, 't', D_EXIT, 0, 0, "&Tape recorder..." },
@@ -169,14 +171,15 @@ static DIALOG controldial[]={
 
 #define CONTROLDIAL_WARMRESET 2
 #define CONTROLDIAL_COLDRESET 3
-#define CONTROLDIAL_COMMAND   4
-#define CONTROLDIAL_DISK      5
-#define CONTROLDIAL_CASS      6
-#define CONTROLDIAL_CART      7
-#define CONTROLDIAL_PRINTER   8
-#define CONTROLDIAL_QUIT      9
-#define CONTROLDIAL_ABOUT     10
-#define CONTROLDIAL_OK        11
+#define CONTROLDIAL_FULLRESET 4
+#define CONTROLDIAL_COMMAND   5
+#define CONTROLDIAL_DISK      6
+#define CONTROLDIAL_CASS      7
+#define CONTROLDIAL_CART      8
+#define CONTROLDIAL_PRINTER   9
+#define CONTROLDIAL_QUIT      10
+#define CONTROLDIAL_ABOUT     11
+#define CONTROLDIAL_OK        12
 
 
 /* ------------------------------------------------------------------------- */
@@ -187,6 +190,7 @@ static DIALOG controldial[]={
  */
 void agui_Panel(void)
 {
+    int response;
     clear_keybuf();
     centre_dialog(controldial);
 
@@ -200,6 +204,19 @@ void agui_Panel(void)
             case CONTROLDIAL_COLDRESET:
                 teo.command=TEO_COMMAND_COLD_RESET;
                 return;
+
+            case CONTROLDIAL_FULLRESET:
+                response = alert (is_fr?"Toute la nmémoire":"All the memory",
+                                  is_fr?"sera effacée.":"will be cleared.",
+                                  NULL,
+                                  "Ok",
+                                  is_fr?"Annuler":"Cancel", 0, 0);
+                if (response == 1)
+                {
+                    teo.command=TEO_COMMAND_FULL_RESET;
+                    return;
+                }
+                break;
 
             case CONTROLDIAL_COMMAND:
                 asetting_Panel();

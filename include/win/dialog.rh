@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 14/09/2000
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 10/08/2011 17/03/2012 20/09/2012
- *                               20/09/2013
+ *                               20/09/2013 11/04/2014
  *
  *  Définition des boîtes de dialogue.
  */
@@ -56,9 +56,10 @@
 
 #define RESET_BUTTON            2120
 #define COLDRESET_BUTTON        2121
-#define CONTROL_TAB             2122
-#define ABOUT_BUTTON            2123
-#define QUIT_BUTTON             2124
+#define FULLRESET_BUTTON        2122
+#define CONTROL_TAB             2123
+#define ABOUT_BUTTON            2124
+#define QUIT_BUTTON             2125
 
 #define SETTING_TAB             2140
 #define SPEED_GROUP             2141

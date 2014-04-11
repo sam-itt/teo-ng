@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 26/03/2012 12/06/2012
- *                               19/09/2013
+ *                               19/09/2013 11/04/2014
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
@@ -74,6 +74,13 @@ static GtkWidget *notebook;
  */
 static void do_exit (GtkWidget *button, gpointer user_data)
 {
+    if ((int)user_data == TEO_COMMAND_FULL_RESET)
+    {
+        if (ugui_Question (is_fr?"Toute la mÃ©moire RAM sera effacÃ©e."
+                                :"All the RAM memory will be cleared.",
+                           wControl) == FALSE)
+            return;
+    }
     teo.command = (volatile enum teo_command)user_data;
     gtk_dialog_response (GTK_DIALOG(wControl), TEO_RESPONSE_END);
 
@@ -87,16 +94,20 @@ static void do_exit (GtkWidget *button, gpointer user_data)
 /* ugui_MessageBox:
  *  Affiche une boîte à message
  */
-void ugui_MessageBox (const gchar *message, GtkWidget *parent_window, int dialog_flag)
+int ugui_MessageBox (const gchar *message, GtkWidget *parent_window,
+                      int message_type, int buttons_type)
 {
+    gint response;
+
     GtkWidget *dialog = gtk_message_dialog_new  (
                     (GtkWindow *)parent_window,
                     GTK_DIALOG_MODAL 
                      | ((parent_window!=NULL)?GTK_DIALOG_DESTROY_WITH_PARENT:0),
-                    dialog_flag, GTK_BUTTONS_OK, "%s", message);
+                    message_type, buttons_type, "%s", message);
     gtk_window_set_title (GTK_WINDOW(dialog), "Teo");
-    (void)gtk_dialog_run (GTK_DIALOG(dialog));
+    response = gtk_dialog_run (GTK_DIALOG(dialog));
     gtk_widget_destroy ((GtkWidget *)dialog);
+    return (response == GTK_RESPONSE_OK) ? TRUE : FALSE;
 }
 
 
@@ -106,7 +117,8 @@ void ugui_MessageBox (const gchar *message, GtkWidget *parent_window, int dialog
  */
 void ugui_Error (const gchar *message, GtkWidget *parent_window)
 {
-    ugui_MessageBox (message, parent_window, GTK_MESSAGE_ERROR);
+    (void)ugui_MessageBox (message, parent_window,
+                           GTK_MESSAGE_ERROR, GTK_BUTTONS_OK);
 }
 
 
@@ -116,7 +128,19 @@ void ugui_Error (const gchar *message, GtkWidget *parent_window)
  */
 void ugui_Warning (const gchar *message, GtkWidget *parent_window)
 {
-    ugui_MessageBox (message, parent_window, GTK_MESSAGE_WARNING);
+    (void)ugui_MessageBox (message, parent_window,
+                           GTK_MESSAGE_WARNING, GTK_BUTTONS_OK);
+}
+
+
+
+/* ugui_Question:
+ *  Affiche une boîte de questionnement
+ */
+int ugui_Question (const gchar *message, GtkWidget *parent_window)
+{
+    return ugui_MessageBox (message, parent_window,
+                            GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL);
 }
 
 
@@ -187,22 +211,46 @@ void ugui_Init(void)
     gtk_box_pack_start( GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* bouton de réinitialisation */
-    widget=gtk_button_new_with_label(is_fr?"RÃ©initialiser le TO8"
-                                          :"TO8 warm reset");
+    widget=gtk_button_new_with_label(is_fr?"Reset Ã  chaud"
+                                          :"Warm reset");
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    gtk_widget_set_tooltip_text (widget,
+                                 is_fr?"RedÃ©marre Ã  chaud sans\n" \
+                                       "effacer la mÃ©moire RAM"
+                                      :"Warm reset without to\n"
+                                       "clear the RAM memory");
     g_signal_connect(G_OBJECT(widget),
                      "clicked",
                      G_CALLBACK(do_exit),
                      (gpointer) TEO_COMMAND_RESET);
 
     /* bouton de redémarrage à froid */
-    widget=gtk_button_new_with_label(is_fr?"RedÃ©marrer Ã  froid le TO8"
-                                          :"TO8 cold reset");
+    widget=gtk_button_new_with_label(is_fr?"Reset Ã  froid"
+                                          :"Cold reset");
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    gtk_widget_set_tooltip_text (widget,
+                                 is_fr?"RedÃ©marre Ã  froid sans\n" \
+                                       "effacer la mÃ©moire RAM"
+                                      :"Cold reset without to\n" \
+                                       "clear the RAM memory");
     g_signal_connect(G_OBJECT(widget),
                      "clicked",
                      G_CALLBACK(do_exit),
                      (gpointer) TEO_COMMAND_COLD_RESET);
+
+    /* bouton de redémarrage à froid avec effacement de la mémoire */
+    widget=gtk_button_new_with_label(is_fr?"Reset total"
+                                          :"Full reset");
+    gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    gtk_widget_set_tooltip_text (widget,
+                                 is_fr?"RedÃ©marre Ã  froid et\n" \
+                                       "efface la mÃ©moire RAM"
+                                      :"Cold reset and\n" \
+                                       "clear the RAM memory");
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK(do_exit),
+                     (gpointer) TEO_COMMAND_FULL_RESET);
 
     /* notebook */
     notebook=gtk_notebook_new();
