@@ -220,7 +220,7 @@ delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     teo.command = TEO_COMMAND_QUIT;
 
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)event;
     (void)user_data;
@@ -443,6 +443,9 @@ void udisplay_Window(void)
     hints.max_height = TEO_SCREEN_H*2;
     gtk_window_set_geometry_hints (GTK_WINDOW(wMain), wMain, &hints,
                                    GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
+
+    /* Move the window */
+    gtk_window_move (GTK_WINDOW(wMain), 0, 0);
 
     /* Set program icon */
     pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
