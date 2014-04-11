@@ -60,7 +60,7 @@ else
    LIB = $(ALLEG_LIB) 
 endif
 
-LIB += -lshell32 -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lcomctl32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound -lpng
+LIB += -lshell32 -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lcomctl32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound -lpng -lz
 
 
 # ------ plateform-dependant objects and executables ------
