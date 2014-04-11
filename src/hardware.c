@@ -373,7 +373,7 @@ static void SetDeviceRegister(int addr, int val)
             else 
             {
                 pal_chip.color[index].gr = val;
-		pal_chip.update(index);
+                pal_chip.update(index);
                 teo_new_video_params = TRUE;
             }
 
