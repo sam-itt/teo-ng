@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
     printf((is_fr?"Lancement de l'émulation...\n":"Launching emulation...\n"));
     teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
-    g_timeout_add_full (G_PRIORITY_DEFAULT, 2, RunTO8, &idle_data, NULL);
+    g_timeout_add_full (G_PRIORITY_DEFAULT, 10, RunTO8, &idle_data, NULL);
     gtk_main ();
     g_timer_destroy (timer);
 
