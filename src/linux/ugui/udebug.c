@@ -12,7 +12,7 @@
  *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
  *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
  *
- *                  L'\E9mulateur Thomson TO8
+ *                  L'émulateur Thomson TO8
  *
  *  Copyright (C) 2011-2013 Gilles F\E9tis, Fran\E7ois Mouret
  *
@@ -34,8 +34,8 @@
 /*
  *  Module     : src/linux/ugui/udebug.c
  *  Version    : 1.8.3
- *  Cr\E9\E9 par   : Gilles F\E9tis 27/07/2011
- *  Modifi\E9 par: Fran\E7ois Mouret 18/02/2012 12/06/2012 18/09/2013
+ *  Créé par   : Gilles Fétis 27/07/2011
+ *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013
  *
  *  D\E9bogueur du TO8.
  */
@@ -83,7 +83,7 @@ static char string_buffer[MAX(MC6809_DASM_BUFFER_SIZE,128)]="";
 static char text_buffer[MAX(MC6809_DASM_BUFFER_SIZE*DASM_NLINES,2048)]="";
 static char memory_buffer[8192*(5+3*8+1)]="";
 
-/* fen\EAtre de l'interface utilisateur */
+/* fenêtre de l'interface utilisateur */
 static GtkWidget * wDebug = NULL;
 static GtkWidget *notebookDebug;
 
@@ -605,7 +605,7 @@ void uHardware_Init (GtkWidget *notebook)
 
 
 /* udebug_Init:
- *  Cr\E9e la fen\EAtre de dialogue du debugger
+ *  Crée la fenêtre de dialogue du debugger
  */
 static void udebug_Init(void)
 {
@@ -626,7 +626,7 @@ static void udebug_Init(void)
     pango_font_description_set_size (font, 9 * PANGO_SCALE);
 
 
-    /* fen\EAtre d'affichage */
+    /* fenêtre d'affichage */
     wDebug = gtk_dialog_new_with_buttons (
                     is_fr?"Teo - DÃ©bogueur":"Teo - Debugger",
                     GTK_WINDOW(wMain),
@@ -638,7 +638,7 @@ static void udebug_Init(void)
     content_area = gtk_dialog_get_content_area (GTK_DIALOG(wDebug));
 
 
-    /* bo\EEte verticale des textes */
+    /* boîte verticale des textes */
     mainhbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start( GTK_BOX(content_area), mainhbox, FALSE, FALSE, DEBUG_SPACE);
 
@@ -738,7 +738,7 @@ static void udebug_Init(void)
                      (gpointer) DEBUG_CMD_REMBKPT);
 
 
-    /* affiche tout l'int\E9rieur */
+    /* affiche tout l'intérieur */
     gtk_widget_show_all (content_area);
 
     /* Attend la fin du travail de GTK */
@@ -755,28 +755,28 @@ int udebug_Panel(void)
     int debug = FALSE;
     gint response;
 
-    /* Initialise la fen\EAtre */
+    /* Initialise la fenêtre */
     if (wDebug == NULL)
         udebug_Init();
 
-    /* actualise le texte \E0 afficher */
+    /* actualise le texte à afficher */
     update_debug_text ();
     
-    /* gestion des \E9v\E8nements */
+    /* gestion des évènements */
     response = gtk_dialog_run (GTK_DIALOG(wDebug));
     debug = FALSE;
     switch (response)
     {
         case GTK_RESPONSE_ACCEPT: debug = TRUE; break;
         case GTK_RESPONSE_CANCEL: teo.command=TEO_COMMAND_NONE ; break;
-   }
-   gtk_widget_hide (wDebug);
-   return debug;
+    }
+    gtk_widget_hide (wDebug);
+    return debug;
 }
 
 
 /* udebug_Breakpoint:
- *  Rep\E8re si le PC est au breakpoint
+ *  Repère si le PC est au breakpoint
  */
 int udebug_Breakpoint(int pc) {
     int i;
