@@ -460,8 +460,8 @@ static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t
 /* ------------------------------------------------------------------------- */
 
 
-/* Reset:
- *  Simule un appui sur le bouton reset du TO8.
+/* teo_Reset:
+ *  Simulate a warm reset.
  */
 void teo_Reset(void)
 {
@@ -474,8 +474,8 @@ void teo_Reset(void)
 
 
 
-/* ColdReset:
- *  Simule un dé/rebranchement du TO8.
+/* teo_ColdReset:
+ *  Simulate a soft cold reset.
  */
 void teo_ColdReset(void)
 {
@@ -523,8 +523,8 @@ void teo_ColdReset(void)
 
 
 
-/* ColdReset:
- *  Simulate an electrical cold reset of a TO8.
+/* teo_FullReset:
+ *  Simulate an electrical cold reset.
  */
 void teo_FullReset(void)
 {
