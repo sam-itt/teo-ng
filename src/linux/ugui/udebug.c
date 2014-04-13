@@ -249,6 +249,11 @@ static char* hardware_get_regs(void) {
                      mc6846.tmsb,
                      mc6846.tlsb);
 
+    ptr+=sprintf(ptr," Timer is %s %s Freq %dHz\n",
+                     ((mc6846.tcr&1)?"off":"on"),
+                     ((!(mc6846.tcr&0x28))?"repetitive":"one shot"),
+                     (int)1000000.0/(((mc6846.tmsb<<8)+mc6846.tlsb)*mc6846.timer_ratio));
+
     ptr+=sprintf(ptr,"\nMC6821:\n");
 
     ptr+=sprintf(ptr,"CRA: %02X  DDRA: %02X  PDRA: %02X\n",
@@ -284,16 +289,6 @@ static char* hardware_get_regs(void) {
     ptr+=sprintf(ptr,"  CART: %02X   COMMUT: %02X\n",
                      mode_page.cart,
                      mode_page.commut);
-    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n",
-                     dkc->wr0,
-                     dkc->wr1,
-                     dkc->wr2);
-    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",
-                     dkc->rr0,
-                     dkc->rr1);
-    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",
-                     dkc->wr3,
-                     dkc->rr3);
     ptr+=sprintf(ptr,is_fr?"page de ROM cartouche : %d\n"
                           :"ROM cartridge page  : %d\n",
                      mempager.cart.rom_page);
@@ -309,6 +304,19 @@ static char* hardware_get_regs(void) {
     ptr+=sprintf(ptr,is_fr?"page de RAM (PIA)     : %d\n"
                           :"RAM page (PIA)      : %d\n",
                      mempager.data.pia_page);
+
+    ptr+=sprintf(ptr,"\nFloppy:\n");
+
+    ptr+=sprintf(ptr,"CMD0: %02X  CMD1: %02X  CMD2: %02X\n",
+                     dkc->wr0,
+                     dkc->wr1,
+                     dkc->wr2);
+    ptr+=sprintf(ptr," STAT0: %02X    STAT1: %02X\n",
+                     dkc->rr0,
+                     dkc->rr1);
+    ptr+=sprintf(ptr," WDATA: %02X    RDATA: %02X\n",
+                     dkc->wr3,
+                     dkc->rr3);
     return text_buffer;
 }
 
