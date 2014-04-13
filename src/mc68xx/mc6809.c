@@ -27,7 +27,7 @@
  *  Version    : 2.8.1
  *  Créé par   : Sylvain Huet 1996
  *  Modifié par: Eric Botcazou 30/11/2000
- *               François Mouret 27/09/2006 26/01/2010 04/02/2012
+ *               François Mouret 27/09/2006 26/01/2010 04/02/2012 12/04/2014
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 04/02/2012
  *
@@ -54,19 +54,25 @@
  *               émulation du postcode 0x00 pour PSHS/PSHU/PULS/PULU
  *          2.8.1: Correction du risque de freeze pour synm(), cwai()
  *                 et hcfm()
+ *          2.8.2: correction du temps CPU pour CWAI et SYNC
+ *                 réinitialisation des horloges au reset
+ *                 les fonctions mc6809_*Exec*() exécutent un code entier
  */
 
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
+   #include <string.h>
 #endif
 
+#include "defs.h"
 #include "mc68xx/mc6809.h"
 #include "teo.h"
 
 #ifdef OS_LINUX
 extern int udebug_Breakpoint (int pc);
 #endif
+extern struct MOTHERBOARD mb;
 
 /* broche de demande d'interruption ordinaire */
 int mc6809_irq;
@@ -100,7 +106,7 @@ static int *regist[4], *exreg[16];
 static int page,opcode,postcode,address,value;
 static int *reg;
 static int step;
-static mc6809_clock_t cpu_clock, cpu_timer;
+static mc6809_clock_t cpu_clock, cpu_timer, cpu_limit;
 static int pc,xr,yr,ur,sr,ar,br,dp,dr;
 static int res,m1,m2,sign,ovfl,h1,h2,ccrest;
 static int bus;
@@ -2607,7 +2613,8 @@ static void cd02(void) {  /* NEG if Carry=0, COM otherwise */
          negm();
 }
 
-static void cd10(void) { };
+static void cd10(void) {
+     };
 static void cd11(void) { };
 
 static void hcfm(void) { /* Halt and Catch Fire */
@@ -2616,12 +2623,18 @@ static void hcfm(void) { /* Halt and Catch Fire */
 }
 
 static void rset(void) { /* Reset */
+    irq_start = 0;
+    irq_run   = 0;
+    cpu_clock = 0;
+    cpu_limit = 0;
+    mb.exact_clock = 0;
+    cpu_timer = MC6809_TIMER_DISABLED;
+
     dp=0;
-    ccrest|=0x50;
-    pc=LoadWord(0xFFFE);
     mc6809_irq=0;
-    irq_start=irq_run=0;
+    ccrest|=0x50;
     step=0;  /* reset fetch */
+    pc=LoadWord(0xFFFE);
 }
 
 static void cd18(void) {
@@ -2897,7 +2910,7 @@ static void mc6809_Step(void) {
             if(opcode==TEO_TRAP_CODE) {
                 mc6809_GetRegs(&reg_list);
                 opcode=TrapCallback(&reg_list);
-                mc6809_SetRegs(&reg_list, 0x1FF);
+                mc6809_SetRegs(&reg_list, MC6809_REGS_ALL_FLAG);
             }
         }
         switch(opcode) {
@@ -3026,6 +3039,7 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
     irq_start = 0;
     irq_run   = 0;
     cpu_clock = 0;
+    cpu_limit = 0;
     cpu_timer = MC6809_TIMER_DISABLED;
 
     FetchInstr    = interface->FetchInstr;
@@ -3037,7 +3051,7 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
 }
 
 
-/* Reset:
+/* mc6809_Reset:
  *  Remet à zéro le CPU (envoie un signal sur la broche RESET du MC6809).
  */
 void mc6809_Reset(void)
@@ -3053,16 +3067,16 @@ void mc6809_Reset(void)
  */
 void mc6809_FlushExec(void)
 {
-    while ((step!=1)||(irq_run!=0))
+    while ((step!=1) || (irq_start!=0) || (page!=0))
     {
         mc6809_Step();
-        step++;     
+        step++;
         cpu_clock++;
     }
 }
 
 
-/* StepExec:
+/* mc6809_StepExec:
  *  Exécute un nombre donné d'instructions et retourne le
  *  nombre de cycles nécessaires à leur éxécution.
  */
@@ -3074,7 +3088,7 @@ int mc6809_StepExec(unsigned int ninst)
     while (i!=ninst)
     {
         mc6809_Step();
-        if ((step==0)&&(opcode<0x300)) i++;
+        if ((step==0)&&(page==0)&&(opcode<0x300)) i++;
         step++;     
         cpu_clock++;
     }
@@ -3082,12 +3096,13 @@ int mc6809_StepExec(unsigned int ninst)
 }
 
 
-/* TimeExec:
+/* mc6809_TimeExec:
  *  Fait tourner le MC6809 jusqu'à un instant donné
  */
 void mc6809_TimeExec(mc6809_clock_t time_limit)
 {
-    while (cpu_clock<time_limit)
+    cpu_limit = time_limit;
+    while (cpu_clock<cpu_limit)
     {
         mc6809_Step();
         step++;
@@ -3096,7 +3111,7 @@ void mc6809_TimeExec(mc6809_clock_t time_limit)
 }
 
 
-/* TimeExec_debug:
+/* mc6809_TimeExec_debug:
  *  Fait tourner le MC6809 jusqu'à un instant donné et
  *  retourne le nombre d'instructions éxécutées.
  */
@@ -3104,14 +3119,15 @@ int mc6809_TimeExec_debug(mc6809_clock_t time_limit)
 {
     int ninst=0;
 
-    while (cpu_clock<time_limit)
+    cpu_limit = time_limit;
+    while (cpu_clock<cpu_limit)
     {
         mc6809_Step();
-        if ((step==0)&&(opcode<0x300)) ninst++;
+        if ((step==0)&&(page==0)&&(opcode<0x300)) ninst++;
         step++;     
         cpu_clock++;        
 #ifdef OS_LINUX
-	if (udebug_Breakpoint (pc&0xFFFF)) return -1;
+        if (udebug_Breakpoint (pc&0xFFFF)) return -1;
 #endif
     }
     return ninst;

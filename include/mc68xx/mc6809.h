@@ -83,6 +83,18 @@ typedef unsigned long long int mc6809_clock_t;  /* entier 64-bit */
 #define MC6809_REGS_CPUTIMER_FLAG  (1<<10)
 #define MC6809_REGS_MAX_FLAG       11
 
+#define MC6809_REGS_ALL_FLAG    MC6809_REGS_CC_FLAG | \
+                                MC6809_REGS_DP_FLAG | \
+                                MC6809_REGS_AR_FLAG | \
+                                MC6809_REGS_BR_FLAG | \
+                                MC6809_REGS_XR_FLAG | \
+                                MC6809_REGS_YR_FLAG | \
+                                MC6809_REGS_UR_FLAG | \
+                                MC6809_REGS_SR_FLAG | \
+                                MC6809_REGS_PC_FLAG | \
+                                MC6809_REGS_CPUCLOCK_FLAG
+
+
 struct CODES_6809_SPEC {
     char name[6];
     void (*prog)(void);
