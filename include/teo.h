@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
- *                               01/11/2012 20/09/2013
+ *                               01/11/2012 20/09/2013 13/04/2014
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -189,6 +189,7 @@ extern void (*teo_PutSoundByte)(unsigned long long int time, unsigned char value
 extern void (*teo_SetPointer)(int pointer);
 
 /* fonctions importables optionnelles */
+extern int  (*teo_DebugBreakPoint)(int pc);
 extern void (*teo_SetBorderColor)(int mode, int color);
 extern void (*teo_DrawBorderLine)(int col, int line);
 extern void (*teo_SetKeyboardLed)(int state);
@@ -209,7 +210,7 @@ extern void  teo_Reset(void);
 extern void  teo_ColdReset(void);
 extern void  teo_FullReset(void);
 extern void  teo_InputReset(int mask, int value);
-extern int   teo_DoFrame(int debug);
+extern int   teo_DoFrame(void);
 
 #endif
 

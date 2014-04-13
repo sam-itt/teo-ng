@@ -28,7 +28,7 @@
  *  Créé par   : Sylvain Huet 1996
  *  Modifié par: Eric Botcazou 30/11/2000
  *               Gille Fétis 27/07/2011
- *               François Mouret 07/02/2012
+ *               François Mouret 07/02/2012 13/04/2014
  *
  *  Emulateur du microprocesseur Motorola MC6809E.
  *
@@ -136,9 +136,8 @@ extern void mc6809_SetRegs(const struct MC6809_REGS *, int);
 extern void mc6809_SetTimer(mc6809_clock_t, void (*)(void *), void *);
 extern void mc6809_Reset(void);
 extern void mc6809_FlushExec(void);
-extern int  mc6809_StepExec(unsigned int);
-extern void mc6809_TimeExec(mc6809_clock_t);
-extern int  mc6809_TimeExec_debug(mc6809_clock_t);
+extern int  mc6809_StepExec(void);
+extern int  mc6809_TimeExec(mc6809_clock_t);
 extern mc6809_clock_t mc6809_clock(void);
 extern int  mc6809_irq;
 

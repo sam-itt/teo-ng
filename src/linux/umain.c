@@ -39,7 +39,8 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 26/01/2010 08/2011 23/03/2012
-                                 09/06/2012 19/10/2012 19/09/2013
+ *                               09/06/2012 19/10/2012 19/09/2013
+ *                               13/04/2014
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -100,7 +101,6 @@ static gchar **remain_name = NULL;
  */
 static gboolean RunTO8 (gpointer user_data)
 {
-    static int debug = 0;
     static gulong microseconds;
 
     if ((teo.setting.exact_speed)
@@ -110,13 +110,12 @@ static gboolean RunTO8 (gpointer user_data)
 
     g_timer_start (timer);
 
-    if (teo_DoFrame(debug) == 0)
+    if (teo_DoFrame() == 0)
         teo.command=TEO_COMMAND_BREAKPOINT;
 
     if ((teo.command == TEO_COMMAND_BREAKPOINT)
-     || (teo.command == TEO_COMMAND_DEBUGGER)) {
-        debug = udebug_Panel();
-    }
+     || (teo.command == TEO_COMMAND_DEBUGGER))
+        udebug_Panel();
 
     if (teo.command == TEO_COMMAND_PANEL)
         ugui_Panel();

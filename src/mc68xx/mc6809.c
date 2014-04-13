@@ -3077,29 +3077,29 @@ void mc6809_FlushExec(void)
 
 
 /* mc6809_StepExec:
- *  Exécute un nombre donné d'instructions et retourne le
- *  nombre de cycles nécessaires à leur éxécution.
+ *  Exécute une instruction et retourne le
+ *  nombre de cycles nécessaires à son éxécution.
  */
-int mc6809_StepExec(unsigned int ninst)
+int mc6809_StepExec(void)
 {
     mc6809_clock_t start_clock=cpu_clock;
-    register unsigned int i=0;
 
-    while (i!=ninst)
+    do
     {
         mc6809_Step();
-        if ((step==0)&&(opcode<0x300)) i++;
         step++;     
         cpu_clock++;
     }
-    return cpu_clock-start_clock;
+    while ((step!=1) || (irq_start!=0) || (page!=0));
+
+    return (int)(cpu_clock-start_clock);
 }
 
 
 /* mc6809_TimeExec:
  *  Fait tourner le MC6809 jusqu'à un instant donné
  */
-void mc6809_TimeExec(mc6809_clock_t time_limit)
+int mc6809_TimeExec(mc6809_clock_t time_limit)
 {
     cpu_limit = time_limit;
     while (cpu_clock<cpu_limit)
@@ -3107,29 +3107,10 @@ void mc6809_TimeExec(mc6809_clock_t time_limit)
         mc6809_Step();
         step++;
         cpu_clock++;
+        if (teo_DebugBreakPoint)
+            if (teo_DebugBreakPoint(pc&0xFFFF))
+                return -1;
     }
-}
-
-
-/* mc6809_TimeExec_debug:
- *  Fait tourner le MC6809 jusqu'à un instant donné et
- *  retourne le nombre d'instructions éxécutées.
- */
-int mc6809_TimeExec_debug(mc6809_clock_t time_limit)
-{
-    int ninst=0;
-
-    cpu_limit = time_limit;
-    while (cpu_clock<cpu_limit)
-    {
-        mc6809_Step();
-        if ((step==0)&&(opcode<0x300)) ninst++;
-        step++;     
-        cpu_clock++;        
-#ifdef OS_LINUX
-        if (udebug_Breakpoint (pc&0xFFFF)) return -1;
-#endif
-    }
-    return ninst;
+    return 0;
 }
 

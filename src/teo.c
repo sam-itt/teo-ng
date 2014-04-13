@@ -78,6 +78,7 @@ void (*teo_PutSoundByte)(unsigned long long int, unsigned char);
 void (*teo_SetPointer)(int);
 
 /* fonctions importables optionnelles */
+int  (*teo_DebugBreakPoint)(int pc) = NULL;
 void (*teo_SetBorderColor)(int, int)=NULL;
 void (*teo_DrawBorderLine)(int, int)=NULL;
 void (*teo_SetKeyboardLed)(int)=NULL;
@@ -198,7 +199,7 @@ static int InitMemory(void)
  *  Fait tourner le MC6809E en le synchronisant sur le
  *  faisceau vidéo ligne par ligne.
  */
-static void DoLines(int nlines, mc6809_clock_t *exact_clock)
+static int DoLines(int nlines, mc6809_clock_t *exact_clock)
 {
     register int i;
 
@@ -206,49 +207,19 @@ static void DoLines(int nlines, mc6809_clock_t *exact_clock)
     {
         /* bordure gauche de la ligne */
         *exact_clock+=(LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES);
-        mc6809_TimeExec(*exact_clock);
+        if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
         /* partie centrale de la ligne */
         mode_page.lp4|=0x20;
 
         *exact_clock+=WINDOW_LINE_CYCLES;
-        mc6809_TimeExec(*exact_clock);
+        if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
         mode_page.lp4&=0xDF;
 
         /* bordure droite de la ligne */
         *exact_clock+=(RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES);
-        mc6809_TimeExec(*exact_clock);
-    }
-}
-
-
-
-/* DoLines_debug:
- *  Fait tourner le MC6809E en le synchronisant sur le
- *  faisceau vidéo ligne par ligne.
- */
-static int DoLines_debug(int nlines, mc6809_clock_t *exact_clock)
-{
-    register int i;
-
-    for (i=0; i<nlines; i++)
-    {
-        /* bordure gauche de la ligne */
-        *exact_clock+=(LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES);
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
-
-        /* partie centrale de la ligne */
-        mode_page.lp4|=0x20;
-
-        *exact_clock+=WINDOW_LINE_CYCLES;
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
-
-        mode_page.lp4&=0xDF;
-
-        /* bordure droite de la ligne */
-        *exact_clock+=(RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES);
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+        if (mc6809_TimeExec(*exact_clock)<0) return 0;
     }
     return 1;
 }
@@ -258,7 +229,7 @@ static int DoLines_debug(int nlines, mc6809_clock_t *exact_clock)
 /* DoLinesAndRetrace:
  *  Fait tourner le MC6809E en retraçant l'écran ligne par ligne.
  */
-static void DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
+static int DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
 {
     register int i,j,k;
              int vram_addr=0;
@@ -269,68 +240,16 @@ static void DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
         if (teo_DrawBorderLine) 
         {
             *exact_clock+=LEFT_SHADOW_CYCLES;
-            mc6809_TimeExec(*exact_clock);
-
-            teo_DrawBorderLine(TEO_LEFT_BORDER, TOP_BORDER_LINES+i);
-            *exact_clock+=LEFT_BORDER_CYCLES;
-	        mc6809_TimeExec(*exact_clock);
-        }
-        else
-        {
-            *exact_clock+=(LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES);
-            mc6809_TimeExec(*exact_clock);
-        }
- 
-        /* partie centrale de la ligne */
-        mode_page.lp4|=0x20;
-
-        /* on découpe la ligne en petits groupes d'octets dont la
-           longueur est LINE_GRANULARITY */
-        for (j=0; j<WINDOW_LINE_CYCLES/LINE_GRANULARITY; j++)
-        {
-            for (k=0; k<LINE_GRANULARITY; k++)
-                DrawGPL(vram_addr++);
-
-            *exact_clock+=LINE_GRANULARITY;
-            mc6809_TimeExec(*exact_clock);
-        }
-
-        mode_page.lp4&=0xDF;
-
-        /* bordure droite de la ligne */
-        if (teo_DrawBorderLine)
-	        teo_DrawBorderLine(TEO_RIGHT_BORDER, TOP_BORDER_LINES+i);
-
-        *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
-        mc6809_TimeExec(*exact_clock);
-    }
-}
-
-
-/* DoLinesAndRetrace_debug:
- *  Fait tourner le MC6809E en retraçant l'écran ligne par ligne.
- */
-static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
-{
-    register int i,j,k;
-             int vram_addr=0;
-
-    for (i=0; i<nlines; i++)
-    {
-        /* bordure gauche de la ligne */
-        if (teo_DrawBorderLine) 
-        {
-            *exact_clock+=LEFT_SHADOW_CYCLES;
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+            if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
             teo_DrawBorderLine(TEO_LEFT_BORDER, TOP_BORDER_LINES+i);
             *exact_clock+=+LEFT_BORDER_CYCLES;
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+            if (mc6809_TimeExec(*exact_clock)<0) return 0;
         }
         else
         {
             *exact_clock+=(LEFT_SHADOW_CYCLES+LEFT_BORDER_CYCLES);
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+            if (mc6809_TimeExec(*exact_clock)<0) return 0;
         }
  
         /* partie centrale de la ligne */
@@ -344,7 +263,7 @@ static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
                 DrawGPL(vram_addr++);
 
             *exact_clock+=LINE_GRANULARITY;
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+            if (mc6809_TimeExec(*exact_clock)<0) return 0;
         }
 
         mode_page.lp4&=0xDF;
@@ -354,7 +273,7 @@ static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
 	        teo_DrawBorderLine(TEO_RIGHT_BORDER, TOP_BORDER_LINES+i);
 
         *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
-         if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+         if (mc6809_TimeExec(*exact_clock)<0) return 0;
     }
     return 1;
 }
@@ -366,7 +285,7 @@ static int DoLinesAndRetrace_debug(int nlines, mc6809_clock_t *exact_clock)
 /* DoBorderLinesAndRetrace:
  *  Fait tourner le MC6809E en retraçant le pourtour ligne par ligne.
  */
-static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exact_clock)
+static int DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exact_clock)
 {
     register int i,j,k;
              int offset=0;
@@ -378,11 +297,11 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
     {
         /* bordure gauche de la ligne */
         *exact_clock+=LEFT_SHADOW_CYCLES;
-        mc6809_TimeExec(*exact_clock);
+        if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
         teo_DrawBorderLine(TEO_LEFT_BORDER, offset+i);
         *exact_clock+=+LEFT_BORDER_CYCLES;
-        mc6809_TimeExec(*exact_clock);
+        if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
         /* partie centrale de la ligne */
         mode_page.lp4|=0x20;
@@ -395,7 +314,7 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
                 teo_DrawBorderLine(j*LINE_GRANULARITY+k, offset+i);
 
             *exact_clock+=LINE_GRANULARITY;
-            mc6809_TimeExec(*exact_clock);
+            if (mc6809_TimeExec(*exact_clock)<0) return 0;
         }
 
         mode_page.lp4&=0xDF;
@@ -403,53 +322,7 @@ static void DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exac
         /* bordure droite de la ligne */
         teo_DrawBorderLine(TEO_RIGHT_BORDER, offset+i);
         *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
-        mc6809_TimeExec(*exact_clock);
-    }
-}
-
-
-
-/* DoBorderLinesAndRetrace_debug:
- *  Fait tourner le MC6809E en retraçant le pourtour ligne par ligne.
- */
-static int DoBorderLinesAndRetrace_debug (int border, int nlines, mc6809_clock_t *exact_clock)
-{
-    register int i,j,k;
-             int offset=0;
-
-    if (border==BOTTOM_BORDER)
-        offset=TOP_BORDER_LINES+WINDOW_LINES;
-
-    for (i=0; i<nlines; i++)
-    {
-        /* bordure gauche de la ligne */
-        *exact_clock+=LEFT_SHADOW_CYCLES;
-        if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
-
-        teo_DrawBorderLine(TEO_LEFT_BORDER, offset+i);
-        *exact_clock+=+LEFT_BORDER_CYCLES;
-        if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
-
-        /* partie centrale de la ligne */
-        mode_page.lp4|=0x20;
-
-        /* on découpe la ligne en petits groupes d'octets dont la
-           longueur est LINE_GRANULARITY */
-        for (j=0; j<WINDOW_LINE_CYCLES/LINE_GRANULARITY; j++)
-        {
-            for (k=0; k<LINE_GRANULARITY; k++)
-                teo_DrawBorderLine(j*LINE_GRANULARITY+k, offset+i);
-
-            *exact_clock+=LINE_GRANULARITY;
-            if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
-        }
-
-        mode_page.lp4&=0xDF;
-
-        /* bordure droite de la ligne */
-        teo_DrawBorderLine(TEO_RIGHT_BORDER, offset+i);
-        *exact_clock+=RIGHT_BORDER_CYCLES+RIGHT_SHADOW_CYCLES;
-        if (mc6809_TimeExec_debug(*exact_clock)<0) return 0;
+        if (mc6809_TimeExec(*exact_clock)<0) return 0;
     }
     return 1;
 }
@@ -537,134 +410,75 @@ void teo_FullReset(void)
 /* DoFrame:
  *  Fait tourner le TO8 pendant une trame vidéo.
  */
-int teo_DoFrame(int debug)
+int teo_DoFrame(void)
 {
     screen_clock=mb.exact_clock;
 
-    if (debug == TRUE)
+    if (teo_new_video_params)
     {
-        if (teo_new_video_params)
+        teo_new_video_params=FALSE;
+        mb.direct_screen_mode=FALSE;
+
+        /* début de la frame vidéo: bordure haute de l'écran */
+#ifndef TEO_NO_BORDER
+        if (teo_DrawBorderLine)
         {
-            teo_new_video_params=FALSE;
-            mb.direct_screen_mode=FALSE;
-
-            /* début de la frame vidéo: bordure haute de l'écran */
-#ifndef TEO_NO_BORDER
-            if (teo_DrawBorderLine)
-            {
-                if (DoLines_debug(TOP_SHADOW_LINES, &mb.exact_clock) == 0)
-                    return 0;
-                if (DoBorderLinesAndRetrace_debug(TOP_BORDER, TOP_BORDER_LINES, &mb.exact_clock) == 0)
-                    return 0;
-            }
-            else
-#endif
-                if (DoLines_debug(TOP_SHADOW_LINES+TOP_BORDER_LINES, &mb.exact_clock) == 0)
-                    return 0;
-
-            /* fenêtre centrale de l'écran */
-            mode_page.lp4|=0x80;
-            if (DoLinesAndRetrace_debug(WINDOW_LINES, &mb.exact_clock) == 0)
+            if (DoLines(TOP_SHADOW_LINES, &mb.exact_clock) == 0)
                 return 0;
-            mode_page.lp4&=0x7F;
-
-            /* bordure du bas de l'écran et remontée du faisceau */
-#ifndef TEO_NO_BORDER
-            if (teo_DrawBorderLine)
-            {
-                if (DoBorderLinesAndRetrace_debug(BOTTOM_BORDER, BOTTOM_BORDER_LINES, &mb.exact_clock) == 0)
-                    return 0;
-    	        if (DoLines_debug(BOTTOM_SHADOW_LINES, &mb.exact_clock) == 0)
-    	            return 0;
-            }
-            else
-#endif
-                if (DoLines_debug(BOTTOM_BORDER_LINES+BOTTOM_SHADOW_LINES, &mb.exact_clock) == 0)
-                    return 0;
+            if (DoBorderLinesAndRetrace(TOP_BORDER, TOP_BORDER_LINES, &mb.exact_clock) == 0)
+                return 0;
         }
         else
-        {
-            /* début de la frame vidéo: bordure haute de l'écran */
-            if (DoLines_debug(TOP_SHADOW_LINES+TOP_BORDER_LINES, &mb.exact_clock) == 0)
+#endif
+            if (DoLines(TOP_SHADOW_LINES+TOP_BORDER_LINES, &mb.exact_clock) == 0)
                 return 0;
 
-            /* fenêtre centrale de l'écran */
-            mode_page.lp4|=0x80;
+        /* fenêtre centrale de l'écran */
+        mode_page.lp4|=0x80;
+        if (DoLinesAndRetrace(WINDOW_LINES, &mb.exact_clock) == 0)
+            return 0;
+        mode_page.lp4&=0x7F;
 
-            if (mb.direct_screen_mode)
-            {
-                if (DoLines_debug(WINDOW_LINES, &mb.exact_clock) == 0)
-                    return 0;
+        /* bordure du bas de l'écran et remontée du faisceau */
+#ifndef TEO_NO_BORDER
+        if (teo_DrawBorderLine)
+        {
+            if (DoBorderLinesAndRetrace(BOTTOM_BORDER, BOTTOM_BORDER_LINES, &mb.exact_clock) == 0)
+                return 0;
+            if (DoLines(BOTTOM_SHADOW_LINES, &mb.exact_clock) == 0)
+                return 0;
             }
             else
-            {
-                mb.direct_screen_mode=TRUE;
-                if (DoLinesAndRetrace_debug(WINDOW_LINES, &mb.exact_clock) == 0)
-                    return 0;
-            }
-
-            mode_page.lp4&=0x7F;
-
-            /* bordure du bas de l'écran et remontée du faisceau */
-            if (DoLines_debug(BOTTOM_BORDER_LINES+BOTTOM_SHADOW_LINES, &mb.exact_clock) == 0)
+#endif
+            if (DoLines(BOTTOM_BORDER_LINES+BOTTOM_SHADOW_LINES, &mb.exact_clock) == 0)
                 return 0;
-        }
     }
     else
     {
-        if (teo_new_video_params)
+        /* début de la frame vidéo: bordure haute de l'écran */
+        if (DoLines(TOP_SHADOW_LINES+TOP_BORDER_LINES, &mb.exact_clock) == 0)
+            return 0;
+
+        /* fenêtre centrale de l'écran */
+        mode_page.lp4|=0x80;
+
+        if (mb.direct_screen_mode)
         {
-            teo_new_video_params=FALSE;
-            mb.direct_screen_mode=FALSE;
-
-            /* début de la frame vidéo: bordure haute de l'écran */
-#ifndef TEO_NO_BORDER
-            if (teo_DrawBorderLine)
-            {
-                DoLines(TOP_SHADOW_LINES, &mb.exact_clock);
-                DoBorderLinesAndRetrace(TOP_BORDER, TOP_BORDER_LINES, &mb.exact_clock);
-            }
-            else
-#endif
-                DoLines(TOP_SHADOW_LINES+TOP_BORDER_LINES, &mb.exact_clock);
-
-            /* fenêtre centrale de l'écran */
-            mode_page.lp4|=0x80;
-            DoLinesAndRetrace(WINDOW_LINES, &mb.exact_clock);
-            mode_page.lp4&=0x7F;
-
-            /* bordure du bas de l'écran et remontée du faisceau */
-#ifndef TEO_NO_BORDER
-            if (teo_DrawBorderLine)
-            {
-                DoBorderLinesAndRetrace(BOTTOM_BORDER, BOTTOM_BORDER_LINES, &mb.exact_clock);
-    	        DoLines(BOTTOM_SHADOW_LINES, &mb.exact_clock);
-            }
-            else
-#endif
-                DoLines(BOTTOM_BORDER_LINES+BOTTOM_SHADOW_LINES, &mb.exact_clock);
+            if (DoLines(WINDOW_LINES, &mb.exact_clock) == 0)
+                return 0;
         }
         else
         {
-            /* début de la frame vidéo: bordure haute de l'écran */
-            DoLines(TOP_SHADOW_LINES+TOP_BORDER_LINES, &mb.exact_clock);
-
-            /* fenêtre centrale de l'écran */
-            mode_page.lp4|=0x80;
-
-            if (mb.direct_screen_mode)
-                DoLines(WINDOW_LINES, &mb.exact_clock);
-            else
-            {
-                mb.direct_screen_mode=TRUE;
-                DoLinesAndRetrace(WINDOW_LINES, &mb.exact_clock);
-            }
-
-            mode_page.lp4&=0x7F;
-
-            /* bordure du bas de l'écran et remontée du faisceau */
-            DoLines(BOTTOM_BORDER_LINES+BOTTOM_SHADOW_LINES, &mb.exact_clock);
+            mb.direct_screen_mode=TRUE;
+            if (DoLinesAndRetrace(WINDOW_LINES, &mb.exact_clock) == 0)
+                return 0;
         }
+
+        mode_page.lp4&=0x7F;
+
+        /* bordure du bas de l'écran et remontée du faisceau */
+        if (DoLines(BOTTOM_BORDER_LINES+BOTTOM_SHADOW_LINES, &mb.exact_clock) == 0)
+            return 0;
     }
     return 1;
 }

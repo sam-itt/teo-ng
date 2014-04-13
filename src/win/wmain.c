@@ -138,7 +138,7 @@ static void RunTO8(void)
         do  /* boucle d'émulation */
         {
             disk_ControllerClearWriteFlag();
-            teo_DoFrame(FALSE);
+            (void)teo_DoFrame();
 
             /* rafraîchissement de la palette */
             if (need_palette_refresh)

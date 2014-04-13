@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 04/11/2003
  *               Samuel Devulder 08/2011
  *               François Mouret 08/2011 25/04/2012 01/11/2012
- *                               19/09/2013
+ *                               19/09/2013 13/04/2014
  *
  *  Boucle principale de l'émulateur.
  */
@@ -150,7 +150,7 @@ static void RunTO8(void)
         do  /* boucle d'émulation */
         {
             disk_ControllerClearWriteFlag();
-            teo_DoFrame(FALSE);
+            (void)teo_DoFrame();
 
             /* rafraîchissement de la palette */ 
             if (need_palette_refresh)
