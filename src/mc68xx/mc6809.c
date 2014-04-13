@@ -56,7 +56,7 @@
  *                 et hcfm()
  *          2.8.2: correction du temps CPU pour CWAI et SYNC
  *                 réinitialisation des horloges au reset
- *                 les fonctions mc6809_*Exec*() exécutent un code entier
+ *                 mc6809_FlushExec() exécute un code machine entier
  */
 
 
@@ -3088,7 +3088,7 @@ int mc6809_StepExec(unsigned int ninst)
     while (i!=ninst)
     {
         mc6809_Step();
-        if ((step==0)&&(page==0)&&(opcode<0x300)) i++;
+        if ((step==0)&&(opcode<0x300)) i++;
         step++;     
         cpu_clock++;
     }
@@ -3123,7 +3123,7 @@ int mc6809_TimeExec_debug(mc6809_clock_t time_limit)
     while (cpu_clock<cpu_limit)
     {
         mc6809_Step();
-        if ((step==0)&&(page==0)&&(opcode<0x300)) ninst++;
+        if ((step==0)&&(opcode<0x300)) ninst++;
         step++;     
         cpu_clock++;        
 #ifdef OS_LINUX
