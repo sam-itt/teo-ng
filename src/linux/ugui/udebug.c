@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 2011-2013 Gilles F\E9tis, Fran\E7ois Mouret
+ *  Copyright (C) 2011-2013 Gilles Fétis, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
  *  Créé par   : Gilles Fétis 27/07/2011
  *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013
  *
- *  D\E9bogueur du TO8.
+ *  Débogueur du TO8.
  */
 
 
@@ -70,6 +70,7 @@
 #define DEBUG_CMD_BKPT 3
 #define DEBUG_CMD_REMBKPT 4
 #define DEBUG_CMD_RESET 5
+#define DEBUG_CMD_STEPLOCAL 6
 
 #define DASM_NLINES 50
 
@@ -313,26 +314,38 @@ static char* hardware_get_regs(void) {
 
 
 static char* debug_get_dasm(void) { 
-        int i,j,pc;
+        int i,j,pc,length;
+	static int ppc=-1;
+	static int pppc=-1;
+
         char *ptr=text_buffer;
 	text_buffer[0]='\0';
+
         mc6809_GetRegs(&regs);
         pc=regs.pc;
+
+	if ((ppc<pc) && ((pc-ppc)<5)) pc=ppc;
+	if ((pppc<pc) && ((pc-pppc)<5)) pc=pppc;
+
         for (i=0; i<DASM_NLINES; i++)
         {
             for (j=0; j<5; j++)
                 fetch_buffer[j]=LOAD_BYTE(pc+j);
 
-            pc=(pc+MC6809_Dasm(string_buffer,
+            length=MC6809_Dasm(string_buffer,
                                (const unsigned char *)fetch_buffer,
                                pc,
-                               MC6809_DASM_BINASM_MODE))&0xFFFF;
-            if (i==0)
-                ptr+=sprintf(ptr, "%s\n", string_buffer);
+                               MC6809_DASM_BINASM_MODE);
+            if (pc==regs.pc)
+                ptr+=sprintf(ptr, "-> %s\n", string_buffer);
             else
-                ptr+=sprintf(ptr, "%s\n", string_buffer);
+                ptr+=sprintf(ptr, "   %s\n", string_buffer);
+            pc=(pc+length)&0xFFFF;
         }
         ptr+=sprintf(ptr, "                                                 ");
+
+	pppc=ppc;
+	ppc=regs.pc;
 	return text_buffer;
 }
 
@@ -367,26 +380,56 @@ static void update_debug_text (void)
     gtk_text_buffer_set_text(bplist_text_buffer,debug_get_bplist(),-1);
 }
 
+static void
+debug_steplocal(void) {
+    int pc;
+    int watch=0;
 
+    mc6809_GetRegs(&regs);
+
+    switch (LOAD_BYTE(regs.pc))
+    {
+        case 0x17:  /* LBSR         */
+        case 0x8D:  /* BSR          */
+        case 0x9D:  /* JSR direct   */
+        case 0xAD:  /* JSR indexed  */
+        case 0xBD:  /* JSR extended */
+        pc = regs.pc;
+        do
+        {
+            mc6809_GetRegs(&prev_regs);
+            mc6809_StepExec(1);
+            mc6809_GetRegs(&regs);
+        } while (((regs.pc<pc) || (regs.pc>pc+5)) && ((watch++)<20000));
+        break;
+
+        default:
+            mc6809_StepExec(1);
+            break;
+        }
+    mc6809_FlushExec();
+}
 
 static void
 debug_stepover(void) {
-	    int pc;
-	    int watch=0;
-            mc6809_GetRegs(&regs);
+    int pc;
+    int watch=0;
+    mc6809_GetRegs(&regs);
 
-                    pc = regs.pc;
-                    do
-                    {
-                        mc6809_GetRegs(&prev_regs);
-                        mc6809_StepExec(1);
-                        mc6809_GetRegs(&regs);
-                    } while (((regs.pc<pc) || (regs.pc>pc+5)) && ((watch++)<20000));
+    pc = regs.pc;
+    do
+    {
+        mc6809_GetRegs(&prev_regs);
+        mc6809_StepExec(1);
+        mc6809_GetRegs(&regs);
+    } while (((regs.pc<=pc) || (regs.pc>pc+5)) && ((watch++)<20000));
+    mc6809_FlushExec();
 }
 
 static void
 debug_step(void) {
-            mc6809_StepExec(1);
+    mc6809_StepExec(1);
+    mc6809_FlushExec();
 }
 
 static void debug_bkpt(int addr) {
@@ -439,6 +482,11 @@ static void do_command_debug (GtkWidget *button, int command)
 
     case DEBUG_CMD_RESET:
         teo_Reset();
+        update_debug_text ();
+        break;
+  
+    case DEBUG_CMD_STEPLOCAL:
+        debug_steplocal();
         update_debug_text ();
         break;
     }
@@ -673,12 +721,12 @@ static void udebug_Init(void)
                      G_CALLBACK (do_command_debug),
                      (gpointer) DEBUG_CMD_STEPOVER);
 
-    widget=gtk_button_new_with_label("Reset");
+    widget=gtk_button_new_with_label("Step local");
     gtk_box_pack_start( GTK_BOX(buttonBox), widget, TRUE, FALSE, 0);
     g_signal_connect(G_OBJECT(widget),
                      "clicked",
                      G_CALLBACK (do_command_debug),
-                     (gpointer) DEBUG_CMD_STEPOVER);
+                     (gpointer) DEBUG_CMD_STEPLOCAL);
 
     
 
@@ -723,7 +771,7 @@ static void udebug_Init(void)
 
     entry_address=gtk_entry_new ();
     gtk_entry_set_max_length (GTK_ENTRY(entry_address), 4);
-    gtk_entry_set_width_chars (GTK_ENTRY(entry_address), 4);
+    gtk_entry_set_width_chars (GTK_ENTRY(entry_address), 5);
     g_signal_connect(G_OBJECT(entry_address),
                               "activate",
                               G_CALLBACK(do_command_debug),
@@ -754,6 +802,8 @@ int udebug_Panel(void)
 {
     int debug = FALSE;
     gint response;
+
+    mc6809_FlushExec();
 
     /* Initialise la fenêtre */
     if (wDebug == NULL)

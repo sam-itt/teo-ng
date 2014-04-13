@@ -114,8 +114,9 @@ static gboolean RunTO8 (gpointer user_data)
         teo.command=TEO_COMMAND_BREAKPOINT;
 
     if ((teo.command == TEO_COMMAND_BREAKPOINT)
-     || (teo.command == TEO_COMMAND_DEBUGGER))
+     || (teo.command == TEO_COMMAND_DEBUGGER)) {
         debug = udebug_Panel();
+    }
 
     if (teo.command == TEO_COMMAND_PANEL)
         ugui_Panel();
