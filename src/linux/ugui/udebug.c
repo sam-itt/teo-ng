@@ -35,7 +35,8 @@
  *  Module     : src/linux/ugui/udebug.c
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis 27/07/2011
- *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013
+ *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013 13/04/2014
+ *               Gilles Fétis 13/04/2014
  *
  *  Débogueur du TO8.
  */
@@ -398,13 +399,13 @@ debug_steplocal(void) {
         do
         {
             mc6809_GetRegs(&prev_regs);
-            mc6809_StepExec(1);
+            mc6809_StepExec();
             mc6809_GetRegs(&regs);
         } while (((regs.pc<pc) || (regs.pc>pc+5)) && ((watch++)<20000));
         break;
 
         default:
-            mc6809_StepExec(1);
+            mc6809_StepExec();
             break;
         }
     mc6809_FlushExec();
@@ -420,7 +421,7 @@ debug_stepover(void) {
     do
     {
         mc6809_GetRegs(&prev_regs);
-        mc6809_StepExec(1);
+        mc6809_StepExec();
         mc6809_GetRegs(&regs);
     } while (((regs.pc<=pc) || (regs.pc>pc+5)) && ((watch++)<20000));
     mc6809_FlushExec();
@@ -428,7 +429,7 @@ debug_stepover(void) {
 
 static void
 debug_step(void) {
-    mc6809_StepExec(1);
+    mc6809_StepExec();
     mc6809_FlushExec();
 }
 
@@ -646,6 +647,18 @@ void uHardware_Init (GtkWidget *notebook)
 
 }
 
+/* BreakPoint:
+ *  Repère si le PC est au breakpoint
+ */
+static int BreakPoint(int pc) {
+    int i;
+    for (i=0;i< MAX_BREAKPOINTS;i++) {
+	if (breakpoint[i]==-1) break;
+	if (breakpoint[i]==pc) return 1;
+    }
+    return 0;
+}
+
 /* ------------------------------------------------------------------------- */
 
 
@@ -798,9 +811,8 @@ static void udebug_Init(void)
 /* udebug_Panel:
  *  Affiche le panneau du debug.
  */
-int udebug_Panel(void)
+void udebug_Panel(void)
 {
-    int debug = FALSE;
     gint response;
 
     mc6809_FlushExec();
@@ -814,26 +826,18 @@ int udebug_Panel(void)
     
     /* gestion des évènements */
     response = gtk_dialog_run (GTK_DIALOG(wDebug));
-    debug = FALSE;
     switch (response)
     {
-        case GTK_RESPONSE_ACCEPT: debug = TRUE; break;
-        case GTK_RESPONSE_CANCEL: teo.command=TEO_COMMAND_NONE ; break;
+        case GTK_RESPONSE_ACCEPT:
+            teo_DebugBreakPoint = BreakPoint;
+            break;
+
+        case GTK_RESPONSE_CANCEL:
+            teo_DebugBreakPoint = NULL;
+            teo.command=TEO_COMMAND_NONE ;
+            
+            break;
     }
     gtk_widget_hide (wDebug);
-    return debug;
-}
-
-
-/* udebug_Breakpoint:
- *  Repère si le PC est au breakpoint
- */
-int udebug_Breakpoint(int pc) {
-    int i;
-    for (i=0;i< MAX_BREAKPOINTS;i++) {
-	if (breakpoint[i]==-1) break;
-	if (breakpoint[i]==pc) return 1;
-    }
-    return 0;
 }
 
