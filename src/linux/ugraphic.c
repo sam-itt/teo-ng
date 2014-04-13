@@ -422,25 +422,42 @@ static void DrawBorderLine(int col, int line)
 
 
 
-#define LED_SIZE 16
-
-
 /* SetDiskLed:
  *  Allume/éteint la led du lecteur de disquettes.
  */
+#define LED_SIZE 12
 static void SetDiskLed(int led_on)
 {
-    if (led_on)
-    {
+    static int count = 0;
 	XGCValues values;
 
-	values.foreground=xcolor[TEO_NCOLORS+2].pixel;
-	XChangeGC(display, gc, GCForeground, &values);
-	XDrawRectangle(display, screen_win, gc, TEO_SCREEN_W*2-LED_SIZE, 0, LED_SIZE-1, LED_SIZE-1);
+    if (led_on)
+    {
+	    values.foreground=xcolor[TEO_NCOLORS+2].pixel;
+        XChangeGC(display, gc, GCForeground, &values);
+	    XDrawRectangle(display, screen_win, gc,
+	                   TEO_SCREEN_W*2-LED_SIZE-4,
+	                   2,
+	                   LED_SIZE,
+	                   LED_SIZE);
 
-	values.foreground=xcolor[TEO_NCOLORS+3].pixel;
-	XChangeGC(display, gc, GCForeground, &values);
-	XFillRectangle(display, screen_win, gc, TEO_SCREEN_W*2-LED_SIZE+1, 1, LED_SIZE-2, LED_SIZE-2);
+	    values.foreground=xcolor[TEO_NCOLORS+3].pixel;
+	    XChangeGC(display, gc, GCForeground, &values);
+	    XFillRectangle(display, screen_win, gc,
+	                   TEO_SCREEN_W*2-LED_SIZE-3,
+	                   3,
+	                   LED_SIZE-1,
+	                   LED_SIZE-1);
+
+	    values.foreground=xcolor[TEO_NCOLORS+2].pixel;
+        XChangeGC(display, gc, GCForeground, &values);
+	    XDrawRectangle(display, screen_win, gc,
+	                   TEO_SCREEN_W*2-LED_SIZE-3+count,
+	                   3+count,
+	                   LED_SIZE-2-(count*2),
+	                   LED_SIZE-2-(count*2));
+
+        count = (count+1)%(LED_SIZE/2);
 
         dirty_cell[TEO_SCREEN_CW-1] = False;
     }
@@ -553,9 +570,9 @@ void ugraphic_Init(void)
     xcolor[TEO_NCOLORS+1].blue  = (TEO_PALETTE_COL2&0xFF)*0x101;
 
     /* Couleurs de la led du lecteur de disquettes */
-    xcolor[TEO_NCOLORS+2].red   = 0;
-    xcolor[TEO_NCOLORS+2].green = 0;
-    xcolor[TEO_NCOLORS+2].blue  = 0;
+    xcolor[TEO_NCOLORS+2].red   = 0x8888;
+    xcolor[TEO_NCOLORS+2].green = 0x8888;
+    xcolor[TEO_NCOLORS+2].blue  = 0x8888;
 
     xcolor[TEO_NCOLORS+3].red   = 0;
     xcolor[TEO_NCOLORS+3].green = 0xFFFF;
