@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
- *                               02/11/2012 18/09/2013
+ *                               02/11/2012 18/09/2013 10/05/2014
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -243,7 +243,7 @@ static int DoLinesAndRetrace(int nlines, mc6809_clock_t *exact_clock)
             if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
             teo_DrawBorderLine(TEO_LEFT_BORDER, TOP_BORDER_LINES+i);
-            *exact_clock+=+LEFT_BORDER_CYCLES;
+            *exact_clock+=LEFT_BORDER_CYCLES;
             if (mc6809_TimeExec(*exact_clock)<0) return 0;
         }
         else
@@ -300,7 +300,7 @@ static int DoBorderLinesAndRetrace(int border, int nlines, mc6809_clock_t *exact
         if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
         teo_DrawBorderLine(TEO_LEFT_BORDER, offset+i);
-        *exact_clock+=+LEFT_BORDER_CYCLES;
+        *exact_clock+=LEFT_BORDER_CYCLES;
         if (mc6809_TimeExec(*exact_clock)<0) return 0;
 
         /* partie centrale de la ligne */
