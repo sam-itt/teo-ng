@@ -141,7 +141,9 @@ enum {
 
 extern int is_fr;
 
-#define NBDRIVE    4
+#define NBDRIVE        4
+#define NBBREAKPOINT   10
+#define MAX_BREAKPOINTS 16
 
 struct EMUTEO {
     int sound_enabled;
@@ -168,6 +170,20 @@ struct EMUTEO {
         char *file;
         char *label;
         } memo;
+    struct EMUTEO_DEBUG {
+        int  window_maximize;
+        int  window_x;
+        int  window_y;
+        int  window_width;
+        int  window_height;
+        int  breakpoint[MAX_BREAKPOINTS];
+        int  extra_first_line;
+        int  memory_address;
+        int  ram_number;
+        int  mon_number;
+        int  video_number;
+        int  cart_number;
+        } debug;
     struct EMUTEO_LPRT {
         int  number;
         int  nlq;
