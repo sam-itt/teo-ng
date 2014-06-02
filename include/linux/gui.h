@@ -63,6 +63,7 @@ extern int  ugui_Question (const gchar *message, GtkWidget *parent_window);
 
 /* sub panels */
 extern void udebug_Panel(void);
+
 extern void udisk_Init (GtkWidget *notebook);
 extern void udisk_Free (void);
 
