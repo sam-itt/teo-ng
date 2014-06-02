@@ -111,7 +111,6 @@ TEO_SRC_MC68XX_FILES =   \
 
 TEO_SRC_WIN_FILES =        \
    src/file/png.c          \
-   src/win/wgui.c          \
    src/win/wkeybint.c      \
    src/win/wmain.c         \
    src/win/wgui/wabout.c   \
@@ -120,6 +119,15 @@ TEO_SRC_WIN_FILES =        \
    src/win/wgui/wdisk.c    \
    src/win/wgui/wprinter.c \
    src/win/wgui/wmemo.c    \
+   src/win/wgui.c          \
+   src/win/wdebug/wdacc.c  \
+   src/win/wdebug/wdreg.c  \
+   src/win/wdebug/wddisass.c \
+   src/win/wdebug/wdmem.c  \
+   src/win/wdebug/wdbkpt.c \
+   src/win/wdebug/wdstatus.c \
+   src/win/wdebug/wdtoolb.c \
+   src/win/wdebug.c        \
    src/win/wdialog.rc
 
 

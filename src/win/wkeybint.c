@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 17/09/2001
- *               François Mouret 01/11/2012
+ *               François Mouret 01/11/2012 10/05/2014
  *
  *  Interface de gestion du clavier.
  */
@@ -73,6 +73,11 @@ static void KeyboardHandler(int key)
         case KEY_F11:
             if (!release)
                 teo.command=TEO_COMMAND_SCREENSHOT;
+            break;
+
+        case KEY_F12:
+            if (!release)
+                teo.command=TEO_COMMAND_DEBUGGER;
             break;
 
         default:

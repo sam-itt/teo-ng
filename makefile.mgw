@@ -44,13 +44,17 @@ DESCRIPTION = optimized
 endif
 endif
 
-
+# -- language selection --
 ifdef ENGLISH
 CFLAGS += -DENGLISH_LANGUAGE
 else
 CFLAGS += -DFRENCH_LANGUAGE
 endif
 
+# -- minimum support level selection --
+# -- see win32api.h for informations --
+SUPPORT += -D_WIN32_IE=0x0300
+CFLAGS += $(SUPPORT)
 
 ifdef STATICLINK
    CFLAGS += -DALLEGRO_STATICLINK
@@ -71,7 +75,7 @@ PLATFORM = mingw32
 
 OBJ_DIR = obj/mingw32
 
-VPATH += src/alleg src/alleg/agui src/win src/win/wgui
+VPATH += src/alleg src/alleg/agui src/win src/win/wgui src/win/wdebug
 
 OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_SRC_WIN_FILES)))
 
@@ -79,7 +83,7 @@ OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_S
 # ------ special file rules ------
 
 $(OBJ_DIR)/%.o: %.rc
-	$(WRES) --include-dir ./include -o $@ -i $<
+	$(WRES) --include-dir ./include $(SUPPORT) -o $@ -i $<
 
 
 # ------ dependency generation -------
@@ -87,7 +91,7 @@ $(OBJ_DIR)/%.o: %.rc
 DEPEND_PARAMS = -MM -MG -DSCAN_DEPEND -I./include
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/media/*.c src/media/disk/*.c src/media/disk/controlr/*.c src/media/printer/*.c src/alleg/*.c src/alleg/agui/*.c src/win/*.c src/win/wgui/*.c src/file/png.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/mc68xx/*.c src/media/*.c src/media/disk/*.c src/media/disk/controlr/*.c src/media/printer/*.c src/alleg/*.c src/alleg/agui/*.c src/win/*.c src/win/wgui/*.c src/win/wdebug/*.c src/file/png.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/mingw32\/\1/" _depend2.tmp > obj\mingw32\makefile.dep
 ifdef UNIX_TOOLS
