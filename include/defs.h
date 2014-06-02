@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
- *               François Mouret 28/04/2012 20/09/2013
+ *               François Mouret 28/04/2012 20/09/2013 10/05/2014
  *
  *  Définition des structures et constantes internes.
  */
@@ -90,6 +90,14 @@
 #      define TRUE  1
 #      define FALSE 0
 #   endif
+#endif
+
+#ifndef MAX
+#   define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
+#ifndef MIN
+#   define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
 #define LEFT_SHADOW_CYCLES    10
