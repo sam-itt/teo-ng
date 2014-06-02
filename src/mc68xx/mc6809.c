@@ -69,9 +69,6 @@
 #include "mc68xx/mc6809.h"
 #include "teo.h"
 
-#ifdef OS_LINUX
-extern int udebug_Breakpoint (int pc);
-#endif
 extern struct MOTHERBOARD mb;
 
 /* broche de demande d'interruption ordinaire */
@@ -81,8 +78,8 @@ int mc6809_irq;
    FILE *mc6809_ftrace=NULL;
 #endif
 
-
-
+/* 6809 interface */
+struct MC6809_INTERFACE mc6809_interface;
 static void (*FetchInstr)(int, unsigned char []);
 static int  (*LoadByte)(int);
 static int  (*LoadWord)(int);
@@ -103,9 +100,9 @@ static char byte;
 static int *regist[4], *exreg[16];
 
 /* variables d'état du MC6809 */
-static int page,opcode,postcode,address,value;
+static int page=0,opcode,postcode,address,value;
 static int *reg;
-static int step;
+static int step=1;
 static mc6809_clock_t cpu_clock, cpu_timer, cpu_limit;
 static int pc,xr,yr,ur,sr,ar,br,dp,dr;
 static int res,m1,m2,sign,ovfl,h1,h2,ccrest;
@@ -2889,8 +2886,10 @@ static void (*addr[])(void)=
 
 
 static void mc6809_Step(void) {
-    if (step==1) {     /* [Fetch OpCode] */
-        if (!page) {
+    if (step == 1)     /* [Fetch OpCode] */
+    {
+        if (page == 0)
+        {
 #ifdef DEBUG
             if (mc6809_ftrace)
                 fprintf(mc6809_ftrace, "pc: %04X\n", pc);
@@ -2898,27 +2897,33 @@ static void mc6809_Step(void) {
             if (cpu_clock>=cpu_timer)
                 TimerCallback(timer_data);
 
-            if ((mc6809_irq!=0)&&((ccrest&0x10)==0)) {
+            if ((mc6809_irq!=0)&&((ccrest&0x10)==0))
+            {
                 irq_start=irq_run=1;
                 opcode=0x300;
                 do_irq();
             }
         }
-        if (!irq_start) {
+        if (irq_start == 0)
+        {
             opcode=LoadByte(pc);
             pc=(pc+1)&0xffff;
-            if(opcode==TEO_TRAP_CODE) {
+            if(opcode==TEO_TRAP_CODE)
+            {
                 mc6809_GetRegs(&reg_list);
                 opcode=TrapCallback(&reg_list);
                 mc6809_SetRegs(&reg_list, MC6809_REGS_ALL_FLAG);
             }
         }
-        switch(opcode) {
-        case 0x10 : page=0x100; step=0; break;
-        case 0x11 : page=0x200; step=0; break;
-        default   : compute_address=addr[opcode&0xff]; break;
+        switch(opcode)
+        {
+            case 0x10 : page=0x100; step=0; break;
+            case 0x11 : page=0x200; step=0; break;
+            default   : compute_address=addr[opcode&0xff]; break;
         }
-    } else {
+    }
+    else
+    {
         (*(code[opcode+page]))();
         if (step==0)  /* fetch reset */
             page=0;
@@ -3013,7 +3018,7 @@ void mc6809_SetTimer(mc6809_clock_t time, void (*func)(void *), void *data)
 /* Init:
  *  Initialise l'émulation du MC6809.
  */
-void mc6809_Init(const struct MC6809_INTERFACE *interface)
+void mc6809_Init(void)
 {
     int i;
 
@@ -3042,12 +3047,12 @@ void mc6809_Init(const struct MC6809_INTERFACE *interface)
     cpu_limit = 0;
     cpu_timer = MC6809_TIMER_DISABLED;
 
-    FetchInstr    = interface->FetchInstr;
-    LoadByte      = interface->LoadByte;
-    LoadWord      = interface->LoadWord;
-    StoreByte     = interface->StoreByte;
-    StoreWord     = interface->StoreWord;
-    TrapCallback  = interface->TrapCallback;
+    FetchInstr   = mc6809_interface.FetchInstr;
+    LoadByte     = mc6809_interface.LoadByte;
+    LoadWord     = mc6809_interface.LoadWord;
+    StoreByte    = mc6809_interface.StoreByte;
+    StoreWord    = mc6809_interface.StoreWord;
+    TrapCallback = mc6809_interface.TrapCallback;
 }
 
 
@@ -3107,7 +3112,7 @@ int mc6809_TimeExec(mc6809_clock_t time_limit)
         mc6809_Step();
         step++;
         cpu_clock++;
-        if (teo_DebugBreakPoint)
+        if ((teo_DebugBreakPoint) && (step == 1) && (page == 0))
             if (teo_DebugBreakPoint(pc&0xFFFF))
                 return -1;
     }
