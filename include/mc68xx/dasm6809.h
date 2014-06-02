@@ -38,16 +38,40 @@
  *  version 1.4: le buffer d'entrée est en unsigned char
  *               correction d'un bug de TFR et EXG
  *               corrections mineures (MacOS port)
+ *  version 1.5: élimination des tabulations dans le texte
+ *               clarification du code
+ *               structure en entrée, taille en sortie
+ *               calcul du nombre de cycles
+ *               simplification du code pour PSHS, PSHU, PULS, PULU
+ *               simplification du code pour indexé 15 bits
+ *               optimisation du code pour indexé
+ *               ajustement de l'offset pour indexé avec PCR
  */
 
 
 #ifndef DASM6809_H
 #define DASM6809_H
 
-#define MC6809_DASM_BUFFER_SIZE  64
-#define MC6809_DASM_ASM_MODE      1
-#define MC6809_DASM_BINASM_MODE   2
+#define MC6809_DASM_FETCH_SIZE       5
 
-extern int MC6809_Dasm(char *, const unsigned char *, int, int);
+#define MC6809_DASM_BUFFER_SIZE     64
+
+#define MC6809_DASM_ASM_MODE         1
+#define MC6809_DASM_BINASM_MODE      2
+
+struct MC6809_DASM {
+    unsigned char fetch[MC6809_DASM_FETCH_SIZE]; /* (in)   fetch buffer */
+    int   addr;             /* (in)   virtual start address */
+    int   mode;             /* (in)   disassembling mode */
+    char  str[MC6809_DASM_BUFFER_SIZE];   /* (out)  output string */
+    int   cycle1;           /* (out)  Number of primary cycles */
+    int   cycle2;           /* (out)  Number of secondary cycles (or -1) */
+    int   cycle3;           /* (out)  Number of alternative cycles (or -1) */
+};
+
+extern int dasm6809_size[];
+extern int dasm6809_addr[];
+extern struct MC6809_DASM mc6809_dasm;
+extern int  dasm6809_Disassemble (struct MC6809_DASM *mc6809_dasm);
 
 #endif
