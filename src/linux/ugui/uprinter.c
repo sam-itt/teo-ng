@@ -36,7 +36,7 @@
  *  Module     : linux/ugui/uprinter.c
  *  Version    : 1.8.3
  *  Créé par   : François Mouret 18/04/2012
- *  Modifié par: François Mouret 29/10/2012
+ *  Modifié par: François Mouret 29/10/2012 13/04/2014
  *
  *  Gestion des imprimantes.
  */
@@ -199,11 +199,11 @@ void uprinter_Init (GtkWidget *notebook)
     gtk_container_add( GTK_CONTAINER(vbox), hbox);
 
     /* Création de la frame */
-    vbox2 = create_new_frame (hbox, "Options");
+    vbox2 = create_new_frame (hbox, is_fr?"Imprimante":"Printer");
 
     /* label pour l'imprimante */
     hbox2 = create_new_hbox (vbox2);
-    widget=gtk_label_new(is_fr?"Imprimante ":"Printer ");
+    widget=gtk_label_new("Type ");
     gtk_box_pack_start( GTK_BOX(hbox2), widget, FALSE, FALSE, 0);
 
     /* combo pour les imprimantes */
