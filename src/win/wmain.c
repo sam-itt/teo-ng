@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou septembre 2000
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011
- *               François Mouret 19/10/2012 24/10/2012 19/09/2013
+ *               François Mouret 19/10/2012 24/10/2012 19/09/2013 10/05/2014
  *
  *  Boucle principale de l'émulateur.
  */
@@ -48,10 +48,10 @@
    #include <stdio.h>
    #include <stdlib.h>
    #include <string.h>
-   #include <allegro.h>
-   #include <winalleg.h>
    #include <sys/stat.h>
    #include <ctype.h>
+   #include <allegro.h>
+   #include <winalleg.h>
 #endif
 
 #include "defs.h"
@@ -68,13 +68,14 @@
 #include "media/memo.h"
 #include "media/printer.h"
 #include "mc68xx/mc6809.h"
+/* Windows includes (see win/gui.h for supported version) */
+#include "win/gui.h"
+#include "win/keybint.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
-#include "win/keybint.h"
-#include "win/gui.h"
 
 
 struct EMUTEO teo;
@@ -138,7 +139,9 @@ static void RunTO8(void)
         do  /* boucle d'émulation */
         {
             disk_ControllerClearWriteFlag();
-            (void)teo_DoFrame();
+            if (teo_DoFrame() == 0)
+                if (windowed_mode)
+                    teo.command=TEO_COMMAND_BREAKPOINT;
 
             /* rafraîchissement de la palette */
             if (need_palette_refresh)
@@ -184,6 +187,11 @@ static void RunTO8(void)
             else
                 agui_Panel();
         }
+
+        if ((teo.command == TEO_COMMAND_BREAKPOINT)
+         || (teo.command == TEO_COMMAND_DEBUGGER))
+            if (windowed_mode)
+                wdebug_Panel ();
 
         if (teo.command==TEO_COMMAND_SCREENSHOT)
             agfxdrv_Screenshot();
@@ -334,6 +342,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     is_fr = 0;
 #endif
 
+    /* initialise les librairies */
+    InitCommonControls();
+    OleInitialize(0);
+
     /* On s'assure que "allegro.cfg" est dispo dans le repertoire courant sinon TEO échoue. */
     do {
         FILE *f = fopen("allegro.cfg", "rb");
@@ -392,9 +404,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     install_timer();
     if (njoy >= 0)
         install_joystick(JOY_TYPE_AUTODETECT);
-
+        
     /* décoration de la fenêtre */
-    set_window_title(is_fr?"Teo - l'émulateur TO8 (menu:ESC)":"Teo - the TO8 emulator (menu:ESC)");
+    set_window_title(is_fr?"Teo - l'émulateur TO8 (menu:ESC/debogueur:F12)"
+                          :"Teo - the TO8 emulator (menu:ESC/debugger:F12)");
     prog_win = win_get_window();
     SetClassLong(prog_win, GCL_HICON,   (LONG) prog_icon);
     SetClassLong(prog_win, GCL_HICONSM, (LONG) prog_icon);
@@ -497,7 +510,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
-    /* initialisation de l'interface utilisateur Allegro */
+    /* initialisation de l'interface utilisateur Allegro et du débogueur */
+    teo_DebugBreakPoint = NULL;
     if (!windowed_mode)
     {
        agui_Init(version_name, gfx_mode, FALSE);
@@ -525,6 +539,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* sortie du mode graphique */
     SetGraphicMode(SHUTDOWN);
+
+    /* désinstalle les librairies */
+    OleUninitialize ();
 
     /* sortie de l'émulateur */
     printf(is_fr?"A bient“t !\n":"Goodbye !\n");
