@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 24/09/2001
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 28/01/2010 14/09/2011 17/01/2012 25/04/2012
- *                               28/09/2012
+ *                               28/09/2012 10/05/2014
  *
  *  Chargement/Sauvegarde du fichier de configuration.
  */
@@ -72,48 +72,81 @@ struct INI_LIST {
     char *key;
     int  type;
     void *ptr;
+    int  init;
 };
+
 
 static FILE *file = NULL;
 static struct STRING_LIST *list_start = NULL;
+
 static const struct INI_LIST ini_entry[] = {
-    { "teo"     , "default_folder"  , IARG_DIR , &teo.default_folder           },
-    /* --------------------------------------------------------------------- */
-    { "settings", "exact_speed"     , IARG_BOOL, &teo.setting.exact_speed      },
-    { "settings", "interlaced_video", IARG_BOOL, &teo.setting.interlaced_video },
-    { "settings", "sound_volume"    , IARG_INT , &teo.setting.sound_volume     },
-    { "settings", "sound_enabled"   , IARG_BOOL, &teo.setting.sound_enabled    },
-    /* --------------------------------------------------------------------- */
-    { "memo"    , "file"            , IARG_STR , &teo.memo.file                },
-    { "memo"    , "label"           , IARG_STR , &teo.memo.label               },
-    /* --------------------------------------------------------------------- */
-    { "cass"    , "file"            , IARG_STR , &teo.cass.file                },
-    { "cass"    , "write_protect"   , IARG_BOOL, &teo.cass.write_protect       },
-    /* --------------------------------------------------------------------- */
-    { "disk0"   , "file"            , IARG_STR , &teo.disk[0].file             },
-    { "disk0"   , "side"            , IARG_INT , &teo.disk[0].side             },
-    { "disk0"   , "write_protect"   , IARG_BOOL, &teo.disk[0].write_protect    },
-    /* --------------------------------------------------------------------- */
-    { "disk1"   , "file"            , IARG_STR , &teo.disk[1].file             },
-    { "disk1"   , "side"            , IARG_INT , &teo.disk[1].side             },
-    { "disk1"   , "write_protect"   , IARG_BOOL, &teo.disk[1].write_protect    },
-    /* --------------------------------------------------------------------- */
-    { "disk2"   , "file"            , IARG_STR , &teo.disk[2].file             },
-    { "disk2"   , "side"            , IARG_INT , &teo.disk[2].side             },
-    { "disk2"   , "write_protect"   , IARG_BOOL, &teo.disk[2].write_protect    },
-    /* --------------------------------------------------------------------- */
-    { "disk3"   , "file"            , IARG_STR , &teo.disk[3].file             },
-    { "disk3"   , "side"            , IARG_INT , &teo.disk[3].side             },
-    { "disk3"   , "write_protect"   , IARG_BOOL, &teo.disk[3].write_protect    },
-    /* --------------------------------------------------------------------- */
-    { "printer" , "folder"          , IARG_DIR , &teo.lprt.folder              },
-    { "printer" , "number"          , IARG_INT , &teo.lprt.number              },
-    { "printer" , "dip"             , IARG_BOOL, &teo.lprt.dip                 },
-    { "printer" , "nlq"             , IARG_BOOL, &teo.lprt.nlq                 },
-    { "printer" , "raw_output"      , IARG_BOOL, &teo.lprt.raw_output          },
-    { "printer" , "txt_output"      , IARG_BOOL, &teo.lprt.txt_output          },
-    { "printer" , "gfx_output"      , IARG_BOOL, &teo.lprt.gfx_output          },
-    { NULL      , NULL              , 0        , NULL                          }
+    /* SECTION    KEY                 TYPE       REGISTER                       INIT  */
+    { "teo"     , "default_folder"  , IARG_DIR , &teo.default_folder           , 0     },
+    /* ------------------------------------------------------------------------------ */
+    { "settings", "exact_speed"     , IARG_BOOL, &teo.setting.exact_speed      , TRUE  },
+    { "settings", "interlaced_video", IARG_BOOL, &teo.setting.interlaced_video , FALSE },
+    { "settings", "sound_volume"    , IARG_INT , &teo.setting.sound_volume     , 128   },
+    { "settings", "sound_enabled"   , IARG_BOOL, &teo.setting.sound_enabled    , TRUE  },
+    /* ------------------------------------------------------------------------------ */
+    { "memo"    , "file"            , IARG_STR , &teo.memo.file                , 0     },
+    { "memo"    , "label"           , IARG_STR , &teo.memo.label               , 0     },
+    /* ------------------------------------------------------------------------------ */
+    { "cass"    , "file"            , IARG_STR , &teo.cass.file                , 0     },
+    { "cass"    , "write_protect"   , IARG_BOOL, &teo.cass.write_protect       , TRUE  },
+    /* ------------------------------------------------------------------------------ */
+    { "disk0"   , "file"            , IARG_STR , &teo.disk[0].file             , 0     },
+    { "disk0"   , "side"            , IARG_INT , &teo.disk[0].side             , 0     },
+    { "disk0"   , "write_protect"   , IARG_BOOL, &teo.disk[0].write_protect    , FALSE },
+    /* ------------------------------------------------------------------------------ */
+    { "disk1"   , "file"            , IARG_STR , &teo.disk[1].file             , 0     },
+    { "disk1"   , "side"            , IARG_INT , &teo.disk[1].side             , 0     },
+    { "disk1"   , "write_protect"   , IARG_BOOL, &teo.disk[1].write_protect    , FALSE },
+    /* ------------------------------------------------------------------------------ */
+    { "disk2"   , "file"            , IARG_STR , &teo.disk[2].file             , 0     },
+    { "disk2"   , "side"            , IARG_INT , &teo.disk[2].side             , 0     },
+    { "disk2"   , "write_protect"   , IARG_BOOL, &teo.disk[2].write_protect    , FALSE },
+    /* ------------------------------------------------------------------------------ */
+    { "disk3"   , "file"            , IARG_STR , &teo.disk[3].file             , 0     },
+    { "disk3"   , "side"            , IARG_INT , &teo.disk[3].side             , 0     },
+    { "disk3"   , "write_protect"   , IARG_BOOL, &teo.disk[3].write_protect    , FALSE },
+    /* ------------------------------------------------------------------------------ */
+    { "printer" , "folder"          , IARG_DIR , &teo.lprt.folder              , 0     },
+    { "printer" , "number"          , IARG_INT , &teo.lprt.number              , 55    },
+    { "printer" , "dip"             , IARG_BOOL, &teo.lprt.dip                 , FALSE },
+    { "printer" , "nlq"             , IARG_BOOL, &teo.lprt.nlq                 , FALSE },
+    { "printer" , "raw_output"      , IARG_BOOL, &teo.lprt.raw_output          , FALSE },
+    { "printer" , "txt_output"      , IARG_BOOL, &teo.lprt.txt_output          , FALSE },
+    { "printer" , "gfx_output"      , IARG_BOOL, &teo.lprt.gfx_output          , TRUE  },
+    /* ------------------------------------------------------------------------------ */
+    { "debug"   , "window_maximize" , IARG_BOOL, &teo.debug.window_maximize    , FALSE },
+    { "debug"   , "window_x"        , IARG_INT , &teo.debug.window_x           , -1    },
+    { "debug"   , "window_y"        , IARG_INT , &teo.debug.window_y           , -1    },
+    { "debug"   , "window_width"    , IARG_INT , &teo.debug.window_width       , -1    },
+    { "debug"   , "window_height"   , IARG_INT , &teo.debug.window_height      , -1    },
+    { "debug"   , "breakpoint_1"    , IARG_INT , &teo.debug.breakpoint[0]      , -1    },
+    { "debug"   , "breakpoint_2"    , IARG_INT , &teo.debug.breakpoint[1]      , -1    },
+    { "debug"   , "breakpoint_3"    , IARG_INT , &teo.debug.breakpoint[2]      , -1    },
+    { "debug"   , "breakpoint_4"    , IARG_INT , &teo.debug.breakpoint[3]      , -1    },
+    { "debug"   , "breakpoint_5"    , IARG_INT , &teo.debug.breakpoint[4]      , -1    },
+    { "debug"   , "breakpoint_6"    , IARG_INT , &teo.debug.breakpoint[5]      , -1    },
+    { "debug"   , "breakpoint_7"    , IARG_INT , &teo.debug.breakpoint[6]      , -1    },
+    { "debug"   , "breakpoint_8"    , IARG_INT , &teo.debug.breakpoint[7]      , -1    },
+    { "debug"   , "breakpoint_9"    , IARG_INT , &teo.debug.breakpoint[8]      , -1    },
+    { "debug"   , "breakpoint_10"   , IARG_INT , &teo.debug.breakpoint[9]      , -1    },
+    { "debug"   , "breakpoint_11"   , IARG_INT , &teo.debug.breakpoint[10]     , -1    },
+    { "debug"   , "breakpoint_12"   , IARG_INT , &teo.debug.breakpoint[11]     , -1    },
+    { "debug"   , "breakpoint_13"   , IARG_INT , &teo.debug.breakpoint[12]     , -1    },
+    { "debug"   , "breakpoint_14"   , IARG_INT , &teo.debug.breakpoint[13]     , -1    },
+    { "debug"   , "breakpoint_15"   , IARG_INT , &teo.debug.breakpoint[14]     , -1    },
+    { "debug"   , "breakpoint_16"   , IARG_INT , &teo.debug.breakpoint[15]     , -1    },
+    { "debug"   , "memory_address"  , IARG_INT , &teo.debug.memory_address     , 0     },
+    { "debug"   , "ram_number"      , IARG_INT , &teo.debug.ram_number         , 2     },
+    { "debug"   , "mon_number"      , IARG_INT , &teo.debug.mon_number         , 0     },
+    { "debug"   , "video_number"    , IARG_INT , &teo.debug.video_number       , 0     },
+    { "debug"   , "cart_number"     , IARG_INT , &teo.debug.cart_number        , 0     },
+    { "debug"   , "extra_first_line", IARG_INT , &teo.debug.extra_first_line   , 0     },
+    /* ------------------------------------------------------------------------------ */
+    { NULL      , NULL              , 0        , NULL                          , 0     }
 };
 
 
@@ -193,7 +226,7 @@ static void load_ini_file(void)
 
 
 /* ini_Load:
- *  Charge le fichier INI.
+ *  Load the INI file.
  */
 void ini_Load(void)
 {
@@ -204,22 +237,24 @@ void ini_Load(void)
     char **s;
     int  *d;
   
-    /* Initialise les paramètres par défaut de la structure générale */
+    /* initialize structure */
     memset (&teo, 0x00, sizeof(struct EMUTEO));
     teo.sound_enabled = TRUE;
     teo.command = TEO_COMMAND_NONE;
-    teo.lprt.number = 55;
-    teo.lprt.gfx_output = TRUE;
-    teo.setting.exact_speed = TRUE;
-    teo.setting.sound_volume = 128;
-    teo.setting.sound_enabled = TRUE;
-    teo.cass.write_protect = TRUE;
 
-    /* Charge le fichier ini */
+    /* Load the ini file */
     load_ini_file();
 
-    /* Lit le fichier ini */
-    while (ini_entry[i].section != NULL) {
+    /* Read the ini file */
+    for (i=0; ini_entry[i].section != NULL; i++) {
+        /* initialize int and bool value */
+        switch (ini_entry[i].type) {
+        case IARG_BOOL :
+        case IARG_INT  : d = (int*)ini_entry[i].ptr;
+                         *d = ini_entry[i].init;
+                         break;
+        }
+        /* get ini value */
         pval = value_pointer (ini_entry[i].section, ini_entry[i].key);
         if (pval != NULL) {
             switch (ini_entry[i].type) {
@@ -240,10 +275,8 @@ void ini_Load(void)
                              break;
             }
         }
-        i++;
     }
-
-    /* Libère la mémoire occupée par le fichier ini */
+    /* Free the ini list */
     std_StringListFree (list_start);
 }
 
@@ -254,7 +287,7 @@ void ini_Load(void)
  */
 void ini_Save (void)
 {
-    int i = 0;
+    int i;
     int res;
     char *p = NULL;
     char *key;
@@ -263,13 +296,14 @@ void ini_Save (void)
 
     /* Ouvre le fichier ini */
     file_open (INI_FILE_NAME, "w");
+    if (file == NULL)
+        return;
     fprintf (file, ";-----------------------------------------------------\n");
-    fprintf (file, "; Generated by Teo %s\n", TEO_VERSION_STR);
+    fprintf (file, "; INI file generated by Teo %s\n", TEO_VERSION_STR);
     fprintf (file, ";-----------------------------------------------------\n");
 
     /* Sauvegarde le fichier ini */
-    while ((file != NULL) && (ini_entry[i].section != NULL))
-    {
+    for (i=0; ini_entry[i].section != NULL; i++) {
         res = 0;
 
         if ((p == NULL) || (strcmp (p, ini_entry[i].section) != 0))
@@ -293,9 +327,7 @@ void ini_Save (void)
         }
         if (res < 0)
             file = std_fclose (file);
-        i++;
     }
-    if (file!=NULL)
-        fprintf (file, "\n");
+    fprintf (file, "\n");
     file = std_fclose (file);
 }
