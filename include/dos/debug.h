@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou octobre 1999
- *               François Mouret 01/11/2012
+ *               François Mouret 01/11/2012 14/04/2014
  *
  *  Débogueur du TO8.
  */
@@ -46,6 +46,7 @@
 #ifndef DOS_DEBUG_H
 #define DOS_DEBUG_H
 
+extern void ddebug_Init(void);
 extern void ddebug_Run(void);
 
 #endif

@@ -67,7 +67,6 @@
 
 typedef unsigned long long int mc6809_clock_t;  /* entier 64-bit */
 
-#define MC6809_FETCH_BUFFER_SIZE  5
 #define MC6809_TIMER_DISABLED     (mc6809_clock_t) -1
 
 #define MC6809_REGS_CC_FLAG        (1<<0)
@@ -128,9 +127,10 @@ struct MC6809_INTERFACE
     void (*StoreWord)(int, int);
     int  (*TrapCallback)(struct MC6809_REGS *);
 };
+extern struct MC6809_INTERFACE mc6809_interface;
 
 
-extern void mc6809_Init(const struct MC6809_INTERFACE *);
+extern void mc6809_Init();
 extern void mc6809_GetRegs(struct MC6809_REGS *);
 extern void mc6809_SetRegs(const struct MC6809_REGS *, int);
 extern void mc6809_SetTimer(mc6809_clock_t, void (*)(void *), void *);
