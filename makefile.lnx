@@ -42,14 +42,14 @@ CFLAGS += -DDEBIAN_BUILD
 endif
 
 CFLAGS += `pkg-config gtk+-3.0 --cflags` -DGTK_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DG_DISABLE_DEPRECATED -DGSEAL_ENABLE
-LIB = `pkg-config gtk+-3.0 --libs` -lasound -lpng
+LIB = `pkg-config gtk+-3.0 --libs` -lasound -lpng -lz
 
 # ------ plateform-dependant objects and executables ------
 
 PLATFORM = linux
 EXE_NAME = teo
 OBJ_DIR = obj/linux
-CFLAGS += -DOS_LINUX -ftree-vectorize -msse
+CFLAGS += -DOS_LINUX -ftree-vectorize
 
 VPATH += src/linux src/linux/ugui
 
