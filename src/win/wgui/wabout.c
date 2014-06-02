@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
- *                               03/11/2012
+ *                               03/11/2012 10/05/2014
  *
  *  Fenêtre "A Propos".
  */
@@ -48,13 +48,10 @@
    #include <stdio.h>
    #include <stdlib.h>
    #include <string.h>
-   #include <windows.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
 #endif
 
 #include "teo.h"
-#include "win/dialog.rh"
+#include "win/gui.h"
 
 /* ------------------------------------------------------------------------- */
 
@@ -77,11 +74,11 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
    switch(uMsg)
    {
       case WM_INITDIALOG:
-         aboutLink  = GetDlgItem (hDlg, ABOUT_STATIC_LINK);
-         aboutForum = GetDlgItem (hDlg, ABOUT_STATIC_FORUM);
-         aboutTitle = GetDlgItem (hDlg, ABOUT_CTEXT_TITLE);
-         aboutCopyright = GetDlgItem (hDlg, ABOUT_CTEXT_COPYRIGHT);
-         aboutLicense = GetDlgItem (hDlg, ABOUT_CTEXT_LICENSE);
+         aboutLink  = GetDlgItem (hDlg, IDC_ABOUT_STATIC_LINK);
+         aboutForum = GetDlgItem (hDlg, IDC_ABOUT_STATIC_FORUM);
+         aboutTitle = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_TITLE);
+         aboutCopyright = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_COPYRIGHT);
+         aboutLicense = GetDlgItem (hDlg, IDC_ABOUT_CTEXT_LICENSE);
          hTitleStyle = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE,
                            FALSE, FALSE, DEFAULT_CHARSET,
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
@@ -175,12 +172,12 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                EndDialog(hDlg, IDOK);
                break;
 
-            case ABOUT_STATIC_LINK :
+            case IDC_ABOUT_STATIC_LINK :
                ShellExecute(NULL, "open",
                             "http://sourceforge.net/projects/teoemulator/",
                             0, 0, SW_SHOWNORMAL);
 
-            case ABOUT_STATIC_FORUM :
+            case IDC_ABOUT_STATIC_FORUM :
                ShellExecute(NULL, "open",
                             "http://www.logicielsmoto.com/",
                             0, 0, SW_SHOWNORMAL);

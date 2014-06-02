@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
- *                               19/09/2012 18/09/2013
+ *                               19/09/2012 18/09/2013 10/05/2014
  *
  *  Interface utilisateur Windows native.
  */
@@ -48,16 +48,12 @@
    #include <stdio.h>
    #include <stdlib.h>
    #include <string.h>
-   #include <windows.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
 #endif
 
+#include "teo.h"
 #include "image.h"
 #include "alleg/sound.h"
-#include "win/dialog.rh"
 #include "win/gui.h"
-#include "teo.h"
 
 
 #define MIN_POS    0
@@ -82,15 +78,15 @@ static void update_state (HWND hDlg)
                 volume_state = TRUE;
         }
     }
-    EnableWindow(GetDlgItem(hDlg, SOUND_CHECK), sound_state);
-    EnableWindow(GetDlgItem(hDlg, VOLUME_BAR), volume_state);
+    EnableWindow(GetDlgItem(hDlg, IDC_SOUND_CHECK), sound_state);
+    EnableWindow(GetDlgItem(hDlg, IDC_VOLUME_BAR), volume_state);
 }
 
 
 
 static void init_bar (HWND hDlg)
 {
-   HWND volume_bar = GetDlgItem(hDlg, VOLUME_BAR);
+   HWND volume_bar = GetDlgItem(hDlg, IDC_VOLUME_BAR);
 
    SendMessage(volume_bar, TBM_SETRANGE, TRUE, MAKELONG(MIN_POS, MAX_POS));
    SendMessage(volume_bar, TBM_SETLINESIZE, TRUE, LINE_STEP);
@@ -156,58 +152,61 @@ static void update_bar(WPARAM wParam)
  */
 int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+   int state;
    static int bank_range;
 
    switch(uMsg)
    {
       case WM_INITDIALOG:
 #ifdef FRENCH_LANGUAGE
-         SetWindowText(GetDlgItem(hDlg, SPEED_GROUP), "Vitesse");
-         SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exacte");
-         SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "rapide");
-         SetWindowText(GetDlgItem(hDlg, SOUND_GROUP), "Son");
-         SetWindowText(GetDlgItem(hDlg, SOUND_CHECK), "Actif");
-         SetWindowText(GetDlgItem(hDlg, DISPLAY_GROUP), "Vidéo");
-         SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Entrelacée");
-         SetWindowText(GetDlgItem(hDlg, MEMORY_GROUP), "Mémoire");
+         SetWindowText(GetDlgItem(hDlg, IDC_SPEED_GROUP), "Vitesse");
+         SetWindowText(GetDlgItem(hDlg, IDC_EXACT_SPEED_BUTTON), "exacte");
+         SetWindowText(GetDlgItem(hDlg, IDC_MAX_SPEED_BUTTON), "rapide");
+         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_GROUP), "Son");
+         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_CHECK), "actif");
+         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_LOW_LTEXT), "min");
+         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_HIGH_LTEXT), "max");
+         SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_GROUP), "Mémoire");
+         SetWindowText(GetDlgItem(hDlg, IDC_INTERLACED_CHECK), "vidéo entrelacée");
 #else
-         SetWindowText(GetDlgItem(hDlg, SPEED_GROUP), "Speed");
-         SetWindowText(GetDlgItem(hDlg, EXACT_SPEED_BUTTON), "exact");
-         SetWindowText(GetDlgItem(hDlg, MAX_SPEED_BUTTON), "fast");
-         SetWindowText(GetDlgItem(hDlg, SOUND_GROUP), "Sound");
-         SetWindowText(GetDlgItem(hDlg, SOUND_CHECK), "Activated");
-         SetWindowText(GetDlgItem(hDlg, DISPLAY_GROUP), "Video");
-         SetWindowText(GetDlgItem(hDlg, INTERLACED_CHECK), "Interlaced");
-         SetWindowText(GetDlgItem(hDlg, MEMORY_GROUP), "Memory");
+         SetWindowText(GetDlgItem(hDlg, IDC_SPEED_GROUP), "Speed");
+         SetWindowText(GetDlgItem(hDlg, IDC_EXACT_SPEED_BUTTON), "exact");
+         SetWindowText(GetDlgItem(hDlg, IDC_MAX_SPEED_BUTTON), "fast");
+         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_GROUP), "Sound");
+         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_CHECK), "activated");
+         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_LOW_LTEXT), "min");
+         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_HIGH_LTEXT), "max");
+         SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_GROUP), "Memory");
+         SetWindowText(GetDlgItem(hDlg, IDC_INTERLACED_CHECK), "interlaced video");
 #endif
          if (teo.setting.bank_range == 32)
          {
-            SetWindowText(GetDlgItem(hDlg, MEMORY_256K_RADIO), "256k (+reset)");
-            SetWindowText(GetDlgItem(hDlg, MEMORY_512K_RADIO), "512k");
+            SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_256K_RADIO), "256k (+reset)");
+            SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_512K_RADIO), "512k");
          }
          else
          {
-            SetWindowText(GetDlgItem(hDlg, MEMORY_256K_RADIO), "256k");
-            SetWindowText(GetDlgItem(hDlg, MEMORY_512K_RADIO), "512k (+reset)");
+            SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_256K_RADIO), "256k");
+            SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_512K_RADIO), "512k (+reset)");
          }
 
          /* initialisation des boutons radio de la vitesse */
-         CheckRadioButton(hDlg, EXACT_SPEED_BUTTON, MAX_SPEED_BUTTON, 
-               (teo.setting.exact_speed ? EXACT_SPEED_BUTTON
-                                        : MAX_SPEED_BUTTON));
+         CheckRadioButton(hDlg, IDC_EXACT_SPEED_BUTTON, IDC_MAX_SPEED_BUTTON, 
+               (teo.setting.exact_speed ? IDC_EXACT_SPEED_BUTTON
+                                        : IDC_MAX_SPEED_BUTTON));
 
          /* initialisation des boutons radio de l'extension mémoire */
-         CheckRadioButton(hDlg, MEMORY_256K_RADIO, MEMORY_512K_RADIO, 
-               ((teo.setting.bank_range == 32) ? MEMORY_512K_RADIO
-                                               : MEMORY_256K_RADIO));
+         CheckRadioButton(hDlg, IDC_MEMORY_256K_RADIO, IDC_MEMORY_512K_RADIO, 
+               ((teo.setting.bank_range == 32) ? IDC_MEMORY_512K_RADIO
+                                               : IDC_MEMORY_256K_RADIO));
 
          /* initialisation du mode entrelacé */
-         CheckDlgButton(hDlg, INTERLACED_CHECK, teo.setting.interlaced_video
-                                                ? BST_CHECKED : BST_UNCHECKED);
+         state = (teo.setting.interlaced_video) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hDlg, IDC_INTERLACED_CHECK, state);
 
          /* initialisation du checkbox de son */
-         CheckDlgButton(hDlg, SOUND_CHECK, teo.setting.sound_enabled
-                                                ? BST_CHECKED : BST_UNCHECKED);
+         state = (teo.setting.sound_enabled) ? BST_CHECKED : BST_UNCHECKED;
+         CheckDlgButton(hDlg, IDC_SOUND_CHECK, state);
 
          /* initialisation de la barre du volume */
          init_bar (hDlg);
@@ -219,37 +218,37 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
-            case EXACT_SPEED_BUTTON:
+            case IDC_EXACT_SPEED_BUTTON:
                teo.setting.exact_speed = TRUE;
                update_state (hDlg);
                break;
 
-            case MAX_SPEED_BUTTON:
+            case IDC_MAX_SPEED_BUTTON:
                teo.setting.exact_speed = FALSE;
                update_state (hDlg);
                break;
 
-            case INTERLACED_CHECK:
-               teo.setting.interlaced_video =
-                  (IsDlgButtonChecked(hDlg, INTERLACED_CHECK) == BST_CHECKED)
-                      ? TRUE : FALSE;
+            case IDC_INTERLACED_CHECK:
+               state = IsDlgButtonChecked(hDlg, IDC_INTERLACED_CHECK);
+               state = (state == BST_CHECKED) ? TRUE : FALSE;
+               teo.setting.interlaced_video = state;
                break;
                
-            case MEMORY_256K_RADIO:
+            case IDC_MEMORY_256K_RADIO:
                teo.setting.bank_range = 16;
                teo.command = (bank_range == 16) ? TEO_COMMAND_NONE
                                                 : TEO_COMMAND_COLD_RESET;
                break;
 
-            case MEMORY_512K_RADIO:
+            case IDC_MEMORY_512K_RADIO:
                teo.setting.bank_range = 32;
                teo.command = (bank_range == 32) ? TEO_COMMAND_NONE
                                                 : TEO_COMMAND_COLD_RESET;
                break;
 
-            case SOUND_CHECK:
+            case IDC_SOUND_CHECK:
                teo.setting.sound_enabled =
-                    (IsDlgButtonChecked(hDlg, SOUND_CHECK) == BST_CHECKED)
+                    (IsDlgButtonChecked(hDlg, IDC_SOUND_CHECK) == BST_CHECKED)
                          ? TRUE : FALSE;
                update_state (hDlg);
                break;
@@ -257,11 +256,12 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
          return TRUE;
 
       case WM_HSCROLL:
-         if ((HWND)lParam == GetDlgItem(hDlg, VOLUME_BAR))
+         if ((HWND)lParam == GetDlgItem(hDlg, IDC_VOLUME_BAR))
                update_bar(wParam);
          return TRUE;
 
       default:
          return FALSE;
    }
+   return FALSE;
 }

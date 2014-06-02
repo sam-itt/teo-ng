@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
- *                               24/10/2012
+ *                               24/10/2012 10/05/2014
  *
  *  Gestion des disquettes.
  */
@@ -49,11 +49,6 @@
    #include <stdlib.h>
    #include <unistd.h>
    #include <string.h>
-   #include <windows.h>
-   #include <windowsx.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
-   #include <shlobj.h>
 #endif
 
 #include "defs.h"
@@ -65,7 +60,6 @@
 #include "media/disk.h"
 #include "media/disk/daccess.h"
 #include "win/gui.h"
-#include "win/dialog.rh"
 
 #define NDISKS 4
 
@@ -99,11 +93,14 @@ static int load_virtual_disk (HWND hWnd, char *filename, struct FILE_VECTOR *vec
     switch (ret)
     {
         case TEO_ERROR :
-            MessageBox(hWnd, teo_error_msg, PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
+            MessageBox(hWnd,
+                       teo_error_msg,
+                       PROGNAME_STR,
+                       MB_OK | MB_ICONINFORMATION);
             break;
 
         case TRUE :
-            CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, BST_CHECKED);
+            CheckDlgButton(hWnd, IDC_DISK0_PROT_CHECK+vector->id, BST_CHECKED);
             teo.disk[vector->id].write_protect = TRUE;
             break;
 
@@ -120,8 +117,13 @@ static int load_virtual_disk (HWND hWnd, char *filename, struct FILE_VECTOR *vec
 static void set_protection_check (HWND hWnd, struct FILE_VECTOR *vector)
 {
     struct DISK_VECTOR *disk_vector = NULL;
-    int row = ComboBox_GetCurSel(GetDlgItem (hWnd, DISK0_COMBO+vector->id));
-    int protection = (IsDlgButtonChecked(hWnd, DISK0_PROT_CHECK+vector->id) == BST_CHECKED) ? TRUE : FALSE;
+    int row;
+    int protection;
+    int state;
+
+    row = ComboBox_GetCurSel(GetDlgItem (hWnd, IDC_DISK0_COMBO+vector->id));
+    state = IsDlgButtonChecked(hWnd, IDC_DISK0_PROT_CHECK+vector->id);
+    protection = (state == BST_CHECKED) ? TRUE : FALSE;
 
     if ((protection == FALSE)
      && (disk_Protection (vector->id, FALSE) == TRUE))
@@ -129,7 +131,7 @@ static void set_protection_check (HWND hWnd, struct FILE_VECTOR *vector)
         MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
                               :"Warning: writing unavailable on this device."
                        , PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
-        CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, BST_CHECKED);
+        CheckDlgButton(hWnd, IDC_DISK0_PROT_CHECK+vector->id, BST_CHECKED);
     }
 
     disk_vector = disk_DiskVectorPtr (vector->path_list, row);
@@ -145,8 +147,14 @@ static void set_protection_check (HWND hWnd, struct FILE_VECTOR *vector)
 static void set_side_combo (HWND hWnd, struct FILE_VECTOR *vector)
 {
     struct DISK_VECTOR *disk_vector = NULL;
-    int row = ComboBox_GetCurSel(GetDlgItem (hWnd, DISK0_COMBO+vector->id));
-    int side = ComboBox_GetCurSel(GetDlgItem (hWnd,DISK0_SIDE_COMBO+vector->id));
+    int row;
+    int side;
+    HWND hwindow;
+
+    hwindow = GetDlgItem (hWnd, IDC_DISK0_COMBO+vector->id);
+    row = ComboBox_GetCurSel (hwindow);
+    hwindow = GetDlgItem (hWnd,IDC_DISK0_SIDE_COMBO+vector->id);
+    side = ComboBox_GetCurSel (hwindow);
 
     disk_vector = disk_DiskVectorPtr (vector->path_list, row);
     disk_vector->side = side;
@@ -166,11 +174,17 @@ static void reset_side_combo (HWND hWnd, int side_count, struct FILE_VECTOR *vec
     int side = 0;
     char *str = NULL;
 
-    SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
+    SendDlgItemMessage (hWnd,
+                        IDC_DISK0_SIDE_COMBO+vector->id,
+                        CB_RESETCONTENT,
+                        0,
+                        0);
     for (side=0; side<side_count; side++)
     {
         str = std_strdup_printf ("%d", side);
-        SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_ADDSTRING, 0,
+        SendDlgItemMessage(hWnd,
+                           IDC_DISK0_SIDE_COMBO+vector->id,
+                           CB_ADDSTRING, 0,
                            (LPARAM)str);
         str = std_free (str);
     }
@@ -189,7 +203,11 @@ static void add_combo_entry (HWND hWnd, const char path[], int side, int side_co
 
     if (index >= 0)
     {
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL, index, 0);
+        SendDlgItemMessage(hWnd,
+                           IDC_DISK0_COMBO+vector->id,
+                           CB_SETCURSEL,
+                           index,
+                           0);
     }
     else
     {
@@ -198,10 +216,16 @@ static void add_combo_entry (HWND hWnd, const char path[], int side, int side_co
                                                    side,
                                                    side_count,
                                                    protection);
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_ADDSTRING, 0,
+        SendDlgItemMessage(hWnd,
+                           IDC_DISK0_COMBO+vector->id,
+                           CB_ADDSTRING,
+                           0,
                            (LPARAM) std_BaseName((char *)path));
-        SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_SETCURSEL,
-                           vector->entry_max, 0);
+        SendDlgItemMessage(hWnd,
+                           IDC_DISK0_COMBO+vector->id,
+                           CB_SETCURSEL,
+                           vector->entry_max,
+                           0);
         vector->combo_index = vector->entry_max;
         vector->entry_max++;
     }
@@ -214,36 +238,59 @@ static void add_combo_entry (HWND hWnd, const char path[], int side, int side_co
  */
 static void combo_changed (HWND hWnd, struct FILE_VECTOR *vector)
 {
-    int active_row = SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_GETCURSEL, 0, 0);
-    struct DISK_VECTOR *p = disk_DiskVectorPtr (vector->path_list, active_row);
+    HWND hwindow;
+    int active_row;
+    struct DISK_VECTOR *p;
+
+    active_row = SendDlgItemMessage(hWnd,
+                                    IDC_DISK0_COMBO+vector->id,
+                                    CB_GETCURSEL,
+                                    0,
+                                    0);
+    p = disk_DiskVectorPtr (vector->path_list, active_row);
 
     vector->combo_index = active_row;
     if (active_row == 0)
     {
-        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), FALSE);
-        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), FALSE);
-        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), FALSE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_EJECT_BUTTON+vector->id);
+        Button_Enable (hwindow, FALSE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_SIDE_COMBO+vector->id);
+        ComboBox_Enable (hwindow, FALSE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_PROT_CHECK+vector->id);
+        Button_Enable (hwindow, FALSE);
         disk_Eject(vector->id);
     }
     else
     if ((active_row == 1) && (vector->direct))
     {
-        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), FALSE);
-        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), FALSE);
-        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), TRUE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_EJECT_BUTTON+vector->id);
+        Button_Enable (hwindow, FALSE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_SIDE_COMBO+vector->id);
+        ComboBox_Enable (hwindow, FALSE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_PROT_CHECK+vector->id);
+        Button_Enable (hwindow, TRUE);
         (void)daccess_LoadDisk (vector->id, "");
     }
     else
     {
-        Button_Enable(GetDlgItem (hWnd, DISK0_EJECT_BUTTON+vector->id), TRUE);
-        ComboBox_Enable(GetDlgItem (hWnd, DISK0_SIDE_COMBO+vector->id), TRUE);
-        Button_Enable(GetDlgItem (hWnd, DISK0_PROT_CHECK+vector->id), TRUE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_EJECT_BUTTON+vector->id);
+        Button_Enable (hwindow, TRUE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_SIDE_COMBO+vector->id);
+        ComboBox_Enable (hwindow, TRUE);
+        hwindow = GetDlgItem (hWnd, IDC_DISK0_PROT_CHECK+vector->id);
+        Button_Enable (hwindow, TRUE);
         (void)load_virtual_disk (hWnd, p->str, vector);
     }
     reset_side_combo (hWnd, p->side_count, vector);
-    SendDlgItemMessage(hWnd, DISK0_SIDE_COMBO+vector->id, CB_SETCURSEL, p->side, 0);
+    SendDlgItemMessage(hWnd,
+                       IDC_DISK0_SIDE_COMBO+vector->id,
+                       CB_SETCURSEL,
+                       p->side,
+                       0);
     set_side_combo (hWnd, vector);
-    CheckDlgButton(hWnd, DISK0_PROT_CHECK+vector->id, (p->write_protect)?BST_CHECKED:BST_UNCHECKED);
+    CheckDlgButton(hWnd,
+                   IDC_DISK0_PROT_CHECK+vector->id,
+                   (p->write_protect)?BST_CHECKED:BST_UNCHECKED);
     set_protection_check (hWnd, vector);
 }
 
@@ -269,8 +316,12 @@ static void init_combo (HWND hWnd, struct FILE_VECTOR *vector)
 {
     add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)", 0, 1, FALSE, vector);
     if (vector->direct)
-        add_combo_entry (hWnd, is_fr?"(Accès Direct)":"(Direct Access)",
-                         vector->id, vector->id+1, TRUE, vector);
+        add_combo_entry (hWnd,
+                         is_fr?"(Accès Direct)":"(Direct Access)",
+                         vector->id,
+                         vector->id+1,
+                         TRUE,
+                         vector);
 }
 
 
@@ -283,7 +334,11 @@ static void emptying_button_clicked (HWND hWnd, struct FILE_VECTOR *vector)
 {
      disk_Eject(vector->id);
      free_disk_entry (vector);
-     SendDlgItemMessage(hWnd, DISK0_COMBO+vector->id, CB_RESETCONTENT, 0, 0);
+     SendDlgItemMessage(hWnd,
+                        IDC_DISK0_COMBO+vector->id,
+                        CB_RESETCONTENT,
+                        0,
+                        0);
      init_combo (hWnd, vector);
      combo_changed (hWnd, vector);
 }
@@ -332,14 +387,19 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
         if (load_virtual_disk (hWnd, ofn.lpstrFile, vector) >= 0)
         {
             add_combo_entry (hWnd, teo.disk[vector->id].file,
-                             MIN (teo.disk[vector->id].side, disk[vector->id].side_count-1),
+                             MIN (teo.disk[vector->id].side,
+                                  disk[vector->id].side_count-1),
                              disk[vector->id].side_count,
                              teo.disk[vector->id].write_protect,
                              vector);
             combo_changed(hWnd, vector);
             teo.default_folder = std_free (teo.default_folder);
-            teo.default_folder = std_strdup_printf ("%s", teo.disk[vector->id].file);
-            (void)snprintf (current_file, MAX_PATH, "%s", teo.disk[vector->id].file);
+            teo.default_folder = std_strdup_printf ("%s",
+                                                    teo.disk[vector->id].file);
+            (void)snprintf (current_file,
+                            MAX_PATH,
+                            "%s",
+                            teo.disk[vector->id].file);
         }
     }
 }
@@ -369,7 +429,9 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
    static int first=1;
    int i;
 //   int state;
+   int index;
    HANDLE himg;
+   HWND hw;
    struct DISK_VECTOR *slist;
 
    switch(uMsg)
@@ -378,26 +440,41 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          for (i=0; i<NBDRIVE; i++)
          {
              /* initialisation des images */
-             himg=LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0,
+             himg=LoadImage (prog_inst,
+                             "clearlst_ico",
+                             IMAGE_ICON,
+                             0,
+                             0,
                              LR_DEFAULTCOLOR);
-             SendMessage(GetDlgItem(hWnd, DISK0_EJECT_BUTTON+i),
-                           BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg);
-             himg=LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0,
+             hw = GetDlgItem(hWnd, IDC_DISK0_EJECT_BUTTON+i);
+             SendMessage(hw, BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg);
+
+             himg=LoadImage (prog_inst,
+                             "folder_ico",
+                             IMAGE_ICON,
+                             0,
+                             0,
                              LR_DEFAULTCOLOR);
-             SendMessage(GetDlgItem(hWnd, DISK0_MORE_BUTTON+i),
-                           BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg);
+             SendMessage(GetDlgItem(hWnd, IDC_DISK0_MORE_BUTTON+i),
+                         BM_SETIMAGE,
+                         (WPARAM)IMAGE_ICON,
+                         (LPARAM)himg);
 
              /* initialisation des textes */
-             SetWindowText(GetDlgItem(hWnd, DISK0_SIDE_RTEXT), is_fr?"face":"side");
-             SetWindowText(GetDlgItem(hWnd, DISK1_SIDE_RTEXT), is_fr?"face":"side");
-             SetWindowText(GetDlgItem(hWnd, DISK2_SIDE_RTEXT), is_fr?"face":"side");
-             SetWindowText(GetDlgItem(hWnd, DISK3_SIDE_RTEXT), is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, IDC_DISK0_SIDE_RTEXT),
+                           is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, IDC_DISK1_SIDE_RTEXT),
+                           is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, IDC_DISK2_SIDE_RTEXT),
+                           is_fr?"face":"side");
+             SetWindowText(GetDlgItem(hWnd, IDC_DISK3_SIDE_RTEXT),
+                           is_fr?"face":"side");
 
              /* initialisation des info-bulles */
-             wgui_CreateTooltip (hWnd, DISK0_EJECT_BUTTON+i,
+             wgui_CreateTooltip (hWnd, IDC_DISK0_EJECT_BUTTON+i,
                                  is_fr?"Vider la liste des fichiers"
                                       :"Empty the file list");
-             wgui_CreateTooltip (hWnd, DISK0_MORE_BUTTON+i,
+             wgui_CreateTooltip (hWnd, IDC_DISK0_MORE_BUTTON+i,
                                  is_fr?"Ouvrir un fichier disquette"
                                       :"Open a disk file");
 
@@ -410,9 +487,9 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              }
 
              /* initialisation du combo des noms de fichiers */
-             SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_RESETCONTENT, 0, 0);
+             SendDlgItemMessage(hWnd, IDC_DISK0_COMBO+i, CB_RESETCONTENT, 0, 0);
              for (slist=vector[i].path_list; slist!=NULL; slist=slist->next)
-                 SendDlgItemMessage(hWnd, DISK0_COMBO+i, CB_ADDSTRING, 0,
+                 SendDlgItemMessage(hWnd, IDC_DISK0_COMBO+i, CB_ADDSTRING, 0,
                                     (LPARAM) std_BaseName(slist->str));
 
 #if 0
@@ -420,8 +497,9 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              reset_side_combo (hWnd, teo.disk[i].side, &vector[i]);
 
              /* initialisation de la protection */
-             state = (teo.disk[i].write_protect == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-             CheckDlgButton(hWnd, DISK0_PROT_CHECK+i, state);
+             state = (teo.disk[i].write_protect == TRUE) ? BST_CHECKED
+                                                         : BST_UNCHECKED;
+             CheckDlgButton(hWnd, IDC_DISK0_PROT_CHECK+i, state);
 #endif
              if (first)
              {
@@ -438,7 +516,8 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                                                          teo.disk[i].file);
                  }
              }
-             ComboBox_SetCurSel (GetDlgItem(hWnd, DISK0_COMBO+i), vector[i].combo_index);
+             hw = GetDlgItem(hWnd, IDC_DISK0_COMBO+i);
+             ComboBox_SetCurSel (hw, vector[i].combo_index);
              combo_changed(hWnd, &vector[i]);
          }
          first=0;
@@ -447,41 +526,50 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
-            case DISK0_EJECT_BUTTON:
-            case DISK1_EJECT_BUTTON:
-            case DISK2_EJECT_BUTTON:
-            case DISK3_EJECT_BUTTON: 
-               emptying_button_clicked(hWnd, &vector[LOWORD(wParam)-DISK0_EJECT_BUTTON]);
+            case IDC_DISK0_EJECT_BUTTON:
+            case IDC_DISK1_EJECT_BUTTON:
+            case IDC_DISK2_EJECT_BUTTON:
+            case IDC_DISK3_EJECT_BUTTON: 
+               index = LOWORD(wParam)-IDC_DISK0_EJECT_BUTTON;
+               emptying_button_clicked (hWnd, &vector[index]);
                break;
 
-            case DISK0_MORE_BUTTON:
-            case DISK1_MORE_BUTTON:
-            case DISK2_MORE_BUTTON:
-            case DISK3_MORE_BUTTON: 
-               open_file(hWnd, &vector[LOWORD(wParam)-DISK0_MORE_BUTTON]);
+            case IDC_DISK0_MORE_BUTTON:
+            case IDC_DISK1_MORE_BUTTON:
+            case IDC_DISK2_MORE_BUTTON:
+            case IDC_DISK3_MORE_BUTTON: 
+               index = LOWORD(wParam)-IDC_DISK0_MORE_BUTTON;
+               open_file (hWnd, &vector[index]);
                break;
 
-            case DISK0_COMBO:
-            case DISK1_COMBO:
-            case DISK2_COMBO:
-            case DISK3_COMBO:
+            case IDC_DISK0_COMBO:
+            case IDC_DISK1_COMBO:
+            case IDC_DISK2_COMBO:
+            case IDC_DISK3_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
-                   combo_changed(hWnd, &vector[LOWORD(wParam)-DISK0_COMBO]);
+               {
+                   index = LOWORD(wParam)-IDC_DISK0_COMBO;
+                   combo_changed (hWnd, &vector[index]);
+               }
                break;
 
-            case DISK0_SIDE_COMBO:
-            case DISK1_SIDE_COMBO:
-            case DISK2_SIDE_COMBO:
-            case DISK3_SIDE_COMBO:
+            case IDC_DISK0_SIDE_COMBO:
+            case IDC_DISK1_SIDE_COMBO:
+            case IDC_DISK2_SIDE_COMBO:
+            case IDC_DISK3_SIDE_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
-                   set_side_combo(hWnd, &vector[LOWORD(wParam)-DISK0_SIDE_COMBO]);
+               {
+                   index = LOWORD(wParam)-IDC_DISK0_SIDE_COMBO;
+                   set_side_combo (hWnd, &vector[index]);
+               }
                break;
 
-            case DISK0_PROT_CHECK:
-            case DISK1_PROT_CHECK:
-            case DISK2_PROT_CHECK:
-            case DISK3_PROT_CHECK: 
-               set_protection_check(hWnd, &vector[LOWORD(wParam)-DISK0_PROT_CHECK]);
+            case IDC_DISK0_PROT_CHECK:
+            case IDC_DISK1_PROT_CHECK:
+            case IDC_DISK2_PROT_CHECK:
+            case IDC_DISK3_PROT_CHECK: 
+               index = LOWORD(wParam)-IDC_DISK0_PROT_CHECK;
+               set_protection_check (hWnd, &vector[index]);
                break;
          }
          return TRUE;

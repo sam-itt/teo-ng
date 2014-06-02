@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
- *                               24/10/2012
+ *                               24/10/2012 10/05/2014
  *
  *  Gestion des cassettes.
  */
@@ -49,18 +49,13 @@
    #include <stdlib.h>
    #include <unistd.h>
    #include <string.h>
-   #include <windows.h>
-   #include <windowsx.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
 #endif
 
-#include "win/dialog.rh"
-#include "win/gui.h"
+#include "teo.h"
 #include "std.h"
 #include "errors.h"
 #include "media/cass.h"
-#include "teo.h"
+#include "win/gui.h"
 
 #define COUNTER_MAX  999
 
@@ -75,27 +70,27 @@ static struct STRING_LIST *path_list = NULL;
  */
 static void update_params (HWND hWnd)
 {
-    teo.cass.write_protect = (IsDlgButtonChecked(hWnd, K7_PROT_CHECK)
+    teo.cass.write_protect = (IsDlgButtonChecked(hWnd, IDC_K7_PROT_CHECK)
                                  == BST_CHECKED) ? TRUE : FALSE;
-    combo_index = SendDlgItemMessage(hWnd, K7_COMBO, CB_GETCURSEL, 0, 0);
+    combo_index = SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_GETCURSEL, 0, 0);
 
     if (combo_index == 0)
     {
-        Button_Enable(GetDlgItem (hWnd, K7_UPDOWN), FALSE);
-        Edit_Enable(GetDlgItem (hWnd, K7_COUNTER_EDIT), FALSE);
-        Button_Enable(GetDlgItem (hWnd, K7_REWIND_BUTTON), FALSE);
-        Static_Enable(GetDlgItem (hWnd, K7_COUNTER_LTEXT), FALSE);
-        Button_Enable(GetDlgItem (hWnd, K7_EJECT_BUTTON), FALSE);
-        Button_Enable(GetDlgItem (hWnd, K7_PROT_CHECK), FALSE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_UPDOWN), FALSE);
+        Edit_Enable(GetDlgItem (hWnd, IDC_K7_COUNTER_EDIT), FALSE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_REWIND_BUTTON), FALSE);
+        Static_Enable(GetDlgItem (hWnd, IDC_K7_COUNTER_LTEXT), FALSE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_EJECT_BUTTON), FALSE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_PROT_CHECK), FALSE);
     }
     else
     {
-        Button_Enable(GetDlgItem (hWnd, K7_UPDOWN), TRUE);
-        Edit_Enable(GetDlgItem (hWnd, K7_COUNTER_EDIT), TRUE);
-        Button_Enable(GetDlgItem (hWnd, K7_REWIND_BUTTON), TRUE);
-        Static_Enable(GetDlgItem (hWnd, K7_COUNTER_LTEXT), TRUE);
-        Button_Enable(GetDlgItem (hWnd, K7_EJECT_BUTTON), TRUE);
-        Button_Enable(GetDlgItem (hWnd, K7_PROT_CHECK), TRUE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_UPDOWN), TRUE);
+        Edit_Enable(GetDlgItem (hWnd, IDC_K7_COUNTER_EDIT), TRUE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_REWIND_BUTTON), TRUE);
+        Static_Enable(GetDlgItem (hWnd, IDC_K7_COUNTER_LTEXT), TRUE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_EJECT_BUTTON), TRUE);
+        Button_Enable(GetDlgItem (hWnd, IDC_K7_PROT_CHECK), TRUE);
     }
 }
 
@@ -107,8 +102,8 @@ static void set_counter_cass (HWND hWnd)
 {
    int counter = cass_GetCounter();
 
-   SetDlgItemInt(hWnd, K7_COUNTER_EDIT, counter, FALSE);
-   SendDlgItemMessage(hWnd, K7_UPDOWN, UDM_SETPOS, 0, MAKELONG(counter, 0));
+   SetDlgItemInt(hWnd, IDC_K7_COUNTER_EDIT, counter, FALSE);
+   SendDlgItemMessage(hWnd, IDC_K7_UPDOWN, UDM_SETPOS, 0, MAKELONG(counter, 0));
 }
 
 
@@ -150,7 +145,7 @@ static int load_cass (HWND hWnd, char *filename)
             break;
 
         case TRUE :
-            CheckDlgButton(hWnd, K7_PROT_CHECK, BST_CHECKED);
+            CheckDlgButton(hWnd, IDC_K7_PROT_CHECK, BST_CHECKED);
             break;
 
         default : break;
@@ -167,7 +162,7 @@ static int load_cass (HWND hWnd, char *filename)
  */
 static void toggle_check_cass (HWND hWnd)
 {
-    if (IsDlgButtonChecked(hWnd, K7_PROT_CHECK) == BST_CHECKED)
+    if (IsDlgButtonChecked(hWnd, IDC_K7_PROT_CHECK) == BST_CHECKED)
     {
         cass_SetProtection(TRUE);
     }
@@ -177,7 +172,7 @@ static void toggle_check_cass (HWND hWnd)
         MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
                               :"Warning: writing unavailable on this device."
                        , PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
-        CheckDlgButton(hWnd, K7_PROT_CHECK, BST_CHECKED); 
+        CheckDlgButton(hWnd, IDC_K7_PROT_CHECK, BST_CHECKED); 
     }
     update_params(hWnd);
     set_counter_cass (hWnd);
@@ -195,14 +190,14 @@ static void add_combo_entry (HWND hWnd, const char *path)
     if (index<0)
     {
         path_list = std_StringListAppend (path_list, (char *)path);
-        SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0,
+        SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_ADDSTRING, 0,
                            (LPARAM) std_BaseName((char *)path));
-        SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, entry_max, 0);
+        SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_SETCURSEL, entry_max, 0);
         entry_max++;
     }
     else
     {
-        SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, index, 0);
+        SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_SETCURSEL, index, 0);
         if (index != combo_index)
         {
             (void)load_cass (hWnd, std_StringListText (path_list, index));
@@ -229,7 +224,7 @@ static void clear_combo (HWND hWnd)
 {
     wcass_Free ();
     eject_cass (hWnd);
-    SendDlgItemMessage(hWnd, K7_COMBO, CB_RESETCONTENT, 0, 0);
+    SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_RESETCONTENT, 0, 0);
     init_combo (hWnd);
     update_params(hWnd);
 }
@@ -240,7 +235,7 @@ static void clear_combo (HWND hWnd)
  */
 static void combo_changed (HWND hWnd)
 {
-    int index = SendDlgItemMessage(hWnd, K7_COMBO, CB_GETCURSEL, 0, 0);
+    int index = SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_GETCURSEL, 0, 0);
 
     if (index != combo_index)
     {
@@ -340,44 +335,44 @@ int CALLBACK wcass_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
              if (teo.cass.file != NULL)
                  add_combo_entry (hWnd, teo.cass.file);
              
-             combo_index = SendDlgItemMessage(hWnd, K7_COMBO, CB_GETCURSEL, 0, 0);
+             combo_index = SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_GETCURSEL, 0, 0);
              first=0;
          }
          /* initialisation du combo */
-         SendDlgItemMessage(hWnd, K7_COMBO, CB_RESETCONTENT, 0, 0);
+         SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_RESETCONTENT, 0, 0);
          for (slist=path_list; slist!=NULL; slist=slist->next)
-             SendDlgItemMessage(hWnd, K7_COMBO, CB_ADDSTRING, 0,
+             SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_ADDSTRING, 0,
                                 (LPARAM) std_BaseName(slist->str));
-         SendDlgItemMessage(hWnd, K7_COMBO, CB_SETCURSEL, combo_index, 0);
+         SendDlgItemMessage(hWnd, IDC_K7_COMBO, CB_SETCURSEL, combo_index, 0);
 
          /* initialisation de la protection */
          state = (teo.cass.write_protect == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-         CheckDlgButton(hWnd, K7_PROT_CHECK, state);
+         CheckDlgButton(hWnd, IDC_K7_PROT_CHECK, state);
 
          /* initialisation du compteur de cassettes */
-         counter_updown = GetDlgItem(hWnd, K7_UPDOWN);
+         counter_updown = GetDlgItem(hWnd, IDC_K7_UPDOWN);
          SendMessage(counter_updown, UDM_SETRANGE, 0, MAKELONG(COUNTER_MAX, 0));
          set_counter_cass(hWnd);
 
          /* initialisation des images */
-         himg=LoadImage (prog_inst, "empty_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-         SendMessage(GetDlgItem(hWnd, K7_EJECT_BUTTON), BM_SETIMAGE,
+         himg=LoadImage (prog_inst, "clearlst_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         SendMessage(GetDlgItem(hWnd, IDC_K7_EJECT_BUTTON), BM_SETIMAGE,
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg);
-         himg=LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-         SendMessage(GetDlgItem(hWnd, K7_MORE_BUTTON), BM_SETIMAGE,
+         himg=LoadImage (prog_inst, "folder_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+         SendMessage(GetDlgItem(hWnd, IDC_K7_MORE_BUTTON), BM_SETIMAGE,
                                 (WPARAM)IMAGE_ICON, (LPARAM)himg);
 
          /* initialisation des textes */
-         SetWindowText(GetDlgItem(hWnd, K7_COUNTER_LTEXT),
+         SetWindowText(GetDlgItem(hWnd, IDC_K7_COUNTER_LTEXT),
                          is_fr?"Compteur:":" Counter:");
-         SetWindowText(GetDlgItem(hWnd, K7_REWIND_BUTTON),
+         SetWindowText(GetDlgItem(hWnd, IDC_K7_REWIND_BUTTON),
                          is_fr?"Rembobiner":"Rewind");
 
          /* initialisation des info-bulles */
-         wgui_CreateTooltip (hWnd, K7_EJECT_BUTTON,
+         wgui_CreateTooltip (hWnd, IDC_K7_EJECT_BUTTON,
                              is_fr?"Vider la liste des fichiers"
                                   :"Empty the file list");
-         wgui_CreateTooltip (hWnd, K7_MORE_BUTTON,
+         wgui_CreateTooltip (hWnd, IDC_K7_MORE_BUTTON,
                              is_fr?"Ouvrir un fichier cassette"
                                   :"Open a tape file");
          update_params(hWnd);
@@ -386,33 +381,33 @@ int CALLBACK wcass_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
-            case K7_EJECT_BUTTON:
+            case IDC_K7_EJECT_BUTTON:
                 clear_combo(hWnd);
                 break;
 
-            case K7_MORE_BUTTON:
+            case IDC_K7_MORE_BUTTON:
                 open_file(hWnd);
                 break;
 
-            case K7_COMBO:
+            case IDC_K7_COMBO:
                 if (HIWORD(wParam)==CBN_SELCHANGE)
                 {
                    combo_changed (hWnd);
                 }
                 break;
 
-            case K7_PROT_CHECK:
+            case IDC_K7_PROT_CHECK:
                 toggle_check_cass(hWnd);
                 break;
 
-            case K7_REWIND_BUTTON:
+            case IDC_K7_REWIND_BUTTON:
                 rewind_cass (hWnd);
                 break;
 
-            case K7_COUNTER_EDIT:
+            case IDC_K7_COUNTER_EDIT:
                 if (HIWORD(wParam) == EN_CHANGE)
                 {
-                   counter = GetDlgItemInt(hWnd, K7_COUNTER_EDIT, NULL, FALSE);
+                   counter = GetDlgItemInt(hWnd, IDC_K7_COUNTER_EDIT, NULL, FALSE);
                    cass_SetCounter(counter);
                    SendMessage(counter_updown, UDM_SETPOS, 0, MAKELONG(counter, 0));
                 }
@@ -426,7 +421,7 @@ int CALLBACK wcass_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          {
              counter = nmupdown->iPos;
              cass_SetCounter(counter);
-             SetDlgItemInt(hWnd, K7_COUNTER_EDIT, counter, FALSE);
+             SetDlgItemInt(hWnd, IDC_K7_COUNTER_EDIT, counter, FALSE);
          }
          return TRUE;
 

@@ -36,7 +36,7 @@
  *  Module     : win/wgui/wprinter.c
  *  Version    : 1.8.3
  *  Créé par   : François Mouret 22/04/2012
- *  Modifié par: François Mouret 24/10/2012 20/09/2013
+ *  Modifié par: François Mouret 24/10/2012 20/09/2013 10/05/2014
  *
  *  Gestion des imprimantes.
  */
@@ -47,17 +47,11 @@
    #include <stdlib.h>
    #include <string.h>
    #include <unistd.h>
-   #include <windows.h>
-   #include <windowsx.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
-   #include <shlobj.h>
 #endif
 
 #include "std.h"
 #include "teo.h"
 #include "media/printer.h"
-#include "win/dialog.rh"
 #include "win/gui.h"
 
 
@@ -70,13 +64,13 @@ static void update_options (HWND hWnd, int number)
 
     if (teo.lprt.number < 600)
     {
-        Button_Enable(GetDlgItem (hWnd, PRINTER_DIP_CHECK), FALSE);
-        Button_Enable(GetDlgItem (hWnd, PRINTER_NLQ_CHECK), FALSE);
+        Button_Enable(GetDlgItem (hWnd, IDC_PRINTER_DIP_CHECK), FALSE);
+        Button_Enable(GetDlgItem (hWnd, IDC_PRINTER_NLQ_CHECK), FALSE);
     }
     else
     {
-        Button_Enable(GetDlgItem (hWnd, PRINTER_DIP_CHECK), TRUE);
-        Button_Enable(GetDlgItem (hWnd, PRINTER_NLQ_CHECK), TRUE);
+        Button_Enable(GetDlgItem (hWnd, IDC_PRINTER_DIP_CHECK), TRUE);
+        Button_Enable(GetDlgItem (hWnd, IDC_PRINTER_NLQ_CHECK), TRUE);
     }
 }
 
@@ -116,7 +110,8 @@ static void open_folder (HWND hWnd)
     pidl = SHBrowseForFolder(&bi);
     if (SHGetPathFromIDList(pidl, (LPTSTR)folder) == TRUE)
     {
-        SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT), std_LastDir(folder));
+        SetWindowText(GetDlgItem(hWnd, IDC_PRINTER_MORE_EDIT),
+                      std_LastDir(folder));
         teo.lprt.folder = std_free (teo.lprt.folder);
         teo.lprt.folder = std_strdup_printf ("%s", folder);
     }
@@ -137,6 +132,7 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
    int first = 1;
    HANDLE himg;
    char str[MAX_PATH+1] = "";
+   HWND hw;
 
    switch(uMsg)
    {
@@ -153,101 +149,121 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
          }
 
          /* initialisation du combo */
-         SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_RESETCONTENT, 0, 0);
+         SendDlgItemMessage(hWnd,
+                            IDC_PRINTER_CHOOSE_COMBO,
+                            CB_RESETCONTENT,
+                            0,
+                            0);
          for (i=0; i<PRINTER_NUMBER; i++)
          {
-             SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_ADDSTRING, 0,
+             SendDlgItemMessage(hWnd,
+                                IDC_PRINTER_CHOOSE_COMBO,
+                                CB_ADDSTRING,
+                                0,
                                 (LPARAM) printer_code_list[i].name);
              if (teo.lprt.number == printer_code_list[i].number)
                  combo_index = i;
          }
-         SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO, CB_SETCURSEL,
-                            combo_index, 0);
+         SendDlgItemMessage(hWnd,
+                            IDC_PRINTER_CHOOSE_COMBO,
+                            CB_SETCURSEL,
+                            combo_index,
+                            0);
 
          /* initialisation des cases à cocher */
          state = (teo.lprt.dip == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-         CheckDlgButton(hWnd, PRINTER_DIP_CHECK, state);
+         CheckDlgButton(hWnd, IDC_PRINTER_DIP_CHECK, state);
          state = (teo.lprt.nlq == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-         CheckDlgButton(hWnd, PRINTER_NLQ_CHECK, state);
+         CheckDlgButton(hWnd, IDC_PRINTER_NLQ_CHECK, state);
          state = (teo.lprt.raw_output == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-         CheckDlgButton(hWnd, PRINTER_RAW_CHECK, state);
+         CheckDlgButton(hWnd, IDC_PRINTER_RAW_CHECK, state);
          state = (teo.lprt.txt_output == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-         CheckDlgButton(hWnd, PRINTER_TXT_CHECK, state);
+         CheckDlgButton(hWnd, IDC_PRINTER_TXT_CHECK, state);
          state = (teo.lprt.gfx_output == TRUE) ? BST_CHECKED : BST_UNCHECKED;
-         CheckDlgButton(hWnd, PRINTER_GFX_CHECK, state);
+         CheckDlgButton(hWnd, IDC_PRINTER_GFX_CHECK, state);
          
          /* initialisation des images pour les boutons */
-         himg = LoadImage (prog_inst, "open_ico",IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-         SendMessage(GetDlgItem(hWnd, PRINTER_MORE_BUTTON), BM_SETIMAGE,
-                                (WPARAM)IMAGE_ICON, (LPARAM)himg );
+         himg = LoadImage (prog_inst,
+                           "folder_ico",
+                           IMAGE_ICON,
+                           0,
+                           0,
+                           LR_DEFAULTCOLOR);
+         hw = GetDlgItem(hWnd, IDC_PRINTER_MORE_BUTTON);
+         SendMessage(hw, BM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)himg );
 
          /* initialisation des textes */
-         SetWindowText(GetDlgItem(hWnd, PRINTER_OPTIONS_GROUP),
-                            is_fr?"Options":"Options");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_CHOOSE_RTEXT),
-                            is_fr?"Imprimante : ":"Printer : ");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_DIP_CHECK),
-                            is_fr?"Double interligne":"Double spacing");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_NLQ_CHECK),
-                            is_fr?"Imprime en haute qualité":"High quality print");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_OUTPUT_GROUP),
-                            is_fr?"Sortie":"Output");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_RAW_CHECK),
-                            is_fr?"brute":"raw");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_TXT_CHECK),
-                            is_fr?"texte":"text");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_GFX_CHECK),
-                            is_fr?"graphique":"graphic");
-         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_EDIT),
-                            std_LastDir(teo.lprt.folder));
-         SetWindowText(GetDlgItem(hWnd, PRINTER_MORE_RTEXT),
-                            is_fr?"Sauver les fichiers dans "
-                                 :"Saving output files in ");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_OPTIONS_GROUP);
+         SetWindowText(hw, is_fr?"Imprimante":"Printer");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_CHOOSE_RTEXT);
+         SetWindowText(hw, "Type ");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_DIP_CHECK);
+         SetWindowText(hw, is_fr?"Double interligne":"Double spacing");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_NLQ_CHECK);
+         SetWindowText(hw, is_fr?"Imprime en haute qualité"
+                                :"High quality print");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_OUTPUT_GROUP);
+         SetWindowText(hw, is_fr?"Sortie":"Output");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_RAW_CHECK);
+         SetWindowText(hw, is_fr?"brute":"raw");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_TXT_CHECK);
+         SetWindowText(hw, is_fr?"texte":"text");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_GFX_CHECK);
+         SetWindowText(hw, is_fr?"graphique":"graphic");
+         hw = GetDlgItem(hWnd, IDC_PRINTER_MORE_EDIT);
+         SetWindowText(hw, std_LastDir(teo.lprt.folder));
+         hw = GetDlgItem(hWnd, IDC_PRINTER_MORE_RTEXT);
+         SetWindowText(hw, is_fr?"Sauver les fichiers dans "
+                                :"Saving output files in ");
 
          /* initialisation des info-bulles */
-         wgui_CreateTooltip (hWnd, PRINTER_MORE_BUTTON,
-                                   is_fr?"Choisir un répertoire de sauvegarde"
-                                        :"Choose a save folder");
+         wgui_CreateTooltip (hWnd,
+                             IDC_PRINTER_MORE_BUTTON,
+                             is_fr?"Choisir un répertoire de sauvegarde"
+                                  :"Choose a save folder");
          update_options (hWnd, combo_index);
          return TRUE;
 
       case WM_COMMAND:
          switch(LOWORD(wParam))
          {
-            case PRINTER_MORE_BUTTON:
+            case IDC_PRINTER_MORE_BUTTON:
                open_folder (hWnd);
                break;
 
-            case PRINTER_DIP_CHECK:
-               state = IsDlgButtonChecked(hWnd, PRINTER_DIP_CHECK);
+            case IDC_PRINTER_DIP_CHECK:
+               state = IsDlgButtonChecked(hWnd, IDC_PRINTER_DIP_CHECK);
                teo.lprt.dip = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
-            case PRINTER_NLQ_CHECK:
-               state = IsDlgButtonChecked(hWnd, PRINTER_NLQ_CHECK);
+            case IDC_PRINTER_NLQ_CHECK:
+               state = IsDlgButtonChecked(hWnd, IDC_PRINTER_NLQ_CHECK);
                teo.lprt.nlq = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
-            case PRINTER_RAW_CHECK:
-               state = IsDlgButtonChecked(hWnd, PRINTER_RAW_CHECK);
+            case IDC_PRINTER_RAW_CHECK:
+               state = IsDlgButtonChecked(hWnd, IDC_PRINTER_RAW_CHECK);
                teo.lprt.raw_output = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
-            case PRINTER_TXT_CHECK:
-               state = IsDlgButtonChecked(hWnd, PRINTER_TXT_CHECK);
+            case IDC_PRINTER_TXT_CHECK:
+               state = IsDlgButtonChecked(hWnd, IDC_PRINTER_TXT_CHECK);
                teo.lprt.txt_output = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
-            case PRINTER_GFX_CHECK:
-               state = IsDlgButtonChecked(hWnd, PRINTER_GFX_CHECK);
+            case IDC_PRINTER_GFX_CHECK:
+               state = IsDlgButtonChecked(hWnd, IDC_PRINTER_GFX_CHECK);
                teo.lprt.gfx_output = (state == BST_CHECKED) ? TRUE : FALSE;
                break;
 
-            case PRINTER_CHOOSE_COMBO:
+            case IDC_PRINTER_CHOOSE_COMBO:
                if (HIWORD(wParam)==CBN_SELCHANGE)
                {
-                   combo_index = SendDlgItemMessage(hWnd, PRINTER_CHOOSE_COMBO,
-                                                    CB_GETCURSEL, 0, 0);
+                   combo_index = SendDlgItemMessage(hWnd,
+                                                    IDC_PRINTER_CHOOSE_COMBO,
+                                                    CB_GETCURSEL,
+                                                    0,
+                                                    0);
                    update_options (hWnd, combo_index);
                }
                break;

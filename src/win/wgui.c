@@ -48,15 +48,11 @@
    #include <stdio.h>
    #include <stdlib.h>
    #include <string.h>
-   #include <windows.h>
-   #include <shellapi.h>
-   #include <commctrl.h>
 #endif
 
-#include "alleg/gfxdrv.h"
-#include "win/dialog.rh"
-#include "win/gui.h"
 #include "teo.h"
+#include "alleg/gfxdrv.h"
+#include "win/gui.h"
 
 /* ressources globales de l'application */
 #define NBTABS_MASTER 5
@@ -76,7 +72,7 @@ static void
 ShowTab(HWND hDlg)
 {
     ShowWindow(hTab[nCurrentTab], SW_HIDE);
-    nCurrentTab = SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_GETCURSEL, 0, 0);
+    nCurrentTab = TabCtrl_GetCurSel(GetDlgItem(hDlg, IDC_CONTROL_TAB));
     ShowWindow(hTab[nCurrentTab], SW_SHOW);
 }
 
@@ -95,14 +91,14 @@ static HWND CreateTab(HWND hDlg, WORD number, char *title, WORD id,
     TCITEM tcitem;
 
     tcitem.mask = TCIF_TEXT;
-    hTabItem = GetDlgItem(hDlg, CONTROL_TAB);
+    hTabItem = GetDlgItem(hDlg, IDC_CONTROL_TAB);
 
     /* création du dialogue enfant */
     hMyTab = CreateDialog(prog_inst, MAKEINTRESOURCE(id), hDlg, prog);
 
     /* ajout de l'onglet */
     tcitem.pszText = (LPTSTR)title;
-    SendMessage(hTabItem, TCM_INSERTITEM, number, (LPARAM)&tcitem);
+    TabCtrl_InsertItem(hTabItem, number, &tcitem);
 
     /* définit le rectangle en rapport à la boîte de dialogue parente */
     GetWindowRect(hTabItem, &rect0);
@@ -124,7 +120,8 @@ static HWND CreateTab(HWND hDlg, WORD number, char *title, WORD id,
 /* ControlDialogProc:
  *  Procédure du panneau de contrôle.
  */
-static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg,
+                                        WPARAM wParam, LPARAM lParam)
 {
    LPNMHDR lpnmhdr;
    int i;
@@ -135,26 +132,31 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
       case WM_INITDIALOG:
 #ifdef FRENCH_LANGUAGE
          SetWindowText(hDlg, "Panneau de contrôle");
-         SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Reset à chaud");
-         SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Reset à froid");
-         SetWindowText(GetDlgItem(hDlg, FULLRESET_BUTTON), "Reset total");
-         SetWindowText(GetDlgItem(hDlg, ABOUT_BUTTON), "A propos");
-         SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quitter");
+         SetWindowText(GetDlgItem(hDlg, IDC_RESET_BUTTON), "Reset à chaud");
+         SetWindowText(GetDlgItem(hDlg, IDC_COLDRESET_BUTTON), "Reset à froid");
+         SetWindowText(GetDlgItem(hDlg, IDC_FULLRESET_BUTTON), "Reset total");
+         SetWindowText(GetDlgItem(hDlg, IDC_ABOUT_BUTTON), "A propos");
+         SetWindowText(GetDlgItem(hDlg, IDC_QUIT_BUTTON), "Quitter");
 #else
          SetWindowText(hDlg, "Control panel");
-         SetWindowText(GetDlgItem(hDlg, RESET_BUTTON), "Warm reset");
-         SetWindowText(GetDlgItem(hDlg, COLDRESET_BUTTON), "Cold reset");
-         SetWindowText(GetDlgItem(hDlg, FULLRESET_BUTTON), "Full reset");
-         SetWindowText(GetDlgItem(hDlg, ABOUT_BUTTON), "About");
-         SetWindowText(GetDlgItem(hDlg, QUIT_BUTTON), "Quit");
+         SetWindowText(GetDlgItem(hDlg, IDC_RESET_BUTTON), "Warm reset");
+         SetWindowText(GetDlgItem(hDlg, IDC_COLDRESET_BUTTON), "Cold reset");
+         SetWindowText(GetDlgItem(hDlg, IDC_FULLRESET_BUTTON), "Full reset");
+         SetWindowText(GetDlgItem(hDlg, IDC_ABOUT_BUTTON), "About");
+         SetWindowText(GetDlgItem(hDlg, IDC_QUIT_BUTTON), "Quit");
 #endif
          /* Crée les onglets */
-         hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting", SETTING_TAB, wsetting_TabProc);
-         hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk", DISK_TAB, wdisk_TabProc);
-         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape", K7_TAB, wcass_TabProc);
-         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge", MEMO7_TAB, wmemo_TabProc);
-         hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer", PRINTER_TAB, wprinter_TabProc);
-         SendMessage(GetDlgItem(hDlg, CONTROL_TAB), TCM_SETCURSEL, nCurrentTab, 0);
+         hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting",
+                             IDC_SETTING_TAB, wsetting_TabProc);
+         hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk",
+                             IDC_DISK_TAB, wdisk_TabProc);
+         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape",
+                             IDC_K7_TAB, wcass_TabProc);
+         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge",
+                             IDC_MEMO7_TAB, wmemo_TabProc);
+         hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer",
+                             IDC_PRINTER_TAB, wprinter_TabProc);
+         TabCtrl_SetCurSel(GetDlgItem(hDlg, IDC_CONTROL_TAB), nCurrentTab);
          ShowTab(hDlg);
 
          /* mise en place de l'icône */
@@ -162,17 +164,17 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
          SetClassLong(hDlg, GCL_HICONSM, (LONG) prog_icon);
 
          /* crée les tooltips */
-         wgui_CreateTooltip (hDlg, RESET_BUTTON,
+         wgui_CreateTooltip (hDlg, IDC_RESET_BUTTON,
 								 is_fr?"Redémarre à chaud sans " \
                                        "effacer la mémoire RAM"
                                       :"Warm reset without to\n"
                                        "clear the RAM memory");
-         wgui_CreateTooltip (hDlg, COLDRESET_BUTTON,
+         wgui_CreateTooltip (hDlg, IDC_COLDRESET_BUTTON,
                                  is_fr?"Redémarre à froid sans " \
                                        "effacer la mémoire RAM"
                                       :"Cold reset without to\n" \
                                        "clear the RAM memory");
-         wgui_CreateTooltip (hDlg, FULLRESET_BUTTON,
+         wgui_CreateTooltip (hDlg, IDC_FULLRESET_BUTTON,
                                  is_fr?"Redémarre à froid et " \
                                        "efface la mémoire RAM"
                                       :"Cold reset and\n" \
@@ -192,30 +194,32 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
                EndDialog(hDlg, IDOK);
                break;
 
-            case QUIT_BUTTON:
+            case IDC_QUIT_BUTTON:
                EndDialog(hDlg, IDCANCEL);
                break; 
 
-            case ABOUT_BUTTON:
-               (void)DialogBox (prog_inst, MAKEINTRESOURCE(ABOUT_DIALOG),
+            case IDC_ABOUT_BUTTON:
+               (void)DialogBox (prog_inst, MAKEINTRESOURCE(IDC_ABOUT_DIALOG),
                                 hDlg, (DLGPROC)wabout_Proc);
                break;
 
-            case RESET_BUTTON:
+            case IDC_RESET_BUTTON:
                teo.command = TEO_COMMAND_RESET;
                EndDialog(hDlg, IDOK);
                break;
 
-            case COLDRESET_BUTTON:
+            case IDC_COLDRESET_BUTTON:
                teo.command = TEO_COMMAND_COLD_RESET;
                EndDialog(hDlg, IDOK);
                break;
 
-            case FULLRESET_BUTTON:
-               response = MessageBox(NULL, is_fr?"Toute la mémoire RAM sera effacée."
-                                                :"All the RAM memory will be cleared.",
-                                           is_fr?"Teo - Question":"Teo - Question",
-                                           MB_OKCANCEL | MB_ICONEXCLAMATION);
+            case IDC_FULLRESET_BUTTON:
+               response = MessageBox(
+                                NULL,
+                                is_fr?"Toute la mémoire RAM sera effacée."
+                                     :"All the RAM memory will be cleared.",
+                                is_fr?"Teo - Question":"Teo - Question",
+                                MB_OKCANCEL | MB_ICONEXCLAMATION);
 		       if (response == IDOK)
 		       {
                     teo.command = TEO_COMMAND_FULL_RESET;
@@ -276,6 +280,30 @@ void wgui_CreateTooltip (HWND hWnd, WORD id, char *text)
 
 
 
+/* wgui_Error:
+ *  Affiche une boîte d'erreur
+ */
+void wgui_Error (HWND hwnd, const char *message)
+{
+    MessageBox(hwnd, (const char*)message,
+               is_fr?"Teo - Erreur":"Teo - Error",
+               MB_OK | MB_ICONERROR);
+}
+
+
+
+/* wgui_Warning:
+ *  Affiche une boîte de prévention
+ */
+void wgui_Warning (HWND hwnd, const char *message)
+{
+    MessageBox(hwnd, (const char*)message,
+               is_fr?"Teo - Attention":"Teo - Warning",
+               MB_OK | MB_ICONWARNING);
+}
+
+
+
 /* wgui_Free:
  *  Libère la mémoire utilisée par l'interface
  */
@@ -293,18 +321,12 @@ void wgui_Free (void)
  */
 void wgui_Panel(void)
 {
-   static int first = 1;
-   int ret;
+   int ret = DialogBox(prog_inst,
+                        MAKEINTRESOURCE(IDC_CONTROL_DIALOG),
+                        prog_win,
+                        (DLGPROC)ControlDialogProc);
 
-   if (first)
-   {
-      /* initialise la librairie comctl32.dll */
-      InitCommonControls();
-      first = 0;
-   }
-
-   ret = DialogBox(prog_inst, "CONTROL_DIALOG", prog_win, ControlDialogProc);
-
+   printf ("Control Panel\n");
    if (ret == IDCANCEL)
    {
       if (teo.command == TEO_COMMAND_COLD_RESET)
