@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 19/10/2012
- *                               15/09/2013
+ *                               15/09/2013 13/04/2014
  *
  *  Gestion des préférences.
  */
@@ -196,11 +196,11 @@ void usetting_Init (GtkWidget *notebook)
 
     /* bouton de vitesse maximale */
     hbox = create_new_hbox (vbox);
+    gtk_box_set_homogeneous (GTK_BOX(hbox), TRUE);
     widget=gtk_radio_button_new_with_label(NULL, (is_fr?"rapide":"fast"));
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* bouton de vitesse exacte */
-    hbox = create_new_hbox (vbox);
     widget=gtk_radio_button_new_with_label_from_widget(
                             GTK_RADIO_BUTTON (widget),
                             is_fr?"exacte":"exact");
