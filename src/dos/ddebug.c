@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 27/11/2002
- *               François Mouret 08/2011 01/11/2012
+ *               François Mouret 08/2011 01/11/2012 02/06/2014
  *
  *  Débogueur du TO8.
  */
@@ -84,6 +84,7 @@ static char menu_line[MENU_NLINES][50]={ "Commands:",
                                          " q: quit the debugger   "};
 #endif
 
+#undef DASM_NLINES
 #define DASM_NLINES 40
 
 #define BREAK_MENU_NLINES 4
@@ -101,7 +102,6 @@ break_menu_line[BREAK_MENU_NLINES][32]={ "Commands:                     ",
                                          " q: quit                      "};
 #endif
 
-#define MAX_BREAKPOINTS  16
 static int breakpoint[MAX_BREAKPOINTS];
 
 static struct MC6809_REGS regs, prev_regs;
@@ -342,8 +342,7 @@ void ddebug_Run(void)
 {
     register int i,j;
              int c=0,pc;
-    char fetch_buffer[MC6809_FETCH_BUFFER_SIZE],
-         dasm_buffer[MC6809_DASM_BUFFER_SIZE];
+    struct MC6809_DASM mc6809_dasm;
 
     _set_screen_lines(50);
     _setcursortype(_NOCURSOR);
@@ -359,7 +358,7 @@ void ddebug_Run(void)
             while (!done && !kbhit())
             {
                 mc6809_GetRegs(&prev_regs);
-                mc6809_StepExec(1);
+                mc6809_StepExec();
                 mc6809_GetRegs(&regs);
 
                 for (i=0; i<MAX_BREAKPOINTS; i++)
@@ -387,19 +386,19 @@ void ddebug_Run(void)
                     do
                     {
                         mc6809_GetRegs(&prev_regs);
-                        mc6809_StepExec(1);
+                        mc6809_StepExec();
                         mc6809_GetRegs(&regs);
                     } while (((regs.pc<pc) || (regs.pc>pc+5)) && !kbhit());
                     break;
 
                 default:
-                    mc6809_StepExec(1);
+                    mc6809_StepExec();
                     break;
             }
         }
 
         if ((c=='s') || (c=='S'))
-            mc6809_StepExec(1);
+            mc6809_StepExec();
 
         if ((c=='b') || (c=='B'))
             SetBreakpoints();
@@ -446,12 +445,13 @@ void ddebug_Run(void)
         for (i=0; i<DASM_NLINES; i++)
         {
             for (j=0; j<5; j++)
-                fetch_buffer[j]=LOAD_BYTE(pc+j);
+                mc6809_dasm.fetch[j]=LOAD_BYTE(pc+j);
 
-            pc=(pc+MC6809_Dasm(dasm_buffer,fetch_buffer,pc,
-                               MC6809_DASM_BINASM_MODE))&0xFFFF;
+            mc6809_dasm.addr = pc;
+            mc6809_dasm.mode = MC6809_DASM_BINASM_MODE;
+            pc=(pc+dasm6809_Disassemble(&mc6809_dasm))&0xFFFF;
             gotoxy(33,i+2);
-            cputs(dasm_buffer);
+            cputs(mc6809_dasm.str);
         }
         c=getch();
 

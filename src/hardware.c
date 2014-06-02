@@ -58,6 +58,7 @@
 #include "teo.h"
 #include "errors.h"
 #include "hardware.h"
+#include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/mc6846.h"
@@ -710,7 +711,7 @@ static void FetchInstr(int addr, unsigned char fetch_buffer[])
 {
     register int i;
 
-    for (i=0; i<MC6809_FETCH_BUFFER_SIZE; i++)
+    for (i=0; i<MC6809_DASM_FETCH_SIZE; i++)
         fetch_buffer[i]=LOAD_BYTE(addr+i);
 }
 
@@ -882,17 +883,17 @@ void hardware_Init(void)
 {
     register int i;
 
-    struct MC6809_INTERFACE interface={ FetchInstr,
-                                        LoadByte,
-                                        LoadWord,
-                                        hardware_StoreByte,
-                                        StoreWord,
-                                        BiosCall };
     time_t t;
 
     srand((unsigned) time(&t));
 
-    mc6809_Init(&interface);
+    mc6809_interface.FetchInstr   = FetchInstr;
+    mc6809_interface.LoadByte     = LoadByte;
+    mc6809_interface.LoadWord     = LoadWord;
+    mc6809_interface.StoreByte    = hardware_StoreByte;
+    mc6809_interface.StoreWord    = StoreWord;
+    mc6809_interface.TrapCallback = BiosCall;
+    mc6809_Init();
 
     /* circuit de palette vidéo */
     pal_chip.update = update_color;

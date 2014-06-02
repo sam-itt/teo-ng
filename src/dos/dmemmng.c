@@ -37,7 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 23/11/2000
- *               François Mouret 08/2011 20/09/2013
+ *               François Mouret 08/2011 20/09/2013 02/06/2014
  *
  *  Gestionnaire de mémoire du TO8.
  *   Ce module est indépendant du reste de l'émulateur et vient se greffer
@@ -257,8 +257,7 @@ static void DumpMemory(char *out_str, int addr, int nbytes)
 static void UpdateDasmAndDump(int *pc)
 {
     int i, q=*pc/DUMP_NBYTES;
-    unsigned char fetch_buffer[MC6809_FETCH_BUFFER_SIZE],
-                   dasm_buffer[MC6809_DASM_BUFFER_SIZE];
+    struct MC6809_DASM mc6809_dasm;
 
     textbackground(BLACK);
     textcolor(WHITE);
@@ -267,16 +266,18 @@ static void UpdateDasmAndDump(int *pc)
     movetext(DASM_POS_X,DASM_POS_Y+2,80,50,DASM_POS_X,DASM_POS_Y+1);
     DeleteBox(DASM_POS_X,50,79,50);
 
-    for (i=0; i<MC6809_FETCH_BUFFER_SIZE; i++)
-        fetch_buffer[i]=LOAD_BYTE(*pc+i);
+    for (i=0; i<MC6809_DASM_FETCH_SIZE; i++)
+        mc6809_dasm.fetch[i]=LOAD_BYTE(*pc+i);
 
-    *pc+=MC6809_Dasm(dasm_buffer, fetch_buffer, *pc, MC6809_DASM_ASM_MODE);
+    mc6809_dasm.addr = *pc;
+    mc6809_dasm.mode = MC6809_DASM_ASM_MODE;
+    *pc+=dasm6809_Disassemble(&mc6809_dasm);
 
     if (*pc>0xFFFF)
         *pc&=0xFFFF;
 
     gotoxy(DASM_POS_X,50);
-    cputs(dasm_buffer);
+    cputs(mc6809_dasm.str);
 
     if ((*pc/DUMP_NBYTES) != q)
     {
@@ -284,9 +285,9 @@ static void UpdateDasmAndDump(int *pc)
         movetext(DUMP_POS_X,DUMP_POS_Y+2,40,DUMP_POS_Y+DUMP_NLINES,DUMP_POS_X,DUMP_POS_Y+1);
         DeleteBox(DUMP_POS_X,DUMP_POS_Y+DUMP_NLINES,40,DUMP_POS_Y+DUMP_NLINES);
 
-        DumpMemory(dasm_buffer, q*DUMP_NBYTES, DUMP_NBYTES);
+        DumpMemory(mc6809_dasm.str, q*DUMP_NBYTES, DUMP_NBYTES);
         gotoxy(DUMP_POS_X,DUMP_POS_Y+DUMP_NLINES);
-        cputs(dasm_buffer);
+        cputs(mc6809_dasm.str);
     }
 }
 
@@ -361,9 +362,8 @@ static int LoadMemory(void)
  */
 static void SaveMemory(void)
 {
-    char file_name[32],
-         fetch_buffer[MC6809_FETCH_BUFFER_SIZE],
-         dasm_buffer[MC6809_DASM_BUFFER_SIZE];
+    char file_name[32];
+    struct MC6809_DASM mc6809_dasm;
     int addr1,addr2,c,i;
     FILE *file;
 
@@ -399,9 +399,9 @@ static void SaveMemory(void)
             case '2':
                 do
                 {
-                    DumpMemory(dasm_buffer, addr1, 8);
+                    DumpMemory(mc6809_dasm.str, addr1, 8);
                     addr1+=8;
-                    fprintf(file, "%s\r\n", dasm_buffer);
+                    fprintf(file, "%s\r\n", mc6809_dasm.str);
                 }
                 while (addr1 < addr2);
                 break;
@@ -409,11 +409,13 @@ static void SaveMemory(void)
             case '3':
                 do
                 {
-                    for (i=0; i<MC6809_FETCH_BUFFER_SIZE; i++)
-                        fetch_buffer[i]=LOAD_BYTE(addr1+i);
+                    for (i=0; i<MC6809_DASM_FETCH_SIZE; i++)
+                        mc6809_dasm.fetch[i]=LOAD_BYTE(addr1+i);
 
-                    addr1 += MC6809_Dasm(dasm_buffer,fetch_buffer,addr1,MC6809_DASM_BINASM_MODE);
-                    fprintf(file, "%s\r\n", dasm_buffer);
+                    mc6809_dasm.addr = addr1;
+                    mc6809_dasm.mode = MC6809_DASM_BINASM_MODE;
+                    addr1 += dasm6809_Disassemble(&mc6809_dasm);
+                    fprintf(file, "%s\r\n", mc6809_dasm.str);
                 }
                 while (addr1 < addr2);
                 break;

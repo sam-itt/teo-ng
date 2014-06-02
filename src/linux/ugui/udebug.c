@@ -73,15 +73,9 @@
 #define DEBUG_CMD_RESET 5
 #define DEBUG_CMD_STEPLOCAL 6
 
-#define DASM_NLINES 50
-
-#define MAX_BREAKPOINTS  10
-static int breakpoint[MAX_BREAKPOINTS]={-1,-1,-1,-1,-1, -1,-1,-1,-1,-1};
 
 static struct MC6809_REGS regs, prev_regs;
 
-static char fetch_buffer[MC6809_FETCH_BUFFER_SIZE]="";
-static char string_buffer[MAX(MC6809_DASM_BUFFER_SIZE,128)]="";
 static char text_buffer[MAX(MC6809_DASM_BUFFER_SIZE*DASM_NLINES,2048)]="";
 static char memory_buffer[8192*(5+3*8+1)]="";
 
@@ -221,8 +215,8 @@ static char* debug_get_bplist(void) {
                           :"BreakPoints :\n");
 
     for (i=0;i< MAX_BREAKPOINTS;i++) {
-        if (breakpoint[i]==-1) break;
-    	ptr+=sprintf(ptr,"BKPT[%d]=%04X\n",i,breakpoint[i]);
+        if (teo.debug.breakpoint[i]==-1) break;
+    	ptr+=sprintf(ptr,"BKPT[%d]=%04X\n",i,teo.debug.breakpoint[i]);
     }
     return text_buffer;
 }
@@ -326,6 +320,7 @@ static char* debug_get_dasm(void) {
         int i,j,pc,length;
 	static int ppc=-1;
 	static int pppc=-1;
+	struct MC6809_DASM mc6809_dasm;
 
         char *ptr=text_buffer;
 	text_buffer[0]='\0';
@@ -338,17 +333,16 @@ static char* debug_get_dasm(void) {
 
         for (i=0; i<DASM_NLINES; i++)
         {
-            for (j=0; j<5; j++)
-                fetch_buffer[j]=LOAD_BYTE(pc+j);
+            for (j=0; j<MC6809_DASM_FETCH_SIZE; j++)
+                mc6809_dasm.fetch[j]=LOAD_BYTE(pc+j);
 
-            length=MC6809_Dasm(string_buffer,
-                               (const unsigned char *)fetch_buffer,
-                               pc,
-                               MC6809_DASM_BINASM_MODE);
+            mc6809_dasm.addr = pc;
+            mc6809_dasm.mode = MC6809_DASM_BINASM_MODE;
+            length=dasm6809_Disassemble(&mc6809_dasm);
             if (pc==regs.pc)
-                ptr+=sprintf(ptr, "-> %s\n", string_buffer);
+                ptr+=sprintf(ptr, "-> %s\n", mc6809_dasm.str);
             else
-                ptr+=sprintf(ptr, "   %s\n", string_buffer);
+                ptr+=sprintf(ptr, "   %s\n", mc6809_dasm.str);
             pc=(pc+length)&0xFFFF;
         }
         ptr+=sprintf(ptr, "                                                 ");
@@ -416,7 +410,6 @@ debug_steplocal(void) {
             mc6809_StepExec();
             break;
         }
-    mc6809_FlushExec();
 }
 
 static void
@@ -432,28 +425,26 @@ debug_stepover(void) {
         mc6809_StepExec();
         mc6809_GetRegs(&regs);
     } while (((regs.pc<=pc) || (regs.pc>pc+5)) && ((watch++)<20000));
-    mc6809_FlushExec();
 }
 
 static void
 debug_step(void) {
     mc6809_StepExec();
-    mc6809_FlushExec();
 }
 
 static void debug_bkpt(int addr) {
     int i;
     for (i=0;i< MAX_BREAKPOINTS;i++) {
-	if (breakpoint[i]==-1) break;
+	if (teo.debug.breakpoint[i]==-1) break;
     }
     if (i==MAX_BREAKPOINTS) i=(MAX_BREAKPOINTS-1);
-    breakpoint[i]=addr;
+    teo.debug.breakpoint[i]=addr;
 }
 
 static void debug_rembkpt(void) {
     int i;
     for (i=0;i< MAX_BREAKPOINTS;i++) {
-	breakpoint[i]=-1;
+	teo.debug.breakpoint[i]=-1;
 	}
 }
 
@@ -526,7 +517,7 @@ void u6809_Init (GtkWidget *notebook)
     widget=gtk_label_new((is_fr?"DÃ©sassemblage":"Unassembly"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
-    /* bo\EEte verticale associ\E9e \E0 la frame */
+    /* bo\EEte verticale associée à la frame */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
@@ -574,7 +565,7 @@ void uMemory_Init (GtkWidget *notebook)
     widget=gtk_label_new((is_fr?"MÃ©moire":"Memory"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
-    /* bo\EEte verticale associ\E9e \E0 la frame */
+    /* boîte verticale associée à la frame */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
     gtk_container_set_border_width( GTK_CONTAINER(hbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), hbox);
@@ -631,7 +622,7 @@ void uHardware_Init (GtkWidget *notebook)
     widget=gtk_label_new((is_fr?"Circuits":"Chips"));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
-    /* bo\EEte verticale associ\E9e \E0 la frame */
+    /* boîte verticale associée à la frame */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(frame), vbox);
@@ -661,8 +652,7 @@ void uHardware_Init (GtkWidget *notebook)
 static int BreakPoint(int pc) {
     int i;
     for (i=0;i< MAX_BREAKPOINTS;i++) {
-	if (breakpoint[i]==-1) break;
-	if (breakpoint[i]==pc) return 1;
+	if (teo.debug.breakpoint[i]==pc) return 1;
     }
     return 0;
 }
@@ -843,7 +833,6 @@ void udebug_Panel(void)
         case GTK_RESPONSE_CANCEL:
             teo_DebugBreakPoint = NULL;
             teo.command=TEO_COMMAND_NONE ;
-            
             break;
     }
     gtk_widget_hide (wDebug);
