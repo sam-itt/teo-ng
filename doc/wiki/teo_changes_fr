@@ -1,11 +1,12 @@
 ###Changements
 
-#####Version 1.8.3 (Mai 2012-Septembre 2013)
+#####Version 1.8.3 (Mai 2012-Juin 2014)
 
 TEO
 
 - R&eacute;organisation du panneau de contr&ocirc;le
 - Activation/d&eacute;sactivation de l'extension m&eacute;moire
+- Cr&eacute;ation du d&eacute;bogueur sous Windows
 
 CC90HFE
 

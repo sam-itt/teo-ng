@@ -1,11 +1,12 @@
 ###Changes
 
-#####Version 1.8.3 (May 2013-September 2013)
+#####Version 1.8.3 (May 2013-Juin 2014)
 
 TEO
 
 - Reorganization of the control panel
 - Activation/deactivation of the memory extension
+- Creation of the debugger for Windows
 
 CC90HFE
 
