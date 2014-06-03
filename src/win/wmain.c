@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -189,9 +189,13 @@ static void RunTO8(void)
         }
 
         if ((teo.command == TEO_COMMAND_BREAKPOINT)
-         || (teo.command == TEO_COMMAND_DEBUGGER))
-            if (windowed_mode)
+         || (teo.command == TEO_COMMAND_DEBUGGER)) {
+            if (windowed_mode) {
                 wdebug_Panel ();
+                if (teo_DebugBreakPoint == NULL)
+                    teo_FlushFrame();
+            }
+        }
 
         if (teo.command==TEO_COMMAND_SCREENSHOT)
             agfxdrv_Screenshot();

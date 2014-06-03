@@ -5,6 +5,7 @@
 - teo
    - Reorganization of the control panel
    - Activation/deactivation of the memory extension
+   - Creation of the debugger for Windows
 
 - cc90hfe
    - Add a checkbox to force the reading of Thomson-like disc with

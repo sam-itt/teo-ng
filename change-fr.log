@@ -1,7 +1,20 @@
 ========================================================================
+=== Version 1.8.3 (Mai 2013 - Juin 2014)                             ===
+========================================================================
+
+- teo
+   - Réorganisation du panneau de contrôle
+   - Activation/désactivation de l'extension mémoire
+   - Creation du débogueur sous Windows
+
+- cc90hfe
+   - Ajout d'un checkbox pour forcer la lecture des disquettes du style
+     Thomson avec sélection des faces 
+
+========================================================================
 === Mises à jour de la version 1.8.2 (Avril 2013 - Novembre 2013)    ===
 ========================================================================
-- conrrection du chargement des images
+- correction du chargement des images
 - permet au debogueur de réagir quelque soit le mode
 - le bouton du joystick est maintenant émulé avec Ctrl droit ou Shift
   droit lorsque NUMLOCK est éteint (suggéré par Wood)

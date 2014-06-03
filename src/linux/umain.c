@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *                          Samuel Devulder
  *
@@ -114,8 +114,11 @@ static gboolean RunTO8 (gpointer user_data)
         teo.command=TEO_COMMAND_BREAKPOINT;
 
     if ((teo.command == TEO_COMMAND_BREAKPOINT)
-     || (teo.command == TEO_COMMAND_DEBUGGER))
+     || (teo.command == TEO_COMMAND_DEBUGGER)) {
         udebug_Panel();
+        if (teo_DebugBreakPoint == NULL)
+            teo_FlushFrame();
+    }
 
     if (teo.command == TEO_COMMAND_PANEL)
         ugui_Panel();
@@ -315,7 +318,7 @@ int main(int argc, char *argv[])
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
                  "Teo "TEO_VERSION_STR" (Linux/X11)");
-    printf("Copyright (C) 1997-2013 Gilles FÃ©tis, Eric Botcazou, "
+    printf("Copyright (C) 1997-2014 Gilles FÃ©tis, Eric Botcazou, "
            "Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n"
                  :"Keys : [ESC] Control pannel\n"));

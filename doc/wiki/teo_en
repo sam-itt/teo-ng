@@ -99,8 +99,9 @@ Teo contains an emulation module of the Thomson dot-matrix printers PR90-042, PR
 
 #####Miscellaneous commands<a name="misc"></a>
 
+\[ESC\] displays the control panel<br>
 \[F11\] saves a screen-shot (Windows)<br>
-\[F12\] displays the debugger (Linux and MS-DOS)
+\[F12\] displays the debugger
 
 #####More ?
 

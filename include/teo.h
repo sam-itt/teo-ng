@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -62,7 +62,7 @@
 
 /* paramètres et symboles de l'émulation */
 #define APPLICATION_DIR "teo"
-#define TEO_YEAR_STRING "2013"
+#define TEO_YEAR_STRING "2014"
 #define TEO_VERSION_STR "1.8.3"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
@@ -227,6 +227,7 @@ extern void  teo_ColdReset(void);
 extern void  teo_FullReset(void);
 extern void  teo_InputReset(int mask, int value);
 extern int   teo_DoFrame(void);
+extern void  teo_FlushFrame(void);
 
 #endif
 

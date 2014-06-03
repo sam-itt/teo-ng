@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 2011-2013 Gilles Fétis, François Mouret
+ *  Copyright (C) 2011-2014 Gilles Fétis, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

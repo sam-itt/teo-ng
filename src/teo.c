@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *  
@@ -481,6 +481,21 @@ int teo_DoFrame(void)
             return 0;
     }
     return 1;
+}
+
+
+
+/* teo_FlushFrame:
+ *  Complete the frame.
+ */
+void teo_FlushFrame(void)
+{
+    if ((mb.exact_clock%TEO_CYCLES_PER_FRAME) != 0LL)
+    {
+        mb.exact_clock += TEO_CYCLES_PER_FRAME-
+                          (mb.exact_clock%TEO_CYCLES_PER_FRAME);
+        mc6809_TimeExec(mb.exact_clock);
+    }
 }
 
 
