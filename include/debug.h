@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2013 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/11/2000
+ *               François Mouret 10/05/2014
  *
  *  Déclarations d'objets privés nécessaires au débogage.
  */
@@ -58,5 +59,9 @@ extern struct MC6846_PIA mc6846;
 extern struct MC6821_PIA pia_int,pia_ext;
 extern struct GATE_ARRAY  mode_page;
 extern struct DISK_CTRL disk_ctrl;
+
+/* windowed GUI specific */
+#define DASM_NLINES 50
+extern char debug_text[];
 
 #endif
