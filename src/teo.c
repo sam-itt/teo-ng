@@ -485,6 +485,21 @@ int teo_DoFrame(void)
 
 
 
+/* teo_FlushFrame:
+ *  Complete the frame.
+ */
+void teo_FlushFrame(void)
+{
+    if ((mb.exact_clock%TEO_CYCLES_PER_FRAME) != 0LL)
+    {
+        mb.exact_clock += TEO_CYCLES_PER_FRAME-
+                          (mb.exact_clock%TEO_CYCLES_PER_FRAME);
+        mc6809_TimeExec(mb.exact_clock);
+    }
+}
+
+
+
 /* InputReset:
  *  Remet à zéro les périphériques d'entrée.
  */

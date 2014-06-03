@@ -227,6 +227,7 @@ extern void  teo_ColdReset(void);
 extern void  teo_FullReset(void);
 extern void  teo_InputReset(int mask, int value);
 extern int   teo_DoFrame(void);
+extern void  teo_FlushFrame(void);
 
 #endif
 

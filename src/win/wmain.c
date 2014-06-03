@@ -189,9 +189,13 @@ static void RunTO8(void)
         }
 
         if ((teo.command == TEO_COMMAND_BREAKPOINT)
-         || (teo.command == TEO_COMMAND_DEBUGGER))
-            if (windowed_mode)
+         || (teo.command == TEO_COMMAND_DEBUGGER)) {
+            if (windowed_mode) {
                 wdebug_Panel ();
+                if (teo_DebugBreakPoint == NULL)
+                    teo_FlushFrame();
+            }
+        }
 
         if (teo.command==TEO_COMMAND_SCREENSHOT)
             agfxdrv_Screenshot();
