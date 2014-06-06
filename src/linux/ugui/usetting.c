@@ -201,6 +201,7 @@ void usetting_Init (GtkWidget *notebook)
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* bouton de vitesse exacte */
+    hbox = create_new_hbox (vbox);
     widget=gtk_radio_button_new_with_label_from_widget(
                             GTK_RADIO_BUTTON (widget),
                             is_fr?"exacte":"exact");
