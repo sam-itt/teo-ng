@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -405,8 +405,8 @@ void udisplay_Window(void)
 
     gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
     gtk_window_set_title (GTK_WINDOW(wMain),
-                          is_fr?"Teo - l'Ã©mulateur TO8 (menu:ESC)"
-                               :"Teo - thomson TO8 emulator (menu:ESC)");
+                          is_fr?"Teo - l'Ã©mulateur TO8 (menu:ESC/dÃ©bogueur:F12)"
+                               :"Teo - thomson TO8 emulator (menu:ESC/debugger:F12)");
 
     gtk_widget_add_events (wMain,
                      GDK_FOCUS_CHANGE_MASK
