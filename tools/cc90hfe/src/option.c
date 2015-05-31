@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 François Mouret
+ *  Copyright (C) 2012-2015 François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ static void help_display (struct OPTION_ENTRY option[])
             size += printf ("-%c, ", option[i].short_name);
         size += printf ("--%s", option[i].long_name);
         if (option[i].argument != NULL)
-            size += printf ("=%s",option[i].argument);
+            size += printf (" <%s>",option[i].argument);
         if (option[i].comment != NULL) {
            do { size += printf (" "); } while (size < 19);
            (void)printf (" %s", encode_String(option[i].comment));
@@ -193,8 +193,30 @@ static char *option_check (int argc, char *argv[],
                               is_fr?"Argument manquant pour":"Missing argument for",
                               argv[i]);
                 break;
-            case OPTION_ARG_BOOL : d = option[option_i].reg; *d = 1; break;
-            case OPTION_ARG_HELP : help (internal_prog_name); break;
+
+            case OPTION_ARG_INT :
+                d = option[option_i].reg;
+                *d = (int)strtol (argv[i+1],NULL,10);
+                if ((*d < option[option_i].min_value)
+                 || (*d > option[option_i].max_value))
+                     return std_strdup_printf ("%s %s (%d,%d)",
+                              is_fr?"Mauvaise valeur pour":"Bad value for",
+                              argv[i],
+                              option[option_i].min_value,
+                              option[option_i].max_value
+                              );
+                i++;
+                break;
+
+            case OPTION_ARG_BOOL :
+                d = option[option_i].reg;
+                *d = TRUE;
+                break;
+
+            case OPTION_ARG_HELP :
+                help (internal_prog_name);
+                break;
+
             default : return std_strdup_printf ("%s %s",
                               is_fr?"Type inconnu pour":"Unknown type for",
                               argv[i]);
