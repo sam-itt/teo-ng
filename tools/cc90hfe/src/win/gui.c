@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret, Samuel Devulder
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret, Samuel Devulder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : windows/gui.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret & Samuel Devulder 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Gui functions.
  */
@@ -68,7 +68,7 @@ static HWND cancel_button;
 
 static void gui_EnableRetry (int flag)
 {
-    if ((gui.side_check[0] == FALSE) && (gui.side_check[1] == FALSE))
+    if ((gui.not_thomson_side[0] == TRUE) && (gui.not_thomson_side[1] == TRUE))
     {
         Edit_Enable (retry_edit, FALSE);
         Static_Enable (retry_rtext, FALSE);
@@ -121,11 +121,11 @@ static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
                                  :"About...");
             Static_SetText (options_groupbox, "Options");
             Static_SetText (side0_checkbox,
-                            is_fr?"Face 0, format Thomson"
-                                 :"Side 0, Thomson like");
+                            is_fr?"La face 0 n'est pas Thomson"
+                                 :"Side 0 not Thomson like");
             Static_SetText (side1_checkbox,
-                            is_fr?"Face 1, format Thomson"
-                                 :"Side 1, Thomson like");
+                            is_fr?"La face 1 n'est pas Thomson"
+                                 :"Side 1 not Thomson like");
             Static_SetText (retry_rtext,
                             is_fr?"Nombre de relectures maximum :"
                                  :"Maximum count of rereadings :");
@@ -135,9 +135,9 @@ static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
             
             SetDlgItemInt(hDlg, IDC_MAIN_RETRY_EDIT, gui.read_retry_max, FALSE);
 
-            flag = (gui.side_check[0] == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+            flag = (gui.not_thomson_side[0] == TRUE) ?BST_CHECKED:BST_UNCHECKED;
             Button_SetCheck (side0_checkbox, flag);
-            flag = (gui.side_check[1] == TRUE) ? BST_CHECKED : BST_UNCHECKED;
+            flag = (gui.not_thomson_side[1] == TRUE) ?BST_CHECKED:BST_UNCHECKED;
             Button_SetCheck (side1_checkbox, flag);
             gui_EnableRetry (TRUE);
             gui_ResetProgress ();
@@ -171,13 +171,13 @@ static LRESULT CALLBACK MainDlgProc(HWND hDlg, UINT uMsg,
 
                 case IDC_MAIN_SIDE0_CHECKBOX :
                      flag = Button_GetCheck (side0_checkbox);
-                     gui.side_check[0] = (flag == BST_CHECKED) ? TRUE : FALSE;
+                     gui.not_thomson_side[0] = (flag == BST_CHECKED)?TRUE:FALSE;
                      gui_EnableRetry (TRUE);
                      break;
 
                 case IDC_MAIN_SIDE1_CHECKBOX :
                      flag = Button_GetCheck (side1_checkbox);
-                     gui.side_check[1] = (flag == BST_CHECKED) ? TRUE : FALSE;
+                     gui.not_thomson_side[1] = (flag == BST_CHECKED)?TRUE:FALSE;
                      gui_EnableRetry (TRUE);
                      break;
 

@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 François Mouret
+ *  Copyright (C) 2012-2015 François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : cc90.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par: François Mouret 27/07/2013
+ *  Modifié par: François Mouret 27/07/2013 31/05/2015
  *
  *  Management of CC90 interface.
  */
@@ -1145,7 +1145,7 @@ static int read_track (int drive, int side, int track)
                 unpack_cc90_track ();
                 if (write_thomson_track (side) == TRACK_ERROR)
                 {
-                    if (gui.side_check[side&1] == TRUE)
+                    if (gui.not_thomson_side[side&1] == FALSE)
                     {
                         err = error_Message (CC90HFE_ERROR_TRACK_READ, NULL);
                         if (++count[side&1] < gui.read_retry_max)

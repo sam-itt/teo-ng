@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : linux/gui.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par: François Mouret 26/07/2013
+ *  Modifié par: François Mouret 26/07/2013 31/05/2015
  *
  *  Archive callback.
  */
@@ -62,8 +62,8 @@ GtkWidget *install_button;
 GtkWidget *progress_label;
 GtkWidget *progress_bar;
 GtkWidget *progress_button;
-GtkWidget *side0_check;
-GtkWidget *side1_check;
+GtkWidget *not_thomson_side_0;
+GtkWidget *not_thomson_side_1;
 GtkWidget *retry_label;
 GtkWidget *retry_spinbutton;
 
@@ -71,7 +71,7 @@ GtkWidget *retry_spinbutton;
 
 static void gui_EnableRetry (int flag)
 {
-    if ((gui.side_check[0] == FALSE) && (gui.side_check[1] == FALSE))
+    if ((gui.not_thomson_side[0] == TRUE) && (gui.not_thomson_side[1] == TRUE))
     {
         gtk_widget_set_sensitive (retry_label, FALSE);
         gtk_widget_set_sensitive (retry_spinbutton, FALSE);
@@ -129,7 +129,7 @@ static gboolean try_to_quit (GtkWidget *widget, GdkEvent *event,
 
 
 
-static void side_check_toggled (GtkToggleButton *button, gpointer user_data)
+static void not_thomson_side_toggled (GtkToggleButton *button, gpointer user_data)
 {
     int *p = user_data;
 
@@ -208,30 +208,32 @@ static void display_window(void)
     gtk_box_pack_start (GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
 
     /* Thomson side 0 disk check box */
-    side0_check=gtk_check_button_new_with_label(is_fr?"Face 0, format Thomson"
-                                                     :"Side 0, Thomson like");
-    gtk_box_pack_start (GTK_BOX(hbox), side0_check, FALSE, FALSE, 0);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(side0_check),
-                                  gui.side_check[0]);
-    g_signal_connect(G_OBJECT(side0_check),
+    not_thomson_side_0=gtk_check_button_new_with_label(
+        is_fr?"La face 0 n'est pas Thomson"
+             :"Side 0 is not Thomson like");
+    gtk_box_pack_start (GTK_BOX(hbox), not_thomson_side_0, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(not_thomson_side_0),
+                                  gui.not_thomson_side[0]);
+    g_signal_connect(G_OBJECT(not_thomson_side_0),
                      "toggled",
-                     G_CALLBACK(side_check_toggled),
-                     (gpointer)&gui.side_check[0]);
+                     G_CALLBACK(not_thomson_side_toggled),
+                     (gpointer)&gui.not_thomson_side[0]);
 
     /* boîte horizontale */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_pack_start (GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
 
     /* Thomson side 1 disk check box */
-    side1_check=gtk_check_button_new_with_label(is_fr?"Face 1, format Thomson"
-                                                     :"Side 1, Thomson like");
-    gtk_box_pack_start (GTK_BOX(hbox), side1_check, FALSE, FALSE, 0);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(side1_check),
-                                  gui.side_check[1]);
-    g_signal_connect(G_OBJECT(side1_check),
+    not_thomson_side_1=gtk_check_button_new_with_label(
+        is_fr?"La face 1 n'est pas Thomson"
+             :"Side 1 is not Thomson like");
+    gtk_box_pack_start (GTK_BOX(hbox), not_thomson_side_1, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(not_thomson_side_1),
+                                  gui.not_thomson_side[1]);
+    g_signal_connect(G_OBJECT(not_thomson_side_1),
                      "toggled",
-                     G_CALLBACK(side_check_toggled),
-                     (gpointer)&gui.side_check[1]);
+                     G_CALLBACK(not_thomson_side_toggled),
+                     (gpointer)&gui.not_thomson_side[1]);
 
 
     /* boîte horizontale */
@@ -286,7 +288,7 @@ static void display_window(void)
 
     /* stop button */
     progress_button=gtk_button_new ();
-    widget = gtk_image_new_from_stock (GTK_STOCK_STOP, GTK_ICON_SIZE_BUTTON);
+    widget = gtk_image_new_from_icon_name ("process-stop", GTK_ICON_SIZE_BUTTON);
     gtk_container_add( GTK_CONTAINER(progress_button), widget);
     g_signal_connect(G_OBJECT(progress_button), "clicked",
                      G_CALLBACK(progress_Stop), NULL);
@@ -353,8 +355,8 @@ void gui_EnableButtons (int flag)
     gtk_widget_set_sensitive (archive_button, flag);
     gtk_widget_set_sensitive (extract_button, flag);
     gtk_widget_set_sensitive (install_button, flag);
-    gtk_widget_set_sensitive (side0_check, flag);
-    gtk_widget_set_sensitive (side1_check, flag);
+    gtk_widget_set_sensitive (not_thomson_side_0, flag);
+    gtk_widget_set_sensitive (not_thomson_side_1, flag);
     gtk_widget_set_sensitive (progress_button, (flag == TRUE) ? FALSE : TRUE);
     gui_EnableRetry (flag);
 }
@@ -413,9 +415,9 @@ int gui_InformationDialog (char *message)
 
 
 
-//***************************************************************************
-// Main :
-//***************************************************************************
+/*************************************************************************
+ Main :
+ *************************************************************************/
 int main (int argc, char *argv[])
 {
     char *lang;
@@ -444,18 +446,12 @@ int main (int argc, char *argv[])
     }
     else
     {
-        if (g_thread_supported() == FALSE)
-        {
-            g_thread_init(NULL);
-            gdk_threads_init();
-        }
         XInitThreads ();
-        gdk_threads_enter();
         gtk_init (&argc, &argv);
         windowed_mode = 1;
+        ini_Load ();
         display_window ();
         gtk_main();
-        gdk_threads_leave();
     }
     main_FreeAll ();
     return EXIT_SUCCESS;
