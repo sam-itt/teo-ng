@@ -1,5 +1,7 @@
 @echo off
 
+REM  !!!! NEEDS SED UNIX COMMAND !!!!
+
 echo Configuring Teo sources for the DOS(djgpp) platform...
 echo ------------------------------------------------------
 
@@ -22,7 +24,7 @@ make ENGLISH=1
 make depend
 if exist misc\pack\msdos\en\teo.exe del misc\pack\msdos\en\teo.exe
 copy teo.exe misc\pack\msdos\en\teo.exe
-if exist misc\pack\msdos\en\makefile.dep del misc\pack\msdos\en\makefile.dep
+if exist misc\pack\msdos\en\teo.dep del misc\pack\msdos\en\teo.dep
 copy obj\djgpp\makefile.dep misc\pack\msdos\en\teo.dep
 
 echo ----------------------------------------------
@@ -34,7 +36,7 @@ make FRENCH=1
 make depend
 if exist misc\pack\msdos\fr\teo.exe del misc\pack\msdos\fr\teo.exe
 copy teo.exe misc\pack\msdos\fr\teo.exe
-if exist misc\pack\msdos\fr\makefile.dep del misc\pack\msdos\fr\makefile.dep
+if exist misc\pack\msdos\fr\teo.dep del misc\pack\msdos\fr\teo.dep
 copy obj\djgpp\makefile.dep misc\pack\msdos\fr\teo.dep
 make veryclean
 
