@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ void about_Callback (GtkButton *button, gpointer user_data)
     gtk_show_about_dialog (GTK_WINDOW(main_window),
                            "program-name", PROG_NAME,
                            "version", "version "PROG_VERSION_STRING,
-                           "copyright", "Copyright Â© 2012-2014"PROG_CREATION_YEAR,
+                           "copyright", "Copyright Â© 2012-2015"PROG_CREATION_YEAR,
                            "website", PROG_WEB_SITE,
                            "website-label", is_fr?PROG_NAME" sur SourceForge (Teo module)"
                                                  :PROG_NAME" on SourceForge (Teo module)",

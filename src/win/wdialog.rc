@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -89,7 +89,7 @@ FILETYPE VFT_APP
             VALUE "FileDescription", "Teo - l'émulateur TO8"
             VALUE "FileVersion", TEO_VERSION_STR
             VALUE "InternalName", "TEOW.EXE"
-            VALUE "LegalCopyright", "Copyright © 1997-2014 Teo Developers"
+            VALUE "LegalCopyright", "Copyright © 1997-2015 Teo Developers"
             VALUE "OriginalFilename", "TEOW.EXE"
             VALUE "ProductName", "Teo"
             VALUE "ProductVersion", TEO_VERSION_STR
