@@ -8,7 +8,7 @@ pour la distribution de Teo et de Cc90hfe.
 djmake.bat
 ----------
 
-Lancer 'misc\pack\djmake.bat' à partir du répertoire 'teo\'.
+Lancer 'misc\pack\djmake.bat' à partir du répertoire 'teoemulator-code\'.
 'djmake.bat' compile les exécutables MSDOS dans les répertoires
 'misc\pack\msdos\en' et 'misc\pack\msdos\fr' (les répertoires seront créés
 s'ils n'existent pas).
@@ -16,7 +16,7 @@ s'ils n'existent pas).
 mgwmake.bat
 -----------
 
-Lancer 'misc\pack\mgwmake.bat' à partir du répertoire 'teo\'.
+Lancer 'misc\pack\mgwmake.bat' à partir du répertoire 'teoemulator-code\'.
 'mgwmake.bat' compile les exécutables dans le répertoire 'misc\pack\mingw\en'
 et 'misc\pack\mingw\fr'  (les répertoires seront créés s'ils n'existent pas).
 Le package auto-extractible sera créé en double-cliquant et compilant le
@@ -28,7 +28,7 @@ par les fichiers '*.iss' pour décorer la fenêtre de l'installeur.
 pack.sh
 -------
 
-Lancer './misc/pack/pack.sh' à partir du répertoire 'teo/'.
+Lancer './misc/pack/pack.sh' à partir du répertoire 'teoemulator-code/'.
 
 Tous les packages sont alors dans le répertoire 'misc/pack/'.
 
