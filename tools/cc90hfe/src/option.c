@@ -23,7 +23,7 @@
  *  Module     : option.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Management of the command line.
  */

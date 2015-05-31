@@ -36,7 +36,7 @@
  *  Module     : options.h
  *  Version    : 1.8.3
  *  Créé par   : François Mouret 07/10/2012
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Lecture de la ligne de commande.
  */
