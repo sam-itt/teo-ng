@@ -8,7 +8,7 @@
 
 ################
 # object files #
-################ 
+################
 
 OBJ_DIR =
 OBJ_SAP = $(OBJ_DIR)sap2.o $(OBJ_DIR)libsap.o $(OBJ_DIR)lfloppy.o
