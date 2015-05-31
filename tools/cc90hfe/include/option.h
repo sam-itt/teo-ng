@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : option.h
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 30/05/2015
  *
  *  Management of the command line.
  */
@@ -34,6 +34,7 @@
 
 enum {
   OPTION_ARG_BOOL = 0,
+  OPTION_ARG_INT,
   OPTION_ARG_FILENAME,
   OPTION_ARG_STRING,
   OPTION_ARG_HELP
@@ -46,6 +47,8 @@ struct OPTION_ENTRY {
     void   *reg;
     char   *comment;
     char   *argument;
+    int    min_value;
+    int    max_value;
 };
 
 extern char *option_Parse (int argc, char *argv[],
