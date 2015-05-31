@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 François Mouret
+ *  Copyright (C) 2012-2015 François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : main.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par: François Mouret 26/07/2013
+ *  Modifié par: François Mouret 26/07/2013 30/05/2015 31/05/2015
  *
  *  Main functions.
  */
@@ -76,18 +76,69 @@ static int main_RecordMessage (const char message[])
 static char *read_command_line(int argc, char *argv[])
 {
     struct OPTION_ENTRY entries[] = {
-        { "archive", 'a', OPTION_ARG_BOOL, &archive_option,
-           is_fr?"Copie du Thomson vers un fichier HFE via CC90"
-                :"Copy a Thomson disk onto a HFE file via CC90", NULL },
-        { "extract", 'x', OPTION_ARG_BOOL, &extract_option,
-           is_fr?"Copie d'un fichier HFE vers un Thomson via CC90"
-                :"Copy an HFE file onto a Thomson disk via CC90", NULL },
-        { "install", 'i', OPTION_ARG_BOOL, &install_option,
-           is_fr?"Installe CC90 (avec INSTALL.BAS tournant sur le Thomson)"
-                :"Install CC90 (with INSTALL.BAS running on the Thomson)", NULL },
-        { "version", 'v', OPTION_ARG_BOOL, &version_option,
-           is_fr?"Affiche la version du programme"
-                :"Display the program version", NULL },
+        { "archive",
+          'a',
+          OPTION_ARG_BOOL,
+          &archive_option,
+          is_fr?"Copie du Thomson vers un fichier HFE via CC90"
+                :"Copy a Thomson disk onto a HFE file via CC90",
+          NULL,
+          0,
+          0 },
+        { "extract",
+          'x',
+          OPTION_ARG_BOOL,
+          &extract_option,
+          is_fr?"Copie d'un fichier HFE vers un Thomson via CC90"
+               :"Copy an HFE file onto a Thomson disk via CC90",
+          NULL,
+          0,
+          0 },
+        { "install",
+          'i',
+          OPTION_ARG_BOOL,
+          &install_option,
+          is_fr?"Installe CC90 (avec INSTALL.BAS tournant sur le Thomson)"
+               :"Install CC90 (with INSTALL.BAS running on the Thomson)",
+          NULL,
+          0,
+          0 },
+        { "version",
+          'v',
+          OPTION_ARG_BOOL,
+          &version_option,
+          is_fr?"Affiche la version du programme"
+               :"Display the program version",
+          NULL,
+          0,
+          0 },
+        { "side-0-is-not-thomson",
+          '\0',
+          OPTION_ARG_BOOL,
+          &gui.not_thomson_side[0],
+          is_fr?"La face 0 n'est pas Thomson"
+               :"Side 0 is not Thomson like",
+          NULL,
+          0,
+          0 },
+        { "side-1-is-not-thomson",
+          '\0',
+          OPTION_ARG_BOOL,
+          &gui.not_thomson_side[1],
+          is_fr?"La face 1 n'est pas Thomson"
+               :"Side 1 is not Thomson like",
+          NULL,
+          0,
+          0 },
+        { "read-retries-max",
+          '\0',
+          OPTION_ARG_INT,
+          &gui.read_retry_max,
+          is_fr?"Nombre maximum de relectures (1-15)"
+               :"Maximum number of retries (1-15)",
+          is_fr?"nombre":"number",
+          1,
+          15 },
         { NULL, 0, 0, NULL, NULL, NULL }
     };
     return option_Parse (argc, argv, PROG_NAME, entries, &file_name_list);
@@ -224,12 +275,9 @@ void main_InitAll (void)
     disk.track_count = 80;
     memset (&gui, 0x00, sizeof(struct GUI_INFO));
     gui.timeout = SERIAL_TIME_OUT;
-    gui.side_check[0] = TRUE;
-    gui.side_check[1] = TRUE;
+    gui.not_thomson_side[0] = FALSE;
+    gui.not_thomson_side[1] = FALSE;
     gui.read_retry_max = 3;
-
-    /* load INI file */
-    ini_Load ();
 }        
 
 
@@ -263,29 +311,29 @@ void main_Console (void)
     int err = 0;
     progress_on = 1;
 
-    if (version_option != 0)
+    if (version_option == TRUE)
     {
         printf(PROG_NAME" version "PROG_VERSION_STRING"\n");
     }
     else
-    if (install_option != 0)
+    if (install_option == TRUE)
     {
         if (cc90_Install () < 0)
             console_exit_failure ();
     }
     else
-    if (archive_option != 0)
+    if (archive_option == TRUE)
     {
         if (console_check_file_name_list() < 0)
             console_exit_failure ();
-        if ((err = cc90_Open()) == 0)
+       if ((err = cc90_Open()) == 0)
             err = main_ArchiveDisk ();
         cc90_Close();
         if (err < 0)
             console_exit_failure ();
     }
     else
-    if (extract_option != 0)
+    if (extract_option == TRUE)
     {
         if (console_check_file_name_list() < 0)
             console_exit_failure ();
