@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 12/06/2012
- *                               04/11/2012
+ *                               04/11/2012 31/05/2015
  *
  *  Gestion des cartouches.
  */
@@ -206,8 +206,8 @@ static void open_file (GtkButton *button, gpointer data)
         dialog = gtk_file_chooser_dialog_new (
                  is_fr?"SÃ©lectionner une cartouche":"Select a cartridge",
                  (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_OPEN,
-                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                 GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+                 is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
+                 is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
         gtk_file_filter_set_name (filter, is_fr?"Fichiers cartouche (.m7)":"Cartridge files (.m7)");
         gtk_file_filter_add_pattern (filter, "*.m7");
@@ -296,7 +296,7 @@ void umemo_Init (GtkWidget *notebook)
 
     /* bouton de vidange */
     emptying_button = gtk_button_new ();
-    image = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_BUTTON);
+    image = gtk_image_new_from_icon_name ("edit-clear", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(emptying_button), image);
     gtk_widget_set_tooltip_text (emptying_button, is_fr?"Vide la liste des fichiers":"Empty the file list");
     gtk_box_pack_start( GTK_BOX(hbox), emptying_button, FALSE, FALSE, 0);
@@ -312,7 +312,7 @@ void umemo_Init (GtkWidget *notebook)
 
     /* bouton d'ouverture de fichier */
     widget = gtk_button_new ();
-    image = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_BUTTON);
+    image = gtk_image_new_from_icon_name ("document-open", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(widget), image);
     gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);

@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : linux/port.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Management of serial port.
  */
@@ -123,15 +123,13 @@ static void multi_ports_dialog (struct STRING_LIST *list)
     GtkWidget *area;
     GtkWidget *combo_box;
 
-    gdk_threads_enter();
-
     /* dialog box */
     dialog = gtk_dialog_new_with_buttons (
                  is_fr?encode_String("Détection du port série")
                       :"Detection of the serial port",
                  GTK_WINDOW(main_window),
                  GTK_DIALOG_MODAL,
-                 GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                 is_fr?"_Valider":"_OK", GTK_RESPONSE_ACCEPT,
                  NULL);
 
     gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
@@ -171,8 +169,6 @@ static void multi_ports_dialog (struct STRING_LIST *list)
     (void)gtk_dialog_run (GTK_DIALOG(dialog));
     string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(combo_box));
     gtk_widget_destroy (dialog);
-
-    gdk_threads_leave();
 
     gui.port_name = std_free (gui.port_name);
     gui.port_name = std_strdup_printf ("%s", string);

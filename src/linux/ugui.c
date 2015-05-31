@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 26/03/2012 12/06/2012
- *                               19/09/2013 11/04/2014
+ *                               19/09/2013 11/04/2014 31/05/2015
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
@@ -181,7 +181,7 @@ void ugui_Init(void)
     action_area = gtk_dialog_get_action_area (GTK_DIALOG(wControl));
     
     /* bouton de "A Propos" */
-    widget=gtk_button_new_from_stock(GTK_STOCK_ABOUT);
+    widget=gtk_button_new_with_label(is_fr?"Ã€ propos":"About");
     gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(widget),
                      "clicked",
@@ -193,10 +193,10 @@ void ugui_Init(void)
     gtk_box_pack_start( GTK_BOX(action_area), hbox, TRUE, TRUE, 0);
 
     gtk_dialog_add_button (GTK_DIALOG(wControl),
-                           GTK_STOCK_QUIT,
+                           is_fr?"Quitter":"Quit",
                            TEO_RESPONSE_QUIT);
     gtk_dialog_add_button (GTK_DIALOG(wControl),
-                           GTK_STOCK_OK,
+                           is_fr?"Valider":"OK",
                            GTK_RESPONSE_ACCEPT);
 
     /* crée toutes les widgets de la fenêtre */

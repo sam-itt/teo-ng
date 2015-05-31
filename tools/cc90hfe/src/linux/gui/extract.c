@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : linux/gui/extract.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Extract callback.
  */
@@ -66,8 +66,8 @@ static char *open_read_hfe_file (void)
                  is_fr?"Lire une disquette HFE":"Read a HFE disk",
                  GTK_WINDOW(main_window),
                  GTK_FILE_CHOOSER_ACTION_OPEN,
-                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                 GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                 is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
+                 is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT,
                  NULL);
 
     /* add filters */

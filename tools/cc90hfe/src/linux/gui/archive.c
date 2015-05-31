@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : linux/gui/archive.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Archive callback.
  */
@@ -64,8 +64,8 @@ static char *open_write_hfe_file (void)
                  is_fr?"Ecrire une disquette HFE":"Write a HFE disk",
                  GTK_WINDOW(main_window),
                  GTK_FILE_CHOOSER_ACTION_SAVE,
-                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                 GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                 is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
+                 is_fr?"_Enregistrer":"_Save", GTK_RESPONSE_ACCEPT,
                  NULL);
     gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
 

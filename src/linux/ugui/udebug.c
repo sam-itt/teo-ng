@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 2011-2014 Gilles Fétis, François Mouret
+ *  Copyright (C) 2011-2015 Gilles Fétis, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis 27/07/2011
  *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013 13/04/2014
+ *                               31/05/2015
  *               Gilles Fétis 13/04/2014
  *
  *  Débogueur du TO8.
@@ -526,7 +527,7 @@ void u6809_Init (GtkWidget *notebook)
 
     gtk_text_buffer_set_text(m6809_text_buffer,debug_get_dasm(),-1);
     m6809_text_view=gtk_text_view_new_with_buffer(m6809_text_buffer);
-    gtk_widget_modify_font (GTK_WIDGET (m6809_text_view), font);
+    gtk_widget_override_font (GTK_WIDGET (m6809_text_view), font);
     gtk_text_view_set_editable(GTK_TEXT_VIEW (m6809_text_view),FALSE);
  
     widget=gtk_scrolled_window_new (NULL, NULL);
@@ -534,8 +535,7 @@ void u6809_Init (GtkWidget *notebook)
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
                                    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(widget),
-                                          m6809_text_view);
+    gtk_container_add(GTK_CONTAINER(widget), m6809_text_view);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, TRUE, DEBUG_SPACE);
 
 
@@ -587,7 +587,7 @@ void uMemory_Init (GtkWidget *notebook)
     memory_text_buffer=gtk_text_buffer_new(NULL);
 
     memory_text_view=gtk_text_view_new_with_buffer(memory_text_buffer);
-    gtk_widget_modify_font (GTK_WIDGET (memory_text_view), font);
+    gtk_widget_override_font (GTK_WIDGET (memory_text_view), font);
     gtk_text_view_set_editable(GTK_TEXT_VIEW (memory_text_view),FALSE);
 
     widget=gtk_scrolled_window_new (NULL, NULL);
@@ -595,8 +595,7 @@ void uMemory_Init (GtkWidget *notebook)
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
                                    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(widget),
-                                          memory_text_view);
+    gtk_container_add(GTK_CONTAINER(widget), memory_text_view);
     gtk_box_pack_start( GTK_BOX(hbox), widget, TRUE, TRUE, DEBUG_SPACE);
 }
 
@@ -632,7 +631,7 @@ void uHardware_Init (GtkWidget *notebook)
 
     gtk_text_buffer_set_text(hardware_text_buffer,hardware_get_regs(),-1);
     hardware_text_view=gtk_text_view_new_with_buffer(hardware_text_buffer);
-    gtk_widget_modify_font (GTK_WIDGET (hardware_text_view), font);
+    gtk_widget_override_font (GTK_WIDGET (hardware_text_view), font);
     gtk_text_view_set_editable(GTK_TEXT_VIEW (hardware_text_view),FALSE);
 
     widget=gtk_scrolled_window_new (NULL, NULL);
@@ -640,8 +639,7 @@ void uHardware_Init (GtkWidget *notebook)
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
                                    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(widget),
-                                          hardware_text_view);
+    gtk_container_add(GTK_CONTAINER(widget), hardware_text_view);
     gtk_box_pack_start( GTK_BOX(vbox), widget, TRUE, TRUE, DEBUG_SPACE);
 
 }
@@ -765,7 +763,7 @@ static void udebug_Init(void)
 
     gtk_text_buffer_set_text(bplist_text_buffer,debug_get_bplist(),-1);
     bplist_text_view=gtk_text_view_new_with_buffer(bplist_text_buffer);
-    gtk_widget_modify_font (GTK_WIDGET (bplist_text_view), font);
+    gtk_widget_override_font (GTK_WIDGET (bplist_text_view), font);
     gtk_text_view_set_editable(GTK_TEXT_VIEW (bplist_text_view),FALSE);
 
     gtk_box_pack_start( GTK_BOX(rightBox), bplist_text_view, FALSE, FALSE, DEBUG_SPACE);

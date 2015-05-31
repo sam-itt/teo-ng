@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2014 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@
  *  Module     : linux/ugui/uprinter.c
  *  Version    : 1.8.3
  *  Créé par   : François Mouret 18/04/2012
- *  Modifié par: François Mouret 29/10/2012 13/04/2014
+ *  Modifié par: François Mouret 29/10/2012 13/04/2014 31/05/2015
  *
  *  Gestion des imprimantes.
  */
@@ -178,8 +178,8 @@ void uprinter_Init (GtkWidget *notebook)
                   :"Select the folder to save in",
              (GtkWindow *) wControl,
              GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-             GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+             is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
+             is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
     gtk_file_chooser_set_current_folder(
                      (GtkFileChooser *)dialog,
                      (teo.lprt.folder == NULL)?"":teo.lprt.folder);

@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2014 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2015 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *  Module     : linux/gui/install.c
  *  Version    : 0.7.0
  *  Créé par   : François Mouret 27/02/2013
- *  Modifié par:
+ *  Modifié par: François Mouret 31/05/2015
  *
  *  Install callback.
  */
@@ -107,8 +107,8 @@ static int install_dialog (void)
                         :"Install Cc90 without disk",
                    GTK_WINDOW(main_window),
                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                   GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-                   GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                   is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_REJECT,
+                   is_fr?"_Valider":"_Ok", GTK_RESPONSE_ACCEPT,
                    NULL);
     gtk_dialog_set_default_response (GTK_DIALOG(dialog), GTK_RESPONSE_REJECT);
     gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
@@ -154,8 +154,7 @@ static int install_dialog (void)
     gtk_label_set_markup (GTK_LABEL(label), program_text);
     gtk_label_set_selectable (GTK_LABEL(label), TRUE);
     scrollWindow = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_add_with_viewport (
-          GTK_SCROLLED_WINDOW (scrollWindow), label);
+    gtk_container_add (GTK_CONTAINER (scrollWindow), label);
     gtk_scrolled_window_set_min_content_width (
           GTK_SCROLLED_WINDOW (scrollWindow), 300);
     gtk_scrolled_window_set_min_content_height (
@@ -172,7 +171,7 @@ static int install_dialog (void)
     label = gtk_label_new ("");
     string = g_strdup_printf ("<i>%s.</i>",
          is_fr?encode_String("Validez lorsque vous êtes prêt")
-              :"Click when you are ready");
+              :"Click OK when you are ready");
     gtk_label_set_line_wrap (GTK_LABEL(label), TRUE);
     gtk_label_set_max_width_chars (GTK_LABEL(label), 53);
     gtk_label_set_markup (GTK_LABEL(label), string);
