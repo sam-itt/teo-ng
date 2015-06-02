@@ -74,6 +74,8 @@
 #define DEBUG_CMD_RESET 5
 #define DEBUG_CMD_STEPLOCAL 6
 
+#define FONT_SIZE   12
+#define FONT_SIZE_STRING   "12"
 
 static struct MC6809_REGS regs, prev_regs;
 
@@ -364,12 +366,12 @@ static void update_debug_text (void)
 
     mc6809_GetRegs(&regs);
 
-    string = "<span face=\"Courier\" font=\"9\">%s</span>";
+    string = "<span face=\"Courier\" font=\""FONT_SIZE_STRING"\">%s</span>";
     markup = g_markup_printf_escaped (string, debug_get_6809regs());
     gtk_label_set_markup (GTK_LABEL (label_6809regs), markup);
     g_free (markup);
 
-    string = "<span face=\"Courier\" font=\"9\">%s</span>";
+    string = "<span face=\"Courier\" font=\""FONT_SIZE_STRING"\">%s</span>";
     markup = g_markup_printf_escaped (string, debug_get_sr_list());
     gtk_label_set_markup (GTK_LABEL (label_sr_list), markup);
     g_free (markup);
@@ -509,7 +511,7 @@ void u6809_Init (GtkWidget *notebook)
 
     font = pango_font_description_new ();
     pango_font_description_set_family (font, "courier");
-    pango_font_description_set_size (font, 9 * PANGO_SCALE);
+    pango_font_description_set_size (font, FONT_SIZE * PANGO_SCALE);
 
     /* frame */
     frame=gtk_frame_new("");
@@ -556,7 +558,7 @@ void uMemory_Init (GtkWidget *notebook)
 
     font = pango_font_description_new ();
     pango_font_description_set_family (font, "courier");
-    pango_font_description_set_size (font, 9 * PANGO_SCALE);
+    pango_font_description_set_size (font, FONT_SIZE * PANGO_SCALE);
 
     /* frame */
     frame=gtk_frame_new("");
@@ -612,7 +614,7 @@ void uHardware_Init (GtkWidget *notebook)
 
     font = pango_font_description_new ();
     pango_font_description_set_family (font, "courier");
-    pango_font_description_set_size (font, 9 * PANGO_SCALE);
+    pango_font_description_set_size (font, FONT_SIZE * PANGO_SCALE);
 
     /* frame */
     frame=gtk_frame_new("");
@@ -680,7 +682,7 @@ static void udebug_Init(void)
 
     font = pango_font_description_new ();
     pango_font_description_set_family (font, "courier");
-    pango_font_description_set_size (font, 9 * PANGO_SCALE);
+    pango_font_description_set_size (font, FONT_SIZE * PANGO_SCALE);
 
 
     /* fenêtre d'affichage */
