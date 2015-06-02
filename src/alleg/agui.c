@@ -206,7 +206,7 @@ void agui_Panel(void)
                 return;
 
             case CONTROLDIAL_FULLRESET:
-                response = alert (is_fr?"Toute la nmémoire":"All the memory",
+                response = alert (is_fr?"Toute la mémoire":"All the memory",
                                   is_fr?"sera effacée.":"will be cleared.",
                                   NULL,
                                   "Ok",
