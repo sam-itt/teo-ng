@@ -316,12 +316,28 @@ static int amode40_SetGraphicMode(int mode)
  */
 static void amode40_SetDiskLed(int led_on)
 {
+    static int count = 0;
+
     if (graphic_mode)
     {
         if (led_on)
         {
-            rect    (screen, TEO_WINDOW_W-LED_SIZE  , 0, TEO_WINDOW_W-1, LED_SIZE-1, 1);
-            rectfill(screen, TEO_WINDOW_W-LED_SIZE+1, 1, TEO_WINDOW_W-2, LED_SIZE-2, 6);
+            rect    (screen, TEO_WINDOW_W-LED_SIZE,
+                             0,
+                             TEO_WINDOW_W-1,
+                             LED_SIZE-1,
+                             1);
+            rectfill(screen, TEO_WINDOW_W-LED_SIZE+1,
+                             1,
+                             TEO_WINDOW_W-2,
+                             LED_SIZE-2,
+                             6);
+            rect    (screen, TEO_WINDOW_W-LED_SIZE+count,
+                             count,
+                             TEO_WINDOW_W-1-count,
+                             LED_SIZE-1-count,
+                             1);
+            count = (count+1)%(LED_SIZE/2);
         }
         else
             RetraceScreen(TEO_WINDOW_W-LED_SIZE, 0, LED_SIZE, LED_SIZE);

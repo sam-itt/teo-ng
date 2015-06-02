@@ -492,12 +492,28 @@ static int tcol_SetGraphicMode(int mode)
  */
 static void tcol_SetDiskLed(int led_on)
 {
+    static int count = 0;
+
     if (graphic_mode)
     {
         if (led_on)
         {
-            rect    (screen, tcol->screen_w-LED_SIZE  , 0, tcol->screen_w-1, LED_SIZE-1, 0);
-            rectfill(screen, tcol->screen_w-LED_SIZE+1, 1, tcol->screen_w-2, LED_SIZE-2, makecol(0, 255, 0));
+            rect    (screen, tcol->screen_w-LED_SIZE,
+                             0,
+                             tcol->screen_w-1,
+                             LED_SIZE-1,
+                             0);
+            rectfill(screen, tcol->screen_w-LED_SIZE+1,
+                             1,
+                             tcol->screen_w-2,
+                             LED_SIZE-2,
+                             makecol(0, 255, 0));
+            rect    (screen, tcol->screen_w-LED_SIZE+count,
+                             count,
+                             tcol->screen_w-1-count,
+                             LED_SIZE-1-count,
+                             0);
+            count = (count+1)%(LED_SIZE/2);
         }
         else
             RetraceScreen(tcol->screen_w-LED_SIZE, 0, LED_SIZE, LED_SIZE);
