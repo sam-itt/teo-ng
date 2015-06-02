@@ -193,10 +193,10 @@ void ugui_Init(void)
     gtk_box_pack_start( GTK_BOX(action_area), hbox, TRUE, TRUE, 0);
 
     gtk_dialog_add_button (GTK_DIALOG(wControl),
-                           is_fr?"Quitter":"Quit",
+                           is_fr?"_Quitter":"_Quit",
                            TEO_RESPONSE_QUIT);
     gtk_dialog_add_button (GTK_DIALOG(wControl),
-                           is_fr?"Valider":"OK",
+                           is_fr?"_Valider":"_OK",
                            GTK_RESPONSE_ACCEPT);
 
     /* crée toutes les widgets de la fenêtre */
