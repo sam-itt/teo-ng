@@ -1,22 +1,13 @@
 ========================================================================
-=== Version 1.8.3 (Mai 2013 - Juin 2014)                             ===
+=== Version 1.8.3 (Mai 2013 - Juin 2015)                             ===
 ========================================================================
 
   Changements locaux ---------------------------------------------------
 
+- include/mc68xx/mc6809.c
+          Corrige les temps CPU pour CWAI et SYNC
 - include/mc68xx/mc6846.h
           Les fonctions ne sont plus inlinées
-- src/linux/umain.c
-- src/media/disk/controlr/thmfc1.c
-- src/media/disk.c
-- include/media/disk/controlr.h
-- include/media/disk.h
-- src/win/wgui/wdisk.c
-- src/win/wmain.c
-- src/linux/ugui/udisk.c
-- src/alleg/agui/adisk.c
-- src/media/disk/controlr/thmfc1.c
-          Passage des fonctions disques communes dans disk.c
 - tools/cc90hfe/src/linux/gui.c
 - tools/cc90hfe/src/ini.c
 - tools/cc90hfe/src/cc90.c
@@ -28,15 +19,101 @@
 - tools/cc90hfe/src/win/gui.c
 - tools/cc90hfe/include/win/resource.h
 - tools/cc90hfe/src/win/resource.rc
+          Ajoute le checkbox pour forcer la lecture de disque Thomson
+          Ajoute les checkboxes de face de disquettes
+          Le nombre de relectures est paramétrable
 - tools/cc90hfe/include/defs.h
           Ajoute le checkbox pour forcer la lecture de disque Thomson
           Ajoute les checkboxes de face de disquettes
+          Le nombre de relectures est paramétrable
+          Définition des macros MIN et MAX
 - doc/wiki/cc90232_modif_en
 - doc/wiki/cc90232_modif_fr
 - doc/cc90232_modif_en.htm
 - doc/cc90232_modif_fr.htm
           Ajoute l'astuce du point de colle
-
+- misc/pack/pack.sh
+          Pas d'arrêt du processus de package si les exécutables
+            MSDOS/Windows sont absents
+- misc/pack/debian/teo/usr/share/applications/teo.desktop
+          Chargement automatique des disquettes hfe/sap/fd par Teo
+          si double-clic
+- include/media/disk.h
+- include/media/disk/controlr.h
+- src/media/disk.c
+- src/media/disk/controlr/thmfc1.c
+          Passage des fonctions de lecture et d'écriture dans disk.c
+- src/linux/umain.c
+- src/win/wmain.c
+          Ajoute teo_FlushFrame pour empêcher la déterioration du son
+- src/linux/udisplay.c
+          Change window-state-event en visibility-state-event qui répond
+            mieux aux exigences du raffraîchissement d'écran
+          Fixe le retour de delete_events à TRUE pour éviter le crash
+            de XLib quand le bouton de fermeture de la fenêtre principale
+            est cliqué
+          Ajoute l'appel au débogueur dans le titre de fenêtre
+- src/media/keyboard.c
+          Le bouton du joystick est maintenant émulé avec R-CTRL et
+            R-SHIFT quand NUM_LOCK est éteint
+- src/linux/ugraphic.c
+          Le traçage direct sur la mémoire vidéo est désormais affiché
+            toutes les frames (merci à Wood)
+          Amélioration de l'affichage des lignes raster
+          La led disquette montre l'activité du lecteur
+- src/hardware.c
+          Amélioration de l'affichage des lignes raster
+          Le b7 de $E7E6 doit toujours être à 0 même en écriture
+- src/linux/usound.c
+          Amélioration de la gestion du son
+- src/teo.c
+          Force en 40 colonnes au reset à froid
+          Améliore le reset à froid
+          Création du reset total (mémoire incluse)
+- src/linux/ugui/udebug.c
+          Refonte du debugger
+- src/win/wdebug.c
+- src/win/wdebug/leave.ico
+- src/win/wdebug/run.ico
+- src/win/wdebug/step.ico
+- src/win/wdebug/stepover.ico
+- src/win/wdebug/wdacc.c
+- src/win/wdebug/wdbkpt.c
+- src/win/wdebug/wddisass.c
+- src/win/wdebug/wdmem.c
+- src/win/wdebug/wdreg.c
+- src/win/wdebug/wdstatus.c
+- src/win/wdebug/wdtoolb.c
+- src/win/wgui/clearlst.ico
+- src/win/wgui/folder.ico
+          Création du debugger pour Windows
+- include/mc68xx/dasm6809.h
+- src/mc68xx/dasm6809.c
+          Simplification du code
+          Vraie adresse pour PCR
+          Paramètre de structure en entrée et en sortie
+ 	src/win/wgui.c (diff)
+- src/win/wgui.c
+- src/win/wgui/wabout.c
+- src/win/wgui/wcass.c
+- src/win/wgui/wdisk.c
+- src/win/wgui/wmemo.c
+- src/win/wgui/wprinter.c
+- src/win/wgui/wsetting.c
+          Préfixage des variables GUI avec "IDC_"
+- makefile.lnx
+- tools/cc90hfe/makefile.lnx
+          Ajoute les librairies manquantes (X11 et XExt)
+- misc/pack/djmake.bat
+- misc/pack/mgwmake.bat
+          Corrige les batch et ajoute des recommandations
+- tools/cc90hfe/src/option.c
+          Ajout des options de face et de relecture dans la ligne de
+            commande
+- src/alleg/amode40.c
+- src/alleg/amode80.c
+- src/alleg/atruecol.c
+          La led disquette montre mieux l'activité du lecteur
 
 ========================================================================
 === Mises à jour de la version 1.8.2 (Avril 2013 - Novembre 2013)    ===

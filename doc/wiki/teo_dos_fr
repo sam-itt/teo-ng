@@ -24,7 +24,7 @@ Teo accepte les param&egrave;tres suppl&eacute;mentaires suivants sur la ligne d
 <tr><td>--mode40</td><td>lance l'&eacute;mulateur en mode plein &eacute;cran 40 colonnes 16 couleurs</td></tr>
 <tr><td>--mode80</td><td>lance l'&eacute;mulateur en mode plein &eacute;cran 80 colonnes 16 couleurs</td></tr>
 <tr><td>--truecolor</td><td>lance l'&eacute;mulateur en mode plein &eacute;cran 80 colonnes 4096 couleurs</td></tr>
-</TABLE>
+</table>
 
 #####Modes graphiques<a name="gfx_modes"></a>
 

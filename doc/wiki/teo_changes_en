@@ -1,16 +1,20 @@
 ###Changes
 
-#####Version 1.8.3 (May 2013-Juin 2014)
+#####Version 1.8.3 (May 2013-Juin 2015)
 
 TEO
 
 - Reorganization of the control panel
 - Activation/deactivation of the memory extension
 - Creation of the debugger for Windows
+- Improvement of the debugger for Windows
+- Safer management of the sound
+- Full reset (including memory)
 
 CC90HFE
 
 - Add a checkbox to force the reading of Thomson-like disc with selection of the disk sides
+- Number of retries user-definable (only for the Thomson-like sides)
 
 #####Updates of version 1.8.2 (April 2013 - November 2013)
 

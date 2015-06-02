@@ -1,15 +1,20 @@
 ========================================================================
-=== Version 1.8.3 (Mai 2013 - Juin 2014)                             ===
+=== Version 1.8.3 (Mai 2013 - Juin 2015)                             ===
 ========================================================================
 
 - teo
    - Réorganisation du panneau de contrôle
    - Activation/désactivation de l'extension mémoire
    - Creation du débogueur sous Windows
+   - Amélioration du débogueur sous Linux
+   - Gestion du son plus saine
+   - Reset total (mémoire comprise)
 
 - cc90hfe
    - Ajout d'un checkbox pour forcer la lecture des disquettes du style
      Thomson avec sélection des faces 
+   - Nombre de relecture paramétrable (seulement pour les faces de style
+     Thomson)
 
 ========================================================================
 === Mises à jour de la version 1.8.2 (Avril 2013 - Novembre 2013)    ===

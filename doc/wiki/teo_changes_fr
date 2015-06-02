@@ -1,16 +1,20 @@
 ###Changements
 
-#####Version 1.8.3 (Mai 2012-Juin 2014)
+#####Version 1.8.3 (Mai 2013-Juin 2015)
 
 TEO
 
 - R&eacute;organisation du panneau de contr&ocirc;le
 - Activation/d&eacute;sactivation de l'extension m&eacute;moire
 - Cr&eacute;ation du d&eacute;bogueur sous Windows
+- Am&eacute;lioration du d&eacute;bogueur sous Linux
+- Gestion du son plus saine
+- Reset total (m&eacute;moire comprise)
 
 CC90HFE
 
 - Ajout d'un checkbox pour forcer la lecture de disque Thomson avec s&eacute;lection des faces de disquette
+- Nombre de relecture param&eacute;trable (seulement pour les faces de style Thomson)
 
 #####Mises &agrave; jour de la version 1.8.2 (Avril 2013 - Novembre 2013)
 
