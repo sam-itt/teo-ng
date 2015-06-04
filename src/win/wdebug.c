@@ -36,7 +36,7 @@
  *  Module     : win/wgui/wdebug.c
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis & François Mouret 08/10/2013
- *  Modifié par: 
+ *  Modifié par: François Mouret 04/06/2015
  *
  *  Débogueur 6809.
  */
@@ -388,7 +388,7 @@ static int CALLBACK wdebug_Proc(HWND hDlg, UINT uMsg,
             return FALSE;
 
         case WM_NOTIFY:
-            /* dsplay toolbar button tooltip */
+            /* display toolbar button tooltip */
             if ((((LPNMHDR) lParam)->code) == TTN_GETDISPINFO)
                 wdtoolb_DisplayTooltips (lParam);
             break;
