@@ -36,7 +36,7 @@
  *  Module     : win/wdebug/wddisass.c
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: 
+ *  Modifié par: François Mouret 04/06/2015
  *
  *  Débogueur 6809 - Affichage des mnémoniques.
  */
@@ -58,6 +58,10 @@
 #define DASM_LIST_FCB  0x10000
 #define DASM_LIST_BLANK  0x20000
 
+#define DASM_LINE_LENGTH  54
+#define DASM_LINE_LENGTH_STRING  "54"
+
+
 static HFONT hfont_normal = NULL;
 
 static struct MC6809_REGS regs;
@@ -75,6 +79,7 @@ static char *dasm_dump_last = NULL;
 static int dasm_dump_last_size = 0;
 
 static char *text = NULL;
+
 
 
 /* get_next_address:
@@ -132,7 +137,7 @@ static void get_text (char *p)
             mc6809_dasm.addr = dasm_address[i];
             mc6809_dasm.mode = MC6809_DASM_BINASM_MODE;
             (void)dasm6809_Disassemble (&mc6809_dasm);
-            p += sprintf(p, "%-54s", mc6809_dasm.str);
+            p += sprintf(p, "%-"DASM_LINE_LENGTH_STRING"s", mc6809_dasm.str);
         }
     }
 }
@@ -292,6 +297,7 @@ static void update_address_list (int address)
             memmove (&dasm_address[0],
                      &dasm_address[1],
                      DASM_NLINES*sizeof(int));
+            dasm_address[DASM_NLINES-1] = get_next_address (dasm_address[DASM_NLINES-2]);
             dasm_address[DASM_NLINES] = get_next_address (dasm_address[DASM_NLINES-1]);
         }
     }
@@ -534,7 +540,6 @@ void wddisass_Init (HWND hDlg)
 
     mc6809_GetRegs(&regs);
     address = regs.pc&0xffff;
-    printf ("wddisass_Init : %04X\n", address);
     for (i=0; i<DASM_NLINES+1; i++)
     {
         dasm_address[i] = address;
@@ -642,7 +647,7 @@ void wddisass_DoStepOver (HWND hwnd)
  */
 void wddisass_Display(HWND hDlg)
 { 
-    text = malloc ((54+2+2)*DASM_NLINES);
+    text = malloc ((DASM_LINE_LENGTH+2+2)*DASM_NLINES);
     if ((text != NULL)
      && (dasm_address != NULL)
      && (dasm_address_last != NULL)
@@ -674,3 +679,4 @@ void wddisass_Exit(HWND hDlg)
     dasm_dump_last = std_free(dasm_dump_last);
     (void)hDlg;
 }
+
