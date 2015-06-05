@@ -36,7 +36,7 @@
  *  Module     : win/wdebug/wdacc.c
  *  Version    : 1.8.3
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: 
+ *  Modifié par: François Mouret 04/06/2015
  *
  *  Débogueur 6809 - Affichage des accumulateurs.
  */
@@ -59,6 +59,8 @@ static void get_dump_for_16_bits (char *p, int address)
 { 
     int i;
     int c;
+    
+    address &= 0xffff;
     
     /* write address */
     p += sprintf (p, "%04X  ", address);
