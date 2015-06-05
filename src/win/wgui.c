@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               21/09/2012 18/09/2013 11/04/2014
+ *                               04/06/2015
  *
  *  Interface utilisateur Windows native.
  */
@@ -326,7 +327,6 @@ void wgui_Panel(void)
                         prog_win,
                         (DLGPROC)ControlDialogProc);
 
-   printf ("Control Panel\n");
    if (ret == IDCANCEL)
    {
       if (teo.command == TEO_COMMAND_COLD_RESET)
