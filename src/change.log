@@ -1,4 +1,15 @@
 ========================================================================
+=== Mises à jour de la version 1.8.3 (Juin 2015)                     ===
+========================================================================
+
+- src/win/wdebug/wddisass.c
+          Corrige la cohérence des lignes du désassemblage en fin de
+            liste
+- src/win/wdialog.rc
+          Agrandissement de la taille des fenêtres d'édition des points
+            d'arrêt (+4 points)
+
+========================================================================
 === Version 1.8.3 (Mai 2013 - Juin 2015)                             ===
 ========================================================================
 
