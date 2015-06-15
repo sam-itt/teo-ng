@@ -1264,7 +1264,7 @@ static int ask_date (void)
 
 
 /* cc90_Install:
- *  Send the programme onto the Thomson via INSTALL.BAS.
+ *  Send the program onto the Thomson via INSTALL.BAS.
  */
 int cc90_Install (void)
 {

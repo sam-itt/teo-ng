@@ -287,7 +287,7 @@ static int mfm_to_raw [256] = {
 
 
 /* my_fgetw:
- *  Helper pour lit un 16 bits little endian.
+ *  Helper pour lire un 16 bits little endian.
  */
 static int hfe_fgetw (FILE *file)
 {
