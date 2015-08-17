@@ -754,10 +754,12 @@ static void udebug_Init(void)
 
     /* widget pour les registres 6809 */
     label_6809regs=gtk_label_new("");
+    gtk_label_set_selectable (GTK_LABEL(label_6809regs), TRUE);
     gtk_box_pack_start( GTK_BOX(leftBox), label_6809regs, FALSE, FALSE, 0);
     
     /* label pour lecontenu de la pile S */
     label_sr_list=gtk_label_new("");
+    gtk_label_set_selectable (GTK_LABEL(label_sr_list), TRUE);
     gtk_box_pack_start( GTK_BOX(leftBox), label_sr_list, FALSE, FALSE, 0);
     
     /* break points list and buttons */
