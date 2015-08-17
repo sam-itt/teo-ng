@@ -186,14 +186,18 @@ static void update_color(int index)
 static void SetDeviceRegister(int addr, int val)
 {
     int index;
+    int data;
 
     switch (addr)
     {
         /* PIA 6846 système */
         case 0xE7C1:
+            data = mc6846.crc;
             mc6846_WriteCommand(&mc6846, val);
 
-            if ((mc6846.crc&0x30) == 0x30)
+            /* $E7C1 generates sound only if b0 state changes */
+            if (((mc6846.crc&0x30) == 0x30)
+             && ((mc6846.crc&8) != (data&8)))
                 teo_PutSoundByte(mc6809_clock(),
                                  mc6846.crc&8
                                    ? 0x00
@@ -304,11 +308,26 @@ static void SetDeviceRegister(int addr, int val)
             break;
 
         case 0xE7CD:
+            data = mc6821_ReadData(&pia_ext.portb);
             mc6821_WriteData(&pia_ext.portb, val);
 
-            if (!(mc6846.crc&8))  /* MUTE son inactif */
-                teo_PutSoundByte(mc6809_clock(),
-                                 (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+            if ((mc6846.crc&8) == 0)  /* MUTE son inactif */
+            {
+                /* When the bit 2 of $e7cf is set to 0, the value put
+                   into $e7cd is for the PIA direction register.
+                   It is always possible to generate sound that way,
+                   but only if b2-b3-b4-b5 state changes. It gives
+                   then the opportunity to set some special codes
+                   noiselessly (like $fc for the joystick) even
+                   if the sound line is open. */
+                if (((mc6821_ReadCommand(&pia_ext.portb)&0x04) != 0)
+                 || ((data&0x3c) != (mc6821_ReadData(&pia_ext.portb)&0x3c)))
+                {
+                    teo_PutSoundByte(
+                        mc6809_clock(),
+                        (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                }
+            }
             break;
 
         case 0xE7CE:
@@ -523,10 +542,10 @@ static int GetDeviceRegister(int addr)
                 return mc6821_ReadData(&pia_int.portb);
 
             case 0xE7CA:
-		return mc6821_ReadCommand(&pia_int.porta);
+                return mc6821_ReadCommand(&pia_int.porta);
 
             case 0xE7CB:
-		return mc6821_ReadCommand(&pia_int.portb);
+                return mc6821_ReadCommand(&pia_int.portb);
 
             /* PIA 6821 musique et jeux */
             case 0xE7CC:
@@ -536,10 +555,10 @@ static int GetDeviceRegister(int addr)
                 return mc6821_ReadData(&pia_ext.portb);
 
             case 0xE7CE:
-		return mc6821_ReadCommand(&pia_ext.porta);
+                return mc6821_ReadCommand(&pia_ext.porta);
 
             case 0xE7CF:
-		return mc6821_ReadCommand(&pia_ext.portb);
+                return mc6821_ReadCommand(&pia_ext.portb);
 
             /* Gate Array lecteur de disquettes */
             case 0xE7D0:
