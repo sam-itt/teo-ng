@@ -220,8 +220,8 @@ static int file_protection (const char filename[], int protection)
 /* ------------------------------------------------------------------------- */
 
 
-/* fd_IsFd:
- *  Check if the file is a FD/QD file.
+/* fd_IsDirectAccess:
+ *  Check if the drive is present.
  */
 int fd_IsDirectAccess (const char filename[])
 {
@@ -231,7 +231,7 @@ int fd_IsDirectAccess (const char filename[])
 
 
 /* daccess_LoadDisk:
- *  Loads the FD archive into the specified drive and
+ *  Loads the direct access into the specified drive and
  *  forces the read-only mode if necessary.
  */
 int daccess_LoadDisk (int drive, const char filename[])
