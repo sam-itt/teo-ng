@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/agui/aabout.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003

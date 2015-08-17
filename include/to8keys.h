@@ -34,7 +34,7 @@
 
 /*
  *  Module     : key.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou
  *  Modifié par: Eric Botcazou 13/02/2001
  *               François Mouret 21/04/2013

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : hardware.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 18/09/2006 02/02/2012 29/09/2012

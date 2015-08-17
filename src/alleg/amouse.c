@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/mouse.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 14/10/2000
  *               François Mouret 01/11/2012

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/truecol.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011 10/02/2013

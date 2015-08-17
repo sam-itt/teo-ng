@@ -34,7 +34,7 @@
 
 /*
  *  Module     : options.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 07/10/2012
  *  Modifié par: François Mouret 31/05/2015
  *

@@ -3,7 +3,7 @@
 
 #define OUTPUTDIR  'misc\pack'
 #define SOURCEDIR  '..\..\..'
-#define TEOVERSION  '1.8.3'
+#define TEOVERSION  '1.8.4'
 #define WEBSITE "https://sourceforge.net/projects/teoemulator/"
 
 [Setup]

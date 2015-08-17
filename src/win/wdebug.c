@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/wgui/wdebug.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 08/10/2013
  *  Modifié par: François Mouret 04/06/2015
  *

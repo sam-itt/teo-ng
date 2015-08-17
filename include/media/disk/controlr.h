@@ -34,7 +34,7 @@
 
 /*
  *  Module     : media/disk/controlr/thmfc1.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 20/11/2012
  *  Modifié par: François Mouret 31/08/2013
  *

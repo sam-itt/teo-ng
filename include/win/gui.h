@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/gui.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 28/11/2000
  *  Modifié par: Eric Botcazou 04/12/2000
  *               François Mouret 01/04/2012 10/05/2014

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : option.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 02/10/2012 & Samuel Devulder 30/07/2011
  *  Modifié par:
  *

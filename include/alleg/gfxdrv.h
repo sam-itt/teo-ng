@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/gfxdrv.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 29/11/2000
  *               Samuel Devulder 30/07/2011

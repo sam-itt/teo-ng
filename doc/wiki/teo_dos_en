@@ -10,7 +10,7 @@
 
 To run the emulator, you need at least a 80386 with 2MB of RAM, a VGA card, and MS-DOS version 5.0 or greater or Windows version 3.1 or greater (Windows 95/98/Me). A Sound Blaster compatible sound-card is necessary to emulate sound.
 
-To install the emulator, you just have to unzip *`teo-1.8.3-dosexe.zip`*. The executable will be *`teo.exe`*.
+To install the emulator, you just have to unzip *`teo-1.8.4-dosexe.zip`*. The executable will be *`teo.exe`*.
 
 The file *`cwsdpmi.exe`* is only useful for running in protected mode under MS-DOS.
 

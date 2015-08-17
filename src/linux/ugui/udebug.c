@@ -33,7 +33,7 @@
 
 /*
  *  Module     : src/linux/ugui/udebug.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis 27/07/2011
  *  Modifié par: François Mouret 18/02/2012 12/06/2012 18/09/2013 13/04/2014
  *                               31/05/2015

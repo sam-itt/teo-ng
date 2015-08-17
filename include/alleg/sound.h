@@ -34,7 +34,7 @@
 
 /*
  *  Module     : alleg/sound.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 24/09/2001
  *               François Mouret 01/11/2012

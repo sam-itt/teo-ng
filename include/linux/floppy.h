@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/floppy.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 29/07/2000
  *  Modifié par: Eric Botcazou 03/11/2003
  *

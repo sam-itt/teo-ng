@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/wgui/wprinter.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 22/04/2012
  *  Modifié par: François Mouret 24/10/2012 20/09/2013 10/05/2014
  *

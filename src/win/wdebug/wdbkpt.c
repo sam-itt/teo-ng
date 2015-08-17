@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/wdebug/wdbkpt.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
  *  Modifié par: 
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : media/disk.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 05/10/2012 31/08/2013

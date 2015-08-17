@@ -34,7 +34,7 @@
 
 /*
  *  Module     : linux/ugui/uabout.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 21/03/2012
  *  Modifié par: François Mouret 22/09/2012
  *

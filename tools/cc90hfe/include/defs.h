@@ -53,7 +53,7 @@
 #define PROG_VERSION_MICRO "0"
 #define PROG_VERSION_STRING PROG_VERSION_MAJOR"."PROG_VERSION_MINOR
 
-#define PROG_CREATION_MONTH "May"
+#define PROG_CREATION_MONTH "August"
 #define PROG_CREATION_YEAR "2015"
 #define PROG_WEB_SITE       "http://sourceforge.net/projects/teoemulator/"
 #define PROG_WEB_FORUM      "http://www.logicielsmoto.com/"

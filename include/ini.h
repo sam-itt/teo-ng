@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/ini.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 09/05/2012
  *  Modifié par: François Mouret 29/09/2012
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : error.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 22/11/2000
  *  Modifié par: François Mouret 01/11/2012
  *

@@ -34,7 +34,7 @@
 
 /*
  *  Module     : media/printer.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 22/03/2001
  *  Modifié par: Eric Botcazou 24/03/2001
  *               François Mouret 18/04/2012 01/11/2012

@@ -35,7 +35,7 @@
 
 /*
  *  Module     : mouse.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 1999
  *  Modifié par: Eric Botcazou 13/02/2001
  *               Samuel Devulder 05/02/2012

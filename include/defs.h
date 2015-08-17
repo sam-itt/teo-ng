@@ -34,7 +34,7 @@
 
 /*
  *  Module     : intern/defs.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 28/04/2012 20/09/2013 10/05/2014

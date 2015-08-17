@@ -34,7 +34,7 @@
 
 /*
  *  Module     : dos/disk.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 20/09/2013

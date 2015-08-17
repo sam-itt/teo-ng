@@ -34,7 +34,7 @@
 
 /*
  *  Module     : to8dbg.h
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/11/2000
  *               François Mouret 10/05/2014

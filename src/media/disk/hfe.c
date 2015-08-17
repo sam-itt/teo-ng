@@ -34,7 +34,7 @@
 
 /*
  *  Module     : media/disk/hfe.c
- *  Version    : 1.8.3
+ *  Version    : 1.8.4
  *  Créé par   : François Mouret 08/11/2012
  *  Modifié par: 
  *
