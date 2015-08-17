@@ -292,12 +292,17 @@ static void flush_bus (void)
         /* write data if requested */
         if (dkc->write_door != 0)
         {
-            dkc->info.data[pos] = dkc->rr3;
-            if (dkc->rr4 == MFM_DATA_CLOCK_VALUE)
-                dkc->info.clck[pos] = DATA_CLOCK_MARK_WRITE;
+            if (teo.disk[dkc->drive].write_protect == FALSE)
+            {
+                dkc->info.data[pos] = dkc->rr3;
+                if (dkc->rr4 == MFM_DATA_CLOCK_VALUE)
+                    dkc->info.clck[pos] = DATA_CLOCK_MARK_WRITE;
+                else
+                    dkc->info.clck[pos] = SYNCHRO_CLOCK_MARK_WRITE;
+                disk_ControllerWritten();
+            }
             else
-                dkc->info.clck[pos] = SYNCHRO_CLOCK_MARK_WRITE;
-            disk_ControllerWritten();
+                dkc->rr1 |= STAT1_WRITE_PROTECTED;
         }
         else
         /* read data if requested */
@@ -721,7 +726,7 @@ static int get_reg1 (void)
     {
         /* manage disk protection */
         dkc->rr1 &= ~STAT1_WRITE_PROTECTED;
-        if (disk_Protection (dkc->drive, FALSE) == TRUE)
+        if (teo.disk[dkc->drive].write_protect == TRUE)
             dkc->rr1 |= STAT1_WRITE_PROTECTED;
 
         /* manage index detection */
@@ -994,7 +999,7 @@ static void set_reg2 (int val)
     dkc->wr2 = val;
 
     /* selection of controller and side */
-    if (val & 0x03)
+    if (val & CMD2_DRIVE)
     {
         switch (val & 0x43)
         {
