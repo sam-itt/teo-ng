@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
  *               François Mouret 26/01/2010 08/2011 02/06/2012 28/12/2012
+ *                               23/08/2015
  *               Gilles Fétis 07/2011
  *
  *  Module d'interface avec le serveur X.
@@ -249,14 +250,25 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
     teo_key = x11_to_dos[event->key.hardware_keycode];
     if (teo_key == 0)
-        if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
-            teo_key = TEO_KEY_ALTGR;
+    {
+        switch (event->key.keyval)
+        {
+            case GDK_KEY_ISO_Level3_Shift :
+                teo_key = TEO_KEY_ALTGR;
+                break;
+
+            case GDK_KEY_KP_Delete :
+            case GDK_KEY_KP_Decimal :
+                teo_key = TEO_KEY_DEL_PAD;
+                break;
+        }
+    }
 
     switch (teo_key)
     {
         case TEO_KEY_ESC : teo.command=TEO_COMMAND_PANEL; break;
         case TEO_KEY_F12 : teo.command=TEO_COMMAND_DEBUGGER; break;
-        default          : keyboard_Press (teo_key, FALSE); break;
+        default          : printf ("%d\n", teo_key);keyboard_Press (teo_key, FALSE); break;
     }
     return FALSE;
     (void)widget;
