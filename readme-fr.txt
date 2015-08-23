@@ -38,6 +38,37 @@ L'archive principale contient le programme éxécutable de l'émulateur et la
 documentation complète.
 
 
+Compilation simple
+------------------
+Voir le fichier makefile.all pour les options de compilation
+
+Dans une console Windows/MsDos :
+1. ./fixdoscr.sh (sous systèmes Unix)
+2. fixmingw (version MinGw) ou fixdjgpp (version MsDos)
+3. make (ad libitum)
+
+Dans un terminal sous systèmes Unix :
+1. ./fixunix.sh
+2. make (ad libitum)
+
+
+Compilation des packages 
+------------------------
+La compilation des packages nécessite la commande Unix SED.
+
+Dans un terminal sous systèmes Unix :
+1. ./fixdoscr.sh
+Dans une console sous systèmes Windows (djgpp) :
+2. Effacer le répertoire misc\pack\msdos s'il existe
+3. misc\pack\djmake
+Dans une console sous systèmes Windows (mingw) :
+4. misc\pack\mgwmake
+5. Compiler misc\pack\inno\teo-setup.iss avec Inno Setup
+Dans un terminal sous systèmes Unix :
+6. ./misc/pack/pack.sh
+Les packages sont créés dans misc/pack/.
+
+
 Compatibilité avec le TO8
 -------------------------
 La compatibilité est proche de 100% pour les logiciels n'utilisant pas de

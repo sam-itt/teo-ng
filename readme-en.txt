@@ -38,6 +38,37 @@ The main archive contains the executable of the emulator and the full
 documentation.
 
 
+Compilation
+--------------------
+See makefile.all file for compilation options
+
+In a console under Windows/MsDos systems (djgpp) :
+1. Run ./fixdoscr.sh under Unix systems
+2. Run fixmingw for MinGw version, fixdjgpp for MsDos version
+3. Run make (ad libitum)
+
+In a terminal under Unix systems :
+1. Run ./fixunix.sh
+2. Run make (ad libitum)
+
+
+Packages compilation
+--------------------
+Packages compilation needs SED unix command.
+
+In a terminal under Unix systems :
+1. Run ./fixdoscr.sh
+In a console under Windows/MsDos systems (djgpp) :
+2. Delete misc\pack\msdos folder if exists
+3. Run misc\pack\djmake
+In a console under Windows systems (mingw) :
+4. Run misc\pack\mgwmake
+5. Compile misc\pack\inno\teo-setup.iss with Inno Setup
+In a terminal under Unix systems :
+6. Run ./misc/pack/pack.sh
+Packages are created in misc/pack/.
+
+
 Compatibility with the TO8
 --------------------------
 The compatibility is close to 100% for softwares which don't use non
@@ -48,8 +79,8 @@ if a software doesn't work on Teo, so probably :
   peripheral is not emulated),
 - or its physical protection makes it fail.
 
-We keep a list of the softwares which run on Teo; if you have one that
-causes a problem, send it to us, we'll try to identify the cause of the
+We keep a list of the softwares which run on Teo; if you have one uhat
+causes!a!psoclem- seod!iu uo!us,!we'll try to identify the cause of the
 malfunction and tell you if it's possible to remedy it.
 
 
