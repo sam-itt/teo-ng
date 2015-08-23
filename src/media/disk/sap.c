@@ -39,7 +39,7 @@
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
- *                               15/05/2012
+ *                               15/05/2012 23/08/2015
  *               Samuel Devulder 05/02/2012
  *
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
@@ -312,34 +312,36 @@ static int write_fm_track (FILE *file, struct DISK_INFO *info)
 
     for (sector=1; sector<=16; sector++)
     {
-        if ((pos = disk_IsSDFloppySector (sector, info)) < 0)
-            return TEO_ERROR;
+        pos = disk_IsSDFloppySector (sector, info);
+        if (pos >= 0)
+        {
+            /* init sap sector header */
+            sap_sector[SAPSECTOR_FORMAT]     = 0x00;
+            sap_sector[SAPSECTOR_PROTECTION] = 0x00;
+            sap_sector[SAPSECTOR_TRACK]      = info->track;
+            sap_sector[SAPSECTOR_SECTOR]     = sector;
 
-        /* init sap sector header */
-        sap_sector[SAPSECTOR_FORMAT]     = 0x00;
-        sap_sector[SAPSECTOR_PROTECTION] = 0x00;
-        sap_sector[SAPSECTOR_TRACK]      = info->track;
-        sap_sector[SAPSECTOR_SECTOR]     = sector;
+            /* update special format */
+            if (info->data[pos+156] == 0xf7)
+                sap_sector[SAPSECTOR_FORMAT] = 0x04;
 
-        /* update special format */
-        if (info->data[pos+156] == 0xf7)
-            sap_sector[SAPSECTOR_FORMAT] = 0x04;
+            /* compute crc */
+            do_crc (sap_sector, info->data+pos+26, 128);
 
-        /* compute crc */
-        do_crc (sap_sector, info->data+pos+26, 128);
+            /* encode sector datas */
+            for (i=0;i<128;i++)
+                sap_sector[SAPSECTOR_DATA+i] = info->data[pos+26+i]
+                                               ^SAP_MAGIC_NUM;
 
-        /* encode sector datas */
-        for (i=0;i<128;i++)
-            sap_sector[SAPSECTOR_DATA+i] = info->data[pos+26+i]^SAP_MAGIC_NUM;
+            /* update crc */
+            sap_sector[132] = (uint8)(crcpuk_temp>>8);
+            sap_sector[133] = (uint8)crcpuk_temp;
 
-        /* update crc */
-        sap_sector[132] = (uint8)(crcpuk_temp>>8);
-        sap_sector[133] = (uint8)crcpuk_temp;
-
-        /* write the sector */
-        if (fwrite (sap_sector, 1, (size_t)SAP_SD_SECT_SIZE,
+            /* write the sector */
+            if (fwrite (sap_sector, 1, (size_t)SAP_SD_SECT_SIZE,
                                     file) != (size_t)SAP_SD_SECT_SIZE)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);
+                return error_Message (TEO_ERROR_DISK_IO, NULL);
+        }
     }
     return 0;
 }
@@ -358,34 +360,36 @@ static int write_mfm_track (FILE *file, struct DISK_INFO *info)
 
     for (sector=1; sector<=16; sector++)
     {
-        if ((pos = disk_IsDDFloppySector (sector, info)) < 0)
-            return TEO_ERROR;
+        pos = disk_IsDDFloppySector (sector, info);
+        if (pos >= 0)
+        {
+            /* init sap sector header */
+            sap_sector[SAPSECTOR_FORMAT]     = 0x00;
+            sap_sector[SAPSECTOR_PROTECTION] = 0x00;
+            sap_sector[SAPSECTOR_TRACK]      = info->track;
+            sap_sector[SAPSECTOR_SECTOR]     = sector;
 
-        /* init sap sector header */
-        sap_sector[SAPSECTOR_FORMAT]     = 0x00;
-        sap_sector[SAPSECTOR_PROTECTION] = 0x00;
-        sap_sector[SAPSECTOR_TRACK]      = info->track;
-        sap_sector[SAPSECTOR_SECTOR]     = sector;
+            /* update special format */
+            if (info->data[pos+306] == 0xf7)
+                sap_sector[SAPSECTOR_FORMAT] = 0x04;
 
-        /* update special format */
-        if (info->data[pos+306] == 0xf7)
-            sap_sector[SAPSECTOR_FORMAT] = 0x04;
+            /* compute crc */
+            do_crc (sap_sector, info->data+pos+48, 256);
 
-        /* compute crc */
-        do_crc (sap_sector, info->data+pos+48, 256);
+            /* encode sector datas */
+            for (i=0;i<256;i++)
+                sap_sector[SAPSECTOR_DATA+i] = info->data[48+pos+i]
+                                                ^SAP_MAGIC_NUM;
 
-        /* encode sector datas */
-        for (i=0;i<256;i++)
-            sap_sector[SAPSECTOR_DATA+i] = info->data[48+pos+i]^SAP_MAGIC_NUM;
+            /* update crc */
+            sap_sector[260] = (uint8)(crcpuk_temp>>8);
+            sap_sector[261] = (uint8)crcpuk_temp;
 
-        /* update crc */
-        sap_sector[260] = (uint8)(crcpuk_temp>>8);
-        sap_sector[261] = (uint8)crcpuk_temp;
-
-        /* write the sector */
-        if (fwrite (sap_sector, 1, (size_t)SAP_DD_SECT_SIZE,
-                                    file) != (size_t)SAP_DD_SECT_SIZE)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);
+            /* write the sector */
+            if (fwrite (sap_sector, 1, (size_t)SAP_DD_SECT_SIZE,
+                                        file) != (size_t)SAP_DD_SECT_SIZE)
+                return error_Message (TEO_ERROR_DISK_IO, NULL);
+        }
     }
     return 0;
 }

@@ -37,7 +37,7 @@
  *  Module     : media/disk/fd.c
  *  Version    : 1.8.4
  *  Créé par   : François Mouret 21/01/2013
- *  Modifié par: 
+ *  Modifié par: François Mouret 23/08/2015
  *
  *  Gestion du format raw (FD, QD).
  */
@@ -223,12 +223,11 @@ static int write_fm_track (FILE *file, struct DISK_INFO *info)
 
     for (sector=1; sector<=16; sector++)
     {
-        if ((i = disk_IsSDFloppySector (sector, info)) < 0)
-            return TEO_ERROR;
-
         /* write the sector */
-        if (fwrite (info->data+i+26, 1, (size_t)128, file) != (size_t)128)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);
+        i = disk_IsSDFloppySector (sector, info);
+        if (i >= 0)
+            if (fwrite (info->data+i+26, 1, (size_t)128, file) != (size_t)128)
+                return error_Message (TEO_ERROR_DISK_IO, NULL);
     }
     return 0;
 }
@@ -245,12 +244,12 @@ static int write_mfm_track (FILE *file, struct DISK_INFO *info)
 
     for (sector=1; sector<=16; sector++)
     {
-        if ((i = disk_IsDDFloppySector (sector, info)) < 0)
-            return TEO_ERROR;
-
         /* write the sector */
-        if (fwrite (info->data+i+48, 1, (size_t)256, file) != (size_t)256)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);  /* error on sector */
+        i = disk_IsDDFloppySector (sector, info);
+        if (i >= 0)
+            if (fwrite (info->data+i+48, 1, (size_t)256, file) != (size_t)256)
+                /* error on sector */
+                return error_Message (TEO_ERROR_DISK_IO, NULL);
     }
     return 0;
 }

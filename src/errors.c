@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou 22/11/2000
  *  Modifié par: Eric Botcazou 06/03/2001
  *               François Mouret 08/2011 13/01/2012 17/11/2012
+ *                               23/08/2015
  *
  *  Gestion des erreurs générées par l'émulateur.
  */
@@ -85,8 +86,6 @@ int error_Message(int error, const char moreinfo[])
         { TEO_ERROR_DIRECTORY_FULL, is_fr?(is_unix?"RÃ©pertoire plein"
                                                   :"Répertoire plein")
                                          :"Directory full"},
-        { TEO_ERROR_DISK_CONVERSION, is_fr?"Impossible de convertir le disque"
-                                          :"Unable to convert disk"},
         { TEO_ERROR_DISK_CREATE, is_fr?(is_unix?"Impossible de crÃ©er la disquette"
                                                :"Impossible de créer la disquette")
                                       :"Cannot create disk"},

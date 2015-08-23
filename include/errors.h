@@ -36,7 +36,7 @@
  *  Module     : error.h
  *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 22/11/2000
- *  Modifié par: François Mouret 01/11/2012
+ *  Modifié par: François Mouret 01/11/2012 23/08/2015
  *
  *  Gestion des erreurs générées par l'émulateur.
  */
@@ -49,7 +49,6 @@ enum {
     TEO_ERROR_ALLOC = -1000,
     TEO_ERROR_BMP_FORMAT,
     TEO_ERROR_DIRECTORY_FULL,
-    TEO_ERROR_DISK_CONVERSION,
     TEO_ERROR_DISK_CREATE,
     TEO_ERROR_DISK_IO,
     TEO_ERROR_DISK_NONE,

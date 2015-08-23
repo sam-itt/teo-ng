@@ -39,7 +39,7 @@
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
- *                               29/09/2012 31/08/2013
+ *                               29/09/2012 31/08/2013 23/08/2015
  *               Samuel Devulder 05/02/2012 30/07/2011
  *
  *  Gestion des disquettes.
@@ -806,7 +806,7 @@ int disk_IsDDFloppySector (int sector, struct DISK_INFO *info)
         }
         i++;
     }
-    return error_Message (TEO_ERROR_DISK_CONVERSION, NULL);
+    return -1;
 }
 
 
@@ -835,7 +835,7 @@ int disk_IsSDFloppySector (int sector, struct DISK_INFO *info)
         }
         i++;
     }
-    return error_Message (TEO_ERROR_DISK_CONVERSION, NULL);
+    return -1;
 }
 
 
