@@ -1,4 +1,14 @@
 ========================================================================
+=== Version 1.8.4 (August 2015)                                      ===
+========================================================================
+
+- teo
+   - Improve the sound generation behaviour
+   - Disk protection is now controled by checkboxes on the control panel
+     (no more disk conversion error)
+   - Restore the effect of the DELETE key for the numeric pad
+
+========================================================================
 === Updates of version 1.8.3 (June 2015)                             ===
 ========================================================================
 

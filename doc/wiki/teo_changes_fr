@@ -1,5 +1,13 @@
 ###Changements
 
+#####Version 1.8.4 (Juillet 2015 - Ao&ucirc;t 2015)
+
+TEO
+
+- Am&eacute;lioration du comportement de la g&eacute;n&eacute;ration sonore
+- La protection disque est maintenant contr&ocirc;l&eacute;e par les cases &agrave; cocher du panneau de contr&ocirc;le (plus d'erreur de conversion disque)
+- Restauration de la touche SUPPR du pav&eacute; num&eacute;rique
+
 #####Mises &agrave; jour de la version 1.8.3 (Juin 2015)
 
 D&eacute;bogueur Windows
