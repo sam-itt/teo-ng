@@ -38,7 +38,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 18/09/2006 02/02/2012 29/09/2012
- *                               18/09/2013 09/04/2014
+ *                               18/09/2013 09/04/2014 18/08/2015
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -195,7 +195,7 @@ static void SetDeviceRegister(int addr, int val)
             data = mc6846.crc;
             mc6846_WriteCommand(&mc6846, val);
 
-            /* $E7C1 generates sound only if b0 state changes */
+            /* $E7C1 generates sound only if b3 state changes */
             if (((mc6846.crc&0x30) == 0x30)
              && ((mc6846.crc&8) != (data&8)))
                 teo_PutSoundByte(mc6809_clock(),
@@ -319,7 +319,7 @@ static void SetDeviceRegister(int addr, int val)
                    but only if b2-b3-b4-b5 state changes. It gives
                    then the opportunity to set some special codes
                    noiselessly (like $fc for the joystick) even
-                   if the sound line is open. */
+                   if the sound line is full open. */
                 if (((mc6821_ReadCommand(&pia_ext.portb)&0x04) != 0)
                  || ((data&0x3c) != (mc6821_ReadData(&pia_ext.portb)&0x3c)))
                 {
