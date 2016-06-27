@@ -411,8 +411,9 @@ void udisplay_Window(void)
 {
     GdkPixbuf *pixbuf;
     GdkGeometry hints;
-    GdkRGBA rgba;
-    
+    GtkCssProvider *provider;
+    GtkStyleContext *context;
+
     wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
@@ -465,13 +466,16 @@ void udisplay_Window(void)
     gtk_window_set_default_icon(pixbuf);
 
     /* Set black background */
-    rgba.red   = 0;
-    rgba.green = 0;
-    rgba.blue  = 0;
-    rgba.alpha = 1;
-    gtk_widget_override_background_color (wMain, GTK_STATE_NORMAL, &rgba);
+    provider = gtk_css_provider_new ();
+    gtk_css_provider_load_from_data (GTK_CSS_PROVIDER (provider),
+                                     "* { background-color: #000000; }",
+                                     -1, NULL);
+    context = gtk_widget_get_style_context (wMain);
+    gtk_style_context_add_provider (context,
+                                    GTK_STYLE_PROVIDER (provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref (provider);
 
-    gtk_widget_set_double_buffered (wMain, FALSE);  /* only one buffer for drawing */
     gtk_widget_set_app_paintable (wMain, TRUE);
     gtk_widget_set_can_focus (wMain, TRUE);
 
