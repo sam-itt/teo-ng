@@ -473,7 +473,7 @@ static void SetDiskLed(int led_on)
 /* ugraphic_Retrace:
  *  Rafraîchit une portion de l'écran du TO8.
  */
-inline void ugraphic_Retrace(int x, int y, int w, int h)
+void ugraphic_Retrace(int x, int y, int w, int h)
 {
     if (mit_shm_enabled)
 	XShmPutImage(display, screen_win, gc, screen_buffer, x, y, x, y, w, h, True);
