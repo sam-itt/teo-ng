@@ -206,7 +206,7 @@ static void SetPointer(int pointer)
             break;
 
         case TEO_STATUS_LIGHTPEN :
-            gdk_window_set_cursor (gwindow_win, gdk_cursor_new (GDK_PENCIL));
+            gdk_window_set_cursor (gwindow_win, gdk_cursor_new_for_display (gdk_window_get_display (gwindow_win), GDK_PENCIL));
             installed_pointer=TEO_STATUS_LIGHTPEN;
             break;
     }
