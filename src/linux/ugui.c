@@ -74,7 +74,7 @@ static GtkWidget *notebook;
  */
 static void do_exit (GtkWidget *button, gpointer user_data)
 {
-    if ((int)user_data == TEO_COMMAND_FULL_RESET)
+    if (GPOINTER_TO_INT(user_data) == TEO_COMMAND_FULL_RESET)
     {
         if (ugui_Question (is_fr?"Toute la mémoire RAM sera effacée."
                                 :"All the RAM memory will be cleared.",

@@ -583,7 +583,7 @@ void uMemory_Init (GtkWidget *notebook)
     g_signal_connect(G_OBJECT(widget),
                      "clicked",
                      G_CALLBACK (do_memory_set_start),
-                     (gpointer) i);
+                     GINT_TO_POINTER (i));
     }
 
     memory_text_buffer=gtk_text_buffer_new(NULL);
