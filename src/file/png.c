@@ -45,6 +45,7 @@
     #include <stdio.h>
     #include <stdlib.h>
 #ifndef DJGPP
+   #include <string.h>
    #include <png.h>
    #include <zlib.h>
 #endif
