@@ -71,7 +71,7 @@ extern struct MOTHERBOARD mb;
 extern mc6809_clock_t screen_clock;
 
 
-extern inline void DrawGPL(int addr)
+inline void DrawGPL(int addr)
 { 
     int pt,col;
 

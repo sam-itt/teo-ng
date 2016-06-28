@@ -47,7 +47,7 @@ struct MC6821_PIA {
 };
 
 
-extern inline void mc6821_WriteCommand(struct MC6821_PORT *port, int val)
+inline void mc6821_WriteCommand(struct MC6821_PORT *port, int val)
 {
     if (val&0x30)  /* CP2 en sortie */
         port->cr = (port->cr&0xC0) | (val&0x3F);
@@ -56,13 +56,13 @@ extern inline void mc6821_WriteCommand(struct MC6821_PORT *port, int val)
 }
 
 
-extern inline int mc6821_ReadCommand(struct MC6821_PORT *port)
+inline int mc6821_ReadCommand(struct MC6821_PORT *port)
 {
     return port->cr;
 }
 
 
-extern inline void mc6821_WriteData(struct MC6821_PORT *port, int val)
+inline void mc6821_WriteData(struct MC6821_PORT *port, int val)
 {
     if (port->cr&4)
         port->odr = val;
@@ -71,13 +71,13 @@ extern inline void mc6821_WriteData(struct MC6821_PORT *port, int val)
 }
 
 
-extern inline int mc6821_ReadPort(struct MC6821_PORT *port)
+inline int mc6821_ReadPort(struct MC6821_PORT *port)
 {
     return (port->idr&(port->ddr^0xFF)) | (port->odr&port->ddr);
 }
 
 
-extern inline int mc6821_ReadData(struct MC6821_PORT *port)
+inline int mc6821_ReadData(struct MC6821_PORT *port)
 {
     if (port->cr&4)
         return mc6821_ReadPort(port);
@@ -86,7 +86,7 @@ extern inline int mc6821_ReadData(struct MC6821_PORT *port)
 }
 
 
-extern inline void mc6821_Init(struct MC6821_PORT *port, int cr, int idr)
+inline void mc6821_Init(struct MC6821_PORT *port, int cr, int idr)
 {
     port->cr  = cr;
     port->ddr = 0;
