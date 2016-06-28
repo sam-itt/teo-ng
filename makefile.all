@@ -135,7 +135,7 @@ TEO_SRC_WIN_FILES =        \
 
 CC = gcc
 
-WFLAGS = -Wall -Werror
+WFLAGS = -Wall
 
 ifdef PGCC
    OFLAGS = -O6 -ffast-math
