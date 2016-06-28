@@ -482,6 +482,9 @@ void udisplay_Window(void)
     gtk_widget_show_all (wMain);
 
     gwindow_win = gtk_widget_get_window (wMain);
+#if GTK_CHECK_VERSION(3,12,0)
+    gdk_window_set_event_compression (gwindow_win, FALSE);
+#endif
     window_win = GDK_WINDOW_XID (gwindow_win);
     screen_win = window_win;
 
