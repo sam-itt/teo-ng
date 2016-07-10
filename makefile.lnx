@@ -53,7 +53,13 @@ CFLAGS += -DOS_LINUX -ftree-vectorize
 
 VPATH += src/linux src/linux/ugui
 
-OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_LINUX_FILES)))
+src/linux/teoemulatorresources.h: src/linux/teo.gresource.xml makefile.lnx
+	glib-compile-resources src/linux/teo.gresource.xml --target=$@ --sourcedir=src/linux --c-name _teo --generate-header
+
+src/linux/teoemulatorresources.c: src/linux/teo.gresource.xml teoemulatorresources.h makefile.lnx
+	glib-compile-resources src/linux/teo.gresource.xml --target=$@ --sourcedir=src/linux --c-name _teo --generate-source
+
+OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_LINUX_FILES))) teoemulatorresources
 
 
 # ------ special file rules ------
