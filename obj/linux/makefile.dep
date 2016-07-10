@@ -100,7 +100,7 @@ obj/linux/pr90582.o: src/media/printer/pr90582.c include/defs.h \
 obj/linux/pr906xx.o: src/media/printer/pr906xx.c include/defs.h \
  include/mc68xx/mc6809.h include/teo.h include/media/printer.h
 obj/linux/udisplay.o: src/linux/udisplay.c include/defs.h include/mc68xx/mc6809.h \
- include/teo.h src/linux/thomson.xpm include/to8keys.h \
+ include/teo.h include/to8keys.h \
  include/media/keyboard.h include/media/mouse.h \
  include/media/disk/controlr.h include/media/disk.h include/linux/gui.h \
  include/linux/display.h include/linux/../teo.h include/linux/graphic.h

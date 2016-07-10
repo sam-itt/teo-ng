@@ -59,7 +59,6 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "thomson.xpm"
 #include "to8keys.h"
 #include "media/keyboard.h"
 #include "media/mouse.h"
@@ -461,7 +460,7 @@ void udisplay_Window(void)
     gtk_window_move (GTK_WINDOW(wMain), 0, 0);
 
     /* Set program icon */
-    pixbuf=gdk_pixbuf_new_from_xpm_data ((const char **)thomson_xpm);
+    pixbuf=gdk_pixbuf_new_from_resource("/net/sourceforge/teoemulator/teo.png", NULL);
     gtk_window_set_icon (GTK_WINDOW(wMain),pixbuf);
     gtk_window_set_default_icon(pixbuf);
 
