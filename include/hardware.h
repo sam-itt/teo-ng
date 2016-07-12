@@ -54,6 +54,12 @@
 #include "defs.h"
 #include "teo.h"
 
+#if __GNUC__ && !__GNUC_STDC_INLINE__
+# define INLINE extern inline
+#else
+# define INLINE inline
+#endif
+
 #define  LOAD_BYTE(addr)       (int) mempager.segment[((addr)>>12)&0xF][(addr)&0xFFF]
 #define  LOAD_WORD(addr)       (LOAD_BYTE(addr)<<8)+LOAD_BYTE(addr+1)
 #define STORE_BYTE(addr, val)  mempager.segment[((addr)>>12)&0xF][(addr)&0xFFF]=(uint8) (val)
@@ -71,8 +77,8 @@ extern struct MOTHERBOARD mb;
 extern mc6809_clock_t screen_clock;
 
 
-inline void DrawGPL(int addr)
-{ 
+INLINE void DrawGPL(int addr)
+{
     int pt,col;
 
     if (addr>=0x1F40)
