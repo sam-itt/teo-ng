@@ -475,6 +475,7 @@ void udisplay_Window(void)
                                     GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     g_object_unref (provider);
 
+    gtk_widget_set_double_buffered (wMain, FALSE);  /* only one buffer for drawing */
     gtk_widget_set_app_paintable (wMain, TRUE);
     gtk_widget_set_can_focus (wMain, TRUE);
 
