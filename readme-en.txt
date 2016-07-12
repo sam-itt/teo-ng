@@ -48,7 +48,7 @@ In a console under Windows/MsDos systems (djgpp) :
 3. Run make (ad libitum)
 
 In a terminal under Unix systems :
-1. Run ./fixunix.sh
+1. Run ./autogen.sh
 2. Run make (ad libitum)
 
 

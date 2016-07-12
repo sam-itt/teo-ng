@@ -5,7 +5,7 @@
 echo "Convert files from UNIX to DOS..."
 find . -type d "(" \
       -name ".hg" -prune \
-      -name "fixunix.sh" -prune \
+      -name "autogen.sh" -prune \
       ")" -o \
       -type f "(" \
       -name "*.c" -o -name "*.h" -o -name "*.rc" -o -name "*.rh" -o \

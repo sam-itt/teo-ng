@@ -101,8 +101,8 @@ cd $TMPDIR
 #   Convert files from DOS to UNIX
 #---------------------------------------------------------------------
 cd teo
-chmod +x ./fixunix.sh
-./fixunix.sh
+chmod +x ./autogen.sh
+./autogen.sh
 cd ..
 
 #---------------------------------------------------------------------

@@ -48,7 +48,7 @@ Dans une console Windows/MsDos :
 3. make (ad libitum)
 
 Dans un terminal sous systèmes Unix :
-1. ./fixunix.sh
+1. ./autogen.sh
 2. make (ad libitum)
 
 
