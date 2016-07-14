@@ -101,7 +101,19 @@ TEO_SRC_LINUX_FILES =         \
    src/linux/ugui/ucass.c     \
    src/linux/ugui/uprinter.c  \
    src/linux/ugui/uabout.c    \
-   src/linux/ugui/udebug.c
+   src/linux/udebug.c          \
+   src/linux/udebug/udacc.c    \
+   src/linux/udebug/udbkpt.c   \
+   src/linux/udebug/uddisass.c \
+   src/linux/udebug/udmem.c    \
+   src/linux/udebug/udreg.c    \
+   src/linux/udebug/udstatus.c \
+   src/linux/udebug/udtoolb.c  \
+   src/debug/dacc.c            \
+   src/debug/dbkpt.c           \
+   src/debug/ddisass.c         \
+   src/debug/dmem.c            \
+   src/debug/dreg.c
 
 TEO_SRC_MC68XX_FILES =   \
    src/mc68xx/dasm6809.c \

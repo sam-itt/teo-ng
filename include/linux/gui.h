@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 30/07/2011
- *               François Mouret 21/03/2012 20/09/2013
+ *               François Mouret 21/03/2012 20/09/2013 14/07/2016
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
@@ -46,6 +46,8 @@
 
 #ifndef LINUX_GUI_H
 #define LINUX_GUI_H
+
+#define COURIER_DEBUG "courier_debug"
 
 #define FILENT_LENGTH  127
 
@@ -62,8 +64,6 @@ extern void ugui_Warning  (const gchar *message, GtkWidget *parent_window);
 extern int  ugui_Question (const gchar *message, GtkWidget *parent_window);
 
 /* sub panels */
-extern void udebug_Panel(void);
-
 extern void udisk_Init (GtkWidget *notebook);
 extern void udisk_Free (void);
 
@@ -80,6 +80,43 @@ extern void usetting_Init (GtkWidget *notebook);
 extern void usetting_Update (void);
 
 extern void uprinter_Init (GtkWidget *notebook);
+
+extern void udebug_Panel(void);
+extern void udebug_DoStepByStep (void);
+extern void udebug_DoStepOver (void);
+extern void udebug_Quit (int quit_mode);
+
+/* disassembly */
+extern GtkWidget *uddisass_Init(void);
+extern void uddisass_DoStep(void);
+extern void uddisass_DoStepOver(GtkWidget *window);
+extern void uddisass_Display(void);
+extern void uddisass_Exit(void);
+/* extras registers */
+extern GtkWidget *udreg_Init(void);
+extern void udreg_Display(void);
+extern void udreg_UpdateText(void);
+extern void udreg_Exit(void);
+/* memory */
+extern GtkWidget *udmem_Init(void);
+extern void udmem_Display(void);
+extern int  udmem_GetStepAddress(void);
+extern void udmem_StepDisplay(int address);
+extern void udmem_Exit(void);
+/* accumulators */
+extern GtkWidget *udacc_Init(void);
+extern void udacc_Display(void);
+extern void udacc_Exit(void);
+/* breakpoints */
+extern GtkWidget *udbkpt_Init(void);
+extern void udbkpt_Update (int number);
+extern void udbkpt_Exit(void);
+/* status bar */
+extern GtkWidget *udstatus_Init (void);
+extern void udstatus_Display (void);
+/* tool bar */
+extern GtkWidget *udtoolb_Init (void);
+extern void udtoolb_SetRunButtonSensitivity (int state);
 
 #endif
 

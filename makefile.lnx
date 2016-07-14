@@ -51,7 +51,7 @@ EXE_NAME = teo
 OBJ_DIR = obj/linux
 CFLAGS += -DOS_LINUX -ftree-vectorize
 
-VPATH += src/linux src/linux/ugui
+VPATH += src/linux src/linux/ugui src/linux/udebug src/debug
 
 src/linux/teoemulatorresources.h: src/linux/teo.gresource.xml makefile.lnx
 	glib-compile-resources src/linux/teo.gresource.xml --target=$@ --sourcedir=src/linux --c-name _teo --generate-header

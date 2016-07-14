@@ -37,7 +37,7 @@
  *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 23/11/2000
- *               François Mouret 10/05/2014
+ *               François Mouret 10/05/2014 14/07/2016
  *
  *  Déclarations d'objets privés nécessaires au débogage.
  */
@@ -61,7 +61,19 @@ extern struct GATE_ARRAY  mode_page;
 extern struct DISK_CTRL disk_ctrl;
 
 /* windowed GUI specific */
-#define DASM_NLINES 50
+#define DASM_NLINES 150
 extern char debug_text[];
+
+struct MC6809_DEBUG {
+    int force_display;
+    int scroll;
+    int force_scroll;
+    int line;
+    int *address;
+    int *address_last;
+    char *dump;
+    char *dump_last;
+    int dump_last_size;
+};
 
 #endif
