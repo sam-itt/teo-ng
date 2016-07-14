@@ -60,6 +60,9 @@
 static GtkWidget *sound_widget = NULL;
 static int bank_range;
 
+static GtkWidget *ram_size_radio_1;
+static GtkWidget *ram_size_radio_2;
+
 
 /* toggle_speed:
  *  Positionne la vitesse de l'émulateur
@@ -164,6 +167,17 @@ static GtkWidget *create_new_hbox (GtkWidget *mainbox)
 void usetting_Update (void)
 {
     bank_range = teo.setting.bank_range;
+
+    if (teo.setting.bank_range == 16)
+    {
+        gtk_button_set_label (GTK_BUTTON (ram_size_radio_1), "256k");
+        gtk_button_set_label (GTK_BUTTON (ram_size_radio_2), "512k (+reset)");
+    }
+    else
+    {
+        gtk_button_set_label (GTK_BUTTON (ram_size_radio_1), "256k (+reset)");
+        gtk_button_set_label (GTK_BUTTON (ram_size_radio_2), "512k");
+    }
 }
 
 
@@ -225,41 +239,22 @@ void usetting_Init (GtkWidget *notebook)
     /* Création de la frame */
     vbox = create_new_frame (is_fr?"MÃ©moire":"Memory", grid, 1, 0);
 
-    /* bouton de vitesse maximale */
     hbox = create_new_hbox (vbox);
-    if (teo.setting.bank_range == 16)
-    {
-        widget=gtk_radio_button_new_with_label(NULL, ("256k"));
-    }
-    else
-    {
-        widget=gtk_radio_button_new_with_label(NULL, ("256k (+reset)"));
-    }
-    gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
-
-    /* bouton de vitesse exacte */
+    ram_size_radio_1 =gtk_radio_button_new_with_label(NULL, (""));
+    gtk_box_pack_end( GTK_BOX(hbox), ram_size_radio_1, TRUE, TRUE, 0);
     hbox = create_new_hbox (vbox);
-    if (teo.setting.bank_range == 32)
-    {
-        widget=gtk_radio_button_new_with_label_from_widget(
-                                GTK_RADIO_BUTTON (widget),
-                                "512k");
-    }
-    else
-    {
-        widget=gtk_radio_button_new_with_label_from_widget(
-                                GTK_RADIO_BUTTON (widget),
-                                "512k (+reset)");
-    }
-    gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+    ram_size_radio_2 = gtk_radio_button_new_with_label_from_widget(
+                                GTK_RADIO_BUTTON (ram_size_radio_1),
+                                "");
+    gtk_box_pack_end( GTK_BOX(hbox), ram_size_radio_2, TRUE, TRUE, 0);
 
     /* Buttons connection */
-    g_signal_connect(G_OBJECT(widget),
+    g_signal_connect(G_OBJECT(ram_size_radio_2),
                      "toggled",
                      G_CALLBACK(toggle_extension),
                      (gpointer)NULL);
     gtk_toggle_button_set_active(
-                     GTK_TOGGLE_BUTTON(widget),
+                     GTK_TOGGLE_BUTTON(ram_size_radio_2),
                      (teo.setting.bank_range == 32) ? TRUE : FALSE);
 
     /* ---------------- Display ------------------ */
