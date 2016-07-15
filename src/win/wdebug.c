@@ -36,7 +36,7 @@
  *  Module     : win/wgui/wdebug.c
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 08/10/2013
- *  Modifié par: François Mouret 04/06/2015
+ *  Modifié par: François Mouret 04/06/2015 15/07/2016
  *
  *  Débogueur 6809.
  */
@@ -49,7 +49,10 @@
 #include "defs.h"
 #include "teo.h"
 #include "debug.h"
+#include "debug/debug.h"
 #include "win/gui.h"
+
+struct MC6809_DEBUG debug;
 
 static LONG main_window_x_init = 0;
 static LONG main_window_y_init = 0;
@@ -295,14 +298,14 @@ static int CALLBACK wdebug_Proc(HWND hDlg, UINT uMsg,
             switch(LOWORD(wParam))
             {
                 case IDM_DEBUG_BUTTON_STEP:
-                    address = wdmem_GetStepAddress();
-                    wddisass_DoStep();
+                    address = dmem_GetStepAddress();
+                    ddisass_DoStep();
                     wdmem_StepDisplay(hDlg, address);
                     update_display (hDlg);
                     return TRUE;
 
                 case IDM_DEBUG_BUTTON_STEP_OVER:
-                    address = wdmem_GetStepAddress();
+                    address = dmem_GetStepAddress();
                     wddisass_DoStepOver(hDlg);
                     wdmem_StepDisplay(hDlg, address);
                     update_display (hDlg);
@@ -363,12 +366,12 @@ static int CALLBACK wdebug_Proc(HWND hDlg, UINT uMsg,
                     exit_display (hDlg);
                     if (LOWORD(wParam) == IDM_DEBUG_BUTTON_RUN)
                     {
-                        wdbkpt_TraceOn();
+                        dbkpt_TraceOn();
                         EndDialog(hDlg, TRUE);
                     }
                     else
                     {
-                        wdbkpt_TraceOff();
+                        dbkpt_TraceOff();
                         EndDialog(hDlg, FALSE);
                     }
                     break;

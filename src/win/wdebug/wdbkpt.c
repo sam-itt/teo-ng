@@ -36,7 +36,7 @@
  *  Module     : win/wdebug/wdbkpt.c
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: 
+ *  Modifié par: François Mouret 15/07/2016
  *
  *  Débogueur 6809 - Gestion des breakpoints.
  */
@@ -48,21 +48,8 @@
 
 #include "defs.h"
 #include "teo.h"
+#include "debug/debug.h"
 #include "win/gui.h"
-
-
-/* BreakPoint:
- *  Check if there is breakpoint.
- */
-static int BreakPoint(int pc) {
-    int i;
-
-    for (i=0; i<MAX_BREAKPOINTS; i++)
-        if (teo.debug.breakpoint[i]==pc)
-            return 1;
-    return 0;
-}
-
 
 
 /* write_breakpoint:
@@ -145,26 +132,6 @@ void wdbkpt_Update (HWND hDlg, int number)
         write_breakpoint (hwnd, number, addr);
     }
     update_display (hDlg);
-}
-
-
-
-/* wdbkpt_TraceOn:
- *  Turn the trace on.
- */
-void wdbkpt_TraceOn(void)
-{
-    teo_DebugBreakPoint = BreakPoint;
-}
-
-
-
-/* wdbkpt_TraceOff:
- *  Turn the trace off.
- */
-void wdbkpt_TraceOff(void)
-{
-    teo_DebugBreakPoint = NULL;
 }
 
 

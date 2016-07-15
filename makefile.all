@@ -140,6 +140,11 @@ TEO_SRC_WIN_FILES =        \
    src/win/wdebug/wdstatus.c \
    src/win/wdebug/wdtoolb.c \
    src/win/wdebug.c        \
+   src/debug/dacc.c        \
+   src/debug/dbkpt.c       \
+   src/debug/ddisass.c     \
+   src/debug/dmem.c        \
+   src/debug/dreg.c        \
    src/win/wdialog.rc
 
 

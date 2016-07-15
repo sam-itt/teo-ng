@@ -36,7 +36,7 @@
  *  Module     : win/wdebug/wdacc.c
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: François Mouret 04/06/2015
+ *  Modifié par: François Mouret 04/06/2015 15/07/2016
  *
  *  Débogueur 6809 - Affichage des accumulateurs.
  */
@@ -50,42 +50,11 @@
 #include "teo.h"
 #include "mc68xx/mc6809.h"
 #include "win/gui.h"
+#include "debug/debug.h"
 
 static HFONT hfont_normal = NULL;
 static HFONT hfont_bold = NULL;
 static struct MC6809_REGS regs;
-
-static void get_dump_for_16_bits (char *p, int address)
-{ 
-    int i;
-    int c;
-    
-    address &= 0xffff;
-    
-    /* write address */
-    p += sprintf (p, "%04X  ", address);
-
-    /* write bytes */
-    for (i=0; i<8; i++)
-        p += sprintf(p, "%02X ", mc6809_interface.LoadByte((address+i)&0xffff));
-        
-    /* write characters */
-    p += sprintf(p, " ");
-    for (i=0; i<8; i++)
-    {
-        c = mc6809_interface.LoadByte((address+i)&0xffff);
-        switch (c&0xff)
-        {
-            default :
-                if ((c<0x20) || (c>0x7f))
-                    p += sprintf(p, ".");
-                else
-                    p += sprintf(p, "%c", c);
-                break;
-        }
-    }
-}
-
 
 
 /* display_accumulators:
@@ -123,23 +92,23 @@ static void display (HWND hDlg)
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_DP_VALUE_LTEXT);
     SetWindowText(hwnd, string);
 
-    get_dump_for_16_bits (string, regs.xr);
+    dacc_GetDumpFor16Bits (string, regs.xr);
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_XR_VALUE_LTEXT);
     SetWindowText(hwnd, string);
 
-    get_dump_for_16_bits (string, regs.yr);
+    dacc_GetDumpFor16Bits (string, regs.yr);
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_YR_VALUE_LTEXT);
     SetWindowText(hwnd, string);
 
-    get_dump_for_16_bits (string, regs.ur);
+    dacc_GetDumpFor16Bits (string, regs.ur);
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_UR_VALUE_LTEXT);
     SetWindowText(hwnd, string);
 
-    get_dump_for_16_bits (string, regs.sr);
+    dacc_GetDumpFor16Bits (string, regs.sr);
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_SR_VALUE_LTEXT);
     SetWindowText(hwnd, string);
 
-    get_dump_for_16_bits (string, regs.pc);
+    dacc_GetDumpFor16Bits (string, regs.pc);
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_PC_VALUE_LTEXT);
     SetWindowText(hwnd, string);
 }

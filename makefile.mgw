@@ -75,7 +75,7 @@ PLATFORM = mingw32
 
 OBJ_DIR = obj/mingw32
 
-VPATH += src/alleg src/alleg/agui src/win src/win/wgui src/win/wdebug
+VPATH += src/alleg src/alleg/agui src/win src/win/wgui src/win/wdebug src/debug
 
 OBJ_LIST = $(COMMON_OBJ_LIST) $(basename $(notdir $(TEO_SRC_ALLEG_FILES) $(TEO_SRC_WIN_FILES)))
 

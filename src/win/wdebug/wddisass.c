@@ -36,7 +36,7 @@
  *  Module     : win/wdebug/wddisass.c
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: François Mouret 04/06/2015
+ *  Modifié par: François Mouret 04/06/2015 15/07/2016
  *
  *  Débogueur 6809 - Affichage des mnémoniques.
  */
@@ -52,416 +52,12 @@
 #include "hardware.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
+#include "debug.h"
+#include "debug/debug.h"
 #include "win/gui.h"
 
-#define DASM_NLINES 150
-#define DASM_LIST_FCB  0x10000
-#define DASM_LIST_BLANK  0x20000
-
-#define DASM_LINE_LENGTH  54
-#define DASM_LINE_LENGTH_STRING  "54"
-
-
 static HFONT hfont_normal = NULL;
-
 static struct MC6809_REGS regs;
-static struct MC6809_DASM mc6809_dasm;
-
-static int dasm_force_display = FALSE;
-static int dasm_scroll = 0;
-static int dasm_force_scroll = FALSE;
-static int dasm_line = 0;
-
-static int *dasm_address = NULL;
-static int *dasm_address_last = NULL;
-static char *dasm_dump = NULL;
-static char *dasm_dump_last = NULL;
-static int dasm_dump_last_size = 0;
-
-static char *text = NULL;
-
-
-
-/* get_next_address:
- *  Get the next address.
- */
-static int get_next_address (int address)
-{
-    int i;
-
-    for (i=0; i<MC6809_DASM_FETCH_SIZE; i++)
-        mc6809_dasm.fetch[i]=LOAD_BYTE((address&0xffff)+i);
-
-    mc6809_dasm.addr = address;
-    mc6809_dasm.mode = MC6809_DASM_BINASM_MODE;
-    
-    address += dasm6809_Disassemble(&mc6809_dasm);
-    address &= 0xffff;
-
-    return address;
-}
-
-
-
-/* get_text:
- *  Get the disassembly text.
- */
-static void get_text (char *p)
-{
-    int i;
-    int pos;
-    int byte;
-
-    p[0] = '\0';
-
-    for (i=0,pos=0; pos<DASM_NLINES; i++)
-    {
-        for (byte=0; byte<MC6809_DASM_FETCH_SIZE; byte++)
-            mc6809_dasm.fetch[byte]=LOAD_BYTE((dasm_address[i]&0xffff)+byte);
-
-        if (i > 0)
-            p += sprintf(p, "\r\n");
-
-        if ((dasm_address[i] & DASM_LIST_FCB) != 0)
-        {
-            pos++;
-            p += sprintf(p, "%04X  %02X              FCB    $%02X",
-                         dasm_address[i]&0xffff,
-                         mc6809_dasm.fetch[0],
-                         mc6809_dasm.fetch[0]);
-        }
-        else
-        if ((dasm_address[i] & DASM_LIST_BLANK) == 0)
-        {
-            pos++;
-            mc6809_dasm.addr = dasm_address[i];
-            mc6809_dasm.mode = MC6809_DASM_BINASM_MODE;
-            (void)dasm6809_Disassemble (&mc6809_dasm);
-            p += sprintf(p, "%-"DASM_LINE_LENGTH_STRING"s", mc6809_dasm.str);
-        }
-    }
-}
-
-
-
-/* remove_address:
- *  Remove an address in the list.
- */
-static void remove_address (int pos)
-{
-    if ((pos+1) < (DASM_NLINES+1))
-    {
-        /* addresses list down if inside list */
-        memmove (&dasm_address[pos],
-                 &dasm_address[pos+1],
-                 (DASM_NLINES-pos)*sizeof(int));
-    }
-    dasm_address[DASM_NLINES] = get_next_address (dasm_address[DASM_NLINES-1]);
-}
-
-
-
-/* insert_address:
- *  Insert an address in the list.
- */
-static void insert_address (int pos, int address)
-{
-    if ((pos+1) > DASM_NLINES)
-    {
-        /* addresses list up if end of list */
-        memmove (&dasm_address[0],
-                 &dasm_address[1],
-                 DASM_NLINES*sizeof(int));
-        dasm_address[DASM_NLINES-1] = address;
-        dasm_address[DASM_NLINES] = (address+1)&0xffff;
-    }
-    else
-    {
-        /* just insert address */
-        memmove (&dasm_address[pos+1],
-                 &dasm_address[pos],
-                 (DASM_NLINES+1-(pos+1))*sizeof(int));
-        dasm_address[pos] = address;
-    }
-}
-
-
-
-/* update_fcbs:
- *  Insert fcb lines if address is in between.
- */
-static void update_fcbs (int address)
-{
-    int i;
-    int pos;
-    int interval;
-    int prev_addr;
-
-    for (i=0; i<DASM_NLINES; i++)
-    {
-        /* address is in between -> creation of FCB's */
-        if ((address > (dasm_address[i]&0xffff))
-         && (address < (dasm_address[i+1]&0xffff)))
-        {
-            /* create the FCB's */
-            prev_addr = dasm_address[i]&0xffff;
-            interval = (address - prev_addr) & 0xffff;
-            remove_address (i);
-            
-            for (pos=0; pos<interval; pos++)
-            {
-                insert_address (i+pos, ((prev_addr+pos)&0xffff) | DASM_LIST_FCB);
-            }
-            pos = i+interval;
-            insert_address (pos, address);
-            /* adjust the addresses after */
-            pos++;
-            while (pos<DASM_NLINES)
-            {
-                address = get_next_address (address);
-                while (address > (dasm_address[pos]&0xffff))
-                {
-                    remove_address (pos);
-                }
-
-                if (address < dasm_address[pos])
-                {
-                    insert_address (pos, address);
-                    pos++;
-                }
-                else
-                    break;
-            }
-            break;
-        }
-        else
-        /* address is a FCB -> remove FCB's */
-        if ((address == (dasm_address[i]&0xffff))
-         && ((dasm_address[i]&DASM_LIST_FCB) != 0))
-        {
-            while ((dasm_address[i]&DASM_LIST_FCB) != 0)
-            {
-                remove_address (i);
-            }
-            dasm_address[i] = address;
-            break;
-        }
-    }
-}
-
-
-
-/* update_address_list:
- *  Rebuild list if address is outside the range.
- */
-static void update_address_list (int address)
-{
-    int i;
-    int *dasm_address_copy;
-
-    dasm_address_copy = malloc((DASM_NLINES+1)*sizeof(int));
-    if (dasm_address_copy == NULL)
-        return;
-
-    /* address < edit first line */
-    if (address < (dasm_address[0]&0xffff))
-    {
-        memmove (&dasm_address_copy[0],
-                 &dasm_address[0],
-                 (DASM_NLINES+1)*sizeof(int));
-
-        for (i=0; i<DASM_NLINES+1; i++)
-        {
-            if (address == (dasm_address_copy[0]&0xffff))
-            {
-                /* copy rest of addresses list and exit */
-                memmove (&dasm_address[i],
-                         &dasm_address_copy[0],
-                         (DASM_NLINES+1-i)*sizeof(int));
-                break;
-            }
-            else
-            {
-                /* continue to load new adress */
-                dasm_address[i] = address;
-                address = get_next_address (address);
-            }
-        }
-    }
-    else
-    /* address > edit last line */
-    if (address > (dasm_address[DASM_NLINES-1]&0xffff))
-    {
-        while (address > (dasm_address[DASM_NLINES-1]&0xffff))
-        {
-            memmove (&dasm_address[0],
-                     &dasm_address[1],
-                     DASM_NLINES*sizeof(int));
-            dasm_address[DASM_NLINES-1] = get_next_address (dasm_address[DASM_NLINES-2]);
-            dasm_address[DASM_NLINES] = get_next_address (dasm_address[DASM_NLINES-1]);
-        }
-    }
-    dasm_address_copy = std_free(dasm_address_copy);
-}
-
-
-
-/* check_changes:
- *  Check if dump or address list has changed and force display.
- */
-static void check_changes (void)
-{
-    int i;
-    int start;
-    int end;
-
-    /* dump current memory */
-    start = dasm_address[0]&0xffff;
-    end = dasm_address[DASM_NLINES]&0xffff;
-    for (i=0; (dasm_address[i]&0xffff)!=end; i++)
-        dasm_dump[i] = mc6809_interface.LoadByte(dasm_address[0]+i);
-
-    /* check if dump has changed */
-    if (dasm_dump_last_size > 0)
-    {
-        if (dasm_dump_last_size < i)
-            dasm_force_display = TRUE;
-        if (memcmp (dasm_dump, dasm_dump_last, dasm_dump_last_size) != 0)
-            dasm_force_display = TRUE;
-    }
-    dasm_dump_last_size = i;
-
-    /* update last address list */
-    memcpy (dasm_address_last, dasm_address, (DASM_NLINES+1)*sizeof(int));
-
-    /* check if address list has changed */
-    if (memcmp (dasm_address_last,
-                dasm_address,
-                (DASM_NLINES+1)*sizeof(int)) != 0)
-        dasm_force_display = TRUE;
-
-    /* update last dump list */
-    memcpy (dasm_dump_last, dasm_dump, (DASM_NLINES*5));
-}
-
-
-
-/* remove_blanks:
- *  Remove the blank lines in the address list */
-static void remove_blanks (void)
-{
-    int i;
-    int pos;
-
-    /*  the list skipping the blanks */
-    for (i=0,pos=0; pos<(DASM_NLINES+1); i++)
-        if ((dasm_address[i]&DASM_LIST_BLANK) == 0)
-            dasm_address[pos++] = dasm_address[i];
-}
-
-
-
-/* add_blanks:
- *  Add the blank lines in the address list */
-static void add_blanks (void)
-{
-    int i;
-    int pos;
-    int d0;
-    int d1;
-    int *dasm_address_copy = NULL;
-
-    dasm_address_copy = malloc((DASM_NLINES+1)*sizeof(int));
-    if (dasm_address_copy == NULL)
-        return;
-
-    memmove (dasm_address_copy, dasm_address, (DASM_NLINES+1)*sizeof(int));
-
-    for (i=0,pos=0; pos<(DASM_NLINES+1); pos++)
-    {
-        d0 = mc6809_interface.LoadByte(dasm_address_copy[pos]);
-        d1 = mc6809_interface.LoadByte(dasm_address_copy[pos]+1);
-        dasm_address[i++] = dasm_address_copy[pos];
-
-        switch (d0)
-        {
-            case 0x0e :  /* JMP direct */
-            case 0x6e :  /* JMP indexed */
-            case 0x7e :  /* JMP extended */
-            case 0x3b :  /* RTI */
-            case 0x39 :  /* RTS */
-                dasm_address[i++] = DASM_LIST_BLANK;
-                break;
-
-            case 0x35 :  /* PULS */
-            case 0x37 :  /* PULU */
-                if ((d1 & 0x80) != 0)    /* pull PC */
-                    dasm_address[i++] = DASM_LIST_BLANK;
-                break;
-        
-            case 0x1f :  /* TFR */
-                if ((d1 & 0x0f) == 0x05) /* TFR r,PC */
-                    dasm_address[i++] = DASM_LIST_BLANK;
-                break;
-        
-            case 0x1e :  /* EXG */
-                if (((d1 & 0x0f) == 0x05)  /* EXG r,PC */
-                 || ((d1 & 0xf0) == 0x50)) /* EXG PC,r */
-                    dasm_address[i++] = DASM_LIST_BLANK;
-                break;
-        }
-    }
-    dasm_address_copy = std_free(dasm_address_copy);
-}
-
-
-
-/* edit_positionning:
- *  Positionning of the text in the edit control.
- */
-static void edit_positionning (int address, int vlfirst, int vlcount)
-{
-    int i;
-
-    /* update the new lists */
-    remove_blanks();
-    update_address_list(address);
-    update_fcbs(address);
-    check_changes();
-    add_blanks();
-
-    /* reset first line if display forced */
-    if (dasm_force_display == TRUE)
-        vlfirst = 0;
-
-    /* find the line in the list */
-    for (i=0,dasm_line=0; i<DASM_NLINES; dasm_line++)
-    {
-        if (address == (dasm_address[dasm_line]&(0xffff|DASM_LIST_BLANK)))
-            break;
-        if ((dasm_address[dasm_line]&DASM_LIST_BLANK) == 0)
-            i++;
-    }
-
-    /* address < first visible line */
-    if (dasm_line < vlfirst)
-    {
-        dasm_force_scroll = TRUE;
-        dasm_scroll = dasm_line;
-    }
-    else
-    /* address inside visible window */
-    if (dasm_line < vlfirst+vlcount)
-    {
-        dasm_scroll = vlfirst;
-    }
-    else
-    /* address > last visible line */
-    {
-        dasm_force_scroll = TRUE;
-        dasm_scroll = dasm_line-vlcount+1;
-    }
-}
 
 
 
@@ -476,33 +72,120 @@ static void debug_display_dasm (HWND hDlg, char *ptxt)
     int visible_line_count;
     int visible_line_first;
     HWND hwnd = GetDlgItem (hDlg, IDC_DEBUG_DASM_EDIT);
+    char *text = NULL;
 
     /* set text and line positionning */
     mc6809_GetRegs(&regs);
     Edit_GetRect(hwnd, &rect);
     visible_line_count = (int)((rect.bottom-rect.top)/FIXED_WIDTH_FONT_HEIGHT);
     visible_line_first = (int)Edit_GetFirstVisibleLine(hwnd);
-    edit_positionning (regs.pc&0xffff, visible_line_first, visible_line_count);
+    ddisass_EditPositionning (regs.pc&0xffff,
+                              visible_line_first,
+                              visible_line_count);
 
     /* display and scroll the new text */
-    if (dasm_force_display == TRUE)
+    if (debug.force_display == TRUE)
     {
-        get_text(ptxt);
-        Edit_SetText (hwnd, ptxt);
-        Edit_Scroll (hwnd, dasm_scroll, 0);
+        /* Get the new text */
+        text = ddisass_GetText ("\r\n");
+
+        if (text != NULL)
+        {
+            Edit_SetText (hwnd, text);
+            free (text);
+            Edit_Scroll (hwnd, debug.scroll, 0);
+        }
     }
-    if ((dasm_force_display == TRUE) || (dasm_force_scroll == TRUE))
+    if ((debug.force_display == TRUE) || (debug.force_scroll == TRUE))
     {
         visible_line_first = (int)Edit_GetFirstVisibleLine(hwnd);
-        Edit_Scroll (hwnd, dasm_scroll-visible_line_first, 0);
+        Edit_Scroll (hwnd, debug.scroll-visible_line_first, 0);
     }
-    dasm_force_display = FALSE;
-    dasm_force_scroll = FALSE;
+    debug.force_display = FALSE;
+    debug.force_scroll = FALSE;
 
     /* highlight selection */
-    index = Edit_LineIndex (hwnd, dasm_line);
-    length = Edit_LineLength (hwnd, dasm_line);
+    index = Edit_LineIndex (hwnd, debug.line);
+    length = Edit_LineLength (hwnd, debug.line);
     Edit_SetSel (hwnd, index, index+length+2);
+}
+
+
+
+static void run_subroutine (HWND hwnd, int next_pc)
+{
+    int watch=0;
+    int sr = -1;
+    int ptr = -1;
+
+    do
+    {
+        mc6809_StepExec();
+        mc6809_GetRegs(&regs);
+        if (sr == -1)
+        {
+            sr = regs.sr&0xffff;
+            ptr = (LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1);
+        }
+    } while (((watch++)<WATCH_MAX)
+        && (regs.pc != next_pc)
+        && (regs.sr != (sr+2))
+        && (ptr == ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1))));
+
+    if (ptr != ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1)))
+        wgui_Warning (hwnd, is_fr
+            ?"L'exécution pas-à-pas a été interrompue car le \n"\
+             "pointeur de retour vient d'être changé dans la pile."
+            :"The single-stepping has been aborted because the \n"\
+             "return pointer has just been overwritten in stack.");
+    else
+    if ((regs.sr == (sr+2)) && (regs.pc != next_pc))
+        wgui_Warning (hwnd, is_fr
+            ?"L'exécution pas-à-pas a été interrompue car le\n"\
+             "pointeur de retour vient d'être dépilé avant le retour\n"\
+             "du sous-programme."
+            :"The single-stepping has been aborted because the \n" \
+             "return pointer has just been pulled from stack before\n" \
+             "the return from subroutine.");
+    else
+    if (watch > WATCH_MAX)
+        wgui_Warning (hwnd, is_fr
+            ?"L'exécution pas-à-pas a été interrompue à cause du \n"\
+             "trop grand nombre d'instructions exécutées.\n" \
+             "La sous-routine peut comporter une boucle infinie."
+            :"The single-stepping has been aborted because of the \n"\
+             "great number of executed instructions.\n" \
+             "The subroutine could have an infinite loop.");
+    else
+    if (regs.sr != (sr+2))
+        wgui_Warning (hwnd, is_fr
+            ?"L'exécution pas-à-pas a été interrompue car le \n"\
+             "le pointeur de pile a changé."
+            :"The single-stepping has been aborted because the \n"\
+             "the stack pointer has changed.");
+}
+
+
+
+static void exit_loop (HWND hwnd, int next_pc)
+{
+    int watch=0;
+
+    do
+    {
+        mc6809_StepExec();
+        mc6809_GetRegs(&regs);
+    } while (((watch++)<WATCH_MAX) && (regs.pc != next_pc));
+
+    if (watch > WATCH_MAX)
+        wgui_Warning (hwnd, is_fr
+            ?"L'exécution pas-à-pas a été interrompue à cause" \
+             " du \n"\
+             "trop grand nombre d'instructions exécutées.\n" \
+             "Il pourrait s'agir d'une boucle infinie."
+            :"The single-stepping has been aborted because of the \n"\
+             "great number of executed instructions.\n" \
+             "It could be an infinite loop.");
 }
 
 
@@ -522,30 +205,30 @@ void wddisass_Init (HWND hDlg)
     if (hfont_normal != NULL)
         SetWindowFont(hwnd, hfont_normal, TRUE);
 
-    dasm_address = malloc((DASM_NLINES+1)*sizeof(int)*2);
-    if (dasm_address == NULL)
+    debug.address = malloc((DASM_NLINES+1)*sizeof(int)*2);
+    if (debug.address == NULL)
         return;
 
-    dasm_address_last = malloc((DASM_NLINES+1)*sizeof(int)*2);
-    if (dasm_address_last == NULL)
+    debug.address_last = malloc((DASM_NLINES+1)*sizeof(int)*2);
+    if (debug.address_last == NULL)
         return;
 
-    dasm_dump = malloc(DASM_NLINES*5);
-    if (dasm_dump == NULL)
+    debug.dump = malloc(DASM_NLINES*5);
+    if (debug.dump == NULL)
         return;
 
-    dasm_dump_last = malloc(DASM_NLINES*5);
-    if (dasm_dump_last == NULL)
+    debug.dump_last = malloc(DASM_NLINES*5);
+    if (debug.dump_last == NULL)
         return;
 
     mc6809_GetRegs(&regs);
     address = regs.pc&0xffff;
     for (i=0; i<DASM_NLINES+1; i++)
     {
-        dasm_address[i] = address;
-        address = get_next_address (address);
+        debug.address[i] = address;
+        address = ddisass_GetNextAddress (address);
     }
-    dasm_force_display = TRUE;  /* force text display and scroll */
+    debug.force_display = TRUE;  /* force text display and scroll */
 }
 
 
@@ -563,77 +246,89 @@ void wddisass_DoStep (void)
 /* wddisass_DoStepOver:
  *  Execute the instructions step by step skipping the jumps to subroutine.
  */
-#define WATCH_MAX  40000
 void wddisass_DoStepOver (HWND hwnd)
 {
     int pc;
     int next_pc;
-    int sr = -1;
-    int ptr = -1;
-    int watch=0;
+    int offset;
 
     mc6809_GetRegs(&regs);
     pc = regs.pc;
-    next_pc = get_next_address (pc);
+    next_pc = ddisass_GetNextAddress (pc);
 
     switch (mc6809_dasm.fetch[0])
     {
+        /* Jump to subroutine */
         case 0x9d : /* JSR direct */
         case 0xad : /* JSR indexed */
         case 0xbd : /* JSR extended */
         case 0x8d : /* BSR */
         case 0x17 : /* LBSR */
-            do
-            {
-                mc6809_StepExec();
-                mc6809_GetRegs(&regs);
-                if (sr == -1)
-                {
-                    sr = regs.sr&0xffff;
-                    ptr = (LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1);
-                }
-            } while (((watch++)<WATCH_MAX)
-                  && (regs.pc != next_pc)
-                  && (regs.sr != (sr+2))
-                  && (ptr == ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1))));
-
-            if (ptr != ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1)))
-                wgui_Warning (hwnd, is_fr
-                    ?"L'exécution pas-à-pas a été interrompue car le \n"\
-                     "pointeur de retour vient d'être changé dans la pile."
-                    :"The single-stepping has been aborted because the \n"\
-                     "return pointer has just been overwritten in stack."
-                );
-            else
-            if ((regs.sr == (sr+2)) && (regs.pc != next_pc))
-                wgui_Warning (hwnd, is_fr
-                    ?"L'exécution pas-à-pas a été interrompue car le\n"\
-                     "pointeur de retour vient d'être dépilé avant le retour\n"\
-                     "du sous-programme."
-                    :"The single-stepping has been aborted because the \n" \
-                     "return pointer has just been pulled from stack before\n" \
-                     "the return from subroutine."
-                );
-            else
-            if (watch > WATCH_MAX)
-                wgui_Warning (hwnd, is_fr
-                    ?"L'exécution pas-à-pas a été interrompue à cause du \n"\
-                     "trop grand nombre d'instructions exécutées.\n" \
-                     "La sous-routine peut comporter une boucle infinie."
-                    :"The single-stepping has been aborted because of the \n"\
-                     "great number of executed instructions.\n" \
-                     "The subroutine could have an infinite loop."
-                );
-            else
-            if (regs.sr != (sr+2))
-                wgui_Warning (hwnd, is_fr
-                    ?"L'exécution pas-à-pas a été interrompue car le \n"\
-                     "le pointeur de pile a changé."
-                    :"The single-stepping has been aborted because the \n"\
-                     "the stack pointer has changed."
-                );
+            run_subroutine (hwnd, next_pc);
             break;
 
+        /* Short branches */
+        case 0x22 : /* BHI */
+        case 0x23 : /* BLS */
+        case 0x24 : /* BCC */
+        case 0x25 : /* BCS */
+        case 0x26 : /* BNE */
+        case 0x27 : /* BEQ */
+        case 0x28 : /* BVC */
+        case 0x29 : /* BVS */
+        case 0x2a : /* BPL */
+        case 0x2b : /* BMI */
+        case 0x2c : /* BGE */
+        case 0x2d : /* BLT */
+        case 0x2e : /* BGT */
+        case 0x2f : /* BLE */
+            /* Only backward branch */
+            offset = mc6809_dasm.fetch[1]&0xff;
+            if ((offset <= 0xfd) && (offset >= 0x80))
+            {
+                exit_loop (hwnd, next_pc);
+            }
+            else
+                mc6809_StepExec();
+            break;
+
+        /* Long branches */
+        case 0x10 : /* Long branch */
+            switch (mc6809_dasm.fetch[1])
+            {
+                case 0x22 : /* LBHI */
+                case 0x23 : /* LBLS */
+                case 0x24 : /* LBCC */
+                case 0x25 : /* LBCS */
+                case 0x26 : /* LBNE */
+                case 0x27 : /* LBEQ */
+                case 0x28 : /* LBVC */
+                case 0x29 : /* LBVS */
+                case 0x2a : /* LBPL */
+                case 0x2b : /* LBMI */
+                case 0x2c : /* LBGE */
+                case 0x2d : /* LBLT */
+                case 0x2e : /* LBGT */
+                case 0x2f : /* LBLE */
+                    /* Only backward branch */
+                    offset = (mc6809_dasm.fetch[2]&0xff)<<8;
+                    offset |= mc6809_dasm.fetch[3]&0xff;
+                    if ((offset <= 0xfffb) && (offset >= 0x8000))
+                    {
+                        exit_loop (hwnd, next_pc);
+                    }
+                    else
+                        mc6809_StepExec();
+                    break;
+
+                /* Others */
+                default :
+                    mc6809_StepExec();
+                    break;
+            }
+            break;
+
+        /* Others */
         default :
             mc6809_StepExec();
             break;
@@ -647,15 +342,19 @@ void wddisass_DoStepOver (HWND hwnd)
  */
 void wddisass_Display(HWND hDlg)
 { 
-    text = malloc ((DASM_LINE_LENGTH+2+2)*DASM_NLINES);
-    if ((text != NULL)
-     && (dasm_address != NULL)
-     && (dasm_address_last != NULL)
-     && (dasm_dump != NULL)
-     && (dasm_dump_last != NULL))
+    char *text;
+
+    if ((debug.address != NULL)
+     && (debug.address_last != NULL)
+     && (debug.dump != NULL)
+     && (debug.dump_last != NULL))
     {
-        debug_display_dasm(hDlg, text);
-        text = std_free(text);
+        text = ddisass_GetText ("\r\n");
+        if (text != NULL)
+        {
+            debug_display_dasm(hDlg, text);
+            text = std_free(text);
+        }
     }
 }
 
@@ -672,11 +371,10 @@ void wddisass_Exit(HWND hDlg)
         hfont_normal = NULL;
     }
 
-    text = std_free(text);
-    dasm_address = std_free(dasm_address);
-    dasm_address_last = std_free(dasm_address_last);
-    dasm_dump = std_free(dasm_dump);
-    dasm_dump_last = std_free(dasm_dump_last);
+    debug.address = std_free(debug.address);
+    debug.address_last = std_free(debug.address_last);
+    debug.dump = std_free(debug.dump);
+    debug.dump_last = std_free(debug.dump_last);
     (void)hDlg;
 }
 
