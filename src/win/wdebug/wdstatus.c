@@ -36,7 +36,7 @@
  *  Module     : win/wdebug/wdstatus.c
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: 
+ *  Modifié par: François Mouret 15/07/2016
  *
  *  Débogueur 6809 - Gestion de la barre d'état.
  */
@@ -48,6 +48,8 @@
 #include "defs.h"
 #include "teo.h"
 #include "win/gui.h"
+
+static mc6809_clock_t prev_clock = 0;
 
 
 /* wdstatus_Init:
@@ -71,13 +73,14 @@ void wdstatus_Init (HWND hDlg)
 void wdstatus_Display (HWND hDlg)
 {
     char str[40] = "";
-    long long int clock = mc6809_clock();
+    mc6809_clock_t clock = mc6809_clock();
     HWND hwnd = GetDlgItem (hDlg, IDC_DEBUG_STATUS_BAR);
 
     /* display the clock */
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Horloge":"Clock", clock);
+    sprintf (str, "%s: %lld", is_fr?"Horloge":"Clock", clock-prev_clock);
     SendMessage(hwnd, SB_SETTEXT, 0, (LPARAM)str);
+    prev_clock = clock;
 
     /* display the clock */
     clock %= TEO_CYCLES_PER_FRAME;
