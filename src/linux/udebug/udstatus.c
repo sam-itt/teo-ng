@@ -55,7 +55,7 @@ static GtkWidget *label_frame;
 static GtkWidget *label_line;
 static GtkWidget *label_column;
 
-static long long int prev_clock = 0;
+static mc6809_clock_t prev_clock = 0;
 
 
 
@@ -105,7 +105,7 @@ static GtkWidget *init (void)
 static void display (void)
 {
     char str[40] = "";
-    long long int clock = mc6809_clock();
+    mc6809_clock_t clock = mc6809_clock();
 
     /* display the clock */
     str[0] = '\0';
