@@ -134,34 +134,34 @@ static void run_subroutine (HWND hwnd, int next_pc)
 
     if (ptr != ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1)))
         wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le \n"\
+            ?"L'exécution pas-à-pas a été interrompue car le\n" \
              "pointeur de retour vient d'être changé dans la pile."
-            :"The single-stepping has been aborted because the \n"\
+            :"The single-stepping has been aborted because the\n" \
              "return pointer has just been overwritten in stack.");
     else
     if ((regs.sr == (sr+2)) && (regs.pc != next_pc))
         wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le\n"\
-             "pointeur de retour vient d'être dépilé avant le retour\n"\
+            ?"L'exécution pas-à-pas a été interrompue car le\n" \
+             "pointeur de retour vient d'être dépilé avant le retour\n" \
              "du sous-programme."
-            :"The single-stepping has been aborted because the \n" \
+            :"The single-stepping has been aborted because the\n" \
              "return pointer has just been pulled from stack before\n" \
              "the return from subroutine.");
     else
     if (watch > WATCH_MAX)
         wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue à cause du \n"\
+            ?"L'exécution pas-à-pas a été interrompue à cause du\n" \
              "trop grand nombre d'instructions exécutées.\n" \
              "La sous-routine peut comporter une boucle infinie."
-            :"The single-stepping has been aborted because of the \n"\
+            :"The single-stepping has been aborted because of the\n" \
              "great number of executed instructions.\n" \
              "The subroutine could have an infinite loop.");
     else
     if (regs.sr != (sr+2))
         wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le \n"\
+            ?"L'exécution pas-à-pas a été interrompue car\n" \
              "le pointeur de pile a changé."
-            :"The single-stepping has been aborted because the \n"\
+            :"The single-stepping has been aborted because\n" \
              "the stack pointer has changed.");
 }
 
@@ -179,11 +179,10 @@ static void exit_loop (HWND hwnd, int next_pc)
 
     if (watch > WATCH_MAX)
         wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue à cause" \
-             " du \n"\
+            ?"L'exécution pas-à-pas a été interrompue à cause du\n" \
              "trop grand nombre d'instructions exécutées.\n" \
              "Il pourrait s'agir d'une boucle infinie."
-            :"The single-stepping has been aborted because of the \n"\
+            :"The single-stepping has been aborted because of the\n" \
              "great number of executed instructions.\n" \
              "It could be an infinite loop.");
 }
