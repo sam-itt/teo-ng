@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou juillet 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               Gilles Fétis 30/07/2011
- *               François Mouret 21/03/2012 21/05/2016
+ *               François Mouret 21/03/2012 21/05/2016 14/07/2016
  *
  *  Primitives pour le débogueur GUI .
  */
@@ -64,6 +64,7 @@ extern struct MC6809_DEBUG debug;
 extern char  *ddisass_GetText (char *special_cr);
 extern int   ddisass_GetNextAddress (int address);
 extern void  ddisass_EditPositionning (int address, int vlfirst, int vlcount);
+extern void  ddisass_DoStep (void);
 /* extras registers */
 extern char  *dreg_GetText (char *special_cr);
 /* memory */
@@ -72,6 +73,7 @@ extern char  *dmem_GetText (int address, uint8 *addr_ptr, char *special_cr);
 extern int   dmem_GetStepAddress(void);
 extern uint8 *dmem_GetDisplayPointer(void);
 /* accumulators */
+extern void dacc_GetDumpFor16Bits (char *p, int address);
 /* breakpoints */
 extern void  dbkpt_TraceOn(void);
 extern void  dbkpt_TraceOff(void);
