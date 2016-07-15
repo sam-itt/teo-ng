@@ -61,8 +61,6 @@
 
 #define HIGHLIGHT_NAME  "teo_ddisass_highlight"
 
-extern struct MC6809_DEBUG debug;
-
 static struct MC6809_REGS regs;
 static GtkWidget *scrolled_window;
 static GtkWidget *text_view;
