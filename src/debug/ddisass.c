@@ -45,6 +45,7 @@
 #ifndef SCAN_DEPEND
     #include <stdio.h>
     #include <string.h>
+    #include <stdlib.h>
 #endif
 
 #include "defs.h"
@@ -369,7 +370,7 @@ char *ddisass_GetText (char *special_cr)
     int pos;
     int byte;
     char *text;
-    char *p;
+    char *p = NULL;
 
     text = malloc ((DASM_LINE_LENGTH+2+2)*DASM_NLINES);
     if (text != NULL)
