@@ -34,7 +34,7 @@
  */
 
 /*
- *  Module     : to8.h
+ *  Module     : teo.h
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
