@@ -123,7 +123,7 @@ obj/linux/usound.o: src/linux/usound.c include/hardware.h include/mc68xx/mc6821.
 obj/linux/uabout.o: src/linux/ugui/uabout.c include/teo.h include/linux/gui.h
 obj/linux/ucass.o: src/linux/ugui/ucass.c include/teo.h include/std.h \
  include/errors.h include/media/cass.h include/linux/gui.h
-obj/linux/udebug.o: src/linux/ugui/udebug.c include/defs.h include/mc68xx/mc6809.h \
+obj/linux/udebug.o: include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/debug.h include/mc68xx/mc6821.h \
  include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/defs.h \
  include/mc68xx/dasm6809.h include/mc68xx/mc6809.h \
