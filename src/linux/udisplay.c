@@ -340,6 +340,7 @@ motion_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
      && ((int)event->button.y > (TEO_BORDER_H*2)))
         mouse_Motion ((int)event->button.x/2-TEO_BORDER_W,
                       (int)event->button.y/2-TEO_BORDER_H);
+    gdk_event_request_motions ((GdkEventMotion *) event);
     return FALSE;
     (void)widget;
     (void)user_data;
@@ -428,8 +429,7 @@ void udisplay_Window(void)
                    | GDK_STRUCTURE_MASK
                    | GDK_BUTTON_RELEASE_MASK
                    | GDK_BUTTON_PRESS_MASK
-                   | GDK_POINTER_MOTION_MASK
-                   | GDK_POINTER_MOTION_HINT_MASK);
+                   | GDK_POINTER_MOTION_MASK);
 
     g_signal_connect (G_OBJECT (wMain), "delete-event",
                       G_CALLBACK (delete_event), NULL);
