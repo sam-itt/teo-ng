@@ -226,7 +226,7 @@ void usetting_Init (GtkWidget *notebook)
                             is_fr?"exacte":"exact");
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
-    /* Buttons connection */
+    /* Buttons connexion */
     g_signal_connect(G_OBJECT(widget),
                      "toggled",
                      G_CALLBACK(toggle_speed),
@@ -248,7 +248,7 @@ void usetting_Init (GtkWidget *notebook)
                                 "");
     gtk_box_pack_end( GTK_BOX(hbox), ram_size_radio_2, TRUE, TRUE, 0);
 
-    /* Buttons connection */
+    /* Buttons connexion */
     g_signal_connect(G_OBJECT(ram_size_radio_2),
                      "toggled",
                      G_CALLBACK(toggle_extension),
