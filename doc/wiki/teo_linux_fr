@@ -27,7 +27,7 @@ Si la touche ALTGR reste sans effet, v&eacute;rifez vos r&eacute;glages pour l'a
 Sur votre clavier est autre que AZERTY, vous pouvez toujours avoir acc&egrave;s au clavier Fran&ccedil;ais en suivant la proc&eacute;dure suivante
 
 * Quitter Teo
-* Lancer <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> dans un Terminal
+* Lancer <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> dans un Terminal
 * Relancer Teo
 
 Le seul probl&egrave;me est que pendant le temps o&ugrave; le clavier Fran&ccedil;ais sera activ&eacute;, il le sera pour toutes les applications. Pour revenir &agrave; votre clavier naturel, il suffira de lancer *`setxkbmap <votre_langage_clavier>`* dans un Terminal... ou de relancer votre distribution Linux.
@@ -42,34 +42,34 @@ Sur les syst&egrave;mes r&eacute;cents, les lecteurs de disquette ne sont pas ac
 
 <u>Cr&eacute;er l'entr&eacute;e pour le premier lecteur (si vous en avez un) :</u>
 
-* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy0</span>
-* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
-* Ajouter la ligne <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</span> si aucune ligne ne commence par *`/dev/fd0`*
+* Ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy0</span>
+* Ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
+* Ajouter la ligne <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</span> si aucune ligne ne commence par *`/dev/fd0`*
 * Enregistrer le fichier et quitter GEdit
 
 <u>Cr&eacute;er l'entr&eacute;e pour le deuxi&egrave;me lecteur (si vous en avez un) :</u>
 
-* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy1</span>
-* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
-* Ajouter la ligne <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</span> si aucune ligne ne commence par *`/dev/fd1`*
+* Ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy1</span>
+* Ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span>
+* Ajouter la ligne <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</span> si aucune ligne ne commence par *`/dev/fd1`*
 * Enregistrer le fichier et quitter GEdit
 
 <u>D&eacute;clarer les acc&egrave;s disquette :</u>
 
-* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/modules</span>
-* Ajouter la ligne <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">floppy</span> si elle n'existe pas
+* Ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/modules</span>
+* Ajouter la ligne <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">floppy</span> si elle n'existe pas
 * Enregistrer le fichier et quitter GEdit
-* Ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER floppy</span>
+* Ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER floppy</span> et &eacute;ventuellement <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER disk</span> (merci &agrave; credenhill de forum.ubuntu-fr.org)
 
 <u>Et pour finir, activer Le tout :</u>
 
 * Red&eacute;marrer l'ordinateur
 
-Si toutefois la lecture directe a des difficult&eacute;s &agrave; fonctionner (erreurs d'entr&eacute;e/sortie, par exemple), cliquez avec le bouton droit sur *`Lecteur de disquettes`* dans votre navigateur de fichiers et s&eacute;lectionnez *`D&eacute;tecter le m&eacute;dia`*.
+Si toutefois la lecture directe a des difficult&eacute;s &agrave; fonctionner (erreurs d'entr&eacute;e/sortie, par exemple), montez le lecteur de disquette en cliquant avec le bouton droit sur *`Lecteur de disquettes`* dans votre navigateur de fichiers et s&eacute;lectionnez *`D&eacute;tecter le m&eacute;dia`* ou simplement en cliquant avec le bouton gauche (n&eacute;cessite une disquette MSDOS dans le lecteur).
 
 #####D&eacute;sinstallation<a name="deinstallation"></a>
 
 Si l'installation a &eacute;t&eacute; faite avec les fichiers *`tar.gz`*, il suffit d'&eacute;liminer le r&eacute;pertoire *`teo`* racine.
 
-Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal.
+Si l'installation a &eacute;t&eacute; faite avec les fichiers *`.deb`*, ex&eacute;cuter <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> dans un Terminal.
 

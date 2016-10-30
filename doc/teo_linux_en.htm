@@ -42,7 +42,7 @@
 
 <ul>
 <li>Quit Teo</li>
-<li>Launch <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> in a Terminal</li>
+<li>Launch <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">setxkbmap fr</span> in a Terminal</li>
 <li>Launch Teo again</li>
 </ul>
 
@@ -59,28 +59,28 @@
 <p><U>Creating the entry for the first drive (if you have one) :</U></p>
 
 <ul>
-<li>Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy0</span></li>
-<li>Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span></li>
-<li>Add the line <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</span> if no line begins with <em><code>/dev/fd0</code></em></li>
+<li>Execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy0</span></li>
+<li>Execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span></li>
+<li>Add the line <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd0 /media/floppy0 auto rw,user,noauto,exec 0 0</span> if no line begins with <em><code>/dev/fd0</code></em></li>
 <li>Save the file and quit GEdit</li>
 </ul>
 
 <p><U>Creating the entry for the second drive (if you have one) :</U></p>
 
 <ul>
-<li>Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy1</span></li>
-<li>Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span></li>
-<li>Add the line <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</span> if no line begins with <em><code>/dev/fd1</code></em></li>
+<li>Execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo mkdir /media/floppy1</span></li>
+<li>Execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/fstab</span></li>
+<li>Add the line <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">/dev/fd1 /media/floppy1 auto rw,user,noauto,exec 0 0</span> if no line begins with <em><code>/dev/fd1</code></em></li>
 <li>Save the file and quit GEdit</li>
 </ul>
 
 <p><U>Declaring the disks access :</U></p>
 
 <ul>
-<li>Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/modules</span></li>
-<li>Add the line <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">floppy</span> if it doesn't exist</li>
+<li>Execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo gedit /etc/modules</span></li>
+<li>Add the line <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">floppy</span> if it doesn't exist</li>
 <li>Save the file and quit GEdit</li>
-<li>Execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER floppy</span></li>
+<li>Execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER floppy</span> and if necessary <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo adduser $USER disk</span> (thanks to credenhill from forum.ubuntu-fr.org)</li>
 </ul>
 
 <p><U>And finally, activating everything :</U></p>
@@ -89,13 +89,13 @@
 <li>Restart computer</li>
 </ul>
 
-<p>If the direct access has still difficulties to work (like I/O errors, for example), right click on the <em><code>Floppy Drive</code></em> in your file browser and select <em><code>Detect Media</code></em>.</p>
+<p>If the direct access has still difficulties to work (like I/O errors, for example), mount the floppy drive by right-clicking on the <em><code>Floppy Drive</code></em> in your file browser and select <em><code>Detect Media</code></em> or simply by left-clicking on the floppy drive (needs a MSDOS formated diskette in the drive).</p>
 
 <h5>Deinstallation<a name="deinstallation"></a></h5>
 
 <p>If installation has been made with <em><code>tar.gz</code></em> packages, just remove the root folder <em><code>teo</code></em>.</p>
 
-<p>If installation has been made with <em><code>.deb</code></em> packages, execute <span style="background-color:#f0f0f0;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal.</p>
+<p>If installation has been made with <em><code>.deb</code></em> packages, execute <span style="background-color:#e8e8e8;padding-left:4px;padding-right:4px;padding-top:1px;padding-bottom:1px;">sudo apt-get remove --purge teo</span> in a Terminal.</p>
 
 <p><center>Document originally translated from French by Samuel Devulder<center></p>
 </td></tr></table>
