@@ -135,12 +135,9 @@ GtkWidget *udbkpt_Init (void)
         entry[i] = gtk_entry_new ();
         gtk_entry_set_max_length (GTK_ENTRY (entry[i]), 4);
         gtk_entry_set_width_chars (GTK_ENTRY (entry[i]), 4);
-//        gtk_entry_set_max_width_chars (GTK_ENTRY (entry[i]), 4);
-/*
-        gtk_entry_set_input_purpose (
-            GTK_ENTRY (entry[i]),
-            GTK_INPUT_PURPOSE_FREE_FORM);
-*/
+#if GTK_CHECK_VERSION(3,12,0)
+        gtk_entry_set_max_width_chars (GTK_ENTRY (entry[i]), 4);
+#endif
         gtk_box_pack_start (GTK_BOX(rowbox), entry[i], FALSE, FALSE, 0);
 
         if (teo.debug.breakpoint[i] != -1)
