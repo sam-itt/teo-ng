@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/11/2003
  *               François Mouret 26/01/2010 08/2011 02/06/2012 28/12/2012
- *                               23/08/2015
+ *                               23/08/2015 31/07/2016
  *               Gilles Fétis 07/2011
  *
  *  Module d'interface avec le serveur X.
@@ -62,7 +62,6 @@
 #include "to8keys.h"
 #include "media/keyboard.h"
 #include "media/mouse.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "linux/gui.h"
 #include "linux/display.h"
@@ -250,24 +249,24 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     teo_key = x11_to_dos[event->key.hardware_keycode];
     if (teo_key == 0)
     {
-        switch (event->key.keyval)
-        {
-            case GDK_KEY_ISO_Level3_Shift :
-                teo_key = TEO_KEY_ALTGR;
-                break;
+        if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
+            teo_key = TEO_KEY_ALTGR;
 
-            case GDK_KEY_KP_Delete :
-            case GDK_KEY_KP_Decimal :
-                teo_key = TEO_KEY_DEL_PAD;
-                break;
-        }
+        /* Convert delete keypad key to point character
+         *  Over the time, Linux keypad delete key raw code has changed from
+         *  GDK_KEY_KP_Delete to GDK_KEY_KP_Decimal and case GDK_KEY_period,
+         *  so the ASCII corresponding value is now checked directly
+         *  with the 0x2e value.
+         */
+        if (event->key.keyval == 0x2e)
+            teo_key = TEO_KEY_DEL_PAD;
     }
 
     switch (teo_key)
     {
         case TEO_KEY_ESC : teo.command=TEO_COMMAND_PANEL; break;
         case TEO_KEY_F12 : teo.command=TEO_COMMAND_DEBUGGER; break;
-        default          : printf ("%d\n", teo_key);keyboard_Press (teo_key, FALSE); break;
+        default          : keyboard_Press (teo_key, FALSE); break;
     }
     return FALSE;
     (void)widget;
@@ -482,8 +481,11 @@ void udisplay_Window(void)
     gtk_widget_show_all (wMain);
 
     gwindow_win = gtk_widget_get_window (wMain);
+
+#ifndef SCAN_DEPEND
 #if GTK_CHECK_VERSION(3,12,0)
     gdk_window_set_event_compression (gwindow_win, FALSE);
+#endif
 #endif
     window_win = GDK_WINDOW_XID (gwindow_win);
     screen_win = window_win;
