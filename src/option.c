@@ -36,7 +36,7 @@
  *  Module     : option.c
  *  Version    : 1.8.4
  *  Créé par   : François Mouret 02/10/2012 & Samuel Devulder 30/07/2011
- *  Modifié par:
+ *  Modifié par: François Mouret 31/07/2016
  *
  *  Traitement de la ligne de commande.
  */
@@ -57,8 +57,10 @@
 #include "std.h"
 #include "ini.h"
 #include "errors.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
+#include "media/disk/sap.h"
+#include "media/disk/hfe.h"
+#include "media/disk/fd.h"
 #include "media/memo.h"
 #include "media/cass.h"
 
@@ -269,7 +271,9 @@ int option_Undefined (char *fname)
     if (fname != NULL)
     {
         /* traitement d'un fichier disque */
-        if (disk_IsDisk(fname) == 0)
+        if ((sap_IsSap (fname) == 0)
+         || (hfe_IsHfe (fname) == 0)
+         || (fd_IsFd (fname) == 0))
         {
             if (drive < NBDRIVE)
             {
