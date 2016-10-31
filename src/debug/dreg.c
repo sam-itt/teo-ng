@@ -53,7 +53,6 @@
 #include "hardware.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/dasm6809.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 
 
@@ -126,17 +125,17 @@ char *dreg_GetText (char *special_cr)
                          mode_page.commut,
                          special_cr);
         p += sprintf(p, "CMD0:$%02X CMD1:$%02X CMD2:$%02X%s",
-                         dkc->wr0,
-                         dkc->wr1,
-                         dkc->wr2,
+                         disk[0].dkc->wr0,
+                         disk[0].dkc->wr1,
+                         disk[0].dkc->wr2,
                          special_cr);
         p += sprintf(p, " STAT0:$%02X   STAT1:$%02X%s",
-                         dkc->rr0,
-                         dkc->rr1,
+                         disk[0].dkc->rr0,
+                         disk[0].dkc->rr1,
                          special_cr);
         p += sprintf(p, " WDATA:$%02X   RDATA:$%02X%s",
-                         dkc->wr3,
-                         dkc->rr3,
+                         disk[0].dkc->wr3,
+                         disk[0].dkc->rr3,
                          special_cr);
         p += sprintf(p, is_fr?"page de ROM cartouche :%d%s"
                              :"ROM cartridge page :%d%s",

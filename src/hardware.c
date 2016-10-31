@@ -39,6 +39,7 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 18/09/2006 02/02/2012 29/09/2012
  *                               18/09/2013 09/04/2014 18/08/2015
+ *                               31/07/2016
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -62,7 +63,6 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/mc6846.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/keyboard.h"
 #include "media/cass.h"
@@ -340,43 +340,43 @@ static void SetDeviceRegister(int addr, int val)
 
         /* Gate Array lecteur de disquettes */
         case 0xE7D0:
-            dkc->SetReg0(val);
+            disk[dkcurr].dkc->SetReg0(val);
             break;
 
         case 0xE7D1:
-            dkc->SetReg1(val);
+            disk[dkcurr].dkc->SetReg1(val);
             break;
 
         case 0xE7D2:
-            dkc->SetReg2(val);
+            disk[dkcurr].dkc->SetReg2(val);
             break;
 
         case 0xE7D3:
-            dkc->SetReg3(val);
+            disk[dkcurr].dkc->SetReg3(val);
             break;
 
         case 0xE7D4:
-            dkc->SetReg4(val);
+            disk[dkcurr].dkc->SetReg4(val);
             break;
 
         case 0xE7D5:
-            dkc->SetReg5(val);
+            disk[dkcurr].dkc->SetReg5(val);
             break;
 
         case 0xE7D6:
-            dkc->SetReg6(val);
+            disk[dkcurr].dkc->SetReg6(val);
             break;
 
         case 0xE7D7:
-            dkc->SetReg7(val);
+            disk[dkcurr].dkc->SetReg7(val);
             break;
 
         case 0xE7D8:
-            dkc->SetReg8(val);
+            disk[dkcurr].dkc->SetReg8(val);
             break;
 
         case 0xE7D9:
-            dkc->SetReg9(val);
+            disk[dkcurr].dkc->SetReg9(val);
             break;
 
         /* Gate Array mode page */
@@ -562,34 +562,34 @@ static int GetDeviceRegister(int addr)
 
             /* Gate Array lecteur de disquettes */
             case 0xE7D0:
-                return dkc->GetReg0();
+                return disk[dkcurr].dkc->GetReg0();
 
             case 0xE7D1:
-                return dkc->GetReg1();
+                return disk[dkcurr].dkc->GetReg1();
 
             case 0xE7D2:
-                return dkc->GetReg2();
+                return disk[dkcurr].dkc->GetReg2();
 
             case 0xE7D3:
-                return dkc->GetReg3();
+                return disk[dkcurr].dkc->GetReg3();
 
             case 0xE7D4:
-                return dkc->GetReg4();
+                return disk[dkcurr].dkc->GetReg4();
 
             case 0xE7D5:
-                return dkc->GetReg5();
+                return disk[dkcurr].dkc->GetReg5();
 
             case 0xE7D6:
-                return dkc->GetReg6();
+                return disk[dkcurr].dkc->GetReg6();
 
             case 0xE7D7:
-                return dkc->GetReg7();
+                return disk[dkcurr].dkc->GetReg7();
 
             case 0xE7D8:
-                return dkc->GetReg8();
+                return disk[dkcurr].dkc->GetReg8();
 
             case 0xE7D9:
-                return dkc->GetReg9();
+                return disk[dkcurr].dkc->GetReg9();
 
             /* Gate Array mode page */
             case 0xE7DA:
@@ -639,7 +639,7 @@ static int GetDeviceRegister(int addr)
 
 
 /* undefined_ram_byte:
- *  Return a byte from the extra memory space without extension
+ *  Return a byte from the extra memory space without extension.
  */
 static int undefined_ram_byte (void)
 {

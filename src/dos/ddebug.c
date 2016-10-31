@@ -55,7 +55,6 @@
 #include "mc68xx/mc6809.h"
 #include "alleg/gfxdrv.h"
 #include "dos/memmng.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "debug.h"
 #include "teo.h"
@@ -196,12 +195,12 @@ static void DisplayRegs(void)
     cprintf("  CART: %02X   COMMUT: %02X",mode_page.cart,mode_page.commut);
 
     gotoxy(2,31);
-    cprintf("CMD0: %02X  CMD1: %02X  CMD2: %02X", dkc->wr0,
-      dkc->wr1, dkc->wr2);
+    cprintf("CMD0: %02X  CMD1: %02X  CMD2: %02X", disk[0].dkc->wr0,
+      disk[0].dkc->wr1, disk[0].dkc->wr2);
        gotoxy(2,32);
-    cprintf(" STAT0: %02X    STAT1: %02X",dkc->rr0, dkc->rr1);
+    cprintf(" STAT0: %02X    STAT1: %02X",disk[0].dkc->rr0, disk[0].dkc->rr1);
     gotoxy(2,33);
-    cprintf(" WDATA: %02X    RDATA: %02X",dkc->wr3, dkc->rr3);
+    cprintf(" WDATA: %02X    RDATA: %02X",disk[0].dkc->wr3, disk[0].dkc->rr3);
 
     gotoxy(2,36);
     cprintf(is_fr?"page de ROM cartouche : %d":"ROM cartridge page    : %d",
