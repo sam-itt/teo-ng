@@ -37,7 +37,7 @@
  *  Version    : 1.8.4
  *  Créé par   : Eric Botcazou 30/11/2000
  *  Modifié par: François Mouret 26/01/2010 05/10/2012 02/11/2012
- *                               20/09/2013
+ *                               20/09/2013 31/07/2016
  *
  *  Gestion des fichier-images de l'état de l'émulateur.
  */
@@ -55,7 +55,6 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "mc68xx/mc6821.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "errors.h"
 #include "std.h"
@@ -85,7 +84,7 @@
 #define FORMAT_ID_SIZE  22
 static FILE *file;
 static const char format_id[FORMAT_ID_SIZE] = "TEO IMAGE FILE FORMAT ";
-static const int format_ver = 0x200;
+static const int format_ver = 0x201;
 static int bank_range;
 
 /* Computer numeric id table :
@@ -449,46 +448,56 @@ static void palchip_Loader(int chunk_id, int chunk_size)
 
 static void diskctrl_Loader(int chunk_id, int chunk_size)
 {
-    fread_int8  (&dkc->rr0);
-    fread_int8  (&dkc->rr1);
-    fread_int8  (&dkc->rr2);
-    fread_int8  (&dkc->rr3);
-    fread_int8  (&dkc->rr4);
-    fread_int8  (&dkc->rr5);
-    fread_int8  (&dkc->rr6);
-    fread_int8  (&dkc->rr7);
-    fread_int8  (&dkc->rr8);
-    fread_int8  (&dkc->rr9);
-    fread_int8  (&dkc->wr0);
-    fread_int8  (&dkc->wr1);
-    fread_int8  (&dkc->wr2);
-    fread_int8  (&dkc->wr3);
-    fread_int8  (&dkc->wr4);
-    fread_int8  (&dkc->wr5);
-    fread_int8  (&dkc->wr6);
-    fread_int8  (&dkc->wr7);
-    fread_int8  (&dkc->wr8);
-    fread_int8  (&dkc->wr9);
-    fread_int8  (&dkc->ctrl);
-    fread_int8  (&dkc->drive);
-    fread_int16 (&dkc->crc);
-    fread_int8  (&dkc->write_door);
-    fread_int8  (&dkc->process);
-    fread_int8  (&dkc->process_cpt);
-    fread_int16 (&dkc->auto_count);
-    fread_int64 (&dkc->read_address_clock);
-    fread_int8  (&dkc->sector[0]);
-    fread_int8  (&dkc->sector[1]);
-    fread_int8  (&dkc->track[0]);
-    fread_int8  (&dkc->track[1]);
-    fread_int16 (&dkc->last_pos[0]);
-    fread_int16 (&dkc->last_pos[1]);
-    fread_int64 (&dkc->motor_clock[0]);
-    fread_int64 (&dkc->motor_clock[1]);
-    fread_int64 (&dkc->motor_stop[0]);
-    fread_int64 (&dkc->motor_stop[1]);
-    FILL_GAP    (60, chunk_size);
-    thmfc1_Update();
+    int drive;
+
+    fread_int16  (&dkcurr);
+
+    for (drive=0; drive<NBDRIVE; drive++)
+    {
+        /* controller registers */
+        if ((drive&3) == 0)
+        {
+            fread_int8  (&disk[drive].dkc->rr0);
+            fread_int8  (&disk[drive].dkc->rr1);
+            fread_int8  (&disk[drive].dkc->rr2);
+            fread_int8  (&disk[drive].dkc->rr3);
+            fread_int8  (&disk[drive].dkc->rr4);
+            fread_int8  (&disk[drive].dkc->rr5);
+            fread_int8  (&disk[drive].dkc->rr6);
+            fread_int8  (&disk[drive].dkc->rr7);
+            fread_int8  (&disk[drive].dkc->rr8);
+            fread_int8  (&disk[drive].dkc->rr9);
+            fread_int8  (&disk[drive].dkc->wr0);
+            fread_int8  (&disk[drive].dkc->wr1);
+            fread_int8  (&disk[drive].dkc->wr2);
+            fread_int8  (&disk[drive].dkc->wr3);
+            fread_int8  (&disk[drive].dkc->wr4);
+            fread_int8  (&disk[drive].dkc->wr5);
+            fread_int8  (&disk[drive].dkc->wr6);
+            fread_int8  (&disk[drive].dkc->wr7);
+            fread_int8  (&disk[drive].dkc->wr8);
+            fread_int8  (&disk[drive].dkc->wr9);
+            fread_int8  (&disk[drive].dkc->crc);
+            fread_int8  (&disk[drive].dkc->write_door);
+            fread_int8  (&disk[drive].dkc->process);
+            fread_int8  (&disk[drive].dkc->process_cpt);
+            fread_int16 (&disk[drive].dkc->auto_count);
+        }
+
+        /* drive registers */
+        if ((drive&1) == 0)
+        {
+            fread_int16 (&disk[drive].drv->sector);
+            fread_int16 (&disk[drive].drv->track.curr);
+            fread_int16 (&disk[drive].drv->track.last);
+            fread_int16 (&disk[drive].drv->pos.curr);
+            fread_int16 (&disk[drive].drv->pos.last);
+            fread_int64 (&disk[drive].drv->motor_start);
+            fread_int64 (&disk[drive].drv->motor_stop);
+        }
+    }
+    disk_FillAllTracks ();
+    FILL_GAP    (128, chunk_size);
     (void) chunk_id;
 }
 
@@ -682,45 +691,56 @@ static void palchip_Saver(int chunk_id)
 
 static void diskctrl_Saver(int chunk_id)
 {
-    fwrite_int16 (60);
-    fwrite_int8  (dkc->rr0);
-    fwrite_int8  (dkc->rr1);
-    fwrite_int8  (dkc->rr2);
-    fwrite_int8  (dkc->rr3);
-    fwrite_int8  (dkc->rr4);
-    fwrite_int8  (dkc->rr5);
-    fwrite_int8  (dkc->rr6);
-    fwrite_int8  (dkc->rr7);
-    fwrite_int8  (dkc->rr8);
-    fwrite_int8  (dkc->rr9);
-    fwrite_int8  (dkc->wr0);
-    fwrite_int8  (dkc->wr1);
-    fwrite_int8  (dkc->wr2);
-    fwrite_int8  (dkc->wr3);
-    fwrite_int8  (dkc->wr4);
-    fwrite_int8  (dkc->wr5);
-    fwrite_int8  (dkc->wr6);
-    fwrite_int8  (dkc->wr7);
-    fwrite_int8  (dkc->wr8);
-    fwrite_int8  (dkc->wr9);
-    fwrite_int8  (dkc->ctrl);
-    fwrite_int8  (dkc->drive);
-    fwrite_int16 (dkc->crc);
-    fwrite_int8  (dkc->write_door);
-    fwrite_int8  (dkc->process);
-    fwrite_int8  (dkc->process_cpt);
-    fwrite_int16 (dkc->auto_count);
-    fwrite_int64 (dkc->read_address_clock);
-    fwrite_int8  (dkc->sector[0]);
-    fwrite_int8  (dkc->sector[1]);
-    fwrite_int8  (dkc->track[0]);
-    fwrite_int8  (dkc->track[1]);
-    fwrite_int16 (dkc->last_pos[0]);
-    fwrite_int16 (dkc->last_pos[1]);
-    fwrite_int64 (dkc->motor_clock[0]);
-    fwrite_int64 (dkc->motor_clock[1]);
-    fwrite_int64 (dkc->motor_stop[0]);
-    fwrite_int64 (dkc->motor_stop[1]);
+    int drive;
+
+    fwrite_int16 (128);
+
+    fwrite_int16  (dkcurr);
+
+    for (drive=0; drive<NBDRIVE; drive++)
+    {
+        /* controller registers */
+        if ((drive&3) == 0)
+        {
+            fwrite_int8  (disk[drive].dkc->rr0);
+            fwrite_int8  (disk[drive].dkc->rr1);
+            fwrite_int8  (disk[drive].dkc->rr2);
+            fwrite_int8  (disk[drive].dkc->rr3);
+            fwrite_int8  (disk[drive].dkc->rr4);
+            fwrite_int8  (disk[drive].dkc->rr5);
+            fwrite_int8  (disk[drive].dkc->rr6);
+            fwrite_int8  (disk[drive].dkc->rr7);
+            fwrite_int8  (disk[drive].dkc->rr8);
+            fwrite_int8  (disk[drive].dkc->rr9);
+            fwrite_int8  (disk[drive].dkc->wr0);
+            fwrite_int8  (disk[drive].dkc->wr1);
+            fwrite_int8  (disk[drive].dkc->wr2);
+            fwrite_int8  (disk[drive].dkc->wr3);
+            fwrite_int8  (disk[drive].dkc->wr4);
+            fwrite_int8  (disk[drive].dkc->wr5);
+            fwrite_int8  (disk[drive].dkc->wr6);
+            fwrite_int8  (disk[drive].dkc->wr7);
+            fwrite_int8  (disk[drive].dkc->wr8);
+            fwrite_int8  (disk[drive].dkc->wr9);
+            fwrite_int8  (disk[drive].dkc->crc);
+            fwrite_int8  (disk[drive].dkc->write_door);
+            fwrite_int8  (disk[drive].dkc->process);
+            fwrite_int8  (disk[drive].dkc->process_cpt);
+            fwrite_int16 (disk[drive].dkc->auto_count);
+        }
+
+        /* drive registers */
+        if ((drive&1) == 0)
+        {
+            fwrite_int16 (disk[drive].drv->sector);
+            fwrite_int16 (disk[drive].drv->track.curr);
+            fwrite_int16 (disk[drive].drv->track.last);
+            fwrite_int16 (disk[drive].drv->pos.curr);
+            fwrite_int16 (disk[drive].drv->pos.last);
+            fwrite_int64 (disk[drive].drv->motor_start);
+            fwrite_int64 (disk[drive].drv->motor_stop);
+        }
+    }
     (void) chunk_id;
 }
 
