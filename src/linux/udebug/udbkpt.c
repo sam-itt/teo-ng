@@ -101,6 +101,16 @@ static void entry_changed (GtkEditable *editable, gpointer user_data)
 /* ------------------------------------------------------------------------- */
 
 
+
+/* udbkpt_Free:
+ *  Free the memory used by the breakpoints.
+ */
+void udbkpt_Free(void)
+{
+}
+
+
+
 /* udbkpt_Init:
  *  Init breakpoints.
  */
@@ -109,29 +119,30 @@ GtkWidget *udbkpt_Init (void)
     int i;
     char hex_text[6] = "";
     GtkWidget *frame;
-    GtkWidget *grid;
+    GtkWidget *rowbox = NULL;
+    GtkWidget *box;
 
-    /* Entries grid */
-    grid = gtk_grid_new ();
-    for (i=0; i<(MAX_BREAKPOINTS/8); i++)
-        gtk_grid_insert_row (GTK_GRID (grid), 0);
-    for (i=0; i<(MAX_BREAKPOINTS/2); i++)
-        gtk_grid_insert_column (GTK_GRID (grid), 0);
-    
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+
     for (i=0; i<MAX_BREAKPOINTS; i++)
     {
+        if ((i%(MAX_BREAKPOINTS/2)) == 0)
+        {
+            rowbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+            gtk_box_pack_start (GTK_BOX(box), rowbox, FALSE, FALSE, 0);
+        }
+
         entry[i] = gtk_entry_new ();
         gtk_entry_set_max_length (GTK_ENTRY (entry[i]), 4);
         gtk_entry_set_width_chars (GTK_ENTRY (entry[i]), 4);
+        gtk_entry_set_max_width_chars (GTK_ENTRY (entry[i]), 4);
+/*
         gtk_entry_set_input_purpose (
             GTK_ENTRY (entry[i]),
             GTK_INPUT_PURPOSE_FREE_FORM);
-        gtk_grid_attach (GTK_GRID (grid),
-                         entry[i],
-                         i%(MAX_BREAKPOINTS/2),
-                         i/(MAX_BREAKPOINTS/2),
-                         1,
-                         1);
+*/
+        gtk_box_pack_start (GTK_BOX(rowbox), entry[i], FALSE, FALSE, 0);
+
         if (teo.debug.breakpoint[i] != -1)
         {
             sprintf (hex_text, "%x", teo.debug.breakpoint[i]&0xffff);
@@ -144,9 +155,12 @@ GtkWidget *udbkpt_Init (void)
                           G_CALLBACK (entry_changed), (gpointer) i);
     }
     frame = gtk_frame_new (is_fr?"Points d'arrêts":"Breakpoints");
-    gtk_container_add (GTK_CONTAINER (frame), GTK_WIDGET (grid));
+    gtk_container_add (GTK_CONTAINER (frame), box);
 
-    return frame;
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start (GTK_BOX(box), frame, FALSE, FALSE, 0);
+
+    return box;
 }
 
 
@@ -174,4 +188,5 @@ void udbkpt_Exit (void)
         }
     }
 }
+
 

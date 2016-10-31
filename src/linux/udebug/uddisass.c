@@ -62,7 +62,6 @@
 #define HIGHLIGHT_NAME  "teo_ddisass_highlight"
 
 static struct MC6809_REGS regs;
-static GtkWidget *scrolled_window;
 static GtkWidget *text_view;
 static GtkTextBuffer *text_buffer;
 static GtkTextMark *mark_first;
@@ -382,6 +381,25 @@ static void exit_loop (GtkWidget *window, int next_pc)
 /* ------------------------------------------------------------------------- */
 
 
+/* uddisass_Free:
+ *  Free the memory used by the disassembly area.
+ */
+void uddisass_Free(void)
+{
+    /* Free old text memory */
+    if (old_text != NULL)
+    {
+        free (old_text);
+        old_text = NULL;
+    }
+    debug.address = std_free(debug.address);
+    debug.address_last = std_free(debug.address_last);
+    debug.dump = std_free(debug.dump);
+    debug.dump_last = std_free(debug.dump_last);
+}
+
+
+
 /* disass_init:
  *  Initialize the disassembly.
  */
@@ -390,6 +408,7 @@ GtkWidget *uddisass_Init (void)
     int i;
     int address;
     GtkWidget *box;
+    GtkWidget *scrolled_window;
     GtkTextTagTable *tag_table;
     GtkTextTag *tag_highlight;
 
@@ -418,16 +437,19 @@ GtkWidget *uddisass_Init (void)
         GTK_SCROLLED_WINDOW (scrolled_window),
         GTK_POLICY_AUTOMATIC,
         GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_min_content_width (
+        GTK_SCROLLED_WINDOW (scrolled_window),
+        300);
 
-    /* Pack everything in box */
-    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_container_add (
-        GTK_CONTAINER (scrolled_window),
-        GTK_WIDGET (text_view));
-    gtk_box_pack_start (GTK_BOX(box), scrolled_window, TRUE, TRUE, 4);
+    /* Pack text view */
+    gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
 
     /* Set Courier font */
     gtk_widget_set_name (scrolled_window, COURIER_DEBUG);
+
+    /* Pack everything in box */
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start (GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
 
     debug.address = malloc((DASM_NLINES+1)*sizeof(int)*2);
     if (debug.address == NULL)
@@ -586,23 +608,3 @@ void uddisass_Display(void)
         }
     }
 }
-
-
-
-/* wddisass_Exit:
- *  Exit the disassembly area.
- */
-void uddisass_Exit(void)
-{
-    /* Free old text memory */
-    if (old_text != NULL)
-    {
-        free (old_text);
-        old_text = NULL;
-    }
-    debug.address = std_free(debug.address);
-    debug.address_last = std_free(debug.address_last);
-    debug.dump = std_free(debug.dump);
-    debug.dump_last = std_free(debug.dump_last);
-}
-

@@ -59,17 +59,6 @@ struct MC6809_DEBUG debug;
 
 
 
-static void exit_display (void)
-{
-    uddisass_Exit();
-    udmem_Exit();
-    udreg_Exit();
-    udacc_Exit();
-    udbkpt_Exit();
-}
-
-
-
 /* delete_event:
  *  Gestion du gadget de fermeture.
  */
@@ -79,9 +68,9 @@ static gboolean delete_event (GtkWidget *widget,
 {
     dbkpt_TraceOff();
     teo.command = TEO_COMMAND_NONE;
-    exit_display ();
+    gtk_widget_hide (window);
     gtk_main_quit ();
-    return FALSE;
+    return TRUE;
     (void)widget;
     (void)event;
     (void)user_data;
@@ -181,24 +170,33 @@ void udebug_Quit (int quit_mode)
     {
         dbkpt_TraceOff();
     }
-    exit_display ();
+    gtk_widget_hide (window);
     gtk_main_quit ();
-    gtk_widget_destroy (GTK_WIDGET(window));
 }
 
 
 
-/* udebug_Panel:
- *  Display the debugger dialog.
+void udebug_Free (void)
+{
+    uddisass_Free();
+    udmem_Free();
+    udreg_Free();
+    udacc_Free();
+    udbkpt_Free();
+}
+
+
+
+/* udebug_Init:
+ *  Init the debugger dialog.
  */
-void udebug_Panel(void)
+void udebug_Init(void)
 {
     GdkGeometry geometry;
     static struct MC6809_REGS regs;
     GtkWidget *main_box;
     GtkWidget *area_box;
     GtkWidget *box;
-    GtkWidget *subbox;
     GtkCssProvider *cssprovider;
     GdkDisplay *display = gdk_display_get_default ();
     GdkScreen *screen = gdk_display_get_default_screen (display);
@@ -213,7 +211,7 @@ void udebug_Panel(void)
         cssprovider,
         "#"COURIER_DEBUG" {" \
         "    font-family: Courier;" \
-        "    font-size: 1.3em;" \
+        "    font-size: 1.0em;" \
         "}",
         -1,
         NULL);
@@ -262,12 +260,9 @@ void udebug_Panel(void)
         gtk_window_maximize (GTK_WINDOW (window));
 
     /* Create boxes */
-    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add (GTK_CONTAINER (window), box);
+    main_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add (GTK_CONTAINER (window), main_box);
     gtk_container_set_border_width (GTK_CONTAINER (window), 4);
-
-    main_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-    gtk_box_pack_start(GTK_BOX(box), main_box, TRUE, TRUE, 4);
 
     /* Add toolbar, box area and status bar */
     gtk_box_pack_start(GTK_BOX(main_box), udtoolb_Init(), FALSE, FALSE, 0);
@@ -277,17 +272,30 @@ void udebug_Panel(void)
 
     /* Add left box */
     box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_pack_start(GTK_BOX(area_box), box, FALSE, FALSE, 0);
-    subbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_pack_start(GTK_BOX(box), subbox, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(subbox), udacc_Init(), FALSE, FALSE, 4);
-    gtk_box_pack_start(GTK_BOX(subbox), udbkpt_Init(), FALSE, FALSE, 4);
-    gtk_box_pack_start(GTK_BOX(subbox), udreg_Init(), FALSE, FALSE, 4);
+    /* The GTK documentation says : "This parameter [i.e. fill] has
+       no effect if expand is set to FALSE". And yet, strangely, the
+       EXPAND parameter must be set here to FALSE and the FILL one
+       must be set to TRUE to provide the expected behaviour. A GTK
+       bug ? To be closely watched ! */
+    gtk_box_pack_start(GTK_BOX(area_box), box, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(box), udacc_Init(), FALSE, FALSE, 4);
+    gtk_box_pack_start(GTK_BOX(box), udbkpt_Init(), FALSE, FALSE, 4);
+    gtk_box_pack_start(GTK_BOX(box), udreg_Init(), FALSE, FALSE, 4);
     gtk_box_pack_start(GTK_BOX(box), udmem_Init(), TRUE, TRUE, 4);
     
     /* Add right box */
-    gtk_box_pack_start(GTK_BOX(area_box), uddisass_Init(), TRUE, TRUE, 4);
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start(GTK_BOX(area_box), box, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(box), uddisass_Init(), TRUE, TRUE, 4);
+}
 
+
+
+/* udebug_Panel:
+ *  Display the debugger dialog.
+ */
+void udebug_Panel(void)
+{
     /* Display content */
     udmem_Display ();
     update_display ();
@@ -300,4 +308,3 @@ void udebug_Panel(void)
 
     gtk_main ();   
 }
-

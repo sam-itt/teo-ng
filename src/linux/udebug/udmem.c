@@ -353,7 +353,7 @@ static GtkWidget *init_combos (void)
     create_monitor_widgets (grid);
 
     /* initialize the combo line */
-    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start( GTK_BOX(box), GTK_WIDGET(grid), FALSE, FALSE, 0);
 
     return box;
@@ -518,29 +518,40 @@ static GtkWidget *init_source_text (void)
         GTK_SCROLLED_WINDOW (scrolled_window),
         GTK_POLICY_AUTOMATIC,
         GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_min_content_height (
+        GTK_SCROLLED_WINDOW (scrolled_window),
+        80);
 
-    /* Pack source view */
-    gtk_container_add (
-        GTK_CONTAINER (scrolled_window),
-        GTK_WIDGET (text_view));
+    /* Pack text view */
+    gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
 
     /* Set Courier font */
     gtk_widget_set_name (scrolled_window, COURIER_DEBUG);
 
-    /* initialize the source box */
-    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_box_pack_start (
-        GTK_BOX(box),
-        GTK_WIDGET(scrolled_window),
-        TRUE,
-        TRUE,
-        0);
+    /* Pack everything in box */
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start (GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
 
     return box;
 }
 
 
 /* ------------------------------------------------------------------------- */
+
+
+/* udmem_Free:
+ *  Free the memory used by the memory area.
+ */
+void udmem_Free(void)
+{
+    /* Free old text memory */
+    if (old_text != NULL)
+    {
+        free (old_text);
+        old_text = NULL;
+    }
+}
+
 
 
 /* udmem_Init:
@@ -608,9 +619,7 @@ void udmem_StepDisplay(int address)
         else
             index = 4;
 
-        gtk_combo_box_set_active (
-            GTK_COMBO_BOX (cart_combo),
-            index);
+        gtk_combo_box_set_active (GTK_COMBO_BOX (cart_combo),index);
 
         display(address, NULL);
     }
@@ -632,21 +641,3 @@ void udmem_Display(void)
         teo.debug.memory_address);
         
 }
-
-
-
-/* udmem_Exit:
- *  Exit the memory area.
- */
-void udmem_Exit(void)
-{
-    /* Free old text memory */
-    if (old_text != NULL)
-    {
-        free (old_text);
-        old_text = NULL;
-    }
-
-    (void)g_idle_remove_by_data (GTK_TEXT_VIEW (text_view));
-}
-

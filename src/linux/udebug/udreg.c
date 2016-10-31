@@ -54,7 +54,7 @@
 #include "hardware.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/dasm6809.h"
-#include "media/disk/controlr.h"
+#include "media/disk.h"
 #include "debug.h"
 #include "debug/debug.h"
 #include "linux/gui.h"
@@ -171,6 +171,15 @@ static void set_text (void)
 /* ------------------------------------------------------------------------- */
 
 
+/* udreg_Free:
+ *  Free the memory used by the register area.
+ */
+void udreg_Free(void)
+{
+}
+
+
+
 /* udreg_Init:
  *  Init register area.
  */
@@ -180,7 +189,7 @@ GtkWidget *udreg_Init(void)
     GtkWidget *scrolled_window;
 
     text_buffer = gtk_text_buffer_new (NULL);
-    text_mark   = gtk_text_mark_new ("teo_dreg_mark_first", FALSE);
+    text_mark = gtk_text_mark_new ("teo_dreg_mark_first", FALSE);
 
     /* Create source view */
     text_view = gtk_text_view_new_with_buffer (text_buffer);
@@ -197,15 +206,15 @@ GtkWidget *udreg_Init(void)
         GTK_SCROLLED_WINDOW (scrolled_window),
         80);
 
-    /* Pack everything in box */
-    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_container_add (
-        GTK_CONTAINER (scrolled_window),
-        GTK_WIDGET (text_view));
-    gtk_box_pack_start (GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
-
     /* Set Courier font */
     gtk_widget_set_name (scrolled_window, COURIER_DEBUG);
+
+    /* Pack text view */
+    gtk_container_add (GTK_CONTAINER (scrolled_window), text_view);
+
+    /* Pack everything in box */
+    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_pack_start (GTK_BOX(box), scrolled_window, FALSE, FALSE, 0);
 
     return box;
 }
@@ -231,14 +240,3 @@ void udreg_UpdateText(void)
     set_text ();
     scroll_text (teo.debug.extra_first_line);
 }
-
-
-
-/* udreg_Exit:
- *  Exit the register area.
- */
-void udreg_Exit(void)
-{
-    teo.debug.extra_first_line = get_first_visible_line_number ();
-}
-

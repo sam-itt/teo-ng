@@ -65,34 +65,31 @@ static mc6809_clock_t prev_clock = 0;
 static GtkWidget *init (void)
 {
     GtkWidget *box;
-    GtkWidget *hbox;
+    GtkWidget *grid;
 
-    /* Create main box */
-    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    /* Create grid */
+    grid = gtk_grid_new ();
+    gtk_grid_set_column_spacing (GTK_GRID (grid), 20);
     
     /* Create clock label */
-    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     label_clock = gtk_label_new ("");
-    gtk_box_pack_start (GTK_BOX (hbox), label_clock, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), hbox, TRUE, TRUE, 0);
+    gtk_grid_attach (GTK_GRID(grid), label_clock, 0, 0, 1, 1);
 
     /* Create frame label */
-    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     label_frame = gtk_label_new ("");
-    gtk_box_pack_start (GTK_BOX (hbox), label_frame, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), hbox, TRUE, TRUE, 0);
+    gtk_grid_attach (GTK_GRID(grid), label_frame, 1, 0, 1, 1);
 
     /* Create line label */
-    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     label_line = gtk_label_new ("");
-    gtk_box_pack_start (GTK_BOX (hbox), label_line, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), hbox, TRUE, TRUE, 0);
+    gtk_grid_attach (GTK_GRID(grid), label_line, 2, 0, 1, 1);
 
-    /* Create colmun label */
-    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    /* Create line label */
     label_column = gtk_label_new ("");
-    gtk_box_pack_start (GTK_BOX (hbox), label_column, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), hbox, TRUE, TRUE, 0);
+    gtk_grid_attach (GTK_GRID(grid), label_column, 3, 0, 1, 1);
+
+    /* Pack in main box */
+    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start (GTK_BOX (box), grid, FALSE, FALSE, 0);
 
     return box;
 }
@@ -135,6 +132,15 @@ static void display (void)
 
 
 /* ------------------------------------------------------------------------- */
+
+
+/* udstatus_Free:
+ *  Free the memory used by the status bar.
+ */
+void udstatus_Free (void)
+{
+}
+
 
 
 /* udstatus_Init:

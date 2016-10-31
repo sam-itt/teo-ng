@@ -190,6 +190,15 @@ static void display (void)
 /* ------------------------------------------------------------------------- */
 
 
+/* udacc_Free:
+ *  Free the memory used by the accumulators area.
+ */
+void udacc_Free(void)
+{
+}
+
+
+
 /* udacc_Init:
  *  Init accumulators area.
  */
@@ -209,11 +218,4 @@ void udacc_Display(void)
 }
 
 
-
-/* udacc_Exit:
- *  Exit the accumulators area.
- */
-void udacc_Exit(void)
-{
-}
 

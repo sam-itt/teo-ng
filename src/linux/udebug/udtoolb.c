@@ -84,6 +84,15 @@ static void do_quit (GtkToolButton *toolbutton, gpointer user_data)
 /* ------------------------------------------------------------------------- */
 
 
+/* udtoolb_Free:
+ *  Free the memory used by the tool bar.
+ */
+void udtoolb_Free (void)
+{
+}
+
+
+
 /* udtoolb_SetRunButtonSensitivity:
  *  Set the run button sensitivity.
  */
@@ -189,13 +198,3 @@ GtkWidget *udtoolb_Init (void)
 
     return box;
 }
-
-
-
-/* udtoolb_Exit:
- *  Exit the tool bar.
- */
-void udtoolb_Exit (void)
-{
-}
-
