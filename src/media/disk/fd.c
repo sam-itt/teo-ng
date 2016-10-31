@@ -37,7 +37,7 @@
  *  Module     : media/disk/fd.c
  *  Version    : 1.8.4
  *  Créé par   : François Mouret 21/01/2013
- *  Modifié par: François Mouret 23/08/2015
+ *  Modifié par: François Mouret 23/08/2015 31/07/2016
  *
  *  Gestion du format raw (FD, QD).
  */
@@ -52,9 +52,11 @@
 #include "teo.h"
 #include "errors.h"
 #include "std.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 
+#if 0
+#define DO_PRINT  1      /* if output wanted */
+#endif 
 
 struct FD_LIST {
     size_t file_size;
@@ -66,46 +68,80 @@ struct FD_LIST {
 };
 
 static struct FD_LIST fd_list[] = {
-    {   51200, ".qd", 1, 25,  50, 128 },
-    {   51200, ".qd", 1, 25,  50, 128 },
-    {   81920, ".fd", 1, 40,  80, 128 },
-    {  163840, ".fd", 1, 40,  80, 256 },
-    {  327680, ".fd", 1, 80, 160, 256 },
-    {  655360, ".fd", 2, 80, 160, 256 },
-    {  983040, ".fd", 3, 80, 160, 256 },
-    { 1310720, ".fd", 4, 80, 160, 256 }
+    {   51200, ".qd", 1, 25,  50, TEO_DISK_SD_SECTOR_SIZE },
+    {   51200, ".qd", 1, 25,  50, TEO_DISK_SD_SECTOR_SIZE },
+    {   81920, ".fd", 1, 40,  80, TEO_DISK_SD_SECTOR_SIZE },
+    {  163840, ".fd", 1, 40,  80, TEO_DISK_DD_SECTOR_SIZE },
+    {  327680, ".fd", 1, 80, 160, TEO_DISK_DD_SECTOR_SIZE },
+    {  655360, ".fd", 2, 80, 160, TEO_DISK_DD_SECTOR_SIZE },
+    {  983040, ".fd", 3, 80, 160, TEO_DISK_DD_SECTOR_SIZE },
+    { 1310720, ".fd", 4, 80, 160, TEO_DISK_DD_SECTOR_SIZE }
 };
 
 static int fd_type = 3;
+static uint8 sector_buffer[TEO_DISK_DD_SECTOR_SIZE];
 
 
-/*
-static void display_track (struct DISK_INFO *info)
+
+#ifdef DO_PRINT
+/* display_track :
+ *  Display a track
+ */
+static void display_track (char *message, int drive, int track)
 {
     int i;
 
-    for (i=0; i<info->track_size;i++)
+    printf ("---------------------------------------\n");
+    printf ("FD %s drive %d track %d\n", message, drive, track);
+    for (i=0; i<disk[drive].track_size;i++)
     {
         if ((i&15) == 0)
             printf ("\n%04x   ", i);
-        printf ("%02x%02x ", info->clck[i], info->data[i]);
+        printf ("%02x%02x ",
+            disk[drive].clck[i],
+            disk[drive].data[i]);
     }
     printf ("\n\n");
 }
-*/
+#endif
+
+
+
+#define FILE_SEEK (long int)(((teo.disk[drive].side \
+                             * disk[drive].track_count) \
+                             + track) \
+                             * TEO_DISK_SECTOR_PER_TRACK \
+                             * disk[drive].sector_size)
+
+static int fd_error (int drive, int error, FILE *file)
+{
+    if (file != NULL)
+        fclose (file);
+    return error_Message (error, teo.disk[drive].file);
+}
+
 
 
 /* read_fm_track:
  *  Read and convert the FD track (simple density).
  */
-static int read_fm_track (FILE *file, struct DISK_INFO *info)
+static int read_fm_track (int drive, int track)
 {
+    FILE *file;
     int pos;
     int sector;
-    uint8 sector_buffer[128];
+    size_t secsiz = (size_t)TEO_DISK_SD_SECTOR_SIZE;
 
     /* initialize track */
-    memset (info->clck, DATA_CLOCK_MARK, info->track_size);
+    memset (disk[drive].data, FM_GAP_DATA_VALUE, TEO_DISK_TRACK_SIZE_MAX);
+    memset (disk[drive].clck, DATA_CLOCK_MARK, TEO_DISK_TRACK_SIZE_MAX);
+
+    /* read-open FD file */
+    if ((file = fopen (teo.disk[drive].file, "rb")) == NULL)
+        return fd_error (drive, TEO_ERROR_DISK_NONE, file);
+    
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return fd_error (drive, TEO_ERROR_FILE_READ, file);
 
     /* read sectors */    
     for (sector=1; sector<=16; sector++)
@@ -114,20 +150,21 @@ static int read_fm_track (FILE *file, struct DISK_INFO *info)
         pos = SDSECTORPOS (sector);
 
         /* read the sector */
-        if (fread (sector_buffer, 1, (size_t)128, file) != (size_t)128)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);  /* error on sector */
+        if (fread (sector_buffer, 1, secsiz, file) != secsiz)
+            return fd_error (drive, TEO_ERROR_FILE_READ, file);
 
         /* create sector */
-        disk_CreateSDFloppySector (info->track,
-                                   sector,
-                                   sector_buffer,
-                                   info->data+pos,
-                                   info->clck+pos);
+        disk_CreateSDFloppySector (
+            disk[drive].drv->track.curr,
+            sector,
+            sector_buffer,
+            disk[drive].data+pos,
+            disk[drive].clck+pos);
     }
-    pos = 16 * FM_SECTOR_SIZE;
-    if (pos < info->track_size)
-        memset (info->data+pos, FM_GAP_DATA_VALUE, info->track_size-pos);
-
+    fclose (file);
+#ifdef DO_PRINT
+    display_track ("read_fm_track", drive, track);
+#endif
     return 0;
 }
 
@@ -136,14 +173,23 @@ static int read_fm_track (FILE *file, struct DISK_INFO *info)
 /* read_mfm_track:
  *  Read and convert the FD track (double density).
  */
-static int read_mfm_track (FILE *file, struct DISK_INFO *info)
+static int read_mfm_track (int drive, int track)
 {
+    FILE *file;
     int pos;
     int sector;
-    uint8 sector_buffer[256];
+    size_t secsiz = (size_t)TEO_DISK_DD_SECTOR_SIZE;
 
     /* initialize track */
-    memset (info->clck, DATA_CLOCK_MARK, info->track_size);
+    memset (disk[drive].data, MFM_GAP_DATA_VALUE, TEO_DISK_TRACK_SIZE_MAX);
+    memset (disk[drive].clck, DATA_CLOCK_MARK, TEO_DISK_TRACK_SIZE_MAX);
+
+    /* read-open FD file */
+    if ((file = fopen (teo.disk[drive].file, "rb")) == NULL)
+        return fd_error (drive, TEO_ERROR_DISK_NONE, file);
+
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return fd_error (drive, TEO_ERROR_FILE_READ, file);
 
     /* read sectors */    
     for (sector=1; sector<=16; sector++)
@@ -152,63 +198,22 @@ static int read_mfm_track (FILE *file, struct DISK_INFO *info)
         pos = DDSECTORPOS (sector);
 
         /* read the sector */
-        if (fread (sector_buffer, 1, (size_t)256, file) != (size_t)256)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);  /* error on sector */
+        if (fread (sector_buffer, 1, secsiz, file) != secsiz)
+            return fd_error (drive, TEO_ERROR_FILE_READ, file);
 
         /* create sector */
-        disk_CreateDDFloppySector (info->track,
-                                   sector,
-                                   sector_buffer,
-                                   info->data+pos,
-                                   info->clck+pos);
+        disk_CreateDDFloppySector (
+            disk[drive].drv->track.curr,
+            sector,
+            sector_buffer,
+            disk[drive].data+pos,
+            disk[drive].clck+pos);
     }
-    pos = 16 * MFM_SECTOR_SIZE;
-    if (pos < info->track_size)
-        memset (info->data+pos, MFM_GAP_DATA_VALUE, info->track_size-pos);
-
+    fclose (file);
+#ifdef DO_PRINT
+    display_track ("read_mfm_track", drive, track);
+#endif
     return 0;
-}
-
-
-
-/* read_ctrl_track:
- *  Open the file and read the FD track.
- */
-static int read_ctrl_track (const char filename [], struct DISK_INFO *info)
-{
-    int err = 0;
-    FILE *file = NULL;
-    long int file_seek = ((teo.disk[info->drive].side * info->track_count) + info->track)
-                         * TEO_DISK_SECTOR_COUNT
-                         * info->sector_size;
-
-    if ((info->track < 0) || (info->track >= info->track_count))
-        return error_Message (TEO_ERROR_DISK_IO, filename);
-
-    if ((file = fopen (filename, "rb")) == NULL)
-        return error_Message (TEO_ERROR_DISK_NONE, filename);
-
-    if (fseek (file, file_seek, SEEK_SET) != 0)
-        err = error_Message (TEO_ERROR_FILE_READ, filename);
-
-    if (err == 0)
-    {
-        if (info->sector_size == 256)
-        {
-            err = disk_AllocRawTracks (TEO_DISK_MFM_TRACK_SIZE, info);
-            if (err == 0)
-                err = read_mfm_track (file, info);
-        }
-        else
-        {
-            err = disk_AllocRawTracks (TEO_DISK_MFM_TRACK_SIZE>>1, info);
-            if (err == 0)
-                err = read_fm_track (file, info);
-        }
-    }
-
-    (void)fclose(file);
-    return err;   
 }
 
 
@@ -216,19 +221,32 @@ static int read_ctrl_track (const char filename [], struct DISK_INFO *info)
 /* write_fm_track:
  *  Convert and write the FD track (simple density).
  */
-static int write_fm_track (FILE *file, struct DISK_INFO *info)
+static int write_fm_track (int drive, int track)
 {
+    FILE *file;
     int i;
     int sector;
+    size_t secsiz = (size_t)TEO_DISK_SD_SECTOR_SIZE;
 
+    /* write-open FD file */
+    if ((file = fopen (teo.disk[drive].file, "rb+")) == NULL)
+        return fd_error (drive, TEO_ERROR_DISK_NONE, file);
+    
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return fd_error (drive, TEO_ERROR_FILE_WRITE, file);
+
+    /* write sectors */    
     for (sector=1; sector<=16; sector++)
     {
         /* write the sector */
-        i = disk_IsSDFloppySector (sector, info);
-        if (i >= 0)
-            if (fwrite (info->data+i+26, 1, (size_t)128, file) != (size_t)128)
-                return error_Message (TEO_ERROR_DISK_IO, NULL);
+        if ((i = disk_IsSDFloppySector (track, sector)) >= 0)
+            if (fwrite (disk[drive].data+i+26, 1, secsiz, file) != secsiz)
+                return fd_error (drive, TEO_ERROR_FILE_WRITE, file);
     }
+    fclose (file);
+#ifdef DO_PRINT
+    display_track ("write_fm_track", drive, track);
+#endif
     return 0;
 }
 
@@ -237,55 +255,33 @@ static int write_fm_track (FILE *file, struct DISK_INFO *info)
 /* write_mfm_track:
  *  Convert and save the FD track (double density).
  */
-static int write_mfm_track (FILE *file, struct DISK_INFO *info)
+static int write_mfm_track (int drive, int track)
 {
+    FILE *file;
     int i;
     int sector;
+    size_t secsiz = (size_t)TEO_DISK_DD_SECTOR_SIZE;
 
+    /* write-open FD file */
+    if ((file = fopen (teo.disk[drive].file, "rb+")) == NULL)
+        return fd_error (drive, TEO_ERROR_DISK_NONE, file);
+    
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return fd_error (drive, TEO_ERROR_FILE_WRITE, file);
+
+    /* write sectors */    
     for (sector=1; sector<=16; sector++)
     {
         /* write the sector */
-        i = disk_IsDDFloppySector (sector, info);
-        if (i >= 0)
-            if (fwrite (info->data+i+48, 1, (size_t)256, file) != (size_t)256)
-                /* error on sector */
-                return error_Message (TEO_ERROR_DISK_IO, NULL);
+        if ((i = disk_IsDDFloppySector (track, sector)) >= 0)
+            if (fwrite (disk[drive].data+i+48, 1, secsiz, file) != secsiz)
+                return fd_error (drive, TEO_ERROR_FILE_WRITE, file);
     }
+    fclose (file);
+#ifdef DO_PRINT
+    display_track ("write_mfm_track", drive, track);
+#endif
     return 0;
-}
-
-
-
-/* write_ctrl_track:
- *  Open the file and write the FD track.
- */
-static int write_ctrl_track (const char filename [], struct DISK_INFO *info)
-{
-    int err = 0;
-    FILE *file = NULL;
-    long int file_seek = ((teo.disk[info->drive].side * info->track_count) + info->track)
-                         * TEO_DISK_SECTOR_COUNT
-                         * info->sector_size;
-
-    if ((info->track < 0) || (info->track >= info->track_count))
-        return error_Message (TEO_ERROR_DISK_IO, filename);
-
-    if ((file = fopen (filename, "rb+")) == NULL)
-        return error_Message (TEO_ERROR_DISK_NONE, filename);
-
-    if (fseek (file, file_seek, SEEK_SET) != 0)
-        err = error_Message (TEO_ERROR_FILE_WRITE, filename);
-
-    if (err == 0)
-    {
-        if (info->sector_size == 256)
-            err = write_mfm_track (file, info);
-        else
-            err = write_fm_track (file, info);
-    }
-
-    (void)fclose(file);
-    return err;   
 }
 
 
@@ -341,7 +337,7 @@ int fd_IsFd (const char filename[])
  *  Loads the FD archive into the specified drive and
  *  forces the read-only mode if necessary.
  */
-int fd_LoadDisk(int drive, const char filename[])
+int fd_LoadDisk (int drive, const char filename[])
 {
     int protection;
 
@@ -349,32 +345,37 @@ int fd_LoadDisk(int drive, const char filename[])
 
     if (protection >= 0)
     {
-        switch (fd_list[fd_type].sector_size)
-        {
-            case 128 :
-                disk[drive].info->byte_rate = 125000/8;
-                break;
+        /* write-update the track of the current drive */
+        disk_WriteTrack ();
 
-            case 256 :
-                disk[drive].info->byte_rate = 250000/8;
-                break;
-        }
-        disk[drive].info->sector_size  = fd_list[fd_type].sector_size;
-        disk[drive].info->fat_size     = fd_list[fd_type].fat_size;
-        disk[drive].info->track_count  = fd_list[fd_type].track_count;
-        disk[drive].info->track = -1;  /* force track to be loaded */
-
-        /* update parameters */
         teo.disk[drive].file = std_free (teo.disk[drive].file);
         teo.disk[drive].file = std_strdup_printf ("%s", filename);
         teo.disk[drive].write_protect = protection;
+        switch (fd_list[fd_type].sector_size)
+        {
+            case TEO_DISK_SD_SECTOR_SIZE :
+                disk[drive].byte_rate = TEO_DISK_SD_BYTE_RATE;
+                disk[drive].track_size = TEO_DISK_SD_TRACK_SIZE;
+                disk[drive].ReadTrack = read_fm_track;
+                disk[drive].WriteTrack = write_fm_track;
+                break;
+
+            case TEO_DISK_DD_SECTOR_SIZE :
+                disk[drive].byte_rate = TEO_DISK_DD_BYTE_RATE;
+                disk[drive].track_size = TEO_DISK_DD_TRACK_SIZE;
+                disk[drive].ReadTrack = read_mfm_track;
+                disk[drive].WriteTrack = write_mfm_track;
+                break;
+        }
+        disk[drive].sector_size  = fd_list[fd_type].sector_size;
+        disk[drive].track_count  = fd_list[fd_type].track_count;
+        disk[drive].drv->track.curr = 0;
+        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
         disk[drive].state = TEO_DISK_ACCESS_FD;
         disk[drive].write_protect = FALSE;
-        disk[drive].ReadCtrlTrack = read_ctrl_track;
-        disk[drive].WriteCtrlTrack = write_ctrl_track;
-        disk[drive].ReadCtrlSector = NULL;
-        disk[drive].WriteCtrlSector = NULL;
-        disk[drive].FormatCtrlTrack = NULL;
+        disk[drive].ReadSector = NULL;
+        disk[drive].WriteSector = NULL;
+        disk[drive].FormatTrack = NULL;
         disk[drive].IsWritable = NULL;
         disk[drive].side_count = fd_list[fd_type].side_count;
     }

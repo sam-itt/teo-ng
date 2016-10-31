@@ -39,7 +39,7 @@
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012
- *                               15/05/2012 23/08/2015
+ *                               15/05/2012 23/08/2015 31/07/2016
  *               Samuel Devulder 05/02/2012
  *
  *  Gestion du format SAP 2.0: lecture et écriture disquette.
@@ -54,38 +54,30 @@
 #include "teo.h"
 #include "errors.h"
 #include "std.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 
+#if 0
+#define DO_PRINT  1      /* if output wanted */
+#endif 
 
 #define SAP_HEADER_SIZE  66
-#define SAP_DD_SECT_SIZE 262
-#define SAP_SD_SECT_SIZE 134
 #define SAP_MAGIC_NUM    0xB3
-
-#define SAPSECTOR_FORMAT      0
-#define SAPSECTOR_PROTECTION  1
-#define SAPSECTOR_TRACK       2
-#define SAPSECTOR_SECTOR      3
-#define SAPSECTOR_DATA        4
-
+#define SAP_FORMAT       0
+#define SAP_PROTECTION   1
+#define SAP_TRACK        2
+#define SAP_SECTOR       3
+#define SAP_DATA         4
+#define SAP_SD_CRC_HIGH  (SAP_DATA+TEO_DISK_SD_SECTOR_SIZE)
+#define SAP_SD_CRC_LOW   (SAP_DATA+TEO_DISK_SD_SECTOR_SIZE+1)
+#define SAP_SD_SECT_SIZE (SAP_DATA+TEO_DISK_SD_SECTOR_SIZE+2)
+#define SAP_DD_CRC_HIGH  (SAP_DATA+TEO_DISK_DD_SECTOR_SIZE)
+#define SAP_DD_CRC_LOW   (SAP_DATA+TEO_DISK_DD_SECTOR_SIZE+1)
+#define SAP_DD_SECT_SIZE (SAP_DATA+TEO_DISK_DD_SECTOR_SIZE+2)
 
 static const char sap_header[]="\1SYSTEME D'ARCHIVAGE PUKALL S.A.P. "
                                "(c) Alexandre PUKALL Avril 1998";
-
 static char sap_read_header[SAP_HEADER_SIZE] = "";
-
-#if 0
-/* type d'un secteur SAP */
-typedef struct {
-    char format;
-    char protection;
-    char track;
-    char sector;
-} SAP_SECTOR_HEADER;
-
-static SAP_SECTOR_HEADER sap_hd;
-#endif
+static uint8 sap_sector[SAP_DD_SECT_SIZE];
 
 /* table de calcul du CRC */
 static short int crcpuk_temp;
@@ -95,6 +87,30 @@ static short int puktable[]={
    0x8408, 0x9489, 0xa50a, 0xb58b,
    0xc60c, 0xd68d, 0xe70e, 0xf78f
 };
+
+
+
+#ifdef DO_PRINT
+/* display_track :
+ *  Display a track
+ */
+static void display_track (char *message, int drive, int track)
+{
+    int i;
+
+    printf ("---------------------------------------\n");
+    printf ("SAP %s drive %d track %d\n", message, drive, track);
+    for (i=0; i<disk[drive].track_size;i++)
+    {
+        if ((i&15) == 0)
+            printf ("\n%04x   ", i);
+        printf ("%02x%02x ",
+            disk[drive].clck[i],
+            disk[drive].data[i]);
+    }
+    printf ("\n\n");
+}
+#endif
 
 
 
@@ -125,79 +141,91 @@ static void do_crc(uint8 *sap_sector, uint8 *data_sector, int sector_size)
 
     crcpuk_temp = 0xffff;
 
-    crc_pukall((short int)sap_sector[SAPSECTOR_FORMAT]);
-    crc_pukall((short int)sap_sector[SAPSECTOR_PROTECTION]);
-    crc_pukall((short int)sap_sector[SAPSECTOR_TRACK]);
-    crc_pukall((short int)sap_sector[SAPSECTOR_SECTOR]);
+    crc_pukall((short int)sap_sector[SAP_FORMAT]);
+    crc_pukall((short int)sap_sector[SAP_PROTECTION]);
+    crc_pukall((short int)sap_sector[SAP_TRACK]);
+    crc_pukall((short int)sap_sector[SAP_SECTOR]);
 
     for (i=0; i<sector_size; i++)
        crc_pukall((short int)data_sector[i]);
 }
 
 
-/*
-static void display_track (struct DISK_INFO *info)
-{
-    int i;
 
-    for (i=0; i<info->track_size;i++)
-    {
-        if ((i&15) == 0)
-            printf ("\n%04x   ", i);
-        printf ("%02x%02x ", info->clck[i], info->data[i]);
-    }
-    printf ("\n\n");
+#define FILE_SEEK (long int)(SAP_HEADER_SIZE \
+                             + (track \
+                              * TEO_DISK_SECTOR_PER_TRACK \
+                              * (disk[drive].sector_size+6)))
+
+static int sap_error (int drive, int error, FILE *file)
+{
+    if (file != NULL)
+        fclose (file);
+    return error_Message (error, teo.disk[drive].file);
 }
-*/
+
 
 
 /* read_fm_track:
  *  Read and convert the SAP track (simple density).
  */
-static int read_fm_track (FILE *file, struct DISK_INFO *info)
+static int read_fm_track (int drive, int track)
 {
+    FILE *file = NULL;
     int i;
     int pos;
     int crc;
     int sector;
-    uint8 sap_sector[SAP_DD_SECT_SIZE];
+    size_t secsiz = (size_t)SAP_SD_SECT_SIZE;
 
     /* initialize track */
-    memset (info->data, FM_GAP_DATA_VALUE, info->track_size);
-    memset (info->clck, DATA_CLOCK_MARK, info->track_size);
+    memset (disk[drive].data, FM_GAP_DATA_VALUE, TEO_DISK_TRACK_SIZE_MAX);
+    memset (disk[drive].clck, DATA_CLOCK_MARK, TEO_DISK_TRACK_SIZE_MAX);
+
+    /* read-open SAP file */
+    if ((file = fopen (teo.disk[drive].file, "rb")) == NULL)
+        return sap_error (drive, TEO_ERROR_DISK_NONE, file);
+
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return sap_error (drive, TEO_ERROR_FILE_READ, file);
 
     /* read sectors */    
-    for (sector=0; sector<16; sector++)
+    for (sector=1; sector<=16; sector++)
     {
         /* read the sector */
-        if (fread (sap_sector, 1, (size_t)SAP_SD_SECT_SIZE,
-                                   file) != (size_t)SAP_SD_SECT_SIZE)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);
+        if (fread (sap_sector, 1, secsiz, file) != secsiz)
+            return sap_error (drive, TEO_ERROR_FILE_READ, file);
 
         /* compute sector offset (interleave 7) */
-        pos = SDSECTORPOS (sap_sector[SAPSECTOR_SECTOR]);
+        pos = SDSECTORPOS (sap_sector[SAP_SECTOR]);
 
         /* decode sector datas */
-        for (i=0;i<128;i++)
-            sap_sector[SAPSECTOR_DATA+i] ^= SAP_MAGIC_NUM;
+        for (i=0;i<TEO_DISK_SD_SECTOR_SIZE;i++)
+            sap_sector[SAP_DATA+i] ^= SAP_MAGIC_NUM;
 
         /* create sector */
-        disk_CreateSDFloppySector (sap_sector[SAPSECTOR_TRACK],
-                                   sap_sector[SAPSECTOR_SECTOR],
-                                   sap_sector+SAPSECTOR_DATA,
-                                   info->data+pos,
-                                   info->clck+pos);
+        disk_CreateSDFloppySector (
+            sap_sector[SAP_TRACK],
+            sap_sector[SAP_SECTOR],
+            sap_sector+SAP_DATA,
+            disk[drive].data+pos,
+            disk[drive].clck+pos);
 
         /* check crc */
-        do_crc (sap_sector, info->data+pos+38, 128);
-        crc = (int)((*(sap_sector+132) << 8) | *(sap_sector+133));
-        if (crc != ((int)crcpuk_temp & 0xffff))
-            *(info->data+pos+167) += 1;  /* generate crc error */
-    }
-    pos = 16 * FM_SECTOR_SIZE;
-    if (pos < info->track_size)
-        memset (info->data+pos, FM_GAP_DATA_VALUE, info->track_size-pos);
+        do_crc (sap_sector,
+                disk[drive].data+pos+38,
+                TEO_DISK_SD_SECTOR_SIZE);
 
+        crc = ((int)sap_sector[SAP_SD_CRC_HIGH] & 0xff) << 8;
+        crc |= (int)sap_sector[SAP_SD_CRC_LOW] & 0xff;
+        
+        if (crc != ((int)crcpuk_temp & 0xffff))
+            *(disk[drive].data+pos+167) += 1;  /* generate crc error */
+    }
+    fclose(file);
+#ifdef DO_PRINT
+    display_track ("read_fm_track", drive, track);
+#endif
     return 0;
 }
 
@@ -206,96 +234,64 @@ static int read_fm_track (FILE *file, struct DISK_INFO *info)
 /* read_mfm_track:
  *  Read and convert the SAP track (double density).
  */
-static int read_mfm_track (FILE *file, struct DISK_INFO *info)
+static int read_mfm_track (int drive, int track)
 {
+    FILE *file = NULL;
     int i;
     int pos;
     int crc;
     int sector;
-    uint8 sap_sector[SAP_DD_SECT_SIZE];
+    size_t secsiz = (size_t)SAP_DD_SECT_SIZE;
 
     /* initialize track */
-    memset (info->clck, DATA_CLOCK_MARK, info->track_size);
+    memset (disk[drive].data, MFM_GAP_DATA_VALUE, TEO_DISK_TRACK_SIZE_MAX);
+    memset (disk[drive].clck, DATA_CLOCK_MARK, TEO_DISK_TRACK_SIZE_MAX);
+
+    /* read-open SAP file */
+    if ((file = fopen (teo.disk[drive].file, "rb")) == NULL)
+        return sap_error (drive, TEO_ERROR_DISK_NONE, file);
+
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return sap_error (drive, TEO_ERROR_FILE_READ, file);
 
     /* read sectors */    
-    for (sector=0; sector<16; sector++)
+    for (sector=1; sector<=16; sector++)
     {
         /* read the sector */
-        if (fread (sap_sector, 1, (size_t)SAP_DD_SECT_SIZE,
-                                file) != (size_t)SAP_DD_SECT_SIZE)
-            return error_Message (TEO_ERROR_DISK_IO, NULL);
+        if (fread (sap_sector, 1, secsiz, file) != secsiz)
+            return sap_error (drive, TEO_ERROR_FILE_READ, file);
 
         /* compute sector offset (interleave 7) */
-        pos = DDSECTORPOS (sap_sector[SAPSECTOR_SECTOR]);
+        pos = DDSECTORPOS (sap_sector[SAP_SECTOR]);
 
         /* decode sector datas */
-        for (i=0;i<256;i++)
-            sap_sector[SAPSECTOR_DATA+i] ^= SAP_MAGIC_NUM;
+        for (i=0;i<TEO_DISK_DD_SECTOR_SIZE;i++)
+            sap_sector[SAP_DATA+i] ^= SAP_MAGIC_NUM;
 
         /* create sector */
-        disk_CreateDDFloppySector (sap_sector[SAPSECTOR_TRACK],
-                                   sap_sector[SAPSECTOR_SECTOR],
-                                   sap_sector+SAPSECTOR_DATA,
-                                   info->data+pos,
-                                   info->clck+pos);
+        disk_CreateDDFloppySector (
+            sap_sector[SAP_TRACK],
+            sap_sector[SAP_SECTOR],
+            sap_sector+SAP_DATA,
+            disk[drive].data+pos,
+            disk[drive].clck+pos);
 
         /* check crc */
-        do_crc (sap_sector, info->data+pos+92, 256);
-        crc = (int)((*(sap_sector+260) << 8) | *(sap_sector+261));
+        do_crc (sap_sector,
+                disk[drive].data+pos+92,
+                TEO_DISK_DD_SECTOR_SIZE);
+
+        crc = ((int)sap_sector[SAP_DD_CRC_HIGH] & 0xff) << 8;
+        crc |= (int)sap_sector[SAP_DD_CRC_LOW] & 0xff;
+
         if (crc != ((int)crcpuk_temp & 0xffff))
-            *(info->data+pos+349) += 1;  /* generate crc error */
+            *(disk[drive].data+pos+349) += 1;  /* generate crc error */
     }
-    pos = 16 * MFM_SECTOR_SIZE;
-    if (pos < info->track_size)
-        memset (info->data+pos, MFM_GAP_DATA_VALUE, info->track_size-pos);
-
+    fclose(file);
+#ifdef DO_PRINT
+    display_track ("read_mfm_track", drive, track);
+#endif
     return 0;
-}
-
-
-
-/* read_ctrl_track:
- *  Open the file and read the SAP track.
- */
-static int read_ctrl_track (const char filename [], struct DISK_INFO *info)
-{
-    int err = 0;
-    FILE *file = NULL;
-    long int file_seek = SAP_HEADER_SIZE
-                         + info->track
-                         * TEO_DISK_SECTOR_COUNT
-                         * (info->sector_size+6);
-
-    if ((info->track < 0) || (info->track >= info->track_count))
-        return error_Message (TEO_ERROR_DISK_IO, filename);
-
-    if ((file = fopen (filename, "rb")) == NULL)
-        return error_Message (TEO_ERROR_DISK_NONE, filename);
-
-    if (fseek (file, file_seek, SEEK_SET) != 0)
-        err = error_Message (TEO_ERROR_FILE_READ, filename);
-
-    if (err == 0)
-        err = disk_AllocRawTracks (TEO_DISK_MFM_TRACK_SIZE, info);
-
-    if (err == 0)
-    {
-        if (info->sector_size == 256)
-        {
-            err = disk_AllocRawTracks (TEO_DISK_MFM_TRACK_SIZE, info);
-            if (err == 0)
-                err = read_mfm_track (file, info);
-        }
-        else
-        {
-            err = disk_AllocRawTracks (TEO_DISK_MFM_TRACK_SIZE>>1, info);
-            if (err == 0)
-                err = read_fm_track (file, info);
-        }
-    }
-
-    (void)fclose(file);
-    return err;   
 }
 
 
@@ -303,46 +299,58 @@ static int read_ctrl_track (const char filename [], struct DISK_INFO *info)
 /* write_fm_track:
  *  Convert and write the SAP track (simple density).
  */
-static int write_fm_track (FILE *file, struct DISK_INFO *info)
+static int write_fm_track (int drive, int track)
 {
+    FILE *file = NULL;
     int i = 0;
     int pos;
     int sector;
-    uint8 sap_sector[SAP_DD_SECT_SIZE];
+    size_t secsiz = (size_t)SAP_SD_SECT_SIZE;
+    uint8 *secptr;
+
+    /* write-open SAP file */
+    if ((file = fopen (teo.disk[drive].file, "rb+")) == NULL)
+        return sap_error (drive, TEO_ERROR_DISK_NONE, file);
+
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return sap_error (drive, TEO_ERROR_FILE_WRITE, file);
 
     for (sector=1; sector<=16; sector++)
     {
-        pos = disk_IsSDFloppySector (sector, info);
-        if (pos >= 0)
+        if ((pos = disk_IsSDFloppySector (track, sector)) >= 0)
         {
+            secptr = &disk[drive].data[pos];
+
             /* init sap sector header */
-            sap_sector[SAPSECTOR_FORMAT]     = 0x00;
-            sap_sector[SAPSECTOR_PROTECTION] = 0x00;
-            sap_sector[SAPSECTOR_TRACK]      = info->track;
-            sap_sector[SAPSECTOR_SECTOR]     = sector;
+            sap_sector[SAP_FORMAT]     = 0x00;
+            sap_sector[SAP_PROTECTION] = 0x00;
+            sap_sector[SAP_TRACK]      = track;
+            sap_sector[SAP_SECTOR]     = sector;
 
             /* update special format */
-            if (info->data[pos+156] == 0xf7)
-                sap_sector[SAPSECTOR_FORMAT] = 0x04;
+            if (secptr[156] == 0xf7)
+                sap_sector[SAP_FORMAT] = 0x04;
 
             /* compute crc */
-            do_crc (sap_sector, info->data+pos+26, 128);
+            do_crc (sap_sector, secptr+26, TEO_DISK_SD_SECTOR_SIZE);
 
             /* encode sector datas */
-            for (i=0;i<128;i++)
-                sap_sector[SAPSECTOR_DATA+i] = info->data[pos+26+i]
-                                               ^SAP_MAGIC_NUM;
+            for (i=0;i<TEO_DISK_SD_SECTOR_SIZE;i++)
+                sap_sector[SAP_DATA+i] = secptr[26+i]^SAP_MAGIC_NUM;
 
             /* update crc */
-            sap_sector[132] = (uint8)(crcpuk_temp>>8);
-            sap_sector[133] = (uint8)crcpuk_temp;
+            sap_sector[SAP_SD_CRC_HIGH] = (uint8)(crcpuk_temp>>8);
+            sap_sector[SAP_SD_CRC_LOW]  = (uint8)crcpuk_temp;
 
             /* write the sector */
-            if (fwrite (sap_sector, 1, (size_t)SAP_SD_SECT_SIZE,
-                                    file) != (size_t)SAP_SD_SECT_SIZE)
-                return error_Message (TEO_ERROR_DISK_IO, NULL);
+            if (fwrite (sap_sector, 1, secsiz, file) != secsiz)
+                return sap_error (drive, TEO_ERROR_FILE_WRITE, file);
         }
     }
+    fclose(file);
+#ifdef DO_PRINT
+    display_track ("write_fm_track", drive, track);
+#endif
     return 0;
 }
 
@@ -351,83 +359,59 @@ static int write_fm_track (FILE *file, struct DISK_INFO *info)
 /* write_mfm_track:
  *  Convert and write the SAP track (double density).
  */
-static int write_mfm_track (FILE *file, struct DISK_INFO *info)
+static int write_mfm_track (int drive, int track)
 {
+    FILE *file = NULL;
     int i = 0;
     int pos;
     int sector;
-    uint8 sap_sector[SAP_DD_SECT_SIZE];
+    size_t secsiz = (size_t)SAP_DD_SECT_SIZE;
+    uint8 *secptr;
+
+    /* write-open SAP file */
+    if ((file = fopen (teo.disk[drive].file, "rb+")) == NULL)
+        return sap_error (drive, TEO_ERROR_DISK_NONE, file);
+
+    if (fseek (file, FILE_SEEK, SEEK_SET) != 0)
+        return sap_error (drive, TEO_ERROR_FILE_WRITE, file);
 
     for (sector=1; sector<=16; sector++)
     {
-        pos = disk_IsDDFloppySector (sector, info);
-        if (pos >= 0)
+        if ((pos = disk_IsDDFloppySector (track, sector)) >= 0)
         {
+            secptr = &disk[drive].data[pos];
+
             /* init sap sector header */
-            sap_sector[SAPSECTOR_FORMAT]     = 0x00;
-            sap_sector[SAPSECTOR_PROTECTION] = 0x00;
-            sap_sector[SAPSECTOR_TRACK]      = info->track;
-            sap_sector[SAPSECTOR_SECTOR]     = sector;
+            sap_sector[SAP_FORMAT]     = 0x00;
+            sap_sector[SAP_PROTECTION] = 0x00;
+            sap_sector[SAP_TRACK]      = track;
+            sap_sector[SAP_SECTOR]     = sector;
 
             /* update special format */
-            if (info->data[pos+306] == 0xf7)
-                sap_sector[SAPSECTOR_FORMAT] = 0x04;
+            if (secptr[306] == 0xf7)
+                sap_sector[SAP_FORMAT] = 0x04;
 
             /* compute crc */
-            do_crc (sap_sector, info->data+pos+48, 256);
+            do_crc (sap_sector, secptr+48, TEO_DISK_DD_SECTOR_SIZE);
 
             /* encode sector datas */
-            for (i=0;i<256;i++)
-                sap_sector[SAPSECTOR_DATA+i] = info->data[48+pos+i]
-                                                ^SAP_MAGIC_NUM;
+            for (i=0;i<TEO_DISK_DD_SECTOR_SIZE;i++)
+                sap_sector[SAP_DATA+i] = secptr[48+i]^SAP_MAGIC_NUM;
 
             /* update crc */
-            sap_sector[260] = (uint8)(crcpuk_temp>>8);
-            sap_sector[261] = (uint8)crcpuk_temp;
+            sap_sector[SAP_DD_CRC_HIGH] = (uint8)(crcpuk_temp>>8);
+            sap_sector[SAP_DD_CRC_LOW]  = (uint8)crcpuk_temp;
 
             /* write the sector */
-            if (fwrite (sap_sector, 1, (size_t)SAP_DD_SECT_SIZE,
-                                        file) != (size_t)SAP_DD_SECT_SIZE)
-                return error_Message (TEO_ERROR_DISK_IO, NULL);
+            if (fwrite (sap_sector, 1, secsiz, file) != secsiz)
+                return sap_error (drive, TEO_ERROR_FILE_WRITE, file);
         }
     }
+    fclose(file);
+#ifdef DO_PRINT
+    display_track ("write_mfm_track", drive, track);
+#endif
     return 0;
-}
-
-
-
-
-/* write_ctrl_track:
- *  Open the file and write the SAP track.
- */
-static int write_ctrl_track (const char filename [], struct DISK_INFO *info)
-{
-    int err = 0;
-    FILE *file = NULL;
-    long int file_seek = SAP_HEADER_SIZE
-                         + info->track
-                         * TEO_DISK_SECTOR_COUNT
-                         * (info->sector_size+6);
-
-    if ((info->track < 0) || (info->track >= info->track_count))
-        return error_Message (TEO_ERROR_DISK_IO, filename);
-
-    if ((file = fopen (filename, "rb+")) == NULL)
-        return error_Message (TEO_ERROR_DISK_NONE, filename);
-
-    if (fseek (file, file_seek, SEEK_SET) != 0)
-        err = error_Message (TEO_ERROR_FILE_WRITE, filename);
-
-    if (err == 0)
-    {
-        if (info->sector_size == 256)
-            err = write_mfm_track (file, info);
-        else
-            err = write_fm_track (file, info);
-    }
-
-    (void)fclose(file);
-    return err;   
 }
 
 
@@ -484,40 +468,41 @@ int sap_LoadDisk(int drive, const char filename[])
 
     if (protection >= 0)
     {
-        switch (*sap_read_header)
-        {
-            case '\1' : disk[drive].info->sector_size  = 256;
-                        disk[drive].info->fat_size     = 160;
-                        disk[drive].info->track_count  = 80;
-                        disk[drive].info->byte_rate    = 250000/8;
-                        break;
-                     
-            case '\2' : return error_Message (TEO_ERROR_FILE_FORMAT, filename);
-/*
-                        disk[drive].info->sector_size  = 128;
-                        disk[drive].info->fat_size     = 80;
-                        disk[drive].info->track_count  = 40;
-                        disk[drive].info->byte_rate    = 125000/8;
-*/
-                        break;
-        }
-        disk[drive].info->track = -1;  /* force track to be loaded */
+        /* write-update the track of the current drive */
+        disk_WriteTrack ();
 
-        /* update parameters */
         teo.disk[drive].file = std_free (teo.disk[drive].file);
         teo.disk[drive].file = std_strdup_printf ("%s", filename);
         teo.disk[drive].write_protect = protection;
+        switch (*sap_read_header)
+        {
+            case '\1' :
+                disk[drive].sector_size = TEO_DISK_DD_SECTOR_SIZE;
+                disk[drive].track_count = TEO_DISK_DD_TRACK_NUMBER;
+                disk[drive].track_size = TEO_DISK_DD_TRACK_SIZE;
+                disk[drive].byte_rate = TEO_DISK_DD_BYTE_RATE;
+                disk[drive].ReadTrack = read_mfm_track;
+                disk[drive].WriteTrack = write_mfm_track;
+                break;
+                     
+            case '\2' :
+                disk[drive].sector_size = TEO_DISK_SD_SECTOR_SIZE;
+                disk[drive].track_count = TEO_DISK_SD_TRACK_NUMBER;
+                disk[drive].track_size = TEO_DISK_SD_TRACK_SIZE;
+                disk[drive].byte_rate = TEO_DISK_SD_BYTE_RATE;
+                disk[drive].ReadTrack = read_fm_track;
+                disk[drive].WriteTrack = write_fm_track;
+                break;
+        }
+        disk[drive].drv->track.curr = 0;
+        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
         disk[drive].state = TEO_DISK_ACCESS_SAP;
         disk[drive].write_protect = FALSE;
-        disk[drive].ReadCtrlTrack = read_ctrl_track;
-        disk[drive].WriteCtrlTrack = write_ctrl_track;
-        disk[drive].ReadCtrlSector = NULL;
-        disk[drive].WriteCtrlSector = NULL;
-        disk[drive].FormatCtrlTrack = NULL;
+        disk[drive].ReadSector = NULL;
+        disk[drive].WriteSector = NULL;
+        disk[drive].FormatTrack = NULL;
         disk[drive].IsWritable = NULL;
         disk[drive].side_count = 1;
     }
-
     return protection;
 }
-
