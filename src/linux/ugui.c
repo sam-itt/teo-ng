@@ -40,6 +40,7 @@
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 26/03/2012 12/06/2012
  *                               19/09/2013 11/04/2014 31/05/2015
+ *                               31/07/2016
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
@@ -163,48 +164,32 @@ void ugui_Free (void)
 void ugui_Init(void)
 {
     GtkWidget *content_area;
-    GtkWidget *action_area;
     GtkWidget *widget;
     GtkWidget *hbox, *vbox;
 
     /* fenêtre d'affichage */
-    wControl = gtk_dialog_new ();
-    gtk_window_set_resizable (GTK_WINDOW(wControl), FALSE);
-    gtk_window_set_title (GTK_WINDOW(wControl),
-                          is_fr?"Panneau de contrÃ´le"
-                                :"Control panel");
-    gtk_window_set_transient_for (GTK_WINDOW(wControl), GTK_WINDOW(wMain));
-    gtk_window_set_destroy_with_parent (GTK_WINDOW(wControl), TRUE);
-    gtk_window_set_modal (GTK_WINDOW(wControl), TRUE);
+    wControl = gtk_dialog_new_with_buttons (
+                is_fr?"Panneau de contrÃ´le":"Control panel",
+                GTK_WINDOW (wMain),
+                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                is_fr?"Quitter":"Quit", TEO_RESPONSE_QUIT,
+                is_fr?"Valider":"OK", GTK_RESPONSE_ACCEPT,
+                NULL);
 
     content_area = gtk_dialog_get_content_area (GTK_DIALOG(wControl));
-    action_area = gtk_dialog_get_action_area (GTK_DIALOG(wControl));
     
-    /* bouton de "A Propos" */
-    widget=gtk_button_new_with_label(is_fr?"Ã€ propos":"About");
-    gtk_box_pack_end( GTK_BOX(action_area), widget, FALSE, FALSE, 0);
-    g_signal_connect(G_OBJECT(widget),
-                     "clicked",
-                     G_CALLBACK(uabout_Dialog),
-                     (gpointer)NULL);
-
-    /* boîte horizontale du titre */
-    hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
-    gtk_box_pack_start( GTK_BOX(action_area), hbox, TRUE, TRUE, 0);
-
-    gtk_dialog_add_button (GTK_DIALOG(wControl),
-                           is_fr?"_Quitter":"_Quit",
-                           TEO_RESPONSE_QUIT);
-    gtk_dialog_add_button (GTK_DIALOG(wControl),
-                           is_fr?"_Valider":"_OK",
-                           GTK_RESPONSE_ACCEPT);
-
-    /* crée toutes les widgets de la fenêtre */
-
     /* boîte verticale associée à la frame des commandes et réglages */
     vbox=gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
     gtk_container_set_border_width( GTK_CONTAINER(vbox), 5);
     gtk_container_add( GTK_CONTAINER(content_area), vbox);
+
+    /* bouton de "A Propos" */
+    widget=gtk_button_new_with_label(is_fr?"Ã€ propos":"About");
+    gtk_box_pack_start( GTK_BOX(vbox), widget, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(widget),
+                     "clicked",
+                     G_CALLBACK(uabout_Dialog),
+                     (gpointer)NULL);
 
     /* boîte horizontale des resets */
     hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
