@@ -150,9 +150,9 @@ GtkWidget *udbkpt_Init (void)
         }
         gtk_widget_add_events (entry[i], GDK_KEY_PRESS_MASK);
         g_signal_connect (G_OBJECT (entry[i]), "key-press-event",
-                          G_CALLBACK (key_press_event), (gpointer) i);
+                          G_CALLBACK (key_press_event), GINT_TO_POINTER (i));
         g_signal_connect (G_OBJECT (entry[i]), "changed",
-                          G_CALLBACK (entry_changed), (gpointer) i);
+                          G_CALLBACK (entry_changed), GINT_TO_POINTER (i));
     }
     frame = gtk_frame_new (is_fr?"Points d'arrêts":"Breakpoints");
     gtk_container_add (GTK_CONTAINER (frame), box);

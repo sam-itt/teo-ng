@@ -72,7 +72,7 @@ static void do_step_over (GtkToolButton *toolbutton, gpointer user_data)
 
 static void do_quit (GtkToolButton *toolbutton, gpointer user_data)
 {
-    int quit_mode = (int)user_data;
+    int quit_mode = GPOINTER_TO_INT (user_data);
 
     udebug_Quit (quit_mode);
 
