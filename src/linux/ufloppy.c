@@ -60,14 +60,14 @@
 #include "linux/sound.h"
 
 
-#define DISK_RETRY    1
-#define RESET_RETRY   1
+#define DISK_RETRY    4
+#define RESET_RETRY   4
 
 static int fd[2] = {-1, -1};
 static int drive_type[2];
 
-#define SET_NO_MULTITRACK(lval)  (lval &= ~0x80)
-#define IS_5_INCHES(drive) ((drive_type[drive]>0) && (drive_type[drive]<3))
+#define SET_NO_MULTITRACK(lval)  ((lval) &= ~0x80)
+#define IS_5_INCHES(drive) ((drive_type[(drive)]>0) && (drive_type[(drive)]<3))
 
 
 
@@ -181,7 +181,6 @@ static int disk_command(int drive, struct floppy_raw_cmd *fd_cmd)
         if (i) reset_floppy(drive);
         ret = execute_command (drive,fd_cmd);
     }
-    
     return ret;
 }
 
@@ -231,7 +230,8 @@ static int write_sector(int drive, int track, int sector, int nsects, const unsi
 
     /* paramètres de commande */
     memset (&fd_cmd, 0x00, sizeof (struct floppy_raw_cmd));
-    fd_cmd.flags  = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_NEED_SEEK; // | FD_RAW_NO_MOTOR_AFTER;    fd_cmd.data   = (unsigned char *)data;
+    fd_cmd.flags  = FD_RAW_WRITE | FD_RAW_INTR | FD_RAW_NEED_SEEK; // | FD_RAW_NO_MOTOR_AFTER;
+    fd_cmd.data   = (unsigned char *)data;
     fd_cmd.length = 256*nsects; /* SECTOR_SIZE */
     fd_cmd.rate   = IS_5_INCHES(pc_drive) ? 1 : 2;
     fd_cmd.track  = IS_5_INCHES(pc_drive) ? track*2 : track;
