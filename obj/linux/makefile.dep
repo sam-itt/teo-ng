@@ -5,12 +5,12 @@ obj/linux/hardware.o: src/hardware.c include/defs.h include/mc68xx/mc6809.h \
  include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
  include/defs.h include/teo.h include/mc68xx/mc6809.h \
  include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
- include/media/disk/controlr.h include/media/disk.h \
+ include/media/disk.h \
  include/media/keyboard.h include/media/cass.h include/media/mouse.h \
  include/media/printer.h
 obj/linux/image.o: src/image.c include/defs.h include/mc68xx/mc6809.h include/teo.h \
  include/mc68xx/mc6809.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
- include/mc68xx/mc6821.h include/media/disk/controlr.h \
+ include/mc68xx/mc6821.h \
  include/media/disk.h include/errors.h include/std.h include/hardware.h \
  include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/defs.h \
  include/teo.h
@@ -19,7 +19,7 @@ obj/linux/ini.o: src/ini.c include/defs.h include/mc68xx/mc6809.h include/teo.h 
 obj/linux/option.o: src/option.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/option.h include/std.h include/main.h \
  include/std.h include/ini.h include/errors.h \
- include/media/disk/controlr.h include/media/disk.h include/media/memo.h \
+ include/media/disk.h include/media/memo.h \
  include/media/cass.h
 obj/linux/std.o: src/std.c include/defs.h include/mc68xx/mc6809.h include/std.h \
  include/teo.h include/media/printer.h
@@ -27,7 +27,7 @@ obj/linux/teo.o: src/teo.c include/defs.h include/mc68xx/mc6809.h include/teo.h 
  include/errors.h include/image.h include/ini.h include/std.h \
  include/hardware.h include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
  include/mc68xx/mc6809.h include/defs.h include/teo.h \
- include/media/disk/controlr.h include/media/disk.h \
+ include/media/disk.h \
  include/media/joystick.h include/media/keyboard.h include/media/cass.h \
  include/media/mouse.h include/media/printer.h include/mc68xx/mc6809.h
 obj/linux/dasm6809.o: src/mc68xx/dasm6809.c include/mc68xx/dasm6809.h \
@@ -44,7 +44,7 @@ obj/linux/disk.o: src/media/disk.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/std.h include/main.h include/hardware.h \
  include/mc68xx/mc6821.h include/mc68xx/mc6846.h include/mc68xx/mc6809.h \
  include/defs.h include/teo.h include/errors.h \
- include/media/disk/controlr.h include/media/disk.h \
+ include/media/disk.h \
  include/media/disk/sap.h include/media/disk/hfe.h \
  include/media/disk/fd.h include/media/disk/daccess.h
 obj/linux/joystick.o: src/media/joystick.c include/hardware.h \
@@ -75,21 +75,21 @@ obj/linux/daccess.o: src/media/disk/daccess.c include/defs.h \
  include/mc68xx/mc6809.h include/teo.h include/errors.h include/std.h \
  include/hardware.h include/mc68xx/mc6821.h include/mc68xx/mc6846.h \
  include/mc68xx/mc6809.h include/defs.h include/teo.h \
- include/media/disk/controlr.h include/media/disk.h
+ include/media/disk.h
 obj/linux/fd.o: src/media/disk/fd.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/errors.h include/std.h \
- include/media/disk/controlr.h include/media/disk.h
+ include/media/disk.h
 obj/linux/hfe.o: src/media/disk/hfe.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/errors.h include/std.h \
- include/media/disk/controlr.h include/media/disk.h \
+ include/media/disk.h \
  include/media/disk/hfe.h
 obj/linux/sap.o: src/media/disk/sap.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/errors.h include/std.h \
- include/media/disk/controlr.h include/media/disk.h
+ include/media/disk.h
 obj/linux/thmfc1.o: src/media/disk/controlr/thmfc1.c include/teo.h include/errors.h \
  include/std.h include/main.h include/hardware.h include/mc68xx/mc6821.h \
  include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/defs.h \
- include/mc68xx/mc6809.h include/teo.h include/media/disk/controlr.h \
+ include/mc68xx/mc6809.h include/teo.h \
  include/media/disk.h
 obj/linux/pr90042.o: src/media/printer/pr90042.c include/defs.h \
  include/mc68xx/mc6809.h include/teo.h include/media/printer.h
@@ -102,7 +102,7 @@ obj/linux/pr906xx.o: src/media/printer/pr906xx.c include/defs.h \
 obj/linux/udisplay.o: src/linux/udisplay.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/to8keys.h \
  include/media/keyboard.h include/media/mouse.h \
- include/media/disk/controlr.h include/media/disk.h include/linux/gui.h \
+ include/media/disk.h include/linux/gui.h \
  include/linux/display.h include/linux/../teo.h include/linux/graphic.h
 obj/linux/ufloppy.o: src/linux/ufloppy.c include/teo.h include/linux/sound.h
 obj/linux/ugraphic.o: src/linux/ugraphic.c include/linux/display.h \
@@ -112,7 +112,7 @@ obj/linux/ugui.o: src/linux/ugui.c include/linux/display.h include/linux/../teo.
 obj/linux/umain.o: src/linux/umain.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/option.h include/std.h include/image.h \
  include/errors.h include/main.h include/std.h include/ini.h \
- include/media/disk/controlr.h include/media/disk.h include/media/cass.h \
+ include/media/disk.h include/media/cass.h \
  include/media/memo.h include/media/printer.h include/linux/floppy.h \
  include/linux/display.h include/linux/../teo.h include/linux/graphic.h \
  include/linux/sound.h include/linux/gui.h
@@ -127,12 +127,12 @@ obj/linux/udebug.o: include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/debug.h include/mc68xx/mc6821.h \
  include/mc68xx/mc6846.h include/mc68xx/mc6809.h include/defs.h \
  include/mc68xx/dasm6809.h include/mc68xx/mc6809.h \
- include/media/disk/controlr.h include/media/disk.h \
+ include/media/disk.h \
  include/linux/display.h include/linux/../teo.h include/linux/gui.h \
  include/linux/graphic.h
 obj/linux/udisk.o: src/linux/ugui/udisk.c include/defs.h include/mc68xx/mc6809.h \
  include/teo.h include/std.h include/errors.h \
- include/media/disk/controlr.h include/media/disk.h \
+ include/media/disk.h \
  include/media/disk/daccess.h include/media/printer.h include/linux/gui.h
 obj/linux/umemo.o: src/linux/ugui/umemo.c include/media/memo.h include/linux/gui.h \
  include/teo.h include/std.h include/errors.h
