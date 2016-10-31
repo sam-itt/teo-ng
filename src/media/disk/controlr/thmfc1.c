@@ -37,7 +37,7 @@
  *  Module     : media/disk/controlr/thmfc1.c
  *  Version    : 1.8.4
  *  Créé par   : Francois Mouret 24/05/2012
- *  Modifié par: François Mouret 31/08/2013
+ *  Modifié par: François Mouret 31/08/2013 31/07/2016
  *
  *  Contrôleur THMFC1.
  */
@@ -208,7 +208,6 @@
 #include "std.h"
 #include "main.h"
 #include "hardware.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 
 #define CMD0_ENCODING         0x20
@@ -251,68 +250,100 @@
 #define WCELL_SEPARATOR_ON    0x80
 #define WCELL_SEPARATOR_MASK  0x7f
 
-
-static mc6809_clock_t clock = 0;
-static int ctrl = 0;
-static int pos;
-static int track_i = 0;
-static uint8 tmp_uint8 = 0;
+#if 0
+#define DO_PRINT  1      /* if output wanted */
+#endif
 
 static struct MC6809_REGS regs;
+static int disk_led = FALSE;
 
 
 
-static int controller_still_writing (void)
+/* reset_controller_regs
+ *  Reset the controller registers
+ */
+static void reset_controller_regs (int drive)
 {
-    return ((dkc->wr0 & (CMD0_WRITE | CMD0_OP_MASK)) == 0) ? FALSE : TRUE;
+    disk[drive].dkc->process = 0;
+    disk[drive].dkc->process_cpt = 0;
+    disk[drive].dkc->write_door = 0;
+    disk[drive].dkc->auto_count = 0;
+    disk[drive].dkc->rr0 = STAT0_DRQ;
+    disk[drive].dkc->rr1 = STAT1_DISK_CHANGE;
 }
+
+
+
+/* driver_still_running :
+ *  Check if driver is still running.
+ */
+static int still_running (void)
+{
+    return (mc6809_clock() >= disk[dkcurr].drv->motor_stop) ? FALSE : TRUE;
+}
+
+
+
+/* stop_motor :
+ *  Stop the motor.
+ */
+static void stop_motor (void)
+{
+    reset_controller_regs (dkcurr);
+    disk[dkcurr].drv->motor_start = mc6809_clock();
+    disk[dkcurr].drv->motor_stop = mc6809_clock();
+}
+
 
 
 /* _________________________ read/write function __________________________ */
 
 
-static void flush_bus (void)
+static void flush_bus (struct DISK_SIDE *dsd)
 {
-    /* return if motor off or track not defined */
-    if ((dkc->motor_clock[ctrl] != 0L)
-     || (dkc->info.track_size == 0))
+    int pos;
+
+    if (mc6809_clock() >= dsd->drv->motor_stop)
         return;
 
     /* compute track position */
-    clock = mc6809_clock();
-    pos = (((dkc->info.byte_rate * (clock-dkc->motor_clock[ctrl])) / TEO_CPU_FREQ)
-             + dkc->last_pos[ctrl]) % dkc->info.track_size;
+    pos = (((dsd->byte_rate
+            * (mc6809_clock()-dsd->drv->motor_start))
+             / TEO_CPU_FREQ)
+              + dsd->drv->pos.last)
+               % dsd->track_size;
 
     /* manage DRQ bit */
-    if (pos != track_i)
-    {
-        dkc->rr0 |= STAT0_DRQ;
-        track_i = pos;
+    if (pos == dsd->drv->pos.curr)
+        return;
+    dsd->drv->pos.curr = pos;
+    dsd->dkc->rr0 |= STAT0_DRQ;
 
-        /* write data if requested */
-        if (dkc->write_door != 0)
+    /* return disk not inserted */
+    if (disk[dkcurr].state == TEO_DISK_ACCESS_NONE)
+        return;
+
+    /* write data if requested */
+    if (dsd->dkc->write_door != 0)
+    {
+        if (teo.disk[dkcurr].write_protect == FALSE)
         {
-            if (teo.disk[dkc->drive].write_protect == FALSE)
-            {
-                dkc->info.data[pos] = dkc->rr3;
-                if (dkc->rr4 == MFM_DATA_CLOCK_VALUE)
-                    dkc->info.clck[pos] = DATA_CLOCK_MARK_WRITE;
-                else
-                    dkc->info.clck[pos] = SYNCHRO_CLOCK_MARK_WRITE;
-                disk_ControllerWritten();
-            }
+            dsd->data[pos] = dsd->dkc->rr3;
+            if (dsd->dkc->rr4 == MFM_DATA_CLOCK_VALUE)
+                dsd->clck[pos] = DATA_CLOCK_MARK_WRITE;
             else
-                dkc->rr1 |= STAT1_WRITE_PROTECTED;
+                dsd->clck[pos] = SYNCHRO_CLOCK_MARK_WRITE;
+            disk_Written();
         }
+    }
+    else
+    /* read data if requested */
+    {
+        dsd->dkc->rr3 = dsd->data[pos];
+        if (dsd->clck[pos] < SYNCHRO_CLOCK_MARK)
+            dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
         else
-        /* read data if requested */
-        {
-            dkc->rr3 = dkc->info.data[pos];
-            if (dkc->info.clck[pos] < SYNCHRO_CLOCK_MARK)
-                dkc->rr4 = MFM_DATA_CLOCK_VALUE;
-            else
-                dkc->rr4 = MFM_SYNCHRO_CLOCK_VALUE;
-        }
+            dsd->dkc->rr4 = MFM_SYNCHRO_CLOCK_VALUE;
     }
 }
 
@@ -320,301 +351,404 @@ static void flush_bus (void)
 /* ______________________ processes for auto functions _____________________ */
 
 
-static void auto_check_synchro (void)
+static void auto_check_synchro (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr4 != MFM_DATA_CLOCK_VALUE)
-        dkc->process++;
-    else
-        dkc->process = 0;
-
-    dkc->process_cpt = 0;
-    dkc->rr0 &= ~STAT0_DRQ;
-}
-
-
-
-static void auto_check_info_id (void)
-{
-    if (dkc->rr3 == MFM_INFO_ID)
+    if (dsd->dkc->rr4 != MFM_DATA_CLOCK_VALUE)
     {
-        dkc->crc = MFM_CRC_INFO_INIT;
-        dkc->process++;
+#ifdef DO_PRINT
+        printf ("-----------------------------------\n");
+        printf ("%02x auto_check_synchro\n", dsd->dkc->rr3);
+#endif
+        dsd->dkc->process++;
     }
     else
-        dkc->process = 0;
-    dkc->rr0 &= ~STAT0_DRQ;
+        dsd->dkc->process = 0;
+
+    dsd->dkc->process_cpt = 0;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_read_address_wait_for_id (void)
+static void auto_check_info_id (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == MFM_INFO_ID)
+#ifdef DO_PRINT
+    printf ("%02x auto_check_info_id\n", dsd->dkc->rr3);
+#endif
+    if (dsd->dkc->rr3 == MFM_INFO_ID)
     {
-        dkc->crc = MFM_CRC_INFO_INIT;
-        dkc->auto_count = 4;
-        dkc->rr0 |= STAT0_DREQ;
-        dkc->process++;
+        dsd->dkc->crc = MFM_CRC_INFO_INIT;
+        dsd->dkc->process++;
     }
     else
-        dkc->process = 0;
-    dkc->rr0 &= ~STAT0_DRQ;
+        dsd->dkc->process = 0;
+
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_track (void)
+static void auto_read_address_wait_for_id (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == dkc->wr6)
-        dkc->process++;
+#ifdef DO_PRINT
+    printf ("%02x auto_read_address_wait_for_id\n", dsd->dkc->rr3);
+#endif
+    if (dsd->dkc->rr3 == MFM_INFO_ID)
+    {
+        dsd->dkc->crc = MFM_CRC_INFO_INIT;
+        dsd->dkc->auto_count = 4;
+        dsd->dkc->rr0 |= STAT0_DREQ;
+        dsd->dkc->process++;
+    }
     else
-        dkc->process = 0;
+        dsd->dkc->process = 0;
 
-    tmp_uint8 = (uint8)dkc->rr3;
-    dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dkc->crc);
-
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_head (void)
+static void auto_check_track (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == ((dkc->wr1 & CMD1_AUTO_HEAD) >> 4))
-        dkc->process++;
+    uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
+
+#ifdef DO_PRINT
+    printf ("%02x auto_check_track\n", dsd->dkc->rr3);
+#endif
+    if (dsd->dkc->rr3 == dsd->dkc->wr6)
+        dsd->dkc->process++;
     else
-        dkc->process = 0;
+        dsd->dkc->process = 0;
 
-    tmp_uint8 =(uint8) dkc->rr3;
-    dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dkc->crc);
+    dsd->dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dsd->dkc->crc);
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_sector (void)
+static void auto_check_head (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == dkc->wr5)
-        dkc->process++;
+    uint8 tmp_uint8 = dsd->dkc->rr3;
+
+#ifdef DO_PRINT
+    printf ("%02x auto_check_head\n", dsd->dkc->rr3);
+#endif
+    if (dsd->dkc->rr3 == ((dsd->dkc->wr1 & CMD1_AUTO_HEAD) >> 4))
+        dsd->dkc->process++;
     else
-        dkc->process = 0;
+        dsd->dkc->process = 0;
 
-    tmp_uint8 = (uint8)dkc->rr3;
-    dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dkc->crc);
+    dsd->dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dsd->dkc->crc);
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_size (void)
+static void auto_check_sector (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == ((dkc->wr1 & CMD1_SECTOR_SIZE_MASK) >> 5))
-        dkc->process++;
+    uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
+
+#ifdef DO_PRINT
+    printf ("%02x auto_check_sector\n", dsd->dkc->rr3);
+#endif
+    if (dsd->dkc->rr3 == dsd->dkc->wr5)
+        dsd->dkc->process++;
     else
-        dkc->process = 0;
+        dsd->dkc->process = 0;
 
-    tmp_uint8 = (uint8)dkc->rr3;
-    dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dkc->crc);
+    dsd->dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dsd->dkc->crc);
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_crc_high_rewind (void)
+static void auto_check_size (struct DISK_SIDE *dsd)
 {
+    uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
 
-    if (dkc->rr3 == (uint8)(dkc->crc>>8))
-        dkc->process++;
+#ifdef DO_PRINT
+    printf ("%02x auto_check_size\n", dsd->dkc->rr3);
+#endif
+    if (dsd->dkc->rr3 == ((dsd->dkc->wr1 & CMD1_SECTOR_SIZE_MASK) >> 5))
+        dsd->dkc->process++;
     else
-        dkc->process = 0;
+        dsd->dkc->process = 0;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dsd->dkc->crc);
+
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_crc_low_rewind (void)
+static void auto_check_crc_high_rewind (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == (uint8)dkc->crc)
-        dkc->process++;
+#ifdef DO_PRINT
+    printf ("auto_check_crc_high_rewind\n");
+#endif
+    if (dsd->dkc->rr3 == (uint8)(dsd->dkc->crc>>8))
+        dsd->dkc->process++;
     else
-        dkc->process = 0;
+        dsd->dkc->process = 0;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_crc_high (void)
+static void auto_check_crc_low_rewind (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 != (uint8)(dkc->crc>>8))
-        dkc->rr0 |= STAT0_CRC_ERROR;
+#ifdef DO_PRINT
+    printf ("auto_check_crc_low_rewind\n");
+#endif
+    if (dsd->dkc->rr3 == (uint8)dsd->dkc->crc)
+        dsd->dkc->process++;
+    else
+        dsd->dkc->process = 0;
+
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
+}
+
+
+
+static void auto_check_crc_high (struct DISK_SIDE *dsd)
+{
+#ifdef DO_PRINT
+    printf ("auto_check_crc_high\n");
+#endif
+    if (dsd->dkc->rr3 != (uint8)(dsd->dkc->crc>>8))
+        dsd->dkc->rr0 |= STAT0_CRC_ERROR;
     
-    dkc->process++;
+    dsd->dkc->process++;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_check_crc_low (void)
+static void auto_check_crc_low (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 != (uint8)dkc->crc)
-        dkc->rr0 |= STAT0_CRC_ERROR;
+#ifdef DO_PRINT
+    printf ("auto_check_crc_low\n");
+#endif
+    if (dsd->dkc->rr3 != (uint8)dsd->dkc->crc)
+        dsd->dkc->rr0 |= STAT0_CRC_ERROR;
     
-    dkc->process++;
+    dsd->dkc->process++;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_skip_27_datas (void)
+static void auto_skip_27_datas (struct DISK_SIDE *dsd)
 {
-    if (++dkc->process_cpt == 27)
+    if (++dsd->dkc->process_cpt == 27)
     {
-        dkc->process++;
-        dkc->process_cpt = 0;
+#ifdef DO_PRINT
+        printf ("auto_skip_27_datas\n");
+#endif
+        dsd->dkc->process++;
+        dsd->dkc->process_cpt = 0;
     }
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_read_wait_42 (void)
+static void auto_read_wait_42 (struct DISK_SIDE *dsd)
 {
-    if (++dkc->process_cpt == 43)
+    if (++dsd->dkc->process_cpt == 42)
     {
-        dkc->process = 0;
-        dkc->process_cpt = 0;
+#ifdef DO_PRINT
+        printf ("auto_read_wait_42");
+#endif
+        dsd->dkc->process = 0;
+        dsd->dkc->process_cpt = 0;
     }
 
-    if (dkc->rr4 != MFM_DATA_CLOCK_VALUE)
+    if (dsd->dkc->rr4 != MFM_DATA_CLOCK_VALUE)
     {
-        dkc->process_cpt = 0;
-        dkc->rr0 |= STAT0_DREQ;
-        dkc->process++;
+        dsd->dkc->process_cpt = 0;
+        dsd->dkc->rr0 |= STAT0_DREQ;
+        dsd->dkc->process++;
     }
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_read_wait_sector_id (void)
+static void auto_read_wait_sector_id (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == MFM_SECTOR_ID)
+    if (dsd->dkc->rr3 == MFM_SECTOR_ID)
     {
-        dkc->crc = MFM_CRC_DATA_INIT;
-        dkc->auto_count = 128 << ((dkc->wr1 & CMD1_SECTOR_SIZE_MASK) >> 5);
-        dkc->process++;
+#ifdef DO_PRINT
+        printf ("auto_read_wait_sector_id\n");
+#endif
+        dsd->dkc->crc = MFM_CRC_DATA_INIT;
+        dsd->dkc->auto_count = 128<<((dsd->dkc->wr1&CMD1_SECTOR_SIZE_MASK)>>5);
+        dsd->dkc->process++;
     }
 }
 
 
 
-static void auto_count_data (void)
+static void auto_count_data (struct DISK_SIDE *dsd)
 {
-    tmp_uint8 = (uint8)dkc->rr3;
-    dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dkc->crc);
-    /* TODO  dkc->read_address_clock = clock; */
+    uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
+#ifdef DO_PRINT
+    int x, y;
+    static int pos = 0;
+    static uint8 sector[1024];
+#endif
 
-    if (--dkc->auto_count == 0)
-        dkc->process++;
+    dsd->dkc->crc = disk_ComputeCrc (&tmp_uint8, 1, dsd->dkc->crc);
+
+#ifdef DO_PRINT
+    sector[pos++] = tmp_uint8;
+#endif 
+
+    if (--dsd->dkc->auto_count == 0)
+    {
+#ifdef DO_PRINT
+        for (y=0; y<pos; y+=16)
+        {
+            printf ("%04d  ", y);
+
+            for (x=0; x<16; x++)
+            {
+                printf ("%02x ", sector[y+x]);
+            }
+            printf (" ");
+            for (x=0; x<16; x++)
+            {
+                if ((sector[y+x] > 32) && (sector[y+x] < 0x7e))
+                    printf ("%c", sector[y+x]);
+                else
+                    printf (".");
+            }
+            printf ("\n");
+        }
+        pos = 0;
+#endif
+        dsd->dkc->process++;
+    }
 }
 
 
 
-static void auto_skip_22_datas (void)
+static void auto_skip_22_datas (struct DISK_SIDE *dsd)
 {
-    if (++dkc->process_cpt == 22)
+    if (++dsd->dkc->process_cpt == 22)
     {
-        dkc->rr3 = MFM_PRE_SYNC_DATA_VALUE;
-        dkc->rr4 = MFM_DATA_CLOCK_VALUE;
-        dkc->write_door = 1;
-        dkc->process++;
-        dkc->process_cpt = 0;
+#ifdef DO_PRINT
+        printf ("auto_skip_22_datas\n");
+#endif
+        dsd->dkc->rr3 = MFM_PRE_SYNC_DATA_VALUE;
+        dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
+        dsd->dkc->write_door = 1;
+        dsd->dkc->process++;
+        dsd->dkc->process_cpt = 0;
     }
     
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_write_pre_synchro (void)
+static void auto_write_pre_synchro (struct DISK_SIDE *dsd)
 {
-    if (++dkc->process_cpt == 12)
+    if (++dsd->dkc->process_cpt == 12)
     {
-        dkc->rr3 = MFM_SYNCHRO_DATA_VALUE;
-        dkc->rr4 = MFM_SYNCHRO_CLOCK_VALUE;
-        dkc->process++;
+#ifdef DO_PRINT
+        printf ("auto_write_pre_synchro\n");
+#endif
+        dsd->dkc->rr3 = MFM_SYNCHRO_DATA_VALUE;
+        dsd->dkc->rr4 = MFM_SYNCHRO_CLOCK_VALUE;
+        dsd->dkc->process++;
     }
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_write_ready (void)
+static void auto_write_ready (struct DISK_SIDE *dsd)
 {
-    dkc->rr0 |= STAT0_DREQ;
-    dkc->process++;
+#ifdef DO_PRINT
+    printf ("auto_write_ready\n");
+#endif
+    dsd->dkc->rr0 |= STAT0_DREQ;
+    dsd->dkc->process++;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_write_wait_sector_id (void)
+static void auto_write_wait_sector_id (struct DISK_SIDE *dsd)
 {
-    if (dkc->rr3 == MFM_SECTOR_ID)
+    if (dsd->dkc->rr3 == MFM_SECTOR_ID)
     {
-        dkc->rr4 = MFM_DATA_CLOCK_VALUE;
-        dkc->info.clck[pos] = DATA_CLOCK_MARK_WRITE;
-        dkc->crc = MFM_CRC_DATA_INIT;
-        dkc->auto_count = 128 << ((dkc->wr1 & CMD1_SECTOR_SIZE_MASK) >> 5);
-        dkc->process++;
+#ifdef DO_PRINT
+        printf ("auto_write_wait_sector\n");
+#endif
+        dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
+        dsd->clck[dsd->drv->pos.curr] = DATA_CLOCK_MARK_WRITE;
+        dsd->dkc->crc = MFM_CRC_DATA_INIT;
+        dsd->dkc->auto_count = 128<<((dsd->dkc->wr1&CMD1_SECTOR_SIZE_MASK)>>5);
+        dsd->dkc->process++;
     }
 }
 
 
 
-static void auto_write_crc_high (void)
+static void auto_write_crc_high (struct DISK_SIDE *dsd)
 {
-    dkc->rr3 = (uint8)(dkc->crc>>8);
-    dkc->rr4 = MFM_DATA_CLOCK_VALUE;
-    dkc->process++;
+#ifdef DO_PRINT
+    printf ("%02x auto_write_crc_high\n", (int)dsd->dkc->rr3&0xff);
+#endif
+    dsd->dkc->rr3 = (uint8)(dsd->dkc->crc>>8);
+    dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
+    dsd->dkc->process++;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_write_crc_low (void)
+static void auto_write_crc_low (struct DISK_SIDE *dsd)
 {
-    dkc->rr3 = (uint8)dkc->crc;
-    dkc->rr4 = MFM_DATA_CLOCK_VALUE;
-    dkc->process++;
+#ifdef DO_PRINT
+    printf ("%02x auto_write_crc_low\n", (int)dsd->dkc->rr3&0xff);
+#endif
+    dsd->dkc->rr3 = (uint8)dsd->dkc->crc;
+    dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
+    dsd->dkc->process++;
 
-    dkc->rr0 &= ~STAT0_DRQ;
+    dsd->dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
 
-static void auto_finished (void)
+static void auto_finished (struct DISK_SIDE *dsd)
 {
-    dkc->rr0 |= STAT0_FINISHED | STAT0_DRQ;
-    dkc->process = 0;
-    dkc->process_cpt = 0;
-    dkc->write_door = 0;
+#ifdef DO_PRINT
+    printf ("auto_finished\n");
+#endif
+    dsd->dkc->rr0 |= STAT0_FINISHED | STAT0_DRQ;
+    dsd->dkc->process = 0;
+    dsd->dkc->process_cpt = 0;
+    dsd->dkc->write_door = 0;
 }
 
 
 
-static void (*auto_read_process[])(void) = {
+static void (*auto_read[])(struct DISK_SIDE *dsd) = {
     auto_check_synchro,
     auto_check_synchro,
     auto_check_synchro,
@@ -636,7 +770,7 @@ static void (*auto_read_process[])(void) = {
 
 
 
-static void (*auto_write_process[])(void) = {
+static void (*auto_write[])(struct DISK_SIDE *dsd) = {
     auto_check_synchro,
     auto_check_synchro,
     auto_check_synchro,
@@ -659,7 +793,7 @@ static void (*auto_write_process[])(void) = {
 
 
 
-static void (*auto_read_address_process[])(void) = {
+static void (*auto_read_address[])(struct DISK_SIDE *dsd) = {
     auto_check_synchro,
     auto_check_synchro,
     auto_check_synchro,
@@ -679,39 +813,46 @@ static void (*auto_read_address_process[])(void) = {
  */
 static int get_reg0 (void)
 {
-    disk_ControllerUpdateTrack();
+    struct DISK_SIDE *dsd = &disk[dkcurr];
 
-    /* only if motor on */
-    if (dkc->motor_clock[ctrl] == 0L)
+    disk_ReadTrack (dkcurr);
+
+    flush_bus (dsd);
+
+    /* only if disk inserted and motor on */
+    if ((disk[dkcurr].state != TEO_DISK_ACCESS_NONE)
+     && (mc6809_clock() < dsd->drv->motor_stop))
     {
-        flush_bus ();
-
-        if ((dkc->rr0 & STAT0_DRQ) != 0)
+        if ((dsd->dkc->rr0 & STAT0_DRQ) != 0)
         {
-            if ((dkc->rr0 & STAT0_FINISHED) == 0)
+            if ((dsd->dkc->rr0 & STAT0_FINISHED) == 0)
             {
-                switch (dkc->wr0 & CMD0_OP_MASK)
+                switch (dsd->dkc->wr0 & CMD0_OP_MASK)
                 {
                     case CMD0_OP_READ_ADDRESS :
-                        ((*(auto_read_address_process[dkc->process]))());
+                        ((*(auto_read_address[dsd->dkc->process]))(dsd));
                         break;
 
                     case CMD0_OP_READ_SECTOR :
-                        ((*(auto_read_process[dkc->process]))());
+                        ((*(auto_read[dsd->dkc->process]))(dsd));
                         break;
 
                     case CMD0_OP_WRITE_SECTOR :
-                        ((*(auto_write_process[dkc->process]))());
+                        ((*(auto_write[dsd->dkc->process]))(dsd));
                         break;
                 }
             }
-            dkc->rr0 &= ~STAT0_SYNCHRO_ON;
-            if ((dkc->wr0 & CMD0_DETECT_SYNCHRO) != 0)
-                if (dkc->rr4 != MFM_DATA_CLOCK_VALUE)
-                    dkc->rr0 |= STAT0_SYNCHRO_ON;
+            dsd->dkc->rr0 &= ~STAT0_SYNCHRO_ON;
+            if ((dsd->dkc->wr0 & CMD0_DETECT_SYNCHRO) != 0)
+                if (dsd->dkc->rr4 != MFM_DATA_CLOCK_VALUE)
+                    dsd->dkc->rr0 |= STAT0_SYNCHRO_ON;
         }
     }
-    return dkc->rr0;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg0=$%02x\n", regs.pc, disk[dkcurr].dkc->rr0);
+#endif
+    return dsd->dkc->rr0;
 }
 
 
@@ -721,21 +862,71 @@ static int get_reg0 (void)
  */
 static int get_reg1 (void)
 {
+    /* clear all flags */
+    disk[dkcurr].dkc->rr1 &= ~(STAT1_WRITE_PROTECTED
+                             | STAT1_FLOPPY_INDEX
+                             | STAT1_FLOPPY_TRACK0
+                             | STAT1_READY);
+
+    flush_bus(&disk[dkcurr]);
+
+    /* only if disk inserted */
+    switch (disk[dkcurr].state)
+    {
+        case TEO_DISK_ACCESS_NONE :
+            break;
+
+        /* special management for SAP files.
+         A call to a SAP sector whose number is greater than
+         16 (like in microbac_maths.sap or microbac_phys.sap)
+         must generate a "No Disk" error (see version 1.8.1 of
+         Teo and older). */
+        case TEO_DISK_ACCESS_SAP :
+            if ((LOAD_WORD(0x604A) < 80)
+             && (LOAD_BYTE(0x604C) <= TEO_DISK_SECTOR_PER_TRACK))
+                disk[dkcurr].dkc->rr1 |= STAT1_READY;
+            break;
+
+        /* special management for direct access */
+        case TEO_DISK_ACCESS_DIRECT :
+            if (teo_DirectReadSector != NULL)
+                disk[dkcurr].dkc->rr1 |= STAT1_READY;
+            break;
+        
+        default :
+            disk[dkcurr].dkc->rr1 |= STAT1_READY;
+            break;
+    }
+
     /* only if motor on */
-    if (dkc->motor_clock[ctrl] == 0L)
+    if (mc6809_clock() < disk[dkcurr].drv->motor_stop)
     {
         /* manage disk protection */
-        dkc->rr1 &= ~STAT1_WRITE_PROTECTED;
-        if (teo.disk[dkc->drive].write_protect == TRUE)
-            dkc->rr1 |= STAT1_WRITE_PROTECTED;
+        if ((teo.disk[dkcurr].write_protect == TRUE)
+         || (disk[dkcurr].state == TEO_DISK_ACCESS_NONE))
+        {
+            disk[dkcurr].dkc->rr1 |= STAT1_WRITE_PROTECTED;
+        }
 
-        /* manage index detection */
-        flush_bus();
-        dkc->rr1 &= ~STAT1_FLOPPY_INDEX;
-        if ((track_i == dkc->info.track_size) || (track_i < 5))
-            dkc->rr1 |= STAT1_FLOPPY_INDEX;
+        /* manage track 0 detection */
+        if (disk[dkcurr].drv->track.curr == 0)
+        {
+            disk[dkcurr].dkc->rr1 |= STAT1_FLOPPY_TRACK0;
+        }
     }
-    return dkc->rr1;
+
+    /* manage index detection */
+    if ((disk[dkcurr].drv->pos.curr == (disk[dkcurr].track_size-1))
+     || (disk[dkcurr].drv->pos.curr < 5))
+    {
+        disk[dkcurr].dkc->rr1 |= STAT1_FLOPPY_INDEX;
+    }
+
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg1=$%02x\n", regs.pc, disk[dkcurr].dkc->rr1);
+#endif
+    return disk[dkcurr].dkc->rr1;
 }
 
 
@@ -745,7 +936,11 @@ static int get_reg1 (void)
  */
 static int get_reg2 (void)
 {
-    return dkc->rr2;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg2=$%02x\n", regs.pc, disk[dkcurr].dkc->rr2);
+#endif
+    return disk[dkcurr].dkc->rr2;
 }
 
 
@@ -756,10 +951,14 @@ static int get_reg2 (void)
 static int get_reg3 (void)
 {
     /* Update rr0 if motor on */
-    if (dkc->motor_clock[ctrl] == 0L)
-        dkc->rr0 &= ~STAT0_DRQ;
+    if (mc6809_clock() < disk[dkcurr].drv->motor_stop)
+        disk[dkcurr].dkc->rr0 &= ~STAT0_DRQ;
 
-    return dkc->rr3;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg3=$%02x\n", regs.pc, disk[dkcurr].dkc->rr3);
+#endif
+    return disk[dkcurr].dkc->rr3;
 }
 
 
@@ -769,7 +968,11 @@ static int get_reg3 (void)
  */
 static int get_reg4 (void)
 {
-    return dkc->rr3;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg4=$%02x\n", regs.pc, disk[dkcurr].dkc->rr3);
+#endif
+    return disk[dkcurr].dkc->rr3;
 }
 
 
@@ -780,7 +983,11 @@ static int get_reg4 (void)
  */
 static int get_reg5 (void)
 {
-    return dkc->rr5;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg5=$%02x\n", regs.pc, disk[dkcurr].dkc->rr5);
+#endif
+    return disk[dkcurr].dkc->rr5;
 }
 
 
@@ -791,7 +998,11 @@ static int get_reg5 (void)
  */
 static int get_reg6 (void)
 {
-    return dkc->rr6;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg6=$%02x\n", regs.pc, disk[dkcurr].dkc->rr6);
+#endif
+    return disk[dkcurr].dkc->rr6;
 }
 
 
@@ -802,7 +1013,11 @@ static int get_reg6 (void)
  */
 static int get_reg7 (void)
 {
-    return dkc->rr7;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg7=$%02x\n", regs.pc, disk[dkcurr].dkc->rr7);
+#endif
+    return disk[dkcurr].dkc->rr7;
 }
 
 
@@ -813,7 +1028,11 @@ static int get_reg7 (void)
  */
 static int get_reg8 (void)
 {
-    return dkc->rr0;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg8=$%02x\n", regs.pc, disk[dkcurr].dkc->rr0);
+#endif
+    return disk[dkcurr].dkc->rr0;
 }
 
 
@@ -824,19 +1043,11 @@ static int get_reg8 (void)
  */
 static int get_reg9 (void)
 {
-    return dkc->rr1;
-}
-
-
-
-static void reset_controller_regs (struct DISK_CONTROLLER *controller)
-{
-    controller->process = 0;
-    controller->process_cpt = 0;
-    controller->write_door = 0;
-    controller->auto_count = 0;
-    controller->rr0 = STAT0_DRQ;
-    controller->rr1 = STAT1_DISK_CHANGE;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X get_reg9=$%02x\n", regs.pc, disk[dkcurr].dkc->rr1);
+#endif
+    return disk[dkcurr].dkc->rr1;
 }
 
 
@@ -846,31 +1057,41 @@ static void reset_controller_regs (struct DISK_CONTROLLER *controller)
  */
 static void set_reg0 (int val)
 {
-    disk_ControllerUpdateTrack();
+    disk_ReadTrack (dkcurr);
 
-    dkc->wr0 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg0=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->wr0 = val;
 
-    reset_controller_regs (dkc);
+    reset_controller_regs (dkcurr);
 
     if ((val & CMD0_OP_MASK) == CMD0_OP_RESET)
     {
         /* activate write mode if requested */
-        dkc->write_door = (val & CMD0_WRITE) >> 2;
+        disk[dkcurr].dkc->write_door = (val & CMD0_WRITE) >> 2;
     }
 
-    switch (disk[dkc->drive].state)
+    switch (disk[dkcurr].state)
     {
         /* special management for SAP files.
-           Some programs need to have the post-sector bytes (at least the first
-           4 bytes) set to 0xF7 (for example :  Avenger, Marche à l'ombre) */
+           Some programs need to have the post-sector bytes (at
+           least the first 4 bytes) set to 0xF7 (for example :
+           Avenger, Marche à l'ombre) */
         case TEO_DISK_ACCESS_SAP :
-            if ((val == 0x1b) && (disk[dkc->drive].info->sector_size == 256))
+            if ((val == 0x1b) && (disk[dkcurr].sector_size == 256))
             {
                 mc6809_GetRegs(&regs);
-                if ((regs.pc < 0xe004) && (dkc->wr5 >= 0) && (dkc->wr5 <= 16))
-                    memset (disk[dkc->drive].info->data
-                             +DDSECTORPOS(dkc->wr5)+MFM_SECTOR_SIZE-12,
+                if ((regs.pc < 0xe004)
+                 && (disk[dkcurr].dkc->wr5 >= 0)
+                 && (disk[dkcurr].dkc->wr5 <= TEO_DISK_SECTOR_PER_TRACK))
+                {
+                    memset (disk[dkcurr].data
+                                +DDSECTORPOS(disk[dkcurr].dkc->wr5)
+                                +MFM_SECTOR_SIZE-12,
                             0xf7, 12);
+                }
             }
             break;
 
@@ -884,15 +1105,15 @@ static void set_reg0 (int val)
                 switch (val)
                 {
                     case 0x19 :   /* write sector */
-                        disk_ControllerWriteSector ();
+                        disk_WriteSector (dkcurr);
                         break;
 
                     case 0x1b :   /* read sector */
-                        disk_ControllerReadSector ();
+                        disk_ReadSector (dkcurr);
                         break;
 
                     case 0x04 :   /* format track */
-                        disk_ControllerFormatTrack ();
+                        disk_FormatTrack (dkcurr);
                         break;
                 }
             }
@@ -907,27 +1128,24 @@ static void set_reg0 (int val)
  */
 static void set_reg1 (int val)
 {
-    dkc->wr1 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg1=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->wr1 = val;
 }
 
 
 
-/* floppy_motor_off:
- *  Stop the floppy motor.
+/* disk_led_off:
+ *  Switch the floppy led off.
  */
-static void floppy_motor_off (void)
+static void disk_led_off (void)
 {
-    /* only if motor on */
-    if (dkc->motor_clock[ctrl] == 0L)
+    if ((teo_SetDiskLed != NULL) && (disk_led == TRUE))
     {
-        if (teo_SetDiskLed)
-            teo_SetDiskLed(FALSE);
-
-        /* the floppy motor is considered to be actually stopped
-           only 2 seconds after the register has been written */
-        dkc->motor_clock[ctrl] = mc6809_clock();
-
-        dkc->rr1 &= ~STAT1_READY;
+        teo_SetDiskLed (FALSE);
+        disk_led = FALSE;
     }
 }
 
@@ -938,53 +1156,37 @@ static void floppy_motor_off (void)
  */
 static void floppy_motor_on (void)
 {
-    switch (disk[dkc->drive].state)
+    /* switch led on */
+    if ((teo_SetDiskLed != NULL) && (disk_led == FALSE))
     {
-        /* stop motor if no disk inserted */
-        case TEO_DISK_ACCESS_NONE :
-            floppy_motor_off ();
-            return;
-        
-        /* special management for SAP files.
-         A call to a SAP sector whose number is greater than
-         16 (like in microbac_maths.sap or microbac_phys.sap)
-         must generate a "No Disk" error (see version 1.8.1 of
-         Teo and older). */
-        case TEO_DISK_ACCESS_SAP :
-            if ((LOAD_WORD(0x604A) > 80) || (LOAD_BYTE(0x604C) > 16))
-            {
-                floppy_motor_off ();
-                return;
-            }
-            break;
-
-        /* special management for direct access */
-        case TEO_DISK_ACCESS_DIRECT :
-            if (teo_DirectReadSector == NULL)
-            {
-                floppy_motor_off ();
-                return;
-            }
-            break;
+        teo_SetDiskLed (TRUE);
+        disk_led = TRUE;
     }
 
-    /* switch on the disk led */
-    if (teo_SetDiskLed)
-        teo_SetDiskLed(TRUE);
-
-    /* manage track position */
-    clock = mc6809_clock();
-    if ((dkc->motor_clock[ctrl] != 0L)
-      && (clock > (dkc->motor_clock[ctrl]+(TEO_CPU_FREQ*2))))
+    /* activate floppy motor */
+    if (mc6809_clock() >= disk[dkcurr].drv->motor_stop)
     {
-        /* add 2 seconds of rotation to last position */
-        if (dkc->info.track_size != 0)
-            dkc->last_pos[ctrl] = ((dkc->info.byte_rate * 2)
-                                      + dkc->last_pos[ctrl])
-                                        % dkc->info.track_size;
+        /* adjust last position */
+        disk[dkcurr].drv->pos.last =
+             ((disk[dkcurr].byte_rate * 2)
+             + disk[dkcurr].drv->pos.last)
+             % disk[dkcurr].track_size;
+        disk[dkcurr].drv->motor_start = mc6809_clock();
     }
-    dkc->motor_clock[ctrl] = 0L;
-    dkc->rr1 |= STAT1_READY;
+    /* 2 seconds more */
+    disk[dkcurr].drv->motor_stop = mc6809_clock() + (TEO_CPU_FREQ*2);
+}
+
+
+
+static void select_drive (int drive)
+{
+    if (drive != dkcurr)
+        disk_ReadTrack (drive);
+
+    /* writing a valid drive code in CMD2 reactivate the motor */
+    floppy_motor_on ();
+
 }
 
 
@@ -994,71 +1196,62 @@ static void floppy_motor_on (void)
  */
 static void set_reg2 (int val)
 {
-    int prev_val = dkc->wr2;
+    int side;
+    int prev_val = disk[dkcurr].dkc->wr2;
 
-    dkc->wr2 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg2=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->wr2 = val;
 
-    /* selection of controller and side */
-    if (val & CMD2_DRIVE)
+    /* drive selection */
+    side = ((val & CMD2_FLOPPY_HEAD) == 0) ? 1 : 0;
+    switch (val & CMD2_DRIVE)
     {
-        switch (val & 0x43)
-        {
-            case 0x41: dkc->drive = 0; break;
-            case 0x01: dkc->drive = 1; break;
-            case 0x42: dkc->drive = 2; break;
-            case 0x02: dkc->drive = 3; break;
-        }
-        ctrl = dkc->drive>>1;
-        if (dkc->drive != dkc->info.drive)
-            disk_ControllerUpdateTrack();
-        /* writing a valid drive code in CMD2 reactivate the motor */
-        floppy_motor_on ();
-    }
-    else
-    /* stop motor */
-    if ((val == 0x00) || (val == 0x40))
-    {
-        floppy_motor_off ();
-        return;
+        case 0x02:
+            select_drive (2+side);
+            break;
+
+        case 0x00 :
+            disk_led_off ();
+            return;
+                
+        default :
+            select_drive (0+side);
+            break;
     }
 
     /* activate motor */
     if (((prev_val ^ val) & CMD2_FLOPPY_MOTOR) != 0)
     {
-        if (((val & CMD2_FLOPPY_MOTOR) != 0)
-         && (disk[dkc->drive].state > TEO_DISK_ACCESS_DIRECT))
+        if ((val & CMD2_FLOPPY_MOTOR) != 0)
             floppy_motor_on ();
     }
-        
+
     /* manage head moving */
     /* no track loaded until moving stops */
     if (((prev_val ^ val) & CMD2_STEP) != 0)
     {
-        if ((val & CMD2_STEP) != 0)
+        if (((val & CMD2_STEP) != 0)
+         && (disk[dkcurr].drv->track.curr < disk[dkcurr].track_count))
         {
             if ((val & CMD2_HEAD_DIRECTION) != 0)
             {
-                if (dkc->track[ctrl] < dkc->info.track_count)
-                {
-                    dkc->track[ctrl]++;
-                    disk_ControllerWriteUpdateTrack();
-                }
-                dkc->rr1 &= ~STAT1_FLOPPY_TRACK0;
+                disk[dkcurr].drv->track.curr++;
             }
             else
             {
-                if (dkc->track[ctrl] > 0)
+                if (disk[dkcurr].drv->track.curr > 0)
                 {
-                    dkc->track[ctrl]--;
-                    disk_ControllerWriteUpdateTrack();
+                    disk[dkcurr].drv->track.curr--;
                 }
-                else
-                    dkc->rr1 |= STAT1_FLOPPY_TRACK0;
             }
+#ifdef DO_PRINT
+            printf ("move head to track %d\n", disk[dkcurr].drv->track.curr);
+#endif
         }
     }
-    else
-        disk_ControllerUpdateTrack ();
 }
 
 
@@ -1069,11 +1262,15 @@ static void set_reg2 (int val)
  */
 static void set_reg3 (int val)
 {
-    dkc->rr3 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg3=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->rr3 = val;
 
     /* Update rr0 if motor on */
-    if (dkc->motor_clock[ctrl] == 0L)
-        dkc->rr0 &= ~STAT0_DRQ;
+    if (mc6809_clock() < disk[dkcurr].drv->motor_stop)
+        disk[dkcurr].dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
@@ -1084,11 +1281,15 @@ static void set_reg3 (int val)
  */
 static void set_reg4 (int val)
 {
-    dkc->rr4 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg4=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->rr4 = val;
 
     /* Update rr0 if motor on */
-    if (dkc->motor_clock[ctrl] == 0L)
-        dkc->rr0 &= ~STAT0_DRQ;
+    if (mc6809_clock() < disk[dkcurr].drv->motor_stop)
+        disk[dkcurr].dkc->rr0 &= ~STAT0_DRQ;
 }
 
 
@@ -1099,7 +1300,11 @@ static void set_reg4 (int val)
  */
 static void set_reg5 (int val)
 {
-    dkc->wr5 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg5=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->wr5 = val;
 }
 
 
@@ -1110,7 +1315,11 @@ static void set_reg5 (int val)
  */
 static void set_reg6 (int val)
 {
-    dkc->wr6 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg6=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->wr6 = val;
 }
 
 
@@ -1121,7 +1330,11 @@ static void set_reg6 (int val)
  */
 static void set_reg7 (int val)
 {
-    dkc->wr7 = val;
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_reg7=$%02x\n", regs.pc, val);
+#endif
+    disk[dkcurr].dkc->wr7 = val;
 }
 
 
@@ -1131,6 +1344,10 @@ static void set_reg7 (int val)
  */
 static void set_nop (int val)
 {
+#ifdef DO_PRINT
+    mc6809_GetRegs(&regs);
+    printf ("%04X set_nop=$%02x\n", regs.pc, val);
+#endif
     (void)val;
 }
 
@@ -1138,70 +1355,40 @@ static void set_nop (int val)
 /* ------------------------------------------------------------------------- */
 
 
-void thmfc1_Update (void)
-{
-    ctrl = dkc->drive>>1;
-}
-
-
-/* thmfc1_Alloc:
- *  Allocate a THMFC1 controller.
+/* thmfc1_Init:
+ *  Init a THMFC1 controller unit.
  */
-struct DISK_CONTROLLER *thmfc1_Alloc (void)
+void thmfc1_Init (int controller)
 {
-    static struct DISK_CONTROLLER *thmfc1 = NULL;
-
-    /* allocate memory space */
-    thmfc1 = calloc (sizeof(struct DISK_CONTROLLER), 1);
-    if (thmfc1 == NULL)
-    {
-        (void)error_Message (TEO_ERROR_ALLOC, NULL);
-        return NULL;
-    }
-
     /* initialize controller registers */
-    reset_controller_regs (thmfc1);
+    reset_controller_regs (controller*4);
 
     /* setters */
-    thmfc1->SetReg0 = set_reg0;
-    thmfc1->SetReg1 = set_reg1;
-    thmfc1->SetReg2 = set_reg2;
-    thmfc1->SetReg3 = set_reg3;
-    thmfc1->SetReg4 = set_reg4;
-    thmfc1->SetReg5 = set_reg5;
-    thmfc1->SetReg6 = set_reg6;
-    thmfc1->SetReg7 = set_reg7;
-    thmfc1->SetReg8 = set_nop;
-    thmfc1->SetReg9 = set_nop;
+    disk[controller*4].dkc->SetReg0 = set_reg0;
+    disk[controller*4].dkc->SetReg1 = set_reg1;
+    disk[controller*4].dkc->SetReg2 = set_reg2;
+    disk[controller*4].dkc->SetReg3 = set_reg3;
+    disk[controller*4].dkc->SetReg4 = set_reg4;
+    disk[controller*4].dkc->SetReg5 = set_reg5;
+    disk[controller*4].dkc->SetReg6 = set_reg6;
+    disk[controller*4].dkc->SetReg7 = set_reg7;
+    disk[controller*4].dkc->SetReg8 = set_nop;
+    disk[controller*4].dkc->SetReg9 = set_nop;
 
     /* getters */
-    thmfc1->GetReg0 = get_reg0;
-    thmfc1->GetReg1 = get_reg1;
-    thmfc1->GetReg2 = get_reg2;
-    thmfc1->GetReg3 = get_reg3;
-    thmfc1->GetReg4 = get_reg4;
-    thmfc1->GetReg5 = get_reg5;
-    thmfc1->GetReg6 = get_reg6;
-    thmfc1->GetReg7 = get_reg7;
-    thmfc1->GetReg8 = get_reg8;
-    thmfc1->GetReg9 = get_reg9;
+    disk[controller*4].dkc->GetReg0 = get_reg0;
+    disk[controller*4].dkc->GetReg1 = get_reg1;
+    disk[controller*4].dkc->GetReg2 = get_reg2;
+    disk[controller*4].dkc->GetReg3 = get_reg3;
+    disk[controller*4].dkc->GetReg4 = get_reg4;
+    disk[controller*4].dkc->GetReg5 = get_reg5;
+    disk[controller*4].dkc->GetReg6 = get_reg6;
+    disk[controller*4].dkc->GetReg7 = get_reg7;
+    disk[controller*4].dkc->GetReg8 = get_reg8;
+    disk[controller*4].dkc->GetReg9 = get_reg9;
 
     /* functions */
-    thmfc1->StillWriting = controller_still_writing;
-    
-    return thmfc1;
-}
-
-
-
-/* thmfc1_Free:
- *  Free the memory for a THMFC1 controller.
- */
-void thmfc1_Free (struct DISK_CONTROLLER *thmfc1)
-{
-    if (thmfc1 != NULL)
-        std_free (thmfc1->info.data);
-
-    std_free (thmfc1);
+    disk[controller*4].dkc->StillRunning = still_running;
+    disk[controller*4].dkc->StopMotor = stop_motor;
 }
 
