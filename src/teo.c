@@ -40,6 +40,7 @@
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
  *                               02/11/2012 18/09/2013 10/05/2014
+ *                               31/07/2016
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -60,7 +61,6 @@
 #include "ini.h"
 #include "std.h"
 #include "hardware.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/joystick.h"
 #include "media/keyboard.h"
@@ -540,6 +540,9 @@ void teo_Exit(void)
     for (i=0; i<mem.cart.nbank; i++)
         mem.cart.bank[i] = std_free (mem.cart.bank[i]);
 
+    /* Free the disks structure */
+    disk_Free();
+
     /* Libère l'occupation du message d'erreur */
     teo_error_msg = std_free (teo_error_msg);
 
@@ -573,7 +576,13 @@ int teo_Init(int num_joy)
 
     joystick_Init();
     mouse_Init();
-    disk_Init();
+
+    if (disk_Init() < 0)
+    {
+        teo_Exit();
+        return TEO_ERROR;
+    }
+
     cass_Init();
     printer_Init();
 
