@@ -135,7 +135,7 @@ GtkWidget *udbkpt_Init (void)
         entry[i] = gtk_entry_new ();
         gtk_entry_set_max_length (GTK_ENTRY (entry[i]), 4);
         gtk_entry_set_width_chars (GTK_ENTRY (entry[i]), 4);
-        gtk_entry_set_max_width_chars (GTK_ENTRY (entry[i]), 4);
+//        gtk_entry_set_max_width_chars (GTK_ENTRY (entry[i]), 4);
 /*
         gtk_entry_set_input_purpose (
             GTK_ENTRY (entry[i]),
