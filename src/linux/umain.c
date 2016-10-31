@@ -40,7 +40,7 @@
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 26/01/2010 08/2011 23/03/2012
  *                               09/06/2012 19/10/2012 19/09/2013
- *                               13/04/2014
+ *                               13/04/2014 31/07/2016
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
  *
@@ -72,7 +72,6 @@
 #include "main.h"
 #include "std.h"
 #include "ini.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -134,13 +133,11 @@ static gboolean RunTO8 (gpointer user_data)
 
     if (teo.command == TEO_COMMAND_QUIT)
     {
-        disk_ControllerWriteUpdateTrack();
         mc6809_FlushExec();
         gtk_main_quit ();
         return FALSE;
     }
 
-    disk_ControllerClearWriteFlag();
     teo.command = TEO_COMMAND_NONE;
 
     ugraphic_Refresh ();
@@ -148,7 +145,7 @@ static gboolean RunTO8 (gpointer user_data)
      && (teo.setting.sound_enabled))
         usound_Play ();
 
-    disk_ControllerWriteUpdateTimeout();
+    disk_WriteTimeout();
 
     return TRUE;
     (void)user_data;
@@ -272,7 +269,7 @@ static void copy_debian_file (const char filename[])
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
-    ugui_Error (msg, NULL);
+    ugui_Error (msg, wMain);
 }
 
 
@@ -365,12 +362,13 @@ int main(int argc, char *argv[])
 
     /* Initialise l'interface graphique */
     ugui_Init();
+    udebug_Init();
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
     teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
-    g_timeout_add_full (G_PRIORITY_DEFAULT, 10, RunTO8, &idle_data, NULL);
+    g_timeout_add_full (G_PRIORITY_DEFAULT, 1, RunTO8, &idle_data, NULL);
     gtk_main ();
     g_timer_destroy (timer);
 
@@ -380,6 +378,7 @@ int main(int argc, char *argv[])
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
     ugui_Free ();   /* Libère la mémoire utilisée par la GUI */
+    udebug_Free();  /* Free memory used by the debugger */
     usound_Close(); /* Referme le périphérique audio*/
 
     /* Sortie de l'émulateur */
