@@ -1,8 +1,10 @@
 ========================================================================
-=== Version 1.8.4 (Juillet 2015 - Août 2015)                         ===
+=== Version 1.8.4 (Juillet 2015 - Oct 2016)                          ===
 ========================================================================
 
 - teo
+   - Mise à jour de la documentation pour l'activation du lecteur de
+     disquettes sous Linux (merci à; credenhill de forum.ubuntu-fr.org)
    - Amélioration du comportement de la génération sonore
    - La protection disque est maintenant contrôlée par les cases à
      cocher du panneau de contrôle (plus d'erreur de conversion disque)

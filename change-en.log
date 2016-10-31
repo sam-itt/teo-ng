@@ -3,6 +3,8 @@
 ========================================================================
 
 - teo
+   - Update the documentation about the activation of floppy drive under
+     Linux (thanks to credenhill from forum.ubuntu-fr.org)
    - Improve the sound generation behaviour
    - Disk protection is now controled by checkboxes on the control panel
      (no more disk conversion error)
