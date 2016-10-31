@@ -56,7 +56,6 @@
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/disk/daccess.h"
 #include "errors.h"
@@ -311,8 +310,6 @@ void adisk_Panel(void)
                 teo.disk[drive].side++;
                 if (teo.disk[drive].side >= disk[drive].side_count)
                     teo.disk[drive].side = 0;
-                disk_ControllerWriteUpdateTrack();
-                disk[drive].info->track = -1;
                 update_side_button(drive);
                 break;
 

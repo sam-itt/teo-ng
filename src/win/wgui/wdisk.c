@@ -56,7 +56,6 @@
 #include "std.h"
 #include "main.h"
 #include "errors.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/disk/daccess.h"
 #include "win/gui.h"
@@ -159,9 +158,6 @@ static void set_side_combo (HWND hWnd, struct FILE_VECTOR *vector)
     disk_vector = disk_DiskVectorPtr (vector->path_list, row);
     disk_vector->side = side;
     teo.disk[vector->id].side = side;
-
-    disk_ControllerWriteUpdateTrack();
-    disk[vector->id].info->track = -1;
 }
 
 

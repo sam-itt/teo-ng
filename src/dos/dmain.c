@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 04/11/2003
  *               Samuel Devulder 08/2011
  *               François Mouret 08/2011 25/04/2012 01/11/2012
- *                               19/09/2013 13/04/2014
+ *                               19/09/2013 13/04/2014 31/07/2016
  *
  *  Boucle principale de l'émulateur.
  */
@@ -59,7 +59,6 @@
 #include "image.h"
 #include "main.h"
 #include "errors.h"
-#include "media/disk/controlr.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -149,7 +148,6 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
-            disk_ControllerClearWriteFlag();
             (void)teo_DoFrame();
 
             /* rafraîchissement de la palette */ 
@@ -171,7 +169,7 @@ static void RunTO8(void)
                     while (frame==tick)
                         ;
             }
-            disk_ControllerWriteUpdateTimeout();
+            disk_WriteTimeout();
             frame++;
         }
         while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
@@ -220,9 +218,6 @@ static void RunTO8(void)
         }
     }
     while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-
-    /* Finit de sauver les données disquettes */
-    disk_ControllerWriteUpdateTrack();
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();

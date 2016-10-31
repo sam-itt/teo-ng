@@ -81,42 +81,46 @@ extern void usetting_Update (void);
 
 extern void uprinter_Init (GtkWidget *notebook);
 
+extern void udebug_Init(void);
 extern void udebug_Panel(void);
 extern void udebug_DoStepByStep (void);
 extern void udebug_DoStepOver (void);
 extern void udebug_Quit (int quit_mode);
+extern void udebug_Free (void);
 
 /* disassembly */
 extern GtkWidget *uddisass_Init(void);
 extern void uddisass_DoStep(void);
 extern void uddisass_DoStepOver(GtkWidget *window);
 extern void uddisass_Display(void);
-extern void uddisass_Exit(void);
+extern void uddisass_Free(void);
 /* extras registers */
 extern GtkWidget *udreg_Init(void);
 extern void udreg_Display(void);
 extern void udreg_UpdateText(void);
-extern void udreg_Exit(void);
+extern void udreg_Free(void);
 /* memory */
 extern GtkWidget *udmem_Init(void);
 extern void udmem_Display(void);
 extern int  udmem_GetStepAddress(void);
 extern void udmem_StepDisplay(int address);
-extern void udmem_Exit(void);
+extern void udmem_Free(void);
 /* accumulators */
 extern GtkWidget *udacc_Init(void);
 extern void udacc_Display(void);
-extern void udacc_Exit(void);
+extern void udacc_Free(void);
 /* breakpoints */
 extern GtkWidget *udbkpt_Init(void);
 extern void udbkpt_Update (int number);
-extern void udbkpt_Exit(void);
+extern void udbkpt_Free(void);
 /* status bar */
 extern GtkWidget *udstatus_Init (void);
 extern void udstatus_Display (void);
+extern void udstatus_Free(void);
 /* tool bar */
 extern GtkWidget *udtoolb_Init (void);
 extern void udtoolb_SetRunButtonSensitivity (int state);
+extern void udtoolb_Free(void);
 
 #endif
 

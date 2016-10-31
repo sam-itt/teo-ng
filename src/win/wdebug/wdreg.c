@@ -52,7 +52,7 @@
 #include "hardware.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/dasm6809.h"
-#include "media/disk/controlr.h"
+#include "media/disk.h"
 #include "debug/debug.h"
 #include "win/gui.h"
 
