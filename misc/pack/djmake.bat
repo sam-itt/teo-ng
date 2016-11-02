@@ -11,7 +11,6 @@ echo include makefile.all >> makefile
 
 REM ---- Creates folders ----
 
-mkdir misc\pack\msdos
 mkdir misc\pack\msdos\en
 mkdir misc\pack\msdos\fr
 

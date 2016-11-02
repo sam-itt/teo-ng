@@ -10,9 +10,8 @@ echo include makefile.all >> makefile
 
 REM Creates folders
 
-mkdir misc\pack\mingw
-mkdir misc\pack\mingw\en
-mkdir misc\pack\mingw\fr
+mkdir misc\pack\windows\en
+mkdir misc\pack\windows\fr
 
 echo -------------------------------------------------------
 echo Creating Teo exec files for Windows setup in English...
@@ -21,10 +20,10 @@ echo -------------------------------------------------------
 mingw32-make veryclean
 mingw32-make ENGLISH=1
 mingw32-make depend
-if exist misc\pack\mingw\en\teow.exe del misc\pack\mingw\en\teow.exe
-copy teow.exe misc\pack\mingw\en\teow.exe
-if exist misc\pack\mingw\en\teo.dep del misc\pack\mingw\en\teo.dep
-copy obj\mingw32\makefile.dep misc\pack\mingw\en\teo.dep
+if exist misc\pack\windows\en\teow.exe del misc\pack\windows\en\teow.exe
+copy teow.exe misc\pack\windows\en\teow.exe
+if exist misc\pack\windows\en\teo.dep del misc\pack\windows\en\teo.dep
+copy obj\mingw32\makefile.dep misc\pack\windows\en\teo.dep
 
 echo ------------------------------------------------------
 echo Creating Teo exec files for Windows setup in French...
@@ -33,10 +32,10 @@ echo ------------------------------------------------------
 mingw32-make veryclean
 mingw32-make FRENCH=1
 mingw32-make depend
-if exist misc\pack\mingw\fr\teow.exe del misc\pack\mingw\fr\teow.exe
-copy teow.exe misc\pack\mingw\fr\teow.exe
-if exist misc\pack\mingw\fr\teo.dep del misc\pack\mingw\fr\teo.dep
-copy obj\mingw32\makefile.dep misc\pack\mingw\fr\teo.dep
+if exist misc\pack\windows\fr\teow.exe del misc\pack\windows\fr\teow.exe
+copy teow.exe misc\pack\windows\fr\teow.exe
+if exist misc\pack\windows\fr\teo.dep del misc\pack\windows\fr\teo.dep
+copy obj\mingw32\makefile.dep misc\pack\windows\fr\teo.dep
 
 echo -----------------
 echo Clean Teo objects
@@ -65,10 +64,10 @@ mingw32-make ENGLISH=1
 mingw32-make depend
 cd ..
 cd ..
-if exist misc\pack\mingw\en\cc90hfe.exe del misc\pack\mingw\en\cc90hfe.exe
-copy tools\cc90hfe\cc90hfe.exe misc\pack\mingw\en\cc90hfe.exe
-if exist misc\pack\mingw\en\cc90hfe.dep del misc\pack\mingw\en\cc90hfe.dep
-copy tools\cc90hfe\obj\mingw32\makefile.dep misc\pack\mingw\en\cc90hfe.dep
+if exist misc\pack\windows\en\cc90hfe.exe del misc\pack\windows\en\cc90hfe.exe
+copy tools\cc90hfe\cc90hfe.exe misc\pack\windows\en\cc90hfe.exe
+if exist misc\pack\windows\en\cc90hfe.dep del misc\pack\windows\en\cc90hfe.dep
+copy tools\cc90hfe\obj\mingw32\makefile.dep misc\pack\windows\en\cc90hfe.dep
 
 echo -------------------------------------------------------------------
 echo Creating windowed CC90HFE exec files for Windows setup in French...
@@ -81,10 +80,10 @@ mingw32-make FRENCH=1
 mingw32-make depend
 cd ..
 cd ..
-if exist misc\pack\mingw\fr\cc90hfe.exe del misc\pack\mingw\fr\cc90hfe.exe
-copy tools\cc90hfe\cc90hfe.exe misc\pack\mingw\fr\cc90hfe.exe
-if exist misc\pack\mingw\fr\cc90hfe.dep del misc\pack\mingw\fr\cc90hfe.dep
-copy tools\cc90hfe\obj\mingw32\makefile.dep misc\pack\mingw\fr\cc90hfe.dep
+if exist misc\pack\windows\fr\cc90hfe.exe del misc\pack\windows\fr\cc90hfe.exe
+copy tools\cc90hfe\cc90hfe.exe misc\pack\windows\fr\cc90hfe.exe
+if exist misc\pack\windows\fr\cc90hfe.dep del misc\pack\windows\fr\cc90hfe.dep
+copy tools\cc90hfe\obj\mingw32\makefile.dep misc\pack\windows\fr\cc90hfe.dep
 
 echo -------------------------------------------------------------------
 echo Creating CC90HFE-console exec files for Windows setup in English...
@@ -96,8 +95,8 @@ mingw32-make clean
 mingw32-make ENGLISH=1 CONSOLEMODE=1
 cd ..
 cd ..
-if exist misc\pack\mingw\en\cc90hfe-com.exe del misc\pack\mingw\en\cc90hfe-com.exe
-copy tools\cc90hfe\cc90hfe.exe misc\pack\mingw\en\cc90hfe-com.exe
+if exist misc\pack\windows\en\cc90hfe-com.exe del misc\pack\windows\en\cc90hfe-com.exe
+copy tools\cc90hfe\cc90hfe.exe misc\pack\windows\en\cc90hfe-com.exe
 
 echo ------------------------------------------------------------------
 echo Creating CC90HFE-console exec files for Windows setup in French...
@@ -109,8 +108,8 @@ mingw32-make clean
 mingw32-make FRENCH=1 CONSOLEMODE=1
 cd ..
 cd ..
-if exist misc\pack\mingw\fr\cc90hfe-com.exe del misc\pack\mingw\fr\cc90hfe-com.exe
-copy tools\cc90hfe\cc90hfe.exe misc\pack\mingw\fr\cc90hfe-com.exe
+if exist misc\pack\windows\fr\cc90hfe-com.exe del misc\pack\windows\fr\cc90hfe-com.exe
+copy tools\cc90hfe\cc90hfe.exe misc\pack\windows\fr\cc90hfe-com.exe
 
 
 echo ---------------------

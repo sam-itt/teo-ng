@@ -28,6 +28,7 @@ gzip_options="-9"
 
 # list of system files
 system_files="
+teo/system/icons/*.ico
 teo/system/rom/*.rom
 teo/system/printer/042/*.txt
 teo/system/printer/055/*.txt
@@ -72,7 +73,8 @@ teo/cc90.*
 teo/empty.hfe
 teo/change-*.log
 teo/licence-*.txt
-teo/readme-*.txt
+teo/README.txt
+teo/LISEZMOI.txt
 teo/fix*.*
 teo/makefile.*
 teo/allegro.cfg
@@ -114,9 +116,10 @@ rm -f -r ./cass
 #---------------------------------------------------------------------
 #   Clean package files
 #---------------------------------------------------------------------
-rm -f $pack_storage/*.tar*
-rm -f $pack_storage/*.zip
-rm -f $pack_storage/*.deb
+rm -f $pack_storage/linux/*.tar*
+rm -f $pack_storage/linux/*.deb
+rm -f $pack_storage/windows/*.zip
+rm -f $pack_storage/msdos/*.zip
 #---------------------------------------------------------------------
 #   Clean object files
 #---------------------------------------------------------------------
@@ -156,17 +159,17 @@ for i in teo/misc/pack/msdos/fr/* teo/misc/pack/msdos/en/*
 #---------------------------------------------------------------------
 #   Copy makefile.dep's
 #---------------------------------------------------------------------
-if [ -e ./teo/misc/pack/mingw/fr/teo.dep ]
+if [ -e ./teo/misc/pack/windows/fr/teo.dep ]
     then
-        cp -f ./teo/misc/pack/mingw/fr/teo.dep ./teo/obj/mingw32/makefile.dep
+        cp -f ./teo/misc/pack/windows/fr/teo.dep ./teo/obj/mingw32/makefile.dep
 fi
 if [ -e ./teo/misc/pack/msdos/fr/teo.dep ]
     then
         cp -f ./teo/misc/pack/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
 fi
-if [ -e ./teo/misc/pack/mingw/fr/cc90hfe.dep ]
+if [ -e ./teo/misc/pack/windows/fr/cc90hfe.dep ]
     then
-        cp -f ./teo/misc/pack/mingw/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
+        cp -f ./teo/misc/pack/windows/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
 fi
 
 
@@ -241,7 +244,7 @@ prog_name=teo-$teo_version-i586
 #   Transfert DEBIAN file structure
 #---------------------------------------------------------------------
 sudo rm -r -f ~/$prog_name
-cp -r $pack_storage/debian/teo ~
+cp -r $pack_storage/linux/debian/teo ~
 mv -f ~/teo ~/$prog_name
 #---------------------------------------------------------------------
 #   Create missing folders
@@ -265,14 +268,14 @@ cp teo/empty.hfe      ~/$prog_name/usr/share/teo
 cp teo/doc/images/*.* ~/$prog_name/usr/share/teo/doc/images
 cp teo/doc/doc.css    ~/$prog_name/usr/share/teo/doc
 cp teo/doc/*.htm      ~/$prog_name/usr/share/teo/doc
-cp teo/readme-en.txt  ~/$prog_name/usr/share/doc/teo/README
+cp teo/README.txt     ~/$prog_name/usr/share/doc/teo/README.txt
 cp teo/licence-en.txt ~/$prog_name/usr/share/doc/teo/copyright
 cp teo/change-en.log  ~/$prog_name/usr/share/doc/teo/changelog
 
 #---------------------------------------------------------------------
 #   Build DEBIAN package
 #---------------------------------------------------------------------
-build_debian_package $prog_name $pack_storage
+build_debian_package $prog_name $pack_storage/linux
 
 
 
@@ -297,7 +300,7 @@ prog_name="cc90hfe-$cc90hfe_version-i586"
 #   Transfert DEBIAN file structure
 #---------------------------------------------------------------------
 sudo rm -r -f ~/$prog_name
-cp -r $pack_storage/debian/cc90hfe ~
+cp -r $pack_storage/linux/debian/cc90hfe ~
 mv -f ~/cc90hfe ~/$prog_name
 #---------------------------------------------------------------------
 #   Create missing folders
@@ -322,7 +325,7 @@ mv ~/$move_dir/cc90hfe_fr.htm ~/$move_dir/index_fr.htm
 #---------------------------------------------------------------------
 #   Build DEBIAN package
 #---------------------------------------------------------------------
-build_debian_package $prog_name $pack_storage
+build_debian_package $prog_name $pack_storage/linux
 
 
 
@@ -387,8 +390,9 @@ teo/doc/*.htm
 teo/doc/*.css
 teo/change-*.log
 teo/licence-*.txt
-teo/readme-*.txt"
-pack_file="$pack_storage/teo-$teo_version-i586.tar"
+teo/README.txt
+teo/LISEZMOI.txt"
+pack_file="$pack_storage/linux/teo-$teo_version-i586.tar"
 tar -cf $pack_file $common_exec $exec_list
 gzip $gzip_options $pack_file
 
@@ -430,7 +434,7 @@ pack_doc="
 teo/doc/images/*.*
 teo/doc/*.htm
 teo/doc/*.css"
-pack_file="$pack_storage/teo-$teo_version-src.tar"
+pack_file="$pack_storage/linux/teo-$teo_version-src.tar"
 if [ -e "teo/obj/djgpp/makefile.dep" ]
     then
         tar -cf $pack_file $source_files $pack_doc
@@ -487,7 +491,6 @@ teo/allegro.cfg
 teo/alleg40.dll
 teo/CHANGES.TXT
 teo/LICENCE.TXT
-teo/README.TXT
 teo/empty.hfe
 teo/doc/*.htm
 teo/doc/images/*.*
@@ -497,7 +500,7 @@ teo/doc/*.css"
 
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in French..."
-pack_file="$pack_storage/teo-$teo_version-dosexe-fr.zip"
+pack_file="$pack_storage/msdos/teo-$teo_version-dosexe-fr.zip"
 if [ -e "teo/misc/pack/msdos/fr/teo.exe" ]
     then
         open_doc "fr"
@@ -508,15 +511,13 @@ if [ -e "teo/misc/pack/msdos/fr/teo.exe" ]
         cp teo/misc/pack/msdos/fr/wav2k7.exe teo/
         cp teo/change-fr.log       teo/CHANGES.TXT
         cp teo/licence-fr.txt      teo/LICENCE.TXT
-        cp teo/readme-fr.txt       teo/README.TXT
-        zip -r $zip_options $pack_file $common_exec $exec_list
+        zip -r $zip_options $pack_file $common_exec $exec_list LISEZMOI.txt
         rm teo/teo.exe
         rm teo/sap2.exe
         rm teo/sapfs.exe
         rm teo/wav2k7.exe
         rm teo/CHANGES.TXT
         rm teo/LICENCE.TXT
-        rm teo/README.TXT
         close_doc
 fi
 
@@ -524,7 +525,7 @@ fi
 
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in English..."
-pack_file="$pack_storage/teo-$teo_version-dosexe-en.zip"
+pack_file="$pack_storage/msdos/teo-$teo_version-dosexe-en.zip"
 if [ -e "teo/misc/pack/msdos/en/teo.exe" ]
     then
         open_doc "en"
@@ -534,15 +535,13 @@ if [ -e "teo/misc/pack/msdos/en/teo.exe" ]
         cp teo/misc/pack/msdos/en/wav2k7.exe teo/
         cp teo/change-en.log       teo/CHANGES.TXT
         cp teo/licence-en.txt      teo/LICENCE.TXT
-        cp teo/readme-en.txt       teo/README.TXT
-        zip -r $zip_options $pack_file $common_exec $exec_list
+        zip -r $zip_options $pack_file $common_exec $exec_list README.txt
         rm teo/teo.exe
         rm teo/sap2.exe
         rm teo/sapfs.exe
         rm teo/wav2k7.exe
         rm teo/CHANGES.TXT
         rm teo/LICENCE.TXT
-        rm teo/README.TXT
         close_doc
 fi
 
@@ -580,20 +579,19 @@ teo/doc/*.css"
 
 ######################################################################
 echo "Creating ZIP packages for Windows executables in French..."
-packFile="$pack_storage/teo-$teo_version-winexe-fr.zip"
-if [ -e "teo/misc/pack/mingw/fr/teow.exe" ]
+packFile="$pack_storage/windows/teo-$teo_version-winexe-fr.zip"
+if [ -e "teo/misc/pack/windows/fr/teow.exe" ]
     then
         open_doc "fr"
-        cp teo/misc/pack/mingw/fr/teow.exe        teo/
-        cp teo/misc/pack/mingw/fr/cc90hfe.exe     teo/
-        cp teo/misc/pack/mingw/fr/cc90hfe-com.exe teo/
+        cp teo/misc/pack/windows/fr/teow.exe      teo/
+        cp teo/misc/pack/windows/fr/cc90hfe.exe   teo/
+        cp teo/misc/pack/windows/fr/cc90hfe-com.exe teo/
         cp teo/misc/pack/msdos/fr/sap2.exe        teo/
         cp teo/misc/pack/msdos/fr/sapfs.exe       teo/
         cp teo/misc/pack/msdos/fr/wav2k7.exe      teo/
         cp teo/change-fr.log  teo/CHANGES.TXT
         cp teo/licence-fr.txt teo/LICENCE.TXT
-        cp teo/readme-fr.txt  teo/README.TXT
-        zip -r $zip_options $packFile $common_exec $exec_list
+        zip -r $zip_options $packFile $common_exec $exec_list LISEZMOI.txt
         rm teo/teow.exe
         rm teo/sap2.exe
         rm teo/sapfs.exe
@@ -602,7 +600,6 @@ if [ -e "teo/misc/pack/mingw/fr/teow.exe" ]
         rm teo/cc90hfe-com.exe
         rm teo/CHANGES.TXT
         rm teo/LICENCE.TXT
-        rm teo/README.TXT
         close_doc
 fi
 
@@ -610,20 +607,19 @@ fi
 
 ######################################################################
 echo "Creating ZIP packages for Windows executables in English..."
-packFile="$pack_storage/teo-$teo_version-winexe-en.zip"
-if [ -e "teo/misc/pack/mingw/en/teow.exe" ]
+packFile="$pack_storage/windows/teo-$teo_version-winexe-en.zip"
+if [ -e "teo/misc/pack/windows/en/teow.exe" ]
     then
         open_doc "en"
-        cp teo/misc/pack/mingw/en/teow.exe        teo/
-        cp teo/misc/pack/mingw/en/cc90hfe.exe     teo/
-        cp teo/misc/pack/mingw/en/cc90hfe-com.exe teo/
+        cp teo/misc/pack/windows/en/teow.exe      teo/
+        cp teo/misc/pack/windows/en/cc90hfe.exe   teo/
+        cp teo/misc/pack/windows/en/cc90hfe-com.exe teo/
         cp teo/misc/pack/msdos/en/sap2.exe        teo/
         cp teo/misc/pack/msdos/en/sapfs.exe       teo/
         cp teo/misc/pack/msdos/en/wav2k7.exe      teo/
         cp teo/change-en.log  teo/CHANGES.TXT
         cp teo/licence-en.txt teo/LICENCE.TXT
-        cp teo/readme-en.txt  teo/README.TXT
-        zip -r $zip_options $packFile $common_exec $exec_list
+        zip -r $zip_options $packFile $common_exec $exec_list README.txt
         rm teo/teow.exe
         rm teo/sap2.exe
         rm teo/sapfs.exe
@@ -632,7 +628,6 @@ if [ -e "teo/misc/pack/mingw/en/teow.exe" ]
         rm teo/cc90hfe-com.exe
         rm teo/CHANGES.TXT
         rm teo/LICENCE.TXT
-        rm teo/README.TXT
         close_doc
 fi
 
