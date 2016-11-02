@@ -78,8 +78,8 @@ sed_file src/win/wdialog.rc
 echo "Patching readme texts ..."
 echo "s/^\([ ]\{16,\}\)version [0-9.]*/\1version $verstr/" > $TMPDIR/fixver.sed
 echo "s/Copyright (C) \([0-9]*\)\-[0-9]*/Copyright (C) \1\-$todayYear/g" >> $TMPDIR/fixver.sed
-sed_file readme-fr.txt
-sed_file readme-en.txt
+sed_file LISEZMOI.txt
+sed_file README.txt
 sed_file src/readme.txt
 
 # patch docs
@@ -95,13 +95,13 @@ sed_file doc/wiki/teo_linux_en
 # patch pack scripts
 echo "Patching pack scripts..."
 echo "s/^\#define TEOVERSION\([ \t]*\)\(['\"]\)[0-9\.]*['\"]\(.*\)/\#define TEOVERSION\1\2$verstr\2\3/" > $TMPDIR/fixver.sed
-sed_file misc/pack/inno/teo-setup.iss
+sed_file misc/pack/windows/inno/teo-setup.iss
 echo "s/^teo_version=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/teo_version=\1$verstr\1\2/" > $TMPDIR/fixver.sed
 sed_file misc/pack/pack.sh
 echo "s/^Version[ \t]*=[ \t]*[0-9\.]*/Version=$verstr/" > $TMPDIR/fixver.sed
-sed_file misc/pack/debian/teo/usr/share/applications/teo.desktop
+sed_file misc/pack/linux/debian/teo/usr/share/applications/teo.desktop
 echo "s/^Version[ \t]*:[ \t]*[0-9\.]*/Version: $verstr/" > $TMPDIR/fixver.sed
-sed_file misc/pack/debian/teo/DEBIAN/control
+sed_file misc/pack/linux/debian/teo/DEBIAN/control
 
 # bump file version number
 echo "Bumping file version number..."
