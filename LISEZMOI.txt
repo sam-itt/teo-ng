@@ -15,7 +15,7 @@
                         L'émulateur Thomson TO8
                               version 1.8.4
 
-    Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+    Copyright (C) 1997-2016 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
                             Jérémie Guillaume, François Mouret,
                             Samuel Devulder
 
@@ -59,11 +59,11 @@ La compilation des packages nécessite la commande Unix SED.
 Dans un terminal sous systèmes Unix :
 1. ./fixdoscr.sh
 Dans une console sous systèmes Windows (djgpp) :
-2. Effacer le répertoire misc\pack\msdos s'il existe
+2. Effacer le contenu du répertoire misc\pack\msdos s'il existe
 3. misc\pack\djmake
 Dans une console sous systèmes Windows (mingw) :
 4. misc\pack\mgwmake
-5. Compiler misc\pack\inno\teo-setup.iss avec Inno Setup
+5. Compiler misc\pack\windows\inno\teo-setup.iss avec Inno Setup
 Dans un terminal sous systèmes Unix :
 6. ./misc/pack/pack.sh
 Les packages sont créés dans misc/pack/.

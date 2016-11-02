@@ -19,8 +19,8 @@ if [ -z $TMPDIR ]; then
    TMPDIR="/tmp"
 fi
 
-teo_version='1.8.3'
-cc90hfe_version='0.5.0'
+teo_version='1.8.4'
+cc90hfe_version='0.7.0'
 pack_dir="teoemulator-code/misc/pack"
 tmp_pack_dir="teoemulator-code/misc/pack"
 zip_options="-q -9"

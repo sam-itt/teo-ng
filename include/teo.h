@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2016 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -62,7 +62,7 @@
 
 /* paramètres et symboles de l'émulation */
 #define APPLICATION_DIR "teo"
-#define TEO_YEAR_STRING "2015"
+#define TEO_YEAR_STRING "2016"
 #define TEO_VERSION_STR "1.8.4"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"

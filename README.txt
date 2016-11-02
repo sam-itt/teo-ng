@@ -15,7 +15,7 @@
                         The Thomson TO8 emulator
                               version 1.8.4
 
-    Copyright (C) 1997-2015 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+    Copyright (C) 1997-2016 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
                             Jérémie Guillaume, François Mouret,
                             Samuel Devulder
 
@@ -59,7 +59,7 @@ Packages compilation needs SED unix command.
 In a terminal under Unix systems :
 1. Run ./fixdoscr.sh
 In a console under Windows/MsDos systems (djgpp) :
-2. Delete misc\pack\msdos folder if exists
+2. Delete the content of misc\pack\msdos folder if exists
 3. Run misc\pack\djmake
 In a console under Windows systems (mingw) :
 4. Run misc\pack\mgwmake
