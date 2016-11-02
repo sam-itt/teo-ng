@@ -96,7 +96,7 @@ sed_file doc/wiki/teo_linux_en
 echo "Patching pack scripts..."
 echo "s/^\#define TEOVERSION\([ \t]*\)\(['\"]\)[0-9\.]*['\"]\(.*\)/\#define TEOVERSION\1\2$verstr\2\3/" > $TMPDIR/fixver.sed
 sed_file misc/pack/inno/teo-setup.iss
-echo "s/^teoversion=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/teoversion=\1$verstr\1\2/" > $TMPDIR/fixver.sed
+echo "s/^teo_version=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/teo_version=\1$verstr\1\2/" > $TMPDIR/fixver.sed
 sed_file misc/pack/pack.sh
 echo "s/^Version[ \t]*=[ \t]*[0-9\.]*/Version=$verstr/" > $TMPDIR/fixver.sed
 sed_file misc/pack/debian/teo/usr/share/applications/teo.desktop

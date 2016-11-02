@@ -66,6 +66,15 @@ echo "s/FILEVERSION .*/FILEVERSION $win_verstr/" > $TMPDIR/fixver.sed
 echo "s/PRODUCTVERSION .*/PRODUCTVERSION $win_verstr/" >> $TMPDIR/fixver.sed
 sed_file tools/cc90hfe/src/win/resource.rc
 
+# patch pack scripts
+echo "Patching pack scripts..."
+echo "s/^cc90hfe_version=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/cc90hfe_version=\1$verstr\1\2/" > $TMPDIR/fixver.sed
+sed_file misc/pack/pack.sh
+echo "s/^Version[ \t]*=[ \t]*[0-9\.]*/Version=$verstr/" > $TMPDIR/fixver.sed
+sed_file misc/pack/debian/teo/usr/share/applications/teo.desktop
+echo "s/^Version[ \t]*:[ \t]*[0-9\.]*/Version: $verstr/" > $TMPDIR/fixver.sed
+sed_file misc/pack/debian/teo/DEBIAN/control
+
 # bump file version number
 echo "Bumping file version number..."
 echo "s/Version    : [0-9.]*/Version    : $verstr/" > $TMPDIR/fixver.sed
