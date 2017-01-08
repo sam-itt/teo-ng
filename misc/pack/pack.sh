@@ -66,8 +66,8 @@ teo/misc/fixver/*.sh
 teo/misc/pack/*.txt
 teo/misc/pack/*.bat
 teo/misc/pack/*.sh
-teo/misc/pack/inno/*.iss
-teo/misc/pack/inno/*.bmp
+teo/misc/pack/repo/windows/inno/*.iss
+teo/misc/pack/repo/windows/inno/*.bmp
 teo/misc/pack/debian
 teo/cc90.*
 teo/empty.hfe

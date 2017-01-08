@@ -71,9 +71,9 @@ echo "Patching pack scripts..."
 echo "s/^cc90hfe_version=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/cc90hfe_version=\1$verstr\1\2/" > $TMPDIR/fixver.sed
 sed_file misc/pack/pack.sh
 echo "s/^Version[ \t]*=[ \t]*[0-9\.]*/Version=$verstr/" > $TMPDIR/fixver.sed
-sed_file misc/pack/linux/debian/cc90hfe/usr/share/applications/cc90hfe.desktop
+sed_file misc/pack/repo/linux/debian/cc90hfe/usr/share/applications/cc90hfe.desktop
 echo "s/^Version[ \t]*:[ \t]*[0-9\.]*/Version: $verstr/" > $TMPDIR/fixver.sed
-sed_file misc/pack/linux/debian/cc90hfe/DEBIAN/control
+sed_file misc/pack/repo/linux/debian/cc90hfe/DEBIAN/control
 
 # bump file version number
 echo "Bumping file version number..."
