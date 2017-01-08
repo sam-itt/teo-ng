@@ -64,7 +64,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     guint32 unicode = gdk_keyval_to_unicode (event->key.keyval);
 
-    if ((unicode < 32) || (isxdigit ((int)unicode) != 0))
+    if ((isxdigit ((int)unicode) != 0) || (isgraph ((int)unicode) == 0))
     {
         return gtk_entry_im_context_filter_keypress (
                     GTK_ENTRY (widget),
@@ -83,16 +83,27 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 static void entry_changed (GtkEditable *editable, gpointer user_data)
 {
     int i;
+    int addr;
+    int run_button_activation = FALSE;
     const char *hex_text;
 
     /* disable the RUN button if no breakpoint */
     for (i=0; i<MAX_BREAKPOINTS; i++)
     {
         hex_text = gtk_entry_get_text GTK_ENTRY(entry[i]);
-        if (strlen (hex_text) != 0)
-            break;
+        if (strlen (hex_text) == 0)
+        {
+            teo.debug.breakpoint[i] = -1;
+        }
+        else
+        {
+            run_button_activation = TRUE;
+            sscanf (hex_text, "%x", &addr);
+            teo.debug.breakpoint[i] = addr;
+        }
     }
-    udtoolb_SetRunButtonSensitivity ((i == MAX_BREAKPOINTS)?FALSE:TRUE);
+
+    udtoolb_SetRunButtonSensitivity (run_button_activation);
     (void)editable;
     (void)user_data;
 }    
@@ -135,9 +146,6 @@ GtkWidget *udbkpt_Init (void)
         entry[i] = gtk_entry_new ();
         gtk_entry_set_max_length (GTK_ENTRY (entry[i]), 4);
         gtk_entry_set_width_chars (GTK_ENTRY (entry[i]), 4);
-#if GTK_CHECK_VERSION(3,12,0)
-        gtk_entry_set_max_width_chars (GTK_ENTRY (entry[i]), 4);
-#endif
         gtk_box_pack_start (GTK_BOX(rowbox), entry[i], FALSE, FALSE, 0);
 
         if (teo.debug.breakpoint[i] != -1)
@@ -159,31 +167,4 @@ GtkWidget *udbkpt_Init (void)
 
     return box;
 }
-
-
-
-/* udbkpt_Exit:
- *  Exit the breakpoints.
- */
-void udbkpt_Exit (void)
-{
-    int i;
-    int addr = 0;
-    const char *hex_text;
-    
-    for (i=0; i<MAX_BREAKPOINTS; i++)
-    {
-        hex_text = gtk_entry_get_text GTK_ENTRY(entry[i]);
-        if (strlen (hex_text) == 0)
-        {
-            teo.debug.breakpoint[i] = -1;
-        }
-        else
-        {
-            sscanf (hex_text, "%x", &addr);
-            teo.debug.breakpoint[i] = addr;
-        }
-    }
-}
-
 

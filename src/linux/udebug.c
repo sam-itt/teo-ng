@@ -306,5 +306,5 @@ void udebug_Panel(void)
     
     udreg_UpdateText();
 
-    gtk_main ();   
+    gtk_main ();
 }
