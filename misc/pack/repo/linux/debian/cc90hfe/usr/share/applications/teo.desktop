@@ -93,7 +93,7 @@ echo "Preparing working directories..."
 #---------------------------------------------------------------------
 cd ..
 current_folder=$PWD
-pack_storage="$current_folder/$pack_dir/repo"
+pack_storage="$current_folder/$pack_dir"
 rm -f -r $TMPDIR/teo
 mkdir $TMPDIR/teo
 cp -r ./teoemulator-code/* $TMPDIR/teo
@@ -635,14 +635,12 @@ fi
 
 ######################################################################
 echo "Creating ZIP package for sources..."
-packFile="$pack_storage/windows/teo-$teo_version-src.zip"
+packFile="$pack_storage/teo-$teo_version-src.zip"
 doc_files="
 teo/doc/*.htm
 teo/doc/images/*.*
 teo/doc/*.css"
 zip -r $zip_options $packFile $source_files $doc_files
-packFile_msdos="$pack_storage/msdos/teo-$teo_version-src.zip"
-cp $packFile $packFile_msdos
 
 
 

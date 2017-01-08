@@ -1,0 +1,21 @@
+[Desktop Entry]
+Version=1.8.4
+Name=Teo emulator
+Name[fr]=Emulateur Teo
+GenericName=Teo emulator
+GenericName[fr]=Emulateur Teo
+Comment=TO8D microcomputer emulator
+Comment[fr]=Emulateur de l'ordinateur TO8D
+Type=Application
+MimeType=application/x-sap-file;application/x-hfe-file;application/x-fd-file;
+Categories=GNOME;GTK;Game;Emulator;
+Exec=/usr/games/teo
+Terminal=false
+Icon=teo.png
+X-Ayatana-Desktop-Shortcuts=Reset;
+
+[Reset Shortcut Group]
+Exec=/usr/games/teo --reset
+Name=Teo emulator + cold reset
+Name[fr]=Emulateur Teo + reset à froid
+OnlyShowIn=Unity
