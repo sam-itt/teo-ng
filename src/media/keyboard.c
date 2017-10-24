@@ -74,7 +74,7 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 
 #define TOKEY_SHIFT    0x80
 #define TOKEY_CTRL     0x100
-#define CODE_MASK      0x7f
+#define JOYSTICK_MASK  (0x7f|SPECIAL_KBD|SPECIAL_PAD|SPECIAL_UPC)
 
 /* List of Thomson scancodes */
 /* 1st row */
@@ -737,7 +737,7 @@ void keyboard_Press (int key, int release)
             {
                 if ((njoy>1) && ((kb_state&TEO_KEY_F_NUMLOCK) == 0))
                 {
-                    switch (code & CODE_MASK)
+                    switch (code & JOYSTICK_MASK)
                     {
                         case TOKEY_A_LOWER_CASE :
                             joycode = TEO_JOYSTICK_LEFT|TEO_JOYSTICK_DOWN;
@@ -810,7 +810,7 @@ void keyboard_Press (int key, int release)
             {
                 if ((njoy>0) && ((kb_state&TEO_KEY_F_NUMLOCK) == 0))
                 {
-                    switch (code & CODE_MASK)
+                    switch (code & JOYSTICK_MASK)
                     {
                         case TOKEY_PAD_1 :
                             joycode = TEO_JOYSTICK_LEFT|TEO_JOYSTICK_UP;
