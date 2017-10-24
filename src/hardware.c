@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 18/09/2006 02/02/2012 29/09/2012
  *                               18/09/2013 09/04/2014 18/08/2015
- *                               31/07/2016
+ *                               31/07/2016 20/10/2017
  *
  *  Emulation de l'environnement matériel du MC6809E:
  *	- carte mémoire
@@ -63,6 +63,7 @@
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6821.h"
 #include "mc68xx/mc6846.h"
+#include "mc68xx/mc6804.h"
 #include "media/disk.h"
 #include "media/keyboard.h"
 #include "media/cass.h"
@@ -209,6 +210,7 @@ static void SetDeviceRegister(int addr, int val)
             break;
 
         case 0xE7C3:
+            data = mc6846.prc;
             mc6846_WriteData(&mc6846, val);
 
             /* bit 0: sélection demi-page VRAM */
@@ -223,7 +225,8 @@ static void SetDeviceRegister(int addr, int val)
             mempager.mon.update();
 
             /* bit 5: ACK clavier */
-            keyboard_SetACK(mc6846.prc&0x20);
+            if ((mc6846.prc&0x20) != (data&0x20))
+                keyboard_SetACK (mc6846.prc&0x20);
             break;
 
         case 0xE7C5:
@@ -514,6 +517,7 @@ static int GetDeviceRegister(int addr)
             /* PIA 6846 système */
             case 0xE7C0:
             case 0xE7C4:
+                mc6804_UpdateCP1(&mc6846);
                 return mc6846.csr;
 
             case 0xE7C1:

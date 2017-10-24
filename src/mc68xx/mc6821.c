@@ -3,8 +3,9 @@
  *    - microprocesseur MC6809E
  *    - PIA MC6846
  *    - PIA MC6821
+ *    - PIA MC6804
  *
- *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou.
+ *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou, 2017 François Mouret.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

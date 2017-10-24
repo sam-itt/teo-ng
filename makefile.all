@@ -119,7 +119,8 @@ TEO_SRC_MC68XX_FILES =   \
    src/mc68xx/dasm6809.c \
    src/mc68xx/mc6809.c   \
    src/mc68xx/mc6821.c   \
-   src/mc68xx/mc6846.c
+   src/mc68xx/mc6846.c   \
+   src/mc68xx/mc6804.c
 
 TEO_SRC_WIN_FILES =        \
    src/file/png.c          \

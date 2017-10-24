@@ -40,7 +40,7 @@
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
  *                               02/11/2012 18/09/2013 10/05/2014
- *                               31/07/2016
+ *                               31/07/2016 20/10/2017
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -68,6 +68,7 @@
 #include "media/mouse.h"
 #include "media/printer.h"
 #include "mc68xx/mc6809.h"
+#include "mc68xx/mc6804.h"
 
 int is_fr=0;
 
@@ -354,6 +355,9 @@ void teo_ColdReset(void)
 {
     /* initialisation du PIA 6846 système */
     mc6846_Init(&mc6846, 0x80, 0xE5, 0x3D);
+
+    /* initialisation du PIA 6804 système */
+    mc6804_Init(&mc6846);
 
     /* initialisation du PIA 6821 système */
     mc6821_Init(&pia_int.porta, 0, 0);

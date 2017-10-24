@@ -3,8 +3,9 @@
  *    - microprocesseur MC6809E
  *    - PIA MC6846
  *    - PIA MC6821
+ *    - PIA MC6804
  *
- *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou.
+ *  Copyright (C) 1996 Sylvain Huet, 1999 Eric Botcazou, 2017 François Mouret.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +27,7 @@
  *  Version    : 2.3
  *  Créé par   : Eric Botcazou juin 1999
  *  Modifié par: Eric Botcazou 9/12/2000
+ *               François Mouret 20/10/2017
  *
  *  Emulation du PIA Motorola MC6846.
  */
@@ -128,32 +130,10 @@ int mc6846_tlsb(struct MC6846_PIA *mc6846)
 
 void mc6846_WriteCommand(struct MC6846_PIA *mc6846, int val)
 {
-    if ((val&2) != (mc6846->crc&2)) /* mode CP1 modifié */
-    {
-        mc6846->csr&=0xFD;
-        MAKE_CSR();
-    }
-
     if (val&0x30)  /* CP2 en sortie */
         mc6846->crc = (mc6846->crc&0xC0) | (val&0x3F);
     else
         mc6846->crc = (mc6846->crc&0xC8) | (val&0x37);
-}
-
-
-void mc6846_SetCP1(struct MC6846_PIA *mc6846, int state)
-{
-    if ( (mc6846->crc&0x80) != (state<<7) )
-    {
-        mc6846->crc=(mc6846->crc&0x7F) | (state<<7);
-
-        if  ((mc6846->crc&2) == (state<<1))
-            mc6846->csr|=0x02;   /* bit CSR1 à 1 */
-        else
-            mc6846->csr&=0xFD;
-
-        MAKE_CSR();
-    }
 }
 
 

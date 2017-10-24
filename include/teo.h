@@ -40,6 +40,7 @@
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
  *                               01/11/2012 20/09/2013 13/04/2014
+ *                               20/10/2017
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -71,6 +72,7 @@
 
 #define TEO_FRAME_FREQ         50    /* Hz: fréquence de trame vidéo */
 #define TEO_CYCLES_PER_FRAME   19968 /* durée exacte en nb de cycles CPU d'une frame */
+#define TEO_MICROSECONDS_PER_FRAME  20000 /* durée exacte en microsecondes d'une frame */
 #define TEO_CPU_FREQ           (TEO_FRAME_FREQ*TEO_CYCLES_PER_FRAME)  /* Hz */
 #define TEO_NCOLORS            16    /* nombre de couleurs de la palette */ 
 
