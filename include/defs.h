@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 28/04/2012 20/09/2013 10/05/2014
+ *                               20/10/2017
  *
  *  Définition des structures et constantes internes.
  */
@@ -90,6 +91,10 @@
 #      define TRUE  1
 #      define FALSE 0
 #   endif
+#endif
+
+#ifndef NULL
+#   define NULL (void*)0
 #endif
 
 #ifndef MAX
