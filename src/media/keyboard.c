@@ -94,9 +94,9 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_ASTERISK             0x29  /* * */
 #define TOKEY_1                    TOKEY_ASTERISK|TOKEY_SHIFT  /* 1 */
 #define TOKEY_E_ACUTE_LOWER_CASE   0x21  /* é */
-#define TOKEY_2                    TOKEY_E_ACUTE_LOWER_CASE|TOKEY_SHIFT  /* é */
+#define TOKEY_2                    TOKEY_E_ACUTE_LOWER_CASE|TOKEY_SHIFT  /* 2 */
 #define TOKEY_QUOTE                0x19  /* " */
-#define TOKEY_3                    TOKEY_QUOTE|TOKEY_SHIFT  /* é */
+#define TOKEY_3                    TOKEY_QUOTE|TOKEY_SHIFT  /* 3 */
 #define TOKEY_APOSTROPHE           0x11  /* ' */
 #define TOKEY_4                    TOKEY_APOSTROPHE|TOKEY_SHIFT  /* 4 */
 #define TOKEY_OPEN_BRACKET         0x09  /* ( */
@@ -415,7 +415,7 @@ static int key_shift_code[TEO_KEY_MAX]={  /* see to8keys.h */
     TOKEY_SPACE,                   /*  TEO_KEY_SPACE      75          */
     TOKEY_INS,                     /*  TEO_KEY_INSERT     76          */
     TOKEY_EFF,                     /*  TEO_KEY_DEL        77          */
-    TOKEY_HOME,                    /*  TEO_KEY_HOME       78          */
+    TOKEY_RAZ,                     /*  TEO_KEY_HOME       78          */
     SPECIAL_NULL,                  /*  TEO_KEY_END        79          */
     SPECIAL_NULL,                  /*  TEO_KEY_PGUP       80          */
     SPECIAL_NULL,                  /*  TEO_KEY_PGDN       81          */
@@ -424,7 +424,7 @@ static int key_shift_code[TEO_KEY_MAX]={  /* see to8keys.h */
     TOKEY_ARROW_UP,                /*  TEO_KEY_UP         84          */
     TOKEY_ARROW_DOWN,              /*  TEO_KEY_DOWN       85          */
     TOKEY_SLASH,                   /*  TEO_KEY_SLASH_PAD  86   / :    */
-    SPECIAL_NULL,                  /*  TEO_KEY_ASTERISK   87   *      */
+    TOKEY_ASTERISK,                /*  TEO_KEY_ASTERISK   87   *      */
     TOKEY_MINUS,                   /*  TEO_KEY_MINUS_PAD  88   -      */
     TOKEY_PLUS,                    /*  TEO_KEY_PLUS_PAD   89   +      */
     TOKEY_DOT,                     /*  TEO_KEY_DEL_PAD    90   .      */
@@ -456,32 +456,32 @@ static int key_shift_code[TEO_KEY_MAX]={  /* see to8keys.h */
 
 static int key_altgr_code[TEO_KEY_MAX]={  /* see to8keys.h */
     SPECIAL_NULL,
-    SPECIAL_NULL,                  /*  TEO_KEY_A          1    q Q    */
-    SPECIAL_NULL,                  /*  TEO_KEY_B          2    b B    */
-    SPECIAL_NULL,                  /*  TEO_KEY_C          3    c C    */
-    SPECIAL_NULL,                  /*  TEO_KEY_D          4    d D    */
-    SPECIAL_NULL,                  /*  TEO_KEY_E          5    e E    */
-    SPECIAL_NULL,                  /*  TEO_KEY_F          6    f F    */
-    SPECIAL_NULL,                  /*  TEO_KEY_G          7    g G    */
-    SPECIAL_NULL,                  /*  TEO_KEY_H          8    h H    */
-    SPECIAL_NULL,                  /*  TEO_KEY_I          9    i I    */
-    SPECIAL_NULL,                  /*  TEO_KEY_J          10   j J    */
-    SPECIAL_NULL,                  /*  TEO_KEY_K          11   k K    */
-    SPECIAL_NULL,                  /*  TEO_KEY_L          12   l L    */
-    SPECIAL_NULL,                  /*  TEO_KEY_M          13   , ?    */
-    SPECIAL_NULL,                  /*  TEO_KEY_N          14   n N    */
-    SPECIAL_NULL,                  /*  TEO_KEY_O          15   o O    */
-    SPECIAL_NULL,                  /*  TEO_KEY_P          16   p P    */
-    SPECIAL_NULL,                  /*  TEO_KEY_Q          17   a A    */
-    SPECIAL_NULL,                  /*  TEO_KEY_R          18   r R    */
-    SPECIAL_NULL,                  /*  TEO_KEY_S          19   s S    */
-    SPECIAL_NULL,                  /*  TEO_KEY_T          20   t T    */
-    SPECIAL_NULL,                  /*  TEO_KEY_U          21   u U    */
-    SPECIAL_NULL,                  /*  TEO_KEY_V          22   v V    */
-    SPECIAL_NULL,                  /*  TEO_KEY_W          23   z Z    */
-    SPECIAL_NULL,                  /*  TEO_KEY_X          24   x X    */
-    SPECIAL_NULL,                  /*  TEO_KEY_Y          25   y Y    */
-    SPECIAL_NULL,                  /*  TEO_KEY_Z          26   w W    */
+    TOKEY_Q_LOWER_CASE,            /*  TEO_KEY_A          1    q Q    */
+    TOKEY_B_LOWER_CASE,            /*  TEO_KEY_B          2    b B    */
+    TOKEY_C_LOWER_CASE,            /*  TEO_KEY_C          3    c C    */
+    TOKEY_D_LOWER_CASE,            /*  TEO_KEY_D          4    d D    */
+    TOKEY_E_LOWER_CASE,            /*  TEO_KEY_E          5    e E    */
+    TOKEY_F_LOWER_CASE,            /*  TEO_KEY_F          6    f F    */
+    TOKEY_G_LOWER_CASE,            /*  TEO_KEY_G          7    g G    */
+    TOKEY_H_LOWER_CASE,            /*  TEO_KEY_H          8    h H    */
+    TOKEY_I_LOWER_CASE,            /*  TEO_KEY_I          9    i I    */
+    TOKEY_J_LOWER_CASE,            /*  TEO_KEY_J          10   j J    */
+    TOKEY_K_LOWER_CASE,            /*  TEO_KEY_K          11   k K    */
+    TOKEY_L_LOWER_CASE,            /*  TEO_KEY_L          12   l L    */
+    TOKEY_COMMA,                   /*  TEO_KEY_M          13   , ?    */
+    TOKEY_N_LOWER_CASE,            /*  TEO_KEY_N          14   n N    */
+    TOKEY_O_LOWER_CASE,            /*  TEO_KEY_O          15   o O    */
+    TOKEY_P_LOWER_CASE,            /*  TEO_KEY_P          16   p P    */
+    TOKEY_A_LOWER_CASE,            /*  TEO_KEY_Q          17   a A    */
+    TOKEY_R_LOWER_CASE,            /*  TEO_KEY_R          18   r R    */
+    TOKEY_S_LOWER_CASE,            /*  TEO_KEY_S          19   s S    */
+    TOKEY_T_LOWER_CASE,            /*  TEO_KEY_T          20   t T    */
+    TOKEY_U_LOWER_CASE,            /*  TEO_KEY_U          21   u U    */
+    TOKEY_V_LOWER_CASE,            /*  TEO_KEY_V          22   v V    */
+    TOKEY_Z_LOWER_CASE,            /*  TEO_KEY_W          23   z Z    */
+    TOKEY_X_LOWER_CASE,            /*  TEO_KEY_X          24   x X    */
+    TOKEY_Y_LOWER_CASE,            /*  TEO_KEY_Y          25   y Y    */
+    TOKEY_W_LOWER_CASE,            /*  TEO_KEY_Z          26   w W    */
     TOKEY_AT,                      /*  TEO_KEY_0          27   à 0 @  */
     SPECIAL_NULL,                  /*  TEO_KEY_1          28   & 1    */
     SPECIAL_NULL,                  /*  TEO_KEY_2          29   é 2    */
@@ -502,16 +502,16 @@ static int key_altgr_code[TEO_KEY_MAX]={  /* see to8keys.h */
     TOKEY_PAD_7,                   /*  TEO_KEY_7_PAD      44   7 7 7  */
     TOKEY_PAD_8,                   /*  TEO_KEY_8_PAD      45   8 8 8  */
     TOKEY_PAD_9,                   /*  TEO_KEY_9_PAD      46   9 9 9  */
-    SPECIAL_NULL,                  /*  TEO_KEY_F1         47          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F2         48          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F3         49          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F4         50          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F5         51          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F6         52          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F7         53          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F8         54          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F9         55          */
-    SPECIAL_NULL,                  /*  TEO_KEY_F10        56          */
+    TOKEY_F1,                      /*  TEO_KEY_F1         47          */
+    TOKEY_F2,                      /*  TEO_KEY_F2         48          */
+    TOKEY_F3,                      /*  TEO_KEY_F3         49          */
+    TOKEY_F4,                      /*  TEO_KEY_F4         50          */
+    TOKEY_F5,                      /*  TEO_KEY_F5         51          */
+    TOKEY_F6,                      /*  TEO_KEY_F6         52          */
+    TOKEY_F7,                      /*  TEO_KEY_F7         53          */
+    TOKEY_F8,                      /*  TEO_KEY_F8         54          */
+    TOKEY_F9,                      /*  TEO_KEY_F9         55          */
+    TOKEY_F10,                     /*  TEO_KEY_F10        56          */
     SPECIAL_NULL,                  /*  TEO_KEY_F11        57          */
     SPECIAL_NULL,                  /*  TEO_KEY_F12        58          */
     SPECIAL_NULL,                  /*  TEO_KEY_ESC        59          */
@@ -519,7 +519,7 @@ static int key_altgr_code[TEO_KEY_MAX]={  /* see to8keys.h */
     TOKEY_CLOSE_SQUARE_BRACKET,    /*  TEO_KEY_MINUS      61   ) ° ]  */
     TOKEY_CLOSE_BRACES,            /*  TEO_KEY_EQUALS     62   = + }  */
     SPECIAL_NULL,                  /*  TEO_KEY_BACKSPACE  63          */
-    SPECIAL_NULL,                  /*  TEO_KEY_TAB        64          */
+    TOKEY_STOP,                    /*  TEO_KEY_TAB        64          */
     SPECIAL_NULL,                  /*  TEO_KEY_OPENBRACE  65   ^      */
     SPECIAL_NULL,                  /*  TEO_KEY_CLOSEBRACE 66   $      */
     SPECIAL_NULL,                  /*  TEO_KEY_ENTER      67          */
@@ -537,16 +537,16 @@ static int key_altgr_code[TEO_KEY_MAX]={  /* see to8keys.h */
     SPECIAL_NULL,                  /*  TEO_KEY_END        79          */
     SPECIAL_NULL,                  /*  TEO_KEY_PGUP       80          */
     SPECIAL_NULL,                  /*  TEO_KEY_PGDN       81          */
-    SPECIAL_NULL,                  /*  TEO_KEY_LEFT       82          */
-    SPECIAL_NULL,                  /*  TEO_KEY_RIGHT      83          */
-    SPECIAL_NULL,                  /*  TEO_KEY_UP         84          */
-    SPECIAL_NULL,                  /*  TEO_KEY_DOWN       85          */
-    SPECIAL_NULL,                  /*  TEO_KEY_SLASH_PAD  86   / :    */
-    SPECIAL_NULL,                  /*  TEO_KEY_ASTERISK   87   *      */
-    SPECIAL_NULL,                  /*  TEO_KEY_MINUS_PAD  88   -      */
-    SPECIAL_NULL,                  /*  TEO_KEY_PLUS_PAD   89   +      */
-    SPECIAL_NULL,                  /*  TEO_KEY_DEL_PAD    90   .      */
-    SPECIAL_NULL,                  /*  TEO_KEY_ENTER_PAD  91          */
+    TOKEY_ARROW_LEFT,              /*  TEO_KEY_LEFT       82          */
+    TOKEY_ARROW_RIGHT,             /*  TEO_KEY_RIGHT      83          */
+    TOKEY_ARROW_UP,                /*  TEO_KEY_UP         84          */
+    TOKEY_ARROW_DOWN,              /*  TEO_KEY_DOWN       85          */
+    TOKEY_SLASH,                   /*  TEO_KEY_SLASH_PAD  86   / :    */
+    TOKEY_ASTERISK,                /*  TEO_KEY_ASTERISK   87   *      */
+    TOKEY_MINUS,                   /*  TEO_KEY_MINUS_PAD  88   -      */
+    TOKEY_PLUS,                    /*  TEO_KEY_PLUS_PAD   89   +      */
+    TOKEY_DOT,                     /*  TEO_KEY_DEL_PAD    90   .      */
+    TOKEY_PAD_ENT,                 /*  TEO_KEY_ENTER_PAD  91          */
     SPECIAL_NULL,                  /*  TEO_KEY_PRTSCR     92          */
     SPECIAL_NULL,                  /*  TEO_KEY_PAUSE      93          */
     SPECIAL_NULL,                  /*  TEO_KEY_ABNT_C1    94          */
@@ -562,14 +562,14 @@ static int key_altgr_code[TEO_KEY_MAX]={  /* see to8keys.h */
     SPECIAL_KEY,                   /*  TEO_KEY_RSHIFT     104         */
     SPECIAL_KEY,                   /*  TEO_KEY_LCONTROL   105         */
     SPECIAL_KEY,                   /*  TEO_KEY_RCONTROL   106         */
-    SPECIAL_NULL,                  /*  TEO_KEY_ALT        107         */
+    TOKEY_ACC,                     /*  TEO_KEY_ALT        107         */
     SPECIAL_KEY,                   /*  TEO_KEY_ALTGR      108         */
     SPECIAL_NULL,                  /*  TEO_KEY_LWIN       109         */
     SPECIAL_NULL,                  /*  TEO_KEY_RWIN       110         */
     SPECIAL_NULL,                  /*  TEO_KEY_MENU       111         */
     SPECIAL_NULL,                  /*  TEO_KEY_SCRLOCK    112         */
     SPECIAL_KEY,                   /*  TEO_KEY_NUMLOCK    113         */
-    SPECIAL_NULL                   /*  TEO_KEY_CAPSLOCK   114         */
+    TOKEY_CAPS_LOCK                /*  TEO_KEY_CAPSLOCK   114         */
 };
 
 
