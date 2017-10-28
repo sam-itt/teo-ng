@@ -37,7 +37,7 @@
  *  Version    : 1.8.4
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 27/11/2002
- *               François Mouret 08/2011 01/11/2012 02/06/2014
+ *               François Mouret 08/2011 01/11/2012 02/06/2014 28/10/2017
  *
  *  Débogueur du TO8.
  */
