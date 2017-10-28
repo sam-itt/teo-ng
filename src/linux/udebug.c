@@ -259,34 +259,34 @@ void udebug_Init(void)
     if (teo.debug.window_maximize == TRUE)
         gtk_window_maximize (GTK_WINDOW (window));
 
-    /* Create boxes */
+    /* Add main box */
     main_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add (GTK_CONTAINER (window), main_box);
     gtk_container_set_border_width (GTK_CONTAINER (window), 4);
 
-    /* Add toolbar, box area and status bar */
+    /* Add toolbar */
     gtk_box_pack_start(GTK_BOX(main_box), udtoolb_Init(), FALSE, FALSE, 0);
+
+    /* Add box area */
     area_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_box_pack_start(GTK_BOX(main_box), area_box, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(main_box), udstatus_Init(), FALSE, FALSE, 0);
 
     /* Add left box */
     box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    /* The GTK documentation says : "This parameter [i.e. fill] has
-       no effect if expand is set to FALSE". And yet, strangely, the
-       EXPAND parameter must be set here to FALSE and the FILL one
-       must be set to TRUE to provide the expected behaviour. A GTK
-       bug ? To be closely watched ! */
-    gtk_box_pack_start(GTK_BOX(area_box), box, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(area_box), box, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(box), udacc_Init(), FALSE, FALSE, 4);
     gtk_box_pack_start(GTK_BOX(box), udbkpt_Init(), FALSE, FALSE, 4);
     gtk_box_pack_start(GTK_BOX(box), udreg_Init(), FALSE, FALSE, 4);
     gtk_box_pack_start(GTK_BOX(box), udmem_Init(), TRUE, TRUE, 4);
-    
+
     /* Add right box */
     box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start(GTK_BOX(area_box), box, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(box), uddisass_Init(), TRUE, TRUE, 4);
+
+    /* Add status bar */
+    gtk_box_pack_start(GTK_BOX(main_box), udstatus_Init(), FALSE, FALSE, 0);
+
 }
 
 
@@ -296,6 +296,8 @@ void udebug_Init(void)
  */
 void udebug_Panel(void)
 {
+    mc6809_FlushExec ();
+
     /* Display content */
     udmem_Display ();
     update_display ();

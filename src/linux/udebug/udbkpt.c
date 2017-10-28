@@ -129,24 +129,33 @@ GtkWidget *udbkpt_Init (void)
 {
     int i;
     char hex_text[6] = "";
+    GtkWidget *grid;
     GtkWidget *frame;
-    GtkWidget *rowbox = NULL;
     GtkWidget *box;
 
-    box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    /* Create breakpoint grid */
+    grid = gtk_grid_new ();
+    gtk_widget_set_hexpand (grid, FALSE);
+    gtk_widget_set_vexpand (grid, FALSE);
+    for (i=0; i<2; i++)
+        gtk_grid_insert_row (GTK_GRID (grid), 0);
+    for (i=0; i<8; i++)
+        gtk_grid_insert_column (GTK_GRID (grid), 0);
 
     for (i=0; i<MAX_BREAKPOINTS; i++)
     {
-        if ((i%(MAX_BREAKPOINTS/2)) == 0)
-        {
-            rowbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-            gtk_box_pack_start (GTK_BOX(box), rowbox, FALSE, FALSE, 0);
-        }
-
+        /* The GtkEntry seems to resize incorrectly */
         entry[i] = gtk_entry_new ();
+        gtk_widget_set_hexpand (entry[i], FALSE);
+        gtk_widget_set_vexpand (entry[i], FALSE);
         gtk_entry_set_max_length (GTK_ENTRY (entry[i]), 4);
         gtk_entry_set_width_chars (GTK_ENTRY (entry[i]), 4);
-        gtk_box_pack_start (GTK_BOX(rowbox), entry[i], FALSE, FALSE, 0);
+
+        box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+        gtk_box_pack_start (GTK_BOX(box), entry[i], FALSE, FALSE, 0);
+        gtk_grid_attach (GTK_GRID (grid), box,
+                         i%(MAX_BREAKPOINTS/2), i/(MAX_BREAKPOINTS/2),
+                         1, 1);
 
         if (teo.debug.breakpoint[i] != -1)
         {
@@ -159,8 +168,11 @@ GtkWidget *udbkpt_Init (void)
         g_signal_connect (G_OBJECT (entry[i]), "changed",
                           G_CALLBACK (entry_changed), GINT_TO_POINTER (i));
     }
+
     frame = gtk_frame_new (is_fr?"Points d'arrêts":"Breakpoints");
-    gtk_container_add (GTK_CONTAINER (frame), box);
+    gtk_widget_set_hexpand (frame, FALSE);
+    gtk_widget_set_vexpand (frame, FALSE);
+    gtk_container_add (GTK_CONTAINER (frame), grid);
 
     box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start (GTK_BOX(box), frame, FALSE, FALSE, 0);
