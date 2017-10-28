@@ -343,6 +343,8 @@ void ddebug_Run(void)
              int c=0,pc;
     struct MC6809_DASM mc6809_dasm;
 
+    mc6809_FlushExec ();
+
     _set_screen_lines(50);
     _setcursortype(_NOCURSOR);
 
