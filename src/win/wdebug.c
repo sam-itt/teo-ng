@@ -431,11 +431,7 @@ HFONT wdebug_GetBoldFixedWidthHfont (void)
  */
 void wdebug_Panel(void)
 {
-    static struct MC6809_REGS regs;
-
-    mc6809_GetRegs(&regs);
     mc6809_FlushExec ();
-    mc6809_GetRegs(&regs);
 
     (void)DialogBox (prog_inst,
                      MAKEINTRESOURCE(IDC_DEBUG_DIALOG),
