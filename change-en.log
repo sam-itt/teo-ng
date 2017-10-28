@@ -1,14 +1,19 @@
 ========================================================================
-=== Version 1.8.4 (August 2015 - November 2016)                      ===
+=== Version 1.8.4 (August 2015 - October 2017)                      ===
 ========================================================================
 
 - teo
+   - Emulation of the 6804
    - Update the documentation about the activation of floppy drive under
      Linux (thanks to credenhill from forum.ubuntu-fr.org)
-   - Improve the sound generation behaviour
+   - Improve the sound generation behavior
+   - Improve the disk controller THMFC1's behavior
    - Disk protection is now controled by checkboxes on the control panel
      (no more disk conversion error)
-   - Restore the effect of the DELETE key for the numeric pad
+
+- under Linux :
+   - Impovement of the debugger window
+   - Increasing of the fast speed
 
 ========================================================================
 === Updates of version 1.8.3 (June 2015)                             ===

@@ -1,14 +1,19 @@
 ========================================================================
-=== Version 1.8.4 (Août 2015 - Novembre 2016)                        ===
+=== Version 1.8.4 (Août 2015 - Octobre 2017)                        ===
 ========================================================================
 
 - teo
+   - Émulation du 6804
    - Mise à jour de la documentation pour l'activation du lecteur de
      disquettes sous Linux (merci à; credenhill de forum.ubuntu-fr.org)
    - Amélioration du comportement de la génération sonore
+   - Amélioration de l'émulation du contrôleur disque THMFC1
    - La protection disque est maintenant contrôlée par les cases à
      cocher du panneau de contrôle (plus d'erreur de conversion disque)
-   - Restauration de la touche SUPPR du pavé numérique
+
+- sous Linux :
+   - Réorganisation de la fenêtre de débogage
+   - Accélération de la vitesse rapide
 
 ========================================================================
 === Mise à jour de la version 1.8.3 (Juin 2015)                      ===
