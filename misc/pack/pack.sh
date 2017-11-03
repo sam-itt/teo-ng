@@ -68,7 +68,7 @@ teo/misc/pack/*.bat
 teo/misc/pack/*.sh
 teo/misc/pack/repo/windows/inno/*.iss
 teo/misc/pack/repo/windows/inno/*.bmp
-teo/misc/pack/debian
+teo/misc/pack/repo/linux/debian
 teo/cc90.*
 teo/empty.hfe
 teo/change-*.log
@@ -140,36 +140,36 @@ name_to_lowercase()
     fi
 }
 
-if [ -e "teo/misc/pack/MSDOS" ]
+if [ -e "teo/misc/pack/repo/MSDOS" ]
     then
-        name_to_lowercase "teo/misc/pack/MSDOS"
+        name_to_lowercase "teo/misc/pack/repo/MSDOS"
 fi
-if [ -e "teo/misc/pack/msdos/EN" ]
+if [ -e "teo/misc/pack/repo/msdos/EN" ]
     then
-        name_to_lowercase "teo/misc/pack/msdos/EN"
+        name_to_lowercase "teo/misc/pack/repo/msdos/EN"
 fi
-if [ -e "teo/misc/pack/msdos/FR" ]
+if [ -e "teo/misc/pack/repo/msdos/FR" ]
     then
-        name_to_lowercase "teo/misc/pack/msdos/FR"
+        name_to_lowercase "teo/misc/pack/repo/msdos/FR"
 fi
-for i in teo/misc/pack/msdos/fr/* teo/misc/pack/msdos/en/*
+for i in teo/misc/pack/repo/msdos/fr/* teo/misc/pack/repo/msdos/en/*
     do
          name_to_lowercase $i
     done
 #---------------------------------------------------------------------
 #   Copy makefile.dep's
 #---------------------------------------------------------------------
-if [ -e ./teo/misc/pack/windows/fr/teo.dep ]
+if [ -e ./teo/misc/pack/repo/windows/fr/teo.dep ]
     then
-        cp -f ./teo/misc/pack/windows/fr/teo.dep ./teo/obj/mingw32/makefile.dep
+        cp -f ./teo/misc/pack/repo/windows/fr/teo.dep ./teo/obj/mingw32/makefile.dep
 fi
-if [ -e ./teo/misc/pack/msdos/fr/teo.dep ]
+if [ -e ./teo/misc/pack/repo/msdos/fr/teo.dep ]
     then
-        cp -f ./teo/misc/pack/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
+        cp -f ./teo/misc/pack/repo/msdos/fr/teo.dep ./teo/obj/djgpp/makefile.dep
 fi
-if [ -e ./teo/misc/pack/windows/fr/cc90hfe.dep ]
+if [ -e ./teo/misc/pack/repo/windows/fr/cc90hfe.dep ]
     then
-        cp -f ./teo/misc/pack/windows/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
+        cp -f ./teo/misc/pack/repo/windows/fr/cc90hfe.dep ./teo/tools/cc90hfe/obj/mingw32/makefile.dep
 fi
 
 
@@ -501,14 +501,14 @@ teo/doc/*.css"
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in French..."
 pack_file="$pack_storage/msdos/teo-$teo_version-dosexe-fr.zip"
-if [ -e "teo/misc/pack/msdos/fr/teo.exe" ]
+if [ -e "teo/misc/pack/repo/msdos/fr/teo.exe" ]
     then
         open_doc "fr"
-        cp teo/misc/pack/msdos/fr/teo.exe    teo/
-        cp teo/misc/pack/msdos/fr/sap2.exe   teo/
-        cp teo/misc/pack/msdos/fr/sapfs.exe  teo/
-        cp teo/misc/pack/msdos/fr/wav2k7.exe teo/
-        cp teo/misc/pack/msdos/fr/wav2k7.exe teo/
+        cp teo/misc/pack/repo/msdos/fr/teo.exe    teo/
+        cp teo/misc/pack/repo/msdos/fr/sap2.exe   teo/
+        cp teo/misc/pack/repo/msdos/fr/sapfs.exe  teo/
+        cp teo/misc/pack/repo/msdos/fr/wav2k7.exe teo/
+        cp teo/misc/pack/repo/msdos/fr/wav2k7.exe teo/
         cp teo/change-fr.log       teo/CHANGES.TXT
         cp teo/licence-fr.txt      teo/LICENCE.TXT
         zip -r $zip_options $pack_file $common_exec $exec_list LISEZMOI.txt
@@ -526,13 +526,13 @@ fi
 ######################################################################
 echo "Creating ZIP packages for MSDOS executables in English..."
 pack_file="$pack_storage/msdos/teo-$teo_version-dosexe-en.zip"
-if [ -e "teo/misc/pack/msdos/en/teo.exe" ]
+if [ -e "teo/misc/pack/repo/msdos/en/teo.exe" ]
     then
         open_doc "en"
-        cp teo/misc/pack/msdos/en/teo.exe    teo/
-        cp teo/misc/pack/msdos/en/sap2.exe   teo/
-        cp teo/misc/pack/msdos/en/sapfs.exe  teo/
-        cp teo/misc/pack/msdos/en/wav2k7.exe teo/
+        cp teo/misc/pack/repo/msdos/en/teo.exe    teo/
+        cp teo/misc/pack/repo/msdos/en/sap2.exe   teo/
+        cp teo/misc/pack/repo/msdos/en/sapfs.exe  teo/
+        cp teo/misc/pack/repo/msdos/en/wav2k7.exe teo/
         cp teo/change-en.log       teo/CHANGES.TXT
         cp teo/licence-en.txt      teo/LICENCE.TXT
         zip -r $zip_options $pack_file $common_exec $exec_list README.txt
@@ -580,15 +580,15 @@ teo/doc/*.css"
 ######################################################################
 echo "Creating ZIP packages for Windows executables in French..."
 packFile="$pack_storage/windows/teo-$teo_version-winexe-fr.zip"
-if [ -e "teo/misc/pack/windows/fr/teow.exe" ]
+if [ -e "teo/misc/pack/repo/windows/fr/teow.exe" ]
     then
         open_doc "fr"
-        cp teo/misc/pack/windows/fr/teow.exe      teo/
-        cp teo/misc/pack/windows/fr/cc90hfe.exe   teo/
-        cp teo/misc/pack/windows/fr/cc90hfe-com.exe teo/
-        cp teo/misc/pack/msdos/fr/sap2.exe        teo/
-        cp teo/misc/pack/msdos/fr/sapfs.exe       teo/
-        cp teo/misc/pack/msdos/fr/wav2k7.exe      teo/
+        cp teo/misc/pack/repo/windows/fr/teow.exe      teo/
+        cp teo/misc/pack/repo/windows/fr/cc90hfe.exe   teo/
+        cp teo/misc/pack/repo/windows/fr/cc90hfe-com.exe teo/
+        cp teo/misc/pack/repo/msdos/fr/sap2.exe        teo/
+        cp teo/misc/pack/repo/msdos/fr/sapfs.exe       teo/
+        cp teo/misc/pack/repo/msdos/fr/wav2k7.exe      teo/
         cp teo/change-fr.log  teo/CHANGES.TXT
         cp teo/licence-fr.txt teo/LICENCE.TXT
         zip -r $zip_options $packFile $common_exec $exec_list LISEZMOI.txt
@@ -608,15 +608,15 @@ fi
 ######################################################################
 echo "Creating ZIP packages for Windows executables in English..."
 packFile="$pack_storage/windows/teo-$teo_version-winexe-en.zip"
-if [ -e "teo/misc/pack/windows/en/teow.exe" ]
+if [ -e "teo/misc/pack/repo/windows/en/teow.exe" ]
     then
         open_doc "en"
-        cp teo/misc/pack/windows/en/teow.exe      teo/
-        cp teo/misc/pack/windows/en/cc90hfe.exe   teo/
-        cp teo/misc/pack/windows/en/cc90hfe-com.exe teo/
-        cp teo/misc/pack/msdos/en/sap2.exe        teo/
-        cp teo/misc/pack/msdos/en/sapfs.exe       teo/
-        cp teo/misc/pack/msdos/en/wav2k7.exe      teo/
+        cp teo/misc/pack/repo/windows/en/teow.exe      teo/
+        cp teo/misc/pack/repo/windows/en/cc90hfe.exe   teo/
+        cp teo/misc/pack/repo/windows/en/cc90hfe-com.exe teo/
+        cp teo/misc/pack/repo/msdos/en/sap2.exe        teo/
+        cp teo/misc/pack/repo/msdos/en/sapfs.exe       teo/
+        cp teo/misc/pack/repo/msdos/en/wav2k7.exe      teo/
         cp teo/change-en.log  teo/CHANGES.TXT
         cp teo/licence-en.txt teo/LICENCE.TXT
         zip -r $zip_options $packFile $common_exec $exec_list README.txt
@@ -654,5 +654,5 @@ cd $current_folder/teoemulator-code
 
 
 ######################################################################
-echo "Packages created in ./misc/pack/!"
+echo "Packages created in ./misc/pack/repo/!"
 
