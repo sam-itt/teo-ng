@@ -85,6 +85,19 @@ void usound_Close (void);
 
 
 
+/* sound_reset:
+ *  Reset the streaming audio module.
+ */
+static void sound_reset (void)
+{
+    /* last_data must be properly initialized, otherwise
+     * the sound of other applications is altered */
+    last_data = 128;
+    last_index=0;
+}
+
+
+
 /* sound_error:
  *  Erreur d'initialisation du module de streaming audio.
  */
@@ -259,6 +272,7 @@ int usound_Init(void)
     int sound_buffer_size;
 
     teo_PutSoundByte=put_sound_byte;
+    teo_SoundReset=sound_reset;
 
     if (teo.setting.sound_enabled)
     {
@@ -293,6 +307,9 @@ int usound_Init(void)
 
         printf("ok\n");
     }
+    
+    sound_reset ();
+    
     return 0;
 }
 

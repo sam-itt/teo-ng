@@ -311,7 +311,6 @@ static void SetDeviceRegister(int addr, int val)
             break;
 
         case 0xE7CD:
-            data = mc6821_ReadData(&pia_ext.portb);
             mc6821_WriteData(&pia_ext.portb, val);
 
             if ((mc6846.crc&8) == 0)  /* MUTE son inactif */
@@ -319,12 +318,12 @@ static void SetDeviceRegister(int addr, int val)
                 /* When the bit 2 of $e7cf is set to 0, the value put
                    into $e7cd is for the PIA direction register.
                    It is always possible to generate sound that way,
-                   but only if b2-b3-b4-b5 state changes. It gives
-                   then the opportunity to set some special codes
-                   noiselessly (like $fc for the joystick) even
-                   if the sound line is full open. */
+                   but only if b2, b3, b4 or b5 are not set to 1 all
+                   together. It gives then the opportunity to set some
+                   special codes noiselessly (like $fc for the joystick)
+                   even if the sound line is full open. */
                 if (((mc6821_ReadCommand(&pia_ext.portb)&0x04) != 0)
-                 || ((data&0x3c) != (mc6821_ReadData(&pia_ext.portb)&0x3c)))
+                 || ((val&0x3c) != 0x3c))
                 {
                     teo_PutSoundByte(
                         mc6809_clock(),
@@ -781,10 +780,15 @@ static int BiosCall(struct MC6809_REGS *regs)
             cass_Event(&regs->br,&regs->cc);
             break;
 
- 	/* Imprimante */
-        case 0xFB66:
+        case 0xFB66: /* Printer */
             printer_Close();
             return 0x8a; /* ORA immédiat */
+
+        case 0xFDC9: /* Reset */
+            mc6846.crc |= 8;
+            if (teo_SoundReset != NULL)
+                teo_SoundReset();
+            return 0x1a;  /* ORCC immediate */
 
     } /* end of switch */
     return 0x12;  /* NOP */

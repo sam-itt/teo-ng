@@ -61,6 +61,19 @@ static int last_index;
 static unsigned char last_data;
 
 
+/* sound_reset:
+ *  Reset the streaming audio module.
+ */
+static void sound_reset (void)
+{
+    /* last_data must be properly initialized, otherwise
+     * the sound of other applications is altered */
+    last_data = 128;
+    last_index = 0;
+}
+
+
+
 /* voice_get_position_callback:
  *  Helper pour détecter le bon fonctionnement du streaming audio.
  */
@@ -166,6 +179,7 @@ void asound_Init(int freq)
     sound_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
 
     teo_PutSoundByte=PutSoundByte;
+    teo_SoundReset=sound_reset;
 
     teo.sound_enabled=FALSE;
 
@@ -181,6 +195,8 @@ void asound_Init(int freq)
          rest_callback(100, voice_get_position_callback);  /* 100 ms */
          voice_stop(stream->voice);
     }
+
+    sound_reset ();
 
     printf(teo.sound_enabled ? "ok\n" : (is_fr?"erreur\n":"error\n"));
 }

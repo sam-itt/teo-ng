@@ -76,6 +76,7 @@ int is_fr=0;
 void (*teo_SetColor)(int, int, int, int);
 void (*teo_DrawGPL)(int, int, int, int);
 void (*teo_PutSoundByte)(unsigned long long int, unsigned char);
+void (*teo_SoundReset)(void);
 void (*teo_SetPointer)(int);
 
 /* fonctions importables optionnelles */
@@ -185,10 +186,14 @@ static int InitMemory(void)
     mem.rom.bank[3][0x396F]=0x12;
     mem.rom.bank[3][0x3970]=0x12;
 
+    /* special treatement for the reset */
+    mem.mon.bank[0][0x1DC8]=TEO_TRAP_CODE;
+
     LOCK_DATA(mem.ram.bank[0], sizeof(uint8)*mem.ram.size);
     LOCK_DATA(mem.ram.bank[1], sizeof(uint8)*mem.ram.size);
     LOCK_DATA(mem.ram.bank[2], sizeof(uint8)*mem.ram.size);
     LOCK_DATA(mem.ram.bank[3], sizeof(uint8)*mem.ram.size);
+    LOCK_DATA(mem.mon.bank[0], sizeof(uint8)*mem.rom.size);
     LOCK_DATA(mem.mon.bank[1], sizeof(uint8)*mem.rom.size);
 
     return 0;
@@ -342,6 +347,9 @@ void teo_Reset(void)
     /* Back to 40 columns display */
     mode_page.lgamod=0x00;
     teo_new_video_params=TRUE;
+
+    if (teo_SoundReset != NULL)
+        teo_SoundReset();
 
     mc6809_Reset();
 }
