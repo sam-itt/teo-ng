@@ -76,7 +76,7 @@ int is_fr=0;
 void (*teo_SetColor)(int, int, int, int);
 void (*teo_DrawGPL)(int, int, int, int);
 void (*teo_PutSoundByte)(unsigned long long int, unsigned char);
-void (*teo_SoundReset)(void);
+void (*teo_SilenceSound)(void);
 void (*teo_SetPointer)(int);
 
 /* fonctions importables optionnelles */
@@ -348,8 +348,8 @@ void teo_Reset(void)
     mode_page.lgamod=0x00;
     teo_new_video_params=TRUE;
 
-    if (teo_SoundReset != NULL)
-        teo_SoundReset();
+    if (teo_SilenceSound != NULL)
+        teo_SilenceSound();
 
     mc6809_Reset();
 }

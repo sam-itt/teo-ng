@@ -204,7 +204,7 @@ extern int frame;
 extern void (*teo_SetColor)(int index, int r, int g, int b);
 extern void (*teo_DrawGPL)(int mode, int addr, int pt, int col);
 extern void (*teo_PutSoundByte)(unsigned long long int time, unsigned char value);
-extern void (*teo_SoundReset)(void);
+extern void (*teo_SilenceSound)(void);
 extern void (*teo_SetPointer)(int pointer);
 
 /* fonctions importables optionnelles */

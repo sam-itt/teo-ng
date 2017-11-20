@@ -338,6 +338,9 @@ static void SetDeviceRegister(int addr, int val)
 
         case 0xE7CF:
             mc6821_WriteCommand(&pia_ext.portb, val);
+            /* To avoid other programs sound interferences */
+            if (((val & 4) != 0) && (teo_SilenceSound != NULL))
+                teo_SilenceSound();
             break;
 
         /* Gate Array lecteur de disquettes */
@@ -786,8 +789,8 @@ static int BiosCall(struct MC6809_REGS *regs)
 
         case 0xFDC9: /* Reset */
             mc6846.crc |= 8;
-            if (teo_SoundReset != NULL)
-                teo_SoundReset();
+            if (teo_SilenceSound != NULL)
+                teo_SilenceSound();
             return 0x1a;  /* ORCC immediate */
 
     } /* end of switch */

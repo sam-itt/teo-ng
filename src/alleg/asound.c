@@ -38,7 +38,7 @@
  *  Créé par   : Eric Botcazou avril 1999
  *  Modifié par: Eric Botcazou 24/09/2001
  *               Samuel Devulder 23/03/2010
- *               François Mouret 08/2011 19/10/2012 28/12/2012
+ *               François Mouret 08/2011 19/10/2012 28/12/2012 20/11/2017
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -61,15 +61,14 @@ static int last_index;
 static unsigned char last_data;
 
 
-/* sound_reset:
- *  Reset the streaming audio module.
+/* silence_sound:
+ *  Silence the sound.
  */
-static void sound_reset (void)
+static void silence_sound (void)
 {
     /* last_data must be properly initialized, otherwise
      * the sound of other applications is altered */
     last_data = 128;
-    last_index = 0;
 }
 
 
@@ -179,7 +178,7 @@ void asound_Init(int freq)
     sound_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
 
     teo_PutSoundByte=PutSoundByte;
-    teo_SoundReset=sound_reset;
+    teo_SilenceSound=silence_sound;
 
     teo.sound_enabled=FALSE;
 
@@ -196,7 +195,8 @@ void asound_Init(int freq)
          voice_stop(stream->voice);
     }
 
-    sound_reset ();
+    silence_sound ();
+    last_index = 0;
 
     printf(teo.sound_enabled ? "ok\n" : (is_fr?"erreur\n":"error\n"));
 }

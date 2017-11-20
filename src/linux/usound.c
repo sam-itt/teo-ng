@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Gilles Fétis 07/2011
  *               François Mouret 08/2011 24/01/2012 15/06/2012
- *                               19/10/2012
+ *                               19/10/2012 20/11/2017
  *
  *  Gestion de l'émulation sonore du TO8.
  */
@@ -85,15 +85,14 @@ void usound_Close (void);
 
 
 
-/* sound_reset:
- *  Reset the streaming audio module.
+/* silence_sound:
+ *  Silence the sound.
  */
-static void sound_reset (void)
+static void silence_sound (void)
 {
     /* last_data must be properly initialized, otherwise
      * the sound of other applications is altered */
     last_data = 128;
-    last_index=0;
 }
 
 
@@ -272,7 +271,7 @@ int usound_Init(void)
     int sound_buffer_size;
 
     teo_PutSoundByte=put_sound_byte;
-    teo_SoundReset=sound_reset;
+    teo_SilenceSound=silence_sound;
 
     if (teo.setting.sound_enabled)
     {
@@ -308,7 +307,8 @@ int usound_Init(void)
         printf("ok\n");
     }
     
-    sound_reset ();
+    silence_sound ();
+    last_index=0;
     
     return 0;
 }
