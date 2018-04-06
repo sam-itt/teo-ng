@@ -1,5 +1,14 @@
 ###Changes
 
+#####Version 1.8.5 (November 2017 - April 2018)
+
+TEO
+
+- Reduction of the sound interferences with other applications
+- Keys iopklm;:! for joystick 0
+- Restoration of the automatic unprotecting for SAP, FD and direct access (thanks to emulix75)
+
+
 #####Version 1.8.4 (July 2015-october 2017)
 
 TEO
@@ -12,7 +21,7 @@ TEO
 
 under Linux :
 
-- Impovement of the debugger window
+- Improvement of the debugger window
 - Increasing of the fast speed
 
 

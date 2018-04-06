@@ -1,5 +1,15 @@
 ========================================================================
-=== Version 1.8.4 (Août 2015 - Octobre 2017)                        ===
+=== Version 1.8.5 (Novembre 2017 - Avril 2018)                       ===
+========================================================================
+
+- teo
+   - Réduction des interférences sonores avec les autres applications
+   - Touches iopklm;:! pour le joystick 0
+   - Restauration de déprotection automatique pour SAP, FD et accès direct
+    (merci à emulix75)
+
+========================================================================
+=== Version 1.8.4 (Août 2015 - Octobre 2017)                         ===
 ========================================================================
 
 - teo
