@@ -82,7 +82,7 @@ static void create_sector (int drive, uint8 *sector_buffer)
 
     /* clear track */
     memset (disk[drive].clck, DATA_CLOCK_MARK, disk[drive].track_size);
-    memset (disk[drive].data, MFM_GAP_DATA_VALUE, disk[drive].track_size);
+    memset (disk[drive].data, MFM_PROT_GAP_DATA_VALUE, disk[drive].track_size);
 
     /* compute sector offset (interleave 7) */
     pos = DDSECTORPOS (disk[drive].drv->sector);

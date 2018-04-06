@@ -59,6 +59,11 @@
 #define MFM_CRC_INFO_INIT       0xb230
 #define MFM_CRC_DATA_INIT       0xe295
 
+/* special code for SAP, FD, Direct Access files.
+   Some programs need to have all the gap bytes set to 0xF7
+   to avoid protection (for example : Avenger, Marche à l'ombre). */
+#define MFM_PROT_GAP_DATA_VALUE 0xf7
+
 #define FM_GAP_DATA_VALUE       0xff
 #define FM_PRE_SYNC_DATA_VALUE  0x00
 #define FM_SYNCHRO_CLOCK_VALUE  0xc7

@@ -254,7 +254,6 @@
 #define DO_PRINT  1      /* if output wanted */
 #endif
 
-static struct MC6809_REGS regs;
 static int disk_led = FALSE;
 
 
@@ -1073,51 +1072,25 @@ static void set_reg0 (int val)
         disk[dkcurr].dkc->write_door = (val & CMD0_WRITE) >> 2;
     }
 
-    switch (disk[dkcurr].state)
+    if (disk[dkcurr].state == TEO_DISK_ACCESS_DIRECT)
     {
-        /* special management for SAP files.
-           Some programs need to have the post-sector bytes (at
-           least the first 4 bytes) set to 0xF7 (for example :
-           Avenger, Marche à l'ombre) */
-        case TEO_DISK_ACCESS_SAP :
-            if ((val == 0x1b) && (disk[dkcurr].sector_size == 256))
-            {
-                mc6809_GetRegs(&regs);
-                if ((regs.pc < 0xe004)
-                 && (disk[dkcurr].dkc->wr5 >= 0)
-                 && (disk[dkcurr].dkc->wr5 <= TEO_DISK_SECTOR_PER_TRACK))
-                {
-                    memset (disk[dkcurr].data
-                                +DDSECTORPOS(disk[dkcurr].dkc->wr5)
-                                +MFM_SECTOR_SIZE-12,
-                            0xf7, 12);
-                }
-            }
-            break;
-
-        /* special management for direct access.
-           Reading/writing a sector and formatting a track are
-           immediately done */
-        case TEO_DISK_ACCESS_DIRECT :
-            mc6809_GetRegs(&regs);
-            if (regs.pc > 0xe004)
-            {
-                switch (val)
-                {
-                    case 0x19 :   /* write sector */
-                        disk_WriteSector (dkcurr);
-                        break;
-
-                    case 0x1b :   /* read sector */
-                        disk_ReadSector (dkcurr);
-                        break;
-
-                    case 0x04 :   /* format track */
-                        disk_FormatTrack (dkcurr);
-                        break;
-                }
-            }
-            break;
+        switch (val)
+        {
+            /* special management for direct access.
+               Reading/writing a sector and formatting a track are
+               immediately done */
+            case 0x19 :   /* write sector */
+                disk_WriteSector (dkcurr);
+                break;
+ 
+            case 0x1b :   /* read sector */
+                disk_ReadSector (dkcurr);
+                break;
+ 
+            case 0x04 :   /* format track */
+                disk_FormatTrack (dkcurr);
+                break;
+        }
     }
 }
 

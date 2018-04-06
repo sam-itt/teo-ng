@@ -112,8 +112,7 @@ static int is_dd_floppy_sector (int track, uint8 *data, uint8 *clck)
 
     /* check gap field of sector */
     for (i=22; i<44; i++)
-        if ((clck[i]>=SYNCHRO_CLOCK_MARK)
-         || (data[i] != MFM_GAP_DATA_VALUE))
+        if (clck[i]>=SYNCHRO_CLOCK_MARK)
             return -1;
 
     /* check pre-synchro field of sector */
@@ -184,8 +183,7 @@ static int is_sd_floppy_sector (int track, uint8 *data, uint8 *clck)
      
     /* check gap field of sector */
     for (i=13; i<25; i++)
-        if ((clck[i]>=SYNCHRO_CLOCK_MARK)
-         || (data[i] != FM_GAP_DATA_VALUE))
+        if (clck[i]>=SYNCHRO_CLOCK_MARK)
             return -1;
 
     /* check pre-synchro field */
@@ -341,7 +339,7 @@ void disk_CreateDDFloppySector (int track, int sector, uint8 *sector_buffer,
     int crc;
 
     /* write start of sector field */
-    memset (data, MFM_GAP_DATA_VALUE, 32);
+    memset (data, MFM_PROT_GAP_DATA_VALUE, 32);
     memset (data+32, MFM_PRE_SYNC_DATA_VALUE, 12);
     memset (data+44, MFM_SYNCHRO_DATA_VALUE, 3);
     memset (clck+44, SYNCHRO_CLOCK_MARK, 3);
@@ -357,7 +355,7 @@ void disk_CreateDDFloppySector (int track, int sector, uint8 *sector_buffer,
     *(data+53) = (uint8)crc;
 
     /* write start of sector field */
-    memset (data+54, MFM_GAP_DATA_VALUE, 22);
+    memset (data+54, MFM_PROT_GAP_DATA_VALUE, 22);
     memset (data+76, MFM_PRE_SYNC_DATA_VALUE, 12);
     memset (data+88, MFM_SYNCHRO_DATA_VALUE, 3);
     memset (clck+88, SYNCHRO_CLOCK_MARK, 3);
@@ -372,7 +370,7 @@ void disk_CreateDDFloppySector (int track, int sector, uint8 *sector_buffer,
     *(data+349) = (uint8)crc;
 
     /* write sector gap */
-    memset (data+350, MFM_GAP_DATA_VALUE, 12);
+    memset (data+350, MFM_PROT_GAP_DATA_VALUE, 12);
 }
 
 

@@ -181,7 +181,7 @@ static int read_mfm_track (int drive, int track)
     size_t secsiz = (size_t)TEO_DISK_DD_SECTOR_SIZE;
 
     /* initialize track */
-    memset (disk[drive].data, MFM_GAP_DATA_VALUE, TEO_DISK_TRACK_SIZE_MAX);
+    memset (disk[drive].data, MFM_PROT_GAP_DATA_VALUE, TEO_DISK_TRACK_SIZE_MAX);
     memset (disk[drive].clck, DATA_CLOCK_MARK, TEO_DISK_TRACK_SIZE_MAX);
 
     /* read-open FD file */
