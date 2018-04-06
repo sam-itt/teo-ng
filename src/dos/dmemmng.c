@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8D
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 /*
  *  Module     : dos/memmng.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 23/11/2000
  *               François Mouret 08/2011 20/09/2013 02/06/2014

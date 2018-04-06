@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 /*
  *  Module     : win/dialog.rc
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou 14/09/2000
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 27/09/2006 26/01/2010 10/08/2011
@@ -71,8 +71,8 @@ leave_ico    ICON   "src/win/wdebug/leave.ico"
 
 
 1 VERSIONINFO 
-FILEVERSION 1, 8, 4, 0
-PRODUCTVERSION 1, 8, 4, 0
+FILEVERSION 1, 8, 5, 0
+PRODUCTVERSION 1, 8, 5, 0
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
 {
@@ -89,7 +89,7 @@ FILETYPE VFT_APP
             VALUE "FileDescription", "Teo - l'émulateur TO8"
             VALUE "FileVersion", TEO_VERSION_STR
             VALUE "InternalName", "TEOW.EXE"
-            VALUE "LegalCopyright", "Copyright © 1997-2017 Teo Developers"
+            VALUE "LegalCopyright", "Copyright © 1997-2018 Teo Developers"
             VALUE "OriginalFilename", "TEOW.EXE"
             VALUE "ProductName", "Teo"
             VALUE "ProductVersion", TEO_VERSION_STR

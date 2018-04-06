@@ -11,8 +11,8 @@ To run the emulator, you need at least a 80486 with 8MB of RAM running under Win
 
 You can install the emulator in two ways:
 
-* Launch *`teow-1.8.4-setup.exe`*.
-* Unzip *`teo-1.8.4-winexe.zip`*. The executable is named *`teow.exe`*.
+* Launch *`teow-1.8.5-setup.exe`*.
+* Unzip *`teo-1.8.5-winexe.zip`*. The executable is named *`teow.exe`*.
 
 #####Launching<a name="launching"></a>
 

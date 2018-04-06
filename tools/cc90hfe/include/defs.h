@@ -2,7 +2,7 @@
  * cc90hfe (c) Teo Developers
  *********************************************************
  *
- *  Copyright (C) 2012-2017 Yves Charriau, François Mouret
+ *  Copyright (C) 2012-2018 Yves Charriau, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,8 +53,8 @@
 #define PROG_VERSION_MICRO "0"
 #define PROG_VERSION_STRING PROG_VERSION_MAJOR"."PROG_VERSION_MINOR
 
-#define PROG_CREATION_MONTH "January"
-#define PROG_CREATION_YEAR "2017"
+#define PROG_CREATION_MONTH "April"
+#define PROG_CREATION_YEAR "2018"
 #define PROG_WEB_SITE       "http://sourceforge.net/projects/teoemulator/"
 #define PROG_WEB_FORUM      "http://www.logicielsmoto.com/"
 #define PROG_DESCRIPTION    "Serial transfers for CC90-232"

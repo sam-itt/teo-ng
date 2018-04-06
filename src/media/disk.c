@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -35,7 +35,7 @@
 
 /*
  *  Module     : media/disk.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Alexandre Pukall mai 1998
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 15/09/2006 26/01/2010 12/01/2012 25/04/2012

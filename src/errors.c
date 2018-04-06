@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 /*
  *  Module     : errors.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou 22/11/2000
  *  Modifié par: Eric Botcazou 06/03/2001
  *               François Mouret 08/2011 13/01/2012 17/11/2012

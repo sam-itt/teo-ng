@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -35,7 +35,7 @@
 
 /*
  *  Module     : media/disk/controlr/thmfc1.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Francois Mouret 24/05/2012
  *  Modifié par: François Mouret 31/08/2013 31/07/2016
  *

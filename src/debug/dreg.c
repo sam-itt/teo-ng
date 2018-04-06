@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 /*
  *  Module     : debug/dreg.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
  *  Modifié par: François Mouret 16/11/2015 09/03/2016 14/07/2016
  *

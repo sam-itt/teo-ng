@@ -13,9 +13,9 @@
                   TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
 
                         L'émulateur Thomson TO8
-                              version 1.8.4
+                              version 1.8.5
 
-    Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+    Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
                             Jérémie Guillaume, François Mouret,
                             Samuel Devulder
 

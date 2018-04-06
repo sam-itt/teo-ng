@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -35,7 +35,7 @@
 
 /*
  *  Module     : linux/graphic.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 26/01/2010 08/2011 25/04/2012

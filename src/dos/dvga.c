@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *                          Samuel Devulder
  *
@@ -35,7 +35,7 @@
 
 /*
  *  Module     : dos/vga.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 22/09/2001
  *               Samuel Devulder 07/2011

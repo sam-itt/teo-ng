@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret,
  *                          Samuel Devulder
  *
@@ -35,7 +35,7 @@
 
 /*
  *  Module     : teo.h
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 26/10/2003
  *               François Mouret 30/01/2010 07/08/2011 05/03/2012
@@ -63,8 +63,8 @@
 
 /* paramètres et symboles de l'émulation */
 #define APPLICATION_DIR "teo"
-#define TEO_YEAR_STRING "2017"
-#define TEO_VERSION_STR "1.8.4"
+#define TEO_YEAR_STRING "2018"
+#define TEO_VERSION_STR "1.8.5"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 

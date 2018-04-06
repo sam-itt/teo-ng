@@ -14,7 +14,7 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2017 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
  *                          Samuel Devulder
  *
@@ -35,7 +35,7 @@
 
 /*
  *  Module     : linux/main.c
- *  Version    : 1.8.4
+ *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou octobre 1999
  *  Modifié par: Eric Botcazou 19/11/2006
  *               François Mouret 26/01/2010 08/2011 23/03/2012
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
                  "Teo "TEO_VERSION_STR" (Linux/X11)");
-    printf("Copyright (C) 1997-2017 Gilles FÃ©tis, Eric Botcazou, "
+    printf("Copyright (C) 1997-2018 Gilles FÃ©tis, Eric Botcazou, "
            "Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n"
                  :"Keys : [ESC] Control pannel\n"));
