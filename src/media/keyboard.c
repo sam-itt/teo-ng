@@ -67,14 +67,15 @@ static int njoy;
 static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 
 #define SPECIAL_NULL   -1      /* key not mapped */
-#define SPECIAL_KBD    0x1000  /* special key of main keyboard */
-#define SPECIAL_PAD    0x2000  /* special key of numeric pad */
+#define SPECIAL_KB0    0x0800  /* special key for joystick 0 (keyboard right) */
+#define SPECIAL_KB1    0x1000  /* special key for joystick 1 (keyboard left) */
+#define SPECIAL_PAD    0x2000  /* special key for joystick 0 (numeric pad) */
 #define SPECIAL_UPC    0x4000  /* upper case if CAPS LOCK */
 #define SPECIAL_KEY    0x8000  /* special key (not defined) */
 
 #define TOKEY_SHIFT    0x80
 #define TOKEY_CTRL     0x100
-#define JOYSTICK_MASK  (0x7f|SPECIAL_KBD|SPECIAL_PAD|SPECIAL_UPC)
+#define JOYSTICK_MASK  (0x7f|SPECIAL_KB0|SPECIAL_KB1|SPECIAL_PAD|SPECIAL_UPC)
 
 /* List of Thomson scancodes */
 /* 1st row */
@@ -105,7 +106,7 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_6                    TOKEY_UNDERSCORE|TOKEY_SHIFT  /* 6 */
 #define TOKEY_E_GRAVE_LOWER_CASE   0x31  /* è */
 #define TOKEY_7                    TOKEY_E_GRAVE_LOWER_CASE|TOKEY_SHIFT  /* 7 */
-#define TOKEY_EXCLAMATION_MARK     0x39|SPECIAL_PAD  /* ! */
+#define TOKEY_EXCLAMATION_MARK     0x39|SPECIAL_KB1  /* ! */
 #define TOKEY_8                    TOKEY_EXCLAMATION_MARK|TOKEY_SHIFT  /* 8 */
 #define TOKEY_C_CEDILLA_LOWER_CASE 0x41  /* ç */
 #define TOKEY_9                    TOKEY_C_CEDILLA_LOWER_CASE|TOKEY_SHIFT  /* 9 */
@@ -124,11 +125,11 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_PAD_9                0x35|SPECIAL_PAD  /* 9 numeric pad */
 /* 3rd row */
 #define TOKEY_STOP                 0x30  /* STOP */
-#define TOKEY_A_LOWER_CASE         0x2a|SPECIAL_KBD|SPECIAL_UPC  /* a */
+#define TOKEY_A_LOWER_CASE         0x2a|SPECIAL_KB0|SPECIAL_UPC  /* a */
 #define TOKEY_A_UPPER_CASE         TOKEY_A_LOWER_CASE|TOKEY_SHIFT  /* A */
-#define TOKEY_Z_LOWER_CASE         0x22|SPECIAL_KBD|SPECIAL_UPC  /* z */
+#define TOKEY_Z_LOWER_CASE         0x22|SPECIAL_KB0|SPECIAL_UPC  /* z */
 #define TOKEY_Z_UPPER_CASE         TOKEY_Z_LOWER_CASE|TOKEY_SHIFT  /* Z */
-#define TOKEY_E_LOWER_CASE         0x1a|SPECIAL_KBD|SPECIAL_UPC  /* e */
+#define TOKEY_E_LOWER_CASE         0x1a|SPECIAL_KB0|SPECIAL_UPC  /* e */
 #define TOKEY_E_UPPER_CASE         TOKEY_E_LOWER_CASE|TOKEY_SHIFT  /* E */
 #define TOKEY_R_LOWER_CASE         0x12|SPECIAL_UPC  /* r */
 #define TOKEY_R_UPPER_CASE         TOKEY_R_LOWER_CASE|TOKEY_SHIFT  /* R */
@@ -138,11 +139,11 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_Y_UPPER_CASE         TOKEY_Y_LOWER_CASE|TOKEY_SHIFT  /* Y */
 #define TOKEY_U_LOWER_CASE         0x32|SPECIAL_UPC  /* u */
 #define TOKEY_U_UPPER_CASE         TOKEY_U_LOWER_CASE|TOKEY_SHIFT  /* U */
-#define TOKEY_I_LOWER_CASE         0x3a|SPECIAL_UPC|SPECIAL_PAD  /* i */
+#define TOKEY_I_LOWER_CASE         0x3a|SPECIAL_UPC|SPECIAL_KB1  /* i */
 #define TOKEY_I_UPPER_CASE         TOKEY_I_LOWER_CASE|TOKEY_SHIFT  /* I */
-#define TOKEY_O_LOWER_CASE         0x42|SPECIAL_UPC|SPECIAL_PAD  /* o */
+#define TOKEY_O_LOWER_CASE         0x42|SPECIAL_UPC|SPECIAL_KB1  /* o */
 #define TOKEY_O_UPPER_CASE         TOKEY_O_LOWER_CASE|TOKEY_SHIFT  /* O */
-#define TOKEY_P_LOWER_CASE         0x4a|SPECIAL_UPC|SPECIAL_PAD  /* p */
+#define TOKEY_P_LOWER_CASE         0x4a|SPECIAL_UPC|SPECIAL_KB1  /* p */
 #define TOKEY_P_UPPER_CASE         TOKEY_P_LOWER_CASE|TOKEY_SHIFT  /* P */
 #define TOKEY_CIRCUMFLEX           0x4d  /* ^ */
 #define TOKEY_DIAERESIS            TOKEY_CIRCUMFLEX|TOKEY_SHIFT  /* " */
@@ -157,11 +158,11 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 /* 4th row */
 #define TOKEY_OPEN_SQUARE_BRACKET  0x2c  /* [ */
 #define TOKEY_OPEN_BRACES          TOKEY_OPEN_SQUARE_BRACKET|TOKEY_SHIFT  /* [ */
-#define TOKEY_Q_LOWER_CASE         0x2b|SPECIAL_KBD|SPECIAL_UPC  /* q */
+#define TOKEY_Q_LOWER_CASE         0x2b|SPECIAL_KB0|SPECIAL_UPC  /* q */
 #define TOKEY_Q_UPPER_CASE         TOKEY_Q_LOWER_CASE|TOKEY_SHIFT  /* Q */
-#define TOKEY_S_LOWER_CASE         0x23|SPECIAL_KBD|SPECIAL_UPC  /* s */ 
+#define TOKEY_S_LOWER_CASE         0x23|SPECIAL_KB0|SPECIAL_UPC  /* s */ 
 #define TOKEY_S_UPPER_CASE         TOKEY_S_LOWER_CASE|TOKEY_SHIFT  /* S */
-#define TOKEY_D_LOWER_CASE         0x1b|SPECIAL_KBD|SPECIAL_UPC  /* d */ 
+#define TOKEY_D_LOWER_CASE         0x1b|SPECIAL_KB0|SPECIAL_UPC  /* d */ 
 #define TOKEY_D_UPPER_CASE         TOKEY_D_LOWER_CASE|TOKEY_SHIFT  /* D */
 #define TOKEY_F_LOWER_CASE         0x13|SPECIAL_UPC  /* f */
 #define TOKEY_F_UPPER_CASE         TOKEY_F_LOWER_CASE|TOKEY_SHIFT  /* F */
@@ -171,11 +172,11 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_H_UPPER_CASE         TOKEY_H_LOWER_CASE|TOKEY_SHIFT  /* H */
 #define TOKEY_J_LOWER_CASE         0x33|SPECIAL_UPC  /* j */
 #define TOKEY_J_UPPER_CASE         TOKEY_J_LOWER_CASE|TOKEY_SHIFT  /* J */
-#define TOKEY_K_LOWER_CASE         0x3b|SPECIAL_UPC|SPECIAL_PAD  /* k */
+#define TOKEY_K_LOWER_CASE         0x3b|SPECIAL_UPC|SPECIAL_KB1  /* k */
 #define TOKEY_K_UPPER_CASE         TOKEY_K_LOWER_CASE|TOKEY_SHIFT  /* K */
-#define TOKEY_L_LOWER_CASE         0x43|SPECIAL_UPC|SPECIAL_PAD  /* l */
+#define TOKEY_L_LOWER_CASE         0x43|SPECIAL_UPC|SPECIAL_KB1  /* l */
 #define TOKEY_L_UPPER_CASE         TOKEY_L_LOWER_CASE|TOKEY_SHIFT  /* L */
-#define TOKEY_M_LOWER_CASE         0x4b|SPECIAL_UPC|SPECIAL_PAD  /* m */
+#define TOKEY_M_LOWER_CASE         0x4b|SPECIAL_UPC|SPECIAL_KB1  /* m */
 #define TOKEY_M_UPPER_CASE         TOKEY_M_LOWER_CASE|TOKEY_SHIFT  /* M */
 #define TOKEY_U_GRAVE_LOWER_CASE   0x45  /* ù */
 #define TOKEY_PERCENT              TOKEY_U_GRAVE_LOWER_CASE|TOKEY_SHIFT  /* % */
@@ -187,11 +188,11 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_PAD_3                0x4e|SPECIAL_PAD  /* 3 numeric pad */
 /* 5th row */
 #define TOKEY_CAPS_LOCK            0x40  /* CAPS LOCK */
-#define TOKEY_W_LOWER_CASE         0x2f|SPECIAL_KBD|SPECIAL_UPC  /* w */
+#define TOKEY_W_LOWER_CASE         0x2f|SPECIAL_KB0|SPECIAL_UPC  /* w */
 #define TOKEY_W_UPPER_CASE         TOKEY_W_LOWER_CASE|TOKEY_SHIFT  /* W */
-#define TOKEY_X_LOWER_CASE         0x27|SPECIAL_KBD|SPECIAL_UPC  /* x */
+#define TOKEY_X_LOWER_CASE         0x27|SPECIAL_KB0|SPECIAL_UPC  /* x */
 #define TOKEY_X_UPPER_CASE         TOKEY_X_LOWER_CASE|TOKEY_SHIFT  /* X */
-#define TOKEY_C_LOWER_CASE         0x1f|SPECIAL_KBD|SPECIAL_UPC  /* c */
+#define TOKEY_C_LOWER_CASE         0x1f|SPECIAL_KB0|SPECIAL_UPC  /* c */
 #define TOKEY_C_UPPER_CASE         TOKEY_C_LOWER_CASE|TOKEY_SHIFT  /* C */
 #define TOKEY_V_LOWER_CASE         0x17|SPECIAL_UPC  /* v */
 #define TOKEY_V_UPPER_CASE         TOKEY_V_LOWER_CASE|TOKEY_SHIFT  /* V */
@@ -201,9 +202,9 @@ static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
 #define TOKEY_N_UPPER_CASE         TOKEY_N_LOWER_CASE|TOKEY_SHIFT  /* N */
 #define TOKEY_COMMA                0x37  /* , */
 #define TOKEY_QUESTION_MARK        TOKEY_COMMA|TOKEY_SHIFT  /* ? */
-#define TOKEY_SEMICOLON            0x3f|SPECIAL_PAD  /* ; */
+#define TOKEY_SEMICOLON            0x3f|SPECIAL_KB1  /* ; */
 #define TOKEY_DOT                  TOKEY_SEMICOLON|TOKEY_SHIFT  /* . */
-#define TOKEY_COLON                0x47|SPECIAL_PAD  /* : */
+#define TOKEY_COLON                0x47|SPECIAL_KB1  /* : */
 #define TOKEY_SLASH                TOKEY_COLON|TOKEY_SHIFT  /* / */
 #define TOKEY_GREATER_THAN         0x4f  /* > */
 #define TOKEY_LOWER_THAN           TOKEY_GREATER_THAN|TOKEY_SHIFT  /* < */
@@ -732,8 +733,8 @@ void keyboard_Press (int key, int release)
                 code = key_code[key];
             }
 
-            /* special key of the main keyboard */
-            if ((code & SPECIAL_KBD) != 0)
+            /* special key for joystick 0 (keyboard right) */
+            if ((code & SPECIAL_KB0) != 0)
             {
                 if ((njoy>1) && ((kb_state&TEO_KEY_F_NUMLOCK) == 0))
                 {
@@ -801,11 +802,84 @@ void keyboard_Press (int key, int release)
                     }
 
                     joystick_Move (njoy-1, j1_dir[0]);
-                    /* pas de break */
+                    /* no break */
                 }
             }
             else
-            /* special key of the numeric pad */
+            /* special key for joystick 1 (keyboard left) */
+            if ((code & SPECIAL_KB1) != 0)
+            {
+                if ((njoy>0) && ((kb_state&TEO_KEY_F_NUMLOCK) == 0))
+                {
+                    switch (code & JOYSTICK_MASK)
+                    {
+                        case TOKEY_SEMICOLON :
+                            joycode = TEO_JOYSTICK_LEFT|TEO_JOYSTICK_UP;
+                            break;
+
+                        case TOKEY_COLON :
+                            joycode = TEO_JOYSTICK_UP;
+                            break;
+
+                        case TOKEY_EXCLAMATION_MARK :
+                            joycode = TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_UP;
+                            break;
+
+                        case TOKEY_K_LOWER_CASE :
+                            joycode = TEO_JOYSTICK_LEFT;
+                            break;
+
+                        case TOKEY_L_LOWER_CASE :
+                            joycode = TEO_JOYSTICK_CENTER;
+                            break;
+
+                        case TOKEY_M_LOWER_CASE :
+                            joycode = TEO_JOYSTICK_RIGHT;
+                            break;
+
+                        case TOKEY_I_LOWER_CASE :
+                            joycode = TEO_JOYSTICK_LEFT|TEO_JOYSTICK_DOWN;
+                            break;
+
+                        case TOKEY_O_LOWER_CASE :
+                            joycode = TEO_JOYSTICK_DOWN;
+                            break;
+
+                        case TOKEY_P_LOWER_CASE :
+                            joycode = TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_DOWN;
+                            break;
+
+                        default :
+                            joycode = TEO_JOYSTICK_CENTER;
+                            break;
+                    }
+
+                    if (release != 0)
+                    {
+                        if (joycode == j0_dir[0])
+                        {
+                            j0_dir[0]=j0_dir[1];
+                            j0_dir[1]=TEO_JOYSTICK_CENTER;
+                        }
+                        else
+                        if (joycode == j0_dir[1])
+                        {
+                            j0_dir[1]=TEO_JOYSTICK_CENTER;
+                        }
+                    }
+                    else
+                    if (joycode != j0_dir[0])
+                    {
+                        j0_dir[1]=j0_dir[0];
+                        j0_dir[0]=joycode;
+                    }
+
+                    joystick_Move (TEO_NJOYSTICKS-njoy, j0_dir[0]);
+                    /* no break */
+                }
+            }
+            else
+            /* special key for joystick 0 (numeric pad) */
             if ((code & SPECIAL_PAD) != 0)
             {
                 if ((njoy>0) && ((kb_state&TEO_KEY_F_NUMLOCK) == 0))
@@ -813,47 +887,38 @@ void keyboard_Press (int key, int release)
                     switch (code & JOYSTICK_MASK)
                     {
                         case TOKEY_PAD_1 :
-                        case TOKEY_SEMICOLON :
                             joycode = TEO_JOYSTICK_LEFT|TEO_JOYSTICK_UP;
                             break;
 
                         case TOKEY_PAD_2 :
-                        case TOKEY_COLON :
                             joycode = TEO_JOYSTICK_UP;
                             break;
 
                         case TOKEY_PAD_3 :
-                        case TOKEY_EXCLAMATION_MARK :
                             joycode = TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_UP;
                             break;
 
                         case TOKEY_PAD_4 :
-                        case TOKEY_K_LOWER_CASE :
                             joycode = TEO_JOYSTICK_LEFT;
                             break;
 
                         case TOKEY_PAD_5 :
-                        case TOKEY_L_LOWER_CASE :
                             joycode = TEO_JOYSTICK_CENTER;
                             break;
 
                         case TOKEY_PAD_6 :
-                        case TOKEY_M_LOWER_CASE :
                             joycode = TEO_JOYSTICK_RIGHT;
                             break;
 
                         case TOKEY_PAD_7 :
-                        case TOKEY_I_LOWER_CASE :
                             joycode = TEO_JOYSTICK_LEFT|TEO_JOYSTICK_DOWN;
                             break;
 
                         case TOKEY_PAD_8 :
-                        case TOKEY_O_LOWER_CASE :
                             joycode = TEO_JOYSTICK_DOWN;
                             break;
 
                         case TOKEY_PAD_9 :
-                        case TOKEY_P_LOWER_CASE :
                             joycode = TEO_JOYSTICK_RIGHT|TEO_JOYSTICK_DOWN;
                             break;
 
