@@ -76,7 +76,7 @@ extern struct MOTHERBOARD mb;
 
 extern mc6809_clock_t screen_clock;
 
-
+#ifndef DEBUG
 INLINE void DrawGPL(int addr)
 {
     int pt,col;
@@ -89,6 +89,9 @@ INLINE void DrawGPL(int addr)
 
     teo_DrawGPL(mode_page.lgamod, addr, pt, col);
 }
+#else
+extern void DrawGPL(int addr);
+#endif
 
 extern void hardware_Init(void);
 extern void hardware_StoreByte(int addr, int val);

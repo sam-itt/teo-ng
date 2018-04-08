@@ -53,6 +53,7 @@ struct MC6821_PIA {
     struct MC6821_PORT portb;
 };
 
+#ifndef DEBUG
 
 INLINE void mc6821_WriteCommand(struct MC6821_PORT *port, int val)
 {
@@ -100,5 +101,16 @@ INLINE void mc6821_Init(struct MC6821_PORT *port, int cr, int idr)
     port->odr = 0;
     port->idr = idr;
 }
+
+#else
+
+extern void mc6821_WriteCommand(struct MC6821_PORT *port, int val);
+extern int mc6821_ReadCommand(struct MC6821_PORT *port);
+extern void mc6821_WriteData(struct MC6821_PORT *port, int val);
+extern int mc6821_ReadPort(struct MC6821_PORT *port);
+extern int mc6821_ReadData(struct MC6821_PORT *port);
+extern void mc6821_Init(struct MC6821_PORT *port, int cr, int idr);
+
+#endif
 
 #endif

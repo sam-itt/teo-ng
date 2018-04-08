@@ -252,6 +252,7 @@
 
 #if 0
 #define DO_PRINT  1      /* if output wanted */
+static struct MC6809_REGS regs;
 #endif
 
 static int disk_led = FALSE;
