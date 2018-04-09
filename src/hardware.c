@@ -199,10 +199,12 @@ static void SetDeviceRegister(int addr, int val)
             /* $E7C1 generates sound only if b3 state changes */
             if (((mc6846.crc&0x30) == 0x30)
              && ((mc6846.crc&8) != (data&8)))
+            {
                 teo_PutSoundByte(mc6809_clock(),
                                  mc6846.crc&8
                                    ? 0x00
                                    : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+            }
             break;
 
         case 0xE7C2:
@@ -338,9 +340,6 @@ static void SetDeviceRegister(int addr, int val)
 
         case 0xE7CF:
             mc6821_WriteCommand(&pia_ext.portb, val);
-            /* To avoid other programs sound interferences */
-            if (((val & 4) != 0) && (teo_SilenceSound != NULL))
-                teo_SilenceSound();
             break;
 
         /* Gate Array lecteur de disquettes */
