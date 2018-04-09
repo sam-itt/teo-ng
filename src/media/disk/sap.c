@@ -494,6 +494,8 @@ int sap_LoadDisk(int drive, const char filename[])
                 disk[drive].WriteTrack = write_fm_track;
                 break;
         }
+        disk[drive].drv->track.curr = 0;
+        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
         disk[drive].state = TEO_DISK_ACCESS_SAP;
         disk[drive].write_protect = FALSE;
         disk[drive].ReadSector = NULL;

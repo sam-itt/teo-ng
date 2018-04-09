@@ -361,8 +361,6 @@ void teo_Reset(void)
  */
 void teo_ColdReset(void)
 {
-    int drive;
-
     /* initialisation du PIA 6846 système */
     mc6846_Init(&mc6846, 0x80, 0xE5, 0x3D);
 
@@ -404,12 +402,6 @@ void teo_ColdReset(void)
     mempager.mon.update();
 
     STORE_BYTE(0x60FF, 0x00);
-
-    for (drive=0; drive<NBDRIVE; drive+=2)
-    {
-        disk[drive].drv->track.curr = 0;
-        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
-    }
 
     teo_Reset();
 }

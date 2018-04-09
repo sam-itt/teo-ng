@@ -369,6 +369,8 @@ int fd_LoadDisk (int drive, const char filename[])
         }
         disk[drive].sector_size  = fd_list[fd_type].sector_size;
         disk[drive].track_count  = fd_list[fd_type].track_count;
+        disk[drive].drv->track.curr = 0;
+        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
         disk[drive].state = TEO_DISK_ACCESS_FD;
         disk[drive].write_protect = FALSE;
         disk[drive].ReadSector = NULL;

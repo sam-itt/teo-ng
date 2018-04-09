@@ -264,6 +264,8 @@ int daccess_LoadDisk (int drive, const char filename[])
         disk[drive].track_count = TEO_DISK_DD_TRACK_NUMBER;
         disk[drive].track_size = TEO_DISK_DD_TRACK_SIZE;
         disk[drive].byte_rate = TEO_DISK_DD_BYTE_RATE;
+        disk[drive].drv->track.curr = 0;
+        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
 
         /* update parameters */
         teo.disk[drive].file = std_free (teo.disk[drive].file);
