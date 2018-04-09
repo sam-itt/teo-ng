@@ -726,8 +726,6 @@ int hfe_LoadDisk(int drive, const char filename[])
                 break;
         }
         disk[drive].track_count = hfe_hd.number_of_track;
-        disk[drive].drv->track.curr = 0;
-        disk[drive].drv->track.last = TEO_DISK_INVALID_NUMBER;
         disk[drive].state = TEO_DISK_ACCESS_HFE;
         disk[drive].write_protect = (hfe_hd.write_allowed != 0xff)?TRUE:FALSE;
         disk[drive].ReadSector = NULL;
