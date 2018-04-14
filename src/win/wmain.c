@@ -287,7 +287,7 @@ void main_DisplayMessage(const char msg[])
 {
     if (windowed_mode)
     {
-        MessageBox(NULL, (const char*)msg, is_fr?"Teo - Erreur":"Teo - Error",
+        MessageBox(prog_win, (const char*)msg, is_fr?"Teo - Erreur":"Teo - Error",
                     MB_OK | MB_ICONERROR);
     }
     else
