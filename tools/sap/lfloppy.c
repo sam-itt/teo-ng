@@ -72,6 +72,9 @@ static int OpenDrive(int drive, int density)
 {
    char dev_str[16]="";
 
+   if (drive > (1 << 5))
+       return 0;
+
    snprintf(dev_str, sizeof(dev_str), "/dev/fd%d", drive);
 
    if ((fd[drive]=open(dev_str, O_RDWR | O_NDELAY))<0)
