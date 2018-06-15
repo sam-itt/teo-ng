@@ -387,6 +387,7 @@ visibility_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 void udisplay_Init(void)
 {
     int i;
+    int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
     display=gdk_x11_get_default_xdisplay();
