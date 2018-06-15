@@ -303,6 +303,7 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
 
+    g_setenv ("GDK_BACKEND", "x11", TRUE);
     gtk_init (&argc, &argv);     /* Initialisation gtk */
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */

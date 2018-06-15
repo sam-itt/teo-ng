@@ -41,8 +41,8 @@ ifdef DEBIANBUILD
 CFLAGS += -DDEBIAN_BUILD
 endif
 
-CFLAGS += `pkg-config gtk+-3.0 --cflags` -DGDK_VERSION_MAX_ALLOWED=GDK_VERSION_3_10 -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_10
-LIB = `pkg-config gtk+-3.0 --libs` -lasound -lpng -lz -lX11 -lXext
+CFLAGS += `pkg-config gtk+-x11-3.0 --cflags` -DGDK_VERSION_MAX_ALLOWED=GDK_VERSION_3_10 -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_10
+LIB = `pkg-config gtk+-x11-3.0 --libs` -lasound -lpng -lz -lX11 -lXext
 
 # ------ plateform-dependant objects and executables ------
 
