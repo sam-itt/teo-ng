@@ -149,7 +149,7 @@ int memo_Load(const char filename[])
     size_t length;
     char memo_name[32] = "";
 
-    /* vérificiation du format de la cartouche */
+    /* vérification du format de la cartouche */
     if ((err = memo_IsMemo(filename)) < 0)
         return error_Message(err, filename);
 
