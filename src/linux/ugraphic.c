@@ -90,7 +90,7 @@ static void BuildXColorBuffer(void)
     	xcolorBuf[index].red   = 0x101*gamma[r];
     	xcolorBuf[index].green = 0x101*gamma[g];
     	xcolorBuf[index].blue  = 0x101*gamma[b];
-	xcolor[index].flags=DoRed|DoGreen|DoBlue;
+	xcolorBuf[index].flags=DoRed|DoGreen|DoBlue;
         XAllocColor(display, colormap, &xcolorBuf[index]);
     }
 
