@@ -102,11 +102,15 @@ int memo_IsMemo (const char filename[])
         return TEO_ERROR_MEMO_HEADER_CHECKSUM;
 
     /* first character */
-    if (memo_header[0] != ' ')
+    for (i = 0; i < 26; i++)
+        if (memo_header[i] == ' ')
+          break;
+
+    if (memo_header[i] != ' ')
         return TEO_ERROR_MEMO_HEADER_NAME;
 
     /* vérifie la présence du terminateur du nom de cartouche */
-    for (i = 1; i < 25; i++)
+    for (; i < 26; i++)
        if (memo_header[i] < ' ')
            break;
     if (memo_header[i] != '\x04')
@@ -140,7 +144,7 @@ void memo_Eject(void)
 int memo_Load(const char filename[])
 {
     int err;
-    register int i;
+    register int i, offset;
     FILE *file;
     size_t length;
     char memo_name[32] = "";
@@ -170,9 +174,16 @@ int memo_Load(const char filename[])
     fclose(file);
 
     /* récupération du label et du nom de fichier */
-    i = strcspn ((char*)mem.cart.bank[0]+1, "\04");
-    if (i>0)
-        strncpy (memo_name, (char*)mem.cart.bank[0]+1, i);
+    for (offset = 0; offset < 26; offset++)
+        if (mem.cart.bank[0][offset] != (uint8) '\0' &&
+            mem.cart.bank[0][offset] != (uint8) ' ')
+            break;
+    if (mem.cart.bank[0][offset] != (uint8) '\0')
+    {
+        i = strcspn ((char*)mem.cart.bank[0]+offset, "\04");
+        if (i>0)
+            strncpy (memo_name, (char*)mem.cart.bank[0]+offset, i);
+    }
     teo.memo.label = std_free (teo.memo.label);
     teo.memo.label = std_strdup_printf ("%s", memo_name);
     teo.memo.file  = std_free (teo.memo.file);
