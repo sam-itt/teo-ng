@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2018 Bastien Nocera <hadess@hadess.net> -->
+<component type="desktop">
+  <id>net.sourceforge.Teo.desktop</id>
+  <name>Teo</name>
+  <name xml:lang="fr">Teo</name>
+  <summary>Thomson TO8D emulator</summary>
+  <summary xml:lang="fr">Émulateur Thomson TO8D</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0+</project_license>
+  <description>
+    <p>
+      Teo is an emulator of the Thomson TO8D 8-bit micro-computer.
+    </p>
+    <p xml:lang="fr">Teo est un émulateur de l'ordinateur 8-bits Thomson TO8D.</p>
+  </description>
+  <url type="homepage">https://sourceforge.net/projects/teoemulator/</url>
+  <screenshots>
+    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teo.png/max/max/1</screenshot>
+    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos2.png/max/max/1</screenshot>
+    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos3.png/max/max/1</screenshot>
+    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos4.png/max/max/1</screenshot>
+  </screenshots>
+  <updatecontact>hadess@hadess.net</updatecontact>
+</component>
