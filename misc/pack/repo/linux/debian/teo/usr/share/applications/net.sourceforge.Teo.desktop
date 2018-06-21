@@ -10,7 +10,7 @@ MimeType=application/x-sap-file;application/x-hfe-file;application/x-fd-file;
 Categories=GNOME;GTK;Game;Emulator;
 Exec=/usr/games/teo
 Terminal=false
-Icon=net.sourceforge.Teo.png
+Icon=net.sourceforge.Teo
 X-Ayatana-Desktop-Shortcuts=Reset;
 
 [Reset Shortcut Group]
