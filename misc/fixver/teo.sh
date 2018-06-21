@@ -98,8 +98,6 @@ echo "s/^\#define TEOVERSION\([ \t]*\)\(['\"]\)[0-9\.]*['\"]\(.*\)/\#define TEOV
 sed_file misc/pack/repo/windows/inno/teo-setup.iss
 echo "s/^teo_version=[ \t]*\(['\"]\)[0-9\.]*['\"]\(.*\)/teo_version=\1$verstr\1\2/" > $TMPDIR/fixver.sed
 sed_file misc/pack/pack.sh
-echo "s/^Version[ \t]*=[ \t]*[0-9\.]*/Version=$verstr/" > $TMPDIR/fixver.sed
-sed_file misc/pack/repo/linux/debian/teo/usr/share/applications/teo.desktop
 echo "s/^Version[ \t]*:[ \t]*[0-9\.]*/Version: $verstr/" > $TMPDIR/fixver.sed
 sed_file misc/pack/repo/linux/debian/teo/DEBIAN/control
 
