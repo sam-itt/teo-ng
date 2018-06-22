@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-
-	<!-- SAP files -->
-	<mime-type type="application/x-sap-file">
-		<comment>SAP format for Teo</comment>
-		<acronym>SAP</acronym>
-		<glob weight="50" pattern="*.sap"/>
-		<glob weight="50" pattern="*.SAP"/>
-	</mime-type>
-
-	<!-- HFE files -->
-	<mime-type type="application/x-hfe-file">
-		<comment>HFE format for Teo</comment>
-		<acronym>HFE</acronym>
-		<glob weight="50" pattern="*.hfe"/>
-		<glob weight="50" pattern="*.HFE"/>
-	</mime-type>
-
-	<!-- FD files -->
-	<mime-type type="application/x-fd-file">
-		<comment>FD format for Teo</comment>
-		<acronym>FD</acronym>
-		<glob weight="50" pattern="*.fd"/>
-		<glob weight="50" pattern="*.FD"/>
-	</mime-type>
-
+  <mime-type type="application/x-thomson-cartridge-memo7">
+    <_comment>Thomson Mémo7 cartridge</_comment>
+    <generic-icon name="application-x-executable"/>
+    <glob pattern="*.m7"/>
+  </mime-type>
+  <mime-type type="application/x-thomson-cassette">
+    <_comment>Thomson cassette</_comment>
+    <generic-icon name="application-x-executable"/>
+    <glob pattern="*.k7"/>
+  </mime-type>
+  <mime-type type="application/x-hfe-floppy-image">
+    <_comment>HFE floppy disk image</_comment>
+    <acronym>HFE</acronym>
+    <expanded-acronym>HxC Floppy Emulator</expanded-acronym>
+    <generic-icon name="application-x-executable"/>
+    <glob pattern="*.hfe"/>
+    <magic>
+      <match offset="0" type="string" value="HXCPICFE"/>
+    </magic>
+    <alias type="application/x-hfe-file"/>
+  </mime-type>
+  <mime-type type="application/x-thomson-sap-image">
+    <_comment>SAP Thomson floppy disk image</_comment>
+    <acronym>SAP</acronym>
+    <expanded-acronym>Système d'Archivage Pukall</expanded-acronym>
+    <generic-icon name="application-x-executable"/>
+    <glob pattern="*.sap"/>
+    <magic>
+      <match offset="1" type="string" value="SYSTEME D'ARCHIVAGE PUKALL S.A.P. (c) Alexandre PUKALL Avril 1998"/>
+    </magic>
+    <alias type="application/x-sap-file"/>
+  </mime-type>
+  <mime-type type="application/x-raw-floppy-disk-image">
+    <_comment>Floppy disk image</_comment>
+    <sub-class-of type="application/x-raw-disk-image"/>
+    <alias type="application/x-fd-file"/>
+    <glob pattern="*.fd"/>
+  </mime-type>
 </mime-info>
 
