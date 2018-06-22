@@ -22,4 +22,5 @@
     <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos4.png/max/max/1</screenshot>
   </screenshots>
   <updatecontact>hadess@hadess.net</updatecontact>
+  <content_rating type="oars-1.0" />
 </component>
