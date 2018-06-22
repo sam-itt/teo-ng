@@ -81,7 +81,8 @@ static struct FD_LIST fd_list[] = {
 static int fd_type = 3;
 static uint8 sector_buffer[TEO_DISK_DD_SECTOR_SIZE];
 
-
+#define N_ELEMENTS(arr) (sizeof (arr) / sizeof ((arr)[0]))
+#define NUM_FD_TYPES N_ELEMENTS(fd_list)
 
 #ifdef DO_PRINT
 /* display_track :
@@ -301,7 +302,7 @@ static int file_protection (const char filename[], int protection)
         /* check size of file */
         file_size = std_FileSize(filename);
         for (fd_type=0; file_size != fd_list[fd_type].file_size; fd_type++)
-           if (fd_type == 7)
+           if (fd_type == (NUM_FD_TYPES - 1))
                return error_Message (TEO_ERROR_FILE_FORMAT, filename);
 
         /* check name of file */
