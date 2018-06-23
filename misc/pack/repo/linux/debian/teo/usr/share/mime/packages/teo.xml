@@ -37,6 +37,7 @@
     <sub-class-of type="application/x-raw-disk-image"/>
     <alias type="application/x-fd-file"/>
     <glob pattern="*.fd"/>
+    <glob pattern="*.qd"/>
   </mime-type>
 </mime-info>
 
