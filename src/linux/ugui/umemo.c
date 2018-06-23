@@ -210,8 +210,7 @@ static void open_file (GtkButton *button, gpointer data)
                  is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
         gtk_file_filter_set_name (filter, is_fr?"Fichiers cartouche (.m7)":"Cartridge files (.m7)");
-        gtk_file_filter_add_pattern (filter, "*.m7");
-        gtk_file_filter_add_pattern (filter, "*.M7");
+        gtk_file_filter_add_mime_type (filter, "application/x-thomson-cartridge-memo7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
         /* Attend que le dialog ait tout assimilé */

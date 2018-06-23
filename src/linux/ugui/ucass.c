@@ -332,8 +332,7 @@ static void open_file (GtkButton *button, gpointer data)
                  is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
         gtk_file_filter_set_name (filter, is_fr?"Fichiers cassette (.k7)":"Tape files (.k7)");
-        gtk_file_filter_add_pattern (filter, "*.k7");
-        gtk_file_filter_add_pattern (filter, "*.K7");
+        gtk_file_filter_add_mime_type (filter, "application/x-thomson-cassette");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
         /* Attend que le dialog ait tout assimilé */
