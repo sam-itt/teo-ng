@@ -72,8 +72,7 @@ static char *open_write_hfe_file (void)
     /* add filters */
     filter = gtk_file_filter_new ();
     gtk_file_filter_set_name (filter, is_fr?"Fichiers HFE":"HFE files");
-    gtk_file_filter_add_pattern (filter, "*.hfe");
-    gtk_file_filter_add_pattern (filter, "*.HFE");
+    gtk_file_filter_add_mime_type (filter, "application/x-hfe-floppy-image");
     gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
 
     /* waits for construction to be finished */
