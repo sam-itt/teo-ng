@@ -136,7 +136,7 @@ void progress_Run (int (*process)(void))
                                     G_PRIORITY_DEFAULT,
                                     250,
                                     (GSourceFunc)progress_update_bar,
-                                    (gpointer)data,
+                                    GINT_TO_POINTER(data),
                                     (GDestroyNotify)progress_exit);
 
             thread_process = g_thread_new (
