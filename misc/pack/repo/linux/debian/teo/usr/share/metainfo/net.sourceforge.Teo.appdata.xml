@@ -17,9 +17,9 @@
   <url type="homepage">https://sourceforge.net/projects/teoemulator/</url>
   <screenshots>
     <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teo.png/max/max/1</screenshot>
-    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos2.png/max/max/1</screenshot>
-    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos3.png/max/max/1</screenshot>
-    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos4.png/max/max/1</screenshot>
+    <screenshot width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos2.png/max/max/1</screenshot>
+    <screenshot width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos3.png/max/max/1</screenshot>
+    <screenshot width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos4.png/max/max/1</screenshot>
   </screenshots>
   <updatecontact>hadess@hadess.net</updatecontact>
   <content_rating type="oars-1.0" />
