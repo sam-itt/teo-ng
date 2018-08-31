@@ -16,10 +16,30 @@
   </description>
   <url type="homepage">https://sourceforge.net/projects/teoemulator/</url>
   <screenshots>
-    <screenshot type="default" width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teo.png/max/max/1</screenshot>
-    <screenshot width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos2.png/max/max/1</screenshot>
-    <screenshot width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos3.png/max/max/1</screenshot>
-    <screenshot width="354" height="234">https://a.fsdn.com/con/app/proj/teoemulator/screenshots/teos4.png/max/max/1</screenshot>
+    <screenshot type="default">
+      <caption>Start-up menu</caption>
+      <image width="704" height="464">
+        https://raw.githubusercontent.com/flathub/net.sourceforge.Teo/master/screenshots/teo-1.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Playing “Wizball”</caption>
+      <image width="704" height="464">
+        https://raw.githubusercontent.com/flathub/net.sourceforge.Teo/master/screenshots/teo-2.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Playing “Sorcery”</caption>
+      <image width="704" height="464">
+        https://raw.githubusercontent.com/flathub/net.sourceforge.Teo/master/screenshots/teo-3.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Playing “Les Passagers du Vent”</caption>
+      <image width="704" height="464">
+        https://raw.githubusercontent.com/flathub/net.sourceforge.Teo/master/screenshots/teo-4.png
+      </image>
+    </screenshot>
   </screenshots>
   <updatecontact>hadess@hadess.net</updatecontact>
   <content_rating type="oars-1.0" />
