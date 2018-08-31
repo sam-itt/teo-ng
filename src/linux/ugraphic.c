@@ -646,9 +646,6 @@ void ugraphic_Init(void)
 		    shmctl(shminfo->shmid, IPC_RMID, 0);
 		    screen_buffer->data = shminfo->shmaddr;
 		    XSync(display, False);
-
-		    /* enfin ... */
-		    printf(is_fr?"Extension MIT-SHM utilisée.\n":"MIT-SHM extention used.\n");
 		}
 	    }
 	}

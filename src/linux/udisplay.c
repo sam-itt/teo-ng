@@ -491,7 +491,5 @@ void udisplay_Window(void)
     screen_win = window_win;
 
     teo_SetPointer=SetPointer;
-
-    printf("ok\n");
 }
 

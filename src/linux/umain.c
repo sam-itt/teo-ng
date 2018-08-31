@@ -312,21 +312,6 @@ int main(int argc, char *argv[])
     copy_debian_file ("empty.hfe");
 #endif    
 
-    /* Affichage du message de bienvenue du programme */
-    printf((is_fr?"Voici %s l'émulateur Thomson TO8.\n"
-                 :"Here's %s the thomson TO8 emulator.\n"),
-                 "Teo "TEO_VERSION_STR" (Linux/X11)");
-    printf("Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, "
-           "Alexandre Pukall, François Mouret, Samuel Devulder.\n\n");
-    printf((is_fr?"Touches: [ESC] Panneau de contrôle\n"
-                 :"Keys : [ESC] Control pannel\n"));
-    printf((is_fr?"         [F12] Débogueur\n\n"
-                 :"       [F12] Debugger\n\n"));
-
-    /* Initialisation du TO8 */
-    printf((is_fr?"Initialisation de l'émulateur..."
-                 :"Initialization of the emulator...")); fflush(stderr);
-
     if ( teo_Init(TEO_NJOYSTICKS) < 0 )
         main_ExitMessage(teo_error_msg);
 
@@ -366,7 +351,6 @@ int main(int argc, char *argv[])
     udebug_Init();
 
     /* Et c'est parti !!! */
-    printf((is_fr?"Lancement de l'émulation...\n":"Launching emulation...\n"));
     teo.command=TEO_COMMAND_NONE;
     timer = g_timer_new ();
     g_timeout_add_full (G_PRIORITY_DEFAULT, 1, RunTO8, &idle_data, NULL);
@@ -383,7 +367,6 @@ int main(int argc, char *argv[])
     usound_Close(); /* Referme le p�riph�rique audio*/
 
     /* Sortie de l'�mulateur */
-    printf((is_fr?"\nA bientôt !\n":"\nGoodbye !\n"));
     exit(EXIT_SUCCESS);
 }
 
