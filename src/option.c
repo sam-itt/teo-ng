@@ -271,9 +271,9 @@ int option_Undefined (char *fname)
     if (fname != NULL)
     {
         /* traitement d'un fichier disque */
-        if ((sap_IsSap (fname) == 0)
-         || (hfe_IsHfe (fname) == 0)
-         || (fd_IsFd (fname) == 0))
+        if ((sap_IsSap (fname) == TRUE)
+         || (hfe_IsHfe (fname) == TRUE)
+         || (fd_IsFd (fname) == TRUE))
         {
             if (drive < NBDRIVE)
             {
