@@ -275,6 +275,9 @@ int usound_Init(void)
 
     if (teo.setting.sound_enabled)
     {
+        printf(is_fr?"Initialisation du son (ALSA)..."
+                    :"Sound initialization (ALSA)...");
+
         /* Open PCM device for playback. */
         if ((err = snd_pcm_open(&handle, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
             return sound_error (snd_strerror(err),
@@ -300,6 +303,8 @@ int usound_Init(void)
                                      :"Insufficient memory for buffer");
 
         snd_pcm_prepare (handle);
+
+        printf("ok\n");
     }
     
     silence_sound ();
