@@ -41,6 +41,11 @@
       </image>
     </screenshot>
   </screenshots>
+
+  <developer_name>François Mouret</developer_name>
+  <releases>
+    <release version="1.8.4" timestamp="1478090785"/>
+  </releases>
   <updatecontact>hadess@hadess.net</updatecontact>
   <content_rating type="oars-1.0" />
 </component>
