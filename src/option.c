@@ -285,7 +285,7 @@ int option_Undefined (char *fname)
         }
         else
         /* traitement d'un fichier memo */
-        if (memo_IsMemo (fname) == TRUE)
+        if (memo_IsMemo (fname) >= 0)
         {
             err = memo_Load (fname);
             reset = 1;
