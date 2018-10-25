@@ -99,7 +99,7 @@ static void reset_floppy(int drive)
  */
 static int open_floppy(int drive)
 {
-    char dev_str[16];
+    char dev_str[24];
 
    if (drive > (1 << 5) ||
        drive < -(1 << 5))
@@ -317,7 +317,7 @@ static int is_disk_writable(int drive)
 int ufloppy_Init (int to_drive_type[4], int enable_write)
 {
     struct floppy_drive_params fd_params;
-    char dev_str[16];
+    char dev_str[24];
     int i, num_drives = 0;
 
     memset (&fd_params, 0x00, sizeof (struct floppy_drive_params));
