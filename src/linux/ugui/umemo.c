@@ -156,6 +156,7 @@ static void reset_combo (GtkButton *button, gpointer data)
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(combo));
     init_combo();
     memo_Eject();
+    teo.command=TEO_COMMAND_COLD_RESET;
 
     unblock_all ();
 
