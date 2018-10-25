@@ -35,8 +35,8 @@
 /*
  *  Module     : intern/main.h
  *  Version    : 1.8.5
- *  Créé par   : François Mouret 28/09/2012 25/10/2018
- *  Modifié par:
+ *  Créé par   : François Mouret 28/09/2012
+ *  Modifié par: François Mouret 25/10/2018
  *
  *  Fonctions spécifiques à l'OS.
  */
