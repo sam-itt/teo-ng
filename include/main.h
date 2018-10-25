@@ -35,7 +35,7 @@
 /*
  *  Module     : intern/main.h
  *  Version    : 1.8.5
- *  Créé par   : François Mouret 28/09/2012
+ *  Créé par   : François Mouret 28/09/2012 25/10/2018
  *  Modifié par:
  *
  *  Fonctions spécifiques à l'OS.
@@ -47,6 +47,7 @@
 
 extern void  main_DisplayMessage(const char msg[]);
 extern void  main_ExitMessage(const char msg[]);
+extern char *main_ThomsonToPcText (char *thomson_text);
 
 #endif
 

@@ -39,7 +39,7 @@
  *  Créé par   : Gilles Fétis
  *  Modifié par: Eric Botcazou 03/11/2003
  *               François Mouret 25/09/2006 26/01/2010 18/03/2012
- *                               01/11/2012
+ *                               01/11/2012 25/10/2018
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
  *
@@ -51,6 +51,7 @@
    #include <stdio.h>
    #include <stdlib.h>
    #include <string.h>
+   #include <sys/stat.h>
 #endif
 
 #include "defs.h"
@@ -73,48 +74,60 @@ int memo_IsMemo (const char filename[])
 {
     FILE *file = NULL;
     int i;
-    size_t length = 0;
+    size_t size = 0;
     char checksum = '\x55';
     char memo_header[32];
+    struct stat st;
 
-    if ((file = fopen (filename,"rb")) == NULL)
+    /* check size of file */
+    if (stat (filename, &st) != 0)
+    {
         return TEO_ERROR_FILE_OPEN;
-
-    /* on détermine la longueur du fichier, qui doit être
-       un multiple de 4096 sans excéder 65536 octets.
-       On en profite pour récupérer le header de memo.
-       La totalité du fichier est lue, donc le fichier
-       pourra être relu sans erreur */
-    while (((i=fgetc(file)) != EOF) && (length <= 65536)) {
-        if (length < 32)
-            memo_header[length] = (char)i;
-        length++;
     }
-    (void)fclose (file);
-      
-    /* vérifie la taille du fichier */
-    if ((length > 65536) || ((length % 4096) != 0))
+    size = (size_t)st.st_size;
+    if ((size > 65536) || ((size % 4096) != 0))
+    {
         return TEO_ERROR_FILE_FORMAT;
+    }
 
-    /* calcule checksum */
-    for (i = 0; i < 26; i++) checksum += memo_header[i];
-    if ((unsigned char)checksum != (unsigned char)memo_header[26])
-        return TEO_ERROR_MEMO_HEADER_CHECKSUM;
-
+    /* load the header of the file */
+    if ((file = fopen (filename,"rb")) == NULL)
+    {
+        return TEO_ERROR_FILE_OPEN;
+    }
+    size = fread (memo_header, 1, 32, file);
+    fclose (file);
+    if (size != 32)
+    {
+        return TEO_ERROR_DISK_IO;
+    }
+ 
     /* first character */
+    if (memo_header[0] != ' ')
+    {
+        return TEO_ERROR_MEMO_HEADER_NAME;
+    }
+
+    /* check the checksum */
     for (i = 0; i < 26; i++)
-        if (memo_header[i] == ' ')
-          break;
+    {
+        checksum += memo_header[i];
+    }
+    if (checksum != memo_header[26])
+    {
+        return TEO_ERROR_MEMO_HEADER_CHECKSUM;
+    }
 
-    if (memo_header[i] != ' ')
+    /* check end of the name */
+    for (i = 0; i < 26; i++)
+    {
+        if (memo_header[i] == '\x04')
+            break;
+    }
+    if (i == 26)
+    {
         return TEO_ERROR_MEMO_HEADER_NAME;
-
-    /* vérifie la présence du terminateur du nom de cartouche */
-    for (; i < 26; i++)
-       if (memo_header[i] < ' ')
-           break;
-    if (memo_header[i] != '\x04')
-        return TEO_ERROR_MEMO_HEADER_NAME;
+    }
 
     return 0;
 }
@@ -144,10 +157,11 @@ void memo_Eject(void)
 int memo_Load(const char filename[])
 {
     int err;
-    register int i, offset;
+    register int i;
     FILE *file;
     size_t length;
     char memo_name[32] = "";
+    char *pc_memo_name;
 
     /* vérification du format de la cartouche */
     if ((err = memo_IsMemo(filename)) < 0)
@@ -174,18 +188,11 @@ int memo_Load(const char filename[])
     fclose(file);
 
     /* récupération du label et du nom de fichier */
-    for (offset = 0; offset < 26; offset++)
-        if (mem.cart.bank[0][offset] != (uint8) '\0' &&
-            mem.cart.bank[0][offset] != (uint8) ' ')
-            break;
-    if (mem.cart.bank[0][offset] != (uint8) '\0')
-    {
-        i = strcspn ((char*)mem.cart.bank[0]+offset, "\04");
-        if (i>0)
-            strncpy (memo_name, (char*)mem.cart.bank[0]+offset, i);
-    }
+    i = strcspn ((char*)mem.cart.bank[0]+1, "\04");
+    strncpy (memo_name, (char*)mem.cart.bank[0]+1, i);
+    pc_memo_name = main_ThomsonToPcText (memo_name);
     teo.memo.label = std_free (teo.memo.label);
-    teo.memo.label = std_strdup_printf ("%s", memo_name);
+    teo.memo.label = std_strdup_printf ("%s", pc_memo_name);
     teo.memo.file  = std_free (teo.memo.file);
     teo.memo.file  = std_strdup_printf ("%s", filename);
 

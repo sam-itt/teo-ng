@@ -39,7 +39,7 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               Samuel Devulder 30/07/2011
  *               François Mouret 19/10/2012 24/10/2012 19/09/2013 10/05/2014
- *                               31/07/2016
+ *                               31/07/2016 25/10/2018
  *
  *  Boucle principale de l'émulateur.
  */
@@ -277,7 +277,278 @@ static void read_command_line(int argc, char *argv[])
 }
 
 
+
+/* thomson_take char:
+ *  Convert Thomson ASCII char into ISO-8859-1.
+ */
+static int thomson_take_char (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case '\x60':   /* middle line */
+            strcat (pc_text, "\xad");
+            i++;
+            break;
+
+        case '\x7e':   /* overline */
+            strcat (pc_text, "\xaf");
+            i++;
+            break;
+
+        case '\x7f':   /* full block */
+            strcat (pc_text, " ");
+            i++;
+            break;
+
+        default:       /* ASCII char */
+            if (thomson_text[i] != '\0')
+            {
+                if (thomson_text[i] >= ' ')
+                {
+                    strncat (pc_text, thomson_text+i, 1);
+                    i++;
+                }
+                else
+                {
+                    strcat (pc_text, "?");
+                    i++;
+                }
+            }
+            break;
+    }
+    return i;
+}
+
+
+
+/* thomson_accent_grave:
+ *  Convert Thomson grave accents into ISO-8859-1.
+ */
+static int thomson_accent_grave (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case 'a': strcat (pc_text, "\xe0"); i++; break;
+        case 'e': strcat (pc_text, "\xe8"); i++; break;
+        case 'i': strcat (pc_text, "\xec"); i++; break;
+        case 'o': strcat (pc_text, "\xf2"); i++; break;
+        case 'u': strcat (pc_text, "\xf9"); i++; break;
+        case 'A': strcat (pc_text, "\xc0"); i++; break;
+        case 'E': strcat (pc_text, "\xc8"); i++; break;
+        case 'I': strcat (pc_text, "\xcc"); i++; break;
+        case 'O': strcat (pc_text, "\xd2"); i++; break;
+        case 'U': strcat (pc_text, "\xd9"); i++; break;
+        default : i = thomson_take_char (thomson_text, i, pc_text); break;
+    }
+    return i;
+}
+
+
+
+/* thomson_accent_acute:
+ *  Convert Thomson acute accents into ISO-8859-1.
+ */
+static int thomson_accent_acute (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case 'a': strcat (pc_text, "\xe1"); i++; break;
+        case 'e': strcat (pc_text, "\xe9"); i++; break;
+        case 'i': strcat (pc_text, "\xed"); i++; break;
+        case 'o': strcat (pc_text, "\xf3"); i++; break;
+        case 'u': strcat (pc_text, "\xfa"); i++; break;
+        case 'A': strcat (pc_text, "\xc1"); i++; break;
+        case 'E': strcat (pc_text, "\xc9"); i++; break;
+        case 'I': strcat (pc_text, "\xcd"); i++; break;
+        case 'O': strcat (pc_text, "\xd3"); i++; break;
+        case 'U': strcat (pc_text, "\xda"); i++; break;
+        default : i = thomson_take_char (thomson_text, i, pc_text); break;
+    }
+    return i;
+}
+
+
+
+/* thomson_accent_circ:
+ *  Convert Thomson circumflex accents into ISO-8859-1.
+ */
+static int thomson_accent_circ (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case 'a': strcat (pc_text, "\xe2"); i++; break;
+        case 'e': strcat (pc_text, "\xea"); i++; break;
+        case 'i': strcat (pc_text, "\xee"); i++; break;
+        case 'o': strcat (pc_text, "\xf4"); i++; break;
+        case 'u': strcat (pc_text, "\xfb"); i++; break;
+        case 'A': strcat (pc_text, "\xc2"); i++; break;
+        case 'E': strcat (pc_text, "\xca"); i++; break;
+        case 'I': strcat (pc_text, "\xce"); i++; break;
+        case 'O': strcat (pc_text, "\xd4"); i++; break;
+        case 'U': strcat (pc_text, "\xdb"); i++; break;
+        default : i = thomson_take_char (thomson_text, i, pc_text); break;
+    }
+    return i;
+}
+
+
+
+/* thomson_accent_uml:
+ *  Convert Thomson diaeresis accents into ISO-8859-1.
+ */
+static int thomson_accent_uml (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case 'a': strcat (pc_text, "\xe4"); i++; break;
+        case 'e': strcat (pc_text, "\xeb"); i++; break;
+        case 'i': strcat (pc_text, "\xef"); i++; break;
+        case 'o': strcat (pc_text, "\xf6"); i++; break;
+        case 'u': strcat (pc_text, "\xfc"); i++; break;
+        case 'A': strcat (pc_text, "\xc4"); i++; break;
+        case 'E': strcat (pc_text, "\xcb"); i++; break;
+        case 'I': strcat (pc_text, "\xcf"); i++; break;
+        case 'O': strcat (pc_text, "\xd6"); i++; break;
+        case 'U': strcat (pc_text, "\xdc"); i++; break;
+        default : i = thomson_take_char (thomson_text, i, pc_text); break;
+    }
+    return i;
+}
+
+
+
+/* thomson_accent_cedil:
+ *  Convert Thomson cedilla into ISO-8859-1.
+ */
+static int thomson_accent_cedil (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case 'c': strcat (pc_text, "\xe7"); i++; break;
+        case 'C': strcat (pc_text, "\xc7"); i++; break;
+        default : i = thomson_take_char (thomson_text, i, pc_text); break;
+    }
+    return i;
+}
+
+
+
+/* thomson_accent:
+ *  Convert Thomson accent into ISO-8859-1.
+ */
+static int thomson_accent (char *thomson_text, int i, char *pc_text)
+{
+    switch (thomson_text[i])
+    {
+        case '\0': break;
+        case 'A': i = thomson_accent_grave (thomson_text, i+1, pc_text); break;
+        case 'B': i = thomson_accent_acute (thomson_text, i+1, pc_text); break;
+        case 'C': i = thomson_accent_circ  (thomson_text, i+1, pc_text); break;
+        case 'H': i = thomson_accent_uml   (thomson_text, i+1, pc_text); break;
+        case 'K': i = thomson_accent_cedil (thomson_text, i+1, pc_text); break;
+        case '#': strcat (pc_text, "\xa3"); i++; break;  /* pound */
+        case '$': strcat (pc_text, "$"); i++; break;  /* dollar */
+        case '&': strcat (pc_text, "#"); i++; break;  /* diesis */
+        case ',': strcat (pc_text, "<-"); i++; break;  /* arrow left */
+        case '-': strcat (pc_text, "^"); i++; break;  /* arrow up */
+        case '.': strcat (pc_text, "->"); i++; break;  /* arrow right */
+        case '/': strcat (pc_text, "V"); i++; break;  /* arrow down */
+        case '0': strcat (pc_text, "\xb0"); i++; break; /* degree */
+        case '1': strcat (pc_text, "\xb1"); i++; break; /*plus minus */
+        case '8': strcat (pc_text, "\xf7"); i++; break; /* */
+        case '<': strcat (pc_text, "\xbc"); i++; break; /* 1/4 */
+        case '=': strcat (pc_text, "\xbd"); i++; break; /* 1/2 */
+        case '>': strcat (pc_text, "\xbe"); i++; break; /* 3/4 */
+        case 'j': strcat (pc_text, "OE"); i++; break;   /* */
+        case 'z': strcat (pc_text, "oe"); i++; break;   /* */
+        case '{': strcat (pc_text, "\xdf"); i++; break; /* sharp S */
+        case '\'':strcat (pc_text, "\xa7"); i++; break; /* */
+        default : i++; break;
+    }
+    return i;
+}
+
+
+
+/* thomson_escape:
+ *  Skip Thomson escape sequence.
+ */
+static int thomson_escape (char *thomson_text, int i)
+{
+    /* skip full screen codes */
+    while ((thomson_text[i] == '\x20')
+        || (thomson_text[i] == '\x23'))
+    {
+        i++;
+    }
+
+    /* skip escape code */
+    if (thomson_text[i] != '\0')
+    {
+        i++;
+    }
+    return i;
+}
+
+
+
+/* thomson_cursor:
+ *  Skip Thomson cursor sequence.
+ */
+static int thomson_cursor (char *thomson_text, int i)
+{
+    /* skip first code */
+    if (thomson_text[i] != '\0')
+    {
+        i++;
+        /* skip second code */
+        if (thomson_text[i] != '\0')
+        {
+            i++;
+        }
+    }
+    return i;
+}
+
+
 /* ------------------------------------------------------------------------- */
+ 
+ 
+/* main_ThomsonToPcText:
+ *  Convert Thomson string into ISO-8859-1.
+ */
+char *main_ThomsonToPcText (char *thomson_text)
+{
+    int i = 0;
+    static char pc_text[306];
+
+    pc_text[0] = 0;
+
+    while (thomson_text[i] != '\0')
+    {
+        switch (thomson_text[i])
+        {
+            case '\x16':   /* accent sequence */
+                i = thomson_accent (thomson_text, i+1, pc_text);
+                break;
+
+            case '\x1b':   /* escape sequence */
+                i = thomson_escape (thomson_text, i+1);
+                break;
+
+            case '\x1f':   /* cursor sequence */
+                i = thomson_cursor (thomson_text, i+1);
+                break;
+
+            default:
+                i = thomson_take_char (thomson_text, i, pc_text);
+                break;
+        }
+     }
+
+     return pc_text;
+}
+
 
 
 /* DisplayMessage:
