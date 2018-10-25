@@ -319,28 +319,35 @@ static void display_track (char *message, int drive, int track)
 
 
 
-/* my_fgetw:
- *  Helper pour lire un 16 bits little endian.
+/* hfe_fgetw:
+ *  Helper to read a 16 bits little endian.
  */
 static int hfe_fgetw (FILE *file)
 {
-    int a,b;
+    size_t size;
+    char buf[2];
 
-    b = fgetc(file)&0xff;
-    a = fgetc(file)&0xff;
+    size = fread (buf, 1, 2, file);
 
-    return (a<<8)|b;
+    return (((int)buf[0] & 0xff) << 8) | ((int)buf[1] & 0xff);
+    (void)size;
 }
 
 
 
-#if 0
-static void hfe_fputw (int val, FILE *file)
+/* hfe_fgetc:
+ *  Helper to read a 8 bits.
+ */
+static int hfe_fgetc (FILE *file)
 {
-    fputc (val, file);
-    fputc (val>>8, file);
+    size_t size;
+    char buf[1];
+
+    size = fread (buf, 1, 1, file);
+
+    return (int)buf[0] & 0xff;
+    (void)size;
 }
-#endif
 
 
 #define FILE_SEEK (long int)((track_list[drive][track].offset * 512)  \
@@ -620,16 +627,16 @@ static int file_protection (const char filename[], int protection)
         if (fread (hfe_hd.HEADERSIGNATURE, 1, 8, file) != 8)
             return file_mode_error (TEO_ERROR_FILE_READ, filename, file);
 
-        hfe_hd.formatrevision      = (unsigned char)fgetc(file);
-        hfe_hd.number_of_track     = (unsigned char)fgetc(file);
-        hfe_hd.number_of_side      = (unsigned char)fgetc(file);
-        hfe_hd.track_encoding      = (unsigned char)fgetc(file);
+        hfe_hd.formatrevision      = (unsigned char)hfe_fgetc(file);
+        hfe_hd.number_of_track     = (unsigned char)hfe_fgetc(file);
+        hfe_hd.number_of_side      = (unsigned char)hfe_fgetc(file);
+        hfe_hd.track_encoding      = (unsigned char)hfe_fgetc(file);
         hfe_hd.bitRate             = (unsigned short)hfe_fgetw (file);
         hfe_hd.floppyRPM           = (unsigned short)hfe_fgetw (file);
-        hfe_hd.floppyinterfacemode = (unsigned char)fgetc(file);
-        hfe_hd.dnu                 = (unsigned char)fgetc(file);
+        hfe_hd.floppyinterfacemode = (unsigned char)hfe_fgetc(file);
+        hfe_hd.dnu                 = (unsigned char)hfe_fgetc(file);
         hfe_hd.track_list_offset   = (unsigned short)hfe_fgetw (file);
-        hfe_hd.write_allowed       = (unsigned char)fgetc(file);
+        hfe_hd.write_allowed       = (unsigned char)hfe_fgetc(file);
         (void)fclose (file);
 
         if (memcmp (hfe_hd.HEADERSIGNATURE, hfe_header, 8) != 0)
