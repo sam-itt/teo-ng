@@ -44,6 +44,7 @@
  */
 
 
+#if defined(linux)
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
@@ -407,4 +408,19 @@ void ufloppy_Exit (void)
         }
     }
 }
+
+#else
+
+/* for non linux systems, such as FreeBSD, etc. */
+
+int ufloppy_Init (int to_drive_type[4], int enable_write)
+{
+    return 0;
+}
+
+void ufloppy_Exit (void)
+{
+}
+
+#endif
 
