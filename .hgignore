@@ -6,4 +6,11 @@ syntax: glob
 *.zip
 *.tar.gz
 *.deb
+autosave.img
+teo
+teo.exe
+teo.ini
+makefile
+src/linux/teoemulatorresources.c
+src/linux/teoemulatorresources.h
 
