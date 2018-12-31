@@ -329,7 +329,7 @@ static int hfe_fgetw (FILE *file)
 
     size = fread (buf, 1, 2, file);
 
-    return (((int)buf[0] & 0xff) << 8) | ((int)buf[1] & 0xff);
+    return (((int)buf[1] & 0xff) << 8) | ((int)buf[0] & 0xff);
     (void)size;
 }
 
