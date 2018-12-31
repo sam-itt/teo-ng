@@ -320,6 +320,14 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
         gtk_file_filter_add_mime_type (filter, "application/x-thomson-sap-image");
         gtk_file_filter_add_mime_type (filter, "application/x-hfe-floppy-image");
         gtk_file_filter_add_mime_type (filter, "application/x-raw-floppy-disk-image");
+        gtk_file_filter_add_pattern (filter, "*.sap");
+        gtk_file_filter_add_pattern (filter, "*.SAP");
+        gtk_file_filter_add_pattern (filter, "*.hfe");
+        gtk_file_filter_add_pattern (filter, "*.HFE");
+        gtk_file_filter_add_pattern (filter, "*.fd");
+        gtk_file_filter_add_pattern (filter, "*.FD");
+        gtk_file_filter_add_pattern (filter, "*.qd");
+        gtk_file_filter_add_pattern (filter, "*.QD");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
         /* Attend que le dialog ait tout assimilé */
