@@ -68,9 +68,14 @@ static Colormap colormap;
 static int *dirty_cell;
 static int border_color;
 static XImage *gpl_buffer, *screen_buffer;
+static XImage *screen_zoom;
 static XColor xcolorBuf[4096];
 static XColor xcolor[TEO_NCOLORS+4];
 static int pixel_size;
+
+static int l_stretchBlit=0;
+static int l_screenPhysWidth=320;
+static int l_screenPhysHeight=200;
 
 
 static void BuildXColorBuffer(void) 
@@ -473,8 +478,34 @@ static void SetDiskLed(int led_on)
 /* ugraphic_Retrace:
  *  Rafraîchit une portion de l'écran du TO8.
  */
+
+void ugraphic_slow_Retrace(int x, int y, int w, int h)
+{
+    int x_dest,y_dest;
+    float x_fact,y_fact;
+    int c;
+
+    x_fact=(float)l_screenPhysWidth/(float)(TEO_SCREEN_W*2);
+    y_fact=(float)l_screenPhysHeight/(float)(TEO_SCREEN_H*2);
+    
+
+    for (x_dest=(int)x_fact*x;x_dest<(int)((x+w)*x_fact);x_dest++) {
+        for (y_dest=(int)y_fact*y;y_dest<(int)((y+h)*y_fact);y_dest++) {
+            c=XGetPixel(screen_buffer,(int)(x_dest/x_fact),(int)(y_dest/y_fact));
+            XPutPixel(screen_zoom,x_dest,y_dest,c);
+        }
+    }
+
+    XPutImage(display, screen_win, gc, screen_zoom, (int)x_fact*x, (int)y_fact*y, (int)x_fact*x, (int)y_fact*y, (int)w*x_fact, (int)h*y_fact);
+    
+}
+
 void ugraphic_Retrace(int x, int y, int w, int h)
 {
+    if (l_stretchBlit==1) {
+        ugraphic_slow_Retrace(x,y,w,h);
+        return;
+    }
     if (mit_shm_enabled)
 	XShmPutImage(display, screen_win, gc, screen_buffer, x, y, x, y, w, h, True);
     else
@@ -545,6 +576,7 @@ void ugraphic_Refresh(void)
 void ugraphic_Init(void)
 {
     register int i;
+    XShmSegmentInfo *shminfo;
 
     /* Recherche et sélection du visual */
     if (!XMatchVisualInfo(display, screen, 16, TrueColor, &visualinfo))
@@ -615,7 +647,7 @@ void ugraphic_Init(void)
     /* Création du buffer d'affichage */
     if (mit_shm_enabled)
     {
-	XShmSegmentInfo *shminfo = malloc(sizeof(XShmSegmentInfo));
+	shminfo = malloc(sizeof(XShmSegmentInfo));
 
         screen_buffer=XShmCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, NULL, shminfo, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
 
@@ -658,6 +690,26 @@ void ugraphic_Init(void)
     {
 	screen_buffer = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, TEO_SCREEN_W*2, TEO_SCREEN_H*2, 32, 0);
 	screen_buffer->data = malloc(screen_buffer->height * screen_buffer->bytes_per_line);
+    }
+
+    /* check window size vs buffer (for retina screens) */
+    {
+        XWindowAttributes attr;
+        int ret;
+        ret=XGetWindowAttributes(display,screen_win,&attr);
+        fprintf(stderr,"XGetWindowAttributes ret=%d\n",ret);
+        if (ret!=0) {
+            fprintf(stderr,"XGetWindowAttributes width=%d height=%d\n",attr.width,attr.height);
+            if ( ((TEO_SCREEN_W*2)==attr.width) && ((TEO_SCREEN_H*2)==attr.height) ) {
+                l_stretchBlit=0;
+            } else {
+                l_stretchBlit=1;
+                l_screenPhysWidth=attr.width;
+                l_screenPhysHeight=attr.height;
+        	screen_zoom = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, l_screenPhysWidth, l_screenPhysHeight, 32, 0);
+	        screen_zoom->data = malloc(screen_zoom->height * screen_zoom->bytes_per_line);
+            }
+        }
     }
 
 #ifdef DEBUG
