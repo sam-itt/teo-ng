@@ -377,6 +377,29 @@ visibility_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     (void)user_data;
 }
 
+/* signal_size_allocate:
+ *  Gestion du resize de l'�cran.
+ */
+static gboolean 
+configure_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+    static int last_width=1;
+    static int last_height=1;
+  
+    if ( (event->configure.width != last_width) || (event->configure.height != last_height) ) {
+        last_width=event->configure.width;
+        last_height=event->configure.height; 
+#ifdef DEBUG
+	fprintf(stderr,"Resize x=%d y=%d\n",last_width,last_height);
+#endif
+        ugraphic_resize_zoom();
+        /* ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2); */
+    }
+    return FALSE;
+    (void)widget;
+    (void)user_data;
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -415,7 +438,7 @@ void udisplay_Window(void)
 
     wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
-    gtk_window_set_resizable (GTK_WINDOW(wMain), FALSE);
+    gtk_window_set_resizable (GTK_WINDOW(wMain), TRUE);
     gtk_window_set_title (GTK_WINDOW(wMain),
                           is_fr?"Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
                                :"Teo - thomson TO8 emulator (menu:ESC/debugger:F12)");
@@ -447,11 +470,14 @@ void udisplay_Window(void)
     g_signal_connect (G_OBJECT (wMain), "visibility-notify-event",
                       G_CALLBACK (visibility_notify_event), NULL);
 
+    g_signal_connect (G_OBJECT (wMain), "configure-event",
+                      G_CALLBACK (configure_event), NULL);
+
     /* Set window size */
     hints.min_width = TEO_SCREEN_W*2;
-    hints.max_width = TEO_SCREEN_W*2;
+    hints.max_width = TEO_SCREEN_W*8;
     hints.min_height = TEO_SCREEN_H*2;
-    hints.max_height = TEO_SCREEN_H*2;
+    hints.max_height = TEO_SCREEN_H*8;
     gtk_window_set_geometry_hints (GTK_WINDOW(wMain), wMain, &hints,
                                    GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
 

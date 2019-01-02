@@ -68,7 +68,7 @@ static Colormap colormap;
 static int *dirty_cell;
 static int border_color;
 static XImage *gpl_buffer, *screen_buffer;
-static XImage *screen_zoom;
+static XImage *screen_zoom=NULL;
 static XColor xcolorBuf[4096];
 static XColor xcolor[TEO_NCOLORS+4];
 static int pixel_size;
@@ -475,30 +475,120 @@ static void SetDiskLed(int led_on)
 /* ------------------------------------------------------------------------- */
 
 
-/* ugraphic_Retrace:
- *  Rafraîchit une portion de l'écran du TO8.
+
+int *lookupX1=NULL;
+int *lookupY1=NULL;
+int *lookupX2=NULL;
+int *lookupY2=NULL;
+
+void ugraphic_resize_lookup(int x,int y) {
+    int x_dest,y_dest;
+    double x_fact,y_fact;
+
+    if (lookupX1!=NULL) {
+        free(lookupX1);
+    }
+    lookupX1=(int*)malloc(sizeof(int)*x);
+
+    if (lookupX2!=NULL) {
+        free(lookupX2);
+    }
+    lookupX2=(int*)malloc(sizeof(int)*x);
+
+    if (lookupY1!=NULL) {
+        free(lookupY1);
+    }
+    lookupY1=(int*)malloc(sizeof(int)*y);
+
+    if (lookupY2!=NULL) {
+        free(lookupY2);
+    }
+    lookupY2=(int*)malloc(sizeof(int)*y);
+
+    x_fact=(double)x/(double)(TEO_SCREEN_W*2);
+    y_fact=(double)y/(double)(TEO_SCREEN_H*2);
+
+    for (x_dest=0;x_dest<x;x_dest++) {
+	lookupX1[x_dest]=(int)(x_fact*(double)x_dest+0.5);
+	lookupX2[x_dest]=(int)((double)(x_dest+0.5)/x_fact);
+    }
+
+    for (y_dest=0;y_dest<y;y_dest++) {
+	lookupY1[y_dest]=(int)(y_fact*(double)y_dest+0.5);
+	lookupY2[y_dest]=(int)((double)(y_dest+0.5)/y_fact);
+    }
+
+#ifdef DEBUG
+    fprintf(stderr,"recalc OK\n");
+#endif
+}
+
+
+/* ugraphic_resize_zoom:
+ *  Changement de taille de l'écran (resize window en provenance de l'event GTK)
+ */
+void ugraphic_resize_zoom() {
+    int ret;
+    static int last_width=1;
+    static int last_height=1;
+  
+
+    XWindowAttributes attr;
+    ret=XGetWindowAttributes(display,screen_win,&attr);
+    if (ret==0) return; 
+    /* seems strange... but Xlib windows is at correct size much sooner than gtk events on event fifo...*/
+    if ( (attr.width != last_width) || (attr.height != last_height) ) {
+        last_width=attr.width;
+        last_height=attr.height;
+#ifdef DEBUG
+            fprintf(stderr,"XGetWindowAttributes width=%d height=%d changed\n",attr.width,attr.height);
+#endif
+            if ( ((TEO_SCREEN_W*2)==attr.width) && ((TEO_SCREEN_H*2)==attr.height) ) {
+                l_stretchBlit=0;
+            } else {
+                l_stretchBlit=1;
+                l_screenPhysWidth=attr.width;
+                l_screenPhysHeight=attr.height;
+		ugraphic_resize_lookup(l_screenPhysWidth,l_screenPhysHeight);
+
+                /*TODO we may only expand if needed here */
+		if (screen_zoom!=NULL) {
+                    XDestroyImage(screen_zoom); 
+                }
+        	screen_zoom = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, l_screenPhysWidth, l_screenPhysHeight, 32, 0);
+	        screen_zoom->data = malloc(screen_zoom->height * screen_zoom->bytes_per_line);
+	    }
+	}
+}
+
+/* ugraphic_slow_Retrace:
+ *  Rafraîchit une portion de l'écran du TO8 avec mise a l'echelle de le fenetre
  */
 
 void ugraphic_slow_Retrace(int x, int y, int w, int h)
 {
     int x_dest,y_dest;
-    float x_fact,y_fact;
+    int w_dest,h_dest;
     int c;
 
-    x_fact=(float)l_screenPhysWidth/(float)(TEO_SCREEN_W*2);
-    y_fact=(float)l_screenPhysHeight/(float)(TEO_SCREEN_H*2);
     
 
-    for (x_dest=(int)x_fact*x;x_dest<(int)((x+w)*x_fact);x_dest++) {
-        for (y_dest=(int)y_fact*y;y_dest<(int)((y+h)*y_fact);y_dest++) {
-            c=XGetPixel(screen_buffer,(int)(x_dest/x_fact),(int)(y_dest/y_fact));
+    for (x_dest=lookupX1[x];x_dest<lookupX1[x+w];x_dest++) {
+        for (y_dest=lookupY1[y];y_dest<lookupY1[y+h];y_dest++) {
+            c=XGetPixel(screen_buffer,lookupX2[x_dest],lookupY2[y_dest]);
             XPutPixel(screen_zoom,x_dest,y_dest,c);
         }
     }
+    w_dest=lookupX1[x+w]-lookupX1[x]+1;
+    h_dest=lookupY1[y+h]-lookupY1[y]+1;
 
-    XPutImage(display, screen_win, gc, screen_zoom, (int)x_fact*x, (int)y_fact*y, (int)x_fact*x, (int)y_fact*y, (int)w*x_fact, (int)h*y_fact);
+    XPutImage(display, screen_win, gc, screen_zoom, lookupX1[x], lookupY1[y], lookupX1[x], lookupY1[y], w_dest, h_dest);
     
 }
+
+/* ugraphic_Retrace:
+ *  Rafraîchit une portion de l'écran du TO8.
+ */
 
 void ugraphic_Retrace(int x, int y, int w, int h)
 {
@@ -697,15 +787,20 @@ void ugraphic_Init(void)
         XWindowAttributes attr;
         int ret;
         ret=XGetWindowAttributes(display,screen_win,&attr);
+#ifdef DEBUG
         fprintf(stderr,"XGetWindowAttributes ret=%d\n",ret);
+#endif
         if (ret!=0) {
+#ifdef DEBUG
             fprintf(stderr,"XGetWindowAttributes width=%d height=%d\n",attr.width,attr.height);
+#endif
             if ( ((TEO_SCREEN_W*2)==attr.width) && ((TEO_SCREEN_H*2)==attr.height) ) {
                 l_stretchBlit=0;
             } else {
                 l_stretchBlit=1;
                 l_screenPhysWidth=attr.width;
                 l_screenPhysHeight=attr.height;
+		ugraphic_resize_lookup(l_screenPhysWidth,l_screenPhysHeight);
         	screen_zoom = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, l_screenPhysWidth, l_screenPhysHeight, 32, 0);
 	        screen_zoom->data = malloc(screen_zoom->height * screen_zoom->bytes_per_line);
             }
