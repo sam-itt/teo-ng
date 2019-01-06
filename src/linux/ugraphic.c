@@ -65,7 +65,7 @@ static XVisualInfo visualinfo;
 static GC gc;
 static Colormap colormap;
 
-static int *dirty_cell;
+static int *dirty_cell=NULL;
 static int border_color;
 static XImage *gpl_buffer, *screen_buffer;
 static XImage *screen_zoom=NULL;
@@ -528,7 +528,7 @@ void ugraphic_resize_lookup(int x,int y) {
  *  Changement de taille de l'écran (resize window en provenance de l'event GTK)
  */
 void ugraphic_resize_zoom() {
-    int ret;
+    int ret,i;
     static int last_width=1;
     static int last_height=1;
   
@@ -558,6 +558,11 @@ void ugraphic_resize_zoom() {
         	screen_zoom = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, l_screenPhysWidth, l_screenPhysHeight, 32, 0);
 	        screen_zoom->data = malloc(screen_zoom->height * screen_zoom->bytes_per_line);
 	    }
+	    if (dirty_cell!=NULL) {
+                for(i=0;i<TEO_SCREEN_W*TEO_SCREEN_H;i++) {
+                    dirty_cell[i]=True;
+                }
+            }
 	}
 }
 

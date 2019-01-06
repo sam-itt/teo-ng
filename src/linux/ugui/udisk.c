@@ -78,7 +78,7 @@ struct FILE_VECTOR {
     struct DISK_VECTOR *path_list;
 };
 
-static struct FILE_VECTOR vector[NBDRIVE];
+static struct FILE_VECTOR s_vector[NBDRIVE];
 
 
 
@@ -375,6 +375,26 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
             if (folder_name != NULL)
                 teo.default_folder = std_strdup_printf ("%s", folder_name);
             g_free (folder_name);
+
+            // if drive 0 and double sided disk loaded => autoload side 1 in drive 1
+            if ( ((vector->id)==0) && (disk[vector->id].side_count>1) ) {
+               if (load_virtual_disk (file_name, &s_vector[1]) >= 0)
+               {
+                  add_combo_entry (teo.disk[s_vector[1].id].file,
+                                MAX (teo.disk[s_vector[1].id].side,
+                                disk[s_vector[1].id].side_count-1),
+                                disk[s_vector[1].id].side_count,
+                                teo.disk[s_vector[1].id].write_protect,
+                                &s_vector[1]);
+
+                   folder_name = gtk_file_chooser_get_current_folder (
+                                    (GtkFileChooser *)dialog);
+                    teo.default_folder = std_free(teo.default_folder);
+                    if (folder_name != NULL)
+                        teo.default_folder = std_strdup_printf ("%s", folder_name);
+                    g_free (folder_name);
+                }
+            }                
         }
         g_free (file_name);
     }
@@ -394,7 +414,7 @@ void udisk_Free (void)
     int i;
 
     for (i=0; i<NBDRIVE; i++)
-        free_disk_entry (&vector[i]);
+        free_disk_entry (&s_vector[i]);
 }
 
 
@@ -426,9 +446,9 @@ void udisk_Init (GtkWidget *notebook)
 
     for (i=0; i<NBDRIVE; i++)
     {
-        memset (&vector[i], 0x00, sizeof (struct FILE_VECTOR));
-        vector[i].id=i;
-        vector[i].first_file=1;
+        memset (&s_vector[i], 0x00, sizeof (struct FILE_VECTOR));
+        s_vector[i].id=i;
+        s_vector[i].first_file=1;
 
         /* boîte horizontale */
         hbox=gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
@@ -440,42 +460,42 @@ void udisk_Init (GtkWidget *notebook)
         gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE,0);
 
         /* bouton de vidange */
-        vector[i].emptying_button = gtk_button_new ();
+        s_vector[i].emptying_button = gtk_button_new ();
         image = gtk_image_new_from_icon_name ("edit-clear",
                                               GTK_ICON_SIZE_BUTTON);
-        gtk_button_set_image(GTK_BUTTON(vector[i].emptying_button), image);
+        gtk_button_set_image(GTK_BUTTON(s_vector[i].emptying_button), image);
         gtk_box_pack_start(
             GTK_BOX(hbox),
-            vector[i].emptying_button,
+            s_vector[i].emptying_button,
             FALSE,
             FALSE,
             0);
-        gtk_widget_set_tooltip_text (vector[i].emptying_button,
+        gtk_widget_set_tooltip_text (s_vector[i].emptying_button,
                                      is_fr?"Vide la liste des fichiers"
                                           :"Empty the file list");
-        (void)g_signal_connect(G_OBJECT(vector[i].emptying_button),
+        (void)g_signal_connect(G_OBJECT(s_vector[i].emptying_button),
                                "clicked",
                                G_CALLBACK(emptying_button_clicked),
-                               (gpointer)&vector[i]);
+                               (gpointer)&s_vector[i]);
 
         /* boutons protection de la disquette */
-        vector[i].check_prot=gtk_check_button_new_with_label("prot.");
-        gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(vector[i].check_prot),
+        s_vector[i].check_prot=gtk_check_button_new_with_label("prot.");
+        gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(s_vector[i].check_prot),
                                       teo.disk[i].write_protect);
-        gtk_box_pack_end( GTK_BOX(hbox), vector[i].check_prot, FALSE, TRUE,0);
-        (void)g_signal_connect(G_OBJECT(vector[i].check_prot),
+        gtk_box_pack_end( GTK_BOX(hbox), s_vector[i].check_prot, FALSE, TRUE,0);
+        (void)g_signal_connect(G_OBJECT(s_vector[i].check_prot),
                                "toggled",
                                G_CALLBACK(set_protection_check),
-                               (gpointer)&vector[i]);
+                               (gpointer)&s_vector[i]);
 
         /* combobox pour le rappel de disquette */
-        vector[i].combo=gtk_combo_box_text_new();
-        gtk_box_pack_start( GTK_BOX(hbox), vector[i].combo, TRUE, TRUE,0);
-        vector[i].direct=teo.disk[i].direct_access_allowed;
-        vector[i].combo_id = g_signal_connect (G_OBJECT(vector[i].combo),
+        s_vector[i].combo=gtk_combo_box_text_new();
+        gtk_box_pack_start( GTK_BOX(hbox), s_vector[i].combo, TRUE, TRUE,0);
+        s_vector[i].direct=teo.disk[i].direct_access_allowed;
+        s_vector[i].combo_id = g_signal_connect (G_OBJECT(s_vector[i].combo),
                                 "changed",
                                 G_CALLBACK(combo_changed),
-                                (gpointer)&vector[i]);
+                                (gpointer)&s_vector[i]);
 
         /* bouton d'ouverture de fichier */
         widget = gtk_button_new ();
@@ -491,42 +511,42 @@ void udisk_Init (GtkWidget *notebook)
         (void)g_signal_connect(G_OBJECT(widget),
                                "clicked",
                                G_CALLBACK(open_file),
-                               (gpointer)&vector[i]);
+                               (gpointer)&s_vector[i]);
 
         /* label pour la face de disquette */
-        vector[i].side_text=gtk_label_new((is_fr)?"Face":"Side");
-        gtk_widget_set_tooltip_text (vector[i].side_text,
+        s_vector[i].side_text=gtk_label_new((is_fr)?"Face":"Side");
+        gtk_widget_set_tooltip_text (s_vector[i].side_text,
                                      is_fr?"Choisir une face"
                                           :"Choose a side");
-        gtk_box_pack_start(GTK_BOX(hbox), vector[i].side_text, FALSE, FALSE,0);
+        gtk_box_pack_start(GTK_BOX(hbox), s_vector[i].side_text, FALSE, FALSE,0);
 
         /* combobox pour la face de disquette */
-        vector[i].side_combo=gtk_combo_box_text_new();
+        s_vector[i].side_combo=gtk_combo_box_text_new();
         gtk_box_pack_start(
             GTK_BOX(hbox),
-            vector[i].side_combo,
+            s_vector[i].side_combo,
             FALSE,
             FALSE,
             0);
-        vector[i].side_combo_id = g_signal_connect 
-                                     (G_OBJECT(vector[i].side_combo),
+        s_vector[i].side_combo_id = g_signal_connect 
+                                     (G_OBJECT(s_vector[i].side_combo),
                                      "changed",
                                      G_CALLBACK(set_side_combo),
-                                     (gpointer)&vector[i]);
+                                     (gpointer)&s_vector[i]);
 
-        init_combo (&vector[i]);
+        init_combo (&s_vector[i]);
         if (teo.disk[i].file != NULL)
         {
             add_combo_entry (teo.disk[i].file,
                              teo.disk[i].side,
                              disk[i].side_count,
                              teo.disk[i].write_protect,
-                             &vector[i]);
+                             &s_vector[i]);
         }
         else
         {
-            combo_changed (GTK_COMBO_BOX(vector[i].combo), &vector[i]);
-            gtk_combo_box_set_active (GTK_COMBO_BOX(vector[i].combo), 0);
+            combo_changed (GTK_COMBO_BOX(s_vector[i].combo), &s_vector[i]);
+            gtk_combo_box_set_active (GTK_COMBO_BOX(s_vector[i].combo), 0);
         }
     }
 }
