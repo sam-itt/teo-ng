@@ -330,6 +330,12 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
         gtk_file_filter_add_pattern (filter, "*.QD");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
+        filter = gtk_file_filter_new ();
+        gtk_file_filter_set_name (filter, is_fr?"Tous les fichiers(*)"
+                                               :"All files(*)");
+        gtk_file_filter_add_pattern (filter, "*");
+        gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
+
         /* Attend que le dialog ait tout assimilé */
         while (gtk_events_pending ())
             gtk_main_iteration ();
