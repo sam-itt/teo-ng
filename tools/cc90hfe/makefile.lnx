@@ -30,7 +30,8 @@ DESCRIPTION = profiling
 else
 
 # -- optimised build --
-CFLAGS = $(WFLAGS) $(OFLAGS)
+CFLAGS += $(WFLAGS)
+CFLAGS += $(OFLAGS)
 LFLAGS = -s
 DESCRIPTION = optimized
 

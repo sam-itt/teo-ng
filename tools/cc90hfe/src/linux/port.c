@@ -38,7 +38,7 @@
 #endif
 
 #include "defs.h"
-#include "error.h"
+//#include "error.h"
 #include "std.h"
 #include "errors.h"
 #include "serial.h"

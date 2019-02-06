@@ -242,8 +242,8 @@ char *option_Parse (int argc, char *argv[],
 {
     struct OPTION_ENTRY help_option_list[] = {
         { "help", 'h', OPTION_ARG_HELP, NULL,
-          is_fr?"Aide de ce programme":"Help of this program", NULL },
-        { NULL, 0, 0, NULL, NULL, NULL }
+          is_fr?"Aide de ce programme":"Help of this program", NULL, 0, 0 },
+        { NULL, 0, 0, NULL, NULL, NULL, 0, 0 }
     };
 
     help_option = help_option_list;

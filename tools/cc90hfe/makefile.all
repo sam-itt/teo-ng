@@ -34,9 +34,12 @@
 
 _default: default
 
+# default to gcc compiler
+ifeq (default,$(origin CC))
+  CC = gcc
+endif
 
-CC=gcc
-CFLAGS= -W -Wall -Werror
+CFLAGS += -W -Wall -Werror
 EXE_NAME=cc90hfe
 VPATH = src
 LFLAGS = -s

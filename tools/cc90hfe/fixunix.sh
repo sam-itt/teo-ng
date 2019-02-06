@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "Configuring CC90HFE sources for the Linux platform..."
 

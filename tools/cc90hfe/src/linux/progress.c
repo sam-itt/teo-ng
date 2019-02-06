@@ -77,9 +77,10 @@ static void progress_exit (void)
 }
 
 
-static int progress_update_bar (void)
+static gboolean progress_update_bar (gpointer data)
 {
-    int ret = progress_on;
+    gboolean ret = progress_on;
+    (void)data;
 
     if (ret == TRUE)
     {
@@ -97,10 +98,12 @@ static int progress_update_bar (void)
 
 
 
-static void progress_process (int (*process)(void))
+static gpointer progress_process (gpointer data)
 {
+    int (*process)(void) = data;
     progress_err = (*process)();
     progress_on = FALSE;
+    return NULL;
 }
 
 

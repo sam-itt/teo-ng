@@ -87,6 +87,7 @@ static void gui_EnableRetry (int flag)
 
 static void on_spin_value_changed (GtkSpinButton *spin, gpointer user_data)
 {
+    (void)user_data;
     gui.read_retry_max = (int) gtk_spin_button_get_value (spin);
     /* just in case the value is not an integer */
     gtk_spin_button_set_value (spin, (gdouble)gui.read_retry_max);

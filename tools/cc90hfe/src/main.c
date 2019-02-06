@@ -139,7 +139,7 @@ static char *read_command_line(int argc, char *argv[])
           is_fr?"nombre":"number",
           1,
           15 },
-        { NULL, 0, 0, NULL, NULL, NULL }
+        { NULL, 0, 0, NULL, NULL, NULL, 0, 0 }
     };
     return option_Parse (argc, argv, PROG_NAME, entries, &file_name_list);
 }
