@@ -151,7 +151,10 @@ TEO_SRC_WIN_FILES =        \
 
 # ------ compiler flags ------ 
 
-CC = gcc
+# default to gcc compiler
+ifeq (default,$(origin CC))
+  CC = gcc
+endif
 
 WFLAGS = -Wall
 
