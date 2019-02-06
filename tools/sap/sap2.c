@@ -49,15 +49,17 @@
 
 /* horrible hack pour supporter les accents... */
 #ifdef linux
-static char eacute[] = "Ã©";
-static char egrave[] = "Ã¨";
-static char agrave[] = "Ã ";
-static char ugrave[] = "Ã¹";
+/* UTF-8 */
+static char eacute[] = "\xc3\xa9";
+static char egrave[] = "\xc3\xa8";
+static char agrave[] = "\xc3\xa0";
+static char ugrave[] = "\xc3\xb9";
 #else
-static char eacute[] = "‚";
-static char egrave[] = "Š";
-static char agrave[] = "…";
-static char ugrave[] = "—";
+/* Latin-1 (ISO8859-1, etc.) */
+static char eacute[] = "\x82";
+static char egrave[] = "\x8a";
+static char agrave[] = "\x85";
+static char ugrave[] = "\x97";
 #endif
 
 
@@ -515,7 +517,7 @@ static void get_drive(int *drive, int *density)
              printf(" densit%s (1:simple, 2:double): ", eacute);
          else
              printf(" density (1:simple, 2:double): ");
-         
+
          if (!scanf("%d", density))
             unused_char=fgets(trash, 7, stdin);
       }
@@ -645,7 +647,7 @@ static void interactive_main(void)
                 printf("Visualisation du contenu d'une disquette:\n");
             else
                 printf("Displaying disk directory:\n");
-            
+
             get_drive(&drive, &density);
             printf("\n");
 
@@ -664,7 +666,7 @@ static void interactive_main(void)
                printf("Cr%sation d'une archive vide:\n", eacute);
             else
                printf("Creating an empty archive:\n");
-            
+
 
             if (is_fr)
                 printf(" nom de l'archive %s cr%ser (sans extension): ", agrave, eacute);
@@ -728,7 +730,7 @@ static void interactive_main(void)
                 printf(" nom de l'archive (sans extension): ");
             else
                 printf(" name of the archive (without extension): ");
-            
+
             unused_int=scanf("%s", sap_name);
             strcat(sap_name, ".sap");
 
@@ -766,7 +768,7 @@ static void interactive_main(void)
             }
 
             get_drive(&drive, &density);
-   
+
             do {
                if (is_fr)
                    printf(" facteur d'entrelacement ([1..%d], %d recommand%s): ", SAP_NSECTS-1, (SAP_NSECTS-1)/2, eacute);
@@ -886,9 +888,9 @@ int main(int argc, char *argv[])
 #endif
 #else
    char *lang=getenv("LANG");
-    if (lang==NULL) lang="fr_FR";        
-    setlocale(LC_ALL, "fr_FR.UTF8");    
-    if (strncmp(lang,"fr",2)==0) 
+    if (lang==NULL) lang="fr_FR";
+    setlocale(LC_ALL, "fr_FR.UTF8");
+    if (strncmp(lang,"fr",2)==0)
         is_fr=1;
     else
         is_fr=0;
