@@ -19,13 +19,18 @@ OBJ_SAPFS = $(OBJ_DIR)sapfs.o $(OBJ_DIR)libsap.o
 # compiler flags #
 ##################
 
-CC = gcc
+# default to gcc compiler
+ifeq (default,$(origin CC))
+  CC = gcc
+endif
 
 WFLAGS = -Wall -W -Werror
+#WFLAGS = -Wall -W
 
 OFLAGS = -fsigned-char -O2 -fomit-frame-pointer
 
-CFLAGS = $(WFLAGS) $(OFLAGS)
+CFLAGS += $(WFLAGS)
+CFLAGS += $(OFLAGS)
 
 
 ################

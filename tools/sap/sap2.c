@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef linux
+#if defined(linux) || defined(__FreeBSD__)
 #    include <locale.h>
 #endif
 #include "libsap.h"
@@ -917,6 +917,7 @@ int main(int argc, char *argv[])
                }
 
                usage(argv[0]);
+               break;
 
             case 'h':  /* help */
                if (is_fr)

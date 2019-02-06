@@ -18,6 +18,9 @@
  */
 
 
+#include "floppy.h"
+
+#if defined(linux)
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <fcntl.h>
@@ -26,8 +29,6 @@
    #include <linux/fd.h>
    #include <linux/fdreg.h>
 #endif
-
-#include "floppy.h"
 
 
 #define DISK_RETRY   3
@@ -325,3 +326,50 @@ void FloppyExit(void)
    }
 }
 
+#else
+
+/* Dummy implementation for system without the linux floppy disk API */
+
+int FloppyReadSector(int drive, int density, int track, int sector, int nsects, unsigned char data[])
+{
+    (void)drive;
+    (void)density;
+    (void)track;
+    (void)sector;
+    (void)nsects;
+    (void)data;
+    return 0x10;
+}
+
+int FloppyFormatTrack(int drive, int density, int track, const unsigned char header_table[])
+{
+    (void)drive;
+    (void)density;
+    (void)track;
+    (void)header_table;
+    return 0x10;
+}
+
+int FloppyWriteSector(int drive, int density, int track, int sector, int nsects, const unsigned char data[])
+{
+    (void)drive;
+    (void)density;
+    (void)track;
+    (void)sector;
+    (void)nsects;
+    (void)data;
+    return 0x10;
+}
+
+int FloppyInit(struct floppy_info *fi, int enable_write_support)
+{
+    (void)fi;
+    (void)enable_write_support;
+    /* return number of drive : 0 */
+    return 0;
+}
+
+void FloppyExit(void)
+{
+}
+#endif

@@ -1277,6 +1277,9 @@ int sap_FillArchive(sapID id, sapsector_t *sapsector)
          ID_STATE(id) = FILLED_ARCHIVE;
          sect = 1;
          /* no break */
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+         __attribute__ ((fallthrough));
+#endif
 
       case FILLED_ARCHIVE:
          do_write_sector(id, sapsector);
