@@ -46,6 +46,6 @@
   <releases>
     <release version="1.8.4" timestamp="1478090785"/>
   </releases>
-  <updatecontact>hadess@hadess.net</updatecontact>
+  <update_contact>hadess@hadess.net</update_contact>
   <content_rating type="oars-1.0" />
 </component>
