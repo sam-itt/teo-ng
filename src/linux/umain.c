@@ -47,6 +47,7 @@
  *  Boucle principale de l'émulateur.
  */
 
+#define  ALLEGRO_UNIX
 
 #ifndef SCAN_DEPEND
    #include <locale.h>
@@ -77,14 +78,23 @@
 #include "media/memo.h"
 #include "media/printer.h"
 #include "linux/floppy.h"
-#include "linux/display.h"
-#include "linux/graphic.h"
-#include "linux/sound.h"
+//#include "linux/display.h"
+//#include "linux/graphic.h"
+//#include "linux/sound.h"
 #include "linux/gui.h"
+#include "linux/keybint.h"
+#include "allegro.h"
+#include "alleg/gfxdrv.h"
+#include "alleg/gui.h"
+#include "alleg/joyint.h"
+#include "alleg/mouse.h"
+#include "alleg/sound.h"
 
 
 struct EMUTEO teo;
 
+//static int gfx_mode = GFX_WINDOW | GFX_TRUECOLOR;
+static int gfx_mode = GFX_WINDOW;
 static int idle_data = 0;
 static GTimer *timer;
 
@@ -93,11 +103,153 @@ static gchar *cass_name = NULL;
 static gchar *memo_name = NULL;
 static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
 static gchar **remain_name = NULL;
+static int windowed_mode = TRUE;
+
+int frame;                  /* compteur de frame vidéo */
+static volatile int tick;   /* compteur du timer       */
+
+static void Timer(void)
+{
+    tick++;
+}
+
+
+
+/* RetraceCallback:
+ *  Fonction callback de retraçage de l'écran après
+ *  restauration de l'application.
+ */
+static void RetraceCallback(void)
+{
+    acquire_screen();
+    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
+    release_screen();
+}
+
+/* close_procedure:
+ *  Procédure de fermeture de la fenêtre par le bouton close.
+ */
+static void close_procedure (void)
+{
+    teo.command = TEO_COMMAND_QUIT;
+}
+ 
+
+
+static void RunTO8(void)
+{
+    amouse_Install(TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
+    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
+
+    do  /* boucle principale de l'émulateur */
+    {
+        printf("Looping \n");
+        teo.command=TEO_COMMAND_NONE;
+
+        /* installation des handlers clavier, souris et son */ 
+        ukeybint_Install();
+        amouse_Install(LAST_POINTER);
+
+        if (teo.setting.exact_speed)
+        {
+            if (teo.setting.sound_enabled)
+                asound_Start();
+            else
+            {
+                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
+                frame=1;
+                tick=frame;
+            }
+        }
+
+        do  /* boucle d'émulation */
+        {
+            if (teo_DoFrame() == 0)
+                if (windowed_mode)
+                    teo.command=TEO_COMMAND_BREAKPOINT;
+
+            /* rafraîchissement de la palette */
+            if (need_palette_refresh)
+                RefreshPalette();
+
+            /* rafraîchissement de l'écran */
+            RefreshScreen();
+
+            /* mise à jour de la position des joysticks */
+            ajoyint_Update();
+
+            /* synchronisation sur fréquence réelle */
+            if (teo.setting.exact_speed)
+            {
+                if (teo.setting.sound_enabled)
+                    asound_Play();
+                else
+                    while (frame==tick)
+                   usleep(0);
+            }
+
+            disk_WriteTimeout();
+            frame++;
+        }
+        while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
+
+        /* désinstallation des handlers clavier, souris et son */
+        if (teo.setting.exact_speed)
+        {
+            if (teo.setting.sound_enabled)
+                asound_Stop();
+            else
+                remove_int(Timer);
+        }
+        amouse_ShutDown();
+        ukeybint_ShutDown();
+
+
+        /* éxécution des commandes */
+        if (teo.command==TEO_COMMAND_PANEL)
+        {
+            agui_Panel();
+        }
+
+        if ((teo.command == TEO_COMMAND_BREAKPOINT)
+         || (teo.command == TEO_COMMAND_DEBUGGER)) {
+           /* if (windowed_mode) {
+                wdebug_Panel ();
+                if (teo_DebugBreakPoint == NULL)
+                    teo_FlushFrame();
+            }*/
+        }
+
+        if (teo.command==TEO_COMMAND_SCREENSHOT)
+            agfxdrv_Screenshot();
+
+        if (teo.command==TEO_COMMAND_RESET)
+            teo_Reset();
+
+        if (teo.command==TEO_COMMAND_COLD_RESET)
+        {
+            teo_ColdReset();
+            amouse_Install(TEO_STATUS_MOUSE);
+        }
+
+        if (teo.command==TEO_COMMAND_FULL_RESET)
+        {
+            teo_FullReset();
+            amouse_Install(TEO_STATUS_MOUSE);
+        }
+    }
+    while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
+
+    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
+    mc6809_FlushExec();
+}
+
 
 
 /* RunTO8:
  *  Boucle principale de l'émulateur.
  */
+/*
 static gboolean RunTO8 (gpointer user_data)
 {
     static gulong microseconds;
@@ -149,7 +301,7 @@ static gboolean RunTO8 (gpointer user_data)
 
     return TRUE;
     (void)user_data;
-}
+}*/
 
 
 
@@ -540,7 +692,7 @@ char *main_ThomsonToPcText (char *thomson_text)
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
-    ugui_Error (msg, wMain);
+    //ugui_Error (msg, wMain);
 }
 
 
@@ -563,16 +715,24 @@ void main_ExitMessage(const char msg[])
  */
 int main(int argc, char *argv[])
 {
+
+    char version_name[]="Teo "TEO_VERSION_STR" (Linux/Allegro)";
+
     int i;
     int direct_write_support = TRUE;
     int drive_type[4];
     char *lang;
+
+    int alleg_depth;
+    int njoy = 0;
 
     /* Repérage du language utilisé */
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "");
     is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
+
+
 
     g_setenv ("GDK_BACKEND", "x11", TRUE);
     gtk_init (&argc, &argv);     /* Initialisation gtk */
@@ -582,6 +742,21 @@ int main(int argc, char *argv[])
 #ifdef DEBIAN_BUILD
     copy_debian_file ("empty.hfe");
 #endif    
+    ukeybint_Init();
+
+    /* initialisation de la librairie Allegro */
+    set_uformat(U_ASCII);  /* pour les accents Latin-1 */
+    allegro_init();
+    set_config_file(ALLEGRO_CONFIG_FILE);
+    install_keyboard();
+    install_timer();
+    if (njoy >= 0)
+        install_joystick(JOY_TYPE_AUTODETECT);
+    set_window_title(is_fr?"Teo - l'émulateur TO8 (menu:ESC/debogueur:F12)"
+                          :"Teo - the TO8 emulator (menu:ESC/debugger:F12)");
+
+
+
 
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
@@ -608,9 +783,81 @@ int main(int argc, char *argv[])
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
-    udisplay_Window (); /* Création de la fenêtre principale */
-    udisplay_Init();    /* Initialisation du serveur X */
-    ugraphic_Init();    /* Initialisation du module graphique */
+
+    /* initialisation du son */
+    asound_Init(51200);  /* 51200 Hz car 25600 Hz provoque des irrégularités du timer */
+
+    /* initialisation des joysticks */
+    ajoyint_Init(njoy);
+
+    /* initialisation du mode graphique */
+    switch(gfx_mode)
+    {
+        case GFX_MODE40:
+            if (!agfxdrv_Init(GFX_MODE40, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
+                main_ExitMessage(is_fr?"Mode graphique non supporté."
+                                      :"Unsupported graphic mode");
+            windowed_mode = FALSE;
+            break;
+
+        case GFX_MODE80:
+            if (!agfxdrv_Init(GFX_MODE80, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
+                main_ExitMessage(is_fr?"Mode graphique non supporté."
+                                      :"Unsupported graphic mode");
+            windowed_mode = FALSE;
+            break;
+
+        case GFX_TRUECOLOR:
+            if (!agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT_FULLSCREEN, FALSE))
+                if (!agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT_FULLSCREEN, FALSE))
+                    if (!agfxdrv_Init(GFX_TRUECOLOR, 24, GFX_AUTODETECT_FULLSCREEN, FALSE))
+                        if (!agfxdrv_Init(GFX_TRUECOLOR, 32, GFX_AUTODETECT_FULLSCREEN, FALSE))
+                            main_ExitMessage(is_fr?"Mode graphique non supporté."
+                                                  :"Unsupported graphic mode");
+            windowed_mode = FALSE;
+            break;
+
+        case GFX_WINDOW:
+            alleg_depth = desktop_color_depth();
+            printf("Autodetected color depth was: %d\n",alleg_depth);
+            alleg_depth = 32;
+            switch (alleg_depth)
+            {
+                case 8:  /* 8bpp */
+                default:
+                    main_ExitMessage(is_fr?"Mode graphique non supporté."
+                                          :"Unsupported graphic mode");
+                    break;
+
+                case 16: /* 15 ou 16bpp */
+                    if ( !agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT_WINDOWED, TRUE) && 
+                         !agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT_WINDOWED, TRUE) )
+                            main_ExitMessage(is_fr?"Mode graphique non supporté."
+                                                  :"Unsupported graphic mode");
+                    gfx_mode = GFX_TRUECOLOR;
+                    break;
+ 
+                case 24: /* 24bpp */
+                case 32: /* 32bpp */
+                    if (!agfxdrv_Init(GFX_TRUECOLOR, alleg_depth, GFX_AUTODETECT_WINDOWED, TRUE))
+                        main_ExitMessage(is_fr?"Mode graphique non supporté."
+                                              :"Unsupported graphic mode");
+                    gfx_mode = GFX_TRUECOLOR;
+                    break;
+            }
+            windowed_mode = TRUE;
+            break;
+    }
+
+    /* installation de la fonction callback de retraçage de l'écran nécessaire
+       pour les modes fullscreen */
+    set_display_switch_callback(SWITCH_IN, RetraceCallback);
+
+    /* on continue de tourner même sans focus car sinon la gui se bloque,
+     * et le buffer son tourne sur lui même sans mise à jour et c'est moche. */
+    set_display_switch_mode(SWITCH_BACKGROUND); 
+
+
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
     if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
@@ -622,9 +869,6 @@ int main(int argc, char *argv[])
             reset = 1;
     g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
 
-    /* Initialise le son */
-    if (usound_Init() < 0)
-        main_DisplayMessage(teo_error_msg);
 
     /* Restitue l'état sauvegardé de l'émulateur */
     teo_FullReset();
@@ -632,26 +876,33 @@ int main(int argc, char *argv[])
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
-    /* Initialise l'interface graphique */
-    ugui_Init();
-    udebug_Init();
+    /* initialisation de l'interface utilisateur Allegro et du débogueur */
+    teo_DebugBreakPoint = NULL;
+    if (!windowed_mode)
+    {
+       agui_Init(version_name, gfx_mode, FALSE);
+    }
+    else
+    {
+       set_window_close_hook(close_procedure);
+    }
 
     /* Et c'est parti !!! */
-    printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    teo.command=TEO_COMMAND_NONE;
-    timer = g_timer_new ();
-    g_timeout_add_full (G_PRIORITY_DEFAULT, 1, RunTO8, &idle_data, NULL);
-    gtk_main ();
-    g_timer_destroy (timer);
+    RunTO8();
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save();
     image_Save ("autosave.img");
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
-    ugui_Free ();   /* Libère la mémoire utilisée par la GUI */
-    udebug_Free();  /* Free memory used by the debugger */
-    usound_Close(); /* Referme le périphérique audio*/
+    /* désinstallation du callback *avant* la sortie du mode graphique */
+    remove_display_switch_callback(RetraceCallback);
+
+    /* libération de la mémoire si mode fenêtré */
+    agui_Free();
+
+    /* sortie du mode graphique */
+    SetGraphicMode(SHUTDOWN);
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));

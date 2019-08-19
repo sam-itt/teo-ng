@@ -118,10 +118,10 @@ static void toggle_sound (GtkWidget *button, gpointer data)
     int flag = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
 
     teo.setting.sound_enabled = flag;
-    if (flag == TRUE)
+/*    if (flag == TRUE)
         usound_Init ();
     else
-        usound_Close ();
+        usound_Close ();*/
     (void)data;
 }
 

@@ -369,8 +369,8 @@ focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 static gboolean 
 visibility_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    if (event->visibility.state == GDK_VISIBILITY_UNOBSCURED)
-        ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
+    //if (event->visibility.state == GDK_VISIBILITY_UNOBSCURED)
+      //  ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
 
     return FALSE;
     (void)widget;
@@ -392,7 +392,7 @@ configure_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 #ifdef DEBUG
 	fprintf(stderr,"Resize x=%d y=%d\n",last_width,last_height);
 #endif
-        ugraphic_resize_zoom();
+        //ugraphic_resize_zoom();
         /* ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2); */
     }
     return FALSE;
