@@ -59,10 +59,11 @@
    #include <sys/time.h>
    #include <sys/types.h>
    #include <sys/stat.h>
-   #include <gtk/gtk.h>
+   #include <glib.h>
+/*   #include <gtk/gtk.h>
    #include <X11/Xlib.h>
    #include <X11/Xresource.h>
-   #include <X11/Xutil.h>
+   #include <X11/Xutil.h>*/
 #endif
 
 #include "defs.h"
@@ -81,7 +82,7 @@
 //#include "linux/display.h"
 //#include "linux/graphic.h"
 //#include "linux/sound.h"
-#include "linux/gui.h"
+//#include "linux/gui.h"
 #include "linux/keybint.h"
 #include "allegro.h"
 #include "alleg/gfxdrv.h"
@@ -98,7 +99,8 @@ static int gfx_mode = GFX_WINDOW;
 static int idle_data = 0;
 static GTimer *timer;
 
-static gboolean reset = FALSE;
+//static gboolean reset = FALSE;
+static gchar reset = FALSE;
 static gchar *cass_name = NULL;
 static gchar *memo_name = NULL;
 static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
@@ -735,7 +737,7 @@ int main(int argc, char *argv[])
 
 
     g_setenv ("GDK_BACKEND", "x11", TRUE);
-    gtk_init (&argc, &argv);     /* Initialisation gtk */
+   // gtk_init (&argc, &argv);     /* Initialisation gtk */
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
 

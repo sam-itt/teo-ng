@@ -48,13 +48,13 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
-   #include <gtk/gtk.h>
+/*   #include <gtk/gtk.h>
    #include <gtk/gtkx.h>
    #include <gdk/gdkx.h>
    #include <X11/Xlib.h>
    #include <X11/XKBlib.h>
    #include <X11/Xutil.h>
-   #include <X11/keysym.h>
+   #include <X11/keysym.h>*/
 #endif
 
 #include "defs.h"
@@ -63,8 +63,8 @@
 #include "media/keyboard.h"
 #include "media/mouse.h"
 #include "media/disk.h"
-#include "linux/gui.h"
-#include "linux/display.h"
+//#include "linux/gui.h"
+//#include "linux/display.h"
 #include "linux/graphic.h"
 
 
