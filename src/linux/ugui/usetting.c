@@ -53,6 +53,7 @@
    #include <gtk/gtk.h>
 #endif
 
+#include <gtk/gtk.h>
 #include "linux/gui.h"
 #include "linux/sound.h"
 #include "teo.h"

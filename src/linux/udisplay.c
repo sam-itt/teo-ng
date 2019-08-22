@@ -68,8 +68,11 @@
 #include "linux/graphic.h"
 
 
+/*MOVED TO UGUI*/
 GtkWidget *wMain;
 GdkWindow *gwindow_win;
+/**/
+
 Display *display;
 int screen;
 int mit_shm_enabled;
@@ -426,6 +429,7 @@ void udisplay_Init(void)
 
 
 
+/*MOVED TO UGUI*/
 /* udisplay_Window:
  *   Crée la fenêtre principale.
  */

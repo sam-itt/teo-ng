@@ -15,6 +15,15 @@ AC_CONFIG_SRCDIR([src/teo.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
+#options
+AC_ARG_ENABLE([gtk_panel], [AS_HELP_STRING([--enable-gtk-panel], [Enables GTK Panel when building against Allegro on Unix])],
+            [],
+            [enable_gtk_panel=no])
+
+AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enables GTK debugger when building against Allegro on Unix])],
+            [],
+            [enable_gtk_debugger=no])
+
 
 # Checks for programs.
 AC_PROG_CC
@@ -39,6 +48,22 @@ AC_CHECK_FUNCS([atexit getcwd memmove memset mkdir setlocale strchr strcspn strp
 
 PKG_CHECK_MODULES([DEPS], [glib-2.0 allegro])
 PKG_CHECK_MODULES([PNG], [libpng])
+
+AS_IF([test "x$enable_gtk_panel" != "xno"], [
+    PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+    AM_CONDITIONAL(ENABLE_GTK_PANEL, true)
+    AC_DEFINE(ENABLE_GTK_PANEL,[],[Use GTK for GUI])
+], [
+    AM_CONDITIONAL(ENABLE_GTK_PANEL, false)
+])
+
+AS_IF([test "x$enable_gtk_debugger" != "xno"], [
+    PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+    AM_CONDITIONAL(ENABLE_GTK_DEBUGGER, true)
+    AC_DEFINE(ENABLE_GTK_DEBUGGER,[],[Use GTK for debugger GUI])
+], [
+    AM_CONDITIONAL(ENABLE_GTK_DEBUGGER, false)
+])
 
 
 AM_CONDITIONAL([FOO], [test 1 = 2])

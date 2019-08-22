@@ -65,6 +65,10 @@ enum {
    TEO_RESPONSE_QUIT
 };
 
+GtkWidget *wMain;
+GdkWindow *gwindow_win;
+
+
 /* fenêtre de l'interface utilisateur */
 GtkWidget *wControl = NULL;
 static GtkWidget *notebook;
@@ -284,4 +288,6 @@ void ugui_Panel(void)
    }
    gtk_widget_hide (wControl);
 }
+
+
 

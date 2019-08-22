@@ -46,6 +46,7 @@
  *
  *  Boucle principale de l'émulateur.
  */
+#include "config.h"
 
 #define  ALLEGRO_UNIX
 
@@ -192,8 +193,12 @@ static void RunTO8(void)
 
             disk_WriteTimeout();
             frame++;
-        }
-        while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
+#ifdef ENABLE_GTK_PANEL
+            gtk_main_iteration_do(FALSE);
+#endif 
+        }while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
+
+/*Why removing handlers ?*/
 
         /* désinstallation des handlers clavier, souris et son */
         if (teo.setting.exact_speed)
@@ -210,17 +215,32 @@ static void RunTO8(void)
         /* éxécution des commandes */
         if (teo.command==TEO_COMMAND_PANEL)
         {
+#ifdef ENABLE_GTK_PANEL
+            printf("windowed mode at panel code: ?d\n",windowed_mode);
+            if (windowed_mode)
+                ugui_Panel();
+            else
+                agui_Panel();
+#else
             agui_Panel();
+#endif
         }
-
+#ifdef ENABLE_GTK_DEBUGGER
         if ((teo.command == TEO_COMMAND_BREAKPOINT)
          || (teo.command == TEO_COMMAND_DEBUGGER)) {
+            printf("TOTO ! \n");
+            if (windowed_mode) {
+                udebug_Panel();
+                    if (teo_DebugBreakPoint == NULL)
+                        teo_FlushFrame();
+            }
            /* if (windowed_mode) {
                 wdebug_Panel ();
                 if (teo_DebugBreakPoint == NULL)
                     teo_FlushFrame();
             }*/
         }
+#endif
 
         if (teo.command==TEO_COMMAND_SCREENSHOT)
             agfxdrv_Screenshot();
@@ -239,8 +259,15 @@ static void RunTO8(void)
             teo_FullReset();
             amouse_Install(TEO_STATUS_MOUSE);
         }
-    }
-    while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
+        /*TODO: Investigate how these two loops work and whether it's actually necessary
+         * to install/deinstall handlers. One call to gtk_main_iteration_do should/could be enough
+        */
+
+#ifdef ENABLE_GTK_PANEL
+        gtk_main_iteration_do(FALSE);
+#endif 
+
+    }while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
 
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
@@ -736,8 +763,10 @@ int main(int argc, char *argv[])
 
 
 
+#ifdef ENABLE_GTK_PANEL
     g_setenv ("GDK_BACKEND", "x11", TRUE);
-   // gtk_init (&argc, &argv);     /* Initialisation gtk */
+    gtk_init (&argc, &argv);     /* Initialisation gtk */
+#endif
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
 
@@ -784,8 +813,9 @@ int main(int argc, char *argv[])
     /* Détection des lecteurs supportés (3"5 seulement) */
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
-
-
+#ifdef ENABLE_GTK_PANEL
+   // udisplay_Window (); /* Création de la fenêtre principale */
+#endif
     /* initialisation du son */
     asound_Init(51200);  /* 51200 Hz car 25600 Hz provoque des irrégularités du timer */
 
@@ -878,6 +908,14 @@ int main(int argc, char *argv[])
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
+#ifdef ENABLE_GTK_PANEL
+    ugui_Init();      /* Initialise l'interface graphique */
+#endif
+#ifdef ENABLE_GTK_DEBUGGER
+    udebug_Init();      /* Initialise l'interface graphique */
+#endif
+
+
     /* initialisation de l'interface utilisateur Allegro et du débogueur */
     teo_DebugBreakPoint = NULL;
     if (!windowed_mode)
@@ -888,7 +926,10 @@ int main(int argc, char *argv[])
     {
        set_window_close_hook(close_procedure);
     }
-
+    printf("window mode: %d\n", windowed_mode);
+#ifdef ENABLE_GTK_PANEL
+    printf("ENABLE_GTK_PANEL is set\n");
+#endif
     /* Et c'est parti !!! */
     RunTO8();
 

@@ -1,8 +1,8 @@
 src_dir = $(top_srcdir)/src
 
 bin_PROGRAMS = teo
-teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS)
-teo_CPPFLAGS = $(CPP_FLAGS) $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include
+teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS)
+teo_CPPFLAGS = $(CPP_FLAGS) $(DEPS_CFLAGS) $(PNG_CFLAGS) $(GTK_CFLAGS) -I$(top_srcdir)/include
 
 #udisplay.c 
 teo_SOURCES = \
@@ -10,7 +10,7 @@ teo_SOURCES = \
 	ufloppy.c \
 	umain.c
 
-if FOO
+if ENABLE_GTK_DEBUGGER
 teo_SOURCES += \
 	udebug.c \
 	udebug/udstatus.c \
@@ -22,7 +22,7 @@ teo_SOURCES += \
 	udebug/udtoolb.c
 endif
 
-if FOO
+if ENABLE_GTK_PANEL
 teo_SOURCES += \
 	ugui.c \
 	ugui/usetting.c \
@@ -31,5 +31,4 @@ teo_SOURCES += \
 	ugui/ucass.c \
 	ugui/udisk.c \
 	ugui/uprinter.c
-
 endif

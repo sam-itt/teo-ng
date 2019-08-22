@@ -53,6 +53,7 @@
 
 #include "teo.h"
 #include "linux/gui.h"
+#include <gtk/gtk.h>
 
 /* run_about_window:
  *  Affiche le panneau "A propos"
