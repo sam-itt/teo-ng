@@ -48,13 +48,13 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
-/*   #include <gtk/gtk.h>
+   #include <gtk/gtk.h>
    #include <gtk/gtkx.h>
    #include <gdk/gdkx.h>
    #include <X11/Xlib.h>
    #include <X11/XKBlib.h>
    #include <X11/Xutil.h>
-   #include <X11/keysym.h>*/
+   #include <X11/keysym.h>
 #endif
 
 #include "defs.h"

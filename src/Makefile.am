@@ -1,6 +1,10 @@
 src_dir = $(top_srcdir)/src
 
+if GFX_BACKEND_ALLEGRO
 SUBDIRS =  . alleg linux
+else
+SUBDIRS =  . linux
+endif
 
 noinst_LTLIBRARIES = libteo.la
 libteo_la_CPPFLAGS = $(DEPS_CFLAGS)  $(CPP_FLAGS) -I$(top_srcdir)/include

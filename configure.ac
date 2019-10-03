@@ -16,13 +16,18 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
 #options
-AC_ARG_ENABLE([gtk_panel], [AS_HELP_STRING([--enable-gtk-panel], [Enables GTK Panel when building against Allegro on Unix])],
+AC_ARG_ENABLE([gtk_panel], [AS_HELP_STRING([--enable-gtk-panel], [Enable GTK Panel when building against Allegro on Unix])],
             [],
             [enable_gtk_panel=no])
 
-AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enables GTK debugger when building against Allegro on Unix])],
+AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enable GTK debugger when building against Allegro on Unix])],
             [],
             [enable_gtk_debugger=no])
+
+#graphic backed
+AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11], [Select graphic backend])],
+            [],
+            [with_gfx_backend=allegro])
 
 
 # Checks for programs.
@@ -64,6 +69,26 @@ AS_IF([test "x$enable_gtk_debugger" != "xno"], [
 ], [
     AM_CONDITIONAL(ENABLE_GTK_DEBUGGER, false)
 ])
+
+AS_CASE(["x$with_gfx_backend"],
+   ["xallegro"],[
+    AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, true)
+    AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
+    AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
+   ],
+   ["xgtk-x11"],[
+    AM_CONDITIONAL(GFX_BACKEND_GTK_X11, true)
+    AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
+    AC_DEFINE(GFX_BACKEND_GTK_X11,[],[Use Allegro for gfx rendering])
+    PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+    PKG_CHECK_MODULES([XEXT], [xext])
+    PKG_CHECK_MODULES([X11], [x11])
+    PKG_CHECK_MODULES([ALSA], [alsa])
+   ],
+   [
+    AC_MSG_ERROR(["Valid values for --with-gfx-backend are 'allegro' and 'gtk-x11'"])
+   ]
+)
 
 
 AM_CONDITIONAL([FOO], [test 1 = 2])
