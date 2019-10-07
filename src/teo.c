@@ -163,13 +163,19 @@ static int InitMemory(void)
         if ((mem.mon.bank[i] = malloc(mem.mon.size*sizeof(uint8))) == NULL)
             return error_Message(TEO_ERROR_ALLOC, NULL);
 
-    for (i=0; i<mem.rom.nbank; i++)
-        if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) < 0)
+    for (i=0; i<mem.rom.nbank; i++){
+        if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) < 0){
+            printf("Couldn't load file %s\n",mem.rom.filename[i]);
             return TEO_ERROR;
+        }
+    }
 
-    for (i=0; i<mem.mon.nbank; i++)
-        if (LoadFile(mem.mon.filename[i], mem.mon.bank[i], mem.mon.size) < 0)
+    for (i=0; i<mem.mon.nbank; i++){
+        if (LoadFile(mem.mon.filename[i], mem.mon.bank[i], mem.mon.size) < 0){
+            printf("Couldn't load file %s\n",mem.rom.filename[i]);
             return TEO_ERROR;
+        }
+    }
 
     /* modification de la page d'affichage de la date */
     mem.rom.bank[3][0x25D3]=TEO_TRAP_CODE;
