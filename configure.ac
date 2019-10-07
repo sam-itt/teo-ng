@@ -14,6 +14,17 @@ LT_INIT
 AC_CONFIG_SRCDIR([src/teo.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
+AC_CANONICAL_HOST
+
+#platform
+case $host_os in
+  *mingw*) mingw=true ;;
+  *djgpp*) djgpp=true ;;
+  *) mingw=false ;;
+esac
+AM_CONDITIONAL([MINGW], [test "x$mingw" = xtrue])
+AM_CONDITIONAL([TARGET_DJGPP], [test "x$djgpp" = xtrue])
+
 
 #options
 AC_ARG_ENABLE([gtk_panel], [AS_HELP_STRING([--enable-gtk-panel], [Enable GTK Panel when building against Allegro on Unix])],
@@ -51,8 +62,23 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol])
 
 
-PKG_CHECK_MODULES([DEPS], [glib-2.0 allegro])
-PKG_CHECK_MODULES([PNG], [libpng])
+
+
+
+AS_IF([test "x$mingw" = "xtrue"],[
+   AC_MSG_NOTICE([Mingw32 detected, not running libs detection])
+   PKG_CHECK_MODULES([DEPS], [allegro zlib])
+   PKG_CHECK_MODULES([PNG], [libpng])
+   AC_DEFINE([_WIN32_IE],[0x0300],[Minimum support level selection])
+   AC_CHECK_TOOL([WINDRES], [windres], [:])
+#   AC_DEFINE(__MINGW32__)
+#   AC_SUBST([DEPS_LIBS],[-lalleg44 -mwindows -ldxapi -ldinput -lddraw -ldxguid -ldsound -lgdi32 -lole32 -lwinmm -lshell32 -lkernel32 -luser32 -lcomdlg32 -lcomctl32 -lpng -lz])
+#   AC_SUBST([DEPS_CFLAGS],[])
+],[
+   PKG_CHECK_MODULES([DEPS], [glib-2.0 allegro])
+   PKG_CHECK_MODULES([PNG], [libpng])
+])
+
 
 AS_IF([test "x$enable_gtk_panel" != "xno"], [
     PKG_CHECK_MODULES([GTK], [gtk+-3.0])
@@ -96,5 +122,7 @@ AM_CONDITIONAL([FOO], [test 1 = 2])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/alleg/Makefile
-                 src/linux/Makefile])
+                 src/linux/Makefile
+                 src/win/Makefile])
+
 AC_OUTPUT

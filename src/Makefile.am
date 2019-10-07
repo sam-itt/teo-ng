@@ -1,10 +1,15 @@
 src_dir = $(top_srcdir)/src
 
+if MINGW
+SUBDIRS =  . alleg win
+else
 if GFX_BACKEND_ALLEGRO
 SUBDIRS =  . alleg linux
 else
 SUBDIRS =  . linux
 endif
+endif #MINGW
+
 
 noinst_LTLIBRARIES = libteo.la
 libteo_la_CPPFLAGS = $(DEPS_CFLAGS)  $(CPP_FLAGS) -I$(top_srcdir)/include

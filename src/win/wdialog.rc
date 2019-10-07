@@ -44,7 +44,6 @@
  *  Définition des boîtes de dialogue.
  */
 
-
 #ifndef SCAN_DEPEND
    #include <windows.h>
    #include <commctrl.h>
@@ -54,19 +53,19 @@
 #include "teo.h"
 
 
-a            ICON   "src/win/thomson.ico"   // To force it to be the program icon
-thomson_ico  ICON   "src/win/thomson.ico"
-thomson_bmp  BITMAP "src/win/thomson.bmp"
-panel_bmp    BITMAP "src/win/panel.bmp"
-to8_bmp      BITMAP "src/win/to8.bmp"
+a            ICON   "thomson.ico"   // To force it to be the program icon
+thomson_ico  ICON   "thomson.ico"
+thomson_bmp  BITMAP "thomson.bmp"
+panel_bmp    BITMAP "panel.bmp"
+to8_bmp      BITMAP "to8.bmp"
 /* control panel icons */
-clearlst_ico ICON   "src/win/wgui/clearlst.ico"
-folder_ico   ICON   "src/win/wgui/folder.ico"
+clearlst_ico ICON   "wgui/clearlst.ico"
+folder_ico   ICON   "wgui/folder.ico"
 /* debugger icons */
-step_ico     ICON   "src/win/wdebug/step.ico"
-stepover_ico ICON   "src/win/wdebug/stepover.ico"
-run_ico      ICON   "src/win/wdebug/run.ico"
-leave_ico    ICON   "src/win/wdebug/leave.ico"
+step_ico     ICON   "wdebug/step.ico"
+stepover_ico ICON   "wdebug/stepover.ico"
+run_ico      ICON   "wdebug/run.ico"
+leave_ico    ICON   "wdebug/leave.ico"
 
 
 
