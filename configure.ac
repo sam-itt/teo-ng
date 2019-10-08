@@ -1,6 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-
+#CFLAGS+="-g"
 AC_PREREQ([2.69])
 
 
@@ -19,11 +19,27 @@ AC_CANONICAL_HOST
 #platform
 case $host_os in
   *mingw*) mingw=true ;;
-  *djgpp*) djgpp=true ;;
   *) mingw=false ;;
 esac
 AM_CONDITIONAL([MINGW], [test "x$mingw" = xtrue])
-AM_CONDITIONAL([TARGET_DJGPP], [test "x$djgpp" = xtrue])
+
+
+####################
+# Check for DOS/DJGPP
+####################
+AC_MSG_CHECKING([if compiling for MS-DOS])
+case "$host_os" in
+  *djgpp*)
+    platform_msdos=yes
+    ;;
+  *)
+    platform_msdos=no
+    ;;
+esac
+AC_MSG_RESULT([$platform_msdos])
+AM_CONDITIONAL(PLATFORM_MSDOS, test "$platform_msdos" = "yes")
+
+
 
 
 #options
@@ -44,6 +60,7 @@ AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11],
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_MAKE_SET
+
 
 # Checks for libraries.
 
@@ -75,8 +92,17 @@ AS_IF([test "x$mingw" = "xtrue"],[
 #   AC_SUBST([DEPS_LIBS],[-lalleg44 -mwindows -ldxapi -ldinput -lddraw -ldxguid -ldsound -lgdi32 -lole32 -lwinmm -lshell32 -lkernel32 -luser32 -lcomdlg32 -lcomctl32 -lpng -lz])
 #   AC_SUBST([DEPS_CFLAGS],[])
 ],[
-   PKG_CHECK_MODULES([DEPS], [glib-2.0 allegro])
-   PKG_CHECK_MODULES([PNG], [libpng])
+   AS_IF([test "x$platform_msdos" = "xyes"],[
+      PKG_CHECK_MODULES([DEPS], [allegro])
+      PKG_CHECK_MODULES([PNG], [libpng])
+      AX_CHECK_COMPILE_FLAG([-fgnu89-inline],
+        [AX_APPEND_FLAG([-fgnu89-inline])],
+        [AC_MSG_WARN([-fgnu89-inline is not supported, linking with allegro might fail with gcc > 2.x])
+      ])
+   ],[
+      PKG_CHECK_MODULES([DEPS], [glib-2.0 allegro])
+      PKG_CHECK_MODULES([PNG], [libpng])
+   ])
 ])
 
 
@@ -122,6 +148,7 @@ AM_CONDITIONAL([FOO], [test 1 = 2])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/alleg/Makefile
+                 src/dos/Makefile
                  src/linux/Makefile
                  src/win/Makefile])
 

@@ -44,11 +44,11 @@
 #ifndef SCAN_DEPEND
     #include <stdio.h>
     #include <stdlib.h>
-#ifndef DJGPP
+//#ifndef DJGPP
    #include <string.h>
    #include <png.h>
    #include <zlib.h>
-#endif
+//#endif
 #endif
 
 #include "defs.h"
