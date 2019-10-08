@@ -301,21 +301,30 @@ static int file_protection (const char filename[], int protection)
     {
         /* check size of file */
         file_size = std_FileSize(filename);
-        for (fd_type=0; file_size != fd_list[fd_type].file_size; fd_type++)
-           if (fd_type == (NUM_FD_TYPES - 1))
+        for (fd_type=0; file_size != fd_list[fd_type].file_size; fd_type++){
+           if (fd_type == (NUM_FD_TYPES - 1)){
+           //    printf("Error with fd_type");
                return error_Message (TEO_ERROR_FILE_FORMAT, filename);
+           }
+        }
 
         /* check name of file */
         name_length = strlen(filename);
-        if (name_length < 3)
+        if (name_length < 3){
+          //  printf("Error with name length: %d while min is %d\n",name_length,3);
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
+        }
 
-        if (strcmp(filename+name_length-3, fd_list[fd_type].suffix) != 0)
+        if (strcasecmp(filename+name_length-3, fd_list[fd_type].suffix) != 0){
+        //    printf("Error with name suffix: %s while it should be %s\n",filename+name_length-3,fd_list[fd_type].suffix);
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
+        }
 
         /* check number_of_tracks */
-        if (fd_list[fd_type].track_count != TEO_DISK_TRACK_NUMBER_MAX)
+        if (fd_list[fd_type].track_count != TEO_DISK_TRACK_NUMBER_MAX){
+          //  printf("Error with tracks. Got %d while max is %d\n",fd_list[fd_type].track_count,TEO_DISK_TRACK_NUMBER_MAX);
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
+        }
     }
     return protection;
 }
