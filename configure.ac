@@ -1,6 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-#CFLAGS+="-g"
+#CFLAGS="-g"
 AC_PREREQ([2.69])
 
 

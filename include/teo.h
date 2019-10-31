@@ -119,8 +119,24 @@
 #define TEO_JOYSTICK_RIGHT     (1<<1)
 #define TEO_JOYSTICK_UP        (1<<2)
 #define TEO_JOYSTICK_DOWN      (1<<3)
+#define TEO_JOYSTICK_FIRE      (1<<4)
 #define TEO_JOYSTICK_FIRE_ON   1
 #define TEO_JOYSTICK_FIRE_OFF  0
+
+/*0b        00     00           0000
+          njoy   buttons        direction */
+
+#define TEO_JOYSTICK_BUTTON_A 0x10 /*0b00010000*/ /*Main fire/button*/
+#define TEO_JOYSTICK_BUTTON_B 0x20 /*0b00100000*/
+
+#define TEO_JOYN(bitfield) (((bitfield)&0xc0) >> 6) 
+
+#define TEO_JOY1 0x40 /*0b01000000*/
+#define TEO_JOY2 0x80 /*0b10000000*/
+#define TEO_JOYN_MASK 0xc0
+
+#define TEO_JOY_DIR_MASK 0x0f /*Extracts direction from packed bitfield (see above)*/
+#define TEO_JOY_DIRECTIONS(bitfield) ((bitfield)&0x0f) 
 
 #define TEO_TRAP_CODE          0xCD   /* code pour le trap */
 

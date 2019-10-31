@@ -146,7 +146,6 @@ static void RunTO8(void)
 
     do  /* boucle principale de l'émulateur */
     {
-        printf("Looping \n");
         teo.command=TEO_COMMAND_NONE;
 
         /* installation des handlers clavier, souris et son */ 
@@ -773,12 +772,12 @@ int main(int argc, char *argv[])
 #ifdef DEBIAN_BUILD
     copy_debian_file ("empty.hfe");
 #endif    
-    ukeybint_Init();
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
     allegro_init();
-    set_config_file(ALLEGRO_CONFIG_FILE);
+    //set_config_file(ALLEGRO_CONFIG_FILE);
+    ukeybint_Init();
     install_keyboard();
     install_timer();
     if (njoy >= 0)
