@@ -74,6 +74,7 @@
 #include "dos/floppy.h"
 #include "dos/debug.h"
 
+
 /* pour limiter la taille de l'éxécutable */
 BEGIN_COLOR_DEPTH_LIST
     COLOR_DEPTH_8
@@ -621,7 +622,7 @@ int main(int argc, char *argv[])
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents français */
     allegro_init();
-    set_config_file(ALLEGRO_CONFIG_FILE);
+//    set_config_file(ALLEGRO_CONFIG_FILE);
     install_keyboard();
     install_timer();
     if (njoy >= 0)
@@ -657,6 +658,9 @@ int main(int argc, char *argv[])
     printf("ok\n");
 
     /* initialisation de l'interface clavier */
+    override_config_file("TKF.INI");
+//    override_config_file("TJF.INI");
+
     dkeybint_Init();
 
     /* initialisation de l'interface d'accès direct */

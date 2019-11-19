@@ -12,10 +12,11 @@
  *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
  *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
  *
- *                  L'émulateur Thomson TO8
+ *                  L'Ã©mulateur Thomson TO8
  *
- *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
- *                          Jérémie Guillaume, François Mouret
+ *  Copyright (C) 1997-2019 Gilles FÃ©tis, Eric Botcazou, Alexandre Pukall,
+ *                          JÃ©rÃ©mie Guillaume, FranÃ§ois Mouret, 
+ *                          Samuel Cuella
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,24 +33,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/*
- *  Module     : intern/joystick.h
- *  Version    : 1.8.5
- *  Créé par   : Eric Botcazou 12/02/2001
- *  Modifié par: François Mouret 01/11/2012 02/11/2012
- *
- *  Gestion des manettes du TO8.
- */
+#ifndef ALLEG_KEYBOARD_H 
+#define ALLEG_KEYBOARD_H 
 
+void akeyboard_init(void);
+void akeyboard_Handler(int key);
+void akeyboard_read_joystick_bindings(char *section, int jdx);
 
-#ifndef JOYSTICK_H
-#define JOYSTICK_H
-
-extern void joystick_Init(void);
-extern void joystick_Reset(void);
-extern void joystick_Move(int joy, int pos);
-extern void joystick_Button(int joy, int button, int state);
-
-int joystick_symbol_to_int(char *symbol);
-void joystick_verbose_debug_command(int value);
-#endif
+#endif //ALLEG_KEYBOARD_H

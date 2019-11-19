@@ -6,6 +6,7 @@ libagfx_la_SOURCES = \
 	ajoyint.c \
 	atruecol.c \
 	amouse.c \
+	akeyboard.c \
 	agfxdrv.c \
 	asound.c \
 	acolor8.c \

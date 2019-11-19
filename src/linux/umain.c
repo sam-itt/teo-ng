@@ -92,6 +92,8 @@
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
 
+//#include <unistd.h>
+
 
 struct EMUTEO teo;
 
@@ -227,7 +229,6 @@ static void RunTO8(void)
 #ifdef ENABLE_GTK_DEBUGGER
         if ((teo.command == TEO_COMMAND_BREAKPOINT)
          || (teo.command == TEO_COMMAND_DEBUGGER)) {
-            printf("TOTO ! \n");
             if (windowed_mode) {
                 udebug_Panel();
                     if (teo_DebugBreakPoint == NULL)
@@ -776,7 +777,10 @@ int main(int argc, char *argv[])
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
     allegro_init();
-    //set_config_file(ALLEGRO_CONFIG_FILE);
+//    set_config_file(ALLEGRO_CONFIG_FILE);
+    override_config_file("teo-keymap-final.ini");
+//    override_config_file("teo-keymap-joystick.ini");
+
     ukeybint_Init();
     install_keyboard();
     install_timer();

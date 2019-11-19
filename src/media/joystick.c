@@ -172,3 +172,30 @@ void joystick_Init(void)
     LOCK_FUNCTION(joystick_Button);
 }
 
+int joystick_symbol_to_int(char *symbol)
+{
+    if(strcmp(symbol,"TEO_JOYSTICK_CENTER") == 0) return TEO_JOYSTICK_CENTER;
+    if(strcmp(symbol,"TEO_JOYSTICK_LEFT") == 0) return TEO_JOYSTICK_LEFT;
+    if(strcmp(symbol,"TEO_JOYSTICK_RIGHT") == 0) return TEO_JOYSTICK_RIGHT;
+    if(strcmp(symbol,"TEO_JOYSTICK_UP") == 0) return TEO_JOYSTICK_UP;
+    if(strcmp(symbol,"TEO_JOYSTICK_DOWN") == 0) return TEO_JOYSTICK_DOWN;
+    if(strcmp(symbol,"TEO_JOYSTICK_BUTTON_A") == 0) return TEO_JOYSTICK_BUTTON_A;
+    if(strcmp(symbol,"TEO_JOYSTICK_BUTTON_B") == 0) return TEO_JOYSTICK_BUTTON_B;
+    return -1;
+}
+
+void joystick_verbose_debug_command(int value)
+{
+    printf("Joystick command for joystick %d. Raw value is: %d, meaning: ",TEO_JOYN(value),value);
+    if(value&TEO_JOYSTICK_CENTER) printf("TEO_JOYSTICK_CENTER ");
+    if(value&TEO_JOYSTICK_UP) printf("TEO_JOYSTICK_UP ");
+    if(value&TEO_JOYSTICK_DOWN) printf("TEO_JOYSTICK_DOWN ");
+    if(value&TEO_JOYSTICK_LEFT) printf("TEO_JOYSTICK_LEFT ");
+    if(value&TEO_JOYSTICK_RIGHT) printf("TEO_JOYSTICK_RIGHT ");
+    if(value&TEO_JOYSTICK_RIGHT) printf("TEO_JOYSTICK_RIGHT ");
+    if(value&TEO_JOYSTICK_BUTTON_A) printf("TEO_JOYSTICK_BUTTON_A ");
+    if(value&TEO_JOYSTICK_BUTTON_B) printf("TEO_JOYSTICK_BUTTON_B ");
+
+    printf("\n");
+}
+

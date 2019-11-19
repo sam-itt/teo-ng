@@ -52,12 +52,13 @@
 #include "teo.h"
 #include "to8keys.h"
 #include "media/keyboard.h"
+#include "alleg/akeyboard.h"
 
 
 
 /* keyboard_handler:
  *  Handler des évènements bas-niveau clavier.
- */
+ *//*
 static void keyboard_handler(int key)
 {
     int release=key&0x80;
@@ -87,7 +88,7 @@ static void keyboard_handler(int key)
 }
 
 END_OF_FUNCTION(keyboard_handler)
-
+*/
 
 
 /* set_keyboard_led:
@@ -146,7 +147,8 @@ void dkeybint_Install(void)
 
     teo_InputReset(mask, value);
 
-    keyboard_lowlevel_callback=keyboard_handler;
+    //keyboard_lowlevel_callback=keyboard_handler;
+    keyboard_lowlevel_callback=akeyboard_Handler;
 }
 
 
@@ -167,6 +169,10 @@ void dkeybint_ShutDown(void)
 void dkeybint_Init(void)
 {
     teo_SetKeyboardLed=set_keyboard_led;
-    LOCK_FUNCTION(keyboard_handler);
+ //   LOCK_FUNCTION(keyboard_handler);
+ //
+    akeyboard_init();
+    akeyboard_read_joystick_bindings("joyemu1", 1);
+    akeyboard_read_joystick_bindings("joyemu2", 2);
 }
 

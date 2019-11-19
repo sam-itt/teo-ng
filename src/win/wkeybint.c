@@ -51,12 +51,14 @@
 #include "teo.h"
 #include "to8keys.h"
 #include "media/keyboard.h"
+#include "alleg/akeyboard.h"
 
 
 
 /* KeyboardHandler:
  *  Handler des évènements bas-niveau clavier.
  */
+/*
 static void KeyboardHandler(int key)
 {
     int release=key&0x80;
@@ -84,7 +86,7 @@ static void KeyboardHandler(int key)
             keyboard_Press(key, release);
     }
 }
-
+*/
 
 /* ------------------------------------------------------------------------- */
 
@@ -113,7 +115,8 @@ void wkeybint_Install(void)
 
     teo_InputReset(mask, value);
 
-    keyboard_lowlevel_callback=KeyboardHandler;
+    //keyboard_lowlevel_callback=KeyboardHandler;
+    keyboard_lowlevel_callback=akeyboard_Handler;
 }
 
 
@@ -131,5 +134,10 @@ void wkeybint_ShutDown(void)
 /* wkeybint_Init:
  *  Initialise le module de gestion bas-niveau clavier.
  */
-void wkeybint_Init(void) {}
+void wkeybint_Init(void) 
+{
+    akeyboard_init();
+    akeyboard_read_joystick_bindings("joyemu1", 1);
+    akeyboard_read_joystick_bindings("joyemu2", 2);
+}
 
