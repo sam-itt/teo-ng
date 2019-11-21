@@ -84,115 +84,6 @@ static int need_modifiers_reset = TRUE;
 
 static int installed_pointer = TEO_STATUS_MOUSE;
 
-static int x11_to_dos[256];
-
-#define KB_SIZE  101
-static struct {
-    int keysym;
-    int keycode;
-} keyconv[KB_SIZE]={
-    { XK_Escape          , TEO_KEY_ESC        },
-    { XK_1               , TEO_KEY_1          },
-    { XK_2               , TEO_KEY_2          },
-    { XK_3               , TEO_KEY_3          },
-    { XK_4               , TEO_KEY_4          },
-    { XK_5               , TEO_KEY_5          },
-    { XK_6               , TEO_KEY_6          },
-    { XK_7               , TEO_KEY_7          },
-    { XK_8               , TEO_KEY_8          },
-    { XK_9               , TEO_KEY_9          },
-    { XK_0               , TEO_KEY_0          },
-    { XK_parenright      , TEO_KEY_MINUS      },
-    { XK_equal           , TEO_KEY_EQUALS     },
-    { XK_BackSpace       , TEO_KEY_BACKSPACE  },
-    { XK_Tab             , TEO_KEY_TAB        },
-    { XK_A               , TEO_KEY_Q          },
-    { XK_Z               , TEO_KEY_W          },
-    { XK_E               , TEO_KEY_E          },
-    { XK_R               , TEO_KEY_R          },
-    { XK_T               , TEO_KEY_T          },
-    { XK_Y               , TEO_KEY_Y          },
-    { XK_U               , TEO_KEY_U          },
-    { XK_I               , TEO_KEY_I          },
-    { XK_O               , TEO_KEY_O          },
-    { XK_P               , TEO_KEY_P          },
-    { XK_dead_circumflex , TEO_KEY_OPENBRACE  },
-    { XK_dollar          , TEO_KEY_CLOSEBRACE },
-    { XK_Return          , TEO_KEY_ENTER      },
-    { XK_Control_L       , TEO_KEY_LCONTROL   },
-    { XK_Q               , TEO_KEY_A          },
-    { XK_S               , TEO_KEY_S          },
-    { XK_D               , TEO_KEY_D          },
-    { XK_F               , TEO_KEY_F          },
-    { XK_G               , TEO_KEY_G          },
-    { XK_H               , TEO_KEY_H          },
-    { XK_J               , TEO_KEY_J          },
-    { XK_K               , TEO_KEY_K          },
-    { XK_L               , TEO_KEY_L          },
-    { XK_M               , TEO_KEY_COLON      },
-    { XK_percent         , TEO_KEY_QUOTE      },
-    { XK_twosuperior     , TEO_KEY_TILDE      },
-    { XK_Shift_L         , TEO_KEY_LSHIFT     },
-    { XK_asterisk        , TEO_KEY_ASTERISK   },
-    { XK_W               , TEO_KEY_Z          },
-    { XK_X               , TEO_KEY_X          },
-    { XK_C               , TEO_KEY_C          },
-    { XK_V               , TEO_KEY_V          },
-    { XK_B               , TEO_KEY_B          },
-    { XK_N               , TEO_KEY_N          },
-    { XK_comma           , TEO_KEY_M          },
-    { XK_semicolon       , TEO_KEY_COMMA      },
-    { XK_colon           , TEO_KEY_STOP       },
-    { XK_exclam          , TEO_KEY_SLASH      },
-    { XK_Shift_R         , TEO_KEY_RSHIFT     },
-    { XK_KP_Multiply     , TEO_KEY_ASTERISK   },
-    { XK_Alt_L           , TEO_KEY_ALT        },
-    { XK_space           , TEO_KEY_SPACE      },
-    { XK_Caps_Lock       , TEO_KEY_CAPSLOCK   },
-    { XK_F1              , TEO_KEY_F1         },
-    { XK_F2              , TEO_KEY_F2         },
-    { XK_F3              , TEO_KEY_F3         },
-    { XK_F4              , TEO_KEY_F4         },
-    { XK_F5              , TEO_KEY_F5         },
-    { XK_F6              , TEO_KEY_F6         },
-    { XK_F7              , TEO_KEY_F7         },
-    { XK_F8              , TEO_KEY_F8         },
-    { XK_F9              , TEO_KEY_F9         },
-    { XK_F10             , TEO_KEY_F10        },
-    { XK_Num_Lock        , TEO_KEY_NUMLOCK    },
-    { XK_Scroll_Lock     , TEO_KEY_SCRLOCK    },
-    { XK_KP_7            , TEO_KEY_7_PAD      },
-    { XK_KP_8            , TEO_KEY_8_PAD      },
-    { XK_KP_9            , TEO_KEY_9_PAD      },
-    { XK_KP_Subtract     , TEO_KEY_MINUS_PAD  },
-    { XK_KP_4            , TEO_KEY_4_PAD      },
-    { XK_KP_5            , TEO_KEY_5_PAD      },
-    { XK_KP_6            , TEO_KEY_6_PAD      },
-    { XK_KP_Add          , TEO_KEY_PLUS_PAD   },
-    { XK_KP_1            , TEO_KEY_1_PAD      },
-    { XK_KP_2            , TEO_KEY_2_PAD      },
-    { XK_KP_3            , TEO_KEY_3_PAD      },
-    { XK_KP_0            , TEO_KEY_0_PAD      },
-    { XK_KP_Decimal      , TEO_KEY_DEL_PAD    },
-    { XK_less            , TEO_KEY_BACKSLASH2 },
-    { XK_F11             , TEO_KEY_F11        },
-    { XK_F12             , TEO_KEY_F12        },
-    { XK_KP_Enter        , TEO_KEY_ENTER_PAD  },
-    { XK_Control_R       , TEO_KEY_RCONTROL   },
-    { XK_KP_Divide       , TEO_KEY_SLASH_PAD  },
-    { XK_ISO_Level3_Shift, TEO_KEY_ALTGR      },
-    { XK_Home            , TEO_KEY_HOME       },
-    { XK_Up              , TEO_KEY_UP         },
-    { XK_Page_Up         , TEO_KEY_PGUP       },
-    { XK_Left            , TEO_KEY_LEFT       },
-    { XK_Right           , TEO_KEY_RIGHT      },
-    { XK_End             , TEO_KEY_END        },
-    { XK_Down            , TEO_KEY_DOWN       },
-    { XK_Page_Down       , TEO_KEY_PGDN       },
-    { XK_Insert          , TEO_KEY_INSERT     },
-    { XK_Delete          , TEO_KEY_DEL        }
-};
-
 /*TODO: Rename and move to an include*/
 typedef struct{
     int tokey; /*TOKEY_ mappng when no modifier(shift,altgr) is set*/
@@ -387,32 +278,6 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
         need_modifiers_reset = FALSE;
     }
     return handle_key_event(&(event->key), FALSE);
-
-    teo_key = x11_to_dos[event->key.hardware_keycode];
-    if (teo_key == 0)
-    {
-        if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
-            teo_key = TEO_KEY_ALTGR;
-
-        /* Convert delete keypad key to point character
-         *  Over the time, Linux keypad delete key raw code has changed from
-         *  GDK_KEY_KP_Delete to GDK_KEY_KP_Decimal and case GDK_KEY_period,
-         *  so the ASCII corresponding value is now checked directly
-         *  with the 0x2e value.
-         */
-        if (event->key.keyval == 0x2e)
-            teo_key = TEO_KEY_DEL_PAD;
-    }
-
-    switch (teo_key)
-    {
-        case TEO_KEY_ESC : teo.command=TEO_COMMAND_PANEL; break;
-        case TEO_KEY_F12 : teo.command=TEO_COMMAND_DEBUGGER; break;
-        default          : keyboard_Press (teo_key, FALSE); break;
-    }
-    return FALSE;
-    (void)widget;
-    (void)user_data;
 }
 
 
@@ -423,20 +288,6 @@ static gboolean
 key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     return handle_key_event(&(event->key), TRUE);
-
-
-
-
-    int teo_key = x11_to_dos[event->key.hardware_keycode];
-
-    if (teo_key == 0)
-        if (event->key.keyval == GDK_KEY_ISO_Level3_Shift)
-            teo_key = TEO_KEY_ALTGR;
-
-    keyboard_Press (teo_key, TRUE);
-    return FALSE;
-    (void)widget;
-    (void)user_data;
 }
 
 
@@ -783,9 +634,8 @@ void udisplay_Init(void)
     screen=DefaultScreen(display);
 
     load_keybinding("teo-gdk-keymap.ini");
-    /* Calcul de la table de conversion des keycodes */
-    for (i=0; i<KB_SIZE; i++)
-        x11_to_dos[XKeysymToKeycode(display,keyconv[i].keysym)]=keyconv[i].keycode;
+    jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
+    jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
 
     /* Test de présence de l'extension MIT-SHM */
     mit_shm_enabled = XQueryExtension(display, "MIT-SHM", &ret1, &ret2, &ret3);
@@ -793,8 +643,6 @@ void udisplay_Init(void)
 }
 
 
-
-/*MOVED TO UGUI*/
 /* udisplay_Window:
  *   Crée la fenêtre principale.
  */

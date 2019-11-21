@@ -41,6 +41,8 @@
  *  Gestion des manettes du TO8.
  */
 
+#include <stdio.h>
+#include <string.h>
 
 #include "hardware.h"
 #include "media/joystick.h"  /* MacOS */
