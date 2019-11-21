@@ -56,40 +56,6 @@
 
 
 
-/* keyboard_handler:
- *  Handler des évènements bas-niveau clavier.
- *//*
-static void keyboard_handler(int key)
-{
-    int release=key&0x80;
-
-    key&=0x7F;
-
-    switch (key)
-    {
-        case KEY_ESC:
-            if (!release)
-                teo.command=TEO_COMMAND_PANEL;
-            break;
-
-        case KEY_F11:
-            if (!release)
-                teo.command=TEO_COMMAND_SCREENSHOT;
-            break;
-
-        case KEY_F12:
-            if (!release)
-                teo.command=TEO_COMMAND_DEBUGGER;
-            break;
-
-        default:
-            keyboard_Press (key, release);
-    }
-}
-
-END_OF_FUNCTION(keyboard_handler)
-*/
-
 
 /* set_keyboard_led:
  *  Modifie l'état des Leds du clavier physique.
@@ -147,7 +113,6 @@ void dkeybint_Install(void)
 
     teo_InputReset(mask, value);
 
-    //keyboard_lowlevel_callback=keyboard_handler;
     keyboard_lowlevel_callback=akeyboard_Handler;
 }
 
@@ -169,8 +134,6 @@ void dkeybint_ShutDown(void)
 void dkeybint_Init(void)
 {
     teo_SetKeyboardLed=set_keyboard_led;
- //   LOCK_FUNCTION(keyboard_handler);
- //
     akeyboard_init();
 }
 

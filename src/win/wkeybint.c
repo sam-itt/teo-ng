@@ -55,38 +55,6 @@
 
 
 
-/* KeyboardHandler:
- *  Handler des évènements bas-niveau clavier.
- */
-/*
-static void KeyboardHandler(int key)
-{
-    int release=key&0x80;
-
-    key&=0x7F;
-
-    switch (key)
-    {
-        case KEY_ESC:
-            if (!release)
-                teo.command=TEO_COMMAND_PANEL;
-            break;
-
-        case KEY_F11:
-            if (!release)
-                teo.command=TEO_COMMAND_SCREENSHOT;
-            break;
-
-        case KEY_F12:
-            if (!release)
-                teo.command=TEO_COMMAND_DEBUGGER;
-            break;
-
-        default:
-            keyboard_Press(key, release);
-    }
-}
-*/
 
 /* ------------------------------------------------------------------------- */
 
@@ -115,7 +83,6 @@ void wkeybint_Install(void)
 
     teo_InputReset(mask, value);
 
-    //keyboard_lowlevel_callback=KeyboardHandler;
     keyboard_lowlevel_callback=akeyboard_Handler;
 }
 

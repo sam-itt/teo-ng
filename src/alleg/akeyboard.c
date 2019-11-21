@@ -208,6 +208,8 @@ void akeyboard_Handler(int key)
         keyboard_Press_ng(tokey, release);
     }
 }
+END_OF_FUNCTION(akeyboard_Handler)
+
 
 int allegro_name_to_scancode(char *alkey)
 {
@@ -458,5 +460,6 @@ void akeyboard_init(void)
     /* Just took the logic from keyboard_Init, no real idea of what this does */
     LOCK_VARIABLE(keymap);
     LOCK_VARIABLE(jdir_buffer);
+    LOCK_FUNCTION(akeyboard_Handler);
 }
 
