@@ -172,7 +172,5 @@ void dkeybint_Init(void)
  //   LOCK_FUNCTION(keyboard_handler);
  //
     akeyboard_init();
-    akeyboard_read_joystick_bindings("joyemu1", 1);
-    akeyboard_read_joystick_bindings("joyemu2", 2);
 }
 

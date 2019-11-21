@@ -104,7 +104,5 @@ void ukeybint_ShutDown(void)
 void ukeybint_Init(void) 
 {
     akeyboard_init();
-    akeyboard_read_joystick_bindings("joyemu1", 1);
-    akeyboard_read_joystick_bindings("joyemu2", 2);
 }
 

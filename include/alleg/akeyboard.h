@@ -38,6 +38,5 @@
 
 void akeyboard_init(void);
 void akeyboard_Handler(int key);
-void akeyboard_read_joystick_bindings(char *section, int jdx);
 
 #endif //ALLEG_KEYBOARD_H

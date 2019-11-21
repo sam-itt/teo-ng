@@ -355,7 +355,7 @@ static void register_joystick_binding(char *allegro_key, int jdx, char *jdir, ch
     printf("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
-void akeyboard_read_joystick_bindings(char *section, int jdx)
+static void akeyboard_read_joystick_bindings(char *section, int jdx)
 {
 
     char **bindings;
@@ -407,7 +407,7 @@ static void register_binding(char *allegro_key, char *tokey, char *modifier)
     }
 }
 
-void akeyboard_init(void) 
+static void load_keybindings(void)
 {
     char **tokey;
     char **tokeys;
@@ -417,7 +417,6 @@ void akeyboard_init(void)
     memset(keymap,0,KEY_MAX*sizeof(teo_kmap_t));
     for(int i = 0; i < KEY_MAX; i++)
         keymap[i].joycode = -1;
-
 
     printf("Loading up key mappings\n");
     tokeys = keyboard_get_tokeys();
@@ -442,13 +441,22 @@ void akeyboard_init(void)
         }
         register_binding((char*)binding, *tokey, modifier);
     }
-//    read_joystick_bindings("joyemu1", 1);
-//    read_joystick_bindings("joyemu2", 2);
+
+    akeyboard_read_joystick_bindings("joyemu1", 1);
+    akeyboard_read_joystick_bindings("joyemu2", 2);
+}
+
+
+void akeyboard_init(void) 
+{
+
+    load_keybindings();
 
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
-//    exit(0);
-//    const char *get_config_string(const char *section, const char *name, const char *def);
 
+    /* Just took the logic from keyboard_Init, no real idea of what this does */
+    LOCK_VARIABLE(keymap);
+    LOCK_VARIABLE(jdir_buffer);
 }
 
