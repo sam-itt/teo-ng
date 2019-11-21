@@ -65,7 +65,32 @@ static volatile int kb_state; /* contient l'état des touches et leds du clavier 
 static volatile int kb_data;
 
 static int njoy;
-static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
+/*TODO: Remove*/static volatile int j0_dir[2], j1_dir[2]; /* buffer direction des manettes */
+
+static char *tokeys[]={"TOKEY_SHIFT","TOKEY_CTRL","TOKEY_Q_LOWER_CASE","TOKEY_B_LOWER_CASE","TOKEY_C_LOWER_CASE",
+                       "TOKEY_D_LOWER_CASE","TOKEY_E_LOWER_CASE","TOKEY_F_LOWER_CASE","TOKEY_G_LOWER_CASE",
+                       "TOKEY_H_LOWER_CASE","TOKEY_I_LOWER_CASE","TOKEY_J_LOWER_CASE","TOKEY_K_LOWER_CASE",
+                       "TOKEY_L_LOWER_CASE","TOKEY_COMMA","TOKEY_N_LOWER_CASE","TOKEY_O_LOWER_CASE","TOKEY_P_LOWER_CASE",
+                       "TOKEY_A_LOWER_CASE","TOKEY_R_LOWER_CASE","TOKEY_S_LOWER_CASE","TOKEY_T_LOWER_CASE",
+                       "TOKEY_U_LOWER_CASE","TOKEY_V_LOWER_CASE","TOKEY_Z_LOWER_CASE","TOKEY_X_LOWER_CASE",
+                       "TOKEY_Y_LOWER_CASE","TOKEY_W_LOWER_CASE","TOKEY_A_GRAVE_LOWER_CASE","TOKEY_AMPERSAND",
+                       "TOKEY_E_ACUTE_LOWER_CASE","TOKEY_QUOTE","TOKEY_APOSTROPHE","TOKEY_OPEN_BRACKET","TOKEY_MINUS",
+                       "TOKEY_E_GRAVE_LOWER_CASE","TOKEY_UNDERSCORE","TOKEY_C_CEDILLA_LOWER_CASE","TOKEY_PAD_0","TOKEY_PAD_1",
+                       "TOKEY_PAD_2","TOKEY_PAD_3","TOKEY_PAD_4","TOKEY_PAD_5","TOKEY_PAD_6","TOKEY_PAD_7","TOKEY_PAD_8",
+                       "TOKEY_PAD_9","TOKEY_F1","TOKEY_F2","TOKEY_F3","TOKEY_F4","TOKEY_F5","TOKEY_F6","TOKEY_F7","TOKEY_F8",
+                       "TOKEY_F9","TOKEY_F10","TOKEY_CLOSE_BRACKET","TOKEY_EQUAL","TOKEY_DEL","TOKEY_STOP","TOKEY_CIRCUMFLEX",
+                       "TOKEY_DOLLAR","TOKEY_ENT","TOKEY_M_LOWER_CASE","TOKEY_U_GRAVE_LOWER_CASE","TOKEY_LOWER_THAN","TOKEY_SEMICOLON",
+                       "TOKEY_COLON","TOKEY_EXCLAMATION_MARK","TOKEY_SPACE","TOKEY_INS","TOKEY_EFF","TOKEY_HOME","TOKEY_ARROW_LEFT",
+                       "TOKEY_ARROW_RIGHT","TOKEY_ARROW_UP","TOKEY_ARROW_DOWN","TOKEY_SLASH","TOKEY_ASTERISK","TOKEY_PLUS","TOKEY_DOT",
+                       "TOKEY_PAD_ENT","TOKEY_ACC","TOKEY_CAPS_LOCK","TOKEY_Q_UPPER_CASE","TOKEY_B_UPPER_CASE","TOKEY_C_UPPER_CASE",
+                       "TOKEY_D_UPPER_CASE","TOKEY_E_UPPER_CASE","TOKEY_F_UPPER_CASE","TOKEY_G_UPPER_CASE","TOKEY_H_UPPER_CASE","TOKEY_I_UPPER_CASE",
+                       "TOKEY_J_UPPER_CASE","TOKEY_K_UPPER_CASE","TOKEY_L_UPPER_CASE","TOKEY_QUESTION_MARK","TOKEY_N_UPPER_CASE","TOKEY_O_UPPER_CASE",
+                       "TOKEY_P_UPPER_CASE","TOKEY_A_UPPER_CASE","TOKEY_R_UPPER_CASE","TOKEY_S_UPPER_CASE","TOKEY_T_UPPER_CASE","TOKEY_U_UPPER_CASE",
+                       "TOKEY_V_UPPER_CASE","TOKEY_Z_UPPER_CASE","TOKEY_X_UPPER_CASE","TOKEY_Y_UPPER_CASE","TOKEY_W_UPPER_CASE","TOKEY_0","TOKEY_1",
+                       "TOKEY_2","TOKEY_3","TOKEY_4","TOKEY_5","TOKEY_6","TOKEY_7","TOKEY_8","TOKEY_9","TOKEY_DEGREE","TOKEY_M_UPPER_CASE",
+                       "TOKEY_PERCENT","TOKEY_GREATER_THAN","TOKEY_RAZ","TOKEY_AT","TOKEY_NUMBER_SIGN","TOKEY_OPEN_BRACES","TOKEY_OPEN_SQUARE_BRACKET",
+                       "TOKEY_BACKSLASH","TOKEY_CLOSE_SQUARE_BRACKET","TOKEY_CLOSE_BRACES",NULL};
+
 
 
 static int key_code[TEO_KEY_MAX] = {  /* see to8keys.h */
@@ -425,6 +450,10 @@ static int key_altgr_code[TEO_KEY_MAX]={  /* see to8keys.h */
 
 /* ------------------------------------------------------------------------- */
 
+char **keyboard_get_tokeys(void)
+{
+    return tokeys;
+}
 
 /* keyboard_SetACK:
  *  Emule le contrôleur clavier MC6804.

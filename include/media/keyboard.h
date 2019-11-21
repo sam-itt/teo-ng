@@ -205,6 +205,7 @@ extern void  keyboard_Press(int key, int release);
 extern void  keyboard_Press_ng(int key, int release);
 extern void  keyboard_SetACK(int state);
 
+char **keyboard_get_tokeys(void);
 int keyboard_hasFlag(int flag);
 void keyboard_ToggleState(int flag, int release);
 int keyboard_tokey_to_int(char *tokey);
