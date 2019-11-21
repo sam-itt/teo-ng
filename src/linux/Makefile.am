@@ -10,11 +10,11 @@ endif
 teo_CPPFLAGS = $(CPP_FLAGS) $(DEPS_CFLAGS) $(PNG_CFLAGS) $(GTK_CFLAGS) $(XEXT_CFLAGS) $(X11_CFLAGS) $(ALSA_CFLAGS) -I$(top_srcdir)/include
 
 teo_SOURCES = \
-	ukeybint.c \
 	ufloppy.c 
 
 if GFX_BACKEND_ALLEGRO
-teo_SOURCES += umain.c
+teo_SOURCES += umain.c \
+	           ukeybint.c 
 endif
 
 if GFX_BACKEND_GTK_X11
