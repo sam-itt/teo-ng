@@ -1,18 +1,37 @@
 src_dir = $(top_srcdir)/src
 
-if PLATFORM_MSDOS
-SUBDIRS =  . alleg dos
-else
-if MINGW
-SUBDIRS =  . alleg win
-else
+SUBDIRS = .
+
 if GFX_BACKEND_ALLEGRO
-SUBDIRS =  . alleg linux
-else
-SUBDIRS =  . linux
+SUBDIRS +=  alleg
 endif #GFX_BACKEND_ALLEGRO
-endif #MINGW
+
+if PLATFORM_MSDOS
+SUBDIRS +=  dos
+else
+if PLATFORM_WIN32
+SUBDIRS +=  win
+else
+SUBDIRS += linux
+endif #PLATFORM_WIN32
 endif #PLATFORM_MSDOS
+
+
+
+
+#if PLATFORM_MSDOS
+#SUBDIRS =  . alleg dos
+#else
+#if PLATFORM_WIN32
+#SUBDIRS =  . alleg win
+#else
+#if GFX_BACKEND_ALLEGRO
+#SUBDIRS =  . alleg linux
+#else
+#SUBDIRS =  . linux
+#endif #GFX_BACKEND_ALLEGRO
+#endif #PLATFORM_WIN32
+#endif #PLATFORM_MSDOS
 
 
 noinst_LTLIBRARIES = libteo.la
