@@ -145,15 +145,11 @@ void akeyboard_Handler(int key)
     if(!keyboard_hasFlag(TEO_KEY_F_NUMLOCK) && keymap[key].joycode != -1){
         int jdx; 
         int jdir;
-        int astate,bstate;
 
 //        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
 //        joystick_verbose_debug_command(keymap[key].joycode);
 
         jdx = TEO_JOYN(keymap[key].joycode);
-        astate = (keymap[key].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
-        bstate = (keymap[key].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
-
         jdir = TEO_JOY_DIRECTIONS(keymap[key].joycode);
 
         if(keymap[key].joycode & TEO_JOYSTICK_BUTTON_A){
@@ -340,6 +336,8 @@ int allegro_name_to_scancode(char *alkey)
     if(strcmp(alkey,"KEY_SCRLOCK") == 0) return KEY_SCRLOCK;
     if(strcmp(alkey,"KEY_NUMLOCK") == 0) return KEY_NUMLOCK;
     if(strcmp(alkey,"KEY_CAPSLOCK") == 0) return KEY_CAPSLOCK;
+
+    return -1;
 }
 
 static void register_joystick_binding(char *allegro_key, int jdx, char *jdir, char *jdir2)
