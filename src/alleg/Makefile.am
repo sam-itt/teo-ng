@@ -1,3 +1,5 @@
+AM_CPPFLAGS = @AM_CPPFLAGS@
+
 noinst_LTLIBRARIES = libagfx.la
 libagfx_la_CPPFLAGS =  $(CPP_FLAGS) $(DEPS_CFLAGS) -I$(top_srcdir)/include
 libagfx_la_LIBADD = $(DEPS_LIBS)

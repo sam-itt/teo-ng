@@ -1,3 +1,4 @@
+AM_CPPFLAGS = @AM_CPPFLAGS@
 src_dir = $(top_srcdir)/src
 
 #TODO: Have winres be detected by configure.ac

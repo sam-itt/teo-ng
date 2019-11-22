@@ -14,6 +14,32 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CANONICAL_HOST
 
+#compile options
+AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug], [Build an executable with debug sybmols and all optimization turned off (default=no)])],
+            [],
+            [enable_debug=no])
+AC_ARG_ENABLE([profiling], [AS_HELP_STRING([--enable-profiling], [Build an executable that can be profiled with gprof (default=no)])],
+            [],
+            [enable_profiling=no])
+AC_ARG_ENABLE([optimization], [AS_HELP_STRING([--enable-optimization], [Build an optimized executable. (default=yes)])],
+            [],
+            [enable_optimization=yes])
+AC_ARG_ENABLE([machine_optimization], [AS_HELP_STRING([--enable-machine-optimization], [Build an optimized executable for the local machine using march and mtune=native. (default=no)])],
+            [],
+            [enable_machine_optimization=no])
+
+AC_ARG_ENABLE([debian_build], [AS_HELP_STRING([--enable-debian-build], [Enable some Debian-specifc part of the codebase. (default=no)])],
+            [],
+            [debian_build=no])
+
+
+
+#This is temporary until we add gettext support
+AC_ARG_WITH([language], [AS_HELP_STRING([--with-language=fr,en], [Select program messages language (default=fr)])],
+            [],
+            [with_language=fr])
+
+
 
 #options
 AC_ARG_ENABLE([gtk_panel], [AS_HELP_STRING([--enable-gtk-panel], [Enable GTK Panel when building against Allegro on Unix])],
@@ -24,7 +50,7 @@ AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enable G
             [],
             [enable_gtk_debugger=no])
 
-#graphic backed
+#graphic backend
 AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11], [Select graphic backend])],
             [],
             [with_gfx_backend=allegro])
@@ -162,13 +188,46 @@ AS_CASE(["x$with_gfx_backend"],
    ]
 )
 
+################################
+# Compile flags, debug/profile
+################################
+AC_MSG_CHECKING([Computing AM_CFLAGS])
+AM_CFLAGS="-Wall"
+OPTS_FLAGS="-O2 -funroll-loops -ffast-math"
+if test "x$enable_debug" = "xyes"; then
+    enable_optimization=no
+    enable_machine_optimization=no
+    AM_CFLAGS+=" -g -DDEBUG"
+fi
+if test "x$enable_profiling" = "xyes"; then
+    AM_CFLAGS+=" -pg"
+fi
+if test "x$enable_optimization" = "xyes"; then
+    AM_CFLAGS+=" $OPTS_FLAGS"
+fi
+if test "x$enable_machine_optimization" = "xyes"; then
+    AM_CFLAGS+=" $OPTS_FLAGS -march=native -mtune=native"
+fi
+#TODO: Look into this
+if test "x$enable_debian_build" = "xyes"; then
+    AM_CFLAGS+=" -DDEBIAN_BUILD"
+fi
 
-#AC_CONFIG_FILES([Makefile
-#                 src/Makefile
-#                 src/alleg/Makefile
-#                 src/dos/Makefile
-#                 src/linux/Makefile
-#                 src/win/Makefile])
+#This is temporary until we add gettext support
+AS_CASE(["x$with_language"],
+   ["xfr"],[
+    AM_CFLAGS+=" -DFRENCH_LANGUAGE"
+   ],
+   ["xen"],[
+    AM_CFLAGS+=" -DENGLISH_LANGUAGE"
+   ],
+   [
+    AC_MSG_ERROR(["Valid values for --with-language are 'fr' and 'en'"])
+   ]
+)
+AC_MSG_RESULT([$AM_CFLAGS])
+AC_SUBST(AM_CFLAGS)
+
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
