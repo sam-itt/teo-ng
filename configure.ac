@@ -27,10 +27,12 @@ AC_ARG_ENABLE([optimization], [AS_HELP_STRING([--enable-optimization], [Build an
 AC_ARG_ENABLE([machine_optimization], [AS_HELP_STRING([--enable-machine-optimization], [Build an optimized executable for the local machine using march and mtune=native. (default=no)])],
             [],
             [enable_machine_optimization=no])
-
 AC_ARG_ENABLE([debian_build], [AS_HELP_STRING([--enable-debian-build], [Enable some Debian-specifc part of the codebase. (default=no)])],
             [],
             [debian_build=no])
+AC_ARG_ENABLE([extra_tools], [AS_HELP_STRING([--enable-extra-tools], [Enable extra tools (default=no)])],
+            [],
+            [extra_tools=no])
 
 
 
@@ -57,7 +59,10 @@ AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11],
 
 
 # Checks for programs.
+# Don't use the default -Wall -g -O2
+#save_CFLAGS=$CFLAGS
 AC_PROG_CC
+CFLAGS="-Wall"
 AC_PROG_MAKE_SET
 
 
@@ -75,7 +80,6 @@ AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol])
-
 
 ##########################
 # Checking target platform
@@ -122,6 +126,11 @@ AS_IF([test "x$platform_win32" != "xyes" && test "x$platform_msdos" != "xyes"],[
 ])
 AC_MSG_RESULT([$platform_unix])
 AM_CONDITIONAL(PLATFORM_UNIX, test "x$platform_unix" = "xyes")
+
+#Win32 specific compiler flags
+AS_IF([test "x$platform_win32" = "xyes"],[
+    CC_CHECK_CFLAGS_APPEND([-mwindows])
+])
 
 
 # Checks for libraries.
@@ -172,7 +181,7 @@ AS_CASE(["x$with_gfx_backend"],
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
    ],
    ["xgtk-x11"],[
-    AS_IF([test "platform_unix" != "xyes"],[
+    AS_IF([test "x$platform_unix" != "xyes"],[
         AC_MSG_ERROR(["GTK/X11 graphic backend is not supported on $host_os"])
     ],[]);
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, true)
@@ -188,45 +197,83 @@ AS_CASE(["x$with_gfx_backend"],
    ]
 )
 
+if test "x$enable_extra_tools" = "xyes"; then
+    if test "x$platform_unix" = "xyes"; then
+        PKG_CHECK_MODULES([GTK], [gtk+-3.0],[
+            has_gtk=yes
+        ],[
+            has_gtk=no
+        ])
+        PKG_CHECK_MODULES([X11], [x11],[
+                has_x11=yes
+        ],[
+                has_x11=no
+        ])
+        PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+        AM_CONDITIONAL(HAS_UNIX_CC90_DEPS, [test "x$has_gtk" = "xyes" && test "x$has_x11" = "xyes"])
+    else
+        AM_CONDITIONAL(HAS_UNIX_CC90_DEPS,false)
+    fi
+    AM_CONDITIONAL(BUILD_EXTRA_TOOLS, true)
+else
+    AM_CONDITIONAL(BUILD_EXTRA_TOOLS, false)
+    AM_CONDITIONAL(HAS_UNIX_CC90_DEPS,false)
+fi
+
+
+AS_IF([test "x$enable_gtk_panel" != "xno"], [
+    AS_IF([test "x$platform_unix" != "xyes"],[
+        AC_MSG_ERROR(["GTK panel is not supported on $host_os"])
+    ],[]);
+    PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+    AM_CONDITIONAL(ENABLE_GTK_PANEL, true)
+    AC_DEFINE(ENABLE_GTK_PANEL,[],[Use GTK for GUI])
+], [
+    AM_CONDITIONAL(ENABLE_GTK_PANEL, false)
+])
+
+
 ################################
 # Compile flags, debug/profile
 ################################
-AC_MSG_CHECKING([Computing AM_CFLAGS])
-AM_CFLAGS="-Wall"
+AC_MSG_CHECKING([Computing E_AM_CFLAGS])
+E_AM_CFLAGS="-Wall"
 OPTS_FLAGS="-O2 -funroll-loops -ffast-math"
 if test "x$enable_debug" = "xyes"; then
     enable_optimization=no
     enable_machine_optimization=no
-    AM_CFLAGS+=" -g -DDEBUG"
+    E_AM_CFLAGS+=" -O0 -g3 -DDEBUG"
 fi
 if test "x$enable_profiling" = "xyes"; then
-    AM_CFLAGS+=" -pg"
+    E_AM_CFLAGS+=" -pg"
 fi
 if test "x$enable_optimization" = "xyes"; then
-    AM_CFLAGS+=" $OPTS_FLAGS"
+    E_AM_CFLAGS+=" $OPTS_FLAGS"
 fi
 if test "x$enable_machine_optimization" = "xyes"; then
-    AM_CFLAGS+=" $OPTS_FLAGS -march=native -mtune=native"
+    E_AM_CFLAGS+=" $OPTS_FLAGS -march=native -mtune=native"
 fi
 #TODO: Look into this
 if test "x$enable_debian_build" = "xyes"; then
-    AM_CFLAGS+=" -DDEBIAN_BUILD"
+    E_AM_CFLAGS+=" -DDEBIAN_BUILD"
 fi
+
+
 
 #This is temporary until we add gettext support
 AS_CASE(["x$with_language"],
    ["xfr"],[
-    AM_CFLAGS+=" -DFRENCH_LANGUAGE"
+    E_AM_CFLAGS+=" -DFRENCH_LANGUAGE"
    ],
    ["xen"],[
-    AM_CFLAGS+=" -DENGLISH_LANGUAGE"
+    E_AM_CFLAGS+=" -DENGLISH_LANGUAGE"
    ],
    [
     AC_MSG_ERROR(["Valid values for --with-language are 'fr' and 'en'"])
    ]
 )
-AC_MSG_RESULT([$AM_CFLAGS])
-AC_SUBST(AM_CFLAGS)
+AC_MSG_RESULT([$E_AM_CFLAGS])
+AC_SUBST(AM_CFLAGS, [$E_AM_CFLAGS])
 
 
 AC_CONFIG_FILES([Makefile
@@ -239,5 +286,26 @@ AM_COND_IF([PLATFORM_UNIX],
            [AC_CONFIG_FILES([src/linux/Makefile])])
 AM_COND_IF([PLATFORM_WIN32],
            [AC_CONFIG_FILES([src/win/Makefile])])
+AM_COND_IF([BUILD_EXTRA_TOOLS],
+           [AC_CONFIG_FILES([tools/Makefile
+                             tools/cc90hfe/Makefile
+                             tools/cc90hfe/src/Makefile
+                             tools/k7tools/Makefile
+                             tools/sap/Makefile
+           ])])
+
+AM_COND_IF([BUILD_EXTRA_TOOLS],[
+    AM_COND_IF([PLATFORM_WIN32],[
+        AC_CONFIG_FILES([tools/cc90hfe/src/win/Makefile])
+    ])
+])
+AM_COND_IF([BUILD_EXTRA_TOOLS],[
+    AM_COND_IF([PLATFORM_UNIX],[
+        AC_CONFIG_FILES([tools/cc90hfe/src/linux/Makefile])
+    ])
+])
+
+
+
 
 AC_OUTPUT

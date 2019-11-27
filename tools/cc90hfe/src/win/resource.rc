@@ -36,9 +36,9 @@
 #include "defs.h"
 #include "win/resource.h"
 
-IDI_ICON1 ICON DISCARDABLE "src\\win\\thomson.ico"
+IDI_ICON1 ICON DISCARDABLE "thomson.ico"
 
-teo_gfx BITMAP "src\\win\\to8.bmp"
+teo_gfx BITMAP "to8.bmp"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION 0, 7, 0, 0
@@ -81,7 +81,7 @@ FONT 8, "Tahoma"
     RTEXT           "", IDC_MAIN_RETRY_RTEXT, 78, 120, 110, 12
     EDITTEXT        IDC_MAIN_RETRY_EDIT, 192, 118, 20, 12, ES_NUMBER | ES_RIGHT
     LTEXT           "", IDC_MAIN_PROGRESS_LTEXT, 70, 140, 284, 13
-    CONTROL         "", IDC_MAIN_PROGRESS_BAR, PROGRESS_CLASS, PBS_SMOOTH, 70, 154, 104, 16
+    CONTROL         "", IDC_MAIN_PROGRESS_BAR, "msctls_progress32", PBS_SMOOTH, 70, 154, 104, 16
     PUSHBUTTON      "", IDC_MAIN_CANCEL, 180, 154, 40, 16
 }
 

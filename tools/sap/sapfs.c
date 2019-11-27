@@ -17,6 +17,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +27,8 @@
 #include <time.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#if defined(linux) || defined(__FreeBSD__)
+//#if defined(linux) || defined(__FreeBSD__) || defined(__MINGW32__)
+#if HAVE_LOCALE_H 
 #    include <locale.h>
 #endif
 #include "libsap.h"
@@ -62,9 +66,9 @@ static int is_fr=0;
 /* PrintErrorMessage:
  *  Prints the error message corresponding to the specified error.
  */
-static void PrintErrorMessage(int errno, const char str[])
+static void PrintErrorMessage(int sap_errno, const char str[])
 {
-   switch (errno) {
+   switch (sap_errno) {
 
       case SAP_EBADF:
          if (is_fr)
@@ -766,8 +770,9 @@ int main(int argc, char *argv[])
     is_fr = 1;
 #else
     is_fr = 0;
-#endif
+#endif //FRENCH_LANGUAGE
 #else
+#if HAVE_SETLOCALE
     char *lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";
     setlocale(LC_ALL, "fr_FR.UTF8");
@@ -775,7 +780,10 @@ int main(int argc, char *argv[])
         is_fr=-1;
     else
         is_fr=0;
-#endif
+#else
+    is_fr = 0;
+#endif //HAVE_SETLOCALE
+#endif //DJGPP
    if (argc < 2)  /* no argument? */
       usage(argv[0]);
 

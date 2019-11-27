@@ -24,12 +24,17 @@
  *          2.1: support de la simple densité
  */
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(linux) || defined(__FreeBSD__)
+//#if defined(linux) || defined(__FreeBSD__)
+//#if defined(linux) || defined(__FreeBSD__) || defined (__MINGW32__)
+#if HAVE_LOCALE_H 
 #    include <locale.h>
 #endif
 #include "libsap.h"
@@ -885,8 +890,9 @@ int main(int argc, char *argv[])
     is_fr = 1;
 #else
     is_fr = 0;
-#endif
+#endif //RENCH_LANGUAGE
 #else
+#if HAVE_SETLOCALE
    char *lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";
     setlocale(LC_ALL, "fr_FR.UTF8");
@@ -894,7 +900,10 @@ int main(int argc, char *argv[])
         is_fr=1;
     else
         is_fr=0;
-#endif
+#else
+    is_fr = 0;
+#endif //HAVE_SETLOCALE
+#endif //DJGPP
 
    if (argc < 2) { /* no argument? */
       if (FloppyInit(&fi, 1) > 0) {

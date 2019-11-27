@@ -1,7 +1,6 @@
 AM_CPPFLAGS = @AM_CPPFLAGS@
 src_dir = $(top_srcdir)/src
 
-#TODO: Have winres be detected by configure.ac
 #%.o: %.rc
 .rc.o:
 	$(WINDRES) --include-dir $(top_srcdir)/include -D_WIN32_IE=0x0300 -o $@ -i $<
@@ -13,7 +12,7 @@ teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_
 #else
 #teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS) $(XEXT_LIBS) $(X11_LIBS) $(ALSA_LIBS)
 #endif
-teo_CPPFLAGS = $(CPP_FLAGS) $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include
+teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include
 
 teo_SOURCES = \
 	wmain.c \
