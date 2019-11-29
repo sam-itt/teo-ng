@@ -327,7 +327,7 @@ void ini_Save (void)
     }
 
     if (file == NULL){
-        printf("%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__, user_file);
+        printf("%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
         printf("Erro is: %d: %s\n", errno, strerror(errno));
         return;
     }
