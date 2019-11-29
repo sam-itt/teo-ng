@@ -48,6 +48,7 @@
  */
 
 
+
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
@@ -56,6 +57,7 @@
 #endif
 
 #include "defs.h"
+#include "std.h"
 #include "teo.h"
 #include "errors.h"
 #include "hardware.h"
@@ -904,7 +906,6 @@ void hardware_StoreByte(int addr, int val)
 }
 
 
-
 /* hardware_Init:
  *  Initialise la carte mémoire de l'émulateur.
  */
@@ -913,8 +914,25 @@ void hardware_Init(void)
     register int i;
 
     time_t t;
+    const char *sysroms[] = {
+        "system/rom/basic512.rom",
+        "system/rom/extramon.rom",
+        "system/rom/basic1.rom",
+        "system/rom/expl.rom",
+        NULL
+    };
+
+    const char *sysmons[] = {
+        "system/rom/monitor1.rom",
+        "system/rom/monitor2.rom",
+        NULL
+    };
+
+
 
     srand((unsigned) time(&t));
+
+    printf("Doing (virtual) hardware inits\n");
 
     mc6809_interface.FetchInstr   = FetchInstr;
     mc6809_interface.LoadByte     = LoadByte;
@@ -937,19 +955,14 @@ void hardware_Init(void)
     mem.rom.size = 0x4000;
     for (i=0; i<mem.rom.nbank; i++)
         mem.rom.bank[i] = NULL;
-        
 
-#ifdef DEBIAN_BUILD
-    strcpy(mem.rom.filename[0], "/usr/share/teo/system/rom/basic512.rom");
-    strcpy(mem.rom.filename[1], "/usr/share/teo/system/rom/extramon.rom");
-    strcpy(mem.rom.filename[2], "/usr/share/teo/system/rom/basic1.rom");
-    strcpy(mem.rom.filename[3], "/usr/share/teo/system/rom/expl.rom");
-#else
-    strcpy(mem.rom.filename[0], "system/rom/basic512.rom");
-    strcpy(mem.rom.filename[1], "system/rom/extramon.rom");
-    strcpy(mem.rom.filename[2], "system/rom/basic1.rom");
-    strcpy(mem.rom.filename[3], "system/rom/expl.rom");
-#endif
+    for(i = 0; i < mem.rom.nbank; i++){
+        mem.rom.filename[i] = std_GetSystemFile((char *)sysroms[i]); /*TODO: Have a shutdown function that frees me*/
+        if(!mem.rom.filename[i]){
+            printf("Error: Couldn't find mandatory file %s, bailing out\n", sysroms[i]);
+            exit(EXIT_FAILURE);
+        }
+    }
 
     /* 512ko de RAM */
     mem.ram.nbank = 32;            
@@ -964,13 +977,13 @@ void hardware_Init(void)
     for (i=0; i<mem.mon.nbank; i++)
         mem.mon.bank[i] = NULL;
 
-#ifdef DEBIAN_BUILD
-    strcpy(mem.mon.filename[0], "/usr/share/teo/system/rom/monitor1.rom");
-    strcpy(mem.mon.filename[1], "/usr/share/teo/system/rom/monitor2.rom");
-#else
-    strcpy(mem.mon.filename[0], "system/rom/monitor1.rom");
-    strcpy(mem.mon.filename[1], "system/rom/monitor2.rom");
-#endif
+    for(i = 0; i < mem.mon.nbank; i++){
+        mem.mon.filename[i] = std_GetSystemFile((char *)sysmons[i]); /*TODO: Have a shutdown function that frees me*/
+        if(!mem.mon.filename[i]){
+            printf("Error: Couldn't find mandatory file %s, bailing out\n", sysmons[i]);
+            exit(EXIT_FAILURE);
+        }
+    }
 
     /* définition de la carte mémoire logique */
     mempager.cart.update = update_cart;

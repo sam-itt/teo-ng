@@ -97,6 +97,11 @@ case "$host_os" in
 esac
 AC_MSG_RESULT([$platform_win32])
 AM_CONDITIONAL([PLATFORM_WIN32], [test "x$platform_win32" = "xyes"])
+AS_IF([test "x$platform_win32" = "xyes"],[
+    AC_DEFINE(PLATFORM_WIN32,[1],[Building for win32 and alike systems])
+],[
+    AC_DEFINE(PLATFORM_WIN32,[0],[Building for win32 and alike systems])
+])
 
 
 ####################
@@ -113,6 +118,12 @@ case "$host_os" in
 esac
 AC_MSG_RESULT([$platform_msdos])
 AM_CONDITIONAL(PLATFORM_MSDOS, test "x$platform_msdos" = "xyes")
+AS_IF([test "x$platform_msdos" = "xyes"],[
+    AC_DEFINE(PLATFORM_MSDOS,[1],[Building for MS-DOS and alike systems])
+],[
+    AC_DEFINE(PLATFORM_MSDOS,[0],[Building for MS-DOS and alike systems])
+])
+
 
 ###########################################
 # Otherwise just assume it's Linux/Unix
@@ -126,6 +137,11 @@ AS_IF([test "x$platform_win32" != "xyes" && test "x$platform_msdos" != "xyes"],[
 ])
 AC_MSG_RESULT([$platform_unix])
 AM_CONDITIONAL(PLATFORM_UNIX, test "x$platform_unix" = "xyes")
+AS_IF([test "x$platform_unix" = "xyes"],[
+    AC_DEFINE(PLATFORM_UNIX,[1],[Building for unix-compatible systems])
+],[
+    AC_DEFINE(PLATFORM_UNIX,[0],[Building for unix-compatible systems])
+])
 
 #Win32 specific compiler flags
 AS_IF([test "x$platform_win32" = "xyes"],[

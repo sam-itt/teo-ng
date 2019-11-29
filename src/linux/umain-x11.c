@@ -225,18 +225,23 @@ static void ReadCommandLine(int argc, char *argv[])
 }
 
 
-
-#ifdef DEBIAN_BUILD
-static void copy_debian_file (const char filename[])
+static void init_empty_disk(char *filename)
 {
     char *src_name = NULL;
     char *dst_name = NULL;
     FILE *src_file = NULL;
     FILE *dst_file = NULL;
     int c;
+    char *data_dir;
 
-    src_name = std_strdup_printf ("/usr/share/teo/%s", filename);
-    dst_name = std_ApplicationPath (APPLICATION_DIR, filename);
+    src_name = std_GetSystemFile(filename);
+    dst_name = std_GetUserDataFile(filename);
+
+    if(!std_FileExists(src_name)){
+        printf("%s: File %s not found, not copying empty disk to user folder %s\n", __FUNCTION__, src_name, dst_name);
+        return;
+    }
+
     if ((src_name != NULL) && (*src_name != '\0')
      && (dst_name != NULL) && (*dst_name != '\0')
      && (access (dst_name, F_OK) < 0))
@@ -256,10 +261,7 @@ static void copy_debian_file (const char filename[])
     }
     src_name = std_free (src_name);
     dst_name = std_free (dst_name);
-}        
-#endif
-            
-
+} 
 
 /* thomson_take char:
  *  Convert Thomson ASCII char into UTF-8.
@@ -579,9 +581,7 @@ int main(int argc, char *argv[])
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
 
-#ifdef DEBIAN_BUILD
-    copy_debian_file ("empty.hfe");
-#endif    
+    init_empty_disk("empty.hfe");
 
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"

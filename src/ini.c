@@ -190,9 +190,12 @@ static char *value_pointer (char *section, char *key)
 
 static FILE *file_open (const char filename[], const char mode[])
 {
+
+    /*TODO: Remove unused name and std_ApplicationPath*/
     char *name = NULL;
 
-    name = std_ApplicationPath (APPLICATION_DIR, filename);
+//    name = std_ApplicationPath (APPLICATION_DIR, filename);
+    name = (char *)filename;
     file = fopen(name, mode);
     name = std_free (name);
     return file;
@@ -207,8 +210,10 @@ static void load_ini_file(void)
 {
     int  stop  = FALSE;
     char *line = NULL;
+    char *fpath;
 
-    file_open (INI_FILE_NAME, "r");
+    fpath = std_GetFirstExistingConfigFile(INI_FILE_NAME);
+    file_open (fpath, "r");
 
     if ((file != NULL) && ((line = malloc (300+1)) != NULL)) {
         while ((stop == FALSE) && (fgets(line, 300, file) != NULL)) {
@@ -280,8 +285,6 @@ void ini_Load(void)
     std_StringListFree (list_start);
 }
 
-
-
 /* ini_Save:
  *  Sauve le fichier INI.
  */
@@ -294,8 +297,34 @@ void ini_Save (void)
     int *d;
     char **s;
 
+    char *fpath;
+    char *sys_file, *user_file;
+
     /* Ouvre le fichier ini */
-    file_open (INI_FILE_NAME, "w");
+    user_file = NULL;
+    fpath = std_getUserConfigDir();
+    if(fpath){
+        printf("%s: Got user config dir: %s\n", __FUNCTION__, fpath);
+        user_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
+        std_free(fpath);
+    }
+    
+    sys_file = NULL;
+    fpath = std_getSystemConfigDir();
+    if(fpath){
+        printf("%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
+        sys_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
+        std_free(fpath);
+    }
+
+    if(user_file){
+        printf("%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
+        file_open (user_file,  "w");
+    }else{
+        printf("%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
+        file_open (sys_file,  "w");
+    }
+
     if (file == NULL)
         return;
     fprintf (file, ";-----------------------------------------------------\n");
@@ -330,4 +359,6 @@ void ini_Save (void)
     }
     fprintf (file, "\n");
     file = std_fclose (file);
+    std_free(user_file);
+    std_free(sys_file);
 }

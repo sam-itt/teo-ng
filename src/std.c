@@ -40,6 +40,10 @@
  *
  *  Fonctions utilitaires.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -50,11 +54,20 @@
    #include <unistd.h>
    #include <stdarg.h>
 #endif
+#include <limits.h>
 
 #include "defs.h"
 #include "std.h"
 #include "teo.h"
 #include "media/printer.h"
+
+#ifndef SYSCONFDIR
+# define SYSCONFDIR "/etc"
+#endif
+
+#ifndef DATAROOTDIR
+# define DATAROOTDIR "/usr/share"
+#endif
 
 
 
@@ -223,6 +236,15 @@ FILE *std_fclose (FILE *fp)
 }
 
 
+/* Checks if a file exists 
+ * returns 0 on failure, 1 on success
+ *
+ * */
+unsigned char std_FileExists(char *fname)
+{
+    return ( access(fname, F_OK) != -1 );
+}
+
 
 /* std_IsFile:
  *  Vérifie si le chemin est un fichier.
@@ -260,6 +282,29 @@ size_t std_FileSize (const char filename[])
     return (stat(filename, &st) == 0) ? (size_t)st.st_size : 0;
 }
 
+/* Function with behaviour like `mkdir -p'  
+ *
+ * http://nion.modprobe.de/blog/archives/357-Recursive-directory-creation.html
+*/ /*S_IRWXU */
+static void mkdir_p(const char *dir, mode_t mode) {
+    char tmp[PATH_MAX];
+    char *p = NULL;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp),"%s",dir);
+    len = strlen(tmp);
+    if(tmp[len - 1] == '/')
+        tmp[len - 1] = 0;
+    for(p = tmp + 1; *p; p++){
+        if(*p == '/') {
+            *p = 0;
+            mkdir(tmp, mode);
+            *p = '/';
+        }
+    }
+    mkdir(tmp, mode);
+}
+
 
 
 /* std_rtrim:
@@ -293,6 +338,7 @@ char *std_skpspc(char *p)
 /* std_strdup_printf:
  *  Strings concatenation.
  */
+/*TODO: Use asprintf when available*/
 char *std_strdup_printf (char *fmt, ...)
 {
     char *ptr = NULL;
@@ -383,6 +429,247 @@ char *std_ApplicationPath (const char dirname[], const char filename[])
     return fname;
 }
 
+
+/* Will search for a file in pre-defined directories 
+ * Caller must free the return value
+ *
+ * */
+char *std_GetSystemFile(char *name)
+{
+#if PLATFORM_UNIX
+    const char *search_path[] = {
+        DATAROOTDIR"/teo", /*Debian*/
+        DATAROOTDIR"/games/teo",
+        NULL
+    };
+#elif PLATFORM_WIN32 
+    WCHAR path[MAX_PATH];
+    char *search_path[2] = {NULL, NULL};
+
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
+        search_path[0] = std_strdup_printf("%s\\teo", path);
+	}
+
+    GetModuleFileName(NULL, path, ARRAYSIZE(path));
+    search_path[1] = strdup(path);
+#elif PLATFORM_MSDOS 
+/*TODO: Lookup where is teo.exe (argv[0] ?) and use it as TEO_HOME is not defined*/
+/*TODO: declare TEO_HOME it in a BAT file for launching teo*/
+    char *search_path[2] = {NULL, NULL};
+    char *teo_home;
+
+    teo_home = getenv("TEO_HOME");
+    if(teo_home)
+        search_path[0] = strdup(teo_home);
+    else
+        printf("%s: TEO_HOME not set, using the current directory as a fallback.\n", __FUNCTION__);
+    search_path[1] = get_current_dir_name(); /*TODO: configure check for me*/
+#endif
+    char *fname;
+    char **candidate;
+    char *rv;
+    
+    rv = NULL;
+    for(candidate = (char **)search_path; *candidate != NULL; candidate++){
+        fname = std_strdup_printf("%s/%s", *candidate, name);
+        printf("%s checking for %s\n", __FUNCTION__, fname);
+        if(std_FileExists(fname)){
+            rv = fname;
+            break;
+        }
+        free(fname);
+    }
+#if PLATFORM_WIN32 || PLATFORM_MSDOS
+    std_free(search_path[0]);
+    std_free(search_path[1]);
+#endif
+    printf("%s returning %s\n",__FUNCTION__,rv);
+    return rv;
+}
+
+
+/* Return the system-wide directory for teo settings i.e:
+ *  /etc/teo on Unix
+ *  C:\Documents and Settings\All Users\Application Data\teo on Win32
+ *  The current directory on MS-DOS (atm)
+ *
+ *  Caller must free the returned value
+ * */
+char *std_getSystemConfigDir()
+{
+    char *rv;
+
+    rv = NULL;
+#if PLATFORM_UNIX
+    rv = strdup(SYSCONFDIR"/teo");
+#elif PLATFORM_WIN32
+    WCHAR path[MAX_PATH];
+
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
+        rv = std_strdup_printf("%s\\teo", path);
+	}
+#elif PLATFORM_MSDOS /*TODO: Lookup where is teo.exe (argv[0] ?) and use it as conf+system dir*/
+    rv = get_current_dir_name(); /*TODO: Have configure check for me*/
+#endif
+    printf("%s returning %s\n",__FUNCTION__,rv);
+    return rv;
+}
+
+/* Returns per-user config dir for Teo, if available
+ * NULL on failure
+ * caller must free rv
+ * */
+char *std_getUserConfigDir()
+{
+    char *rv;
+
+    rv = NULL;
+#if PLATFORM_UNIX
+    char *cfghome, *home;
+    cfghome = getenv("XDG_CONFIG_HOME");
+    if (!cfghome) {
+        home = getenv("HOME");
+        if (!home){ 
+            printf("Couldn't get a value for $HOME - this shoudl't happen\n");
+            printf("%s returning NULL\n",__FUNCTION__);
+            return NULL;
+        }
+    }
+    if(cfghome)
+        rv = std_strdup_printf("%s/teo", cfghome);
+    else
+        rv = std_strdup_printf("%s/.config/teo", home);
+    if(!std_FileExists(rv))
+        mkdir_p(rv, S_IRWXU);
+#elif PLATFORM_WIN32
+    WCHAR path[MAX_PATH];
+
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
+        rv = std_strdup_printf("%s\\teo", path);
+	}
+#endif
+    printf("%s returning %s\n",__FUNCTION__,rv);
+    return rv;
+}
+
+/* Returns per-user data dir for Teo, if available
+ * NULL on failure
+ * caller must free rv
+ * */
+char *std_getUserDataDir()
+{
+    char *rv;
+
+    rv = NULL;
+#if PLATFORM_UNIX
+    char *cfghome, *home;
+    cfghome = getenv("XDG_DATA_HOME");
+    if (!cfghome) {
+        home = getenv("HOME");
+        if (!home){ 
+            printf("Couldn't get a value for $HOME - this shoudl't happen\n");
+            printf("%s returning NULL\n",__FUNCTION__);
+            return NULL;
+        }
+    }
+    if(cfghome)
+        rv = std_strdup_printf("%s/teo", cfghome);
+    else
+        rv = std_strdup_printf("%s/.local/teo", home);
+    if(!std_FileExists(rv))
+        mkdir_p(rv, S_IRWXU);
+#elif PLATFORM_WIN32
+    WCHAR path[MAX_PATH];
+
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
+        rv = std_strdup_printf("%s\\teo", path);
+	}
+#elif PLATFORM_MSDOS
+    char *teo_home;
+
+    teo_home = getenv("TEO_HOME");
+    if(teo_home)
+        rv = strdup(teo_home);
+    else
+        rv = get_current_dir_name();
+#endif
+    printf("%s returning %s\n",__FUNCTION__,rv);
+    return rv;
+}
+
+/*  Will add the datadir path to filename, if possible
+ * 
+ *  will always return something, at least a copy of filename
+ *  the caller must free the return value
+ * */
+char *std_GetUserDataFile(char *filename)
+{
+    char *datadir;
+    char *rv;
+
+    datadir = std_getUserDataDir();
+    if(datadir){
+#if PLATFORM_UNIX
+        rv = std_strdup_printf("%s/%s", datadir, filename);
+#else
+        rv = std_strdup_printf("%s\\%s", datadir, filename);
+#endif
+        std_free(datadir);
+        printf("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
+    }else{
+        rv = strdup(filename);
+    }
+    return rv;
+}
+
+/* Search for an existing file in 
+ *  a) user config dir
+ *  b) system config dir
+ *  
+ *  Return first found file or NULL
+ * 
+ *  Caller must free the return value
+ */
+
+char *std_GetFirstExistingConfigFile(char *filename)
+{
+    char *dir;
+    char *rv;
+
+    dir = std_getUserConfigDir();
+    if(dir){
+        printf("%s: Got user config dir: %s\n", __FUNCTION__, dir);
+#if PLATFORM_UNIX
+        rv = std_strdup_printf("%s/%s", dir, filename);
+#else
+        rv = std_strdup_printf("%s\\%s", dir, filename);
+#endif
+        if(std_FileExists(rv)){
+            printf("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
+            std_free(dir);
+            return rv;
+        }
+        std_free(dir);
+    }
+
+    dir = std_getSystemConfigDir();
+    if(dir){
+        printf("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
+#if PLATFORM_UNIX
+        rv = std_strdup_printf("%s/%s", dir, filename);
+#else
+        rv = std_strdup_printf("%s\\%s", dir, filename);
+#endif
+        if(std_FileExists(rv)){
+            printf("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
+            std_free(dir);
+            return rv;
+        }
+        std_free(dir);
+    }
+    printf("%s: Neither user or system config file exists for %s, returning NUMM\n", __FUNCTION__, filename);
+    return NULL;
+}
 
 
 /* std_StringListText:

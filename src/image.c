@@ -813,10 +813,19 @@ static void (*Saver[32])(int) = {
 static FILE *file_open (const char filename[], const char mode[])
 {
     char *name = NULL;
+    char *data_dir;
 
-    name = std_ApplicationPath (APPLICATION_DIR, filename);
+    data_dir = std_getUserDataDir();
+    if(data_dir){
+        name = std_strdup_printf("%s/%s",data_dir, filename);
+        printf("%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
+    }else{
+        printf("%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
+        name = strdup(filename);
+    }
     file = fopen(name, mode);
     name = std_free (name);
+    std_free(data_dir);
     return file;
 }
 

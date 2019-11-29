@@ -58,11 +58,19 @@ extern void  std_CleanPath (char *filename);
 extern char* std_LastDir(char *fullname);
 extern char* std_BaseName(char *fullname);
 extern char *std_ApplicationPath (const char dirname[], const char filename[]);
+char *std_GetSystemFile(char *name);
+char *std_getSystemConfigDir();
+char *std_getUserConfigDir();
+char *std_getUserDataDir();
+char *std_GetUserDataFile(char *filename);
+char *std_GetFirstExistingConfigFile(char *filename);
+
 
 extern void *std_free (void *p);
 extern void *std_stralloc (void *p, char *s);
 extern FILE *std_fclose (FILE *fp);
 extern int  std_IsFile (const char filename[]);
+unsigned char std_FileExists(char *fname);
 extern int  std_IsDir (const char filename[]);
 extern size_t std_FileSize (const char filename[]);
 extern void std_rtrim (char *s);

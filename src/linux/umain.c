@@ -99,8 +99,6 @@ struct EMUTEO teo;
 
 //static int gfx_mode = GFX_WINDOW | GFX_TRUECOLOR;
 static int gfx_mode = GFX_WINDOW;
-static int idle_data = 0;
-static GTimer *timer;
 
 //static gboolean reset = FALSE;
 static gchar reset = FALSE;
@@ -275,64 +273,6 @@ static void RunTO8(void)
 
 
 
-/* RunTO8:
- *  Boucle principale de l'émulateur.
- */
-/*
-static gboolean RunTO8 (gpointer user_data)
-{
-    static gulong microseconds;
-
-    if ((teo.setting.exact_speed)
-     && (teo.setting.sound_enabled == 0)
-     && (g_timer_elapsed (timer, &microseconds) < 0.02))
-        return TRUE;
-
-    g_timer_start (timer);
-
-    if (teo_DoFrame() == 0)
-        teo.command=TEO_COMMAND_BREAKPOINT;
-
-    if ((teo.command == TEO_COMMAND_BREAKPOINT)
-     || (teo.command == TEO_COMMAND_DEBUGGER)) {
-        udebug_Panel();
-        if (teo_DebugBreakPoint == NULL)
-            teo_FlushFrame();
-    }
-
-    if (teo.command == TEO_COMMAND_PANEL)
-        ugui_Panel();
-
-    if (teo.command == TEO_COMMAND_RESET)
-        teo_Reset();
-
-    if (teo.command == TEO_COMMAND_COLD_RESET)
-        teo_ColdReset();
-
-    if (teo.command == TEO_COMMAND_FULL_RESET)
-        teo_FullReset();
-
-    if (teo.command == TEO_COMMAND_QUIT)
-    {
-        mc6809_FlushExec();
-        gtk_main_quit ();
-        return FALSE;
-    }
-
-    teo.command = TEO_COMMAND_NONE;
-
-    ugraphic_Refresh ();
-    if ((teo.setting.exact_speed)
-     && (teo.setting.sound_enabled))
-        usound_Play ();
-
-    disk_WriteTimeout();
-
-    return TRUE;
-    (void)user_data;
-}*/
-
-
 
 /* ReadCommandLine:
  *  Lit la ligne de commande
@@ -407,8 +347,8 @@ static void ReadCommandLine(int argc, char *argv[])
 
 
 
-#ifdef DEBIAN_BUILD
-static void copy_debian_file (const char filename[])
+            
+static void init_empty_disk(char *filename)
 {
     char *src_name = NULL;
     char *dst_name = NULL;
@@ -416,8 +356,14 @@ static void copy_debian_file (const char filename[])
     FILE *dst_file = NULL;
     int c;
 
-    src_name = std_strdup_printf ("/usr/share/teo/%s", filename);
-    dst_name = std_ApplicationPath (APPLICATION_DIR, filename);
+    src_name = std_GetSystemFile(filename);
+    dst_name = std_GetUserDataFile(filename);
+
+    if(!std_FileExists(src_name)){
+        printf("%s: File %s not found, not copying empty disk to user folder %s\n", __FUNCTION__, src_name, dst_name);
+        return;
+    }
+
     if ((src_name != NULL) && (*src_name != '\0')
      && (dst_name != NULL) && (*dst_name != '\0')
      && (access (dst_name, F_OK) < 0))
@@ -438,8 +384,6 @@ static void copy_debian_file (const char filename[])
     src_name = std_free (src_name);
     dst_name = std_free (dst_name);
 }        
-#endif
-            
 
 
 /* thomson_take char:
@@ -770,15 +714,20 @@ int main(int argc, char *argv[])
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
 
-#ifdef DEBIAN_BUILD
-    copy_debian_file ("empty.hfe");
-#endif    
+    init_empty_disk("empty.hfe");
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
     allegro_init();
 //    set_config_file(ALLEGRO_CONFIG_FILE);
-    override_config_file("teo-keymap-final.ini");
+    char *keymap;
+    keymap = std_GetFirstExistingConfigFile("teo-keymap-final.ini");
+    if(keymap){
+        override_config_file(keymap);
+        std_free(keymap);
+    }else{
+        printf("Keymap not found !\n");
+    }
 //    override_config_file("teo-keymap-joystick.ini");
 
     ukeybint_Init();
@@ -937,7 +886,7 @@ int main(int argc, char *argv[])
     RunTO8();
 
     /* Sauvegarde de l'état de l'émulateur */
-    ini_Save();
+    ini_Save(); 
     image_Save ("autosave.img");
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */

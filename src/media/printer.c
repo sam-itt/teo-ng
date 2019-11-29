@@ -641,13 +641,8 @@ static FILE *open_printer_file (char *name)
 {
     static FILE *file;
     char *filename = NULL;
+    char *fpath;
     
-#ifdef DEBIAN_BUILD
-    filename = std_strdup_printf (
-                    "/usr/share/teo/system/printer/%03d/%s.txt",
-                    printer.lprt.number,
-                    name);
-#else
     filename = std_strdup_printf (
                     "system%sprinter%s%03d%s%s.txt",
                     FOLDER_SLASH,
@@ -655,9 +650,16 @@ static FILE *open_printer_file (char *name)
                     printer.lprt.number,
                     FOLDER_SLASH,
                     name);
-#endif
-    file = fopen (filename, "rb");
+    
+    fpath = std_GetSystemFile(filename);
+    if(!fpath){
+        printf("Error: Couldn't find mandatory file %s, bailing out\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    file = fopen (fpath, "rb");
     filename = std_free (filename);
+    free(fpath);
     return file;
 }
 

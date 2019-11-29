@@ -49,6 +49,17 @@
 #include "defs.h"
 #include "teo.h"
 #include "linux/gui.h"
+#include "std.h"
+
+#define STEP_ICON "system/icons/step.ico"
+#define STEP_OVER_ICON "system/icons/stepover.ico"
+#define RUN_ICON "system/icons/run.ico"
+#define LEAVE_ICON "system/icons/leave.ico"
+
+
+
+
+
 
 GtkToolItem *run_button;
 
@@ -113,6 +124,7 @@ GtkWidget *udtoolb_Init (void)
     GtkWidget *box;
     GtkWidget *image;
     GdkPixbuf *pixbuf;
+    char *sysicon;
 
     /* Box */
     box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
@@ -123,11 +135,13 @@ GtkWidget *udtoolb_Init (void)
     gtk_box_pack_start (GTK_BOX(box), tool_bar, FALSE, FALSE, 0);
 
     /* Tool item step by step */
-#ifdef DEBIAN_BUILD
-    pixbuf = gdk_pixbuf_new_from_file ("/usr/share/teo/system/icons/step.ico", NULL);
-#else
-    pixbuf = gdk_pixbuf_new_from_file ("system/icons/step.ico", NULL);
-#endif
+    sysicon = std_GetSystemFile(STEP_ICON);
+    if(!sysicon){
+        printf("Error: Couldn't find mandatory file %s, bailing out\n", STEP_ICON);
+        exit(EXIT_FAILURE);
+    }
+    pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
+
     image = gtk_image_new_from_pixbuf (pixbuf);
     tool_button = gtk_tool_button_new (
         image,
@@ -142,11 +156,13 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (tool_button), -1);
 
     /* Tool item step over */
-#ifdef DEBIAN_BUILD
-    pixbuf = gdk_pixbuf_new_from_file ("/usr/share/teo/system/icons/stepover.ico", NULL);
-#else
-    pixbuf = gdk_pixbuf_new_from_file ("system/icons/stepover.ico", NULL);
-#endif
+    sysicon = std_GetSystemFile(STEP_OVER_ICON);
+    if(!sysicon){
+        printf("Error: Couldn't find mandatory file %s, bailing out\n", STEP_OVER_ICON);
+        exit(EXIT_FAILURE);
+    }
+    pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
+
     image = gtk_image_new_from_pixbuf (pixbuf);
     tool_button = gtk_tool_button_new (
         image,
@@ -165,11 +181,13 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (tool_button), -1);
 
     /* Tool item run */
-#ifdef DEBIAN_BUILD
-    pixbuf = gdk_pixbuf_new_from_file ("/usr/share/teo/system/icons/run.ico", NULL);
-#else
-    pixbuf = gdk_pixbuf_new_from_file ("system/icons/run.ico", NULL);
-#endif
+    sysicon = std_GetSystemFile(RUN_ICON);
+    if(!sysicon){
+        printf("Error: Couldn't find mandatory file %s, bailing out\n", RUN_ICON);
+        exit(EXIT_FAILURE);
+    }
+    pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
+
     image = gtk_image_new_from_pixbuf (pixbuf);
     run_button = gtk_tool_button_new (
         image,
@@ -181,11 +199,13 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (run_button), -1);
 
     /* Tool item leave */
-#ifdef DEBIAN_BUILD
-    pixbuf = gdk_pixbuf_new_from_file ("/usr/share/teo/system/icons/leave.ico", NULL);
-#else
-    pixbuf = gdk_pixbuf_new_from_file ("system/icons/leave.ico", NULL);
-#endif
+    sysicon = std_GetSystemFile(LEAVE_ICON);
+    if(!sysicon){
+        printf("Error: Couldn't find mandatory file %s, bailing out\n", LEAVE_ICON);
+        exit(EXIT_FAILURE);
+    }
+    pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
+
     image = gtk_image_new_from_pixbuf (pixbuf);
     tool_button = gtk_tool_button_new (
         image,
