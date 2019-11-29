@@ -1,6 +1,11 @@
 AM_CPPFLAGS = @AM_CPPFLAGS@
 ACLOCAL_AMFLAGS = -I m4
-teosysdir=$(datadir)/games/teo/system
+if DEBIAN_BUILD
+teodatadir=$(datadir)/teo
+else
+teodatadir=$(datadir)/games/teo
+endif
+teosysdir=$(teodatadir)/system
 printerdir=$(teosysdir)/printer
 printer612dir=$(teosysdir)/printer/612
 printer600dir=$(teosysdir)/printer/600
@@ -9,6 +14,10 @@ printer582dir=$(teosysdir)/printer/582
 printer055dir=$(teosysdir)/printer/055
 sysromdir=$(teosysdir)/rom
 icondir=$(teosysdir)/icons
+userromdir=$(teodatadir)/roms
+memodir=$(userromdir)/memos
+cassdir=$(userromdir)/cass
+diskdir=$(userromdir)/disks
 
 teoconfdir=$(sysconfdir)/teo
 
@@ -19,15 +28,16 @@ SUBDIRS += tools
 endif
 
 teoconf_DATA = \
+	.keep \
 	teo.ini
 if GFX_BACKEND_ALLEGRO
 teoconf_DATA += \
 	allegro.cfg \
-	teo-keymap-final.ini
+	akeymap.ini
 endif
 if GFX_BACKEND_GTK_X11
 teoconf_DATA += \
-	teo-gdk-keymap.ini
+	gdk-keymap.ini
 endif
 
 printer612_DATA = \
@@ -109,4 +119,17 @@ EXTRA_DIST = \
 	system/icons/step.ico \
 	system/icons/run.ico 
 
+userrom_DATA = \
+	.keep
 
+memo_DATA = \
+	.keep
+
+cass_DATA = \
+	.keep
+
+disk_DATA = \
+	.keep
+
+install-data-hook:
+	sed -i "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini

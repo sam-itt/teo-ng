@@ -134,6 +134,7 @@ static void RetraceCallback(void)
  */
 static void close_procedure (void)
 {
+    printf("%s: Sending TEO_COMMAND_QUIT\n", __FUNCTION__);
     teo.command = TEO_COMMAND_QUIT;
 }
  
@@ -266,7 +267,7 @@ static void RunTO8(void)
 #endif 
 
     }while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-
+    printf("%s: GOT TEO_COMMAND_QUIT\n", __FUNCTION__);
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
 }
@@ -698,6 +699,7 @@ int main(int argc, char *argv[])
 
     int alleg_depth;
     int njoy = 0;
+    char *cfg_file;
 
     /* Repérage du language utilisé */
     lang=getenv("LANG");
@@ -711,6 +713,7 @@ int main(int argc, char *argv[])
     g_setenv ("GDK_BACKEND", "x11", TRUE);
     gtk_init (&argc, &argv);     /* Initialisation gtk */
 #endif
+
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
 
@@ -718,17 +721,26 @@ int main(int argc, char *argv[])
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
-    allegro_init();
-//    set_config_file(ALLEGRO_CONFIG_FILE);
-    char *keymap;
-    keymap = std_GetFirstExistingConfigFile("teo-keymap-final.ini");
-    if(keymap){
-        override_config_file(keymap);
-        std_free(keymap);
-    }else{
-        printf("Keymap not found !\n");
+    if(allegro_init() != 0){
+        printf("Couldn't initialize Allegro, bailing out !\n");
+        exit(EXIT_FAILURE);
     }
-//    override_config_file("teo-keymap-joystick.ini");
+
+    cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
+    if(cfg_file){
+        set_config_file(cfg_file);
+        std_free(cfg_file);
+    }else{
+        printf("Config file %s not found, using default values\n",ALLEGRO_CONFIG_FILE);
+    }
+
+    cfg_file = std_GetFirstExistingConfigFile("akeymap.ini");
+    if(cfg_file){
+        override_config_file(cfg_file);
+        std_free(cfg_file);
+    }else{
+        printf("Keymap %s not found !\n","akeymap.ini");
+    }
 
     ukeybint_Init();
     install_keyboard();

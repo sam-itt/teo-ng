@@ -606,6 +606,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     int njoy = 0;
     TCHAR sapfs_exe[MAX_PATH];
     struct STRING_LIST *str_list;
+    char *cfg_file;
 
 #ifdef FRENCH_LANGUAGE
     is_fr = 1;
@@ -665,9 +666,26 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
-    allegro_init();
-    //set_config_file(ALLEGRO_CONFIG_FILE);
-    override_config_file("teo-keymap-final.ini");
+    if(allegro_init() != 0){
+        printf("Couldn't initialize Allegro, bailing out !\n");
+        exit(EXIT_FAILURE);
+    }
+
+    cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
+    if(cfg_file){
+        set_config_file(cfg_file);
+        std_free(cfg_file);
+    }else{
+        printf("Config file %s not found, using default values\n",ALLEGRO_CONFIG_FILE);
+    }
+
+    cfg_file = std_GetFirstExistingConfigFile("akeymap.ini");
+    if(cfg_file){
+        override_config_file(cfg_file);
+        std_free(cfg_file);
+    }else{
+        printf("Keymap %s not found !\n","akeymap.ini");
+    }
 
     wkeybint_Init();
 

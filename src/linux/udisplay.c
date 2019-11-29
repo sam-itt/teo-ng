@@ -633,7 +633,7 @@ void udisplay_Init(void)
     display=gdk_x11_get_default_xdisplay();
     screen=DefaultScreen(display);
 
-    load_keybinding("teo-gdk-keymap.ini");
+    load_keybinding("gdk-keymap.ini");
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
 
