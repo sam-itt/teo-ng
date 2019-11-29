@@ -604,7 +604,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     char **argv;
 #endif
     int njoy = 0;
-    TCHAR sapfs_exe[MAX_PATH];
     struct STRING_LIST *str_list;
     char *cfg_file;
 
@@ -617,24 +616,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* initialise les librairies */
     InitCommonControls();
     OleInitialize(0);
-
-    /* On s'assure que "allegro.cfg" est dispo dans le repertoire courant sinon TEO échoue. */
-    do {
-        FILE *f = fopen("allegro.cfg", "rb");
-        if(f==NULL) {
-            /* On a pas trouvé le fichier. On regarde dans le path et on se positionne dans le
-               bon repertoire. */
-            char *buf = sapfs_exe;  /* optim: on utilise le buffer sapfs_exe */
-            int len = SearchPath(NULL, "allegro", ".cfg", sizeof(sapfs_exe)/sizeof(TCHAR), buf, NULL);
-            if(len) {
-                char *s = buf;
-                while(*s) ++s; 
-                while(s>buf && *s!='/' && *s!='\\') --s;
-                if(*s=='/' || *s=='\\') *s = '\0';
-                SetCurrentDirectory(buf);
-            }
-        } else fclose(f);
-    } while(0);
 
     /* conversion de la ligne de commande Windows */
     prog_inst = hInst;
@@ -666,10 +647,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents Latin-1 */
-    if(allegro_init() != 0){
-        printf("Couldn't initialize Allegro, bailing out !\n");
-        exit(EXIT_FAILURE);
-    }
+    allegro_init();
 
     cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
     if(cfg_file){

@@ -44,6 +44,7 @@
 # include <config.h>
 #endif
 
+#define _GNU_SOURCE 1 /*Needed to silence vasprintf warning*/
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -67,6 +68,12 @@
 
 #ifndef DATAROOTDIR
 # define DATAROOTDIR "/usr/share"
+#endif
+
+#ifdef __MINGW32__
+#include <shlobj.h>
+#include <windows.h>
+# define  mkdir( D, M )   mkdir( D )
 #endif
 
 
@@ -446,7 +453,7 @@ char *std_GetSystemFile(char *name)
         NULL
     };
 #elif PLATFORM_WIN32 
-    WCHAR path[MAX_PATH];
+    char path[MAX_PATH];
     char *search_path[2] = {NULL, NULL};
 
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
@@ -454,7 +461,7 @@ char *std_GetSystemFile(char *name)
 	}
 
     GetModuleFileName(NULL, path, ARRAYSIZE(path));
-    search_path[1] = strdup(path);
+    search_path[1] = strdup(dirname(path));
 #elif PLATFORM_MSDOS 
 /*TODO: Lookup where is teo.exe (argv[0] ?) and use it as TEO_HOME is not defined*/
 /*TODO: declare TEO_HOME it in a BAT file for launching teo*/
@@ -506,13 +513,19 @@ char *std_getSystemConfigDir()
 #if PLATFORM_UNIX
     rv = strdup(SYSCONFDIR"/teo");
 #elif PLATFORM_WIN32
-    WCHAR path[MAX_PATH];
+    char path[MAX_PATH];
 
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
         rv = std_strdup_printf("%s\\teo", path);
 	}
 #elif PLATFORM_MSDOS /*TODO: Lookup where is teo.exe (argv[0] ?) and use it as conf+system dir*/
-    rv = get_current_dir_name(); /*TODO: Have configure check for me*/
+    char *teo_home;
+
+    teo_home = getenv("TEO_HOME");
+    if(teo_home)
+        rv = strdup(teo_home);
+    else
+        rv = get_current_dir_name();
 #endif
     printf("%s returning %s\n",__FUNCTION__,rv);
     return rv;
@@ -545,10 +558,12 @@ char *std_getUserConfigDir()
     if(!std_FileExists(rv))
         mkdir_p(rv, S_IRWXU);
 #elif PLATFORM_WIN32
-    WCHAR path[MAX_PATH];
+    char path[MAX_PATH];
 
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
         rv = std_strdup_printf("%s\\teo", path);
+        if(!std_FileExists(rv))
+            mkdir_p(rv, S_IRWXU);
 	}
 #endif
     printf("%s returning %s\n",__FUNCTION__,rv);
@@ -582,10 +597,12 @@ char *std_getUserDataDir()
     if(!std_FileExists(rv))
         mkdir_p(rv, S_IRWXU);
 #elif PLATFORM_WIN32
-    WCHAR path[MAX_PATH];
+    char path[MAX_PATH];
 
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
         rv = std_strdup_printf("%s\\teo", path);
+        if(!std_FileExists(rv))
+            mkdir_p(rv, S_IRWXU);
 	}
 #elif PLATFORM_MSDOS
     char *teo_home;
@@ -628,6 +645,7 @@ char *std_GetUserDataFile(char *filename)
 /* Search for an existing file in 
  *  a) user config dir
  *  b) system config dir
+ *  c) Win32-only: Exe directory
  *  
  *  Return first found file or NULL
  * 
@@ -670,7 +688,21 @@ char *std_GetFirstExistingConfigFile(char *filename)
         }
         std_free(dir);
     }
-    printf("%s: Neither user or system config file exists for %s, returning NUMM\n", __FUNCTION__, filename);
+#ifdef PLATFORM_WIN32
+    char path[MAX_PATH];
+
+    GetModuleFileName(NULL, path, ARRAYSIZE(path));
+    dir = dirname(path);
+    if(dir){
+        printf("%s: Got exe dir: %s\n", __FUNCTION__, dir);
+        rv = std_strdup_printf("%s\\%s", dir, filename);
+        if(std_FileExists(rv)){
+            printf("%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
+            return rv;
+        }
+    }
+#endif
+    printf("%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
     return NULL;
 }
 
