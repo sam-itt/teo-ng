@@ -58,7 +58,7 @@ extern void  std_CleanPath (char *filename);
 extern char* std_LastDir(char *fullname);
 extern char* std_BaseName(char *fullname);
 extern char *std_ApplicationPath (const char dirname[], const char filename[]);
-char *std_GetSystemFile(char *name);
+char *std_GetTeoSystemFile(char *name);
 char *std_getSystemConfigDir();
 char *std_getUserConfigDir();
 char *std_getUserDataDir();

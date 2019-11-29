@@ -957,7 +957,7 @@ void hardware_Init(void)
         mem.rom.bank[i] = NULL;
 
     for(i = 0; i < mem.rom.nbank; i++){
-        mem.rom.filename[i] = std_GetSystemFile((char *)sysroms[i]); /*TODO: Have a shutdown function that frees me*/
+        mem.rom.filename[i] = std_GetTeoSystemFile((char *)sysroms[i]); /*TODO: Have a shutdown function that frees me*/
         if(!mem.rom.filename[i]){
             printf("Error: Couldn't find mandatory file %s, bailing out\n", sysroms[i]);
             exit(EXIT_FAILURE);
@@ -978,7 +978,7 @@ void hardware_Init(void)
         mem.mon.bank[i] = NULL;
 
     for(i = 0; i < mem.mon.nbank; i++){
-        mem.mon.filename[i] = std_GetSystemFile((char *)sysmons[i]); /*TODO: Have a shutdown function that frees me*/
+        mem.mon.filename[i] = std_GetTeoSystemFile((char *)sysmons[i]); /*TODO: Have a shutdown function that frees me*/
         if(!mem.mon.filename[i]){
             printf("Error: Couldn't find mandatory file %s, bailing out\n", sysmons[i]);
             exit(EXIT_FAILURE);

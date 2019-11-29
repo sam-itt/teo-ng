@@ -357,7 +357,7 @@ static void init_empty_disk(char *filename)
     FILE *dst_file = NULL;
     int c;
 
-    src_name = std_GetSystemFile(filename);
+    src_name = std_GetTeoSystemFile(filename);
     dst_name = std_GetUserDataFile(filename);
 
     if(!std_FileExists(src_name)){

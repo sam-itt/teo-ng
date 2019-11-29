@@ -444,7 +444,7 @@ char *std_ApplicationPath (const char dirname[], const char filename[])
  * Caller must free the return value
  *
  * */
-char *std_GetSystemFile(char *name)
+char *std_GetTeoSystemFile(char *name)
 {
 #if PLATFORM_UNIX
     const char *search_path[] = {
@@ -688,7 +688,7 @@ char *std_GetFirstExistingConfigFile(char *filename)
         }
         std_free(dir);
     }
-#ifdef PLATFORM_WIN32
+#if PLATFORM_WIN32
     char path[MAX_PATH];
 
     GetModuleFileName(NULL, path, ARRAYSIZE(path));
