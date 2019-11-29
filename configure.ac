@@ -79,7 +79,7 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol])
+AC_CHECK_FUNCS([atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf])
 
 ##########################
 # Checking target platform
@@ -247,6 +247,14 @@ AS_IF([test "x$enable_gtk_panel" != "xno"], [
 ], [
     AM_CONDITIONAL(ENABLE_GTK_PANEL, false)
 ])
+
+# Debian-specific portions
+AS_IF([test "x$enable_debian_build" = "xyes"],[
+    AM_CONDITIONAL(DEBIAN_BUILD, true)
+],[
+    AM_CONDITIONAL(DEBIAN_BUILD, false)
+])
+
 
 
 ################################

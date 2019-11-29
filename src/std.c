@@ -338,14 +338,17 @@ char *std_skpspc(char *p)
 /* std_strdup_printf:
  *  Strings concatenation.
  */
-/*TODO: Use asprintf when available*/
 char *std_strdup_printf (char *fmt, ...)
 {
     char *ptr = NULL;
     va_list ap;
     
     va_start (ap, fmt);
+#if HAVE_VASPRINTF
+    vasprintf(&ptr, fmt, ap);
+#else
     ptr = std_strdup_printf_run ((char *)fmt, ap);
+#endif
     return ptr;
 }
 
