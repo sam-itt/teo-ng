@@ -375,5 +375,7 @@ int keyboard_tokey_to_int(char *tokey)
     if(strcmp(tokey,"TOKEY_BACKSLASH") == 0) return TOKEY_BACKSLASH;
     if(strcmp(tokey,"TOKEY_CLOSE_SQUARE_BRACKET") == 0) return TOKEY_CLOSE_SQUARE_BRACKET;
     if(strcmp(tokey,"TOKEY_CLOSE_BRACES") == 0) return TOKEY_CLOSE_BRACES;
+
+    return SPECIAL_NULL;
 }
 
