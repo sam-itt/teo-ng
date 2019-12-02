@@ -76,6 +76,14 @@
 # define  mkdir( D, M )   mkdir( D )
 #endif
 
+#ifndef HAVE_GET_CURRENT_DIR_NAME
+#define HAVE_GET_CURRENT_DIR_NAME 1
+char *get_current_dir_name()
+{
+    char* path = malloc(PATH_MAX);
+	return getcwd(path, PATH_MAX);
+}
+#endif
 
 
 /* std_StringListLast:
@@ -471,9 +479,11 @@ char *std_GetTeoSystemFile(char *name)
     teo_home = getenv("TEO_HOME");
     if(teo_home)
         search_path[0] = strdup(teo_home);
-    else
-        printf("%s: TEO_HOME not set, using the current directory as a fallback.\n", __FUNCTION__);
-    search_path[1] = get_current_dir_name(); /*TODO: configure check for me*/
+    else{
+        search_path[0] = get_current_dir_name();
+        printf("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+    }
+    search_path[1] = get_current_dir_name(); 
 #endif
     char *fname;
     char **candidate;
@@ -629,11 +639,11 @@ char *std_GetUserDataFile(char *filename)
 
     datadir = std_getUserDataDir();
     if(datadir){
-#if PLATFORM_UNIX
+//#if PLATFORM_UNIX
         rv = std_strdup_printf("%s/%s", datadir, filename);
-#else
-        rv = std_strdup_printf("%s\\%s", datadir, filename);
-#endif
+//#else
+//        rv = std_strdup_printf("%s\\%s", datadir, filename);
+//#endif
         std_free(datadir);
         printf("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
     }else{
@@ -660,11 +670,11 @@ char *std_GetFirstExistingConfigFile(char *filename)
     dir = std_getUserConfigDir();
     if(dir){
         printf("%s: Got user config dir: %s\n", __FUNCTION__, dir);
-#if PLATFORM_UNIX
+//#if PLATFORM_UNIX
         rv = std_strdup_printf("%s/%s", dir, filename);
-#else
-        rv = std_strdup_printf("%s\\%s", dir, filename);
-#endif
+//#else
+//        rv = std_strdup_printf("%s\\%s", dir, filename);
+//#endif
         if(std_FileExists(rv)){
             printf("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
             std_free(dir);
@@ -676,11 +686,11 @@ char *std_GetFirstExistingConfigFile(char *filename)
     dir = std_getSystemConfigDir();
     if(dir){
         printf("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
-#if PLATFORM_UNIX
+//#if PLATFORM_UNIX
         rv = std_strdup_printf("%s/%s", dir, filename);
-#else
-        rv = std_strdup_printf("%s\\%s", dir, filename);
-#endif
+//#else
+//        rv = std_strdup_printf("%s\\%s", dir, filename);
+//#endif
         if(std_FileExists(rv)){
             printf("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
             std_free(dir);

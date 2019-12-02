@@ -76,10 +76,12 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+# Those 2 are based on runtime checks and therefore will always fail when cross compiling. R
+# Replaced them with standard checks in AC_CHECK_FUNCS
+#AC_FUNC_MALLOC
+#AC_FUNC_REALLOC
 AC_FUNC_MKTIME
-AC_FUNC_REALLOC
-AC_CHECK_FUNCS([atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf])
+AC_CHECK_FUNCS([malloc realloc atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name])
 
 ##########################
 # Checking target platform
@@ -134,7 +136,9 @@ AC_MSG_CHECKING([if compiling for Unix])
 AS_IF([test "x$platform_win32" != "xyes" && test "x$platform_msdos" != "xyes"],[
     platform_unix=yes
 ],[
+    platform_unix=no
 ])
+
 AC_MSG_RESULT([$platform_unix])
 AM_CONDITIONAL(PLATFORM_UNIX, test "x$platform_unix" = "xyes")
 AS_IF([test "x$platform_unix" = "xyes"],[
@@ -144,9 +148,9 @@ AS_IF([test "x$platform_unix" = "xyes"],[
 ])
 
 #Win32 specific compiler flags
-AS_IF([test "x$platform_win32" = "xyes"],[
-    CC_CHECK_CFLAGS_APPEND([-mwindows])
-])
+#AS_IF([test "x$platform_win32" = "xyes"],[
+#    CC_CHECK_CFLAGS_APPEND([-mwindows])
+#])
 
 
 # Checks for libraries.
@@ -328,8 +332,5 @@ AM_COND_IF([BUILD_EXTRA_TOOLS],[
         AC_CONFIG_FILES([tools/cc90hfe/src/linux/Makefile])
     ])
 ])
-
-
-
 
 AC_OUTPUT
