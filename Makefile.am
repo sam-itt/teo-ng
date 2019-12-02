@@ -15,9 +15,9 @@ printer055dir=$(teosysdir)/printer/055
 sysromdir=$(teosysdir)/rom
 icondir=$(teosysdir)/icons
 userromdir=$(teodatadir)/roms
-memodir=$(userromdir)/memos
+memodir=$(userromdir)/memo
 cassdir=$(userromdir)/cass
-diskdir=$(userromdir)/disks
+diskdir=$(userromdir)/disk
 
 teoconfdir=$(sysconfdir)/teo
 
