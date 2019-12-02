@@ -622,10 +622,12 @@ int main(int argc, char *argv[])
 
     /* initialisation de la librairie Allegro */
     set_uformat(U_ASCII);  /* pour les accents français */
+    allegro_init();
+    /*
     if(allegro_init() != 0){
         printf("Couldn't initialize Allegro, bailing out !\n");
         exit(EXIT_FAILURE);
-    }
+    }*/
 
     cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
     if(cfg_file){
@@ -641,6 +643,7 @@ int main(int argc, char *argv[])
         std_free(cfg_file);
     }else{
         printf("Keymap %s not found !\n","akeymap.ini");
+        exit(-1);
     }
 
     install_keyboard();
@@ -678,9 +681,6 @@ int main(int argc, char *argv[])
     printf("ok\n");
 
     /* initialisation de l'interface clavier */
-    override_config_file("TKF.INI");
-//    override_config_file("TJF.INI");
-
     dkeybint_Init();
 
     /* initialisation de l'interface d'accès direct */
