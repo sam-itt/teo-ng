@@ -264,6 +264,8 @@ if test "x$enable_extra_tools" = "xyes"; then
     else
         if test "x$platform_win32" = "xyes"; then
             AM_CONDITIONAL(BUILD_CC90,true)
+        else
+            AM_CONDITIONAL(BUILD_CC90, false)
         fi
     fi
 else

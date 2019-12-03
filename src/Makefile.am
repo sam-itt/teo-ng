@@ -75,3 +75,5 @@ libteo_la_SOURCES = \
 	ini.c \
 	teo.c
 
+EXTRA_DIST = \
+	change.log

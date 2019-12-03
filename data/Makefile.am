@@ -104,6 +104,9 @@ icon_DATA = \
 
 
 EXTRA_DIST = \
+	nsis/teo-small-img.bmp \
+	nsis/teo-big-img.bmp \
+	nsis/teo.nsis.in \
 	system/printer/612/elitc.txt \
 	system/printer/612/table.txt \
 	system/printer/612/italc.txt \
@@ -156,7 +159,8 @@ EXTRA_DIST = \
 	zlib1.dll \
 	libpng16.dll \
 	alleg44.dll \
-	alleg40.dll
+	alleg40.dll \
+	.keep
 
 userrom_DATA = \
 	.keep
@@ -188,5 +192,9 @@ mime_DATA = \
 	teo.xml
 
 install-data-hook:
+if PLATFORM_UNIX
 	sed -i "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+else
+	sed -i "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+endif
 

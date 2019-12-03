@@ -34,3 +34,14 @@ teo_SOURCES = \
 	wgui/wdisk.c \
 	wgui/wsetting.c 
 
+EXTRA_DIST= \
+	panel.bmp \
+	thomson.bmp \
+	to8.bmp \
+	thomson.ico \
+	wgui/clearlst.ico \
+	wgui/folder.ico \
+	wdebug/leave.ico \
+	wdebug/stepover.ico \
+	wdebug/step.ico \
+	wdebug/run.ico

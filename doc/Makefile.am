@@ -54,6 +54,58 @@ doc_DATA = \
 	images/modif5.jpg
 
 EXTRA_DIST = \
+	welcome_en.htm \
+	licence_en.htm \
+	teo_en.htm \
+	teo_changes_en.htm \
+	teo_dos_en.htm \
+	teo_windows_en.htm \
+	teo_linux_en.htm \
+	sap2_en.htm \
+	sapfs_en.htm \
+	libsap_en.htm \
+	wav2k7_en.htm \
+	cc90hfe_linux_en.htm \
+	cc90232_modif_en.htm \
+	cc90_thomson_en.htm \
+	cc90232_adapt_en.htm \
+	cc90hfe_en.htm \
+	cc90_faq_en.htm \
+	cc90hfe_windows_en.htm \
+	index.htm \
+	welcome_fr.htm \
+	licence_fr.htm \
+	teo_changes_fr.htm \
+	teo_linux_fr.htm \
+	teo_fr.htm \
+	teo_dos_fr.htm \
+	teo_windows_fr.htm \
+	sapfs_fr.htm \
+	wav2k7_fr.htm \
+	libsap_fr.htm \
+	sap2_fr.htm \
+	cc90hfe_fr.htm \
+	cc90232_adapt_fr.htm \
+	cc90hfe_linux_fr.htm \
+	cc90_faq_fr.htm \
+	cc90232_modif_fr.htm \
+	cc90hfe_windows_fr.htm \
+	cc90_thomson_fr.htm \
+	doc.css \
+	images/modif3b.gif \
+	images/modif7.jpg \
+	images/modif8.jpg \
+	images/modif11.jpg \
+	images/modif3a.gif \
+	images/modif3.jpg \
+	images/modif12.jpg \
+	images/modif2.jpg \
+	images/modif4.gif \
+	images/modif13.jpg \
+	images/modif9.gif \
+	images/modif6.jpg \
+	images/modif10.jpg \
+	images/modif5.jpg \
 	markhtml.sh \
 	wiki/libsap_en \
 	wiki/cc90_faq_fr \

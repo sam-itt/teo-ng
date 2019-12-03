@@ -20,4 +20,6 @@ cc90hfe_SOURCES = \
     gui/install.c \
     gui/about.c
 
-
+EXTRA_DIST = \
+	thomson.ico \
+	to8.bmp
