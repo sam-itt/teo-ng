@@ -312,8 +312,10 @@ AM_COND_IF([PLATFORM_MSDOS],
            [AC_CONFIG_FILES([src/dos/Makefile])])
 AM_COND_IF([PLATFORM_UNIX],
            [AC_CONFIG_FILES([src/linux/Makefile])])
-AM_COND_IF([PLATFORM_WIN32],
-           [AC_CONFIG_FILES([src/win/Makefile])])
+AM_COND_IF([PLATFORM_WIN32],[
+    AC_CONFIG_FILES([src/win/Makefile])
+    AC_CONFIG_FILES([misc/pack/repo/windows/nsis/teo.nsis])
+])
 AM_COND_IF([BUILD_EXTRA_TOOLS],
            [AC_CONFIG_FILES([tools/Makefile
                              tools/cc90hfe/Makefile

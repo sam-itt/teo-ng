@@ -1,0 +1,288 @@
+  Unicode true
+  SetCompressor /SOLID lzma
+
+;--------------------------------
+; Build environment
+ 
+  !define top_srcdir @top_srcdir@
+  !define srcdir @srcdir@
+  !define VERSION @PACKAGE_VERSION@
+;  !define VERSION_MAJOR @PACKAGE_VERSION_MAJOR@
+;  !define VERSION_MINOR @PACKAGE_VERSION_MINOR@
+;  !define VERSION_FULL  @PACKAGE_VERSION_MAJOR@.@PACKAGE_VERSION_MINOR@.@PACKAGE_VERSION_MICRO@.@PACKAGE_VERSION_NANO@
+  !define PUBLISHER     "Teo authors"
+  !define WEBSITE_URL   "https://sourceforge.net/projects/teoemulator/"
+  !addplugindir         @srcdir@
+
+  !define MULTIUSER_EXECUTIONLEVEL Highest
+  !define MULTIUSER_MUI
+  !define MULTIUSER_INSTALLMODE_COMMANDLINE
+  !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "Software\Teo\${VERSION}"
+  !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME ""
+  !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "Software\Teo\${VERSION}"
+  !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME ""
+  !define MULTIUSER_INSTALLMODE_INSTDIR "Teo ${VERSION}"
+  !include "MultiUser.nsh"
+  !include "MUI2.nsh"
+  !include "LogicLib.nsh"
+  !include "WinVer.nsh"
+
+
+;--------------------------------
+;General
+
+  ;Name and file
+  Name "Teo"
+  OutFile "teo-${VERSION}-win32.exe"
+
+;--------------------------------
+;Variables
+
+  Var StartMenuFolder
+
+;--------------------------------
+;Interface Settings
+
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "${srcdir}/teo-big-img.bmp"
+  !define MUI_ABORTWARNING
+  !define MUI_WELCOMEPAGE_TITLE_3LINES
+  !define MUI_FINISHPAGE_TITLE_3LINES
+  !define MUI_LICENSEPAGE_TEXT_BOTTOM " "
+  !define MUI_LICENSEPAGE_BUTTON $(^NextBtn)
+  !define MUI_COMPONENTSPAGE_NODESC
+
+;--------------------------------
+;Language Selection Dialog Settings
+
+
+  ;Remember the installer language
+  !define MUI_LANGDLL_REGISTRY_ROOT "SHCTX"
+  !define MUI_LANGDLL_REGISTRY_KEY "Software\Teo\${VERSION}"
+  !define MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language"
+
+;--------------------------------
+;Pages
+
+  !insertmacro MUI_PAGE_WELCOME
+  !insertmacro MUI_PAGE_LICENSE "${top_srcdir}/COPYING"
+  !insertmacro MULTIUSER_PAGE_INSTALLMODE
+  !insertmacro MUI_PAGE_DIRECTORY
+
+  ;Start Menu Folder Page Configuration
+  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX"
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\Teo\${VERSION}"
+  !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
+  !define MUI_STARTMENUPAGE_DEFAULTFOLDER "Teo ${VERSION}"
+
+  !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
+
+  !insertmacro MUI_PAGE_INSTFILES
+
+  !insertmacro MUI_PAGE_FINISH
+
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_COMPONENTS
+  !insertmacro MUI_UNPAGE_INSTFILES
+
+;--------------------------------
+;Languages
+; RFU
+;  !include "${srcdir}/translations.nsh"
+  !insertmacro MUI_LANGUAGE "English"
+
+;--------------------------------
+;Reserve Files
+
+  ;If you are using solid compression, files that are required before
+  ;the actual installation should be stored first in the data block,
+  ;because this will make your installer start faster.
+
+  !insertmacro MUI_RESERVEFILE_LANGDLL
+  ReserveFile /plugin "${NSISDIR}\Plugins\x86-unicode\*.dll"
+
+;--------------------------------
+;Installer Sections
+
+Section "Teo" BfWSection
+
+  SectionIn RO
+
+;Binaries
+  SetOutPath "$INSTDIR"
+  File "${top_srcdir}/src/win/teo.exe"
+  File "${top_srcdir}/alleg44.dll"
+  File "${top_srcdir}/libpng16.dll"
+  File "${top_srcdir}/zlib1.dll"
+;TODO: Handle extra-tools if applicable 
+
+;Data files
+  File "${top_srcdir}/language.dat"
+  File "${top_srcdir}/keyboard.dat"
+  File "${top_srcdir}/allegro.cfg"
+  File "${top_srcdir}/akeymap.ini"
+
+;Licence and stuff
+;TODO: handle linguas
+  File "${top_srcdir}/README.TXT"
+  File "${top_srcdir}/LISEZMOI.TXT"
+  File "${top_srcdir}/change-en.log"
+  File "${top_srcdir}/change-fr.log"
+  File "${top_srcdir}/licence-en.txt"
+  File "${top_srcdir}/licence-fr.txt"
+
+;Documentation TODO: Make me optional
+  SetOutPath "$INSTDIR\doc"
+  File /r /x .* "${top_srcdir}/doc/images"
+  File /x .* "${top_srcdir}/doc/doc.css"
+  File /x .* "${top_srcdir}/doc/*.htm"
+;TODO: handle linguas
+
+;Teo system files
+  SetOutPath "$INSTDIR\system"
+    File /r /x .* "${top_srcdir}/system/*"
+
+
+  ;Store installation folder
+  WriteRegStr SHCTX "Software\Teo\${VERSION}" "" $INSTDIR
+
+  ;Create uninstaller
+  WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+  ;Add uninstall information
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "DisplayName" "Teo ${VERSION}"
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "DisplayIcon" "$\"$INSTDIR\teo.exe$\""
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "URLInfoAbout" "${WEBSITE_URL}"
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "DisplayVersion" "${VERSION}"
+  WriteRegDWORD SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "NoModify" 1
+  WriteRegDWORD SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}" "NoRepair" 1
+
+  Call StartMenuShortcuts
+
+SectionEnd
+
+;--------------------------------
+;Installer Functions
+
+Function .onInit
+
+  !insertmacro MULTIUSER_INIT
+  !insertmacro MUI_LANGDLL_DISPLAY
+
+FunctionEnd
+
+Function StartMenuShortcuts
+
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+
+  ; Create shortcuts
+  CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Teo.lnk" "$INSTDIR\teo.exe"
+;  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Battle for Wesnoth (with console).lnk" "$INSTDIR\cwesnoth.cmd" "" "$INSTDIR\wesnoth.exe"
+;  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Manual.lnk" "$INSTDIR\manual\manual.$(LCode).html"
+
+;  ${If} ${IsNT}
+;  ${AndIf} ${AtMostWin7}
+  ; Win7 or lower has collapsed start menu folders, activate additional shortcuts.
+;    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Map editor.lnk" "$INSTDIR\wesnoth.exe" "-e" "$INSTDIR\wesnoth_editor-icon.ico"
+;    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+;    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Changelog.lnk" "$INSTDIR\changelog.txt"
+;  ${EndIf}
+
+;  StrCpy $0 "$SMPROGRAMS\$StartMenuFolder\desktop.ini"
+  ; Create desktop.ini file (allows to display localized start menu entries)
+;  ${IfNot} ${FileExists} $0
+;    FileOpen $9 $0 w
+;      FileWriteUTF16LE $9 ${U+FEFF} ; UTF16 BOM to enforce encoding
+;    FileClose $9
+;  ${EndIf}
+
+  ; Add translations to desktop.ini
+;  ${If} $StartMenuFolder == "Battle for Wesnoth ${VERSION}"
+;    WriteIniStr $0 ".ShellClassInfo" "LocalizedResourceName" "$(LWesnoth) ${VERSION}"
+;  ${EndIf}
+;  WriteIniStr $0 "LocalizedFileNames" "Battle for Wesnoth.lnk" "$(LWesnoth)"
+;  WriteIniStr $0 "LocalizedFileNames" "Battle for Wesnoth (with console).lnk" "$(LWesnoth) (with console)"
+;  WriteIniStr $0 "LocalizedFileNames" "Manual.lnk" "$(LManual)"
+;  WriteIniStr $0 "LocalizedFileNames" "Map editor.lnk" "$(LEditor)"
+
+  SetFileAttributes "$SMPROGRAMS\$StartMenuFolder" SYSTEM
+  SetFileAttributes $0 HIDDEN|SYSTEM
+
+  !insertmacro MUI_STARTMENU_WRITE_END
+
+FunctionEnd
+
+;--------------------------------
+;Uninstaller Section
+
+Section "un.Teo" un.BfW
+  SectionIn RO  # read only (mandatory)
+
+  RMDir /r "$INSTDIR\doc"
+  RMDir /r "$INSTDIR\system"
+
+  Delete "$INSTDIR\teo.exe"
+  Delete "$INSTDIR\alleg44.dll"
+  Delete "$INSTDIR\libpng16.dll"
+  Delete "$INSTDIR\zlib1.dll"
+;TODO: Handle extra-tools if applicable 
+
+  Delete "$INSTDIR\language.dat"
+  Delete "$INSTDIR\keyboard.dat"
+  Delete "$INSTDIR\allegro.cfg"
+  Delete "$INSTDIR\akeymap.ini"
+
+;TODO: handle linguas
+  Delete "$INSTDIR\README.TXT"
+  Delete "$INSTDIR\LISEZMOI.TXT"
+  Delete "$INSTDIR\change-en.log"
+  Delete "$INSTDIR\change-fr.log"
+  Delete "$INSTDIR\licence-en.txt"
+  Delete "$INSTDIR\licence-fr.txt"
+
+  Delete "$INSTDIR\Uninstall.exe"
+
+  RMDir "$INSTDIR"
+
+  !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
+
+; If we created desktop.ini it'll start with a blank line
+;  FileOpen $9 "$SMPROGRAMS\$StartMenuFolder\desktop.ini" r
+;    FileReadUTF16LE $9 $1
+;  FileClose $9
+;  DetailPrint $1
+;  ${If} $1 == "$\r$\n"
+;    Delete "$SMPROGRAMS\$StartMenuFolder\desktop.ini"
+;  ${EndIf}
+
+;  Delete "$SMPROGRAMS\$StartMenuFolder\License.lnk"
+;  Delete "$SMPROGRAMS\$StartMenuFolder\Changelog.lnk"
+;  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+;  Delete "$SMPROGRAMS\$StartMenuFolder\Manual.lnk"
+;  Delete "$SMPROGRAMS\$StartMenuFolder\Multiplayer server.lnk"
+;  Delete "$SMPROGRAMS\$StartMenuFolder\Map editor.lnk"
+;  Delete "$SMPROGRAMS\$StartMenuFolder\Battle for Wesnoth (with console).lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\Teo.lnk"
+  RMDir "$SMPROGRAMS\$StartMenuFolder"
+
+  DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Teo ${VERSION}"
+  DeleteRegKey /ifempty SHCTX "Software\Teo\${VERSION}"
+  DeleteRegKey /ifempty SHCTX "Software\Teo"
+
+SectionEnd
+
+;Section /o "un.$(LUserdata)" un.Userdata # optional
+;  RMDir /r "$DOCUMENTS\My Games\Wesnoth${VERSION}_major"
+;SectionEnd
+
+;--------------------------------
+;Uninstaller Functions
+
+Function un.onInit
+
+  !insertmacro MULTIUSER_UNINIT
+  !insertmacro MUI_UNGETLANGUAGE
+
+FunctionEnd
