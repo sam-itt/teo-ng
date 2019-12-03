@@ -51,6 +51,17 @@
 #ifndef TEO_H
 #define TEO_H
 
+/* TEO_YEAR_STRING and TEO_VERSION_STR are now
+ * defined by configure.ac and made into config.h
+ * symbols.
+ * Including it here to provide compat for the 
+ * existing code base
+ * */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+
 #ifndef MAX_PATH
 #   define MAX_PATH 300
 #endif
@@ -63,8 +74,6 @@
 
 /* paramètres et symboles de l'émulation */
 #define APPLICATION_DIR "teo"
-#define TEO_YEAR_STRING "2018"
-#define TEO_VERSION_STR "1.8.5"
 #define PROG_NAME   "teo"
 #define PROG_CLASS  "EmuTO"
 

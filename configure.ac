@@ -13,6 +13,8 @@ AC_CONFIG_SRCDIR([src/teo.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CANONICAL_HOST
+AC_DEFINE(TEO_VERSION_STR, "[teo_version]", [Package version constant, as defined in existing code base])
+AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as defined in existing code base])
 
 #compile options
 AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug], [Build an executable with debug sybmols and all optimization turned off (default=no)])],
