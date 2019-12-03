@@ -57,6 +57,16 @@ AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11],
             [],
             [with_gfx_backend=allegro])
 
+#Documentation
+AC_ARG_WITH([doc],
+  [AS_HELP_STRING([--with-doc], [Install the documentation. [default=yes]])],
+  [AS_CASE([$with_doc],
+    [yes|no], [],
+              [AC_MSG_ERROR([Unrecognized value '${with_doc}' for --with-doc])]
+    )],
+  [with_doc=yes])
+AM_CONDITIONAL([INSTALL_DOC], [test "x${with_doc}" = xyes])
+
 
 # Checks for programs.
 # Don't use the default -Wall -g -O2
@@ -148,9 +158,9 @@ AS_IF([test "x$platform_unix" = "xyes"],[
 ])
 
 #Win32 specific compiler flags
-#AS_IF([test "x$platform_win32" = "xyes"],[
-#    CC_CHECK_CFLAGS_APPEND([-mwindows])
-#])
+AS_IF([test "x$platform_win32" = "xyes" && test "x$enable_debug" != "xyes"],[
+    CC_CHECK_CFLAGS_APPEND([-mwindows])
+])
 
 
 # Checks for libraries.
@@ -218,6 +228,7 @@ AS_CASE(["x$with_gfx_backend"],
 )
 
 if test "x$enable_extra_tools" = "xyes"; then
+    AM_CONDITIONAL(BUILD_EXTRA_TOOLS, true)
     if test "x$platform_unix" = "xyes"; then
         PKG_CHECK_MODULES([GTK], [gtk+-3.0],[
             has_gtk=yes
@@ -230,14 +241,15 @@ if test "x$enable_extra_tools" = "xyes"; then
                 has_x11=no
         ])
         PKG_CHECK_MODULES([GTK], [gtk+-3.0])
-        AM_CONDITIONAL(HAS_UNIX_CC90_DEPS, [test "x$has_gtk" = "xyes" && test "x$has_x11" = "xyes"])
+        AM_CONDITIONAL(BUILD_CC90, [test "x$has_gtk" = "xyes" && test "x$has_x11" = "xyes"])
     else
-        AM_CONDITIONAL(HAS_UNIX_CC90_DEPS,false)
+        if test "x$platform_win32" = "xyes"; then
+            AM_CONDITIONAL(BUILD_CC90,true)
+        fi
     fi
-    AM_CONDITIONAL(BUILD_EXTRA_TOOLS, true)
 else
     AM_CONDITIONAL(BUILD_EXTRA_TOOLS, false)
-    AM_CONDITIONAL(HAS_UNIX_CC90_DEPS,false)
+    AM_CONDITIONAL(BUILD_CC90, false)
 fi
 
 
@@ -305,7 +317,8 @@ AC_SUBST(AM_CFLAGS, [$E_AM_CFLAGS])
 
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 data/Makefile])
 AM_COND_IF([GFX_BACKEND_ALLEGRO],
            [AC_CONFIG_FILES([src/alleg/Makefile])])
 AM_COND_IF([PLATFORM_MSDOS],
@@ -315,6 +328,9 @@ AM_COND_IF([PLATFORM_UNIX],
 AM_COND_IF([PLATFORM_WIN32],[
     AC_CONFIG_FILES([src/win/Makefile])
     AC_CONFIG_FILES([misc/pack/repo/windows/nsis/teo.nsis])
+])
+AM_COND_IF([INSTALL_DOC],[
+    AC_CONFIG_FILES([doc/Makefile])
 ])
 AM_COND_IF([BUILD_EXTRA_TOOLS],
            [AC_CONFIG_FILES([tools/Makefile
