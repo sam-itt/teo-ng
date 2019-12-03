@@ -3,7 +3,7 @@ src_dir = $(top_srcdir)/src
 
 #%.o: %.rc
 .rc.o:
-	$(WINDRES) --include-dir $(top_srcdir)/include -D_WIN32_IE=0x0300 -o $@ -i $<
+	$(WINDRES) --include-dir $(top_srcdir)/include --include-dir $(top_srcdir) -DHAVE_CONFIG_H -D_WIN32_IE=0x0300 -o $@ -i $<
 
 bin_PROGRAMS = teo
 

@@ -3,7 +3,15 @@
 #CFLAGS="-g"
 AC_PREREQ([2.69])
 
-m4_define(teo_version,[0.9999])
+m4_define(teo_major_version,[1])
+m4_define(teo_minor_version,[8])
+m4_define(teo_micro_version,[5])
+m4_define(teo_nano_version,[0])
+
+#m4_define(teo_version,[0.9999])
+#nano intentionaly left out, only used in windows dialog
+m4_define([teo_version], [teo_major_version.teo_minor_version.teo_micro_version])
+m4_define([teo_version_wrc], [teo_major_version, teo_minor_version, teo_micro_version, teo_nano_version])
 
 AC_INIT([Teo], [teo_version])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
@@ -15,6 +23,8 @@ AC_CONFIG_MACRO_DIRS([m4])
 AC_CANONICAL_HOST
 AC_DEFINE(TEO_VERSION_STR, "[teo_version]", [Package version constant, as defined in existing code base])
 AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as defined in existing code base])
+AC_DEFINE(TEO_VERSION_WRC, [teo_version_wrc], [Package version constant, in a format suitable for Win32 resource files])
+#AC_SUBST([TEO_VERSION_WRC],[teo_version_wrc])
 
 #compile options
 AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug], [Build an executable with debug sybmols and all optimization turned off (default=no)])],
