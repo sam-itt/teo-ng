@@ -21,6 +21,12 @@ diskdir=$(userromdir)/disk
 
 teoconfdir=$(sysconfdir)/teo
 
+bindatadir = $(bindir)
+
+
+MKDIR_P = mkdir -p
+
+
 SUBDIRS =  . src
 
 if BUILD_EXTRA_TOOLS
@@ -38,6 +44,11 @@ endif
 if GFX_BACKEND_GTK_X11
 teoconf_DATA += \
 	gdk-keymap.ini
+endif
+
+if PLATFORM_MSDOS
+bindata_DATA = \
+	cwsdpmi.exe
 endif
 
 printer612_DATA = \
@@ -133,3 +144,17 @@ disk_DATA = \
 
 install-data-hook:
 	sed -i "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+
+#end of autotools standard stuff. Bespoke rules to create bin dist for win32/MSDOS
+DIR := ${CURDIR}
+
+msdos-bindist:
+	$(eval TMPDIR := $(shell mktemp -d))
+	@$(MAKE) DESTDIR=${TMPDIR} install
+	${MKDIR_P} ${TMPDIR}/TEO
+	@mv ${TMPDIR}/etc/teo/* ${TMPDIR}/TEO/
+	@mv ${TMPDIR}/usr/bin/* ${TMPDIR}/TEO/
+	@mv ${TMPDIR}/usr/share/games/teo/system ${TMPDIR}/TEO/
+	@mv ${TMPDIR}/usr/share/games/teo/roms ${TMPDIR}/TEO/
+	@sh -c "cd ${TMPDIR} && zip -r ${CURDIR}/teo-msdos.zip TEO/*"
+	@rm -Rf ${TMPDIR}
