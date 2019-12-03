@@ -3,10 +3,17 @@
 #CFLAGS="-g"
 AC_PREREQ([2.69])
 
-m4_define(teo_major_version,[1])
-m4_define(teo_minor_version,[8])
-m4_define(teo_micro_version,[5])
+#While in dev cycle
+m4_define(teo_major_version,[0])
+m4_define(teo_minor_version,[9999])
+m4_define(teo_micro_version,[0])
 m4_define(teo_nano_version,[0])
+
+# Releases
+#m4_define(teo_major_version,[1])
+#m4_define(teo_minor_version,[8])
+#m4_define(teo_micro_version,[5])
+#m4_define(teo_nano_version,[0])
 
 #m4_define(teo_version,[0.9999])
 #nano intentionaly left out, only used in windows dialog
@@ -339,7 +346,7 @@ AM_COND_IF([PLATFORM_UNIX],
            [AC_CONFIG_FILES([src/linux/Makefile])])
 AM_COND_IF([PLATFORM_WIN32],[
     AC_CONFIG_FILES([src/win/Makefile])
-    AC_CONFIG_FILES([misc/pack/repo/windows/nsis/teo.nsis])
+    AC_CONFIG_FILES([data/nsis/teo.nsis])
 ])
 AM_COND_IF([INSTALL_DOC],[
     AC_CONFIG_FILES([doc/Makefile])

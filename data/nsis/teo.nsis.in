@@ -110,16 +110,16 @@ Section "Teo" BfWSection
 ;Binaries
   SetOutPath "$INSTDIR"
   File "${top_srcdir}/src/win/teo.exe"
-  File "${top_srcdir}/alleg44.dll"
-  File "${top_srcdir}/libpng16.dll"
-  File "${top_srcdir}/zlib1.dll"
+  File "${top_srcdir}/data/alleg44.dll"
+  File "${top_srcdir}/data/libpng16.dll"
+  File "${top_srcdir}/data/zlib1.dll"
 ;TODO: Handle extra-tools if applicable 
 
 ;Data files
-  File "${top_srcdir}/language.dat"
-  File "${top_srcdir}/keyboard.dat"
-  File "${top_srcdir}/allegro.cfg"
-  File "${top_srcdir}/akeymap.ini"
+  File "${top_srcdir}/data/language.dat"
+  File "${top_srcdir}/data/keyboard.dat"
+  File "${top_srcdir}/data/allegro.cfg"
+  File "${top_srcdir}/data/akeymap.ini"
 
 ;Licence and stuff
 ;TODO: handle linguas
@@ -139,7 +139,7 @@ Section "Teo" BfWSection
 
 ;Teo system files
   SetOutPath "$INSTDIR\system"
-    File /r /x .* "${top_srcdir}/system/*"
+    File /r /x .* "${top_srcdir}/data/system/*"
 
 
   ;Store installation folder
