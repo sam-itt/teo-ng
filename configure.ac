@@ -185,7 +185,7 @@ AS_IF([test "x$platform_win32" = "xyes" && test "x$enable_debug" != "xyes"],[
 # Checks for libraries.
 AS_IF([test "x$platform_win32" = "xyes"],[
    PKG_CHECK_MODULES([DEPS], [zlib])
-  PKG_CHECK_MODULES([PNG], [libpng])
+   PKG_CHECK_MODULES([PNG], [libpng])
    AC_DEFINE([_WIN32_IE],[0x0300],[Minimum support level selection])
    AC_CHECK_TOOL([WINDRES], [windres], [:])
 ],[test "x$platform_msdos" = "xyes"],[
@@ -227,7 +227,7 @@ AS_CASE(["x$with_gfx_backend"],
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, true)
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
-    PKG_CHECK_MODULES([DEPS], [allegro])
+    PKG_CHECK_MODULES([ALLEGRO], [allegro])
     PKG_CHECK_MODULES([PNG], [libpng])
    ],
    ["xgtk-x11"],[

@@ -111,7 +111,7 @@ win32-bindist:
 	@mv ${TMPDIR}/usr/lib/* ${TMPDIR}/teow
 	@mv ${TMPDIR}/usr/share/games/teo/system ${TMPDIR}/teow
 	@mv ${TMPDIR}/usr/share/games/teo/roms ${TMPDIR}/teow
-	@mv ${TMPDIR}/usr/share/doc/teo ${TMPDIR}/teow/doc
+	@mv ${TMPDIR}/usr/share/doc/teo-ng ${TMPDIR}/teow/doc
 	@sh -c "cd ${TMPDIR} && zip -r ${CURDIR}/teo-win32.zip teow/*"
 	@rm -Rf ${TMPDIR}
 

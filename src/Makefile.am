@@ -36,8 +36,8 @@ endif #PLATFORM_MSDOS
 
 
 noinst_LTLIBRARIES = libteo.la
-libteo_la_CPPFLAGS = $(DEPS_CFLAGS) -I$(top_srcdir)/include -DSYSCONFDIR="\"@sysconfdir@\"" -DDATAROOTDIR="\"@datarootdir@\""
-libteo_la_LIBADD = $(DEPS_LIBS) 
+libteo_la_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include -DSYSCONFDIR="\"@sysconfdir@\"" -DDATAROOTDIR="\"@datarootdir@\""
+libteo_la_LIBADD = $(DEPS_LIBS) $(PNG_LIBS)
 libteo_la_SOURCES = \
 	mc68xx/dasm6809.c \
 	mc68xx/mc6804.c \
