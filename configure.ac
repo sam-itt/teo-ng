@@ -72,7 +72,7 @@ AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enable G
             [enable_gtk_debugger=no])
 
 #graphic backend
-AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11], [Select graphic backend])],
+AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11,sdl2], [Select graphic backend])],
             [],
             [with_gfx_backend=allegro])
 
@@ -226,6 +226,7 @@ AS_CASE(["x$with_gfx_backend"],
    ["xallegro"],[
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, true)
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
+    AM_CONDITIONAL(GFX_BACKEND_SDL2, false)
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
     PKG_CHECK_MODULES([ALLEGRO], [allegro])
     PKG_CHECK_MODULES([PNG], [libpng])
@@ -236,14 +237,23 @@ AS_CASE(["x$with_gfx_backend"],
     ],[]);
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, true)
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
+    AM_CONDITIONAL(GFX_BACKEND_SDL2, false)
     AC_DEFINE(GFX_BACKEND_GTK_X11,[],[Use GTK/X11 for gfx rendering])
     PKG_CHECK_MODULES([GTK], [gtk+-3.0])
     PKG_CHECK_MODULES([XEXT], [xext])
     PKG_CHECK_MODULES([X11], [x11])
     PKG_CHECK_MODULES([ALSA], [alsa])
    ],
+   ["xsdl2"],[
+    AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
+    AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
+    AM_CONDITIONAL(GFX_BACKEND_SDL2, true)
+    AC_DEFINE(GFX_BACKEND_SDL2,[],[Use SDL2 for gfx rendering])
+    PKG_CHECK_MODULES([SDL2], [sdl2])
+    PKG_CHECK_MODULES([ALSA], [alsa])
+   ],
    [
-    AC_MSG_ERROR(["Valid values for --with-gfx-backend are 'allegro' and 'gtk-x11'"])
+    AC_MSG_ERROR(["Valid values for --with-gfx-backend are 'allegro','gtk-x11' and 'sdl2'"])
    ]
 )
 
@@ -343,6 +353,8 @@ AC_CONFIG_FILES([Makefile
                  data/Makefile])
 AM_COND_IF([GFX_BACKEND_ALLEGRO],
            [AC_CONFIG_FILES([src/alleg/Makefile])])
+AM_COND_IF([GFX_BACKEND_SDL2],
+           [AC_CONFIG_FILES([src/sdl2/Makefile])])
 AM_COND_IF([PLATFORM_MSDOS],
            [AC_CONFIG_FILES([src/dos/Makefile])])
 AM_COND_IF([PLATFORM_UNIX],
