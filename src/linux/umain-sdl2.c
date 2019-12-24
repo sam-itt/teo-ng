@@ -88,7 +88,7 @@
 
 
 #include <SDL2/SDL.h>
-#include "sdl2/teo-sdl.h"
+#include "sdl2/sdl2-drv.h"
 #include "linux/sound.h"
 //#include <unistd.h>
 
@@ -164,7 +164,7 @@ static void RunTO8(void)
         if (teo.setting.exact_speed)
         {
             if (teo.setting.sound_enabled)
-                printf("asound_Start();");
+                printf("asound_Start();\n");
             else
             {
                 //50Hz -> 1000 ms
@@ -177,20 +177,6 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
-        if ( SDL_PollEvent(&ev) == 1 ){
-            switch(ev.type){
-                case SDL_QUIT:
-                case SDL_KEYDOWN:
-                    exit(0);
-                break;
-            }
-
-            // Analyse de l'Ã©vÃ©nement
-        }
-
-
-
-
             if (teo_DoFrame() == 0)
                 if (windowed_mode)
                     teo.command=TEO_COMMAND_BREAKPOINT;
@@ -201,6 +187,7 @@ static void RunTO8(void)
 
             /* rafraîchissement de l'écran */
             teo_sdl_RefreshScreen();
+            teo_sdl_event_handler();
 
             /* mise à jour de la position des joysticks */
 //            ajoyint_Update();
@@ -745,11 +732,16 @@ int main(int argc, char *argv[])
 
     /* initialisation de la librairie Allegro */
 //    set_uformat(U_ASCII);  /* pour les accents Latin-1 */
+    if(teo_sdl_gfx_init() != 0){
+        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+/*
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) {
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-
+*/
     cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
     if(cfg_file){
 //        set_config_file(cfg_file);
