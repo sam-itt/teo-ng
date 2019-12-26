@@ -1,4 +1,5 @@
 #include "sdl2/sdl-keyboard.h"
+#include "sdl2/teo-sdl-mouse.h"
 
 #include "teo.h"
 #include "to8keys.h"
@@ -22,7 +23,7 @@ static volatile int jdir_buffer[2][2]; /*joysticks state buffer*/
 static SDL_Scancode sdl_text_to_scancode(char *code);
 static char *sdl_scancode_to_text(SDL_Scancode code);
 
-//int teo_sdl_keyboard_handler(NULL, SDL_Event* event)
+/*TODO: Move me out*/
 int teo_sdl_event_handler(void)
 {
     SDL_Event event;
@@ -37,6 +38,15 @@ int teo_sdl_event_handler(void)
                 break;
             case SDL_KEYDOWN:
                 teo_sdl_keyboard_handler(event.key.keysym.scancode, event.key.keysym.sym, 0);
+                break;
+            case SDL_MOUSEMOTION:
+                teo_sdl_mouse_move(&(event.motion)); 
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                teo_sdl_mouse_button(&(event.button));
+                break;
+            case SDL_MOUSEBUTTONUP:
+                teo_sdl_mouse_button(&(event.button));
                 break;
         }
     }

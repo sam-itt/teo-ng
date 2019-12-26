@@ -91,7 +91,7 @@
 #include "sdl2/sdl2-drv.h"
 #include "linux/sound.h"
 //#include <unistd.h>
-
+#include "sdl2/sdl-keyboard.h"
 
 struct EMUTEO teo;
 

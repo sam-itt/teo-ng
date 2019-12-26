@@ -11,6 +11,8 @@ void teo_sdl_display_init(void);
 void teo_sdl_RetraceWholeScreen(void);
 
 
+int teo_sdl_getPointer(void);
+
 #endif
 
 

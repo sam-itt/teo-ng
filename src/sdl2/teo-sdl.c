@@ -17,6 +17,7 @@ static int *dirty_cell;
 static Uint32 palette[TEO_NCOLORS+1];
 static const struct SCREEN_PARAMS *tcol;
 
+static int installed_pointer = TEO_STATUS_MOUSE;
 
 /* paramètres d'affichage */
 struct SCREEN_PARAMS
@@ -62,7 +63,7 @@ static void teo_sdl_SetColor(int index, int r, int g, int b)
 }
 
 
-static void_dump_sdl_rect(SDL_Rect *r)
+static void dump_sdl_rect(SDL_Rect *r)
 {
     printf("%p: (x,y) = (%d,%d), size (w x h) =  (%dx%d)\n",r,r->x,r->y,r->w,r->h);
 }
@@ -571,16 +572,20 @@ static void teo_sdl_SetPointer(int pointer)
     {
         case TEO_STATUS_MOUSE :
            // gdk_window_set_cursor (gwindow_win, NULL);
-            printf("installed_pointer=TEO_STATUS_MOUSE\n");
+            installed_pointer=TEO_STATUS_MOUSE;
             break;
 
         case TEO_STATUS_LIGHTPEN :
            // gdk_window_set_cursor (gwindow_win, gdk_cursor_new_for_display (gdk_window_get_display (gwindow_win), GDK_PENCIL));
-            printf("installed_pointer=TEO_STATUS_LIGHTPEN\n");
+            installed_pointer=TEO_STATUS_LIGHTPEN;
             break;
     }
 }
 
+int teo_sdl_getPointer(void)
+{
+    return installed_pointer;
+}
 
 
 void teo_sdl_window()
