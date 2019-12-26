@@ -10,7 +10,7 @@ int teo_sdl_gfx_init(void)
     int rv;
     char *cfg_file;
     
-    rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);
+    rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK);
     if(rv == 0){
         printf("SDL init ok\n");
         cfg_file = std_GetFirstExistingConfigFile("sdl-keymap.ini");

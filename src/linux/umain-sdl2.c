@@ -92,6 +92,7 @@
 #include "linux/sound.h"
 //#include <unistd.h>
 #include "sdl2/sdl-keyboard.h"
+#include "sdl2/teo-sdl-joystick.h"
 
 struct EMUTEO teo;
 
@@ -761,7 +762,9 @@ int main(int argc, char *argv[])
 //    ukeybint_Init();
 //    install_keyboard();
 //    install_timer();
-//    if (njoy >= 0)
+    if (njoy >= 0)
+        njoy = teo_sdl_joystick_init();
+
 //        install_joystick(JOY_TYPE_AUTODETECT);
 /*    set_window_title(is_fr?"Teo - l'émulateur TO8 (menu:ESC/debogueur:F12)"
                           :"Teo - the TO8 emulator (menu:ESC/debugger:F12)");*/
@@ -784,7 +787,15 @@ int main(int argc, char *argv[])
     printf((is_fr?"Initialisation de l'Ã©mulateur..."
                  :"Initialization of the emulator...")); fflush(stderr);
 
-    if ( teo_Init(TEO_NJOYSTICKS) < 0 )
+    /*teo_Init seems to take a paramater that is the number of
+     * joysticks to emulate using the keyboard
+     * therefore it's TEO_NJOYSTICKS (max number of joysticks, i.e 2)
+     * minus the number of actual detected joysticks:
+     *  -Nothing detected, TEO_NJOYSTICKS - 0 = TEO_NJOYSTICKS
+     *  -One joystick detected:  one real, one emulated
+     *  -Two detected: two real, zero emulated
+     * */
+    if ( teo_Init(TEO_NJOYSTICKS - njoy) < 0 )
         main_ExitMessage(teo_error_msg);
 
     /* Initialisation de l'interface d'accès direct */

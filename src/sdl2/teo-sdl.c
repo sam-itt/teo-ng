@@ -573,11 +573,14 @@ static void teo_sdl_SetPointer(int pointer)
         case TEO_STATUS_MOUSE :
            // gdk_window_set_cursor (gwindow_win, NULL);
             installed_pointer=TEO_STATUS_MOUSE;
+            SDL_ShowCursor(SDL_DISABLE);
             break;
 
         case TEO_STATUS_LIGHTPEN :
            // gdk_window_set_cursor (gwindow_win, gdk_cursor_new_for_display (gdk_window_get_display (gwindow_win), GDK_PENCIL));
             installed_pointer=TEO_STATUS_LIGHTPEN;
+            SDL_ShowCursor(SDL_ENABLE);
+            /*TODO: Set pencil cursor using data from amouse.c*/
             break;
     }
 }
@@ -607,7 +610,12 @@ void teo_sdl_window()
 
     screenSurface = SDL_GetWindowSurface(window);
     teo_SetPointer=teo_sdl_SetPointer;
-
+    /* teo_SetPointer is NOT called during the virtual TO8 init.
+     * it is only invoked when going through the virtual TO8 settings screen
+     * TODO: Have a function init installed_pointer instead of the static assignmedn
+     * AND call SDL_ShowCursor
+     * */
+    SDL_ShowCursor(SDL_DISABLE); 
     printf("ok\n");
 }
 

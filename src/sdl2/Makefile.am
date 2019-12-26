@@ -8,5 +8,6 @@ libsdlgfx_la_SOURCES = \
 	ini.c \
 	sdl2-drv.c \
 	teo-sdl-keyboard.c \
-	teo-sdl-mouse.c
+	teo-sdl-mouse.c \
+	teo-sdl-joystick.c
 

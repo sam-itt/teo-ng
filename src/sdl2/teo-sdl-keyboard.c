@@ -1,5 +1,6 @@
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-mouse.h"
+#include "sdl2/teo-sdl-joystick.h"
 
 #include "teo.h"
 #include "to8keys.h"
@@ -47,6 +48,15 @@ int teo_sdl_event_handler(void)
                 break;
             case SDL_MOUSEBUTTONUP:
                 teo_sdl_mouse_button(&(event.button));
+                break;
+            case SDL_JOYAXISMOTION:
+                teo_sdl_joytick_move(&(event.jaxis));
+                break;
+            case SDL_JOYBUTTONDOWN:
+                teo_sdl_joystick_button(&(event.jbutton));
+                break;
+            case SDL_JOYBUTTONUP:
+                teo_sdl_joystick_button(&(event.jbutton));
                 break;
         }
     }
