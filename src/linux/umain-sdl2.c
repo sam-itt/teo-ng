@@ -93,6 +93,7 @@
 //#include <unistd.h>
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-joystick.h"
+#include "sdl2/teo-sdl-sound.h"
 
 struct EMUTEO teo;
 
@@ -113,6 +114,7 @@ static volatile int tick;   /* compteur du timer       */
 static void Timer(void)
 {
     tick++;
+//    printf("%s: timer = %d\n",__FUNCTION__,tick);
 }
 
 
@@ -147,11 +149,16 @@ static void RunTO8(void)
     SDL_GetCurrentDisplayMode(0, &DM);
 
     SDL_Event ev;
+    Uint32 last_frame;
 
+
+//    teo.setting.sound_enabled = 0;
 
 //    amouse_Install(TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
     teo_sdl_RetraceWholeScreen();
 
+//    teo_sdl_sound_init(51200);
+//    teo_sdl_sound_init(44100);
     do  /* boucle principale de l'émulateur */
     {
 
@@ -164,12 +171,11 @@ static void RunTO8(void)
 
         if (teo.setting.exact_speed)
         {
-            if (teo.setting.sound_enabled)
+            if (teo.setting.sound_enabled){
                 printf("asound_Start();\n");
-            else
-            {
+            }else{
                 //50Hz -> 1000 ms
-                tid = SDL_AddTimer(1000, (SDL_TimerCallback)Timer, NULL);
+        //        tid = SDL_AddTimer(1000, (SDL_TimerCallback)Timer, NULL);
 //                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
                 frame=1;
                 tick=frame;
@@ -178,6 +184,9 @@ static void RunTO8(void)
 
         do  /* boucle d'émulation */
         {
+            last_frame = SDL_GetTicks(); 
+            if(teo.setting.exact_speed && !teo.setting.sound_enabled)
+                last_frame = SDL_GetTicks(); 
             if (teo_DoFrame() == 0)
                 if (windowed_mode)
                     teo.command=TEO_COMMAND_BREAKPOINT;
@@ -196,11 +205,34 @@ static void RunTO8(void)
             /* synchronisation sur fréquence réelle */
             if (teo.setting.exact_speed)
             {
-                if (teo.setting.sound_enabled)
-                    usound_Play();
-                else
-                    while (frame==tick)
-                   usleep(0);
+                if (teo.setting.sound_enabled){
+                    teo_sdl_sound_play();
+                    Uint32 dt; /*milliseconds*/
+
+                    /*TEO_MICROSECONDS_PER_FRAME = 20.000
+                     * TODO: Use that and also use it in umain-x11.c
+                     * */
+
+                    dt = SDL_GetTicks() - last_frame;
+                    if((SDL_GetTicks() - last_frame) < 20)
+                        SDL_Delay(20-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+
+
+
+//                    usound_Play();
+                    if(false)
+                        printf("usound_Play();\n");
+                }else{
+                    Uint32 dt; /*milliseconds*/
+
+                    /*TEO_MICROSECONDS_PER_FRAME = 20.000
+                     * TODO: Use that and also use it in umain-x11.c
+                     * */
+
+                    dt = SDL_GetTicks() - last_frame;
+                    if((SDL_GetTicks() - last_frame) < 20)
+                        SDL_Delay(20-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+                }
             }
 
             disk_WriteTimeout();
@@ -208,17 +240,20 @@ static void RunTO8(void)
 #ifdef ENABLE_GTK_PANEL
             gtk_main_iteration_do(FALSE);
 #endif 
+//            printf("%s (end loop): frame: %d, tick = %d\n",__FUNCTION__,frame, tick);
         }while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
-
+        exit(0);
 /*Why removing handlers ?*/
 
         /* désinstallation des handlers clavier, souris et son */
         if (teo.setting.exact_speed)
         {
-            if (teo.setting.sound_enabled)
-                usound_Close();
-            else
+            if (teo.setting.sound_enabled){
+//                usound_Close();
+                printf("usound_Close();\n");
+            }else{
                 SDL_RemoveTimer(tid);
+            }
         }
 //        amouse_ShutDown();
 //        ukeybint_ShutDown();
@@ -826,8 +861,13 @@ int main(int argc, char *argv[])
     g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
 
     /* Initialise le son */
-    if (usound_Init() < 0)
-        main_DisplayMessage(teo_error_msg);
+//    if (usound_Init() < 0)
+//        main_DisplayMessage(teo_error_msg);
+    /*TODO: Disable sound if sound init fails*/
+//    teo_sdl_sound_init(48000);
+//    teo_sdl_sound_init(44100);
+    teo_sdl_sound_init(51200);
+//    teo_sdl_sound_init(25600);
 
 
     /* Restitue l'état sauvegardé de l'émulateur */
