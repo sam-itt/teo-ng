@@ -12,7 +12,7 @@ else
 teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS) $(XEXT_LIBS) $(X11_LIBS) $(ALSA_LIBS)
 endif #GFX_BACKEND_SDL2
 endif #GFX_BACKEND_ALLEGRO
-teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) $(GTK_CFLAGS) $(XEXT_CFLAGS) $(X11_CFLAGS) $(ALSA_CFLAGS) -I$(top_srcdir)/include 
+teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) $(GTK_CFLAGS) $(XEXT_CFLAGS) $(X11_CFLAGS) $(ALSA_CFLAGS) $(SDL2_CFLAGS) -I$(top_srcdir)/include 
 
 teo_SOURCES = \
 	ufloppy.c 

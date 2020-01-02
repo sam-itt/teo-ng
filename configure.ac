@@ -110,7 +110,28 @@ AC_TYPE_SIZE_T
 #AC_FUNC_MALLOC
 #AC_FUNC_REALLOC
 AC_FUNC_MKTIME
-AC_CHECK_FUNCS([malloc realloc atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name])
+AC_CHECK_FUNCS([malloc realloc atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name scandir alphasort])
+
+# check if the dirent structure of a d_type field and DT_UNKNOWN is defined
+AC_MSG_CHECKING(if the dirent structure of a d_type field)
+AC_LINK_IFELSE(
+[
+  AC_LANG_SOURCE([[
+    #include <dirent.h>
+
+    int main() {
+      struct dirent entry;
+      return entry.d_type == DT_UNKNOWN;
+    }
+  ]])
+],[have_dirent_d_type=yes],[have_dirent_d_type=no])
+AC_MSG_RESULT($have_dirent_d_type)
+
+if test "$have_dirent_d_type" = yes; then
+    AC_DEFINE(HAVE_DIRENT_D_TYPE, 1,
+              [Define to 1 if the dirent structure has a d_type field])
+fi
+
 
 ##########################
 # Checking target platform
@@ -172,8 +193,10 @@ AC_MSG_RESULT([$platform_unix])
 AM_CONDITIONAL(PLATFORM_UNIX, test "x$platform_unix" = "xyes")
 AS_IF([test "x$platform_unix" = "xyes"],[
     AC_DEFINE(PLATFORM_UNIX,[1],[Building for unix-compatible systems])
+    AC_DEFINE(DIR_SEPARATOR,['/'],[Char that goes between directories in a path])
 ],[
     AC_DEFINE(PLATFORM_UNIX,[0],[Building for unix-compatible systems])
+    AC_DEFINE(DIR_SEPARATOR,[\\],[Char that goes between directories in a path])
 ])
 
 #Win32 specific compiler flags
@@ -251,6 +274,7 @@ AS_CASE(["x$with_gfx_backend"],
     AC_DEFINE(GFX_BACKEND_SDL2,[],[Use SDL2 for gfx rendering])
     PKG_CHECK_MODULES([SDL2], [sdl2])
     PKG_CHECK_MODULES([ALSA], [alsa])
+    AC_DEFINE(WITH_SDL2,[1],[Use SDL2 features that were not in SDL1.2])
    ],
    [
     AC_MSG_ERROR(["Valid values for --with-gfx-backend are 'allegro','gtk-x11' and 'sdl2'"])

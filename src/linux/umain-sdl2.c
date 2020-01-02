@@ -111,6 +111,13 @@ static int windowed_mode = TRUE;
 int frame;                  /* compteur de frame vidéo */
 static volatile int tick;   /* compteur du timer       */
 
+
+SDL_Surface *sdlscrn = NULL; 
+bool bQuitProgram = false;
+bool bInFullScreen = false;
+SDL_Window* sdlWindow = NULL; /*screen.c, sdlgui.c*/
+
+
 static void Timer(void)
 {
     tick++;
@@ -151,6 +158,8 @@ static void RunTO8(void)
     SDL_Event ev;
     Uint32 last_frame;
 
+
+    bool a,b;
 
 //    teo.setting.sound_enabled = 0;
 
@@ -242,7 +251,7 @@ static void RunTO8(void)
 #endif 
 //            printf("%s (end loop): frame: %d, tick = %d\n",__FUNCTION__,frame, tick);
         }while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
-        exit(0);
+//        exit(0);
 /*Why removing handlers ?*/
 
         /* désinstallation des handlers clavier, souris et son */
@@ -269,6 +278,7 @@ static void RunTO8(void)
             else
                 agui_Panel();
 #else
+            Dialog_MainDlg(&a, &b);
 //            agui_Panel();
 #endif
         }
@@ -842,8 +852,9 @@ int main(int argc, char *argv[])
 #ifdef ENABLE_GTK_PANEL
    // udisplay_Window (); /* Création de la fenêtre principale */
 #endif
-
-    teo_sdl_window (); /* Création de la fenêtre principale */
+    /*TODO: Investigate if that is used and where and why and make better code*/
+    sdlWindow = teo_sdl_window (); /* Création de la fenêtre principale */
+    sdlscrn = SDL_GetWindowSurface(sdlWindow);
     teo_sdl_display_init();  /*Noop*/  /* Initialisation du serveur X */
     teo_sdl_graphic_init();    /* Initialisation du module graphique */
 

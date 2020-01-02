@@ -10,6 +10,7 @@ int teo_sdl_gfx_init(void)
     int rv;
     char *cfg_file;
     
+    /*TODO: Split me up, see how hatari inits sound*/
     rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO);
     if(rv == 0){
         printf("SDL init ok\n");
@@ -21,6 +22,7 @@ int teo_sdl_gfx_init(void)
             printf("Keymap %s not found !\n","sdl-keymap.ini");
         }
 
+        SDLGui_Init();
 //        SDL_AddEventWatch((SDL_EventFilter)teo_sdl_keyboard_handler,NULL);
     }else{
         printf("Couldn't init SDL, bailing out\n");

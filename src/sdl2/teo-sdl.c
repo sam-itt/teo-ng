@@ -591,7 +591,7 @@ int teo_sdl_getPointer(void)
 }
 
 
-void teo_sdl_window()
+SDL_Window *teo_sdl_window()
 {
 
     char *title = is_fr  ? "Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
@@ -605,7 +605,7 @@ void teo_sdl_window()
                 );
     if (window == NULL){
         fprintf(stderr, "could not create window: %s\n", SDL_GetError());
-        return;
+        return NULL;
     }
 
     screenSurface = SDL_GetWindowSurface(window);
@@ -617,6 +617,7 @@ void teo_sdl_window()
      * */
     SDL_ShowCursor(SDL_DISABLE); 
     printf("ok\n");
+    return window;
 }
 
 void teo_sdl_display_init()
