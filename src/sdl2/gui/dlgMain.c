@@ -6,7 +6,6 @@
 
   The main dialog.
 */
-const char DlgMain_fileid[] = "Hatari dlgMain.c : " __DATE__ " " __TIME__;
 
 //#include "main.h"
 //#include "configuration.h"
@@ -14,7 +13,7 @@ const char DlgMain_fileid[] = "Hatari dlgMain.c : " __DATE__ " " __TIME__;
 #include "sdlgui.h"
 #include "screen.h"
 
-
+#include "teo.h"
 
 #define MAINDLG_WARM_RESET 2
 #define MAINDLG_COLD_RESET 3
@@ -61,7 +60,7 @@ static SGOBJ maindlg[] =
  */
 int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot)
 {
-	int retbut;
+	int retbut, response;
 	bool bOldMouseVisibility;
 	int nOldMouseX, nOldMouseY;
 
@@ -82,17 +81,25 @@ int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot)
 		switch (retbut){
          /*Resets*/
 		 case MAINDLG_WARM_RESET:
+            teo.command=TEO_COMMAND_RESET;
             break;
 		 case MAINDLG_COLD_RESET:
+            teo.command=TEO_COMMAND_COLD_RESET;
             break;
 		 case MAINDLG_FULL_RESET:
+            response = DlgAlert_Query("All the memory will be cleared.");
+            if(response == true){
+                teo.command=TEO_COMMAND_FULL_RESET;
+                retbut = MAINDLG_OK;
+               // return;
+            }
             break;
          /*Other dialogs*/
          case MAINDLG_SETTINGS:
             DlgSystem_Main();
             break;
          case MAINDLG_DISKS:
-            DlgDisks_Main();
+            DlgDisks_Main(0,0); /*TODO: Direct access*/
             break;
          case MAINDLG_TAPE:
             DlgTape_Main();
@@ -105,7 +112,11 @@ int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot)
             break;
          /*Other actions*/
          case MAINDLG_QUIT:
-			bQuitProgram = true;
+            if(teo.command == TEO_COMMAND_COLD_RESET)
+                teo_ColdReset();
+            teo.command=TEO_COMMAND_QUIT;
+            retbut = MAINDLG_OK;
+//			bQuitProgram = true;
             break;
          case MAINDLG_ABOUT:
             Dialog_AboutDlg();

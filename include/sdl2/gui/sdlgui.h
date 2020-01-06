@@ -13,6 +13,8 @@
 #include <SDL.h>
 #include <stdbool.h>
 
+#define get_state(ctrl) ((ctrl).state & SG_SELECTED ? true : false)
+
 extern bool bQuitProgram;
 
 /* object types: */

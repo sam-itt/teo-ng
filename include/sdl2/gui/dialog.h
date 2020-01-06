@@ -15,9 +15,13 @@
 extern int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot);
 
 extern void DlgSystem_Main(void);
-extern void DlgDisks_Main(void);
+extern void DlgDisks_Main(bool da_enabled, int da_mask);
 extern void DlgTape_Main(void);
 extern void DlgCart_Main(void);
 extern void DlgPrinter_Main(void);
 extern void Dialog_AboutDlg(void);
+
+
+int DlgAlert_Query(const char *text);
+int DlgAlert_Notice(const char *text);
 #endif

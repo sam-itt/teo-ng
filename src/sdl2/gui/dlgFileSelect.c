@@ -12,6 +12,7 @@
 
 #include <SDL.h>
 #include <sys/stat.h>
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <dirent.h>
 
@@ -901,10 +902,13 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 
 			case SGFSDLG_HOMEDIR:               /* Change to home directory */
 			case SGFSDLG_CWD:                   /* Change to current work directory */
-				if (retbut == SGFSDLG_CWD)
-					printf("home = Paths_GetWorkingDir();\n");
-				else
-					printf("home = Paths_GetUserHome();\n");
+				if (retbut == SGFSDLG_CWD){
+                    home = get_current_dir_name();
+					//printf("home = Paths_GetWorkingDir();\n");
+				}else{
+                    home = strdup(getenv("HOME"));
+//					printf("home = Paths_GetUserHome();\n");
+                }
 				if (home == NULL || !*home)
 					break;
 				if (browsingzip)
@@ -917,6 +921,7 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 					browsingzip = false;
 				}
 				strcpy(path, home);
+                free(home);
 				File_AddSlashToEndFileName(path);
 				File_ShrinkName(dlgpath, path, DLGPATH_SIZE);
 				reloaddir = true;

@@ -13,9 +13,10 @@ const char DlgSystem_fileid[] = "Hatari dlgSystem.c : " __DATE__ " " __TIME__;
 #include "dialog.h"
 #include "sdlgui.h"
 
+#include "teo.h"
 
 static char sSoundVolume[4];
-
+static bool adjustableVolume;
 
 #define DLGSET_SPD_EXACT   3
 #define DLGSET_SPD_FAST    4
@@ -27,6 +28,7 @@ static char sSoundVolume[4];
 #define DLGSET_MEM_512     12
 #define DLGSET_INTL_VID    13
 #define DLGSET_EXIT        14 
+
 
 static SGOBJ systemdlg[] =
 {
@@ -66,6 +68,7 @@ void DlgSystem_Main(void)
 	int i;
 	int but;
     int volume;
+    Uint8 mem_size;
 
     
 	SDLGui_CenterDlg(systemdlg);
@@ -74,24 +77,34 @@ void DlgSystem_Main(void)
     systemdlg[DLGSET_SPD_EXACT].state &= ~SG_SELECTED;
     systemdlg[DLGSET_SPD_FAST].state &= ~SG_SELECTED;
 
-    systemdlg[DLGSET_SPD_EXACT].state |= SG_SELECTED;
+    if(teo.setting.exact_speed)
+        systemdlg[DLGSET_SPD_EXACT].state |= SG_SELECTED;
+    else 
+        systemdlg[DLGSET_SPD_FAST].state |= SG_SELECTED;
 
     /*Sound*/
     systemdlg[DLGSET_SOUND].state &= ~SG_SELECTED;
     volume = 100;
 	sprintf(sSoundVolume, "%3i", volume);
 
-    systemdlg[DLGSET_SOUND].state |= SG_SELECTED;
+    if(teo.setting.sound_enabled)
+        systemdlg[DLGSET_SOUND].state |= SG_SELECTED;
 
 
     /*Memory*/
     systemdlg[DLGSET_MEM_256].state &= ~SG_SELECTED;
     systemdlg[DLGSET_MEM_512].state &= ~SG_SELECTED;
 
-    systemdlg[DLGSET_MEM_512].state |= SG_SELECTED;
+    if(teo.setting.bank_range == 32)
+        systemdlg[DLGSET_MEM_512].state |= SG_SELECTED;
+    else
+        systemdlg[DLGSET_MEM_256].state |= SG_SELECTED;
 
     /*Video*/
     systemdlg[DLGSET_INTL_VID].state &= ~SG_SELECTED;
+
+    if(teo.setting.interlaced_video)
+        systemdlg[DLGSET_INTL_VID].state |= SG_SELECTED;
 
 	/* Show the dialog: */
 	do
@@ -100,14 +113,18 @@ void DlgSystem_Main(void)
         printf("But is : %d\n",but);
 		switch(but){
 		 case DLGSET_VOL_MORE:
-            if(volume < 100)
-                volume++;
-			sprintf(sSoundVolume, "%3i", volume);
+            if(adjustableVolume){
+                if(volume < 100)
+                    volume++;
+			    sprintf(sSoundVolume, "%3i", volume);
+            }
 			break;
 		 case DLGSET_VOL_LESS:
-            if(volume > 0)
-                volume--;
-			sprintf(sSoundVolume, "%3i", volume);
+            if(adjustableVolume){
+                if(volume > 0)
+                    volume--;
+			    sprintf(sSoundVolume, "%3i", volume);
+            }
 			break;
         }
     }while (but != DLGSET_EXIT && but != SDLGUI_QUIT
@@ -116,6 +133,8 @@ void DlgSystem_Main(void)
 
 
 	/* Read values from dialog: */
+
+
     /*Speed*/
     printf("Speed: ");
     if(systemdlg[DLGSET_SPD_EXACT].state & SG_SELECTED)
@@ -124,10 +143,13 @@ void DlgSystem_Main(void)
         printf("fast\n");
     else
         printf("undefined\n");
+    teo.setting.exact_speed = get_state(systemdlg[DLGSET_SPD_EXACT]);
 
     /*Sound*/
     printf("Sound: %s\n", systemdlg[DLGSET_SOUND].state & SG_SELECTED ? "on" : "off");
     printf("Volume: %s%%\n", sSoundVolume);
+    teo.setting.sound_enabled = get_state(systemdlg[DLGSET_SOUND]);
+
 
     /*Memory*/
     printf("Memory: ");
@@ -137,7 +159,14 @@ void DlgSystem_Main(void)
         printf("512k\n");
     else
         printf("undefined\n");
+    mem_size = get_state(systemdlg[DLGSET_MEM_512]) ? 32 : 16;
+    if (mem_size != teo.setting.bank_range)
+        teo.command = TEO_COMMAND_COLD_RESET;
+    teo.setting.bank_range = mem_size;
 
     /*Video*/
     printf("Interlaced video: %s\n", systemdlg[DLGSET_INTL_VID].state & SG_SELECTED ? "on" : "off");
+    teo.setting.interlaced_video = get_state(systemdlg[DLGSET_INTL_VID]);
+   
+
 }

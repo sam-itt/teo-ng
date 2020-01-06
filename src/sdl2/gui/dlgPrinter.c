@@ -10,9 +10,17 @@
 
 //#include "main.h"
 //#include "configuration.h"
+#define _GNU_SOURCE
+#include <unistd.h>
 #include "dialog.h"
 #include "sdlgui.h"
 #include "file.h"
+
+
+#include "std.h"
+#include "teo.h"
+#include "media/printer.h"
+
 
 static char sFile[FILENAME_MAX];
 static char sRealFile[FILENAME_MAX];
@@ -83,22 +91,28 @@ static SGOBJ printerdlg[] ={
  */
 static bool DlgPrinter_BrowseDir(char *dlgname, char *confname, int maxlen)
 {
-	char *str, *selname;
+	char *selname;
+    int i;
 
 	selname = SDLGui_FileSelect("Select directory:", confname, NULL, false);
-	if (selname)
-	{
-		strcpy(confname, selname);
-		free(selname);
+	if(selname){
+        /*Removes any trailing DIR_SEPARATOR (slash on Unix, backslash on Win32)*/
+        i = strlen(selname) - 1;
+        if (i > 0)
+            while ((i >= 0) && (selname[i] == DIR_SEPARATOR))
+                selname[i--] = '\0';
 
-		str = strrchr(confname, DIR_SEPARATOR);
-		if (str != NULL)
-			str[1] = 0;
-		File_CleanFileName(confname);
-		File_ShrinkName(dlgname, confname, maxlen);
+        /*Set full path in the config strcut*/
+        teo.lprt.folder = std_free(teo.lprt.folder);
+        teo.lprt.folder = selname;
+
+        /*Displays only the last part in the dialog box*/
+        snprintf(sFile, FILENAME_MAX-1, "%s", std_BaseName(selname));
+
 		return true;
 	}
 	return false;
+
 }
 
 
@@ -110,9 +124,55 @@ void DlgPrinter_Main(void)
 {
 	int i;
     int but;
+    int selected_printer_idx;
 
-    strncpy(sFile, "5axe.fd", FILENAME_MAX);
+    //strncpy(sFile, "5axe.fd", FILENAME_MAX);
 	SDLGui_CenterDlg(printerdlg);
+
+    /*Output folder*/
+    if (teo.lprt.folder == NULL){
+        teo.lprt.folder = get_current_dir_name(); /*TODO: Move this in the core*/
+    }
+    snprintf(sFile, FILENAME_MAX-1, "%s", teo.lprt.folder);
+    std_CleanPath(sFile);
+
+    /*Double spaced*/
+    printerdlg[DLGPRN_DOUBLE_SPACED].state &= ~SG_SELECTED;
+    if (teo.lprt.dip)
+        printerdlg[DLGPRN_DOUBLE_SPACED].state |= SG_SELECTED;
+
+    /*High quality*/
+    printerdlg[DLGPRN_HQ].state &= ~SG_SELECTED;
+    if (teo.lprt.nlq)
+        printerdlg[DLGPRN_HQ].state |= SG_SELECTED;
+
+    /*Output settings*/
+    printerdlg[DLGPRN_RAW].state &= ~SG_SELECTED;
+    if (teo.lprt.raw_output)
+        printerdlg[DLGPRN_RAW].state |= SG_SELECTED;
+
+    printerdlg[DLGPRN_TEXT].state &= ~SG_SELECTED;
+    if (teo.lprt.txt_output)
+        printerdlg[DLGPRN_TEXT].state |= SG_SELECTED;
+
+    printerdlg[DLGPRN_GRAPHIC].state &= ~SG_SELECTED;
+    if (teo.lprt.gfx_output)
+        printerdlg[DLGPRN_GRAPHIC].state |= SG_SELECTED;
+
+    /*Printer selection*/
+    printerdlg[DLGPRN_PR042].state &= ~SG_SELECTED;
+    printerdlg[DLGPRN_PR055].state &= ~SG_SELECTED;
+    printerdlg[DLGPRN_PR582].state &= ~SG_SELECTED;
+    printerdlg[DLGPRN_PR600].state &= ~SG_SELECTED;
+    printerdlg[DLGPRN_PR612].state &= ~SG_SELECTED;
+
+    selected_printer_idx = 0;
+    for (i=0; i<PRINTER_NUMBER; i++){
+        if (teo.lprt.number == printer_code_list[i].number)
+            selected_printer_idx = i;
+    }
+    printerdlg[DLGPRN_PR042+selected_printer_idx].state |= SG_SELECTED;
+
 	do{
         but = SDLGui_DoDialog(printerdlg, NULL, false);
 		switch(but){
@@ -122,5 +182,27 @@ void DlgPrinter_Main(void)
         }
     }while (but != DLGPRN_OK && but != SDLGUI_QUIT
 	        && but != SDLGUI_ERROR && !bQuitProgram );
+
+    if(but != DLGPRN_OK) return;
+
+    /*Adjust config to selected values*/
+
+    /*Selected printer*/
+    for(int i = DLGPRN_PR042; i <= DLGPRN_PR612; i++){
+        if(get_state(printerdlg[i])){
+            teo.lprt.number = printer_code_list[i-DLGPRN_PR042].number;
+        }
+    }
+    
+    /*Double interval*/
+    teo.lprt.dip = get_state(printerdlg[DLGPRN_DOUBLE_SPACED]);
+    
+    /*Quality*/
+    teo.lprt.nlq = get_state(printerdlg[DLGPRN_HQ]);
+
+    /*Output type*/ 
+    teo.lprt.raw_output = get_state(printerdlg[DLGPRN_RAW]);
+    teo.lprt.txt_output = get_state(printerdlg[DLGPRN_TEXT]);
+    teo.lprt.gfx_output = get_state(printerdlg[DLGPRN_GRAPHIC]);
 
 }

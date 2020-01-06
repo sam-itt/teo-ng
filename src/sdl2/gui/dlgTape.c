@@ -16,6 +16,10 @@
 #include "file.h"
 #include "sdlgui.h"
 
+#include "media/cass.h"
+#include "errors.h"
+#include "std.h"
+#include "teo.h"
 
 
 
@@ -30,9 +34,23 @@
 #define DLGTPE_REWIND 12
 
 #define DLGDSK_OK 13
+
+/*Borrowed from Allegro4*/
+#ifndef MID
+/* Returns the median of x, y, z */
+#define MID(x,y,z)   ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ?    \
+                       (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : \
+                       (x)): (y)))
+#endif
+
 static char sFile[FILENAME_MAX];
+
+/*Tape counter*/
+#define COUNTER_MAX  999
 static char sTapeIdx[4];
 
+/*Write protect*/
+static bool wp_active;
 
 //x,y base = 20,10
 //w,h box !  280,180
@@ -66,8 +84,8 @@ static SGOBJ tapedlg[]={
 
 static void DlgTape_Eject(char *dlgname)
 {
-    /*TODO: Teo eject here*/
-    dlgname[0] = '\0';
+    snprintf(dlgname, FILENAME_MAX-1, "%s", "(None)");
+    cass_Eject();
 }
 
 /**
@@ -79,25 +97,44 @@ static void DlgTape_Eject(char *dlgname)
 static void DlgTape_Browse(char *dlgname, int diskid)
 {
 	char *selname, *zip_path;
-	const char *tmpname, *realname;
+	const char *tmpname;
 
-//	if (ConfigureParams.DiskImage.szDiskFileName[drive][0])
-//		tmpname = printf("ConfigureParams.DiskImage.szDiskFileName[drive];\n");
-//	else
-//		tmpname = printf("ConfigureParams.DiskImage.szDiskImageDirectory;\n");
-		tmpname = "/home";
+	if (teo.memo.file)
+	    tmpname = teo.cass.file;
+	else
+        tmpname = teo.default_folder ? teo.default_folder : "/";
 
 	selname = SDLGui_FileSelect("Tape image:", tmpname, &zip_path, false);
 	if (!selname)
 		return;
 
-	if (File_Exists(selname))
-	{
-        realname = strdup(selname);
-        /*TODO: TEO Set floppy HERE*/
-		printf("realname = Floppy_SetDiskFileName(drive, selname, zip_path);\n");
-		if (realname)
-			File_ShrinkName(dlgname, realname, tapedlg[diskid].w);
+	if(File_Exists(selname)){
+        int rv;
+        
+        /* Will try to open filename (obeys teo.cass.write_protect)
+         * and will set teo.cass.filename*/
+        rv = cass_Load(selname); 
+        if(rv < 0){
+            DlgAlert_Notice(teo_error_msg);
+        }else{
+            snprintf(dlgname, FILENAME_MAX-1, "%s", std_BaseName(teo.cass.file));
+
+            /*TODO: Integrate this set-default-from-last-file into a teo_ function*/
+            if(!teo.default_folder){
+                teo.default_folder = strdup(selname);
+                std_CleanPath (teo.default_folder); /*CleanPath works like dirname(3)*/
+            }
+            
+            /* cass_Load returned true and set teo.cass.write_protect 
+             * while the toggle wasn't checked: Can't write but not 
+             * because the user asked so 
+             * */
+            if( (rv > 0) && !wp_active ){
+                DlgAlert_Notice("Warning: writing unavailable.");
+                tapedlg[DLGTPE_WP].state |= SG_SELECTED;
+                wp_active = 1;
+            }
+        }
 	}
 	else
 	{
@@ -109,7 +146,57 @@ static void DlgTape_Browse(char *dlgname, int diskid)
 	free(selname);
 }
 
+static void DlgTape_ToggleWriteProtection()
+{
+    bool wp_active = 0;
+    if(wp_active){
+        /* The write protection was active
+         * before the click thus the "command"
+         * is to make the protection inactive
+         * */
+        if (cass_SetProtection(false)==true){ /*Failure to do so*/
+            DlgAlert_Notice(is_fr?"Ecriture impossible sur ce support."
+                                   :"Writing unavailable on this device.");
+            /* Forceful recheck to box the user has just unchecked */
+            tapedlg[DLGTPE_WP].state |= SG_SELECTED;
+            wp_active = true;          
+        }else{
+            /* This (first line) might be unnecessary
+             * TODO: Remove and test
+             * */
+            tapedlg[DLGTPE_WP].state &= ~SG_SELECTED;
+            wp_active = false;          
+        }
+    }else{
+        /* The write protection was inactive
+         * before the click thus the "command"
+         * is to make the protection active
+         * */
+        cass_SetProtection(true);
+        /* This (first line) might be unnecessary
+         * TODO: Remove and test
+         * */
+        tapedlg[DLGTPE_WP].state |= SG_SELECTED;
+        wp_active = true;          
+    }
+}
 
+static void DlgTape_ChangeCounter(bool down)
+{
+    int counter;
+
+    counter = cass_GetCounter();
+
+    if (down)
+       counter--;
+    else
+       counter++;
+
+    counter = MID(0, counter, COUNTER_MAX);
+    cass_SetCounter(counter);
+
+    sprintf(sTapeIdx, "%3d", counter);
+}
 
 /*-----------------------------------------------------------------------*/
 /**
@@ -117,43 +204,34 @@ static void DlgTape_Browse(char *dlgname, int diskid)
  */
 void DlgTape_Main(void)
 {
-	int i;
 	int but;
-    int index;
 
-//    *sFileOne = '\0';
-    strncpy(sFile, "5axe.fd", FILENAME_MAX);
-    index = 0;
-	sprintf(sTapeIdx, "%3i", index);
 
 	SDLGui_CenterDlg(tapedlg);
 
-    /*Here get disks files from TEO config and put them in
-     * also check/uncheck write protection
-     *
+    /* Init values from Teo current config
+     * 
      * */
-//	/* Set up speed */
-//    systemdlg[DLGSET_SPD_EXACT].state &= ~SG_SELECTED;
-//    systemdlg[DLGSET_SPD_FAST].state &= ~SG_SELECTED;
-//
-//    systemdlg[DLGSET_SPD_EXACT].state |= SG_SELECTED;
-//
-//    /*Sound*/
-//    systemdlg[DLGSET_SOUND].state &= ~SG_SELECTED;
-//    volume = 100;
-//	sprintf(sSoundVolume, "%3i", volume);
-//
-//    systemdlg[DLGSET_SOUND].state |= SG_SELECTED;
-//
-//
-//    /*Memory*/
-//    systemdlg[DLGSET_MEM_256].state &= ~SG_SELECTED;
-//    systemdlg[DLGSET_MEM_512].state &= ~SG_SELECTED;
-//
-//    systemdlg[DLGSET_MEM_512].state |= SG_SELECTED;
-//
-//    /*Video*/
-//    systemdlg[DLGSET_INTL_VID].state &= ~SG_SELECTED;
+
+    /*Tape image filename*/
+    printf("Tape: %s\n",teo.cass.file );
+    if(!teo.cass.file || *teo.cass.file == '\0')
+        snprintf(sFile, FILENAME_MAX-1, "%s", "(None)");
+    else
+        snprintf(sFile, FILENAME_MAX-1, "%s", std_BaseName(teo.cass.file));
+
+    /*Write protection*/
+    tapedlg[DLGTPE_WP].state &= ~SG_SELECTED;
+    wp_active = false;
+    if(teo.cass.write_protect){ 
+        tapedlg[DLGTPE_WP].state |= SG_SELECTED;
+        wp_active = true;
+    }
+
+    /*Counter*/
+	sprintf(sTapeIdx, "%3d", 0);
+
+
 
 	/* Show the dialog: */
 	do{
@@ -163,27 +241,35 @@ void DlgTape_Main(void)
          /* Choose a new disk*/
 		 case DLGTPE_BROWSE:                        
 			DlgTape_Browse(sFile, DLGTPE_NAME);
-            tapedlg[DLGTPE_WP].state |= SG_SELECTED;
 			break;
 		 case DLGTPE_EJECT:
             DlgTape_Eject(sFile);
-            tapedlg[DLGTPE_EJECT].state &= ~SG_SELECTED;
 			break;
+         case DLGTPE_WP:
+            DlgTape_ToggleWriteProtection();
+            break;
 		 case DLGTPE_IDX_MORE:
-            if(index < 100)
-                index++;
-			sprintf(sTapeIdx, "%3i", index);
+            DlgTape_ChangeCounter(false);
 			break;
 		 case DLGTPE_IDX_LESS:
-            if(index > 0)
-                index--;
-			sprintf(sTapeIdx, "%3i", index);
+            DlgTape_ChangeCounter(true);
 			break;
          case DLGTPE_REWIND:
-            index = 0;
-			sprintf(sTapeIdx, "%3i", index);
+            cass_SetCounter(0);
+			sprintf(sTapeIdx, "%3d", 0);
 			break;
         }
     }while (but != DLGDSK_OK && but != SDLGUI_QUIT
 	        && but != SDLGUI_ERROR && !bQuitProgram );
+
+    if(but != DLGDSK_OK) return;
+
+    /*Writeback values to Teo config*/
+
+    /*Write protection*/
+    teo.cass.write_protect = get_state(tapedlg[DLGTPE_WP]);
+    
+    /* Other settings (filename, counter) have already been set 
+     * by the functions
+     * */
 }

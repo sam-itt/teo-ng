@@ -7,14 +7,17 @@
 
   Dialog for setting various system options
 */
-//const char DlgDisks_fileid[] = "Teo-ng dlgDisks.c : " __DATE__ " " __TIME__;
 
-//#include "main.h"
-//#include "configuration.h"
 #include "dialog.h"
 
 #include "file.h"
 #include "sdlgui.h"
+
+#include "media/memo.h"
+#include "errors.h"
+#include "std.h"
+#include "teo.h"
+
 
 #define DLGCART_EJECT 3
 #define DLGCART_NAME 4
@@ -45,22 +48,21 @@ static SGOBJ cartdlg[]={
 
 static void DlgCart_Eject(char *dlgname)
 {
-    /*TODO: Teo eject here*/
-
-    dlgname[0] = '\0';
+    snprintf(dlgname, FILENAME_MAX-1, "%s", "(None)");
+    memo_Eject();
+    teo.command=TEO_COMMAND_COLD_RESET;
 }
 
 
-static void DlgCart_Browse(char *dlgname, int diskid)
+static void DlgCart_Browse(char *dlgname)
 {
 	char *selname, *zip_path;
-	const char *tmpname, *realname;
+	const char *tmpname;
 
-//	if (ConfigureParams.DiskImage.szDiskFileName[drive][0])
-//		tmpname = printf("ConfigureParams.DiskImage.szDiskFileName[drive];\n");
-//	else
-//		tmpname = printf("ConfigureParams.DiskImage.szDiskImageDirectory;\n");
-		tmpname = "/home";
+	if (teo.memo.file)
+	    tmpname = teo.memo.file;
+	else
+        tmpname = teo.default_folder ? teo.default_folder : "/";
 
 	selname = SDLGui_FileSelect("Cartridge image:", tmpname, &zip_path, false);
 	if (!selname)
@@ -68,11 +70,20 @@ static void DlgCart_Browse(char *dlgname, int diskid)
 
 	if (File_Exists(selname))
 	{
-        realname = strdup(selname);
-        /*TODO: TEO Set floppy HERE*/
-		printf("realname = Floppy_SetDiskFileName(drive, selname, zip_path);\n");
-		if (realname)
-			File_ShrinkName(dlgname, realname, cartdlg[diskid].w);
+        int rv;
+
+        rv = memo_Load(selname);
+        if(rv < 0){
+            DlgAlert_Notice(teo_error_msg);
+        }else{
+            snprintf(dlgname, FILENAME_MAX-1, "%s", std_BaseName(teo.memo.label));
+            /*TODO: Integrate this set-from-last-file into a teo_ function*/
+            if(!teo.default_folder){
+                teo.default_folder = strdup(selname);
+                std_CleanPath (teo.default_folder); /*CleanPath works like dirname(3)*/
+            }
+            teo.command=TEO_COMMAND_COLD_RESET;
+        }   
 	}
 	else
 	{
@@ -96,43 +107,23 @@ void DlgCart_Main(void)
 	int but;
     int volume;
 
-//    *sFileOne = '\0';
-    strncpy(sFile, "5axe.fd", FILENAME_MAX);
     
 	SDLGui_CenterDlg(cartdlg);
 
-    /*Here get cartridge files from TEO config and put it in
+    /*Current cartridge (if any)
      *
      * */
-//	/* Set up speed */
-//    systemdlg[DLGSET_SPD_EXACT].state &= ~SG_SELECTED;
-//    systemdlg[DLGSET_SPD_FAST].state &= ~SG_SELECTED;
-//
-//    systemdlg[DLGSET_SPD_EXACT].state |= SG_SELECTED;
-//
-//    /*Sound*/
-//    systemdlg[DLGSET_SOUND].state &= ~SG_SELECTED;
-//    volume = 100;
-//	sprintf(sSoundVolume, "%3i", volume);
-//
-//    systemdlg[DLGSET_SOUND].state |= SG_SELECTED;
-//
-//
-//    /*Memory*/
-//    systemdlg[DLGSET_MEM_256].state &= ~SG_SELECTED;
-//    systemdlg[DLGSET_MEM_512].state &= ~SG_SELECTED;
-//
-//    systemdlg[DLGSET_MEM_512].state |= SG_SELECTED;
-//
-//    /*Video*/
-//    systemdlg[DLGSET_INTL_VID].state &= ~SG_SELECTED;
+    if(!teo.memo.label || *teo.memo.label == '\0')
+        snprintf(sFile, FILENAME_MAX-1, "%s", "(None)");
+    else
+        snprintf(sFile, FILENAME_MAX-1, "%s", std_BaseName(teo.memo.label));
 
 	/* Show the dialog: */
 	do{
         but = SDLGui_DoDialog(cartdlg, NULL, false);
 		switch(but){
          case DLGCART_BROWSE:
-            DlgCart_Browse(sFile, DLGCART_NAME);
+            DlgCart_Browse(sFile);
             break;
 		 case DLGCART_EJECT:
             DlgCart_Eject(sFile);
