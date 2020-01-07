@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "teo.h"
+#include "sdl2/gui/sdlgui.h"
 
 static SDL_Window *window = NULL;
 static SDL_Surface *screenSurface = NULL;
@@ -609,6 +610,8 @@ SDL_Window *teo_sdl_window()
     }
 
     screenSurface = SDL_GetWindowSurface(window);
+    SDLGui_SetWindow(window);
+
     teo_SetPointer=teo_sdl_SetPointer;
     /* teo_SetPointer is NOT called during the virtual TO8 init.
      * it is only invoked when going through the virtual TO8 settings screen

@@ -12,7 +12,6 @@
 #include "config.h"
 
 #if WITH_SDL2
-extern SDL_Window *sdlWindow;
 static inline int SDL_SetColors(SDL_Surface *surface, SDL_Color *colors,
                                 int firstcolor, int ncolors)
 {

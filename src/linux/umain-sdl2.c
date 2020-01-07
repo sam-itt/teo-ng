@@ -117,7 +117,6 @@ static volatile int tick;   /* compteur du timer       */
 
 bool bQuitProgram = false;
 bool bInFullScreen = false;
-SDL_Window* sdlWindow = NULL; /*screen.c, sdlgui.c*/
 
 
 static void Timer(void)
@@ -855,8 +854,7 @@ int main(int argc, char *argv[])
    // udisplay_Window (); /* Création de la fenêtre principale */
 #endif
     /*TODO: Investigate if that is used and where and why and make better code*/
-    sdlWindow = teo_sdl_window (); /* Création de la fenêtre principale */
-    SDLGui_SetScreen(SDL_GetWindowSurface(sdlWindow));
+    teo_sdl_window (); /* Création de la fenêtre principale */
     teo_sdl_display_init();  /*Noop*/  /* Initialisation du serveur X */
     teo_sdl_graphic_init();    /* Initialisation du module graphique */
 

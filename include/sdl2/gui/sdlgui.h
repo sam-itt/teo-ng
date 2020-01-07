@@ -81,6 +81,9 @@ extern int sdlgui_fontheight;	/* Height of the actual font */
 
 extern int SDLGui_Init(void);
 extern int SDLGui_UnInit(void);
+extern void SDLGui_SetWindow(SDL_Window *win);
+extern SDL_Window *SDLGui_GetWindow(void);
+
 extern int SDLGui_SetScreen(SDL_Surface *pScrn);
 extern SDL_Surface *SDLGui_GetScreen(void);
 extern void SDLGui_GetFontSize(int *width, int *height);
