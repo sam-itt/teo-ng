@@ -60,9 +60,6 @@ int Dialog_MainDlg(bool adjustableVolume, int da_mask)
 	bool bOldMouseVisibility;
 	int nOldMouseX, nOldMouseY;
 
-	if (SDLGui_SetScreen(sdlscrn))
-		return false;
-
 	SDL_GetMouseState(&nOldMouseX, &nOldMouseY);
 	bOldMouseVisibility = SDL_ShowCursor(SDL_QUERY);
 	SDL_ShowCursor(SDL_ENABLE);

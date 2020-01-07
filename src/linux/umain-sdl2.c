@@ -95,6 +95,9 @@
 #include "sdl2/teo-sdl-joystick.h"
 #include "sdl2/teo-sdl-sound.h"
 
+#include "sdl2/gui/dialog.h"
+#include "sdl2/gui/sdlgui.h"
+
 struct EMUTEO teo;
 
 //static int gfx_mode = GFX_WINDOW | GFX_TRUECOLOR;
@@ -112,7 +115,6 @@ int frame;                  /* compteur de frame vidéo */
 static volatile int tick;   /* compteur du timer       */
 
 
-SDL_Surface *sdlscrn = NULL; 
 bool bQuitProgram = false;
 bool bInFullScreen = false;
 SDL_Window* sdlWindow = NULL; /*screen.c, sdlgui.c*/
@@ -854,7 +856,7 @@ int main(int argc, char *argv[])
 #endif
     /*TODO: Investigate if that is used and where and why and make better code*/
     sdlWindow = teo_sdl_window (); /* Création de la fenêtre principale */
-    sdlscrn = SDL_GetWindowSurface(sdlWindow);
+    SDLGui_SetScreen(SDL_GetWindowSurface(sdlWindow));
     teo_sdl_display_init();  /*Noop*/  /* Initialisation du serveur X */
     teo_sdl_graphic_init();    /* Initialisation du module graphique */
 

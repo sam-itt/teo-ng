@@ -34,7 +34,7 @@
 
 #define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
 
-static SDL_Surface *pSdlGuiScrn;            /* Pointer to the actual main SDL screen surface */
+static SDL_Surface *pSdlGuiScrn = NULL;            /* Pointer to the actual main SDL screen surface */
 static SDL_Surface *pSmallFontGfx = NULL;   /* The small font graphics */
 static SDL_Surface *pBigFontGfx = NULL;     /* The big font graphics */
 static SDL_Surface *pFontGfx = NULL;        /* The actual font graphics */
@@ -154,6 +154,12 @@ int SDLGui_UnInit(void)
 
 
 /*-----------------------------------------------------------------------*/
+SDL_Surface *SDLGui_GetScreen(void)
+{
+    return pSdlGuiScrn;
+}
+
+
 /**
  * Inform the SDL-GUI about the actual SDL_Surface screen pointer and
  * prepare the font to suit the actual resolution.

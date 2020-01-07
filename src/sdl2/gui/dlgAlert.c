@@ -148,9 +148,7 @@ static int DlgAlert_ShowDlg(const char *text)
 	}
 
 	free(orig_t);
-
-	if (SDLGui_SetScreen(sdlscrn))
-		return false;
+		
 	SDLGui_CenterDlg(alertdlg);
 
 //	printf("bWasEmuActive = Main_PauseEmulation(true);\n");
@@ -161,7 +159,7 @@ static int DlgAlert_ShowDlg(const char *text)
 
 	i = SDLGui_DoDialog(alertdlg, NULL, false);
 
-	SDL_UpdateRect(sdlscrn, 0,0, 0,0);
+	SDL_UpdateRect(SDLGui_GetScreen(), 0,0, 0,0);
 	SDL_ShowCursor(bOldMouseVisibility);
 //	printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
 

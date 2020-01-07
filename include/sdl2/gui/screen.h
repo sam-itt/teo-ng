@@ -34,7 +34,6 @@ extern int nBorderPixelsLeft, nBorderPixelsRight;
 extern int STScreenStartHorizLine;
 extern int STScreenLeftSkipBytes;
 extern Uint8 *pSTScreen;
-extern SDL_Surface *sdlscrn;
 extern Uint32 STRGBPalette[16];
 extern Uint32 ST2RGB[4096];
 
