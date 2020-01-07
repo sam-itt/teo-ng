@@ -4,6 +4,7 @@
 #include "std.h"
 #include "teo.h"
 #include "sdl2/sdl-keyboard.h"
+#include "sdl2/gui/sdlgui.h"
 
 int teo_sdl_gfx_init(void)
 {

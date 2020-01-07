@@ -1,21 +1,17 @@
 /*
-  Hatari - dlgCpu.c
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
-  This is the CPU settings dialog
+  This is the Printer settings dialog
 */
-//const char DlgCpu_fileid[] = "Hatari dlgCpu.c : " __DATE__ " " __TIME__;
-
-//#include "main.h"
-//#include "configuration.h"
-#define _GNU_SOURCE
+#include "config.h"
 #include <unistd.h>
+
 #include "dialog.h"
 #include "sdlgui.h"
 #include "file.h"
-
 
 #include "std.h"
 #include "teo.h"
@@ -118,7 +114,7 @@ static bool DlgPrinter_BrowseDir(char *dlgname, char *confname, int maxlen)
 
 /*-----------------------------------------------------------------------*/
 /**
- * Show and process the "CPU" dialog
+ * Show and process the "Printer" dialog
  */
 void DlgPrinter_Main(void)
 {
@@ -126,7 +122,6 @@ void DlgPrinter_Main(void)
     int but;
     int selected_printer_idx;
 
-    //strncpy(sFile, "5axe.fd", FILENAME_MAX);
 	SDLGui_CenterDlg(printerdlg);
 
     /*Output folder*/

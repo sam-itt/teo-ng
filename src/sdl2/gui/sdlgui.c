@@ -1,12 +1,11 @@
 /*
-  Hatari - sdlgui.c
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
-  A tiny graphical user interface for Hatari.
+  A tiny graphical user interface.
 */
-const char SDLGui_fileid[] = "Hatari sdlgui.c : " __DATE__ " " __TIME__;
 
 #include <SDL.h>
 #include <ctype.h>
@@ -15,11 +14,8 @@ const char SDLGui_fileid[] = "Hatari sdlgui.c : " __DATE__ " " __TIME__;
 #include <assert.h>
 #include <stdbool.h>
 
-#include "main.h"
 #include "screen.h"
 #include "sdlgui.h"
-//#include "str.h"
-//#include "log.h"
 
 #include "font5x8.h"
 #include "font10x16.h"

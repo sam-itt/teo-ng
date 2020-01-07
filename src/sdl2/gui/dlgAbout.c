@@ -1,20 +1,17 @@
 /*
-  Hatari - dlgAbout.c
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
   Show information about the program and its license.
 */
-//const char DlgAbout_fileid[] = "Hatari dlgAbout.c : " __DATE__ " " __TIME__;
+#include "config.h"
 
-//#include "main.h"
-//#include "version.h"
 #include "dialog.h"
 #include "sdlgui.h"
 
-//static char aboutstr[] = PROG_NAME;
-static char aboutstr[] = "Teo-ng 2.0.0";
+static char aboutstr[] = PACKAGE_STRING;
 
 /* The "About"-dialog: */
 static SGOBJ aboutdlg[] =

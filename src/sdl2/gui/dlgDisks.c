@@ -1,18 +1,15 @@
-#include <stdio.h>
-#include <assert.h>
 /*
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
-  Dialog for setting various system options
+  Dialog to load/eject flopyy disks 
 */
-//const char DlgDisks_fileid[] = "Teo-ng dlgDisks.c : " __DATE__ " " __TIME__;
+#include <stdio.h>
+#include <assert.h>
 
-//#include "main.h"
-//#include "configuration.h"
 #include "dialog.h"
-
 #include "file.h"
 #include "sdlgui.h"
 
@@ -60,8 +57,6 @@ static char sFiles[4][FILENAME_MAX]; /*Better use dynamic allocation*/
  * */
 static char snSides[4][2]; 
 
-//x,y base = 20,10
-//w,h box !  280,180
 static SGOBJ diskdlg[]={
 /*type, f,s        x    y    w    h  text */
 { SGBOX,0,0,       0,  0,   50, 16, NULL },
@@ -117,7 +112,7 @@ static void DlgDisks_EjectDisk(char *dlgname, int drive)
 
     pIdx = DLGDSK_0_WPROT + drive * (DLGDSK_1_WPROT-DLGDSK_0_WPROT);
     diskdlg[pIdx].state &= ~SG_SELECTED;
-    dlgname[0] = '\0';
+    snprintf(dlgname, FILENAME_MAX-1, "%s", "(None)");
 
     disk_Eject(drive);
 }
@@ -137,7 +132,6 @@ static void DlgDisks_BrowseDisk(char *dlgname, int drive)
 	const char *tmpname;
     int objIdx;
     int diskid;
-
 
 	if (teo.disk[drive].file)
 	    tmpname = teo.disk[drive].file;
@@ -179,8 +173,6 @@ static void DlgDisks_BrowseDisk(char *dlgname, int drive)
 	}
 	else
 	{
-        /*TODO: TEO Clear floppy HERE*/
-		printf("Floppy_SetDiskFileNameNone(drive);\n");
 		dlgname[0] = '\0';
 	}
 	free(zip_path);
@@ -242,10 +234,9 @@ static void DlgDisks_EnableDirectAccess(int direct_disk)
 /*-----------------------------------------------------------------------*/
 /**
  * Show and process the "Disks" dialog
- * @da_enabled: true/false when direct access of host floppy supported
  * @da_mask: bitmask that shows which host drives support direct access
  */
-void DlgDisks_Main(bool da_enabled, int da_mask)
+void DlgDisks_Main(int da_mask)
 {
 	int i;
 	int but;
@@ -261,14 +252,13 @@ void DlgDisks_Main(bool da_enabled, int da_mask)
 
     for (i = 0; i < MAX_FLOPPYDRIVES; i++){
 
-            printf("drive %d: %s\n",i, teo.disk[i].file);
         /*Init disk name*/
         objIdx = DLGDSK_0_NAME + i * (DLGDSK_1_NAME-DLGDSK_0_NAME);
         if(teo.disk[i].file){
             printf("drive %d: %s\n",i, teo.disk[i].file);
             snprintf(sFiles[i], FILENAME_MAX-1, "%s", std_BaseName(teo.disk[i].file));
         }else{
-            *sFiles[i] = '\0';
+            snprintf(sFiles[i], FILENAME_MAX-1, "%s", "(None)");
             teo.disk[i].side = 0;
             disk[i].side_count = 1; /*Exported by disk.h*/
         }
@@ -279,8 +269,6 @@ void DlgDisks_Main(bool da_enabled, int da_mask)
             diskdlg[objIdx].state |= SG_SELECTED;
         else
             diskdlg[objIdx].state &= ~SG_SELECTED;
-
-
 
         /* init disk side */
         objIdx = DLGDSK_0_SIDE + i * (DLGDSK_1_SIDE-DLGDSK_0_SIDE);
@@ -293,7 +281,6 @@ void DlgDisks_Main(bool da_enabled, int da_mask)
 	/* Show the dialog: */
 	do{
         but = SDLGui_DoDialog(diskdlg, NULL, false);
-//        printf("But is : %d\n",but);
 		switch(but){
          /* Choose a new disk*/
 		 case DLGDSK_0_BROWSE:                        
@@ -326,7 +313,7 @@ void DlgDisks_Main(bool da_enabled, int da_mask)
             DlgDisks_ToggleWriteProtection(objIdx);
             break;
          case DLGDSK_DIRECT_ACCESS:
-            if(da_enabled)
+            if(da_mask)
                 DlgDisks_EnableDirectAccess(da_mask);
             break;
 

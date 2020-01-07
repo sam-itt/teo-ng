@@ -1,22 +1,18 @@
 /*
-  Hatari - dlgSystem.c
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
-  Dialog for setting various system options
+  Dialog for setting various options
 */
-const char DlgSystem_fileid[] = "Hatari dlgSystem.c : " __DATE__ " " __TIME__;
 
-//#include "main.h"
-//#include "configuration.h"
 #include "dialog.h"
 #include "sdlgui.h"
 
 #include "teo.h"
 
 static char sSoundVolume[4];
-static bool adjustableVolume;
 
 #define DLGSET_SPD_EXACT   3
 #define DLGSET_SPD_FAST    4
@@ -63,9 +59,8 @@ static SGOBJ systemdlg[] =
 /**
  * Show and process the "System" dialog
  */
-void DlgSystem_Main(void)
+void DlgSystem_Main(bool adjustableVolume)
 {
-	int i;
 	int but;
     int volume;
     Uint8 mem_size;
@@ -107,10 +102,8 @@ void DlgSystem_Main(void)
         systemdlg[DLGSET_INTL_VID].state |= SG_SELECTED;
 
 	/* Show the dialog: */
-	do
-	{
+    do{
 	    but = SDLGui_DoDialog(systemdlg, NULL, false);
-        printf("But is : %d\n",but);
 		switch(but){
 		 case DLGSET_VOL_MORE:
             if(adjustableVolume){
@@ -129,7 +122,6 @@ void DlgSystem_Main(void)
         }
     }while (but != DLGSET_EXIT && but != SDLGUI_QUIT
 	        && but != SDLGUI_ERROR && !bQuitProgram );
-
 
 
 	/* Read values from dialog: */
@@ -167,6 +159,5 @@ void DlgSystem_Main(void)
     /*Video*/
     printf("Interlaced video: %s\n", systemdlg[DLGSET_INTL_VID].state & SG_SELECTED ? "on" : "off");
     teo.setting.interlaced_video = get_state(systemdlg[DLGSET_INTL_VID]);
-   
 
 }

@@ -1,14 +1,12 @@
 /*
-  Hatari - file.c
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
   Common file access functions.
 */
-const char File_fileid[] = "Hatari file.c : " __DATE__ " " __TIME__;
 
-//#include "main.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #if HAVE_SYS_TIME_H

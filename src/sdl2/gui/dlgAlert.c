@@ -1,10 +1,5 @@
 /*
- * Hatari - dlgAlert.c - AES-like AlertBox 
- *
- * Based on dlgAlert.cpp from the emulator ARAnyM,
- * Copyright (c) 2004 Petr Stehlik of ARAnyM dev team
- *
- * Adaptation to Hatari by Thomas Huth.
+ * Original code from Hatari, adapted for Teo
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +11,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License (gpl.txt) for more details.
  */
-const char DlgAlert_fileid[] = "Hatari dlgAlert.c : " __DATE__ " " __TIME__;
-
 #include <string.h>
 
-//#include "main.h"
 #include "dialog.h"
 #include "screen.h"
 #include "sdlgui.h"
@@ -130,7 +122,7 @@ static int DlgAlert_ShowDlg(const char *text)
 	int lines, i, len, offset;
 	bool bOldMouseVisibility;
 	int nOldMouseX, nOldMouseY;
-	bool bWasEmuActive;
+//	bool bWasEmuActive;
 
 #if WITH_SDL2
 	bool bOldMouseMode = SDL_GetRelativeMouseMode();
@@ -161,7 +153,7 @@ static int DlgAlert_ShowDlg(const char *text)
 		return false;
 	SDLGui_CenterDlg(alertdlg);
 
-	printf("bWasEmuActive = Main_PauseEmulation(true);\n");
+//	printf("bWasEmuActive = Main_PauseEmulation(true);\n");
 
 	SDL_GetMouseState(&nOldMouseX, &nOldMouseY);
 	bOldMouseVisibility = SDL_ShowCursor(SDL_QUERY);
@@ -171,14 +163,14 @@ static int DlgAlert_ShowDlg(const char *text)
 
 	SDL_UpdateRect(sdlscrn, 0,0, 0,0);
 	SDL_ShowCursor(bOldMouseVisibility);
-	printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
+//	printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
 
 #if WITH_SDL2
 	SDL_SetRelativeMouseMode(bOldMouseMode);
 #endif
 
-	if (bWasEmuActive)
-		printf("Main_UnPauseEmulation();\n");
+//	if (bWasEmuActive)
+//		printf("Main_UnPauseEmulation();\n");
 
 	return (i == DLGALERT_OK);
 }

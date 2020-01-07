@@ -1,5 +1,5 @@
 /*
-  Hatari - dlgMain.c
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
@@ -7,8 +7,6 @@
   The main dialog.
 */
 
-//#include "main.h"
-//#include "configuration.h"
 #include "dialog.h"
 #include "sdlgui.h"
 #include "screen.h"
@@ -29,8 +27,6 @@
 #define MAINDLG_ABOUT 11
 #define MAINDLG_OK 12
 
-//char sConfigFileName = "/home/samueL/toto.cfg";
-char sConfigFileName[FILENAME_MAX];
 
 /* The main dialog: */
 static SGOBJ maindlg[] =
@@ -58,14 +54,11 @@ static SGOBJ maindlg[] =
 /**
  * This functions sets up the actual font and then displays the main dialog.
  */
-int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot)
+int Dialog_MainDlg(bool adjustableVolume, int da_mask)
 {
 	int retbut, response;
 	bool bOldMouseVisibility;
 	int nOldMouseX, nOldMouseY;
-
-	*bReset = false;
-	*bLoadedSnapshot = false;
 
 	if (SDLGui_SetScreen(sdlscrn))
 		return false;
@@ -90,16 +83,15 @@ int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot)
             response = DlgAlert_Query("All the memory will be cleared.");
             if(response == true){
                 teo.command=TEO_COMMAND_FULL_RESET;
-                retbut = MAINDLG_OK;
-               // return;
+                return true;
             }
             break;
          /*Other dialogs*/
          case MAINDLG_SETTINGS:
-            DlgSystem_Main();
+            DlgSystem_Main(adjustableVolume); 
             break;
          case MAINDLG_DISKS:
-            DlgDisks_Main(0,0); /*TODO: Direct access*/
+            DlgDisks_Main(da_mask); 
             break;
          case MAINDLG_TAPE:
             DlgTape_Main();
@@ -126,12 +118,8 @@ int Dialog_MainDlg(bool *bReset, bool *bLoadedSnapshot)
 	while (retbut != MAINDLG_OK && retbut != SDLGUI_QUIT
 	        && retbut != SDLGUI_ERROR && !bQuitProgram);
 
-
-//	if (maindlg[MAINDLG_RESET].state & SG_SELECTED)
-//		*bReset = true;
-
 	SDL_ShowCursor(bOldMouseVisibility);
-	printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
+	//printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
 
 	return (retbut == MAINDLG_OK);
 }

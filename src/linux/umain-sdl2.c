@@ -278,8 +278,8 @@ static void RunTO8(void)
             else
                 agui_Panel();
 #else
-            Dialog_MainDlg(&a, &b);
-//            agui_Panel();
+            /*Volume adjustment diabled and direct access mask set to 0*/
+            Dialog_MainDlg(false, 0);
 #endif
         }
 #ifdef ENABLE_GTK_DEBUGGER

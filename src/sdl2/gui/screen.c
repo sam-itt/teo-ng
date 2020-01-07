@@ -1,3 +1,7 @@
+/*
+  Original code from Hatari, adapted for Teo
+*/
+
 #include "config.h"
 #if WITH_SDL2
 #include <SDL.h>
@@ -5,7 +9,7 @@
 extern SDL_Window *sdlWindow;
 /*static SDL_Renderer *sdlRenderer;
 static SDL_Texture *sdlTexture;
-static bool bUseSdlRenderer; */           /* true when using SDL2 renderer */
+static bool bUseSdlRenderer = false; */           /* true when using SDL2 renderer */
 
 void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)
 {

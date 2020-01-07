@@ -1,18 +1,15 @@
-#include <stdio.h>
-#include <assert.h>
 /*
+  Original code from Hatari, adapted for Teo
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
-  Dialog for setting various system options
+  Dialog to load/eject magnetic tape images 
 */
-//const char DlgTape_fileid[] = "Teo-ng dlgDisks.c : " __DATE__ " " __TIME__;
+#include <stdio.h>
+#include <assert.h>
 
-//#include "main.h"
-//#include "configuration.h"
 #include "dialog.h"
-
 #include "file.h"
 #include "sdlgui.h"
 
@@ -138,8 +135,6 @@ static void DlgTape_Browse(char *dlgname, int diskid)
 	}
 	else
 	{
-        /*TODO: TEO Clear floppy HERE*/
-		printf("Floppy_SetDiskFileNameNone(drive);\n");
 		dlgname[0] = '\0';
 	}
 	free(zip_path);
@@ -209,9 +204,7 @@ void DlgTape_Main(void)
 
 	SDLGui_CenterDlg(tapedlg);
 
-    /* Init values from Teo current config
-     * 
-     * */
+    /* Init values from Teo current config */
 
     /*Tape image filename*/
     printf("Tape: %s\n",teo.cass.file );
@@ -236,7 +229,6 @@ void DlgTape_Main(void)
 	/* Show the dialog: */
 	do{
         but = SDLGui_DoDialog(tapedlg, NULL, false);
-//        printf("But is : %d\n",but);
 		switch(but){
          /* Choose a new disk*/
 		 case DLGTPE_BROWSE:                        
@@ -270,6 +262,6 @@ void DlgTape_Main(void)
     teo.cass.write_protect = get_state(tapedlg[DLGTPE_WP]);
     
     /* Other settings (filename, counter) have already been set 
-     * by the functions
+     * by functions directly called from the dialog
      * */
 }

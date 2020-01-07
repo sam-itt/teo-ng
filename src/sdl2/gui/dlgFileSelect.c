@@ -1,18 +1,18 @@
 /*
-  Hatari - dlgFileSelect.c
+  Original code from Hatari, adapted for Teo
+
+  Removed zip browsing support to remove dependencies
+  TODO: Make it supported but optional
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
-  A file selection dialog for the graphical user interface for Hatari.
+  A file selection dialog for the graphical user interface.
 */
-//const char DlgFileSelect_fileid[] = "Hatari dlgFileSelect.c : " __DATE__ " " __TIME__;
-
 #include "config.h"
 
 #include <SDL.h>
 #include <sys/stat.h>
-#define _GNU_SOURCE
 #include <unistd.h>
 #include <dirent.h>
 
@@ -21,8 +21,6 @@
 #include "sdlgui.h"
 #include "file.h"
 #include "paths.h"
-//#include "zip.h"
-//#include "log.h"
 
 
 #define SGFS_NUMENTRIES   16            /* How many entries are displayed at once */
@@ -567,7 +565,7 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 	struct dirent **files = NULL;
 	char *pStringMem;
 	char *retpath = NULL;
-	const char *home;
+	char *home;
 	char *path, *fname;                 /* The actual file and path names */
 	bool reloaddir = true;              /* Do we have to reload the directory file list? */
 	int retbut, len;

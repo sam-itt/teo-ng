@@ -44,8 +44,6 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE 1 /*Needed to silence vasprintf warning*/
-
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
