@@ -33,6 +33,9 @@ AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as de
 AC_DEFINE(TEO_VERSION_WRC, [teo_version_wrc], [Package version constant, in a format suitable for Win32 resource files])
 #AC_SUBST([TEO_VERSION_WRC],[teo_version_wrc])
 
+# For functions like asprintf, get_current_dir_name
+AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions.])
+
 #compile options
 AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug], [Build an executable with debug sybmols and all optimization turned off (default=no)])],
             [],
