@@ -166,11 +166,12 @@ void asetting_SetColors(int fg_color, int bg_color, int bg_entry_color)
 /* asetting_Init:
  *  Initialise le module interface utilisateur.
  */
-void asetting_Init(char version_name[], int gfx_mode)
+void asetting_Init(int gfx_mode)
 {
-    if ((strstr (version_name, "MSDOS") != NULL) && (gfx_mode == GFX_MODE40))
+#ifdef PLATFORM_MSDOS
+    if(gfx_mode == GFX_MODE40)
         commdial[COMMDIAL_INTERLACE].flags |= D_DISABLED;
-
+#endif
     if (!teo.setting.sound_enabled)
     {
         commdial[COMMDIAL_SOUND].flags = D_DISABLED;

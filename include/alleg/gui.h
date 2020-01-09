@@ -79,7 +79,7 @@ extern void amemo_Free(void);
 
 /* panneau des réglages */
 extern void asetting_SetColors(int fg_color, int bg_color, int bg_entry_color);
-extern void asetting_Init(char version_name[], int gfx_mode);
+extern void asetting_Init(int gfx_mode);
 extern void asetting_Panel(void);
 extern void asetting_Free(void);
 

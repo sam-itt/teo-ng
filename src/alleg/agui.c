@@ -286,7 +286,7 @@ void agui_SetColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void agui_Init(char version_name[], int gfx_mode, int direct_disk_support)
 {
-    asetting_Init(version_name, gfx_mode);
+    asetting_Init(gfx_mode);
     adisk_Init   (direct_disk_support);
     acass_Init   ();
     amemo_Init   ();
