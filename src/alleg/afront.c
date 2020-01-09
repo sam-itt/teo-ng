@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <math.h>
+#include <sys/time.h>
+
 
 #include "allegro.h"
 
@@ -13,6 +16,8 @@
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/akeybint.h"
+
+//#define USE_ALLEGRO_TICKER 1
 
 static void afront_RetraceCallback(void);
 static void afront_CloseProcedure(void);
@@ -112,7 +117,6 @@ int afront_startGfx(int gfx_mode, int *windowed_mode, char *version_name)
         case GFX_WINDOW:
             alleg_depth = desktop_color_depth();
             printf("Autodetected color depth was: %d\n",alleg_depth);
-//            alleg_depth = 32;
             switch (alleg_depth)
             {
                 case 8:  /* 8bpp */
@@ -170,7 +174,8 @@ void afront_Run(int windowed_mode)
 
         akeybint_Install(); 
         amouse_Install(LAST_POINTER);
-
+       
+#if defined (USE_ALLEGRO_TICKER)
         if (teo.setting.exact_speed){
             if (teo.setting.sound_enabled){
                 asound_Start();
@@ -180,19 +185,27 @@ void afront_Run(int windowed_mode)
                 tick=frame;
             }
         }
-       
+#else
+       if(teo.setting.sound_enabled)
+           asound_Start();
+#endif       
         /* afront_RunTO8 only returns (and thus pause emulation) 
          * when a command is pending
          * */
         afront_RunTO8(windowed_mode);
 
         /*Remove handlers to avoid sending events to the (paused) Virtual TO8*/
+#if defined (USE_ALLEGRO_TICKER)
         if (teo.setting.exact_speed){
             if (teo.setting.sound_enabled)
                 asound_Stop();
             else
                 remove_int(Timer);
         }
+#else
+        if (teo.setting.sound_enabled)
+            asound_Stop();
+#endif
         amouse_ShutDown();
         akeybint_ShutDown();
 
@@ -217,7 +230,20 @@ void afront_Shutdown(void)
 
 static void afront_RunTO8(int windowed_mode)
 {
+#if !defined (USE_ALLEGRO_TICKER)
+    struct timeval base;
+    struct timeval begin;
+    struct timeval end;
+
+
+    gettimeofday(&(base), NULL);
+#endif
+
     do{  /* Virtual TO8 running loop */
+#if !defined (USE_ALLEGRO_TICKER)
+        gettimeofday(&(begin), NULL);
+#endif //USE_ALLEGRO_TICKER
+
 #if PLATFORM_MSDOS
         (void)teo_DoFrame();
 #else
@@ -232,8 +258,14 @@ static void afront_RunTO8(int windowed_mode)
 
         ajoyint_Update();
 
+#if !defined (USE_ALLEGRO_TICKER)
+        if (teo.setting.sound_enabled)
+            asound_Play();
+#endif
+
         /* Sync to real hardware freq */
         if (teo.setting.exact_speed){
+#if defined (USE_ALLEGRO_TICKER)
             if (teo.setting.sound_enabled){
                 asound_Play();
             }else{
@@ -247,6 +279,31 @@ static void afront_RunTO8(int windowed_mode)
                     usleep(0);
 #endif
             }
+#else //USE_ALLEGRO_TICKER
+            struct timeval delta;
+            suseconds_t udt;
+        
+            gettimeofday(&end, NULL);
+
+            begin.tv_sec -= base.tv_sec;
+            begin.tv_usec -= base.tv_usec;
+
+            end.tv_sec -= base.tv_sec;
+            end.tv_usec -= base.tv_usec;
+
+            delta.tv_sec = end.tv_sec - begin.tv_sec;
+            delta.tv_usec = end.tv_usec - begin.tv_usec;
+
+            if(delta.tv_sec > 0){
+                udt = delta.tv_usec + delta.tv_sec*1000000;
+            }else{
+                udt = delta.tv_usec;
+            }
+
+            if(udt < TEO_MICROSECONDS_PER_FRAME){
+                rest(round((TEO_MICROSECONDS_PER_FRAME-udt)/1000.0));
+            }
+#endif //USE_ALLEGRO_TICKER
         }
 
         disk_WriteTimeout();
@@ -254,6 +311,7 @@ static void afront_RunTO8(int windowed_mode)
 #if PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)
         gtk_main_iteration_do(FALSE);
 #endif 
+
     }while (teo.command==TEO_COMMAND_NONE); //Virtual TO8 run loop
 }
 
@@ -351,4 +409,4 @@ static void Timer(void)
 {
     tick++;
 }
-
+END_OF_FUNCTION(Timer)
