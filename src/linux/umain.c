@@ -690,7 +690,7 @@ void main_ExitMessage(const char msg[])
 int main(int argc, char *argv[])
 {
 
-    char version_name[]="Teo "TEO_VERSION_STR" (Linux/Allegro)";
+    char version_name[]=PACKAGE_STRING" (Linux/Allegro)";
 
     int i;
     int direct_write_support = TRUE;
@@ -708,7 +708,6 @@ int main(int argc, char *argv[])
     is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
 
 
-
 #ifdef ENABLE_GTK_PANEL
     g_setenv ("GDK_BACKEND", "x11", TRUE);
     gtk_init (&argc, &argv);     /* Initialisation gtk */
@@ -719,39 +718,18 @@ int main(int argc, char *argv[])
 
     init_empty_disk("empty.hfe");
 
-    /* initialisation de la librairie Allegro */
-    set_uformat(U_ASCII);  /* pour les accents Latin-1 */
-    if(allegro_init() != 0){
+    int rv;
+    char *w_title;
+
+    w_title = is_fr ? "Teo - l'ï¿½mulateur TO8 (menu:ESC/debogueur:F12)"
+                    : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
+
+    /*njoy set to -1 would disable joystick detection/support*/
+    rv = afront_Init(w_title, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
+    if(rv != 0){
         printf("Couldn't initialize Allegro, bailing out !\n");
         exit(EXIT_FAILURE);
     }
-
-    cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
-    if(cfg_file){
-        set_config_file(cfg_file);
-        std_free(cfg_file);
-    }else{
-        printf("Config file %s not found, using default values\n",ALLEGRO_CONFIG_FILE);
-    }
-
-    cfg_file = std_GetFirstExistingConfigFile("akeymap.ini");
-    if(cfg_file){
-        override_config_file(cfg_file);
-        std_free(cfg_file);
-    }else{
-        printf("Keymap %s not found !\n","akeymap.ini");
-    }
-
-    ukeybint_Init();
-    install_keyboard();
-    install_timer();
-    if (njoy >= 0)
-        install_joystick(JOY_TYPE_AUTODETECT);
-    set_window_title(is_fr?"Teo - l'émulateur TO8 (menu:ESC/debogueur:F12)"
-                          :"Teo - the TO8 emulator (menu:ESC/debugger:F12)");
-
-
-
 
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
@@ -768,7 +746,11 @@ int main(int argc, char *argv[])
     printf((is_fr?"Initialisation de l'Ã©mulateur..."
                  :"Initialization of the emulator...")); fflush(stderr);
 
-    if ( teo_Init(TEO_NJOYSTICKS) < 0 )
+    /* num_joysticks: filled by allegro with the number of detected joysticks */
+    njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
+
+    /*Number of joysticks to emualte using the keyboard*/
+    if ( teo_Init(TEO_NJOYSTICKS-njoy) < 0 )
         main_ExitMessage(teo_error_msg);
 
     /* Initialisation de l'interface d'accès direct */
@@ -777,82 +759,12 @@ int main(int argc, char *argv[])
     /* Détection des lecteurs supportés (3"5 seulement) */
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
-#ifdef ENABLE_GTK_PANEL
-   // udisplay_Window (); /* Création de la fenêtre principale */
-#endif
-    /* initialisation du son */
-    asound_Init(51200);  /* 51200 Hz car 25600 Hz provoque des irrégularités du timer */
 
-    /* initialisation des joysticks */
-    ajoyint_Init(njoy);
-
-    /* initialisation du mode graphique */
-    switch(gfx_mode)
-    {
-        case GFX_MODE40:
-            if (!agfxdrv_Init(GFX_MODE40, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
-                main_ExitMessage(is_fr?"Mode graphique non supporté."
-                                      :"Unsupported graphic mode");
-            windowed_mode = FALSE;
-            break;
-
-        case GFX_MODE80:
-            if (!agfxdrv_Init(GFX_MODE80, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
-                main_ExitMessage(is_fr?"Mode graphique non supporté."
-                                      :"Unsupported graphic mode");
-            windowed_mode = FALSE;
-            break;
-
-        case GFX_TRUECOLOR:
-            if (!agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT_FULLSCREEN, FALSE))
-                if (!agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT_FULLSCREEN, FALSE))
-                    if (!agfxdrv_Init(GFX_TRUECOLOR, 24, GFX_AUTODETECT_FULLSCREEN, FALSE))
-                        if (!agfxdrv_Init(GFX_TRUECOLOR, 32, GFX_AUTODETECT_FULLSCREEN, FALSE))
-                            main_ExitMessage(is_fr?"Mode graphique non supporté."
-                                                  :"Unsupported graphic mode");
-            windowed_mode = FALSE;
-            break;
-
-        case GFX_WINDOW:
-            alleg_depth = desktop_color_depth();
-            printf("Autodetected color depth was: %d\n",alleg_depth);
-            alleg_depth = 32;
-            switch (alleg_depth)
-            {
-                case 8:  /* 8bpp */
-                default:
-                    main_ExitMessage(is_fr?"Mode graphique non supporté."
-                                          :"Unsupported graphic mode");
-                    break;
-
-                case 16: /* 15 ou 16bpp */
-                    if ( !agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT_WINDOWED, TRUE) && 
-                         !agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT_WINDOWED, TRUE) )
-                            main_ExitMessage(is_fr?"Mode graphique non supporté."
-                                                  :"Unsupported graphic mode");
-                    gfx_mode = GFX_TRUECOLOR;
-                    break;
- 
-                case 24: /* 24bpp */
-                case 32: /* 32bpp */
-                    if (!agfxdrv_Init(GFX_TRUECOLOR, alleg_depth, GFX_AUTODETECT_WINDOWED, TRUE))
-                        main_ExitMessage(is_fr?"Mode graphique non supporté."
-                                              :"Unsupported graphic mode");
-                    gfx_mode = GFX_TRUECOLOR;
-                    break;
-            }
-            windowed_mode = TRUE;
-            break;
+    rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
+    if(rv != 0){
+        main_ExitMessage(is_fr?"Mode graphique non supporté."
+                              :"Unsupported graphic mode");
     }
-
-    /* installation de la fonction callback de retraçage de l'écran nécessaire
-       pour les modes fullscreen */
-    set_display_switch_callback(SWITCH_IN, RetraceCallback);
-
-    /* on continue de tourner même sans focus car sinon la gui se bloque,
-     * et le buffer son tourne sur lui même sans mise à jour et c'est moche. */
-    set_display_switch_mode(SWITCH_BACKGROUND); 
-
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
@@ -882,18 +794,7 @@ int main(int argc, char *argv[])
 
     /* initialisation de l'interface utilisateur Allegro et du débogueur */
     teo_DebugBreakPoint = NULL;
-    if (!windowed_mode)
-    {
-       agui_Init(version_name, gfx_mode, FALSE);
-    }
-    else
-    {
-       set_window_close_hook(close_procedure);
-    }
-    printf("window mode: %d\n", windowed_mode);
-#ifdef ENABLE_GTK_PANEL
-    printf("ENABLE_GTK_PANEL is set\n");
-#endif
+
     /* Et c'est parti !!! */
     RunTO8();
 

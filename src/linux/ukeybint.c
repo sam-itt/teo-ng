@@ -101,7 +101,7 @@ void ukeybint_ShutDown(void)
 /* wkeybint_Init:
  *  Initialise le module de gestion bas-niveau clavier.
  */
-void ukeybint_Init(void) 
+void ukeybint_Init(void) /*Unused since akeyboard_init has gone into afront*/ 
 {
     akeyboard_init();
 }

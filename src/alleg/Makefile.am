@@ -19,4 +19,5 @@ libagfx_la_SOURCES = \
 	agui/asetting.c \
 	agui/adisk.c \
 	agui/amemo.c \
-	agui.c
+	agui.c \
+	afront.c
