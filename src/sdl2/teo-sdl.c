@@ -623,12 +623,6 @@ SDL_Window *teo_sdl_window()
     return window;
 }
 
-void teo_sdl_display_init()
-{
-//    load_keybinding("gdk-keymap.ini");
-//    jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
-//    jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
-}
 
 void teo_sdl_graphic_init()
 {

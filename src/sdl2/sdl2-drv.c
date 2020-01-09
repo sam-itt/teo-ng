@@ -24,7 +24,6 @@ int teo_sdl_gfx_init(void)
         }
 
         SDLGui_Init();
-//        SDL_AddEventWatch((SDL_EventFilter)teo_sdl_keyboard_handler,NULL);
     }else{
         printf("Couldn't init SDL, bailing out\n");
     }
