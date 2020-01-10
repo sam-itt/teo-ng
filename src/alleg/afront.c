@@ -4,15 +4,25 @@
 
 #include "teo.h"
 #include "std.h"
+#include "defs.h"
+#include "media/disk.h"
+#include "alleg/mouse.h"
 #include "alleg/joyint.h"
 #include "alleg/akeyboard.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-
+#include "alleg/akeybint.h"
 
 static void afront_RetraceCallback(void);
 static void afront_CloseProcedure(void);
+static void afront_RunTO8(int windowed_mode);
+static void afront_ExecutePendingCommand(void);
+static void Timer(void);
+
+int frame;                  /* compteur de frame vidéo */
+static volatile int tick;   /* compteur du timer       */
+
 
 /* Does the basic initialization work for the Allegro4 frontend
  * @w_title: window title, NULL for none (i.e MS-DOS)
@@ -49,7 +59,7 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
         printf("Keymap %s not found !\n",keymap_file);
     }
 
-    akeyboard_init();
+    akeybint_Init();
 
     install_keyboard();
     install_timer();
@@ -75,7 +85,7 @@ int afront_startGfx(int gfx_mode, int *windowed_mode, char *version_name)
     switch(gfx_mode)
     {
         case GFX_MODE40:
-#ifdef PLATFORM_MSDOS
+#if PLATFORM_MSDOS
             if (agfxdrv_Init(GFX_MODE40, 8, GFX_VGA, FALSE))
 #else
             if (!agfxdrv_Init(GFX_MODE40, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
@@ -144,10 +154,178 @@ int afront_startGfx(int gfx_mode, int *windowed_mode, char *version_name)
     return 0;
 }
 
+/**
+ * Run the TO8 and execute commands from the GUI.
+ * Returns the user wants to quit.
+ */
+void afront_Run(int windowed_mode)
+{
+    /*Defaults to mouse (vs lightpen)*/
+    amouse_Install(TEO_STATUS_MOUSE); 
+    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
 
-/* RetraceCallback:
- *  Fonction callback de retraçage de l'écran après
- *  restauration de l'application.
+    do{  /* Emulator main loop*/
+   
+        teo.command=TEO_COMMAND_NONE;
+
+        akeybint_Install(); 
+        amouse_Install(LAST_POINTER);
+
+        if (teo.setting.exact_speed){
+            if (teo.setting.sound_enabled){
+                asound_Start();
+            }else{
+                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
+                frame=1;
+                tick=frame;
+            }
+        }
+       
+        /* afront_RunTO8 only returns (and thus pause emulation) 
+         * when a command is pending
+         * */
+        afront_RunTO8(windowed_mode);
+
+        /*Remove handlers to avoid sending events to the (paused) Virtual TO8*/
+        if (teo.setting.exact_speed){
+            if (teo.setting.sound_enabled)
+                asound_Stop();
+            else
+                remove_int(Timer);
+        }
+        amouse_ShutDown();
+        akeybint_ShutDown();
+
+        afront_ExecutePendingCommand();
+    
+#if PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)
+        gtk_main_iteration_do(FALSE);
+#endif
+    }while (teo.command != TEO_COMMAND_QUIT);  /* Emulator main loop */
+    /* If something was pending, do it */
+    mc6809_FlushExec();
+}
+
+void afront_Shutdown(void)
+{
+    /*Remove the callback *before* shutting down graphics*/
+    remove_display_switch_callback(afront_RetraceCallback);
+    agui_Free();
+    SetGraphicMode(SHUTDOWN);
+}
+
+
+static void afront_RunTO8(int windowed_mode)
+{
+    do{  /* Virtual TO8 running loop */
+#if PLATFORM_MSDOS
+        (void)teo_DoFrame();
+#else
+        if (teo_DoFrame() == 0)
+            if (windowed_mode)
+                teo.command=TEO_COMMAND_BREAKPOINT;
+#endif
+        if (need_palette_refresh)
+            RefreshPalette();
+
+        RefreshScreen();
+
+        ajoyint_Update();
+
+        /* Sync to real hardware freq */
+        if (teo.setting.exact_speed){
+            if (teo.setting.sound_enabled){
+                asound_Play();
+            }else{
+#if PLATFORM_MSDOS
+                while (frame==tick);
+#elif PLATFORM_WIN32
+                while (frame==tick) 
+                    Sleep(0);
+#elif PLATFORM_UNIX
+                while (frame==tick)
+                    usleep(0);
+#endif
+            }
+        }
+
+        disk_WriteTimeout();
+        frame++;
+#if PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)
+        gtk_main_iteration_do(FALSE);
+#endif 
+    }while (teo.command==TEO_COMMAND_NONE); //Virtual TO8 run loop
+}
+
+/**
+ * Run the pending command in teo.command.
+ * as the command code is in the global "teo" struct
+ * there is no params to pass
+ */
+static void afront_ExecutePendingCommand(void)
+{
+    switch(teo.command){
+        case TEO_COMMAND_PANEL:
+#if (PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)) || PLATFORM_WIN32
+            if (windowed_mode)
+                ugui_Panel();
+            else
+                agui_Panel();
+#else //MSDOS or Unix *without* gtk
+            agui_Panel();
+#endif
+            break;
+        case TEO_COMMAND_BREAKPOINT:
+#if PLATFORM_MSDOS
+            break;
+#endif
+        case TEO_COMMAND_DEBUGGER:
+#if PLATFORM_MSDOS
+            remove_keyboard();
+            SetGraphicMode(SHUTDOWN);
+            ddebug_Run();
+            SetGraphicMode(RESTORE);
+            install_keyboard();
+#elif PLATFORM_WIN32 || (PLATFORM_UNIX && defined (ENABLE_GTK_DEBUGGER))
+            if (windowed_mode){
+#if PLATFORM_WIN32
+                wdebug_Panel();
+#else 
+                udebug_Panel();
+#endif //PLATFORM_WIN32
+                    if(teo_DebugBreakPoint == NULL)
+                        teo_FlushFrame();
+            }
+#endif
+            break;
+#if !PLATFORM_MSDOS
+        case TEO_COMMAND_SCREENSHOT:
+            agfxdrv_Screenshot();
+            break;
+#endif
+        case TEO_COMMAND_RESET:
+            teo_Reset();
+            break;
+        case TEO_COMMAND_COLD_RESET:
+            teo_ColdReset();
+            amouse_Install(TEO_STATUS_MOUSE);
+            break;
+        case TEO_COMMAND_FULL_RESET:
+            teo_FullReset();
+            amouse_Install(TEO_STATUS_MOUSE);
+            break;
+        case TEO_COMMAND_NONE:
+        case TEO_COMMAND_QUIT:
+        default:
+        break;
+    }
+}
+
+
+/**
+ * Registered in Allegro to be called when the window
+ * get a redraw event from the window manager(move, minimized, ...)
+ *
  */
 static void afront_RetraceCallback(void)
 {
@@ -159,12 +337,18 @@ static void afront_RetraceCallback(void)
     release_screen();
 }
 
-/* close_procedure:
- *  Procédure de fermeture de la fenêtre par le bouton close.
+/**
+ * Registered in Allegro to be called when the window
+ * close button is clicked
  */
 static void afront_CloseProcedure(void)
 {
     printf("%s: Sending TEO_COMMAND_QUIT\n", __FUNCTION__);
     teo.command = TEO_COMMAND_QUIT;
+}
+
+static void Timer(void)
+{
+    tick++;
 }
 

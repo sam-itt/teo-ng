@@ -9,6 +9,7 @@ libagfx_la_SOURCES = \
 	atruecol.c \
 	amouse.c \
 	akeyboard.c \
+	akeybint.c \
 	agfxdrv.c \
 	asound.c \
 	acolor8.c \
@@ -20,4 +21,4 @@ libagfx_la_SOURCES = \
 	agui/adisk.c \
 	agui/amemo.c \
 	agui.c \
-	afront.c
+	afront.c 

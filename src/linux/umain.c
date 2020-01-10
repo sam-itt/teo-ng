@@ -108,171 +108,6 @@ static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
 static gchar **remain_name = NULL;
 static int windowed_mode = TRUE;
 
-int frame;                  /* compteur de frame vidéo */
-static volatile int tick;   /* compteur du timer       */
-
-static void Timer(void)
-{
-    tick++;
-}
-
-
-
-/* RetraceCallback:
- *  Fonction callback de retraçage de l'écran après
- *  restauration de l'application.
- */
-static void RetraceCallback(void)
-{
-    acquire_screen();
-    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
-    release_screen();
-}
-
-/* close_procedure:
- *  Procédure de fermeture de la fenêtre par le bouton close.
- */
-static void close_procedure (void)
-{
-    printf("%s: Sending TEO_COMMAND_QUIT\n", __FUNCTION__);
-    teo.command = TEO_COMMAND_QUIT;
-}
- 
-
-
-static void RunTO8(void)
-{
-    amouse_Install(TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
-    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
-
-    do  /* boucle principale de l'émulateur */
-    {
-        teo.command=TEO_COMMAND_NONE;
-
-        /* installation des handlers clavier, souris et son */ 
-        ukeybint_Install();
-        amouse_Install(LAST_POINTER);
-
-        if (teo.setting.exact_speed)
-        {
-            if (teo.setting.sound_enabled)
-                asound_Start();
-            else
-            {
-                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
-                frame=1;
-                tick=frame;
-            }
-        }
-
-        do  /* boucle d'émulation */
-        {
-            if (teo_DoFrame() == 0)
-                if (windowed_mode)
-                    teo.command=TEO_COMMAND_BREAKPOINT;
-
-            /* rafraîchissement de la palette */
-            if (need_palette_refresh)
-                RefreshPalette();
-
-            /* rafraîchissement de l'écran */
-            RefreshScreen();
-
-            /* mise à jour de la position des joysticks */
-            ajoyint_Update();
-
-            /* synchronisation sur fréquence réelle */
-            if (teo.setting.exact_speed)
-            {
-                if (teo.setting.sound_enabled)
-                    asound_Play();
-                else
-                    while (frame==tick)
-                   usleep(0);
-            }
-
-            disk_WriteTimeout();
-            frame++;
-#ifdef ENABLE_GTK_PANEL
-            gtk_main_iteration_do(FALSE);
-#endif 
-        }while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
-
-/*Why removing handlers ?*/
-
-        /* désinstallation des handlers clavier, souris et son */
-        if (teo.setting.exact_speed)
-        {
-            if (teo.setting.sound_enabled)
-                asound_Stop();
-            else
-                remove_int(Timer);
-        }
-        amouse_ShutDown();
-        ukeybint_ShutDown();
-
-
-        /* éxécution des commandes */
-        if (teo.command==TEO_COMMAND_PANEL)
-        {
-#ifdef ENABLE_GTK_PANEL
-            printf("windowed mode at panel code: ?d\n",windowed_mode);
-            if (windowed_mode)
-                ugui_Panel();
-            else
-                agui_Panel();
-#else
-            agui_Panel();
-#endif
-        }
-#ifdef ENABLE_GTK_DEBUGGER
-        if ((teo.command == TEO_COMMAND_BREAKPOINT)
-         || (teo.command == TEO_COMMAND_DEBUGGER)) {
-            if (windowed_mode) {
-                udebug_Panel();
-                    if (teo_DebugBreakPoint == NULL)
-                        teo_FlushFrame();
-            }
-           /* if (windowed_mode) {
-                wdebug_Panel ();
-                if (teo_DebugBreakPoint == NULL)
-                    teo_FlushFrame();
-            }*/
-        }
-#endif
-
-        if (teo.command==TEO_COMMAND_SCREENSHOT)
-            agfxdrv_Screenshot();
-
-        if (teo.command==TEO_COMMAND_RESET)
-            teo_Reset();
-
-        if (teo.command==TEO_COMMAND_COLD_RESET)
-        {
-            teo_ColdReset();
-            amouse_Install(TEO_STATUS_MOUSE);
-        }
-
-        if (teo.command==TEO_COMMAND_FULL_RESET)
-        {
-            teo_FullReset();
-            amouse_Install(TEO_STATUS_MOUSE);
-        }
-        /*TODO: Investigate how these two loops work and whether it's actually necessary
-         * to install/deinstall handlers. One call to gtk_main_iteration_do should/could be enough
-        */
-
-#ifdef ENABLE_GTK_PANEL
-        gtk_main_iteration_do(FALSE);
-#endif 
-
-    }while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-    printf("%s: GOT TEO_COMMAND_QUIT\n", __FUNCTION__);
-    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
-    mc6809_FlushExec();
-}
-
-
 
 
 /* ReadCommandLine:
@@ -791,26 +626,20 @@ int main(int argc, char *argv[])
     udebug_Init();      /* Initialise l'interface graphique */
 #endif
 
-
     /* initialisation de l'interface utilisateur Allegro et du débogueur */
     teo_DebugBreakPoint = NULL;
 
     /* Et c'est parti !!! */
-    RunTO8();
+    /*This function only returns on quit*/
+    afront_Run(windowed_mode);
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save(); 
     image_Save ("autosave.img");
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
-    /* désinstallation du callback *avant* la sortie du mode graphique */
-    remove_display_switch_callback(RetraceCallback);
 
-    /* libération de la mémoire si mode fenêtré */
-    agui_Free();
-
-    /* sortie du mode graphique */
-    SetGraphicMode(SHUTDOWN);
+    afront_Shutdown();
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
