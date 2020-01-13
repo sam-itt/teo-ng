@@ -65,9 +65,9 @@ static DIALOG commdial[]={
 #ifdef FRENCH_LANGUAGE
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Réglages" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
-{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exacte" },
-{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'r',  0,     1, 0, "&rapide" },
-{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  0,     0, 0, "&Son" },
+{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  D_EXIT,     1, 0, "&exacte" },
+{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'r',  D_EXIT,     1, 0, "&rapide" },
+{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  D_EXIT,     0, 0, "&Son" },
 { d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
 { d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, "Mémoire:" },
 { d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" },
@@ -76,9 +76,9 @@ static DIALOG commdial[]={
 #else
 { d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Settings" },
 { d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, " Speed:" },
-{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  0,     1, 0, "&exact" },
-{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'f',  0,     1, 0, "&fast" },
-{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  0,     0, 0, "&Sound" },
+{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  D_EXIT,     1, 0, "&exact" },
+{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'f',  D_EXIT,     1, 0, "&fast" },
+{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  D_EXIT,     0, 0, "&Sound" },
 { d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
 { d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, "Memory:" },
 { d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" },
@@ -102,6 +102,96 @@ static DIALOG commdial[]={
 
 /* ------------------------------------------------------------------------- */
 
+/* In the scenario where a check/radio has D_EXIT,
+ * Allegro4 makes user code manage the state.
+ * i.e Allegro doesn't put D_SELECTED before exiting
+ * to user code
+ *
+ * These functions are mainly there to handle this behavior
+ * actual business code is much shorter than that.
+ *
+ * */
+
+static void asetting_SetToggle(int idx, int state)
+{
+    commdial[idx].d1 = state;
+    if(state)
+        commdial[idx].flags |= D_SELECTED;
+    else
+        commdial[idx].flags &= ~D_SELECTED;
+}
+
+static void asetting_ShowSoundControls(int show)
+{
+    if(show){
+        commdial[COMMDIAL_SOUND].flags &= ~D_DISABLED;
+        if(commdial[COMMDIAL_SOUND].d1)
+            commdial[COMMDIAL_SLIDER].flags &= ~D_DISABLED;
+        else
+            commdial[COMMDIAL_SLIDER].flags |= D_DISABLED;
+    }else{
+        commdial[COMMDIAL_SOUND].flags |= D_DISABLED;
+        commdial[COMMDIAL_SLIDER].flags |= D_DISABLED;
+    }
+}
+
+static void asetting_ToggleSound(void)
+{
+    if(commdial[COMMDIAL_SOUND].d1){ /*Was selected before the click, i.e user just unselected it*/
+        asetting_SetToggle(COMMDIAL_SOUND, FALSE);
+        commdial[COMMDIAL_SLIDER].flags |= D_DISABLED;
+    }else{ /*User just selected it*/
+        asetting_SetToggle(COMMDIAL_SOUND, TRUE);
+        commdial[COMMDIAL_SLIDER].flags &= ~D_DISABLED;
+    }
+}
+
+
+static void asetting_ToggleMaxSpeed(void)
+{
+//    printf("commdial[COMMDIAL_MAXSPEED].d1: %d\n",commdial[COMMDIAL_MAXSPEED].d1);
+
+    if(commdial[COMMDIAL_MAXSPEED].d1){ /*Was selected before the click, i.e user just unselected it*/
+        /*Boilerplate: Self selection handling*/
+        asetting_SetToggle(COMMDIAL_MAXSPEED, FALSE);
+    }else{ /*User just selected it*/
+        asetting_SetToggle(COMMDIAL_MAXSPEED, TRUE);
+
+        /*Real actions: Disable sound and hide sound controls*/
+        if(commdial[COMMDIAL_SOUND].d1) /*Sound is currently enabled*/
+            asetting_ToggleSound(); /*Disable it*/
+        /*Hide sound*/
+        asetting_ShowSoundControls(FALSE);
+    }
+
+    /*Toggle the other radio*/
+    if(commdial[COMMDIAL_MAXSPEED].d1){ 
+        asetting_SetToggle(COMMDIAL_EXACTSPEED, FALSE);
+    }else{
+        asetting_SetToggle(COMMDIAL_EXACTSPEED, TRUE);
+    }
+}
+
+static void asetting_ToggleExactSpeed(void)
+{
+    printf("commdial[COMMDIAL_EXACTSPEED].d1: %d\n",commdial[COMMDIAL_EXACTSPEED].d1);
+    if(commdial[COMMDIAL_EXACTSPEED].d1){ /*Was selected before the click, i.e user just unselected it*/
+        asetting_SetToggle(COMMDIAL_EXACTSPEED, FALSE);
+    }else{ /*User just selected it*/
+        asetting_SetToggle(COMMDIAL_EXACTSPEED, TRUE);
+        
+        /*Show sound controls*/
+        asetting_ShowSoundControls(TRUE);
+    }
+
+    /*Toggle the other radio*/
+    if(commdial[COMMDIAL_EXACTSPEED].d1){ 
+        asetting_SetToggle(COMMDIAL_MAXSPEED, FALSE);
+    }else{
+        asetting_SetToggle(COMMDIAL_MAXSPEED, TRUE);
+    }
+
+}
 
 /* asetting_Panel:
  *  Affiche le menu des commandes et réglages.
@@ -110,17 +200,30 @@ void asetting_Panel(void)
 {
     int flag;
     int first = 1;
+    int ret;
 
-    flag = (teo.setting.exact_speed) ? D_SELECTED : 0;
-    commdial[COMMDIAL_EXACTSPEED].flags = flag;
-    flag = (teo.setting.exact_speed) ? 0 : D_SELECTED;
-    commdial[COMMDIAL_MAXSPEED].flags = flag;
+    /*Speed*/
+    asetting_SetToggle(COMMDIAL_EXACTSPEED, FALSE);
+    asetting_SetToggle(COMMDIAL_MAXSPEED, FALSE);
+    if(teo.setting.exact_speed){
+        asetting_SetToggle(COMMDIAL_EXACTSPEED, TRUE);
+    }else{
+        asetting_SetToggle(COMMDIAL_MAXSPEED, TRUE);
+    }
+
+    /*Memory*/
     flag = (teo.setting.bank_range == 32) ? 0 : D_SELECTED;
     commdial[COMMDIAL_256K].flags = flag;
     flag = (teo.setting.bank_range == 32) ? D_SELECTED : 0;
     commdial[COMMDIAL_512K].flags = flag;
-    flag = (teo.setting.sound_enabled) ? D_SELECTED : 0;
-    commdial[COMMDIAL_SOUND].flags = flag;
+
+    /*Sound*/
+    asetting_SetToggle(COMMDIAL_SOUND, FALSE);
+    commdial[COMMDIAL_SLIDER].flags |= D_DISABLED; 
+    if(teo.setting.sound_enabled){
+        asetting_SetToggle(COMMDIAL_SOUND, TRUE);
+        commdial[COMMDIAL_SLIDER].flags &= ~D_DISABLED; 
+    }
 
     if (first)
     {
@@ -135,16 +238,32 @@ void asetting_Panel(void)
 
     clear_keybuf();
 
-    popup_dialog(commdial, COMMDIAL_OK);
+    do{
+        ret = popup_dialog(commdial, COMMDIAL_OK);
+        printf("Doing command\n");
+        switch(ret){
+            case COMMDIAL_EXACTSPEED:
+                asetting_ToggleExactSpeed();
+                break;
+            case COMMDIAL_MAXSPEED:
+                asetting_ToggleMaxSpeed();
+                break;
+            case COMMDIAL_SOUND:
+                asetting_ToggleSound();
+                break;
+        }
+    }while(ret != COMMDIAL_OK);
+
 
     flag = (commdial[COMMDIAL_INTERLACE].flags & D_SELECTED) ? TRUE : FALSE;
     teo.setting.interlaced_video = flag;
     asound_SetVolume(commdial[COMMDIAL_SLIDER].d2+1);
     teo.setting.sound_volume = asound_GetVolume();
-    flag = (commdial[COMMDIAL_SOUND].flags&D_SELECTED) ? TRUE : FALSE;
-    teo.setting.sound_enabled = flag;
     flag = (commdial[COMMDIAL_EXACTSPEED].flags&D_SELECTED) ? TRUE : FALSE;
     teo.setting.exact_speed = flag;
+    flag = (commdial[COMMDIAL_SOUND].flags&D_SELECTED) ? TRUE : FALSE;
+    /*Sound must be turned off to enable max speed*/
+    teo.setting.sound_enabled = flag && teo.setting.exact_speed; 
     flag = (commdial[COMMDIAL_512K].flags&D_SELECTED) ? 32 : 16;
     if (flag != teo.setting.bank_range)
         teo.command = TEO_COMMAND_COLD_RESET;
@@ -170,13 +289,13 @@ void asetting_Init(int gfx_mode)
 {
 #ifdef PLATFORM_MSDOS
     if(gfx_mode == GFX_MODE40)
-        commdial[COMMDIAL_INTERLACE].flags |= D_DISABLED;
+        commdial[COMMDIAL_INTERLACE].flags = D_DISABLED;
 #endif
-    if (!teo.setting.sound_enabled)
+/*    if (!teo.setting.sound_enabled)
     {
         commdial[COMMDIAL_SOUND].flags = D_DISABLED;
         commdial[COMMDIAL_SLIDER].flags = D_DISABLED;
-    }
+    }*/
 }
 
 
