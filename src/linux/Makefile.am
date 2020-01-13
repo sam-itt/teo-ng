@@ -18,8 +18,7 @@ teo_SOURCES = \
 	ufloppy.c 
 
 if GFX_BACKEND_ALLEGRO
-teo_SOURCES += umain.c \
-	           ukeybint.c 
+teo_SOURCES += umain.c
 endif
 
 

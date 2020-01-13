@@ -73,7 +73,7 @@
 #include "media/memo.h"
 #include "media/printer.h"
 #include "linux/floppy.h"
-#include "linux/keybint.h"
+//#include "linux/keybint.h"
 
 
 #include <SDL2/SDL.h>

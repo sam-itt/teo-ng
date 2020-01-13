@@ -84,7 +84,6 @@ EXTRA_DIST= \
 	include/linux/graphic.h \
 	include/linux/floppy.h \
 	include/linux/sound.h \
-	include/linux/keybint.h \
 	include/errors.h 
 
 #end of autotools standard stuff. Bespoke rules to create bin dist for win32/MSDOS

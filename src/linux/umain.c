@@ -84,7 +84,7 @@
 //#include "linux/graphic.h"
 //#include "linux/sound.h"
 //#include "linux/gui.h"
-#include "linux/keybint.h"
+//#include "linux/keybint.h"
 #include "allegro.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
