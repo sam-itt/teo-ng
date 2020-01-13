@@ -102,8 +102,6 @@
 #include "alleg/gui.h"
 #endif
 
-/*TODO: Remove LINUX KEYBINT*/
-
 struct EMUTEO teo;
 
 static gchar reset = FALSE;
@@ -115,6 +113,7 @@ static gchar **remain_name = NULL;
 #ifdef GFX_BACKEND_ALLEGRO
 static int gfx_mode = GFX_WINDOW;
 static int windowed_mode = TRUE;
+static gchar *gfx_str = NULL;
 #endif
 
 /** 
@@ -152,6 +151,9 @@ static void ReadCommandLine(int argc, char *argv[])
         { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
            is_fr?"Charge une cartouche":"Load a cartridge",
            is_fr?"FICHIER":"FILE" },
+        { "gfx", 'g', 0, G_OPTION_ARG_STRING, &gfx_str,
+           is_fr?"Mode graphique a utiliser (windowed par defaut)"
+                :"Graphic mode to use (defaults to windowed)", "mode40,mode80,truecolor,windowed" },
         { G_OPTION_REMAINING, 0, G_OPTION_FLAG_IN_MAIN, 
           G_OPTION_ARG_FILENAME_ARRAY, &remain_name, "", NULL },
         { NULL, 0, 0, 0, NULL, NULL, NULL }
@@ -191,6 +193,14 @@ static void ReadCommandLine(int argc, char *argv[])
         teo.memo.file = std_strdup_printf ("%s", memo_name);
         g_free (memo_name);
     }
+    if (gfx_str != NULL) {
+        if (!strcmp(gfx_str,"mode40"))  gfx_mode = GFX_MODE40   ; else
+        if (!strcmp(gfx_str,"mode80"))    gfx_mode = GFX_MODE80   ; else
+        if (!strcmp(gfx_str,"truecolor")) gfx_mode = GFX_TRUECOLOR; else
+        if (!strcmp(gfx_str,"windowed"))   gfx_mode = GFX_WINDOW; else
+        printf("Unknown graphic mode: %s, defaulting to windowed\n");
+    }
+
     g_option_context_free(context);
 }
 
@@ -546,7 +556,6 @@ int main(int argc, char *argv[])
     int rv;
 
 #ifdef GFX_BACKEND_ALLEGRO
-    int alleg_depth;
     char *w_title;
 #endif
 
