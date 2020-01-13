@@ -322,17 +322,19 @@ static void afront_RunTO8(int windowed_mode)
  */
 static void afront_ExecutePendingCommand(void)
 {
-    switch(teo.command){
-        case TEO_COMMAND_PANEL:
+    if(teo.command == TEO_COMMAND_PANEL){
 #if (PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)) || PLATFORM_WIN32
-            if (windowed_mode)
-                ugui_Panel();
-            else
-                agui_Panel();
-#else //MSDOS or Unix *without* gtk
+        if (windowed_mode)
+            ugui_Panel();
+        else
             agui_Panel();
+#else //MSDOS or Unix *without* gtk
+        agui_Panel();
 #endif
-            break;
+
+    }
+
+    switch(teo.command){
         case TEO_COMMAND_BREAKPOINT:
 #if PLATFORM_MSDOS
             break;
