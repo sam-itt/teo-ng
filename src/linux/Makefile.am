@@ -30,7 +30,7 @@ endif
 
 if GFX_BACKEND_GTK_X11
 teo_SOURCES += \
-	umain-x11.c \
+	umain.c \
 	udisplay.c \
 	usound.c \
 	ugraphic.c \

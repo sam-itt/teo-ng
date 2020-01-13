@@ -43,12 +43,15 @@
  *                               13/04/2014 31/07/2016 25/10/2018
  *               Samuel Devulder 07/2011
  *               Gilles Fétis 07/2011
+ *               Samuel Cuella 01/2020
  *
  *  Boucle principale de l'émulateur.
  */
-#include "config.h"
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-#define  ALLEGRO_UNIX
+#define  ALLEGRO_UNIX /*TODO: Move me out and in config.h*/
 
 #ifndef SCAN_DEPEND
    #include <locale.h>
@@ -61,10 +64,14 @@
    #include <sys/types.h>
    #include <sys/stat.h>
    #include <glib.h>
-/*   #include <gtk/gtk.h>
+#if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
+#include <gtk/gtk.h>
+#endif
+#ifdef GFX_BACKEND_GTK_X11 
    #include <X11/Xlib.h>
    #include <X11/Xresource.h>
-   #include <X11/Xutil.h>*/
+   #include <X11/Xutil.h>
+#endif
 #endif
 
 #include "defs.h"
@@ -80,38 +87,44 @@
 #include "media/memo.h"
 #include "media/printer.h"
 #include "linux/floppy.h"
-//#include "linux/display.h"
-//#include "linux/graphic.h"
-//#include "linux/sound.h"
-//#include "linux/gui.h"
-//#include "linux/keybint.h"
+
+#if defined (GFX_BACKEND_GTK_X11) || (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
+#include "linux/gui.h"
+#endif
+#ifdef GFX_BACKEND_GTK_X11
+#include "linux/ufront.h"
+#endif
+
+#ifdef GFX_BACKEND_ALLEGRO
 #include "allegro.h"
 #include "alleg/gfxdrv.h"
-#include "alleg/gui.h"
-#include "alleg/joyint.h"
-#include "alleg/mouse.h"
-#include "alleg/sound.h"
-
-//#include <unistd.h>
-
 #include "alleg/afront.h"
+#include "alleg/gui.h"
+#endif
+
+/*TODO: Remove LINUX KEYBINT*/
 
 struct EMUTEO teo;
-
-//static int gfx_mode = GFX_WINDOW | GFX_TRUECOLOR;
-static int gfx_mode = GFX_WINDOW;
 
 static gchar reset = FALSE;
 static gchar *cass_name = NULL;
 static gchar *memo_name = NULL;
 static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
 static gchar **remain_name = NULL;
+
+#ifdef GFX_BACKEND_ALLEGRO
+static int gfx_mode = GFX_WINDOW;
 static int windowed_mode = TRUE;
+#endif
 
-
-
-/* ReadCommandLine:
- *  Lit la ligne de commande
+/** 
+ *  Reads command line arguments. This is implemented using glib functions
+ *  while there are a couple of functions that deals with that task for 
+ *  other platforms. This is the only reason for the glib dependency when
+ *  building against Allegro on Unix.
+ *
+ *  TODO: Provide an alternative based on the glib-free win32 and DOS 
+ *  versions
  */
 static void ReadCommandLine(int argc, char *argv[])
 {
@@ -181,9 +194,6 @@ static void ReadCommandLine(int argc, char *argv[])
     g_option_context_free(context);
 }
 
-
-
-            
 static void init_empty_disk(char *filename)
 {
     char *src_name = NULL;
@@ -199,6 +209,8 @@ static void init_empty_disk(char *filename)
         printf("%s: File %s not found, not copying empty disk to user folder %s\n", __FUNCTION__, src_name, dst_name);
         return;
     }
+
+    /*TODO: Move that part in std_FileCopy*/
 
     if ((src_name != NULL) && (*src_name != '\0')
      && (dst_name != NULL) && (*dst_name != '\0')
@@ -219,8 +231,7 @@ static void init_empty_disk(char *filename)
     }
     src_name = std_free (src_name);
     dst_name = std_free (dst_name);
-}        
-
+} 
 
 /* thomson_take char:
  *  Convert Thomson ASCII char into UTF-8.
@@ -493,18 +504,18 @@ char *main_ThomsonToPcText (char *thomson_text)
      return pc_text;
 }
 
-
-
 /* DisplayMessage:
  *  Affiche un message.
  */
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
+#if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
+    ugui_Error (msg, NULL);
+#elif defined (GFX_BACKEND_ALLEGRO)
     agui_PopupMessage (msg);
-    //ugui_Error (msg, wMain);
+#endif
 }
-
 
 
 /* ExitMessage:
@@ -519,9 +530,8 @@ void main_ExitMessage(const char msg[])
 
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
 
-
-/* main:
- *  Point d'entrée du programme appelé par Linux.
+/**
+ *  Entry point
  */
 int main(int argc, char *argv[])
 {
@@ -532,40 +542,45 @@ int main(int argc, char *argv[])
     int direct_write_support = TRUE;
     int drive_type[4];
     char *lang;
-
-    int alleg_depth;
     int njoy = 0;
-    char *cfg_file;
+    int rv;
 
-    /* Repérage du language utilisé */
+#ifdef GFX_BACKEND_ALLEGRO
+    int alleg_depth;
+    char *w_title;
+#endif
+
+    /* Sets the language */
     lang=getenv("LANG");
     if (lang==NULL) lang="fr_FR";        
     setlocale(LC_ALL, "");
     is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
 
 
-#ifdef ENABLE_GTK_PANEL
-    g_setenv ("GDK_BACKEND", "x11", TRUE);
-    gtk_init (&argc, &argv);     /* Initialisation gtk */
+
+#if defined (GFX_BACKEND_GTK_X11)
+    ufront_Init();
+#endif
+#if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
+    gtk_init (&argc, &argv);     
 #endif
 
-    ini_Load();                  /* Charge les paramètres par défaut */
-    ReadCommandLine(argc, argv); /* Récupération des options */
-
+    ini_Load();                  /* Load settings from teo.ini */
+    ReadCommandLine(argc, argv); /* Override loaded settings with values from command line */
     init_empty_disk("empty.hfe");
 
-    int rv;
-    char *w_title;
-
+#ifdef GFX_BACKEND_ALLEGRO
     w_title = is_fr ? "Teo - l'ï¿½mulateur TO8 (menu:ESC/debogueur:F12)"
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
-
     /*njoy set to -1 would disable joystick detection/support*/
     rv = afront_Init(w_title, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
     if(rv != 0){
         printf("Couldn't initialize Allegro, bailing out !\n");
         exit(EXIT_FAILURE);
     }
+    /* num_joysticks: filled by allegro with the number of detected joysticks */
+    njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
+#endif
 
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
@@ -582,36 +597,40 @@ int main(int argc, char *argv[])
     printf((is_fr?"Initialisation de l'Ã©mulateur..."
                  :"Initialization of the emulator...")); fflush(stderr);
 
-    /* num_joysticks: filled by allegro with the number of detected joysticks */
-    njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 
     /*Number of joysticks to emualte using the keyboard*/
     if ( teo_Init(TEO_NJOYSTICKS-njoy) < 0 )
         main_ExitMessage(teo_error_msg);
 
-    /* Initialisation de l'interface d'accès direct */
+    /* Starts Unix /dev/fdX-based floppy handler */
     ufloppy_Init (drive_type, direct_write_support);
-
-    /* Détection des lecteurs supportés (3"5 seulement) */
+    /* Filter out any fdd other than 3"5*/
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
+#if defined (GFX_BACKEND_ALLEGRO)
     rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
     if(rv != 0){
         main_ExitMessage(is_fr?"Mode graphique non supporté."
                               :"Unsupported graphic mode");
     }
-
-    disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
-    cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
-    if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
+#elif defined (GFX_BACKEND_GTK_X11)
+    rv = ufront_StartGfx("gdk-keymap.ini");
+    if(rv < 0)
+        main_DisplayMessage(teo_error_msg);
+#endif
+    
+    /*Load (fd, tape, cartridge) any media present in  the teo conf  */
+    disk_FirstLoad ();
+    cass_FirstLoad ();
+    if (memo_FirstLoad () < 0)
         reset = 1;
 
-    /* Chargement des options non définies */
+    /* Scans for undefined options */
     for (i=0;(remain_name!=NULL)&&(remain_name[i]!=NULL);i++)
         if (option_Undefined (remain_name[i]) == 1)
             reset = 1;
-    g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
+    g_strfreev(remain_name);
 
 
     /* Restitue l'état sauvegardé de l'émulateur */
@@ -620,29 +639,32 @@ int main(int argc, char *argv[])
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
-#ifdef ENABLE_GTK_PANEL
+#if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_PANEL)
     ugui_Init();      /* Initialise l'interface graphique */
 #endif
-#ifdef ENABLE_GTK_DEBUGGER
+#if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_DEBUGGER)
     udebug_Init();      /* Initialise l'interface graphique */
 #endif
 
-    /* initialisation de l'interface utilisateur Allegro et du débogueur */
+    printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
+#if defined (GFX_BACKEND_ALLEGRO)
     teo_DebugBreakPoint = NULL;
-
-    /* Et c'est parti !!! */
-    /*This function only returns on quit*/
     afront_Run(windowed_mode);
+#elif defined (GFX_BACKEND_GTK_X11)
+    ufront_Run();
+#endif
 
-    /* Sauvegarde de l'état de l'émulateur */
+    /* Save current state: emulator config and virtual TO8 mem snapshot */
     ini_Save(); 
     image_Save ("autosave.img");
 
-    ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
-
+    ufloppy_Exit(); 
+#if defined (GFX_BACKEND_ALLEGRO) 
     afront_Shutdown();
+#elif defined (GFX_BACKEND_GTK_X11)
+    ufront_Shutdown();
+#endif
 
-    /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
     exit(EXIT_SUCCESS);
 }
