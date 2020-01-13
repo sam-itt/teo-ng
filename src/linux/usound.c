@@ -265,8 +265,10 @@ void usound_Close (void)
 
 
 
-/* usound_Init:
- *  Initialise le module de streaming audio.
+/** 
+ * Tries to open alsa and setup sound-related teo_ callbacks on success
+ *
+ * @return 0 on success, TEO_ERROR on error. Also sets teo_error_msg.
  */
 int usound_Init(void)
 {

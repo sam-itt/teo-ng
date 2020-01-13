@@ -664,9 +664,9 @@ void ugraphic_Refresh(void)
 }
 
 
-/* ugraphic_Init:
- *  Sélectionne le visual, met en place la palette de couleurs et
- *  initialise le mécanisme de bufferisation (dirty rectangles).
+/** ugraphic_Init:
+ * Create and allocate palette, buffers and plug gfx-related
+ * teo_ callbacks
  */
 void ugraphic_Init(void)
 {

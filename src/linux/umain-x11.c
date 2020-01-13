@@ -77,16 +77,11 @@
 #include "media/memo.h"
 #include "media/printer.h"
 #include "linux/floppy.h"
-#include "linux/display.h"
-#include "linux/graphic.h"
-#include "linux/sound.h"
 #include "linux/gui.h"
-
+#include "linux/ufront.h"
 
 struct EMUTEO teo;
 
-static int idle_data = 0;
-static GTimer *timer;
 
 static gboolean reset = FALSE;
 static gchar *cass_name = NULL;
@@ -95,61 +90,6 @@ static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
 static gchar **remain_name = NULL;
 
 
-/* RunTO8:
- *  Boucle principale de l'émulateur.
- */
-static gboolean RunTO8 (gpointer user_data)
-{
-    static gulong microseconds;
-
-    if ((teo.setting.exact_speed)
-     && (teo.setting.sound_enabled == 0)
-     && (g_timer_elapsed (timer, &microseconds) < 0.02))
-        return TRUE;
-
-    g_timer_start (timer);
-
-    if (teo_DoFrame() == 0)
-        teo.command=TEO_COMMAND_BREAKPOINT;
-
-    if ((teo.command == TEO_COMMAND_BREAKPOINT)
-     || (teo.command == TEO_COMMAND_DEBUGGER)) {
-        udebug_Panel();
-        if (teo_DebugBreakPoint == NULL)
-            teo_FlushFrame();
-    }
-
-    if (teo.command == TEO_COMMAND_PANEL)
-        ugui_Panel();
-
-    if (teo.command == TEO_COMMAND_RESET)
-        teo_Reset();
-
-    if (teo.command == TEO_COMMAND_COLD_RESET)
-        teo_ColdReset();
-
-    if (teo.command == TEO_COMMAND_FULL_RESET)
-        teo_FullReset();
-
-    if (teo.command == TEO_COMMAND_QUIT)
-    {
-        mc6809_FlushExec();
-        gtk_main_quit ();
-        return FALSE;
-    }
-
-    teo.command = TEO_COMMAND_NONE;
-
-    ugraphic_Refresh ();
-    if ((teo.setting.exact_speed)
-     && (teo.setting.sound_enabled))
-        usound_Play ();
-
-    disk_WriteTimeout();
-
-    return TRUE;
-    (void)user_data;
-}
 
 
 
@@ -542,7 +482,7 @@ char *main_ThomsonToPcText (char *thomson_text)
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
-    ugui_Error (msg, wMain);
+    ugui_Error (msg, NULL);
 }
 
 
@@ -569,6 +509,8 @@ int main(int argc, char *argv[])
     int direct_write_support = TRUE;
     int drive_type[4];
     char *lang;
+    int rv;
+
 
     /* Repérage du language utilisé */
     lang=getenv("LANG");
@@ -576,8 +518,9 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
     is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
 
-    g_setenv ("GDK_BACKEND", "x11", TRUE);
+    ufront_Init();
     gtk_init (&argc, &argv);     /* Initialisation gtk */
+
     ini_Load();                  /* Charge les paramètres par défaut */
     ReadCommandLine(argc, argv); /* Récupération des options */
 
@@ -598,7 +541,9 @@ int main(int argc, char *argv[])
     printf((is_fr?"Initialisation de l'Ã©mulateur..."
                  :"Initialization of the emulator...")); fflush(stderr);
 
-    if ( teo_Init(TEO_NJOYSTICKS) < 0 )
+    /*GTK/X11 has no support for joysticks real ATM: all sticks has to be
+     * keyboard-emulated*/
+    if ( teo_Init(TEO_NJOYSTICKS) < 0 ) 
         main_ExitMessage(teo_error_msg);
 
     /* Initialisation de l'interface d'accès direct */
@@ -608,9 +553,10 @@ int main(int argc, char *argv[])
     for (i=0; i<4; i++)
         teo.disk[i].direct_access_allowed = (IS_3_INCHES(i)) ? 1 : 0;
 
-    udisplay_Window (); /* Création de la fenêtre principale */
-    udisplay_Init();    /* Initialisation du serveur X */
-    ugraphic_Init();    /* Initialisation du module graphique */
+    rv = ufront_StartGfx("gdk-keymap.ini");
+    if(rv < 0)
+        main_DisplayMessage(teo_error_msg);
+
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
     if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
@@ -622,9 +568,6 @@ int main(int argc, char *argv[])
             reset = 1;
     g_strfreev(remain_name); /* Libère la mémoire des options indéfinies */
 
-    /* Initialise le son */
-    if (usound_Init() < 0)
-        main_DisplayMessage(teo_error_msg);
 
     /* Restitue l'état sauvegardé de l'émulateur */
     teo_FullReset();
@@ -638,20 +581,14 @@ int main(int argc, char *argv[])
 
     /* Et c'est parti !!! */
     printf((is_fr?"Lancement de l'Ã©mulation...\n":"Launching emulation...\n"));
-    teo.command=TEO_COMMAND_NONE;
-    timer = g_timer_new ();
-    g_timeout_add_full (G_PRIORITY_DEFAULT, 1, RunTO8, &idle_data, NULL);
-    gtk_main ();
-    g_timer_destroy (timer);
+    ufront_Run();
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save();
     image_Save ("autosave.img");
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
-    ugui_Free ();   /* Libère la mémoire utilisée par la GUI */
-    udebug_Free();  /* Free memory used by the debugger */
-    usound_Close(); /* Referme le périphérique audio*/
+    ufront_Shutdown();
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));

@@ -192,8 +192,8 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
         int jdir;
         int astate,bstate;
 
-//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
-//        joystick_verbose_debug_command(keymap[key].joycode);
+//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
+//        joystick_verbose_debug_command(keymap[event->hardware_keycode].joycode);
 
         jdx = TEO_JOYN(keymap[event->hardware_keycode].joycode);
         astate = (keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
@@ -621,10 +621,11 @@ static void load_keybinding(char *filename)
 
 }
 
-/* udisplay_Init:
- *  Ouvre la connexion avec le serveur X et initialise le clavier.
+/** 
+ * Init the file-wide X handle and tries to enable X-SHM
+ * Also inits the keyboard
  */
-void udisplay_Init(void)
+void udisplay_Init(const char *keymap)
 {
     int i;
     int ret1, ret2, ret3;
@@ -633,7 +634,7 @@ void udisplay_Init(void)
     display=gdk_x11_get_default_xdisplay();
     screen=DefaultScreen(display);
 
-    load_keybinding("gdk-keymap.ini");
+    load_keybinding(keymap);
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
 
@@ -643,8 +644,14 @@ void udisplay_Init(void)
 }
 
 
-/* udisplay_Window:
- *   Crée la fenêtre principale.
+/**
+ * GTK works: Create a window of appropriate size and 
+ * activates callbacks for keypresses, focus and visibility.
+ *
+ * Init file-wide X-related symbols
+ *
+ * Sets the callback for teo_SetPointer
+ *
  */
 void udisplay_Window(void)
 {

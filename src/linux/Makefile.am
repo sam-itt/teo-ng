@@ -35,6 +35,7 @@ teo_SOURCES += \
 	udisplay.c \
 	usound.c \
 	ugraphic.c \
+	ufront.c \
 	\
 	udebug.c \
 	udebug/udstatus.c \

@@ -125,6 +125,7 @@
 #define TOP_BORDER             1
 #define BOTTOM_BORDER          2   
 
+#define USEC_TO_SEC(usec) ((usec)/1000000.0)
 
 struct GATE_ARRAY {
     int p_data;

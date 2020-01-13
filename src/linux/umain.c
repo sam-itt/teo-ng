@@ -94,13 +94,13 @@
 
 //#include <unistd.h>
 
+#include "alleg/afront.h"
 
 struct EMUTEO teo;
 
 //static int gfx_mode = GFX_WINDOW | GFX_TRUECOLOR;
 static int gfx_mode = GFX_WINDOW;
 
-//static gboolean reset = FALSE;
 static gchar reset = FALSE;
 static gchar *cass_name = NULL;
 static gchar *memo_name = NULL;
@@ -501,6 +501,7 @@ char *main_ThomsonToPcText (char *thomson_text)
 void main_DisplayMessage(const char msg[])
 {
     fprintf(stderr, "%s\n", msg);
+    agui_PopupMessage (msg);
     //ugui_Error (msg, wMain);
 }
 

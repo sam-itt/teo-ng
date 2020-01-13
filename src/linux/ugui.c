@@ -88,7 +88,6 @@ static void do_exit (GtkWidget *button, gpointer user_data)
     }
     teo.command = (volatile enum teo_command)user_data;
     gtk_dialog_response (GTK_DIALOG(wControl), TEO_RESPONSE_END);
-
     (void) button;
 }
 
@@ -122,7 +121,7 @@ int ugui_MessageBox (const gchar *message, GtkWidget *parent_window,
  */
 void ugui_Error (const gchar *message, GtkWidget *parent_window)
 {
-    (void)ugui_MessageBox (message, parent_window,
+    (void)ugui_MessageBox (message, parent_window ? parent_window : wMain,
                            GTK_MESSAGE_ERROR, GTK_BUTTONS_OK);
 }
 
