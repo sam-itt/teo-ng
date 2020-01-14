@@ -31,7 +31,9 @@ AC_CANONICAL_HOST
 AC_DEFINE(TEO_VERSION_STR, "[teo_version]", [Package version constant, as defined in existing code base])
 AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as defined in existing code base])
 AC_DEFINE(TEO_VERSION_WRC, [teo_version_wrc], [Package version constant, in a format suitable for Win32 resource files])
-#AC_SUBST([TEO_VERSION_WRC],[teo_version_wrc])
+
+AC_DEFUN([AC_PROG_GCR], [AC_CHECK_PROG([GCR],[glib-compile-resources],[yes])])
+
 
 # For functions like asprintf, get_current_dir_name
 AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions.])
@@ -233,6 +235,10 @@ AS_IF([test "x$enable_gtk_panel" != "xno"], [
     PKG_CHECK_MODULES([GTK], [gtk+-3.0])
     AM_CONDITIONAL(ENABLE_GTK_PANEL, true)
     AC_DEFINE(ENABLE_GTK_PANEL,[],[Use GTK for GUI])
+    AC_PROG_GCR
+    if test "x$GCR" != "xyes" ; then
+        AC_MSG_ERROR([glib-compile-resource needed for GTK/X11 backend and for GTK Panel])
+    fi
 ], [
     AM_CONDITIONAL(ENABLE_GTK_PANEL, false)
 ])
@@ -269,6 +275,10 @@ AS_CASE(["x$with_gfx_backend"],
     PKG_CHECK_MODULES([XEXT], [xext])
     PKG_CHECK_MODULES([X11], [x11])
     PKG_CHECK_MODULES([ALSA], [alsa])
+    AC_PROG_GCR
+    if test "x$GCR" != "xyes" ; then
+        AC_MSG_ERROR([glib-compile-resource needed for GTK/X11 backend and for GTK Panel])
+    fi
    ],
    ["xsdl2"],[
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)

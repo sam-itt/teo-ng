@@ -17,13 +17,22 @@
 #include "alleg/gui.h"
 #include "alleg/akeybint.h"
 
+
+#ifdef ENABLE_GTK_PANEL
+#include <gtk/gtk.h>
+#include <linux/gui.h>
+#endif
+
 //#define USE_ALLEGRO_TICKER 1
 
 static void afront_RetraceCallback(void);
 static void afront_CloseProcedure(void);
 static void afront_RunTO8(int windowed_mode);
-static void afront_ExecutePendingCommand(void);
+static void afront_ExecutePendingCommand(int windowed_mode);
+
+#if defined (USE_ALLEGRO_TICKER)
 static void Timer(void);
+#endif
 
 int frame;                  /* compteur de frame vidéo */
 static volatile int tick;   /* compteur du timer       */
@@ -209,7 +218,7 @@ void afront_Run(int windowed_mode)
         amouse_ShutDown();
         akeybint_ShutDown();
 
-        afront_ExecutePendingCommand();
+        afront_ExecutePendingCommand(windowed_mode);
     
 #if PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)
         gtk_main_iteration_do(FALSE);
@@ -320,7 +329,7 @@ static void afront_RunTO8(int windowed_mode)
  * as the command code is in the global "teo" struct
  * there is no params to pass
  */
-static void afront_ExecutePendingCommand(void)
+static void afront_ExecutePendingCommand(int windowed_mode)
 {
     if(teo.command == TEO_COMMAND_PANEL){
 #if (PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)) || PLATFORM_WIN32
@@ -407,8 +416,10 @@ static void afront_CloseProcedure(void)
     teo.command = TEO_COMMAND_QUIT;
 }
 
+#if defined (USE_ALLEGRO_TICKER)
 static void Timer(void)
 {
     tick++;
 }
 END_OF_FUNCTION(Timer)
+#endif

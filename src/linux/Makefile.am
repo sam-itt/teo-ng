@@ -35,6 +35,8 @@ teo_SOURCES += \
 	usound.c \
 	ugraphic.c \
 	ufront.c \
+	teoemulatorresources.h \
+	teoemulatorresources.c \
 	\
 	udebug.c \
 	udebug/udstatus.c \
@@ -75,5 +77,25 @@ teo_SOURCES += \
 	ugui/uabout.c \
 	ugui/ucass.c \
 	ugui/udisk.c \
-	ugui/uprinter.c
+	ugui/uprinter.c \
+	\
+	teoemulatorresources.c \
+	teoemulatorresources.h
 endif
+
+EXTRA_DIST = \
+	teo.png \
+	teo.gresource.xml
+
+BUILT_SOURCES = \
+	teoemulatorresources.c \
+	teoemulatorresources.h 
+
+resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/teo.gresource.xml)
+teoemulatorresources.h: teo.gresource.xml $(resource_files)
+	glib-compile-resources --target=$@ --sourcedir=$(srcdir) --c-name _teo --generate-header $<
+
+teoemulatorresources.c: teo.gresource.xml teoemulatorresources.h $(resource_files)
+	glib-compile-resources --target=$@ --sourcedir=$(srcdir) --c-name _teo --generate-source $<
+
+CLEANFILES = $(BUILT_SOURCES)

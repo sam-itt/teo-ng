@@ -40,6 +40,9 @@
  *
  *  Fen�tre "A propos"
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 
 #ifndef SCAN_DEPEND
@@ -63,6 +66,11 @@ void uabout_Dialog (GtkButton *button, gpointer user_data)
     const gchar *authors_list[] = { "Gilles Fétis", "Eric Botcazou", "Alexandre Pukall",
                                     "Jérémie Guillaume", "François Mouret",
                                     "Samuel Devulder", NULL };
+#ifdef GFX_BACKEND_ALLEGRO
+    GdkPixbuf *pixbuf;
+    pixbuf=gdk_pixbuf_new_from_resource("/net/sourceforge/teoemulator/teo.png", NULL);
+    gtk_window_set_default_icon(pixbuf);
+#endif
 
     gtk_show_about_dialog (GTK_WINDOW(wControl),
                            "program-name", "Teo",
