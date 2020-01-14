@@ -190,15 +190,11 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
     if(!keyboard_hasFlag(TEO_KEY_F_NUMLOCK) && keymap[event->hardware_keycode].joycode != -1){
         int jdx; 
         int jdir;
-        int astate,bstate;
 
 //        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
 //        joystick_verbose_debug_command(keymap[event->hardware_keycode].joycode);
 
         jdx = TEO_JOYN(keymap[event->hardware_keycode].joycode);
-        astate = (keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
-        bstate = (keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
-
         jdir = TEO_JOY_DIRECTIONS(keymap[event->hardware_keycode].joycode);
 
         if(keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A){
@@ -265,7 +261,6 @@ static gboolean
 key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int value = 0;
-    int teo_key = 0;
 
     if (need_modifiers_reset)
     {
@@ -508,13 +503,14 @@ static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *sectio
         g_free(jdir);
     }
     g_strfreev(bindings);
+    return True;
 }
 
 
 
 static gboolean register_binding(char *xkb_symbol, char *tokey)
 {
-    int a_int, to_int;
+    int to_int;
     gboolean rv;
     GdkKeymapKey *okeys;
     gint on_keys;
@@ -627,14 +623,13 @@ static void load_keybinding(char *filename)
  */
 void udisplay_Init(const char *keymap)
 {
-    int i;
     int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
     display=gdk_x11_get_default_xdisplay();
     screen=DefaultScreen(display);
 
-    load_keybinding(keymap);
+    load_keybinding((char*)keymap);
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
 
