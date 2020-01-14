@@ -201,7 +201,7 @@ static void ReadCommandLine(int argc, char *argv[])
         if (!strcmp(gfx_str,"mode80"))    gfx_mode = GFX_MODE80   ; else
         if (!strcmp(gfx_str,"truecolor")) gfx_mode = GFX_TRUECOLOR; else
         if (!strcmp(gfx_str,"windowed"))   gfx_mode = GFX_WINDOW; else
-        printf("Unknown graphic mode: %s, defaulting to windowed\n");
+        printf("Unknown graphic mode: %s, defaulting to windowed\n", gfx_str);
     }
 #endif
     g_option_context_free(context);
@@ -219,7 +219,7 @@ static void init_empty_disk(char *filename)
     dst_name = std_GetUserDataFile(filename);
 
     if(!std_FileExists(src_name)){
-        printf("%s: File %s not found, not copying empty disk to user folder %s\n", __FUNCTION__, src_name, dst_name);
+        printf("%s: File %s not found, not copying empty disk to user folder %s\n", __FUNCTION__, filename, dst_name);
         return;
     }
 
@@ -560,6 +560,8 @@ int main(int argc, char *argv[])
 #ifdef GFX_BACKEND_ALLEGRO
     char *w_title;
     char version_name[]=PACKAGE_STRING" (Linux/Allegro)";
+#elif GFX_BACKEND_GTK_X11
+    char version_name[]=PACKAGE_STRING" (Linux/X11)";
 #endif
 
     /* Sets the language */
@@ -597,9 +599,9 @@ int main(int argc, char *argv[])
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'émulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
-                 "Teo "TEO_VERSION_STR" (Linux/X11)");
-    printf("Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, "
-           "Alexandre Pukall, François Mouret, Samuel Devulder.\n\n");
+                 version_name);
+    printf("Copyright (C) 1997-%s Gilles Fétis, Eric Botcazou, "
+           "Alexandre Pukall, François Mouret ,Samuel Devulder, Samuel Cuella.\n\n",TEO_YEAR_STRING);
     printf((is_fr?"Touches: [ESC] Panneau de contrôle\n"
                  :"Keys : [ESC] Control pannel\n"));
     printf((is_fr?"         [F12] Débogueur\n\n"
