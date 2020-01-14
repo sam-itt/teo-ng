@@ -78,5 +78,6 @@ extern char *std_skpspc(char *p);
 extern char *std_strdup_printf (char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 extern size_t std_snprintf (char *dest, size_t size, const char*fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
+int std_Debug(char *format, ...);
 #endif
 

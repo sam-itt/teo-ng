@@ -149,7 +149,6 @@ static void asetting_ToggleSound(void)
 
 static void asetting_ToggleMaxSpeed(void)
 {
-//    printf("commdial[COMMDIAL_MAXSPEED].d1: %d\n",commdial[COMMDIAL_MAXSPEED].d1);
 
     if(commdial[COMMDIAL_MAXSPEED].d1){ /*Was selected before the click, i.e user just unselected it*/
         /*Boilerplate: Self selection handling*/
@@ -174,7 +173,6 @@ static void asetting_ToggleMaxSpeed(void)
 
 static void asetting_ToggleExactSpeed(void)
 {
-    printf("commdial[COMMDIAL_EXACTSPEED].d1: %d\n",commdial[COMMDIAL_EXACTSPEED].d1);
     if(commdial[COMMDIAL_EXACTSPEED].d1){ /*Was selected before the click, i.e user just unselected it*/
         asetting_SetToggle(COMMDIAL_EXACTSPEED, FALSE);
     }else{ /*User just selected it*/
@@ -240,7 +238,6 @@ void asetting_Panel(void)
 
     do{
         ret = popup_dialog(commdial, COMMDIAL_OK);
-        printf("Doing command\n");
         switch(ret){
             case COMMDIAL_EXACTSPEED:
                 asetting_ToggleExactSpeed();

@@ -57,6 +57,7 @@
    #include <X11/keysym.h>
 #endif
 
+#include "std.h"
 #include "defs.h"
 #include "teo.h"
 #include "to8keys.h"
@@ -67,7 +68,6 @@
 //#include "linux/gui.h"
 //#include "linux/display.h"
 #include "linux/graphic.h"
-
 
 /*MOVED TO UGUI*/
 GtkWidget *wMain;
@@ -136,11 +136,9 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
     int tokey;
 
     if(event->hardware_keycode > 255){
-        printf("Ignoring OOB hardware_keycode %d while max is %d\n",event->hardware_keycode,255);
+        std_Debug("Ignoring OOB hardware_keycode %d while max is %d\n",event->hardware_keycode,255);
         return FALSE;
     }
- //   printf("Got hardware_keycode %d %s\n",event->hardware_keycode,release ? "released" : "");
-
 
     /*Special (emulator) keys handling:
      * do the emulator command and return.
@@ -191,8 +189,10 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
         int jdx; 
         int jdir;
 
-//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
-//        joystick_verbose_debug_command(keymap[event->hardware_keycode].joycode);
+#ifdef DEBUG
+        std_Debug("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
+        joystick_verbose_debug_command(keymap[event->hardware_keycode].joycode);
+#endif
 
         jdx = TEO_JOYN(keymap[event->hardware_keycode].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[event->hardware_keycode].joycode);
@@ -247,7 +247,7 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
     if(!tokey){
         tokey = keymap[event->hardware_keycode].tokey; 
     }
-  //  printf("Resolved to TOKEY %d\n",tokey);
+
     if(tokey){
         keyboard_Press_ng(tokey, release);
     }
@@ -404,7 +404,7 @@ static gboolean udisplay_get_entries_for_keyval(char *keyval_name, XkbStateRec *
 
     ksym = strstr(keyval_name,"GDK_KEY_");
     if(!ksym){
-        printf("Not a recognized GDK KeySym: %s\n",keyval_name);
+        std_Debug("Not a recognized GDK KeySym: %s\n",keyval_name);
         return FALSE;
     }
     ksym = strchr(keyval_name,'_');
@@ -413,7 +413,7 @@ static gboolean udisplay_get_entries_for_keyval(char *keyval_name, XkbStateRec *
     ksym++;
 
     XkbGetState(display, XkbUseCoreKbd, xkbState);
-//    printf("Active group would be %d\n",xkbState->group);
+    std_Debug("Active group would be %d\n",xkbState->group);
 
     odisplay = gdk_display_get_default(); 
     okeymap = gdk_keymap_get_for_display(odisplay);
@@ -447,7 +447,6 @@ static int gksym_to_keycode(char *gksym)
         }
     }
     for(int i = 0; i < n_keys; i++){
-//        printf("Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
         if(keys[i].group == xkbState.group || !has_group_match)
             return keys[i].keycode;
     }
@@ -460,7 +459,7 @@ static void register_joystick_binding(char *gksym, int jdx, char *jdir, char *jd
 
     a_int = gksym_to_keycode(gksym);
     if(a_int < 0){
-        printf("%s not bound: Couldn't find keycodes for keyval %s\n",jdir, gksym);
+        std_Debug("%s not bound: Couldn't find keycodes for keyval %s\n",jdir, gksym);
         return;
     }
 
@@ -468,10 +467,10 @@ static void register_joystick_binding(char *gksym, int jdx, char *jdir, char *jd
     if(jdir2)
         jd_int |= joystick_symbol_to_int(jdir2);
 
-    printf("GDK key %s(%d) will produce %s + %s (%d)\n",gksym,a_int,jdir,jdir2,jd_int);
+    std_Debug("GDK key %s(%d) will produce %s + %s (%d)\n",gksym,a_int,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
     keymap[a_int].joycode = jd_int;
-    printf("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
+    std_Debug("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
 static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *section, int jdx)
@@ -482,7 +481,7 @@ static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *sectio
     char *gksym;
     char *jdir, *jdir2;
 
-    printf("Loading up joystick emulation key mappings\n");
+    std_Debug("Loading up joystick emulation key mappings\n");
     bindings = g_key_file_get_keys(key_file, section, &n_bindings, NULL);
     if(!bindings) return FALSE;
 
@@ -491,7 +490,7 @@ static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *sectio
         jdir = g_key_file_get_value(key_file, section, gksym, NULL);
         if(!jdir) continue;
 
-        printf("Key %s will emit %s\n", gksym, jdir);
+        std_Debug("Key %s will emit %s\n", gksym, jdir);
 
         jdir2 = strchr(jdir,'+');
         if(jdir2){
@@ -521,7 +520,7 @@ static gboolean register_binding(char *xkb_symbol, char *tokey)
 
     rv = udisplay_get_entries_for_keyval(xkb_symbol, &xkbState, &okeys, &on_keys);
     if(!rv)
-        printf("%s not bound: Couldn't find keycodes for keyval %s\n",tokey, xkb_symbol);
+        std_Debug("%s not bound: Couldn't find keycodes for keyval %s\n",tokey, xkb_symbol);
 
     /*Groups seems to be used to manage multiple keyboard layouts (at least using MATE) 
      * instead/on top of their orignal meaning. Getting the active layout seems to be 
@@ -539,11 +538,11 @@ static gboolean register_binding(char *xkb_symbol, char *tokey)
         }
     }
     for(int i = 0; i < on_keys; i++){
-//        printf("Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
+        std_Debug("Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
         if(okeys[i].group == xkbState.group || !has_group_match){
             switch(okeys[i].level){
                 case 0:
-                    printf("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                    std_Debug("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     keymap[okeys[i].keycode].tokey = to_int;
                     break;
                 case 1:
@@ -552,18 +551,18 @@ static gboolean register_binding(char *xkb_symbol, char *tokey)
                      * */
                     if(!strstr(xkb_symbol,"GDK_KEY_KP")){ 
                         keymap[okeys[i].keycode].shift = to_int;
-                        printf("GDK keycode %d + SHIFT will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                        std_Debug("GDK keycode %d + SHIFT will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     }else{
                         keymap[okeys[i].keycode].tokey = to_int;
-                        printf("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                        std_Debug("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     }
                     break;
                 case 2:
-                    printf("GDK keycode %d + ALTGR will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                    std_Debug("GDK keycode %d + ALTGR will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     keymap[okeys[i].keycode].altgr = to_int;
                     break;
                 default:
-                    printf("Got an unsupported combination for %s: keycode %d and level %d. NOT BOUND\n",tokey, okeys[i].keycode, okeys[i].level);
+                    std_Debug("Got an unsupported combination for %s: keycode %d and level %d. NOT BOUND\n",tokey, okeys[i].keycode, okeys[i].level);
                     break;
                 }
          }
@@ -594,12 +593,12 @@ static void load_keybinding(char *filename)
         return;
     }
 
-    printf("Loading up key mappings\n");
+    std_Debug("Loading up key mappings\n");
     tokeys = keyboard_get_tokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
-        printf("Resolving mapping for emulator definition %s... ", *tokey);
+        std_Debug("Resolving mapping for emulator definition %s... ", *tokey);
         binding = g_key_file_get_value(key_file, "keymapping", *tokey, NULL);
-        printf("got %s\n", binding);
+        std_Debug("got %s\n", binding);
         if(!binding) continue;
 
         b2 = strchr(binding,',');

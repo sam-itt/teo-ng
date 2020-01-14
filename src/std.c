@@ -83,6 +83,17 @@ char *get_current_dir_name()
 }
 #endif
 
+int std_Debug(char *format, ...)
+{
+    int rv = 0;
+#ifdef DEBUG
+    va_list args;
+    va_start(args, format);
+    rv = vprintf(format, args);
+    va_end(args);
+#endif
+    return rv;
+}
 
 /* std_StringListLast:
  *  Renvoit le pointeur sur le dernier élément de la stringlist.
@@ -479,7 +490,7 @@ char *std_GetTeoSystemFile(char *name)
         search_path[0] = strdup(teo_home);
     else{
         search_path[0] = get_current_dir_name();
-        printf("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+        std_Debug("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
     }
     search_path[1] = get_current_dir_name(); 
 #endif
@@ -490,7 +501,7 @@ char *std_GetTeoSystemFile(char *name)
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
         fname = std_strdup_printf("%s/%s", *candidate, name);
-        printf("%s checking for %s\n", __FUNCTION__, fname);
+        std_Debug("%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             rv = fname;
             break;
@@ -501,7 +512,7 @@ char *std_GetTeoSystemFile(char *name)
     std_free(search_path[0]);
     std_free(search_path[1]);
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -535,7 +546,7 @@ char *std_getSystemConfigDir()
     else
         rv = get_current_dir_name();
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -554,8 +565,8 @@ char *std_getUserConfigDir()
     if (!cfghome) {
         home = getenv("HOME");
         if (!home){ 
-            printf("Couldn't get a value for $HOME - this shoudl't happen\n");
-            printf("%s returning NULL\n",__FUNCTION__);
+            std_Debug("Couldn't get a value for $HOME - this shoudl't happen\n");
+            std_Debug("%s returning NULL\n",__FUNCTION__);
             return NULL;
         }
     }
@@ -574,7 +585,7 @@ char *std_getUserConfigDir()
             mkdir_p(rv, S_IRWXU);
 	}
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -593,8 +604,8 @@ char *std_getUserDataDir()
     if (!cfghome) {
         home = getenv("HOME");
         if (!home){ 
-            printf("Couldn't get a value for $HOME - this shoudl't happen\n");
-            printf("%s returning NULL\n",__FUNCTION__);
+            std_Debug("Couldn't get a value for $HOME - this shoudl't happen\n");
+            std_Debug("%s returning NULL\n",__FUNCTION__);
             return NULL;
         }
     }
@@ -621,7 +632,7 @@ char *std_getUserDataDir()
     else
         rv = get_current_dir_name();
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -637,13 +648,9 @@ char *std_GetUserDataFile(char *filename)
 
     datadir = std_getUserDataDir();
     if(datadir){
-//#if PLATFORM_UNIX
         rv = std_strdup_printf("%s/%s", datadir, filename);
-//#else
-//        rv = std_strdup_printf("%s\\%s", datadir, filename);
-//#endif
         std_free(datadir);
-        printf("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
+        std_Debug("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
     }else{
         rv = strdup(filename);
     }
@@ -667,14 +674,10 @@ char *std_GetFirstExistingConfigFile(char *filename)
 
     dir = std_getUserConfigDir();
     if(dir){
-        printf("%s: Got user config dir: %s\n", __FUNCTION__, dir);
-//#if PLATFORM_UNIX
+        std_Debug("%s: Got user config dir: %s\n", __FUNCTION__, dir);
         rv = std_strdup_printf("%s/%s", dir, filename);
-//#else
-//        rv = std_strdup_printf("%s\\%s", dir, filename);
-//#endif
         if(std_FileExists(rv)){
-            printf("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
+            std_Debug("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
             std_free(dir);
             return rv;
         }
@@ -683,14 +686,10 @@ char *std_GetFirstExistingConfigFile(char *filename)
 
     dir = std_getSystemConfigDir();
     if(dir){
-        printf("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
-//#if PLATFORM_UNIX
+        std_Debug("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
         rv = std_strdup_printf("%s/%s", dir, filename);
-//#else
-//        rv = std_strdup_printf("%s\\%s", dir, filename);
-//#endif
         if(std_FileExists(rv)){
-            printf("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
+            std_Debug("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
             std_free(dir);
             return rv;
         }
@@ -702,15 +701,15 @@ char *std_GetFirstExistingConfigFile(char *filename)
     GetModuleFileName(NULL, path, ARRAYSIZE(path));
     dir = dirname(path);
     if(dir){
-        printf("%s: Got exe dir: %s\n", __FUNCTION__, dir);
+        std_Debug("%s: Got exe dir: %s\n", __FUNCTION__, dir);
         rv = std_strdup_printf("%s\\%s", dir, filename);
         if(std_FileExists(rv)){
-            printf("%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
+            std_Debug("%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
             return rv;
         }
     }
 #endif
-    printf("%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
+    std_Debug("%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
     return NULL;
 }
 

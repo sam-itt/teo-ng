@@ -125,7 +125,6 @@ int afront_startGfx(int gfx_mode, int *windowed_mode, char *version_name)
 
         case GFX_WINDOW:
             alleg_depth = desktop_color_depth();
-            printf("Autodetected color depth was: %d\n",alleg_depth);
             switch (alleg_depth)
             {
                 case 8:  /* 8bpp */
@@ -162,8 +161,6 @@ int afront_startGfx(int gfx_mode, int *windowed_mode, char *version_name)
     if(*windowed_mode)
         set_close_button_callback(afront_CloseProcedure);
    
-
-    printf("window mode: %d\n", *windowed_mode);
     return 0;
 }
 
@@ -412,7 +409,6 @@ static void afront_RetraceCallback(void)
  */
 static void afront_CloseProcedure(void)
 {
-    printf("%s: Sending TEO_COMMAND_QUIT\n", __FUNCTION__);
     teo.command = TEO_COMMAND_QUIT;
 }
 

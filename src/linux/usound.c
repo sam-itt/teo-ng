@@ -168,7 +168,6 @@ static int set_hwparams (snd_pcm_hw_params_t *params)
         return sound_error (snd_strerror(err), "ALSA (snd_pcm_hw_params_get_period_size())");
     period_size = size;
     threshold = (buffer_size / period_size) * period_size;
-    printf("period_size=%d\n",size);
 
     /* Actualise des paramètres hardware */
     if ((err = snd_pcm_hw_params (handle, params)) < 0)
@@ -213,8 +212,6 @@ static void put_sound_byte(unsigned long long int clock, unsigned char data)
     register int i;
     register char char_data;
     int index= period_size*(clock%TEO_CYCLES_PER_FRAME)/TEO_CYCLES_PER_FRAME;
-
-//    printf("Putting sound btye %x at address 0x%x\n",data, index);
 
     /* Dans le cas où le nombre de cycles éxécutés pendant une frame dépasse la valeur
        théorique, on bloque l'index à sa valeur maximale */
@@ -361,8 +358,6 @@ void usound_Play(void)
     static struct pollfd *ufds=NULL;
     static int count;
     
-//    printf("Playing soud\n");
-
     if (ufds==NULL) {
         count = snd_pcm_poll_descriptors_count (handle);
         if (count <= 0) {

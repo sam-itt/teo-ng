@@ -305,7 +305,7 @@ void ini_Save (void)
     user_file = NULL;
     fpath = std_getUserConfigDir();
     if(fpath){
-        printf("%s: Got user config dir: %s\n", __FUNCTION__, fpath);
+        std_Debug("%s: Got user config dir: %s\n", __FUNCTION__, fpath);
         user_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
         fpath = std_free(fpath);
     }
@@ -313,22 +313,22 @@ void ini_Save (void)
     sys_file = NULL;
     fpath = std_getSystemConfigDir();
     if(fpath){
-        printf("%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
+        std_Debug("%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
         sys_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
         fpath = std_free(fpath);
     }
 
     if(user_file){
-        printf("%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
+        std_Debug("%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
         file_open(user_file,  "w");
     }else{
-        printf("%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
+        std_Debug("%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
         file_open(sys_file,  "w");
     }
 
     if (file == NULL){
-        printf("%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
-        printf("Erro is: %d: %s\n", errno, strerror(errno));
+        std_Debug("%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
+        std_Debug("Erro is: %d: %s\n", errno, strerror(errno));
         return;
     }
     fprintf (file, ";-----------------------------------------------------\n");
