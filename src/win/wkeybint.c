@@ -101,8 +101,8 @@ void wkeybint_ShutDown(void)
 /* wkeybint_Init:
  *  Initialise le module de gestion bas-niveau clavier.
  */
-void wkeybint_Init(void) 
+void wkeybint_Init(void) /*Unused since akeyboard_Init has gone into afront*/
 {
-    akeyboard_init();
+    akeyboard_Init();
 }
 

@@ -174,7 +174,7 @@ void joystick_Init(void)
     LOCK_FUNCTION(joystick_Button);
 }
 
-int joystick_symbol_to_int(char *symbol)
+int joystick_SymbolToInt(char *symbol)
 {
     if(strcmp(symbol,"TEO_JOYSTICK_CENTER") == 0) return TEO_JOYSTICK_CENTER;
     if(strcmp(symbol,"TEO_JOYSTICK_LEFT") == 0) return TEO_JOYSTICK_LEFT;
@@ -186,7 +186,7 @@ int joystick_symbol_to_int(char *symbol)
     return -1;
 }
 
-void joystick_verbose_debug_command(int value)
+void joystick_VerboseDebugCommand(int value)
 {
     printf("Joystick command for joystick %d. Raw value is: %d, meaning: ",TEO_JOYN(value),value);
     if(value&TEO_JOYSTICK_CENTER) printf("TEO_JOYSTICK_CENTER ");

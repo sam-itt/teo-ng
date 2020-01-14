@@ -108,6 +108,6 @@ void akeybint_Init(void)
 #if PLATFORM_MSDOS
     teo_SetKeyboardLed = akeybint_SetKeyboardLed;
 #endif //PLATFORM_MSDOS
-    akeyboard_init();
+    akeyboard_Init();
 }
 

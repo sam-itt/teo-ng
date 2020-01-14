@@ -555,10 +555,10 @@ int main(int argc, char *argv[])
     int njoy = 0;
     int rv;
 
-#ifdef GFX_BACKEND_ALLEGRO
+#if defined (GFX_BACKEND_ALLEGRO)
     char *w_title;
     char version_name[]=PACKAGE_STRING" (Linux/Allegro)";
-#elif GFX_BACKEND_GTK_X11
+#elif defined (GFX_BACKEND_GTK_X11)
     char version_name[]=PACKAGE_STRING" (Linux/X11)";
 #endif
 

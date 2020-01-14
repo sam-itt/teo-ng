@@ -149,7 +149,7 @@ void akeyboard_Handler(int key)
 
 #ifdef DEBUG
         std_Debug("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
-        joystick_verbose_debug_command(keymap[key].joycode);
+        joystick_VerboseDebugCommand(keymap[key].joycode);
 #endif
 
         jdx = TEO_JOYN(keymap[key].joycode);
@@ -210,7 +210,7 @@ void akeyboard_Handler(int key)
 END_OF_FUNCTION(akeyboard_Handler)
 
 
-int allegro_name_to_scancode(char *alkey)
+int akeyboard_AllegroNameToScancode(char *alkey)
 {
     if(strcmp(alkey,"KEY_A") == 0) return KEY_A;
     if(strcmp(alkey,"KEY_B") == 0) return KEY_B;
@@ -343,14 +343,14 @@ int allegro_name_to_scancode(char *alkey)
     return -1;
 }
 
-static void register_joystick_binding(char *allegro_key, int jdx, char *jdir, char *jdir2)
+static void akeyboard_RegisterJoystickBinding(char *allegro_key, int jdx, char *jdir, char *jdir2)
 {
     int a_int, jd_int;
 
-    a_int = allegro_name_to_scancode(allegro_key);
-    jd_int = joystick_symbol_to_int(jdir);
+    a_int = akeyboard_AllegroNameToScancode(allegro_key);
+    jd_int = joystick_SymbolToInt(jdir);
     if(jdir2)
-        jd_int |= joystick_symbol_to_int(jdir2);
+        jd_int |= joystick_SymbolToInt(jdir2);
 
     std_Debug("Allegro key %s(%d) will produce %s + %s (%d)\n",allegro_key,a_int,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
@@ -358,7 +358,7 @@ static void register_joystick_binding(char *allegro_key, int jdx, char *jdir, ch
     std_Debug("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
-static void akeyboard_read_joystick_bindings(char *section, int jdx)
+static void akeyboard_ReadJoystickBindings(char *section, int jdx)
 {
 
     char **bindings;
@@ -382,16 +382,16 @@ static void akeyboard_read_joystick_bindings(char *section, int jdx)
             jdir2++;
         }
 
-        register_joystick_binding(alkey, jdx, (char*)jdir, jdir2);
+        akeyboard_RegisterJoystickBinding(alkey, jdx, (char*)jdir, jdir2);
     }
 }
 
-static void register_binding(char *allegro_key, char *tokey, char *modifier)
+static void akeyboard_RegisterBinding(char *allegro_key, char *tokey, char *modifier)
 {
     int a_int, to_int;
 
-    a_int = allegro_name_to_scancode(allegro_key);
-    to_int = keyboard_tokey_to_int(tokey);
+    a_int = akeyboard_AllegroNameToScancode(allegro_key);
+    to_int = keyboard_TokeyToInt(tokey);
 
     if(!modifier){
         std_Debug("Allegro key %s(%d) will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
@@ -410,7 +410,7 @@ static void register_binding(char *allegro_key, char *tokey, char *modifier)
     }
 }
 
-static void load_keybindings(void)
+static void akeyboard_LoadKeybindings(void)
 {
     char **tokey;
     char **tokeys;
@@ -422,7 +422,7 @@ static void load_keybindings(void)
         keymap[i].joycode = -1;
 
     std_Debug("Loading up key mappings\n");
-    tokeys = keyboard_get_tokeys();
+    tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
         std_Debug("Resolving mapping for emualtor definition %s... ", *tokey);
         //Todo: #define section name
@@ -440,20 +440,20 @@ static void load_keybindings(void)
         if(b2){
             *b2 = '\0';
             b2++;
-            register_binding(b2, *tokey, modifier);
+            akeyboard_RegisterBinding(b2, *tokey, modifier);
         }
-        register_binding((char*)binding, *tokey, modifier);
+        akeyboard_RegisterBinding((char*)binding, *tokey, modifier);
     }
 
-    akeyboard_read_joystick_bindings("joyemu1", 1);
-    akeyboard_read_joystick_bindings("joyemu2", 2);
+    akeyboard_ReadJoystickBindings("joyemu1", 1);
+    akeyboard_ReadJoystickBindings("joyemu2", 2);
 }
 
 
-void akeyboard_init(void) 
+void akeyboard_Init(void) 
 {
 
-    load_keybindings();
+    akeyboard_LoadKeybindings();
 
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 

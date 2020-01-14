@@ -43,6 +43,7 @@
  *                               20/10/2017
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
+ *               Samuel Cuella 01/2020
  *
  *  Module de pilotage de l'émulateur.
  */

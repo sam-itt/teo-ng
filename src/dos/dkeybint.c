@@ -134,6 +134,6 @@ void dkeybint_ShutDown(void)
 void dkeybint_Init(void)
 {
     teo_SetKeyboardLed=set_keyboard_led;
-    akeyboard_init();
+    akeyboard_Init();
 }
 

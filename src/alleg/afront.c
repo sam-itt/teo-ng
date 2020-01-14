@@ -31,7 +31,7 @@ static void afront_RunTO8(int windowed_mode);
 static void afront_ExecutePendingCommand(int windowed_mode);
 
 #if defined (USE_ALLEGRO_TICKER)
-static void Timer(void);
+static void afront_Timer(void);
 #endif
 
 int frame;                  /* compteur de frame vidéo */
@@ -186,7 +186,7 @@ void afront_Run(int windowed_mode)
             if (teo.setting.sound_enabled){
                 asound_Start();
             }else{
-                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
+                install_int_ex(afront_Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
                 frame=1;
                 tick=frame;
             }
@@ -206,7 +206,7 @@ void afront_Run(int windowed_mode)
             if (teo.setting.sound_enabled)
                 asound_Stop();
             else
-                remove_int(Timer);
+                remove_int(afront_Timer);
         }
 #else
         if (teo.setting.sound_enabled)
@@ -413,9 +413,9 @@ static void afront_CloseProcedure(void)
 }
 
 #if defined (USE_ALLEGRO_TICKER)
-static void Timer(void)
+static void afront_Timer(void)
 {
     tick++;
 }
-END_OF_FUNCTION(Timer)
+END_OF_FUNCTION(afront_Timer)
 #endif

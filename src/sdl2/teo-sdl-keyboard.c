@@ -129,7 +129,7 @@ void teo_sdl_keyboard_handler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
         int jdir;
 
 //        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
-//        joystick_verbose_debug_command(keymap[key].joycode);
+//        joystick_VerboseDebugCommand(keymap[key].joycode);
 
         jdx = TEO_JOYN(keymap[key].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[key].joycode);
@@ -194,9 +194,9 @@ static void teo_sdl_keyboard_register_joystick_binding(char *sdl_scode, int jdx,
     int jd_int;
 
     code = sdl_text_to_scancode(sdl_scode);
-    jd_int = joystick_symbol_to_int(jdir);
+    jd_int = joystick_SymbolToInt(jdir);
     if(jdir2)
-        jd_int |= joystick_symbol_to_int(jdir2);
+        jd_int |= joystick_SymbolToInt(jdir2);
 
 //    printf("SDL key %s(%d) will produce %s + %s (%d)\n",sdl_scode,code,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
@@ -252,7 +252,7 @@ static void teo_sdl_keyboard_register_binding(char *sdl_scode, char *tokey, char
     int to_int;
 
     code = sdl_text_to_scancode(sdl_scode);
-    to_int = keyboard_tokey_to_int(tokey);
+    to_int = keyboard_TokeyToInt(tokey);
 
     if(!modifier){
 //        printf("SDL key %s(%d) will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
@@ -291,7 +291,7 @@ void teo_sdl_keyboard_load_keybindings(char *filename)
     }
 
     printf("Loading up key mappings\n");
-    tokeys = keyboard_get_tokeys();
+    tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
 //        printf("Resolving mapping for emulator definition %s... ", *tokey);
         binding = (char *)ini_get(key_file, "keymapping", *tokey);

@@ -50,6 +50,6 @@ extern void joystick_Reset(void);
 extern void joystick_Move(int joy, int pos);
 extern void joystick_Button(int joy, int button, int state);
 
-int joystick_symbol_to_int(char *symbol);
-void joystick_verbose_debug_command(int value);
+int joystick_SymbolToInt(char *symbol);
+void joystick_VerboseDebugCommand(int value);
 #endif
