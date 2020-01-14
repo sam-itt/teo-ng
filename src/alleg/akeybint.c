@@ -82,7 +82,7 @@ void akeybint_Install(void)
     if (_key_shifts&KB_ALT_FLAG)
         value |= TEO_KEY_F_ALTGR;
 #else
-#error Neither PLATFORM_{DOS,UNIX,WIN32} is defined. Can\'t build.
+#error Neither PLATFORM_{DOS,UNIX,WIN32} is defined. Cannot build.
 #endif
     teo_InputReset(mask, value);
     keyboard_lowlevel_callback=akeyboard_Handler;
