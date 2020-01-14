@@ -151,9 +151,11 @@ static void ReadCommandLine(int argc, char *argv[])
         { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
            is_fr?"Charge une cartouche":"Load a cartridge",
            is_fr?"FICHIER":"FILE" },
+#ifdef GFX_BACKEND_ALLEGRO           
         { "gfx", 'g', 0, G_OPTION_ARG_STRING, &gfx_str,
            is_fr?"Mode graphique a utiliser (windowed par defaut)"
                 :"Graphic mode to use (defaults to windowed)", "mode40,mode80,truecolor,windowed" },
+#endif                
         { G_OPTION_REMAINING, 0, G_OPTION_FLAG_IN_MAIN, 
           G_OPTION_ARG_FILENAME_ARRAY, &remain_name, "", NULL },
         { NULL, 0, 0, 0, NULL, NULL, NULL }
@@ -193,6 +195,7 @@ static void ReadCommandLine(int argc, char *argv[])
         teo.memo.file = std_strdup_printf ("%s", memo_name);
         g_free (memo_name);
     }
+#ifdef GFX_BACKEND_ALLEGRO           
     if (gfx_str != NULL) {
         if (!strcmp(gfx_str,"mode40"))  gfx_mode = GFX_MODE40   ; else
         if (!strcmp(gfx_str,"mode80"))    gfx_mode = GFX_MODE80   ; else
@@ -200,7 +203,7 @@ static void ReadCommandLine(int argc, char *argv[])
         if (!strcmp(gfx_str,"windowed"))   gfx_mode = GFX_WINDOW; else
         printf("Unknown graphic mode: %s, defaulting to windowed\n");
     }
-
+#endif
     g_option_context_free(context);
 }
 
@@ -546,7 +549,6 @@ void main_ExitMessage(const char msg[])
 int main(int argc, char *argv[])
 {
 
-    char version_name[]=PACKAGE_STRING" (Linux/Allegro)";
 
     int i;
     int direct_write_support = TRUE;
@@ -557,6 +559,7 @@ int main(int argc, char *argv[])
 
 #ifdef GFX_BACKEND_ALLEGRO
     char *w_title;
+    char version_name[]=PACKAGE_STRING" (Linux/Allegro)";
 #endif
 
     /* Sets the language */
