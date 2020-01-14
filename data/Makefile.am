@@ -29,6 +29,9 @@ mimedir=$(datadir)/mime/packages
 bindatadir = $(bindir)
 libdatadir = $(libdir)
 
+teodata_DATA = \
+	empty.hfe
+
 teoconf_DATA = \
 	.keep \
 	teo.ini
