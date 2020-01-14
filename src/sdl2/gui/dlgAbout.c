@@ -6,7 +6,9 @@
 
   Show information about the program and its license.
 */
-#include "config.h"
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include "dialog.h"
 #include "sdlgui.h"

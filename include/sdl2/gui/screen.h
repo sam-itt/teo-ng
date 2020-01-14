@@ -7,9 +7,11 @@
 
 #ifndef HATARI_SCREEN_H
 #define HATARI_SCREEN_H
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <SDL_video.h>    /* for SDL_Surface */
-#include "config.h"
 
 #if WITH_SDL2
 static inline int SDL_SetColors(SDL_Surface *surface, SDL_Color *colors,

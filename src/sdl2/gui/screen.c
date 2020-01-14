@@ -1,8 +1,10 @@
 /*
   Original code from Hatari, adapted for Teo
 */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-#include "config.h"
 #if WITH_SDL2
 #include <SDL.h>
 #include "sdl2/gui/sdlgui.h"

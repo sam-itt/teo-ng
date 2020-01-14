@@ -9,7 +9,9 @@
 
   A file selection dialog for the graphical user interface.
 */
-#include "config.h"
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <SDL.h>
 #include <sys/stat.h>

@@ -46,8 +46,9 @@
  *
  *  Boucle principale de l'émulateur.
  */
-#include "config.h"
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <locale.h>
 #include <stdio.h>

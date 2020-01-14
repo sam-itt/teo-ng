@@ -7,8 +7,10 @@
 
 #ifndef HATARI_FILE_H
 #define HATARI_FILE_H
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-#include "config.h"
 #include <SDL.h>
 #include <sys/types.h>		/* Needed for off_t */
 
