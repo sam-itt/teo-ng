@@ -51,8 +51,6 @@
 # include <config.h>
 #endif
 
-#define  ALLEGRO_UNIX /*TODO: Move me out and in config.h*/
-
 #ifndef SCAN_DEPEND
    #include <locale.h>
    #include <stdio.h>

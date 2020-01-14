@@ -262,6 +262,9 @@ AS_CASE(["x$with_gfx_backend"],
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
     PKG_CHECK_MODULES([ALLEGRO], [allegro])
     PKG_CHECK_MODULES([PNG], [libpng])
+    AS_IF([test "x$platform_unix" == "xyes"],[
+        AC_DEFINE(ALLEGRO_UNIX,[],[Building for Allegro on Unix])
+    ],[]);
    ],
    ["xgtk-x11"],[
     AS_IF([test "x$platform_unix" != "xyes"],[
