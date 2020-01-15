@@ -43,7 +43,9 @@
  *
  *  Gestion des préférences.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -119,10 +121,12 @@ static void toggle_sound (GtkWidget *button, gpointer data)
     int flag = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
 
     teo.setting.sound_enabled = flag;
-/*    if (flag == TRUE)
+#ifdef GFX_BACKEND_GTK_X11
+    if (flag == TRUE)
         usound_Init ();
     else
-        usound_Close ();*/
+        usound_Close ();
+#endif
     (void)data;
 }
 
