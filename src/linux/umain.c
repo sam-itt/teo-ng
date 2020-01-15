@@ -86,7 +86,7 @@
 #include "media/printer.h"
 #include "linux/floppy.h"
 
-#if defined (GFX_BACKEND_GTK_X11) || (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
+#if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
 #include "linux/gui.h"
 #endif
 #ifdef GFX_BACKEND_GTK_X11
