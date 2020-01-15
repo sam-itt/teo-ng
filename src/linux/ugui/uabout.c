@@ -37,6 +37,7 @@
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 21/03/2012
  *  Modifié par: François Mouret 22/09/2012
+ *               Samuel Cuella   01/2020
  *
  *  Fenêtre "A propos"
  */
@@ -65,7 +66,7 @@ void uabout_Dialog (GtkButton *button, gpointer user_data)
 {
     const gchar *authors_list[] = { "Gilles FÃ©tis", "Eric Botcazou", "Alexandre Pukall",
                                     "JÃ©rÃ©mie Guillaume", "FranÃ§ois Mouret",
-                                    "Samuel Devulder", NULL };
+                                    "Samuel Devulder", "Samuel Cuella", NULL };
 #ifdef GFX_BACKEND_ALLEGRO
     GdkPixbuf *pixbuf;
     pixbuf=gdk_pixbuf_new_from_resource("/net/sourceforge/teoemulator/teo.png", NULL);

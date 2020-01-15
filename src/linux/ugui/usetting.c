@@ -40,6 +40,7 @@
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 19/10/2012
  *                               15/09/2013 13/04/2014 14/07/2016
+ *               Samuel Cuella   01/2020
  *
  *  Gestion des préférences.
  */

@@ -37,6 +37,7 @@
  *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou 12/02/2001
  *  Modifié par: Eric Botcazou 06/03/2001
+ *               Samuel Cuella 10/2019
  *
  *  Gestion des manettes du TO8.
  */
