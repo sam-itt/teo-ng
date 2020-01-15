@@ -43,7 +43,9 @@
  *
  *  Gestion des réglages.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
