@@ -44,7 +44,9 @@
  *
  *  Interface utilisateur de l'émulateur basée sur GTK+ 3.x .
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -65,8 +67,9 @@ enum {
    TEO_RESPONSE_QUIT
 };
 
-GtkWidget *wMain;
-GdkWindow *gwindow_win;
+#ifdef GFX_BACKEND_ALLEGRO
+GtkWidget *wMain = NULL;
+#endif
 
 
 /* fenêtre de l'interface utilisateur */

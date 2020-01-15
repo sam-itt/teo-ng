@@ -68,10 +68,8 @@
 #include "media/disk.h"
 #include "linux/graphic.h"
 
-/*TODO: Move to ugui*/
 GtkWidget *wMain;
 GdkWindow *gwindow_win;
-/**/
 
 Display *display;
 int screen;
