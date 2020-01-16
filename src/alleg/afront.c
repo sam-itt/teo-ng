@@ -23,6 +23,11 @@
 #include <linux/gui.h>
 #endif
 
+#ifdef PLATFORM_MSDOS
+#include "dos/debug.h"
+#define USE_ALLEGRO_TICKER 1
+#endif
+
 //#define USE_ALLEGRO_TICKER 1
 
 static void afront_RetraceCallback(void);
@@ -54,7 +59,9 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
     /* Allegro lib int */
     set_uformat(U_ASCII);  /* Latin-1 accents */
     if(allegro_init() != 0){
+#if !PLATFORM_MSDOS
         return -1;
+#endif //Allegro 4.2.2 fails that test (errno = 14) but works
     }
 
     cfg_file = std_GetFirstExistingConfigFile((char *)alconfig_file);
@@ -100,7 +107,7 @@ int afront_startGfx(int gfx_mode, int *windowed_mode, char *version_name)
     {
         case GFX_MODE40:
 #if PLATFORM_MSDOS
-            if (agfxdrv_Init(GFX_MODE40, 8, GFX_VGA, FALSE))
+            if (!agfxdrv_Init(GFX_MODE40, 8, GFX_VGA, FALSE))
 #else
             if (!agfxdrv_Init(GFX_MODE40, 8, GFX_AUTODETECT_FULLSCREEN, FALSE))
 #endif
