@@ -46,7 +46,6 @@ EXTRA_DIST= \
 	include/dos/memmng.h \
 	include/dos/debug.h \
 	include/dos/floppy.h \
-	include/dos/keybint.h \
 	include/main.h \
 	include/debug \
 	include/debug/debug.h \

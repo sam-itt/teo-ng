@@ -41,10 +41,13 @@
  *               François Mouret 08/2011 25/04/2012 01/11/2012
  *                               19/09/2013 13/04/2014 31/07/2016
  *                               25/10/2018
+ *               Samuel Cuella   01/2020
  *
  *  Boucle principale de l'émulateur.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -70,12 +73,13 @@
 #include "alleg/joyint.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
-#include "dos/keybint.h"
+#include "alleg/afront.h"
 #include "dos/floppy.h"
 #include "dos/debug.h"
 
 
 /* pour limiter la taille de l'éxécutable */
+
 BEGIN_COLOR_DEPTH_LIST
     COLOR_DEPTH_8
     COLOR_DEPTH_15
@@ -101,129 +105,17 @@ END_DIGI_DRIVER_LIST
 BEGIN_MIDI_DRIVER_LIST
 END_MIDI_DRIVER_LIST
 
+
+
+
 struct EMUTEO teo;
 
 static int reset = FALSE;
 static int gfx_mode = NO_GFX;
 struct STRING_LIST *remain_name = NULL;
 
-int frame;                 /* compteur de frame vidéo */
 int direct_write_support = TRUE;
-static volatile int tick;  /* compteur du timer */
 
-
-static void Timer(void)
-{
-    tick++;
-}
-END_OF_FUNCTION(Timer)
-
-
-
-/* RunTO8:
- *  Boucle principale de l'émulateur.
- */
-static void RunTO8(void)
-{
-    amouse_Install (TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
-    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
-
-    do  /* boucle principale de l'émulateur */
-    {
-        teo.command=TEO_COMMAND_NONE;
-
-        /* installation des handlers clavier, souris et son */ 
-        dkeybint_Install();
-        amouse_Install(LAST_POINTER);
-
-        if (teo.setting.exact_speed)
-        {
-            if (teo.setting.sound_enabled)
-                asound_Start();
-            else
-            {
-                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
-                frame=1;
-                tick=frame;
-            }
-        }
-
-        do  /* boucle d'émulation */
-        {
-            (void)teo_DoFrame();
-
-            /* rafraîchissement de la palette */ 
-            if (need_palette_refresh)
-                RefreshPalette();
-
-            /* rafraîchissement de l'écran */
-            RefreshScreen();
-
-            /* mise à jour de la position des joysticks */
-            ajoyint_Update();
-
-            /* synchronisation sur fréquence réelle */
-            if (teo.setting.exact_speed)
-            {
-                if (teo.setting.sound_enabled)
-                    asound_Play ();
-                else
-                    while (frame==tick)
-                        ;
-            }
-            disk_WriteTimeout();
-            frame++;
-        }
-        while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
-
-        /* désinstallation des handlers clavier, souris et son */
-        if (teo.setting.exact_speed)
-        {
-            if (teo.setting.sound_enabled)
-                asound_Stop();
-            else
-                remove_int(Timer);
-        }
-
-        amouse_ShutDown();
-        dkeybint_ShutDown();
-
-        /* éxécution des commandes */
-        if (teo.command==TEO_COMMAND_PANEL)
-            agui_Panel();
-
-        if (teo.command==TEO_COMMAND_SCREENSHOT)
-            agfxdrv_Screenshot();
-
-        if (teo.command==TEO_COMMAND_DEBUGGER)
-        {
-            remove_keyboard();
-            SetGraphicMode(SHUTDOWN);
-            ddebug_Run();
-            SetGraphicMode(RESTORE);
-            install_keyboard();
-        }
-
-        if (teo.command==TEO_COMMAND_RESET)
-            teo_Reset();
-
-        if (teo.command==TEO_COMMAND_COLD_RESET)
-        {
-            teo_ColdReset();
-            amouse_Install(TEO_STATUS_MOUSE);
-        }
-
-        if (teo.command==TEO_COMMAND_FULL_RESET)
-        {
-            teo_FullReset();
-            amouse_Install(TEO_STATUS_MOUSE);
-        }
-    }
-    while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-
-    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
-    mc6809_FlushExec();
-}
 
 
 
@@ -591,7 +483,7 @@ void main_ExitMessage(const char msg[])
  */
 int main(int argc, char *argv[])
 {
-    char version_name[]="Teo "TEO_VERSION_STR" (MSDOS/DPMI)";
+    char version_name[]=PACKAGE_STRING" (MSDOS/DPMI)";
 #ifdef FRENCH_LANGUAGE
     char *mode_desc[3]= {
         " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
@@ -608,7 +500,8 @@ int main(int argc, char *argv[])
     int njoy = 0;  /* njoy=-1 si joystick non supportés */
     int scancode, i;
     struct STRING_LIST *str_list = NULL;
-    char *cfg_file;
+    int windowed_mode;
+    int rv;
 
 #ifdef FRENCH_LANGUAGE
     is_fr = 1;
@@ -620,50 +513,26 @@ int main(int argc, char *argv[])
     ini_Load();                   /* Charge les paramètres par défaut */
     ReadCommandLine (argc, argv); /* Récupération des options */
 
-    /* initialisation de la librairie Allegro */
-    set_uformat(U_ASCII);  /* pour les accents français */
-    allegro_init();
-    /*
-    if(allegro_init() != 0){
+    rv = afront_Init(NULL, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
+    if(rv != 0){
         printf("Couldn't initialize Allegro, bailing out !\n");
         exit(EXIT_FAILURE);
-    }*/
-
-    cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
-    if(cfg_file){
-        set_config_file(cfg_file);
-        std_free(cfg_file);
-    }else{
-        printf("Config file %s not found, using default values\n",ALLEGRO_CONFIG_FILE);
     }
-
-    cfg_file = std_GetFirstExistingConfigFile("akeymap.ini");
-    if(cfg_file){
-        override_config_file(cfg_file);
-        std_free(cfg_file);
-    }else{
-        printf("Keymap %s not found !\n","akeymap.ini");
-        exit(-1);
-    }
-
-    install_keyboard();
-    install_timer();
-    if (njoy >= 0)
-        install_joystick(JOY_TYPE_AUTODETECT);
+   
     LOCK_VARIABLE(teo);
-    LOCK_VARIABLE(tick);
-    LOCK_FUNCTION(Timer);
 
     /* message d'entête */
     if (is_fr) {
     printf("Voici %s l'‚mulateur Thomson TO8.\n", version_name);
-    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
+    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, "
+           "Samuel Devulder, Samuel Cuella\n\n");
     printf("Touches: [ESC] Panneau de contr“le\n");
     printf("         [F11] Capture d'‚cran\n");
     printf("         [F12] D‚bogueur\n\n");
     } else {
     printf("Here is %s the Thomson TO8 emulator.\n", version_name);
-    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
+    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, "
+           "Samuel Devulder, Samuel Cuella\n\n");
     printf("Keys: [ESC] Control panel\n");
     printf("      [F11] Screen capture\n");
     printf("      [F12] Debugger\n\n");
@@ -680,8 +549,6 @@ int main(int argc, char *argv[])
 
     printf("ok\n");
 
-    /* initialisation de l'interface clavier */
-    dkeybint_Init();
 
     /* initialisation de l'interface d'accès direct */
     dfloppy_Init (drive_type, direct_write_support);
@@ -692,12 +559,6 @@ int main(int argc, char *argv[])
         if (IS_3_INCHES(i))
             direct_support |= (1<<i);
     }
-
-    /* initialisation du son */
-    asound_Init(25600);  /* 25600 Hz */
-
-    /* initialisation des joysticks */
-    ajoyint_Init(njoy);
 
     /* sélection du mode graphique */ 
     printf(is_fr?"\nS‚lection du mode graphique:\n\n":"\nSelect graphic mode:\n\n");
@@ -739,31 +600,11 @@ int main(int argc, char *argv[])
         printf("%s\n\n", mode_desc[gfx_mode-1]);
     }
 
-    /* initialisation du mode graphique */
-    switch (gfx_mode)
-    {
-        case GFX_MODE40:
-            if (agfxdrv_Init(GFX_MODE40, 8, GFX_VGA, FALSE))
-                goto driver_found;
-            break;
-
-        case GFX_MODE80:
-            for (i=0; i<3; i++)
-                if (agfxdrv_Init(GFX_MODE80, 8, GFX_AUTODETECT, FALSE))
-                    goto driver_found;
-            break;
-                
-        case GFX_TRUECOLOR:
-            for (i=0; i<3; i++)
-                if (agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT, FALSE) || 
-                           agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT, FALSE))
-                    goto driver_found;
-           break;
+    rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
+    if(rv != 0){
+        main_ExitMessage(is_fr?"Mode graphique non supporté."
+                              :"Unsupported graphic mode");
     }
-
-    main_ErrorMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
-
-  driver_found:
 
     disk_FirstLoad ();  /* chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* chargement de la cassette éventuelle */
@@ -782,21 +623,14 @@ int main(int argc, char *argv[])
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
-    /* initialisation de l'interface utilisateur */
-    agui_Init(version_name, gfx_mode, direct_support);
-    
     /* et c'est parti !!! */
-    RunTO8();
+    afront_Run(windowed_mode);
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save();
     image_Save ("autosave.img");
 
-    /* libère la mémoire de la GUI */
-    agui_Free();
-
-    /* sortie du mode graphique */
-    SetGraphicMode(SHUTDOWN);
+    afront_Shutdown();
 
     /* mise au repos de l'interface d'accès direct */
     dfloppy_Exit();

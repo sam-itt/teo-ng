@@ -15,5 +15,4 @@ teo_SOURCES = \
 	ddebug.c \
 	dmemmng.c \
 	dvga.c \
-	dfloppy.c \
-	dkeybint.c
+	dfloppy.c
