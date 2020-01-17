@@ -4,9 +4,9 @@
 #include "std.h"
 #include "teo.h"
 #include "sdl2/sdl-keyboard.h"
-#include "sdl2/gui/sdlgui.h"
+#include "gui/sdlgui.h"
 
-int teo_sdl_gfx_init(void)
+int sfront_Init(void)
 {
     int rv;
     char *cfg_file;
@@ -17,7 +17,7 @@ int teo_sdl_gfx_init(void)
         printf("SDL init ok\n");
         cfg_file = std_GetFirstExistingConfigFile("sdl-keymap.ini");
         if(cfg_file){
-            teo_sdl_keyboard_load_keybindings(cfg_file);
+            teoSDL_KeyboardLoadKeybindings(cfg_file);
             std_free(cfg_file);
         }else{
             printf("Keymap %s not found !\n","sdl-keymap.ini");

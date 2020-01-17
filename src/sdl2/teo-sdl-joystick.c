@@ -17,7 +17,7 @@
 static SDL_Joystick **joys = NULL;
 static int njoys = 0;
 
-static int teo_sdl_get_joystick_idx(SDL_JoystickID j_id)
+static int teoSDL_GetJoystickIdx(SDL_JoystickID j_id)
 {
     for(int i = 0; i < njoys; i++){
         if(SDL_JoystickInstanceID(joys[i]) == j_id)
@@ -26,7 +26,7 @@ static int teo_sdl_get_joystick_idx(SDL_JoystickID j_id)
     return -1;
 }
 
-int teo_sdl_joystick_init(void)
+int teoSDL_JoystickInit(void)
 {
     int usable;
 
@@ -45,7 +45,7 @@ int teo_sdl_joystick_init(void)
     return njoys;
 }
 
-void teo_sdl_joystick_terminate(void)
+void teoSDL_JoystickShutdown(void)
 {
     if(!joys) return;
 
@@ -57,7 +57,7 @@ void teo_sdl_joystick_terminate(void)
 
 }
 
-void teo_sdl_joytick_move(SDL_JoyAxisEvent *event)
+void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
 {
     int jdix;
     int pos;
@@ -71,7 +71,7 @@ void teo_sdl_joytick_move(SDL_JoyAxisEvent *event)
 #if !SDL_STRICT_JOY_IDX
     jdix = event->which;
 #else
-    jdix = teo_sdl_get_joystick_idx(event->which);
+    jdix = teoSDL_GetJoystickIdx(event->which);
 #endif
     if(jdix < 0) return;
 
@@ -97,14 +97,14 @@ void teo_sdl_joytick_move(SDL_JoyAxisEvent *event)
     joystick_Move(jdix, pos);
 }
 
-void teo_sdl_joystick_button(SDL_JoyButtonEvent *event)
+void teoSDL_JoystickButton(SDL_JoyButtonEvent *event)
 {
     int jdix;
 
 #if !SDL_STRICT_JOY_IDX
     jdix = event->which;
 #else
-    jdix = teo_sdl_get_joystick_idx(event->which);
+    jdix = teoSDL_GetJoystickIdx(event->which);
 #endif
 
 //    printf("Joystick %d button %d pressed\n", event->which, event->button);

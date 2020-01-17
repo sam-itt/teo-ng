@@ -21,11 +21,11 @@ static teo_kmap_t keymap[SDL_NUM_SCANCODES];
 
 static volatile int jdir_buffer[2][2]; /*joysticks state buffer*/
 
-static SDL_Scancode sdl_text_to_scancode(char *code);
-static char *sdl_scancode_to_text(SDL_Scancode code);
+static SDL_Scancode teoSDL_KeyboardSDLTextToScancode(char *code);
+static char *teoSDL_KeyboardSDLScancodeToText(SDL_Scancode code);
 
 /*TODO: Move me out*/
-int teo_sdl_event_handler(void)
+int teoSDL_EventHandler(void)
 {
     SDL_Event event;
 
@@ -35,28 +35,28 @@ int teo_sdl_event_handler(void)
                 exit(0);
                 break;
             case SDL_KEYUP:
-                teo_sdl_keyboard_handler(event.key.keysym.scancode, event.key.keysym.sym, 1);
+                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 1);
                 break;
             case SDL_KEYDOWN:
-                teo_sdl_keyboard_handler(event.key.keysym.scancode, event.key.keysym.sym, 0);
+                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 0);
                 break;
             case SDL_MOUSEMOTION:
-                teo_sdl_mouse_move(&(event.motion)); 
+                teoSDL_MouseMove(&(event.motion)); 
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                teo_sdl_mouse_button(&(event.button));
+                teoSDL_MouseButton(&(event.button));
                 break;
             case SDL_MOUSEBUTTONUP:
-                teo_sdl_mouse_button(&(event.button));
+                teoSDL_MouseButton(&(event.button));
                 break;
             case SDL_JOYAXISMOTION:
-                teo_sdl_joytick_move(&(event.jaxis));
+                teoSDL_JoystickMove(&(event.jaxis));
                 break;
             case SDL_JOYBUTTONDOWN:
-                teo_sdl_joystick_button(&(event.jbutton));
+                teoSDL_JoystickButton(&(event.jbutton));
                 break;
             case SDL_JOYBUTTONUP:
-                teo_sdl_joystick_button(&(event.jbutton));
+                teoSDL_JoystickButton(&(event.jbutton));
                 break;
         }
     }
@@ -64,14 +64,14 @@ int teo_sdl_event_handler(void)
 }
 
 
-void teo_sdl_keyboard_handler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
+void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
 {
     int tokey;
 
 /*    if(release)
-        printf("Got key_release : %s\n",sdl_scancode_to_text(key));
+        printf("Got key_release : %s\n",teoSDL_KeyboardSDLScancodeToText(key));
     else
-        printf("Got key_pressed : %s\n",sdl_scancode_to_text(key));*/
+        printf("Got key_pressed : %s\n",teoSDL_KeyboardSDLScancodeToText(key));*/
     /*Special (emulator) keys handling:
      * do the emulator command and return.
      * The virtual TO8 won't see the key
@@ -187,13 +187,13 @@ void teo_sdl_keyboard_handler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
     }
 }
 
-static void teo_sdl_keyboard_register_joystick_binding(char *sdl_scode, int jdx, char *jdir, char *jdir2)
+static void teoSDL_KeyboardRegisterJoystickBinding(char *sdl_scode, int jdx, char *jdir, char *jdir2)
 {
 
     SDL_Scancode code;
     int jd_int;
 
-    code = sdl_text_to_scancode(sdl_scode);
+    code = teoSDL_KeyboardSDLTextToScancode(sdl_scode);
     jd_int = joystick_SymbolToInt(jdir);
     if(jdir2)
         jd_int |= joystick_SymbolToInt(jdir2);
@@ -205,7 +205,7 @@ static void teo_sdl_keyboard_register_joystick_binding(char *sdl_scode, int jdx,
 }
 
 
-static Uint8 teo_sdl_keyboard_read_joystick_bindings(ini_t *key_file, char *section, int jdx)
+static Uint8 teoSDL_KeyboardReadJoystickBindings(ini_t *key_file, char *section, int jdx)
 {
 
 //    char **bindings;
@@ -236,7 +236,7 @@ static Uint8 teo_sdl_keyboard_read_joystick_bindings(ini_t *key_file, char *sect
             jdir2++;
         }
 
-        teo_sdl_keyboard_register_joystick_binding(sdl_sym, jdx, (char*)jdir, jdir2);
+        teoSDL_KeyboardRegisterJoystickBinding(sdl_sym, jdx, (char*)jdir, jdir2);
         free(jdir);
     }
     return 1;
@@ -246,12 +246,12 @@ static Uint8 teo_sdl_keyboard_read_joystick_bindings(ini_t *key_file, char *sect
 
 
 
-static void teo_sdl_keyboard_register_binding(char *sdl_scode, char *tokey, char *modifier)
+static void teoSDL_KeyboardRegisterBinding(char *sdl_scode, char *tokey, char *modifier)
 {
     SDL_Scancode code;
     int to_int;
 
-    code = sdl_text_to_scancode(sdl_scode);
+    code = teoSDL_KeyboardSDLTextToScancode(sdl_scode);
     to_int = keyboard_TokeyToInt(tokey);
 
     if(!modifier){
@@ -273,7 +273,7 @@ static void teo_sdl_keyboard_register_binding(char *sdl_scode, char *tokey, char
 
 
 
-void teo_sdl_keyboard_load_keybindings(char *filename)
+void teoSDL_KeyboardLoadKeybindings(char *filename)
 {
     //Uint8 rv;
     char *binding, *b2;
@@ -311,18 +311,18 @@ void teo_sdl_keyboard_load_keybindings(char *filename)
         if(b2){
             *b2 = '\0';
             b2++;
-            teo_sdl_keyboard_register_binding(b2, *tokey, modifier);
+            teoSDL_KeyboardRegisterBinding(b2, *tokey, modifier);
         }
-        teo_sdl_keyboard_register_binding(binding, *tokey, modifier);
+        teoSDL_KeyboardRegisterBinding(binding, *tokey, modifier);
         free(binding);
     }
-    teo_sdl_keyboard_read_joystick_bindings(key_file, "joyemu1", 1);
-    teo_sdl_keyboard_read_joystick_bindings(key_file, "joyemu2", 2);
+    teoSDL_KeyboardReadJoystickBindings(key_file, "joyemu1", 1);
+    teoSDL_KeyboardReadJoystickBindings(key_file, "joyemu2", 2);
     ini_free(key_file);
 
 }
 
-static SDL_Scancode sdl_text_to_scancode(char *code)
+static SDL_Scancode teoSDL_KeyboardSDLTextToScancode(char *code)
 {
     if (!strcmp(code,"SDL_SCANCODE_A")) return SDL_SCANCODE_A;
     if (!strcmp(code,"SDL_SCANCODE_B")) return SDL_SCANCODE_B;
@@ -570,7 +570,7 @@ static SDL_Scancode sdl_text_to_scancode(char *code)
     return SDL_SCANCODE_UNKNOWN;
 }
 
-static char *sdl_scancode_to_text(SDL_Scancode code)
+static char *teoSDL_KeyboardSDLScancodeToText(SDL_Scancode code)
 {
     if (code == SDL_SCANCODE_A) return "SDL_SCANCODE_A";
     if (code == SDL_SCANCODE_B) return "SDL_SCANCODE_B";

@@ -18,7 +18,7 @@ static unsigned char last_data;
 static SDL_AudioSpec spec;
 static SDL_AudioDeviceID dev_id = 0;
 
-static void teo_sdl_dump_spec(SDL_AudioSpec *spec)
+static void teoSDL_SoundDumpSpec(SDL_AudioSpec *spec)
 {
     printf("Spec %p:\n", spec);
     printf("\tfreq: %d\n",spec->freq);
@@ -35,7 +35,7 @@ static void teo_sdl_dump_spec(SDL_AudioSpec *spec)
 /* silence_sound:
  *  Silence the sound.
  */
-static void teo_sdl_sound_silence(void)
+static void teoSDL_SoundSilence(void)
 {
     last_data = spec.silence;
 }
@@ -50,7 +50,7 @@ static void teo_sdl_sound_silence(void)
  * @param the byte that represent the sound (freq) to emit
  *
  *   */
-static void teo_sdl_sound_put_byte(unsigned long long int clock, unsigned char data)
+static void teoSDL_SoundPutByte(unsigned long long int clock, unsigned char data)
 {
     /*This code has been taken nearly verbatim from asound.c*/
     int index=(clock%TEO_CYCLES_PER_FRAME)*sound_freq/TEO_CPU_FREQ;
@@ -75,7 +75,7 @@ static void teo_sdl_sound_put_byte(unsigned long long int clock, unsigned char d
     last_data=data;
 }
 
-void teo_sdl_sound_play(void)
+void teoSDL_SoundPlay(void)
 {
     char *buffer_ptr;
     int rv;
@@ -109,7 +109,7 @@ void teo_sdl_sound_play(void)
 //    last_data = 0x80;
 }
 
-void MyAudioCallback(void *udata, Uint8 *stream, int len)
+void teoSDL_SoundAudioCallback(void *udata, Uint8 *stream, int len)
 {
     int n_bytes;
 
@@ -131,7 +131,7 @@ void MyAudioCallback(void *udata, Uint8 *stream, int len)
     SDL_MixAudio(stream, sound_buffer, sound_buffer_size, SDL_MIX_MAXVOLUME*0.8);
 }
 
-void teo_sdl_sound_clear(void)
+void teoSDL_SoundClear(void)
 {
     SDL_ClearQueuedAudio(dev_id);
 }
@@ -150,7 +150,7 @@ int next_pow2(int v)
     return v;
 }
 
-bool teo_sdl_sound_init(int freq)
+bool teoSDL_SoundInit(int freq)
 {
     SDL_AudioSpec wanted_spec;
 
@@ -159,7 +159,7 @@ bool teo_sdl_sound_init(int freq)
 	wanted_spec.channels = 1; 
 	wanted_spec.samples = next_pow2(freq/TEO_FRAME_FREQ); 
 	wanted_spec.callback = NULL;
-//	wanted_spec.callback = MyAudioCallback;
+//	wanted_spec.callback = teoSDL_SoundAudioCallback;
     wanted_spec.userdata = NULL;
 
 int i;
@@ -180,19 +180,19 @@ for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
     printf("dev_id is: %d\n", dev_id);
 
     printf("Asked:\n");
-    teo_sdl_dump_spec(&wanted_spec);
+    teoSDL_SoundDumpSpec(&wanted_spec);
     printf("Got:\n");
-    teo_sdl_dump_spec(&spec);
+    teoSDL_SoundDumpSpec(&spec);
 
     sound_freq = freq;
     sound_buffer_size = sound_freq/TEO_FRAME_FREQ;
     sound_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
     mix_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
 
-    teo_PutSoundByte=teo_sdl_sound_put_byte;
-    teo_SilenceSound=teo_sdl_sound_silence;
+    teo_PutSoundByte=teoSDL_SoundPutByte;
+    teo_SilenceSound=teoSDL_SoundSilence;
 
-    teo_sdl_sound_silence();
+    teoSDL_SoundSilence();
     last_index = 0;
 
     SDL_PauseAudioDevice(dev_id, 0);

@@ -78,7 +78,7 @@
 
 
 #include <SDL2/SDL.h>
-#include "sdl2/sdl2-drv.h"
+#include "sdl2/sfront.h"
 #include "linux/sound.h"
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-joystick.h"
@@ -125,7 +125,7 @@ static void RunTO8(void)
 
     bool a,b;
 
-    teo_sdl_RetraceWholeScreen();
+    teoSDL_GfxRetraceWholeScreen();
 
     do{  /* emulator main loop */
         teo.command=TEO_COMMAND_NONE;
@@ -140,15 +140,15 @@ static void RunTO8(void)
                     teo.command=TEO_COMMAND_BREAKPOINT;
 
             /* rafraîchissement de l'écran */
-            teo_sdl_RefreshScreen();
-            teo_sdl_event_handler();
+            teoSDL_GfxRefreshScreen();
+            teoSDL_EventHandler();
 
 
             /* synchronisation sur fréquence réelle */
             if (teo.setting.exact_speed)
             {
                 if (teo.setting.sound_enabled){
-                    teo_sdl_sound_play();
+                    teoSDL_SoundPlay();
                 }
                 Uint32 dt; /*milliseconds*/
 
@@ -667,13 +667,13 @@ int main(int argc, char *argv[])
     init_empty_disk("empty.hfe");
 
     /* initialisation de la librairie SDL */
-    if(teo_sdl_gfx_init() != 0){
+    if(sfront_Init() != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
 
     if (njoy >= 0)
-        njoy = teo_sdl_joystick_init();
+        njoy = teoSDL_JoystickInit();
 
 
     /* Affichage du message de bienvenue du programme */
@@ -714,10 +714,10 @@ int main(int argc, char *argv[])
    // udisplay_Window (); /* Création de la fenêtre principale */
 #endif
     /*TODO: Investigate if that is used and where and why and make better code*/
-    teo_sdl_window (); /* Création de la fenêtre principale */
-    teo_sdl_graphic_init();    /* Initialisation du module graphique */
+    teoSDL_GfxWindow (); /* Création de la fenêtre principale */
+    teoSDL_GfxInit();    /* Initialisation du module graphique */
     /* Initialise le son */
-    teo_sdl_sound_init(51200);
+    teoSDL_SoundInit(51200);
 
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */

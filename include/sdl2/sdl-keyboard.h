@@ -5,8 +5,8 @@
 
 
 
-int teo_sdl_event_handler(void);
-void teo_sdl_keyboard_handler(SDL_Scancode key, SDL_Keycode ksym, Uint8 released);
+int teoSDL_EventHandler(void);
+void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 released);
 
-void teo_sdl_keyboard_load_keybindings(char *filename);
+void teoSDL_KeyboardLoadKeybindings(char *filename);
 #endif

@@ -2,8 +2,8 @@
 #define TEO_SDL_SOUND_H
 #include <stdbool.h>
 
-bool teo_sdl_sound_init(int freq);
-void teo_sdl_sound_play(void);
+bool teoSDL_SoundInit(int freq);
+void teoSDL_SoundPlay(void);
 
-void teo_sdl_sound_clear(void);
+void teoSDL_SoundClear(void);
 #endif //TEO_SDL_SOUND_H

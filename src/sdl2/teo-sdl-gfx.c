@@ -56,7 +56,7 @@ static const struct SCREEN_PARAMS tcol1={ TEO_WINDOW_W*2,
  *  Convertit la couleur du format TO8 au format 16-bit
  *  et la depose dans la palette.
  */
-static void teo_sdl_SetColor(int index, int r, int g, int b)
+static void teoSDL_GfxSetColor(int index, int r, int g, int b)
 {
     /*TODO: Experiment with 24-bits surfaces*/
 //    palette[index] = SDL_MapRGB(screen_buffer->format, r, g, b);
@@ -69,8 +69,6 @@ static void dump_sdl_rect(SDL_Rect *r)
     printf("%p: (x,y) = (%d,%d), size (w x h) =  (%dx%d)\n",r,r->x,r->y,r->w,r->h);
 }
 
-//#define RECTF(x1, y1, x2, y2)  rectfill(screen_buffer, (x1), (y1), (x2), (y2), palette[border_color])
-//#define RECT(x1, y1, x2, y2) (SDL_Rect){(x1), (y1), ((x2) - (x1)), ((y2) - (y1))}
 /*RECT makes a SDL_Rect from a set of up-left and bottom-right coordinates
  * SDL_Rect has (x,y) for the top-left point and  height + width
  * height and width must be computed as x2-x1 +1 because coordinates are zero
@@ -85,7 +83,7 @@ static void dump_sdl_rect(SDL_Rect *r)
  *  Change la couleur du pourtour de l'ecran.
  *  (seulement pour l'ecran tcol2)
  */
-static void teo_sdl_SetBorderColor(int mode, int color)
+static void teoSDL_GfxSetBorderColor(int mode, int color)
 {
     register int i,j;
     int *dirty_cell_row = dirty_cell;
@@ -229,7 +227,7 @@ static inline int gpl_need_update(const Uint8 *gpl1, const Uint8 *gpl2)
 /* DrawGPL:
  *  Affiche un Groupe Point Ligne (un octet de VRAM).
  */
-static void teo_sdl_DrawGPL(int mode, int addr, int pt, int col)
+static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
 {
     register int i;
     unsigned int x, y;
@@ -386,7 +384,7 @@ static void teo_sdl_DrawGPL(int mode, int addr, int pt, int col)
  *  Affiche une ligne de pixels de la frontiere de l'ecran.
  *  (seulement pour l'ecran tcol2)
  */
-static void teo_sdl_DrawBorderLine(int col, int line)
+static void teoSDL_GfxDrawBorderLine(int col, int line)
 {
     int *dirty_cell_row = dirty_cell + (line/TEO_CHAR_SIZE)*tcol2.screen_cw;
     SDL_Rect rect;
@@ -424,7 +422,7 @@ static void teo_sdl_DrawBorderLine(int col, int line)
     }
 } 
 
-void teo_sdl_RetraceWholeScreen()
+void teoSDL_GfxRetraceWholeScreen()
 {
     SDL_BlitSurface(screen_buffer, NULL, screenSurface, NULL);
     SDL_UpdateWindowSurface(window);
@@ -448,7 +446,7 @@ void teo_sdl_RetraceScreen(int x, int y, int width, int height)
 /* RefreshScreen:
  *  Rafraichit l'ecran du TO8.
  */
-void teo_sdl_RefreshScreen(void)
+void teoSDL_GfxRefreshScreen(void)
 {
     register int i,j;
     int cell_start;
@@ -456,7 +454,7 @@ void teo_sdl_RefreshScreen(void)
     int blend_done = 0;
 
     SDL_Rect area;
-//    teo_sdl_RetraceWholeScreen();
+//    teoSDL_GfxRetraceWholeScreen();
 //    return;
 
 
@@ -530,7 +528,7 @@ void teo_sdl_RefreshScreen(void)
 /* SetDiskLed:
  *  Allume/�teint la Led du lecteur de disquettes.
  */
-static void teo_sdl_SetDiskLed(int led_on)
+static void teoSDL_GfxSetDiskLed(int led_on)
 {
     static int count = 0;
 
@@ -567,7 +565,7 @@ static void teo_sdl_SetDiskLed(int led_on)
 /* SetPointer:
  *  Select active pointer.
  */
-static void teo_sdl_SetPointer(int pointer)
+static void teoSDL_GfxSetPointer(int pointer)
 {
     switch (pointer)
     {
@@ -586,13 +584,13 @@ static void teo_sdl_SetPointer(int pointer)
     }
 }
 
-int teo_sdl_getPointer(void)
+int teoSDL_GfxGetPointer(void)
 {
     return installed_pointer;
 }
 
 
-SDL_Window *teo_sdl_window()
+SDL_Window *teoSDL_GfxWindow()
 {
 
     char *title = is_fr  ? "Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
@@ -612,7 +610,7 @@ SDL_Window *teo_sdl_window()
     screenSurface = SDL_GetWindowSurface(window);
     SDLGui_SetWindow(window);
 
-    teo_SetPointer=teo_sdl_SetPointer;
+    teo_SetPointer=teoSDL_GfxSetPointer;
     /* teo_SetPointer is NOT called during the virtual TO8 init.
      * it is only invoked when going through the virtual TO8 settings screen
      * TODO: Have a function init installed_pointer instead of the static assignmedn
@@ -624,7 +622,7 @@ SDL_Window *teo_sdl_window()
 }
 
 
-void teo_sdl_graphic_init()
+void teoSDL_GfxInit()
 {
     int border_support = 1;
 
@@ -648,7 +646,7 @@ void teo_sdl_graphic_init()
 
 
     dirty_cell = calloc(tcol->screen_cw*tcol->screen_ch, sizeof(int));
-    //teo_sdl_SetColor(TEO_NCOLORS, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
+    //teoSDL_GfxSetColor(TEO_NCOLORS, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
     palette[TEO_NCOLORS] = SDL_MapRGB(screen_buffer->format, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
     pixel_size = screen_buffer->format->BytesPerPixel;
     /*TODO: Check whether or not using SDL_Surface integrated 
@@ -659,10 +657,10 @@ void teo_sdl_graphic_init()
      * a palette and transformation code from color to RGB in the emulator code
      * */
 
-    teo_SetColor = teo_sdl_SetColor;
-    teo_SetBorderColor = teo_sdl_SetBorderColor;
-    teo_DrawGPL = teo_sdl_DrawGPL;
-    teo_DrawBorderLine = teo_sdl_DrawBorderLine;
-    teo_SetDiskLed = teo_sdl_SetDiskLed; /*Already done in teo_sdl_window()*/
+    teo_SetColor = teoSDL_GfxSetColor;
+    teo_SetBorderColor = teoSDL_GfxSetBorderColor;
+    teo_DrawGPL = teoSDL_GfxDrawGPL;
+    teo_DrawBorderLine = teoSDL_GfxDrawBorderLine;
+    teo_SetDiskLed = teoSDL_GfxSetDiskLed; /*Already done in teoSDL_GfxWindow()*/
 
 }
