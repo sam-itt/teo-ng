@@ -14,9 +14,9 @@
  *
  *                  L'émulateur Thomson TO8
  *
- *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *  Copyright (C) 1997-2020 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
  *                          Jérémie Guillaume, François Mouret
- *                          Samuel Devulder
+ *                          Samuel Devulder, Samuel Cuella
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -100,6 +100,10 @@
 #include "alleg/gui.h"
 #endif
 
+#ifdef GFX_BACKEND_SDL2
+#include "sdl2/sfront.h"
+#endif
+
 struct EMUTEO teo;
 
 static gchar reset = FALSE;
@@ -112,6 +116,10 @@ static gchar **remain_name = NULL;
 static int gfx_mode = GFX_WINDOW;
 static int windowed_mode = TRUE;
 static gchar *gfx_str = NULL;
+#endif
+
+#ifdef GFX_BACKEND_SDL2
+static int windowed_mode = TRUE;
 #endif
 
 /** 
@@ -560,6 +568,8 @@ int main(int argc, char *argv[])
     char version_name[]=PACKAGE_STRING" (Linux/Allegro)";
 #elif defined (GFX_BACKEND_GTK_X11)
     char version_name[]=PACKAGE_STRING" (Linux/X11)";
+#elif defined (GFX_BACKEND_SDL2)
+    char version_name[]=PACKAGE_STRING" (Linux/SDL2) ";
 #endif
 
     /* Sets the language */
@@ -581,7 +591,7 @@ int main(int argc, char *argv[])
     ReadCommandLine(argc, argv); /* Override loaded settings with values from command line */
     init_empty_disk("empty.hfe");
 
-#ifdef GFX_BACKEND_ALLEGRO
+#if defined (GFX_BACKEND_ALLEGRO)
     w_title = is_fr ? "Teo - l'ï¿½mulateur TO8 (menu:ESC/debogueur:F12)"
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
     /*njoy set to -1 would disable joystick detection/support*/
@@ -592,6 +602,12 @@ int main(int argc, char *argv[])
     }
     /* num_joysticks: filled by allegro with the number of detected joysticks */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
+#elif defined (GFX_BACKEND_SDL2)
+    rv = sfront_Init(&njoy);
+    if(rv != 0){
+        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
 #endif
 
     /* Affichage du message de bienvenue du programme */
@@ -630,6 +646,14 @@ int main(int argc, char *argv[])
     rv = ufront_StartGfx("gdk-keymap.ini");
     if(rv < 0)
         main_DisplayMessage(teo_error_msg);
+#elif defined (GFX_BACKEND_SDL2)
+    char *title = is_fr  ? "Teo - l'Ã©mulateur TO8 (menu:ESC/dÃ©bogueur:F12)"
+                       : "Teo - thomson TO8 emulator (menu:ESC/debugger:F12)";
+    rv = sfront_startGfx(&windowed_mode, title);
+    if(rv < 0){
+        main_ExitMessage(is_fr?"Mode graphique non supporté."
+                              :"Unsupported graphic mode");
+    }
 #endif
     
     /*Load (fd, tape, cartridge) any media present in  the teo conf  */
@@ -650,7 +674,6 @@ int main(int argc, char *argv[])
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
-
 #if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_PANEL)
     ugui_Init();      /* Initialise l'interface graphique */
 #endif
@@ -664,6 +687,8 @@ int main(int argc, char *argv[])
     afront_Run(windowed_mode);
 #elif defined (GFX_BACKEND_GTK_X11)
     ufront_Run();
+#elif defined (GFX_BACKEND_SDL2)
+    sfront_Run(windowed_mode);
 #endif
 
     /* Save current state: emulator config and virtual TO8 mem snapshot */
@@ -675,6 +700,8 @@ int main(int argc, char *argv[])
     afront_Shutdown();
 #elif defined (GFX_BACKEND_GTK_X11)
     ufront_Shutdown();
+#elif defined (GFX_BACKEND_SDL2)
+    sfront_Shutdown();
 #endif
 
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));
