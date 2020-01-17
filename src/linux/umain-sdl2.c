@@ -77,15 +77,8 @@
 //#include "linux/keybint.h"
 
 
-#include <SDL2/SDL.h>
 #include "sdl2/sfront.h"
 #include "linux/sound.h"
-#include "sdl2/sdl-keyboard.h"
-#include "sdl2/teo-sdl-joystick.h"
-#include "sdl2/teo-sdl-sound.h"
-
-#include "sdl2/gui/dialog.h"
-#include "sdl2/gui/sdlgui.h"
 
 struct EMUTEO teo;
 
@@ -99,130 +92,6 @@ static gchar *memo_name = NULL;
 static gchar *disk_name[4] = { NULL, NULL, NULL, NULL };
 static gchar **remain_name = NULL;
 static int windowed_mode = TRUE;
-
-int frame;                  /* compteur de frame vidéo */
-static volatile int tick;   /* compteur du timer       */
-
-
-bool bQuitProgram = false;
-bool bInFullScreen = false;
-
-
-
-
-
-
-static void RunTO8(void)
-{
-
-    SDL_TimerID tid = 0;
-    SDL_DisplayMode DM;
-    SDL_GetCurrentDisplayMode(0, &DM);
-
-    SDL_Event ev;
-    Uint32 last_frame;
-
-
-    bool a,b;
-
-    teoSDL_GfxRetraceWholeScreen();
-
-    do{  /* emulator main loop */
-        teo.command=TEO_COMMAND_NONE;
-
-        do{  /* Virtual TO8 running loop */
-            last_frame = SDL_GetTicks(); 
-            if(teo.setting.exact_speed && !teo.setting.sound_enabled)
-                last_frame = SDL_GetTicks(); 
-
-            if (teo_DoFrame() == 0)
-                if(windowed_mode)
-                    teo.command=TEO_COMMAND_BREAKPOINT;
-
-            /* rafraîchissement de l'écran */
-            teoSDL_GfxRefreshScreen();
-            teoSDL_EventHandler();
-
-
-            /* synchronisation sur fréquence réelle */
-            if (teo.setting.exact_speed)
-            {
-                if (teo.setting.sound_enabled){
-                    teoSDL_SoundPlay();
-                }
-                Uint32 dt; /*milliseconds*/
-
-                /*TEO_MICROSECONDS_PER_FRAME = 20.000
-                 * TODO: Use that and also use it in umain-x11.c
-                 * */
-
-                dt = SDL_GetTicks() - last_frame;
-                if((SDL_GetTicks() - last_frame) < 20)
-                    SDL_Delay(20-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
-            }
-
-            disk_WriteTimeout();
-            frame++;
-#ifdef ENABLE_GTK_PANEL
-            gtk_main_iteration_do(FALSE);
-#endif 
-        }while (teo.command==TEO_COMMAND_NONE);  /* End of Virtual TO8 running loop*/
-
-        /* execute commands */
-        if (teo.command==TEO_COMMAND_PANEL)
-        {
-#ifdef ENABLE_GTK_PANEL
-            printf("windowed mode at panel code: ?d\n",windowed_mode);
-            if (windowed_mode)
-                ugui_Panel();
-            else
-                Dialog_MainDlg(false, 0); /*Volume adjustment diabled and direct access mask set to 0*/
-#else
-            /*Volume adjustment diabled and direct access mask set to 0*/
-            Dialog_MainDlg(false, 0);
-#endif
-        }
-#ifdef ENABLE_GTK_DEBUGGER
-        if ((teo.command == TEO_COMMAND_BREAKPOINT) || (teo.command == TEO_COMMAND_DEBUGGER)) {
-            if (windowed_mode) {
-                udebug_Panel();
-                if (teo_DebugBreakPoint == NULL)
-                    teo_FlushFrame();
-            }
-
-        }
-#endif
-
-        if (teo.command==TEO_COMMAND_SCREENSHOT){
-            printf("Screenshot: NOOP");
-            /*TODO: Implement SDL2 screenshots*/
-        }
-
-        if (teo.command==TEO_COMMAND_RESET)
-            teo_Reset();
-
-        if (teo.command==TEO_COMMAND_COLD_RESET)
-        {
-            teo_ColdReset();
-            /*TODO: Set mouse pointer ?*/
-//            amouse_Install(TEO_STATUS_MOUSE);
-        }
-
-        if (teo.command==TEO_COMMAND_FULL_RESET)
-        {
-            teo_FullReset();
-//            amouse_Install(TEO_STATUS_MOUSE);
-        }
-#ifdef ENABLE_GTK_PANEL
-        gtk_main_iteration_do(FALSE);
-#endif 
-
-    }while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-    printf("%s: GOT TEO_COMMAND_QUIT\n", __FUNCTION__);
-    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
-    mc6809_FlushExec();
-}
-
 
 
 
@@ -649,6 +518,7 @@ int main(int argc, char *argv[])
     char *lang;
 
     int njoy = 0;
+    int rv;
 
     /* Getting the language to use in dialogs */
     lang=getenv("LANG");
@@ -667,19 +537,18 @@ int main(int argc, char *argv[])
     init_empty_disk("empty.hfe");
 
     /* initialisation de la librairie SDL */
-    if(sfront_Init() != 0){
+    rv = sfront_Init(&njoy);
+    if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
 
-    if (njoy >= 0)
-        njoy = teoSDL_JoystickInit();
-
-
+    /* Affichage du message de bienvenue du programme */
     /* Affichage du message de bienvenue du programme */
     printf((is_fr?"Voici %s l'Ã©mulateur Thomson TO8.\n"
                  :"Here's %s the thomson TO8 emulator.\n"),
-                 PACKAGE_STRING" (Linux/SDL2)");
+                 version_name);
+
     printf("Copyright (C) 1997-2018 Gilles FÃ©tis, Eric Botcazou, "
            "Alexandre Pukall, FranÃ§ois Mouret, Samuel Devulder.\n\n");
     printf((is_fr?"Touches: [ESC] Panneau de contrÃ´le\n"
@@ -713,11 +582,14 @@ int main(int argc, char *argv[])
 #ifdef ENABLE_GTK_PANEL
    // udisplay_Window (); /* Création de la fenêtre principale */
 #endif
-    /*TODO: Investigate if that is used and where and why and make better code*/
-    teoSDL_GfxWindow (); /* Création de la fenêtre principale */
-    teoSDL_GfxInit();    /* Initialisation du module graphique */
-    /* Initialise le son */
-    teoSDL_SoundInit(51200);
+    char *title = is_fr  ? "Teo - l'Ã©mulateur TO8 (menu:ESC/dÃ©bogueur:F12)"
+                       : "Teo - thomson TO8 emulator (menu:ESC/debugger:F12)";
+
+    rv = sfront_startGfx(&windowed_mode, title);
+    if(rv < 0){
+        main_ExitMessage(is_fr?"Mode graphique non supporté."
+                              :"Unsupported graphic mode");
+    }
 
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
@@ -748,15 +620,14 @@ int main(int argc, char *argv[])
 
     /* initialisation de l'interface utilisateur Allegro et du débogueur */
     teo_DebugBreakPoint = NULL;
-
-    /* Et c'est parti !!! */
-    RunTO8();
+    sfront_Run(windowed_mode);
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save(); 
     image_Save ("autosave.img");
 
     ufloppy_Exit(); /* Mise au repos de l'interface d'accès direct */
+    sfront_Shutdown();
 
     /* Sortie de l'émulateur */
     printf((is_fr?"\nA bientÃ´t !\n":"\nGoodbye !\n"));

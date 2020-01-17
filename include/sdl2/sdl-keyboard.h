@@ -5,7 +5,6 @@
 
 
 
-int teoSDL_EventHandler(void);
 void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 released);
 
 void teoSDL_KeyboardLoadKeybindings(char *filename);

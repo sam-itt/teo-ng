@@ -24,45 +24,6 @@ static volatile int jdir_buffer[2][2]; /*joysticks state buffer*/
 static SDL_Scancode teoSDL_KeyboardSDLTextToScancode(char *code);
 static char *teoSDL_KeyboardSDLScancodeToText(SDL_Scancode code);
 
-/*TODO: Move me out*/
-int teoSDL_EventHandler(void)
-{
-    SDL_Event event;
-
-    while(SDL_PollEvent(&event) == 1){
-        switch(event.type){
-            case SDL_QUIT:
-                exit(0);
-                break;
-            case SDL_KEYUP:
-                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 1);
-                break;
-            case SDL_KEYDOWN:
-                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 0);
-                break;
-            case SDL_MOUSEMOTION:
-                teoSDL_MouseMove(&(event.motion)); 
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                teoSDL_MouseButton(&(event.button));
-                break;
-            case SDL_MOUSEBUTTONUP:
-                teoSDL_MouseButton(&(event.button));
-                break;
-            case SDL_JOYAXISMOTION:
-                teoSDL_JoystickMove(&(event.jaxis));
-                break;
-            case SDL_JOYBUTTONDOWN:
-                teoSDL_JoystickButton(&(event.jbutton));
-                break;
-            case SDL_JOYBUTTONUP:
-                teoSDL_JoystickButton(&(event.jbutton));
-                break;
-        }
-    }
-    return 1;
-}
-
 
 void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
 {

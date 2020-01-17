@@ -6,7 +6,7 @@
 void teoSDL_GfxInit(void);
 void teo_sdl_RetraceScreen(int x, int y, int width, int height);
 void teoSDL_GfxRefreshScreen(void);
-SDL_Window *teoSDL_GfxWindow(void);
+SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title);
 void teo_sdl_display_init(void);
 void teoSDL_GfxRetraceWholeScreen(void);
 

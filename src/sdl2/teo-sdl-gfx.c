@@ -590,14 +590,11 @@ int teoSDL_GfxGetPointer(void)
 }
 
 
-SDL_Window *teoSDL_GfxWindow()
+SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
 {
 
-    char *title = is_fr  ? "Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
-                       : "Teo - thomson TO8 emulator (menu:ESC/debugger:F12)";
-
     window = SDL_CreateWindow(
-                title,
+                w_title,
                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                 TEO_SCREEN_W*2, TEO_SCREEN_H*2,
                 SDL_WINDOW_SHOWN
