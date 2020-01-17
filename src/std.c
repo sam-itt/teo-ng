@@ -54,6 +54,7 @@
    #include <stdarg.h>
 #endif
 #include <limits.h>
+#include <libgen.h>
 
 #include "defs.h"
 #include "std.h"

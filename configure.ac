@@ -96,7 +96,7 @@ AM_CONDITIONAL([INSTALL_DOC], [test "x${with_doc}" = xyes])
 # Don't use the default -Wall -g -O2
 #save_CFLAGS=$CFLAGS
 AC_PROG_CC
-CFLAGS="-Wall"
+CFLAGS="-Wall -O2"
 AC_PROG_MAKE_SET
 
 
@@ -262,7 +262,7 @@ AS_CASE(["x$with_gfx_backend"],
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
     PKG_CHECK_MODULES([ALLEGRO], [allegro])
     PKG_CHECK_MODULES([PNG], [libpng])
-    AS_IF([test "x$platform_unix" == "xyes"],[
+    AS_IF([test "x$platform_unix" = "xyes"],[
         AC_DEFINE(ALLEGRO_UNIX,[],[Building for Allegro on Unix])
     ],[]);
    ],

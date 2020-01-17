@@ -1,7 +1,14 @@
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdio.h>
 #include <math.h>
 #include <sys/time.h>
-
+#if PLATFORM_WIN32
+#include <allegro.h>
+#include <winalleg.h>
+#endif
 
 #include "allegro.h"
 
@@ -59,9 +66,9 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
     /* Allegro lib int */
     set_uformat(U_ASCII);  /* Latin-1 accents */
     if(allegro_init() != 0){
-#if !PLATFORM_MSDOS
+#if !PLATFORM_MSDOS && !PLATFORM_WIN32
         return -1;
-#endif //Allegro 4.2.2 fails that test (errno = 14) but works
+#endif //Allegro 4.2.2 fails that test on DOS and Windows (errno = 14) but works
     }
 
     cfg_file = std_GetFirstExistingConfigFile((char *)alconfig_file);
@@ -338,7 +345,11 @@ static void afront_ExecutePendingCommand(int windowed_mode)
     if(teo.command == TEO_COMMAND_PANEL){
 #if (PLATFORM_UNIX && defined (ENABLE_GTK_PANEL)) || PLATFORM_WIN32
         if (windowed_mode)
+#if PLATFORM_WIN32
+            wgui_Panel();
+#else
             ugui_Panel();
+#endif
         else
             agui_Panel();
 #else //MSDOS or Unix *without* gtk
