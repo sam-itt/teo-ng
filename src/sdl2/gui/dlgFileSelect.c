@@ -22,7 +22,7 @@
 #include "main.h"
 #include "sdlgui.h"
 #include "file.h"
-#include "paths.h"
+//#include "paths.h"
 
 
 #define SGFS_NUMENTRIES   16            /* How many entries are displayed at once */
@@ -683,7 +683,11 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
             /* for get_dtype() */
             dirpath = path;
             /* Load directory entries: */
+#ifdef PLATFORM_WIN32
+            entries = NULL;
+#else
             entries = scandir(path, &files, NULL, filesort);
+#endif
 #endif
 
 			/* Remove hidden files from the list if necessary: */

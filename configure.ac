@@ -201,7 +201,7 @@ AS_IF([test "x$platform_unix" = "xyes"],[
     AC_DEFINE(DIR_SEPARATOR,['/'],[Char that goes between directories in a path])
 ],[
     AC_DEFINE(PLATFORM_UNIX,[0],[Building for unix-compatible systems])
-    AC_DEFINE(DIR_SEPARATOR,[\\],[Char that goes between directories in a path])
+    AC_DEFINE(DIR_SEPARATOR,['\\'],[Char that goes between directories in a path])
 ])
 
 #Win32 specific compiler flags
@@ -289,7 +289,6 @@ AS_CASE(["x$with_gfx_backend"],
     AM_CONDITIONAL(GFX_BACKEND_SDL2, true)
     AC_DEFINE(GFX_BACKEND_SDL2,[],[Use SDL2 for gfx rendering])
     PKG_CHECK_MODULES([SDL2], [sdl2])
-    PKG_CHECK_MODULES([ALSA], [alsa])
     AC_DEFINE(WITH_SDL2,[1],[Use SDL2 features that were not in SDL1.2])
    ],
    [

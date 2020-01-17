@@ -618,6 +618,10 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     return window;
 }
 
+SDL_Window *teoSDL_getWindow()
+{
+    return window;
+}
 
 void teoSDL_GfxInit()
 {

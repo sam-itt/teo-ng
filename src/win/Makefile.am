@@ -7,17 +7,18 @@ src_dir = $(top_srcdir)/src
 
 bin_PROGRAMS = teo
 
-#if GFX_BACKEND_ALLEGRO only supported backend for win32.
+if GFX_BACKEND_ALLEGRO
 teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS)
-#else
-#teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS) $(XEXT_LIBS) $(X11_LIBS) $(ALSA_LIBS)
-#endif
-teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include
+else
+if GFX_BACKEND_SDL2
+teo_LDADD = $(src_dir)/sdl2/libsdlgfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS)
+endif #GFX_BACKEND_SDL2
+endif
+teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) $(SDL2_CFLAGS) -I$(top_srcdir)/include
 
 teo_SOURCES = \
 	wmain.c \
 	wgui.c \
-	wkeybint.c \
 	wdebug.c \
 	wdialog.rc \
 	wdebug/wdtoolb.c \

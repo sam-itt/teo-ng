@@ -40,10 +40,13 @@
  *               Samuel Devulder 30/07/2011
  *               François Mouret 19/10/2012 24/10/2012 19/09/2013 10/05/2014
  *                               31/07/2016 25/10/2018
+ *               Samuel Cuella   01/2020
  *
  *  Boucle principale de l'émulateur.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -71,20 +74,26 @@
 /* Windows includes (see win/gui.h for supported version) */
 #include "win/gui.h"
 #include "win/keybint.h"
+#if defined (GFX_BACKEND_ALLEGRO)
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
 #include "alleg/joyint.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
 #include "alleg/afront.h"
-
+#elif defined (GFX_BACKEND_SDL2)
+#include "SDL_syswm.h"
+#include "sdl2/sfront.h"
+#endif
 
 struct EMUTEO teo;
 
 static int reset = FALSE;
-static int gfx_mode = GFX_WINDOW;
-static int windowed_mode = TRUE;
 struct STRING_LIST *remain_name = NULL;
+static int windowed_mode = TRUE;
+#if defined (GFX_BACKEND_ALLEGRO)
+static int gfx_mode = GFX_WINDOW;
+#endif
 
 /* read_command_line:
  *  Lit la ligne de commande
@@ -133,11 +142,12 @@ static void read_command_line(int argc, char *argv[])
     message = option_Parse (argc, argv, "teow", entries, &remain_name);
     if (message != NULL)
         main_ExitMessage(message);
-        
+#if defined (GFX_BACKEND_ALLEGRO)        
     if (mode40)    gfx_mode = GFX_MODE40   ; else
     if (mode80)    gfx_mode = GFX_MODE80   ; else
     if (truecolor) gfx_mode = GFX_TRUECOLOR; else
     if (windowd)   gfx_mode = GFX_WINDOW;
+#endif
 }
 
 
@@ -427,7 +437,9 @@ void main_DisplayMessage(const char msg[])
     }
     else
     {
+#if defined (GFX_BACKEND_ALLEGRO)
         agui_PopupMessage (msg);
+#endif
     }
 }
 
@@ -438,7 +450,9 @@ void main_DisplayMessage(const char msg[])
  */
 void main_ExitMessage(const char msg[])
 {
+#if defined (GFX_BACKEND_ALLEGRO)
     allegro_exit(); /* pour éviter une fenêtre DirectX zombie */
+#endif
     main_DisplayMessage(msg);
     exit(EXIT_FAILURE);
 }
@@ -449,7 +463,11 @@ void main_ExitMessage(const char msg[])
  */
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
+#if defined (GFX_BACKEND_ALLEGRO)
     char version_name[]=PACKAGE_STRING" (Windows/DirectX)";
+#elif defined (GFX_BACKEND_SDL2)
+    char version_name[]=PACKAGE_STRING" (Windows/SDL2)";
+#endif
     int argc=0;
 #ifndef __MINGW32__
     char *argv[16];
@@ -497,8 +515,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     ini_Load();                   /* Charge les paramètres par défaut */
     read_command_line (argc, argv); /* Récupération des options */
 
-    printf("HERE !\n");
-
     int rv;
     char *w_title;
 
@@ -506,18 +522,24 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
 
 
+#if defined (GFX_BACKEND_ALLEGRO)
     rv = afront_Init(w_title, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
     if(rv != 0){
         printf("Couldn't initialize Allegro, bailing out !\n");
         exit(EXIT_FAILURE);
     }
-
-    prog_win = win_get_window();
-    SetClassLong(prog_win, GCL_HICON,   (LONG) prog_icon);
-    SetClassLong(prog_win, GCL_HICONSM, (LONG) prog_icon);
-
     /* détection de la présence de joystick(s) */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
+    prog_win = win_get_window();
+#elif defined (GFX_BACKEND_SDL2)
+    rv = sfront_Init(&njoy);
+    if(rv != 0){
+        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+#endif
+
+
 
     /* initialisation de l'émulateur */
     printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
@@ -526,12 +548,27 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     printf("ok\n");
 
 
+#if defined (GFX_BACKEND_ALLEGRO)
     /* initialisation du mode graphique */
     rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
     if(rv != 0){
         main_ExitMessage(is_fr?"Mode graphique non supporté."
                               :"Unsupported graphic mode");
     }
+#elif defined (GFX_BACKEND_SDL2)
+    rv = sfront_startGfx(&windowed_mode, w_title);
+    if(rv < 0){
+        main_ExitMessage(is_fr?"Mode graphique non supporté."
+                              :"Unsupported graphic mode");
+    }
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(teoSDL_getWindow(), &wmInfo);
+    prog_win = wmInfo.info.win.window;
+#endif
+
+    SetClassLong(prog_win, GCL_HICON,   (LONG) prog_icon);
+    SetClassLong(prog_win, GCL_HICONSM, (LONG) prog_icon);
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
@@ -553,14 +590,23 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* initialisation de l'interface utilisateur Allegro et du débogueur */
     teo_DebugBreakPoint = NULL;
 
+
     /* et c'est parti !!! */
+#if defined (GFX_BACKEND_ALLEGRO)
     afront_Run(windowed_mode);
+#elif defined (GFX_BACKEND_SDL2)
+    sfront_Run(windowed_mode);
+#endif
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save();
     image_Save ("autosave.img");
 
+#if defined (GFX_BACKEND_ALLEGRO) 
     afront_Shutdown();
+#elif defined (GFX_BACKEND_SDL2)
+    sfront_Shutdown();
+#endif
 
     /* libération de la mémoire si mode fenêtré */
     if (windowed_mode)

@@ -111,6 +111,7 @@ void teoSDL_SoundPlay(void)
 
 void teoSDL_SoundAudioCallback(void *udata, Uint8 *stream, int len)
 {
+#if 0
     int n_bytes;
 
     if(len < sound_buffer_size){
@@ -129,6 +130,7 @@ void teoSDL_SoundAudioCallback(void *udata, Uint8 *stream, int len)
     SDL_memset(stream, spec.silence, len);
 
     SDL_MixAudio(stream, sound_buffer, sound_buffer_size, SDL_MIX_MAXVOLUME*0.8);
+#endif
 }
 
 void teoSDL_SoundClear(void)

@@ -37,6 +37,8 @@
 #include <SDL.h>
 #include <SDL2/SDL_stdinc.h>
 
+#define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
+
 /*-----------------------------------------------------------------------*/
 /**
  * Remove any '/'s from end of filenames, but keeps / intact

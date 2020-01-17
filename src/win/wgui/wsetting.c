@@ -42,7 +42,9 @@
  *
  *  Interface utilisateur Windows native.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -94,13 +96,20 @@ static void init_bar (HWND hDlg)
    SendMessage(volume_bar, TBM_SETTICFREQ, PAGE_STEP, 0);
 
    SendMessage(volume_bar, TBM_SETPOS, TRUE, teo.setting.sound_volume);
+#if defined (GFX_BACKEND_ALLEGRO)
    asound_SetVolume(teo.setting.sound_volume);
+#endif
 }
 
 
 static void update_bar(WPARAM wParam)
 {
+#if defined (GFX_BACKEND_ALLEGRO)
    int pos = asound_GetVolume()-1;
+#else
+    int pos = teo.setting.sound_volume;
+#endif
+  
 
    switch(LOWORD(wParam))
    {
@@ -138,8 +147,10 @@ static void update_bar(WPARAM wParam)
          break;
    }
 
+#if defined (GFX_BACKEND_ALLEGRO)
    asound_SetVolume(pos+1);
    teo.setting.sound_volume = pos+1;
+#endif
 }
 
 
