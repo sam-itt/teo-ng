@@ -11,7 +11,7 @@ if GFX_BACKEND_ALLEGRO
 teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS)
 else
 if GFX_BACKEND_SDL2
-teo_LDADD = $(src_dir)/sdl2/libsdlgfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS)
+teo_LDADD = $(src_dir)/sdl2/libsdlgfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) -lcomdlg32 -lcomctl32 
 endif #GFX_BACKEND_SDL2
 endif
 teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) $(SDL2_CFLAGS) -I$(top_srcdir)/include
