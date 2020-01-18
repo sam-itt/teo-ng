@@ -26,6 +26,7 @@ libsdlgfx_la_SOURCES += \
 	gui/dlgAlert.c \
 	gui/sdlgui.c \
 	gui/file.c \
+	gui/scandir.c \
 	gui/screen.c \
 	gui/dlgDisks.c
 
