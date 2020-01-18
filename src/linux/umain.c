@@ -682,8 +682,8 @@ int main(int argc, char *argv[])
 #endif
 
     printf((is_fr?"Lancement de l'émulation...\n":"Launching emulation...\n"));
-#if defined (GFX_BACKEND_ALLEGRO)
     teo_DebugBreakPoint = NULL;
+#if defined (GFX_BACKEND_ALLEGRO)
     afront_Run(windowed_mode);
 #elif defined (GFX_BACKEND_GTK_X11)
     ufront_Run();
