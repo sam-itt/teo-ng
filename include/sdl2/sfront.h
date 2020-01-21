@@ -1,7 +1,7 @@
 #ifndef SDL2_DRV_H
 #define SDL2_DRV_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-mouse.h"

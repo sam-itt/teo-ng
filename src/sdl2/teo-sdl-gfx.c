@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "teo.h"
 #include "sdl2/gui/sdlgui.h"

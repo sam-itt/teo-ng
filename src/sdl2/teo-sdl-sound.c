@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "teo.h"
 #include "defs.h" //MIN/MAX

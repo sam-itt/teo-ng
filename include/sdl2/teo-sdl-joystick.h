@@ -1,6 +1,6 @@
 #ifndef TEO_SDL_JOYSTICK_H
 #define TEO_SDL_JOYSTICK_H
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 int teoSDL_JoystickInit(void);
 void teoSDL_JoystickShutdown(void);

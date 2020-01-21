@@ -1,7 +1,7 @@
 #ifndef TEO_SDL_KEYBOARD_H
 #define TEO_SDL_KEYBOARD_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 
 
