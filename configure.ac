@@ -115,7 +115,7 @@ AC_TYPE_SIZE_T
 #AC_FUNC_MALLOC
 #AC_FUNC_REALLOC
 AC_FUNC_MKTIME
-AC_CHECK_FUNCS([malloc realloc atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name scandir alphasort])
+AC_CHECK_FUNCS([malloc realloc atexit access getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name scandir alphasort])
 
 # check if the dirent structure of a d_type field and DT_UNKNOWN is defined
 AC_MSG_CHECKING(if the dirent structure of a d_type field)
