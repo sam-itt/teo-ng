@@ -1,4 +1,5 @@
 #include "sdl2/teo-sdl-joystick.h"
+#include "sdl2/teo-sdl-log.h"
 
 #include "teo.h"
 #include "defs.h" /*min/max, shoudl maybe add __typeof__ per https://stackoverflow.com/questions/3437404/min-and-max-in-c*/
@@ -26,9 +27,22 @@ static int teoSDL_GetJoystickIdx(SDL_JoystickID j_id)
     return -1;
 }
 
+
+/**
+ * Return the number of detected (real) joysticks
+ *
+ */
 int teoSDL_JoystickInit(void)
 {
     int usable;
+   
+    return 0;
+    if(!SDL_WasInit(SDL_INIT_JOYSTICK)){
+        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0){
+            Log_Printf(LOG_WARN, "Could not init joysticks: %s\n", SDL_GetError());
+            return 0; 
+        }
+    }
 
     njoys = SDL_NumJoysticks();
     usable = MIN(TEO_NJOYSTICKS, njoys);

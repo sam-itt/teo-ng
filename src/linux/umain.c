@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
     /* num_joysticks: filled by allegro with the number of detected joysticks */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 #elif defined (GFX_BACKEND_SDL2)
-    rv = sfront_Init(&njoy);
+    rv = sfront_Init(&njoy, FRONT_ALL);
     if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);

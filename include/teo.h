@@ -150,6 +150,21 @@
 
 #define TEO_TRAP_CODE          0xCD   /* code pour le trap */
 
+/* Frontend features 
+ *
+ * 00000000b
+ * 00000001b video
+ * 00000010b sound
+ * 00000100b joystick(real)
+ * 00001000b keyboard(real) ?
+ */
+#define FRONT_NONE     0x00
+#define FRONT_GFX      0x01
+#define FRONT_SOUND    0x02
+#define FRONT_JOYSTICK 0x04
+#define FRONT_KEYBOARD 0x08
+#define FRONT_ALL FRONT_GFX|FRONT_SOUND|FRONT_JOYSTICK|FRONT_KEYBOARD
+
 enum teo_command {
     TEO_COMMAND_NONE = 1,
     TEO_COMMAND_PANEL,

@@ -532,7 +532,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
     prog_win = win_get_window();
 #elif defined (GFX_BACKEND_SDL2)
-    rv = sfront_Init(&njoy);
+    rv = sfront_Init(&njoy, FRONT_ALL);
     if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);

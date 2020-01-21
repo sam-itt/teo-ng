@@ -8,6 +8,7 @@
 #include "teo.h"
 #include "defs.h"
 #include "media/disk.h"
+#include "sdl2/teo-sdl-log.h"
 #include "sdl2/sfront.h"
 
 /*These two globals are used by the GUI adapted from Hatari*/
@@ -18,13 +19,19 @@ static void sfront_RunTO8(int windowed_mode);
 static void sfront_ExecutePendingCommand(int windowed_mode);
 static int sfront_EventHandler(void);
 
-int sfront_Init(int *j_support)
+unsigned short int sfront_features = FRONT_NONE;
+
+
+int sfront_Init(int *j_support, unsigned char mode)
 {
     int rv;
     char *cfg_file;
+
+    sfront_features = mode;
     
     /*TODO: Split me up, see how hatari inits sound*/
-    rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO);
+    //rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO);
+    rv = SDL_Init(0);
     if(rv != 0){
         return rv;
     }
@@ -40,9 +47,8 @@ int sfront_Init(int *j_support)
 
     SDLGui_Init();
 
-    if (*j_support >= 0)
+    if (*j_support >= 0 && (sfront_features & FRONT_JOYSTICK))
         *j_support = teoSDL_JoystickInit();
-
 
     return rv;
 }
@@ -51,12 +57,21 @@ int sfront_startGfx(int *windowed_mode, char *w_title)
 {
     SDL_Window *w;
 
+    /* Init the SDL's video subsystem: */
+    if(!SDL_WasInit(SDL_INIT_VIDEO)){
+        if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0){
+            Log_Printf(LOG_WARN, "Could not init video: %s\n", SDL_GetError());
+            return -1;
+        }
+    }
+
     w = teoSDL_GfxWindow(*windowed_mode, w_title); /* Création de la fenêtre principale */
     if(!w) return -1;
     teoSDL_GfxInit();    /* Binds teo_ graphic callbacks to teoSDL functions*/
 
     /* Initialise le son */
-    teoSDL_SoundInit(51200);
+    if(sfront_features & FRONT_SOUND)
+        teoSDL_SoundInit(51200);
 
     return 0;
 }
@@ -101,6 +116,15 @@ void sfront_Shutdown()
 static void sfront_RunTO8(int windowed_mode)
 {
     Uint32 last_frame;
+    bool sdl_timer = true;
+
+    if(!SDL_WasInit(SDL_INIT_TIMER)){
+        if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0){
+            Log_Printf(LOG_WARN, "Could not init timers: %s\n", SDL_GetError());
+            sdl_timer = false;
+//            return false;
+        }
+    }
 
     do{  /* Virtual TO8 running loop */
         last_frame = SDL_GetTicks(); 
@@ -119,7 +143,9 @@ static void sfront_RunTO8(int windowed_mode)
         if (teo.setting.exact_speed)
         {
             if (teo.setting.sound_enabled){
-                teoSDL_SoundPlay();
+                if((sfront_features & FRONT_SOUND)){
+                    teoSDL_SoundPlay();
+                }
             }
             Uint32 dt; /*milliseconds*/
 

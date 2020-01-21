@@ -13,7 +13,9 @@
 
 #include "sdl2/teo-sdl-gfx.h"
 
-int sfront_Init(int *j_support);
+extern unsigned short int sfront_features;
+
+int sfront_Init(int *j_support, unsigned char mode);
 int sfront_startGfx(int *windowed_mode, char *w_title);
 void sfront_Run(int windowed_mode);
 void sfront_Shutdown();
