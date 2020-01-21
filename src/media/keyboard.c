@@ -59,7 +59,7 @@
 #include "teo.h"
 #include "to8keys.h"
 
-static volatile int kb_state; /* contient l'état des touches et leds du clavier PC:
+static volatile int kb_state = 0; /* contient l'état des touches et leds du clavier PC:
                                  - SHIFT (gauche et droit confondus)
                                  - ALTGR
                                  - NUMLOCK */

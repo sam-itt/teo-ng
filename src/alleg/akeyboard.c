@@ -452,6 +452,9 @@ static void akeyboard_LoadKeybindings(void)
 
 void akeyboard_Init(void) 
 {
+    for(int i = 0; i < KEY_MAX; i++){
+        keymap[i] = (teo_kmap_t){0,0,0,-1};
+    }
 
     akeyboard_LoadKeybindings();
 

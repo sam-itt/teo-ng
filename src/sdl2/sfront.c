@@ -29,6 +29,7 @@ int sfront_Init(int *j_support)
         return rv;
     }
     printf("SDL init ok\n");
+    teoSDL_KeyboardInit();
     cfg_file = std_GetFirstExistingConfigFile("sdl-keymap.ini");
     if(cfg_file){
         teoSDL_KeyboardLoadKeybindings(cfg_file);
