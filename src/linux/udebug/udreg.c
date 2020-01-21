@@ -55,7 +55,7 @@
 #include "mc68xx/mc6821.h"
 #include "mc68xx/dasm6809.h"
 #include "media/disk.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "debug/debug.h"
 #include "linux/gui.h"
 

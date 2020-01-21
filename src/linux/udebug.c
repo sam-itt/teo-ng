@@ -51,7 +51,7 @@
 #include "teo.h"
 #include "linux/gui.h"
 #include "linux/display.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "debug/debug.h"
 
 static GtkWidget *window;

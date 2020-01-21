@@ -48,7 +48,7 @@
 
 #include "defs.h"
 #include "teo.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "debug/debug.h"
 #include "win/gui.h"
 

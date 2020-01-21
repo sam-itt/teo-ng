@@ -54,7 +54,7 @@
 #include "defs.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "teo.h"
 
 

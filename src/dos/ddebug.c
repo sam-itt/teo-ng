@@ -56,7 +56,7 @@
 #include "alleg/gfxdrv.h"
 #include "dos/memmng.h"
 #include "media/disk.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "teo.h"
 
 #define MENU_NLINES 8
