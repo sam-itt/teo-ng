@@ -16,8 +16,8 @@
 #include <unistd.h>
 
 #include "scandir.h"
+#include "sdl2/teo-sdl-log.h"
 
-#define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
 /*-----------------------------------------------------------------------
  * Here come alphasort and scandir for POSIX-like OSes
  *-----------------------------------------------------------------------*/

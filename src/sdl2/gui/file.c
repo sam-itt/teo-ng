@@ -36,8 +36,8 @@
 
 #include <SDL.h>
 #include <SDL2/SDL_stdinc.h>
+#include "sdl2/teo-sdl-log.h"
 
-#define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
 
 /*-----------------------------------------------------------------------*/
 /**
