@@ -148,14 +148,13 @@ static void sfront_RunTO8()
                     teoSDL_SoundPlay();
                 }
             }
-            Uint32 dt; /*milliseconds*/
+            Uint32 dt,frame_duration; /*milliseconds*/
 
-            /*TEO_MICROSECONDS_PER_FRAME = 20.000
-             * TODO: Use that and also use it in umain-x11.c
-             * */
+            /*TEO_MICROSECONDS_PER_FRAME = 20.000 */
             dt = SDL_GetTicks() - last_frame;
-            if((SDL_GetTicks() - last_frame) < 20)
-                SDL_Delay(20-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
+            if((SDL_GetTicks() - last_frame) < frame_duration)
+                SDL_Delay(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
         }
 
         disk_WriteTimeout();
