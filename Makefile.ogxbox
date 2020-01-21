@@ -1,0 +1,33 @@
+XBE_TITLE = teo
+GEN_XISO = $(XBE_TITLE).iso
+
+SRCS += $(CURDIR)/src/errors.c \
+        $(CURDIR)/src/hardware.c \
+        $(CURDIR)/src/image.c \
+        $(CURDIR)/src/ini.c \
+        $(CURDIR)/src/std.c \
+        $(CURDIR)/src/teo.c 
+SRCS += $(wildcard $(CURDIR)/src/file/*.c)
+SRCS += $(wildcard $(CURDIR)/src/mc68xx/*.c)
+SRCS += $(wildcard $(CURDIR)/src/debug/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/printer/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/disk/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/disk/controlr/*.c)
+SRCS += $(wildcard $(CURDIR)/src/sdl2/*.c)
+SRCS += $(wildcard $(CURDIR)/src/sdl2/gui/*.c)
+SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
+
+NXDK_DIR = /home/samuel/dev/xbox/nxdk
+NXDK_SDL = y
+
+CFLAGS += -I$(CURDIR)         \
+          -I$(CURDIR)/include         \
+          -I$(CURDIR)/include/sdl2         \
+          -I$(CURDIR)/include/sdl2/gui         \
+          -I$(CURDIR)/include/og-xbox \
+		  -DPLATFORM_OGXBOX \
+		  -DHAVE_CONFIG_H
+
+
+include $(NXDK_DIR)/Makefile

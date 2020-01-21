@@ -42,6 +42,10 @@
  *
  *  Chargement/Sauvegarde du fichier de configuration.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -58,6 +62,9 @@
 #include "media/printer.h"
 #include "std.h"
 
+#ifdef PLATFORM_OGXBOX
+#include "og-xbox/io.h"
+#endif
 
 #define INI_FILE_NAME  "teo.ini"
 

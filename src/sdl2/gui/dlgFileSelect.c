@@ -161,7 +161,11 @@ static int DlgFileSelect_RefreshEntries(struct dirent **files, char *path, bool 
 			}
 			else
 			{
+#if PLATFORM_OGXBOX
+				if(File_DirExists(tempstr))
+#else
 				if( stat(tempstr, &filestat)==0 && S_ISDIR(filestat.st_mode) )
+#endif
 					dlgfilenames[i][0] = SGFOLDER;    /* Mark folders */
 #if WITH_ZIPLIB
 				if (0 && browsingzip == false)
@@ -470,6 +474,12 @@ static int strcat_maxlen(char *dst, int maxlen, const char *src, const char *add
  */
 static int get_dtype(const char *name)
 {
+#ifdef PLATFORM_OGXBOX
+    if(File_DirExists(name))
+		return DT_DIR;
+    else
+		return DT_REG;
+#else
 	struct stat buf;
 	char path[FILENAME_MAX];
 
@@ -478,6 +488,7 @@ static int get_dtype(const char *name)
 		return DT_DIR;
 	else
 		return DT_REG;
+#endif
 }
 
 /*-----------------------------------------------------------------------*/

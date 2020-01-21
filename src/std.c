@@ -54,7 +54,20 @@
    #include <stdarg.h>
 #endif
 #include <limits.h>
+
+#ifndef PLATFORM_OGXBOX
 #include <libgen.h>
+#endif
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+
+
+#ifdef PLATFORM_OGXBOX
+#include <windows.h>
+#include "og-xbox/io.h"
+//#include <direct.h>
+#endif
 
 #include "defs.h"
 #include "std.h"
@@ -75,6 +88,23 @@
 # define  mkdir( D, M )   mkdir( D )
 #endif
 
+#define last_char(str) (str[strlen(str)-1])
+#define first_char(str) (*str)
+
+#if !defined(HAVE_GETCWD) && defined(PLATFORM_OGXBOX)
+#define HAVE_GETCWD 1
+char *getcwd(char *buf, int size)
+{
+    char *rv;
+
+    rv = buf;
+//    GetCurrentDirectory(size, buf);
+    snprintf(buf, size, "D:\\");
+    return rv;
+
+}
+#endif
+
 #ifndef HAVE_GET_CURRENT_DIR_NAME
 #define HAVE_GET_CURRENT_DIR_NAME 1
 char *get_current_dir_name()
@@ -83,6 +113,7 @@ char *get_current_dir_name()
 	return getcwd(path, PATH_MAX);
 }
 #endif
+
 
 int std_Debug(char *format, ...)
 {
@@ -96,6 +127,13 @@ int std_Debug(char *format, ...)
     return rv;
 }
 
+#ifndef HAVE_ACCESS
+#define HAVE_ACCESS 1
+int access(const char *filename, int mode)
+{
+    return 0;
+}
+#endif
 /* std_StringListLast:
  *  Renvoit le pointeur sur le dernier élément de la stringlist.
  */
@@ -276,10 +314,22 @@ unsigned char std_FileExists(char *fname)
  */
 int std_IsFile (const char filename[])
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(filename);
+    if(attr >= 0){
+        if(!(attr & FILE_ATTRIBUTE_DIRECTORY) && !(attr & FILE_ATTRIBUTE_DEVICE)){
+            return TRUE;
+        }
+    }
+    return FALSE;
+#else
     struct stat st;
 
     return ((stat(filename, &st) == 0)
-         && (S_ISREG(st.st_mode) != 0)) ? TRUE : FALSE;
+           && (S_ISREG(st.st_mode) != 0)) ? TRUE : FALSE;
+#endif
 }
 
 
@@ -289,10 +339,23 @@ int std_IsFile (const char filename[])
  */
 int std_IsDir (const char filename[])
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(filename);
+    if(attr >= 0){
+        if(attr & FILE_ATTRIBUTE_DIRECTORY){
+            return TRUE;
+        }
+    }
+    return FALSE;
+#else
     struct stat st;
 
     return ((stat(filename, &st) == 0)
-         && (S_ISDIR(st.st_mode) != 0)) ? TRUE : FALSE;
+            && (S_ISDIR(st.st_mode) != 0)) ? TRUE : FALSE;
+#endif
+    return 0;
 }
 
 
@@ -302,9 +365,26 @@ int std_IsDir (const char filename[])
  */
 size_t std_FileSize (const char filename[])
 {
+#ifdef PLATFORM_OGXBOX
+    HANDLE h;
+    DWORD rv;
+
+    /*Xbox SDK has no separate open(), one should use 
+     * CreateFile to create or open an existing file
+     * */
+    rv = 0;
+    h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, 
+                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if( h != INVALID_HANDLE_VALUE){
+        rv = GetFileSize(h, NULL);
+        CloseHandle(h);
+    }
+    return (size_t)rv;
+#else
     struct stat st;
  
-    return (stat(filename, &st) == 0) ? (size_t)st.st_size : 0;
+   return (stat(filename, &st) == 0) ? (size_t)st.st_size : 0;
+#endif
 }
 
 /* Function with behaviour like `mkdir -p'  
@@ -323,11 +403,19 @@ static void mkdir_p(const char *dir, mode_t mode) {
     for(p = tmp + 1; *p; p++){
         if(*p == '/') {
             *p = 0;
+#ifdef PLATFORM_OGXBOX
+            mkdir(tmp);
+#else
             mkdir(tmp, mode);
+#endif
             *p = '/';
         }
     }
+#ifdef PLATFORM_OGXBOX
+            mkdir(tmp);
+#else
     mkdir(tmp, mode);
+#endif
 }
 
 
@@ -493,7 +581,10 @@ char *std_GetTeoSystemFile(char *name)
         search_path[0] = get_current_dir_name();
         std_Debug("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
     }
-    search_path[1] = get_current_dir_name(); 
+    search_path[1] = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    char *search_path[2] = {NULL, NULL};
+    search_path[0] = strdup("D:\\");
 #endif
     char *fname;
     char **candidate;
@@ -501,7 +592,15 @@ char *std_GetTeoSystemFile(char *name)
     
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
+#if PLATFORM_OGXBOX
+        debugPrint("%s last_char of candidate %s is : %c\n",__FUNCTION__, *candidate, last_char(*candidate));
+        if(last_char(*candidate) == '\\' || first_char(name) == '\\')
+            fname = std_strdup_printf("%s%s", *candidate, name);
+        else
+            fname = std_strdup_printf("%s\\%s", *candidate, name);
+#else
         fname = std_strdup_printf("%s/%s", *candidate, name);
+#endif
         std_Debug("%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             rv = fname;
@@ -509,11 +608,12 @@ char *std_GetTeoSystemFile(char *name)
         }
         free(fname);
     }
-#if PLATFORM_WIN32 || PLATFORM_MSDOS
+#if PLATFORM_WIN32 || PLATFORM_MSDOS || PLATFORM_OGXBOX
     std_free(search_path[0]);
     std_free(search_path[1]);
 #endif
-    std_Debug("%s returning %s\n",__FUNCTION__,rv);
+    //std_Debug("%s returning %s\n",__FUNCTION__,rv);
+    debugPrint("%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -546,6 +646,8 @@ char *std_getSystemConfigDir()
         rv = strdup(teo_home);
     else
         rv = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    rv = strdup("D:\\");
 #endif
     std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;
@@ -632,6 +734,8 @@ char *std_getUserDataDir()
         rv = strdup(teo_home);
     else
         rv = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    rv = strdup("D:\\");
 #endif
     std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;

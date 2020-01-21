@@ -24,7 +24,8 @@ int sfront_Init(int *j_support)
     char *cfg_file;
     
     /*TODO: Split me up, see how hatari inits sound*/
-    rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO);
+    //rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO);
+    rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK);
     if(rv != 0){
         return rv;
     }

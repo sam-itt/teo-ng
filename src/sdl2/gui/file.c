@@ -12,7 +12,6 @@
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-#include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
@@ -35,9 +34,26 @@
 #endif
 
 #include <SDL.h>
+
+#ifndef PLATFORM_OGXBOX
+#include <fcntl.h>
 #include <SDL2/SDL_stdinc.h>
+#endif
+
+
+#ifdef PLATFORM_OGXBOX
+#include <windows.h>
+//#include "og-xbox/io.h"
+//#include <direct.h>
+#endif
+
 
 #define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
+#ifdef PLATFORM_OGXBOX
+int strcasecmp (const char *s1, const char *s2);
+#endif
+
+
 
 /*-----------------------------------------------------------------------*/
 /**
@@ -333,7 +349,7 @@ bool File_Save(const char *pszFileName, const Uint8 *pAddress, size_t Size, bool
 off_t File_Length(const char *pszFileName)
 {
 	FILE *hDiskFile;
-	off_t FileSize;
+    off_t FileSize;
 
 	hDiskFile = fopen(pszFileName, "rb");
 	if (hDiskFile!=NULL)
@@ -355,6 +371,21 @@ off_t File_Length(const char *pszFileName)
  */
 bool File_Exists(const char *filename)
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(filename);
+    if(attr < 0)
+        return FALSE;
+
+    if(attr & FILE_ATTRIBUTE_DIRECTORY)
+        return FALSE;
+
+    if(attr & FILE_ATTRIBUTE_DEVICE)
+        return FALSE;
+    
+    return TRUE;
+#else
 	struct stat buf;
 	if (stat(filename, &buf) == 0 &&
 	    (buf.st_mode & (S_IRUSR|S_IWUSR)) && !S_ISDIR(buf.st_mode))
@@ -363,6 +394,7 @@ bool File_Exists(const char *filename)
 		return true;
 	}
 	return false;
+#endif
 }
 
 
@@ -372,8 +404,20 @@ bool File_Exists(const char *filename)
  */
 bool File_DirExists(const char *path)
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(path);
+    if(attr >= 0){
+        if(attr & FILE_ATTRIBUTE_DIRECTORY){
+            return TRUE;
+        }
+    }
+    return FALSE;
+#else
 	struct stat buf;
 	return (stat(path, &buf) == 0 && S_ISDIR(buf.st_mode));
+#endif
 }
 
 
@@ -845,11 +889,17 @@ void File_MakeValidPathName(char *pPathName)
 	do
 	{
 		/* Check for a valid path */
+#if PLATFORM_OGXBOX
+        if(File_DirExists((const char*)pPathName))
+        {
+            break;
+        }
+#else
 		if (stat(pPathName, &dirstat) == 0 && S_ISDIR(dirstat.st_mode))
 		{
 			break;
 		}
-
+#endif
 		pLastSlash = strrchr(pPathName, DIR_SEPARATOR);
 		if (pLastSlash)
 		{

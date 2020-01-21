@@ -62,6 +62,9 @@
 # include <config.h>
 #endif
 
+#if PLATFORM_OGXBOX
+#include <windef.h>
+#endif
 
 #ifndef MAX_PATH
 #   define MAX_PATH 300

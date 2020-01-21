@@ -12,8 +12,12 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
+
+#ifndef PLATFORM_OGXBOX
+#include <fcntl.h>
+#endif
+
 
 #include "scandir.h"
 
@@ -21,7 +25,7 @@
 /*-----------------------------------------------------------------------
  * Here come alphasort and scandir for POSIX-like OSes
  *-----------------------------------------------------------------------*/
-#if !PLATFORM_WIN32 && !defined(__CEGCC__)
+#if !PLATFORM_WIN32 && !PLATFORM_OGXBOX && !defined(__CEGCC__)
 
 /**
  * Alphabetic order comparison routine.
@@ -151,10 +155,15 @@ error_out:
 /*-----------------------------------------------------------------------
  * Here come alphasort and scandir for Windows
  *-----------------------------------------------------------------------*/
-#if PLATFORM_WIN32 || defined (__CEGCC__)
+#if PLATFORM_WIN32 || PLATFORM_OGXBOX || defined (__CEGCC__)
 
 #include <windows.h>
 #include <wchar.h>
+
+#ifdef PLATFORM_OGXBOX
+#define stricmp strcasecmp
+#define lstrlen strlen
+#endif
 
 /*-----------------------------------------------------------------------*/
 /**

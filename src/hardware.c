@@ -46,7 +46,9 @@
  *	- circuits d'entrée/sortie du système
  *	- circuits d'entrée/sortie des périphériques
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 
 #ifndef SCAN_DEPEND
@@ -914,6 +916,23 @@ void hardware_Init(void)
     register int i;
 
     time_t t;
+#if PLATFORM_OGXBOX
+    const char *sysroms[] = {
+        "system\\rom\\basic512.rom",
+        "system\\rom\\extramon.rom",
+        "system\\rom\\basic1.rom",
+        "system\\rom\\expl.rom",
+        NULL
+    };
+
+    const char *sysmons[] = {
+        "system\\rom\\monitor1.rom",
+        "system\\rom\\monitor2.rom",
+        NULL
+    };
+
+
+#else
     const char *sysroms[] = {
         "system/rom/basic512.rom",
         "system/rom/extramon.rom",
@@ -927,7 +946,7 @@ void hardware_Init(void)
         "system/rom/monitor2.rom",
         NULL
     };
-
+#endif
 
 
     srand((unsigned) time(&t));
