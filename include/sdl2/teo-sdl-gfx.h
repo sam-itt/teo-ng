@@ -12,7 +12,7 @@ void teoSDL_GfxRetraceWholeScreen(void);
 
 
 int teoSDL_GfxGetPointer(void);
-SDL_Window *teoSDL_getWindow(void);
+SDL_Window *teoSDL_GfxGetWindow(void);
 void teoSDL_GfxReset(void);
 
 #endif

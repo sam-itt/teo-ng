@@ -98,9 +98,9 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
         if(mod & KMOD_LALT){
             printf("TOGGLE FULLSCREEN\n");
             if(sfront_windowed_mode)
-                SDL_SetWindowFullscreen(teoSDL_getWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
             else
-                SDL_SetWindowFullscreen(teoSDL_getWindow(), 0);
+                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), 0);
             sfront_windowed_mode = !sfront_windowed_mode;
             teoSDL_GfxReset();
         }

@@ -563,7 +563,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     }
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(teoSDL_getWindow(), &wmInfo);
+    SDL_GetWindowWMInfo(teoSDL_GfxGetWindow(), &wmInfo);
     prog_win = wmInfo.info.win.window;
 #endif
 

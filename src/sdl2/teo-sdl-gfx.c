@@ -713,7 +713,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     return window;
 }
 
-SDL_Window *teoSDL_getWindow()
+SDL_Window *teoSDL_GfxGetWindow()
 {
     return window;
 }
