@@ -1,6 +1,7 @@
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-mouse.h"
 #include "sdl2/teo-sdl-joystick.h"
+#include "sdl2/teo-sdl-gfx.h"
 
 #include "teo.h"
 #include "to8keys.h"
@@ -8,6 +9,8 @@
 #include "media/joystick.h"
 #include "ini.h"
 
+
+extern Uint8 sfront_windowed_mode;
 
 typedef struct{
     int tokey; /*TOKEY_ mappng when no modifier(shift,altgr) is set*/
@@ -85,6 +88,22 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
     if(ksym == SDLK_LSHIFT || ksym == SDLK_RSHIFT){
         keyboard_ToggleState(TEO_KEY_F_SHIFT, release);
         return;
+    }
+
+
+    if(ksym == SDLK_RETURN && !release){ //Toggle fullscreen
+        SDL_Keymod mod;
+
+        mod = SDL_GetModState();
+        if(mod & KMOD_LALT){
+            printf("TOGGLE FULLSCREEN\n");
+            if(sfront_windowed_mode)
+                SDL_SetWindowFullscreen(teoSDL_getWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+            else
+                SDL_SetWindowFullscreen(teoSDL_getWindow(), 0);
+            sfront_windowed_mode = !sfront_windowed_mode;
+            teoSDL_GfxReset();
+        }
     }
 
     if(ksym == SDLK_CAPSLOCK && !release){ 

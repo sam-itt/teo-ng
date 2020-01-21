@@ -15,12 +15,12 @@
 bool bQuitProgram = false;
 bool bInFullScreen = false;
 
-static void sfront_RunTO8(int windowed_mode);
-static void sfront_ExecutePendingCommand(int windowed_mode);
+static void sfront_RunTO8(void);
+static void sfront_ExecutePendingCommand(void);
 static int sfront_EventHandler(void);
 
 unsigned short int sfront_features = FRONT_NONE;
-
+Uint8 sfront_windowed_mode = TRUE;
 
 int sfront_Init(int *j_support, unsigned char mode)
 {
@@ -53,7 +53,7 @@ int sfront_Init(int *j_support, unsigned char mode)
     return rv;
 }
 
-int sfront_startGfx(int *windowed_mode, char *w_title)
+int sfront_startGfx(int windowed_mode, char *w_title)
 {
     SDL_Window *w;
 
@@ -65,7 +65,8 @@ int sfront_startGfx(int *windowed_mode, char *w_title)
         }
     }
 
-    w = teoSDL_GfxWindow(*windowed_mode, w_title); /* Création de la fenêtre principale */
+    sfront_windowed_mode = windowed_mode;
+    w = teoSDL_GfxWindow(sfront_windowed_mode, w_title); /* Création de la fenêtre principale */
     if(!w) return -1;
     teoSDL_GfxInit();    /* Binds teo_ graphic callbacks to teoSDL functions*/
 
@@ -80,7 +81,7 @@ int sfront_startGfx(int *windowed_mode, char *w_title)
  * Run the TO8 and execute commands from the GUI.
  * Returns the user wants to quit.
  */
-void sfront_Run(int windowed_mode)
+void sfront_Run(void)
 {
 
     SDL_DisplayMode DM;
@@ -94,9 +95,9 @@ void sfront_Run(int windowed_mode)
         /* sfront_RunTO8 only returns (and thus pause emulation) 
          * when a command is pending
          * */
-        sfront_RunTO8(windowed_mode);
+        sfront_RunTO8();
         
-        sfront_ExecutePendingCommand(windowed_mode);
+        sfront_ExecutePendingCommand();
 #ifdef ENABLE_GTK_PANEL
         gtk_main_iteration_do(FALSE);
 #endif 
@@ -113,7 +114,7 @@ void sfront_Shutdown()
 }
 
 
-static void sfront_RunTO8(int windowed_mode)
+static void sfront_RunTO8()
 {
     Uint32 last_frame;
     bool sdl_timer = true;
@@ -132,7 +133,7 @@ static void sfront_RunTO8(int windowed_mode)
             last_frame = SDL_GetTicks(); 
 
         if (teo_DoFrame() == 0)
-            if(windowed_mode)
+            if(sfront_windowed_mode)
                 teo.command=TEO_COMMAND_BREAKPOINT;
 
         /* rafraîchissement de l'écran */
@@ -169,14 +170,14 @@ static void sfront_RunTO8(int windowed_mode)
  * as the command code is in the global "teo" struct
  * there is no params to pass
  */
-static void sfront_ExecutePendingCommand(int windowed_mode)
+static void sfront_ExecutePendingCommand()
 {
     /* execute commands */
     if (teo.command==TEO_COMMAND_PANEL)
     {
 #ifdef ENABLE_GTK_PANEL
-        printf("windowed mode at panel code: ?d\n",windowed_mode);
-        if (windowed_mode)
+        printf("windowed mode at panel code: ?d\n",sfront_windowed_mode);
+        if (sfront_windowed_mode)
             ugui_Panel();
         else
             Dialog_MainDlg(false, 0); /*Volume adjustment diabled and direct access mask set to 0*/
@@ -190,7 +191,7 @@ static void sfront_ExecutePendingCommand(int windowed_mode)
         case TEO_COMMAND_BREAKPOINT:
         case TEO_COMMAND_DEBUGGER:
 #ifdef ENABLE_GTK_DEBUGGER
-            if (windowed_mode) {
+            if (sfront_windowed_mode) {
                 udebug_Panel();
                 if (teo_DebugBreakPoint == NULL)
                     teo_FlushFrame();
@@ -254,6 +255,15 @@ static int sfront_EventHandler(void)
             case SDL_JOYBUTTONUP:
                 teoSDL_JoystickButton(&(event.jbutton));
                 break;
+            case SDL_WINDOWEVENT:
+                if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
+/*                    printf("Window %d size changed to %dx%d\n",
+                        event.window.windowID, event.window.data1,
+                        event.window.data2);*/
+                    teoSDL_GfxReset();
+                }
+                break;
+
         }
     }
     return 1;

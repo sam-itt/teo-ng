@@ -16,8 +16,8 @@
 extern unsigned short int sfront_features;
 
 int sfront_Init(int *j_support, unsigned char mode);
-int sfront_startGfx(int *windowed_mode, char *w_title);
-void sfront_Run(int windowed_mode);
+int sfront_startGfx(int windowed_mode, char *w_title);
+void sfront_Run(void);
 void sfront_Shutdown();
 
 

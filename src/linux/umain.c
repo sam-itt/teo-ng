@@ -118,9 +118,6 @@ static int windowed_mode = TRUE;
 static gchar *gfx_str = NULL;
 #endif
 
-#ifdef GFX_BACKEND_SDL2
-static int windowed_mode = TRUE;
-#endif
 
 /** 
  *  Reads command line arguments. This is implemented using glib functions
@@ -649,7 +646,7 @@ int main(int argc, char *argv[])
 #elif defined (GFX_BACKEND_SDL2)
     char *title = is_fr  ? "Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
                        : "Teo - thomson TO8 emulator (menu:ESC/debugger:F12)";
-    rv = sfront_startGfx(&windowed_mode, title);
+    rv = sfront_startGfx(TRUE, title);
     if(rv < 0){
         main_ExitMessage(is_fr?"Mode graphique non support�."
                               :"Unsupported graphic mode");
@@ -688,7 +685,7 @@ int main(int argc, char *argv[])
 #elif defined (GFX_BACKEND_GTK_X11)
     ufront_Run();
 #elif defined (GFX_BACKEND_SDL2)
-    sfront_Run(windowed_mode);
+    sfront_Run();
 #endif
 
     /* Save current state: emulator config and virtual TO8 mem snapshot */
