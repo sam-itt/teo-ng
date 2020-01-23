@@ -231,28 +231,34 @@ static int sfront_EventHandler(void)
                 exit(0);
                 break;
             case SDL_KEYUP:
-                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 1);
-                break;
             case SDL_KEYDOWN:
-                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 0);
+                teoSDL_KeyboardHandler(
+                    event.key.keysym.scancode,
+                    event.key.keysym.sym,
+                    (event.type == SDL_KEYUP) ? 1 : 0
+                );
                 break;
             case SDL_MOUSEMOTION:
                 teoSDL_MouseMove(&(event.motion)); 
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                teoSDL_MouseButton(&(event.button));
-                break;
             case SDL_MOUSEBUTTONUP:
                 teoSDL_MouseButton(&(event.button));
                 break;
             case SDL_JOYAXISMOTION:
-                teoSDL_JoystickMove(&(event.jaxis));
+                if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_axis(event.jaxis.axis)){
+                    teoSDL_JMouseAccelerate(&(event.jaxis));
+                }else{
+                    teoSDL_JoystickMove(&(event.jaxis));
+                }
                 break;
             case SDL_JOYBUTTONDOWN:
-                teoSDL_JoystickButton(&(event.jbutton));
-                break;
             case SDL_JOYBUTTONUP:
-                teoSDL_JoystickButton(&(event.jbutton));
+                if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_button(event.jbutton.button)){
+                    teoSDL_JMouseButton(&(event.jbutton));
+                }else{
+                    teoSDL_JoystickButton(&(event.jbutton));
+                }
                 break;
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
