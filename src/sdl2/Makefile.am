@@ -10,6 +10,7 @@ libsdlgfx_la_SOURCES = \
 	teo-sdl-keyboard.c \
 	teo-sdl-mouse.c \
 	teo-sdl-joystick.c \
+	teo-sdl-jmouse.c \
 	teo-sdl-sound.c
 
 

@@ -9,6 +9,7 @@
 #include "defs.h"
 #include "media/disk.h"
 #include "sdl2/teo-sdl-log.h"
+#include "sdl2/teo-sdl-jmouse.h"
 #include "sdl2/sfront.h"
 
 /*These two globals are used by the GUI adapted from Hatari*/
@@ -139,6 +140,8 @@ static void sfront_RunTO8()
         /* rafraîchissement de l'écran */
         teoSDL_GfxRefreshScreen();
         sfront_EventHandler();
+        if(sfront_enabled(FRONT_JMOUSE))
+            teoSDL_JMouseMove();
 
         /* synchronisation sur fréquence réelle */
         if (teo.setting.exact_speed)

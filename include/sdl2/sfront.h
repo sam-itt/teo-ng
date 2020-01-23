@@ -13,6 +13,8 @@
 
 #include "sdl2/teo-sdl-gfx.h"
 
+#define sfront_enabled(feature) (sfront_features & feature)
+
 extern unsigned short int sfront_features;
 
 int sfront_Init(int *j_support, unsigned char mode);
