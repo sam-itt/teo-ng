@@ -72,9 +72,11 @@ int Dialog_MainDlg(bool adjustableVolume, int da_mask)
          /*Resets*/
 		 case MAINDLG_WARM_RESET:
             teo.command=TEO_COMMAND_RESET;
+            retbut = MAINDLG_OK;
             break;
 		 case MAINDLG_COLD_RESET:
             teo.command=TEO_COMMAND_COLD_RESET;
+            retbut = MAINDLG_OK;
             break;
 		 case MAINDLG_FULL_RESET:
             response = DlgAlert_Query("All the memory will be cleared.");
