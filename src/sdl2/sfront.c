@@ -262,6 +262,8 @@ static int sfront_EventHandler(void)
                 }else{
                     teoSDL_JoystickButton(&(event.jbutton));
                 }
+                if(event.jbutton.button == 11)
+                    teo.command = TEO_COMMAND_PANEL;
                 break;
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
