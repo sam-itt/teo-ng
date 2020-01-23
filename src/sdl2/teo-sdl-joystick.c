@@ -36,7 +36,6 @@ int teoSDL_JoystickInit(void)
 {
     int usable;
    
-    return 0;
     if(!SDL_WasInit(SDL_INIT_JOYSTICK)){
         if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0){
             Log_Printf(LOG_WARN, "Could not init joysticks: %s\n", SDL_GetError());
