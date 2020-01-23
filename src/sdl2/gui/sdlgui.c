@@ -19,6 +19,7 @@
 
 #include "font5x8.h"
 #include "font10x16.h"
+#include "sdl2/teo-sdl-log.h"
 
 #define DEBUG_INFO 0
 #if DEBUG_INFO
@@ -31,8 +32,6 @@
 #define SDL_SRCCOLORKEY SDL_TRUE
 #define SDLKey SDL_Keycode
 #endif
-
-#define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
 
 static SDL_Window *sdlWindow = NULL;
 static SDL_Surface *pSdlGuiScrn = NULL;            /* Pointer to the actual main SDL screen surface */

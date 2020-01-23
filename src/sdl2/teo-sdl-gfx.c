@@ -17,8 +17,18 @@ static int *dirty_cell;
 
 static Uint32 palette[TEO_NCOLORS+1];
 static const struct SCREEN_PARAMS *tcol;
+static Uint8 scaledBlit = 0;
+static double scaleXFactor = 0;
+static double scaleYFactor = 0;
 
 static int installed_pointer = TEO_STATUS_MOUSE;
+
+void printSDLErrorAndReboot(void);
+//Screen dimension constants
+const extern int SCREEN_WIDTH;
+const extern int SCREEN_HEIGHT;
+
+
 
 /* paramètres d'affichage */
 struct SCREEN_PARAMS
@@ -50,6 +60,55 @@ static const struct SCREEN_PARAMS tcol1={ TEO_WINDOW_W*2,
                                           TEO_SCREEN_CH,
                                           TEO_BORDER_CW,
                                           TEO_BORDER_CH };  /* avec pourtour */
+
+
+int *lookupX1=NULL;
+int *lookupY1=NULL;
+int *lookupX2=NULL;
+int *lookupY2=NULL;
+
+void teoSDL_GfxResizeLookup(int x,int y) {
+    int x_dest,y_dest;
+    double x_fact,y_fact;
+
+    if (lookupX1!=NULL) {
+        free(lookupX1);
+    }
+    lookupX1=(int*)malloc(sizeof(int)*x);
+
+    if (lookupX2!=NULL) {
+        free(lookupX2);
+    }
+    lookupX2=(int*)malloc(sizeof(int)*x);
+
+    if (lookupY1!=NULL) {
+        free(lookupY1);
+    }
+    lookupY1=(int*)malloc(sizeof(int)*y);
+
+    if (lookupY2!=NULL) {
+        free(lookupY2);
+    }
+    lookupY2=(int*)malloc(sizeof(int)*y);
+
+    x_fact=(double)x/(double)(TEO_SCREEN_W*2);
+    y_fact=(double)y/(double)(TEO_SCREEN_H*2);
+
+    for (x_dest=0;x_dest<x;x_dest++) {
+	lookupX1[x_dest]=(int)(x_fact*(double)x_dest+0.5);
+	lookupX2[x_dest]=(int)((double)(x_dest+0.5)/x_fact);
+    }
+
+    for (y_dest=0;y_dest<y;y_dest++) {
+	lookupY1[y_dest]=(int)(y_fact*(double)y_dest+0.5);
+	lookupY2[y_dest]=(int)((double)(y_dest+0.5)/y_fact);
+    }
+
+#ifdef DEBUG
+    fprintf(stderr,"recalc OK\n");
+#endif
+}
+
 
 
 /* SetColor:
@@ -422,9 +481,13 @@ static void teoSDL_GfxDrawBorderLine(int col, int line)
     }
 } 
 
+/*TODO: Use renderer and SDL_RenderSetScale*/
 void teoSDL_GfxRetraceWholeScreen()
 {
-    SDL_BlitSurface(screen_buffer, NULL, screenSurface, NULL);
+    if(scaledBlit)
+        SDL_BlitScaled(screen_buffer, &screen_buffer->clip_rect, screenSurface, &screenSurface->clip_rect);
+    else
+        SDL_BlitSurface(screen_buffer, NULL, screenSurface, NULL);
     SDL_UpdateWindowSurface(window);
 }
 
@@ -435,11 +498,19 @@ void teoSDL_GfxRetraceWholeScreen()
  */
 void teo_sdl_RetraceScreen(int x, int y, int width, int height)
 {
-    SDL_Rect area;
+    SDL_Rect area, dst_area;
 
-    area = (SDL_Rect){x, y, width,height}; 
+    area = (SDL_Rect){x, y, width, height};
+    if(scaledBlit){
+        dst_area.x = lookupX1[x];
+        dst_area.y = lookupY1[y];
+        dst_area.w = lookupX1[x+width]-lookupX1[x]+1;
+        dst_area.h = lookupY1[y+height]-lookupY1[y]+1;
 
-    SDL_BlitSurface(screen_buffer, &area, screenSurface, &area);
+        SDL_BlitScaled(screen_buffer, &area, screenSurface, &dst_area);
+    }else{
+        SDL_BlitSurface(screen_buffer, &area, screenSurface, &area);
+    }
 }
 
 
@@ -590,22 +661,72 @@ int teoSDL_GfxGetPointer(void)
 }
 
 
+
+
+void teoSDL_GfxReset()
+{
+    screenSurface = SDL_GetWindowSurface(window);
+    SDLGui_SetWindow(window);
+    printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
+ 
+    scaledBlit = 0;
+    if( screenSurface->w != (TEO_SCREEN_W*2) || screenSurface->h != (TEO_SCREEN_H*2)){
+        scaledBlit = 1;
+        scaleXFactor = (screenSurface->w*1.0)/(TEO_SCREEN_W*2);
+        scaleYFactor = (screenSurface->h*1.0)/(TEO_SCREEN_H*2);
+        printf("Scaling. Using factors: X=%0.2f and Y=%0.2f\n",scaleXFactor,scaleYFactor);
+
+        teoSDL_GfxResizeLookup(screenSurface->w, screenSurface->h);
+    }
+
+    memset(dirty_cell, 1, (tcol->screen_cw*tcol->screen_ch)*sizeof(int));
+
+    teoSDL_GfxRetraceWholeScreen();
+
+}
+
+
 SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
 {
+#ifdef PLATFORM_OGXBOX
+    debugPrint("Builtin dimensions are: %dx%d\n",SCREEN_WIDTH,SCREEN_HEIGHT);
+    Sleep(1000);
+
+    window = SDL_CreateWindow("Demo",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        SCREEN_WIDTH, SCREEN_HEIGHT,
+        SDL_WINDOW_SHOWN|SDL_WINDOW_FULLSCREEN);
+
+    if(window == NULL)
+    {
+        debugPrint( "Window could not be created!\n");
+        SDL_VideoQuit();
+        printSDLErrorAndReboot();
+    }
+//    XReboot();
+#else
+    Uint32 flags;
+
+    flags = SDL_WINDOW_SHOWN;
+    if(!windowed_mode)
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
     window = SDL_CreateWindow(
                 w_title,
                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                 TEO_SCREEN_W*2, TEO_SCREEN_H*2,
-                SDL_WINDOW_SHOWN
+                flags
                 );
     if (window == NULL){
         fprintf(stderr, "could not create window: %s\n", SDL_GetError());
         return NULL;
     }
+#endif
 
     screenSurface = SDL_GetWindowSurface(window);
     SDLGui_SetWindow(window);
+    printf("screenSurface is: %dx%d\n",screenSurface->w,screenSurface->h);
 
     teo_SetPointer=teoSDL_GfxSetPointer;
     /* teo_SetPointer is NOT called during the virtual TO8 init.
@@ -618,7 +739,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     return window;
 }
 
-SDL_Window *teoSDL_getWindow()
+SDL_Window *teoSDL_GfxGetWindow()
 {
     return window;
 }

@@ -74,6 +74,11 @@
 #include "media/mouse.h"
 #include "media/printer.h"
 
+#ifdef PLATFORM_OGXBOX
+#include <winbase.h>
+#include <windows.h>
+#endif
+
 
 /* les composants métériels de l'émulateur */
 struct MC6846_PIA mc6846;      /* PIA 6846 système         */
@@ -750,17 +755,27 @@ static void FetchInstr(int addr, unsigned char fetch_buffer[])
  */
 static int BiosCall(struct MC6809_REGS *regs)
 {
+#ifdef PLATFORM_OGXBOX
+    SYSTEMTIME t;
+#else
     time_t x;
     struct tm *t;
-
+#endif
     switch (regs->pc)
     {
         case 0x25D4:  /* routine d'affichage de la date */
+#ifdef PLATFORM_OGXBOX
+            GetSystemTime(&t);
+            STORE_BYTE(0x607C,t.wDay);
+            STORE_BYTE(0x607D,t.wMonth+1);
+            STORE_BYTE(0x607E,t.wYear%100);
+#else
             time(&x);
             t = gmtime(&x);
             STORE_BYTE(0x607C,t->tm_mday);
             STORE_BYTE(0x607D,t->tm_mon+1);
             STORE_BYTE(0x607E,t->tm_year%100);
+#endif
             return 0x10; /* LDY immédiat */
 
         case 0x315A:  /* routine de sélection souris/crayon optique */

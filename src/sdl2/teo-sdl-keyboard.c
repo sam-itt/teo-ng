@@ -1,6 +1,7 @@
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-mouse.h"
 #include "sdl2/teo-sdl-joystick.h"
+#include "sdl2/teo-sdl-gfx.h"
 
 #include "teo.h"
 #include "to8keys.h"
@@ -8,6 +9,8 @@
 #include "media/joystick.h"
 #include "ini.h"
 
+
+extern Uint8 sfront_windowed_mode;
 
 typedef struct{
     int tokey; /*TOKEY_ mappng when no modifier(shift,altgr) is set*/
@@ -24,6 +27,15 @@ static volatile int jdir_buffer[2][2]; /*joysticks state buffer*/
 static SDL_Scancode teoSDL_KeyboardSDLTextToScancode(char *code);
 static char *teoSDL_KeyboardSDLScancodeToText(SDL_Scancode code);
 
+void teoSDL_KeyboardInit(void)
+{
+    jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
+    jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER;
+
+    for(int i = 0; i < SDL_NUM_SCANCODES; i++){
+        keymap[i] = (teo_kmap_t){0,0,0,-1};
+    }
+}
 
 void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
 {
@@ -78,6 +90,22 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
         return;
     }
 
+
+    if(ksym == SDLK_RETURN && !release){ //Toggle fullscreen
+        SDL_Keymod mod;
+
+        mod = SDL_GetModState();
+        if(mod & KMOD_LALT){
+            printf("TOGGLE FULLSCREEN\n");
+            if(sfront_windowed_mode)
+                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+            else
+                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), 0);
+            sfront_windowed_mode = !sfront_windowed_mode;
+            teoSDL_GfxReset();
+        }
+    }
+
     if(ksym == SDLK_CAPSLOCK && !release){ 
         keyboard_ToggleState(TEO_KEY_F_CAPSLOCK, release);
         /*No return ! The existing code wanted to a) set the kb_state flag
@@ -89,18 +117,24 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
         int jdx; 
         int jdir;
 
-//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
+//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) %s as a joystick action\n", teoSDL_KeyboardSDLScancodeToText(key),key, release ? "(release)":"");
 //        joystick_VerboseDebugCommand(keymap[key].joycode);
 
         jdx = TEO_JOYN(keymap[key].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[key].joycode);
 
         if(keymap[key].joycode & TEO_JOYSTICK_BUTTON_A){
+//                printf("%s: joystick_Button(%d, 0, %d)\n",__FUNCTION__,jdx-1, 
+//                       (release != 0) ? TEO_JOYSTICK_FIRE_OFF
+//                                      : TEO_JOYSTICK_FIRE_ON);
                 joystick_Button (jdx-1, 0,
                                  (release != 0) ? TEO_JOYSTICK_FIRE_OFF
                                                 : TEO_JOYSTICK_FIRE_ON);
         }
         if(keymap[key].joycode & TEO_JOYSTICK_BUTTON_B){
+//                printf("%s: joystick_Button(%d, 1, %d)\n",__FUNCTION__,jdx-1, 
+//                       (release != 0) ? TEO_JOYSTICK_FIRE_OFF
+//                                      : TEO_JOYSTICK_FIRE_ON);
                 joystick_Button (jdx-1, 1,
                                  (release != 0) ? TEO_JOYSTICK_FIRE_OFF
                                                 : TEO_JOYSTICK_FIRE_ON);
@@ -120,6 +154,7 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
                 jdir_buffer[jdx-1][0]=jdir;
             }
         }
+//        printf("%s: joystick_Move(%d, %d)\n",__FUNCTION__,jdx-1, jdir_buffer[jdx-1][0]);
         joystick_Move (jdx-1, jdir_buffer[jdx-1][0]);
 
         /*Here we don't return as in the original code where

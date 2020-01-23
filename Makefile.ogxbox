@@ -20,6 +20,7 @@ SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
 
 NXDK_DIR = /home/samuel/dev/xbox/nxdk
 NXDK_SDL = y
+DEBUG=y
 
 CFLAGS += -I$(CURDIR)         \
           -I$(CURDIR)/include         \
@@ -27,7 +28,18 @@ CFLAGS += -I$(CURDIR)         \
           -I$(CURDIR)/include/sdl2/gui         \
           -I$(CURDIR)/include/og-xbox \
 		  -DPLATFORM_OGXBOX \
+		  -DTEO_NO_BORDER \
 		  -DHAVE_CONFIG_H
 
 
+all_local: cp_files all
+
 include $(NXDK_DIR)/Makefile
+
+cp_files:
+	@mkdir -p $(OUTPUT_DIR)
+	cp -R data/system $(OUTPUT_DIR)/
+	cp -R /usr/share/games/teo/roms $(OUTPUT_DIR)/
+	cp -R data/sdl-keymap.ini $(OUTPUT_DIR)/
+	cp -R data/teo.ini $(OUTPUT_DIR)/
+	cp -R data/empty.hfe $(OUTPUT_DIR)/

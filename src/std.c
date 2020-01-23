@@ -66,7 +66,6 @@
 #ifdef PLATFORM_OGXBOX
 #include <windows.h>
 #include "og-xbox/io.h"
-//#include <direct.h>
 #endif
 
 #include "defs.h"
@@ -88,8 +87,8 @@
 # define  mkdir( D, M )   mkdir( D )
 #endif
 
-#define last_char(str) (str[strlen(str)-1])
-#define first_char(str) (*str)
+#define last_char(str) ((str)[strlen((str))-1])
+#define first_char(str) (*(str))
 
 #if !defined(HAVE_GETCWD) && defined(PLATFORM_OGXBOX)
 #define HAVE_GETCWD 1
@@ -305,7 +304,16 @@ FILE *std_fclose (FILE *fp)
  * */
 unsigned char std_FileExists(char *fname)
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(fname);
+    if(attr < 0)
+        return FALSE;
+    return TRUE;
+#else
     return ( access(fname, F_OK) != -1 );
+#endif
 }
 
 
@@ -593,7 +601,6 @@ char *std_GetTeoSystemFile(char *name)
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
 #if PLATFORM_OGXBOX
-        debugPrint("%s last_char of candidate %s is : %c\n",__FUNCTION__, *candidate, last_char(*candidate));
         if(last_char(*candidate) == '\\' || first_char(name) == '\\')
             fname = std_strdup_printf("%s%s", *candidate, name);
         else
@@ -612,8 +619,7 @@ char *std_GetTeoSystemFile(char *name)
     std_free(search_path[0]);
     std_free(search_path[1]);
 #endif
-    //std_Debug("%s returning %s\n",__FUNCTION__,rv);
-    debugPrint("%s returning %s\n",__FUNCTION__,rv);
+//    std_Debug("%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 

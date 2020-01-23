@@ -41,17 +41,13 @@
 #endif
 
 
+#include "sdl2/teo-sdl-log.h"
+
 #ifdef PLATFORM_OGXBOX
 #include <windows.h>
-//#include "og-xbox/io.h"
-//#include <direct.h>
-#endif
-
-
-#define Log_Printf(facility, fmt, ...) printf(fmt, ##__VA_ARGS__)
-#ifdef PLATFORM_OGXBOX
 int strcasecmp (const char *s1, const char *s2);
 #endif
+
 
 
 

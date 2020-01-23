@@ -63,7 +63,7 @@ extern Window screen_win;
 extern Window window_win;
 extern int mit_shm_enabled;
 
-extern void udisplay_Init(const char *keymap);
+extern void udisplay_Init(const char *keyfile);
 extern void udisplay_Window(void);
 
 #endif

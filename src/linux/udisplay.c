@@ -617,7 +617,7 @@ static void udisplay_LoadKeyBinding(char *filename)
  * Init the file-wide X handle and tries to enable X-SHM
  * Also inits the keyboard
  */
-void udisplay_Init(const char *keymap)
+void udisplay_Init(const char *keyfile)
 {
     int ret1, ret2, ret3;
 
@@ -625,7 +625,11 @@ void udisplay_Init(const char *keymap)
     display=gdk_x11_get_default_xdisplay();
     screen=DefaultScreen(display);
 
-    udisplay_LoadKeyBinding((char*)keymap);
+    for(int i = 0; i < 256; i++){
+        keymap[i] = (teo_kmap_t){0,0,0,-1};
+    }
+
+    udisplay_LoadKeyBinding((char*)keyfile);
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
 

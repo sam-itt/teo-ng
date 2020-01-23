@@ -3,6 +3,7 @@
 #include "teo.h"
 #include "defs.h" //MIN/MAX
 #include "sdl2/teo-sdl-sound.h"
+#include "sdl2/teo-sdl-log.h"
 
 
 /*Back buffer where we store data 
@@ -156,6 +157,13 @@ bool teoSDL_SoundInit(int freq)
 {
     SDL_AudioSpec wanted_spec;
 
+    if(!SDL_WasInit(SDL_INIT_AUDIO)){
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0){
+            Log_Printf(LOG_WARN, "Could not init audio: %s\n", SDL_GetError());
+            return false;
+        }
+    }
+
     wanted_spec.freq = freq; 
 	wanted_spec.format = AUDIO_U8; 
 	wanted_spec.channels = 1; 
@@ -164,11 +172,11 @@ bool teoSDL_SoundInit(int freq)
 //	wanted_spec.callback = teoSDL_SoundAudioCallback;
     wanted_spec.userdata = NULL;
 
-int i;
+    int i;
 
-for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
-    printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
-}
+    for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
+        printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
+    }
 
 
 

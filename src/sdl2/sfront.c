@@ -8,28 +8,35 @@
 #include "teo.h"
 #include "defs.h"
 #include "media/disk.h"
+#include "sdl2/teo-sdl-log.h"
 #include "sdl2/sfront.h"
 
 /*These two globals are used by the GUI adapted from Hatari*/
 bool bQuitProgram = false;
 bool bInFullScreen = false;
 
-static void sfront_RunTO8(int windowed_mode);
-static void sfront_ExecutePendingCommand(int windowed_mode);
+static void sfront_RunTO8(void);
+static void sfront_ExecutePendingCommand(void);
 static int sfront_EventHandler(void);
 
-int sfront_Init(int *j_support)
+unsigned short int sfront_features = FRONT_NONE;
+Uint8 sfront_windowed_mode = TRUE;
+
+int sfront_Init(int *j_support, unsigned char mode)
 {
     int rv;
     char *cfg_file;
-    
+
+    sfront_features = mode;
+
     /*TODO: Split me up, see how hatari inits sound*/
     //rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK|SDL_INIT_AUDIO);
-    rv = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK);
+    rv = SDL_Init(0);
     if(rv != 0){
         return rv;
     }
     printf("SDL init ok\n");
+    teoSDL_KeyboardInit();
     cfg_file = std_GetFirstExistingConfigFile("sdl-keymap.ini");
     if(cfg_file){
         teoSDL_KeyboardLoadKeybindings(cfg_file);
@@ -40,23 +47,42 @@ int sfront_Init(int *j_support)
 
     SDLGui_Init();
 
-    if (*j_support >= 0)
+    if (*j_support >= 0 && (sfront_features & FRONT_JOYSTICK))
         *j_support = teoSDL_JoystickInit();
-
 
     return rv;
 }
 
-int sfront_startGfx(int *windowed_mode, char *w_title)
+void printSDLErrorAndReboot(void)
+{
+    debugPrint("SDL_Error: %s\n", SDL_GetError());
+    debugPrint("Rebooting in 5 seconds.\n");
+    Sleep(5000);
+    XReboot();
+}
+
+
+int sfront_startGfx(int windowed_mode, char *w_title)
 {
     SDL_Window *w;
 
-    w = teoSDL_GfxWindow(*windowed_mode, w_title); /* Création de la fenêtre principale */
+    /* Init the SDL's video subsystem: */
+    if(!SDL_WasInit(SDL_INIT_VIDEO)){
+        if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0){
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL video.\n");
+            printSDLErrorAndReboot();
+            return -1;
+        }
+    }
+
+    sfront_windowed_mode = windowed_mode;
+    w = teoSDL_GfxWindow(sfront_windowed_mode, w_title); /* Création de la fenêtre principale */
     if(!w) return -1;
     teoSDL_GfxInit();    /* Binds teo_ graphic callbacks to teoSDL functions*/
 
     /* Initialise le son */
-    teoSDL_SoundInit(51200);
+    if(sfront_features & FRONT_SOUND)
+        teoSDL_SoundInit(51200);
 
     return 0;
 }
@@ -65,7 +91,7 @@ int sfront_startGfx(int *windowed_mode, char *w_title)
  * Run the TO8 and execute commands from the GUI.
  * Returns the user wants to quit.
  */
-void sfront_Run(int windowed_mode)
+void sfront_Run(void)
 {
 
     SDL_DisplayMode DM;
@@ -79,9 +105,9 @@ void sfront_Run(int windowed_mode)
         /* sfront_RunTO8 only returns (and thus pause emulation) 
          * when a command is pending
          * */
-        sfront_RunTO8(windowed_mode);
-        
-        sfront_ExecutePendingCommand(windowed_mode);
+        sfront_RunTO8();
+ 
+        sfront_ExecutePendingCommand();
 #ifdef ENABLE_GTK_PANEL
         gtk_main_iteration_do(FALSE);
 #endif 
@@ -98,17 +124,39 @@ void sfront_Shutdown()
 }
 
 
-static void sfront_RunTO8(int windowed_mode)
+static void sfront_RunTO8()
 {
+    bool sdl_timer = true;
+
+#ifndef PLATFORM_OGXBOX /*TODO: have sdl timer + platform*/
     Uint32 last_frame;
 
+    if(!SDL_WasInit(SDL_INIT_TIMER)){
+        if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0){
+            debugPrint("Could not init timers: %s\n", SDL_GetError());
+            sdl_timer = false;
+        }
+    }
+#else
+    DWORD last_frame;
+#endif
+
     do{  /* Virtual TO8 running loop */
+#ifndef PLATFORM_OGXBOX
+        last_frame = GetTickCount();
+#else
         last_frame = SDL_GetTicks(); 
-        if(teo.setting.exact_speed && !teo.setting.sound_enabled)
+#endif
+        if(teo.setting.exact_speed && !teo.setting.sound_enabled){
+#ifndef PLATFORM_OGXBOX
             last_frame = SDL_GetTicks(); 
+#else
+            last_frame = GetTickCount();
+#endif
+        }
 
         if (teo_DoFrame() == 0)
-            if(windowed_mode)
+            if(sfront_windowed_mode)
                 teo.command=TEO_COMMAND_BREAKPOINT;
 
         /* rafraîchissement de l'écran */
@@ -119,16 +167,25 @@ static void sfront_RunTO8(int windowed_mode)
         if (teo.setting.exact_speed)
         {
             if (teo.setting.sound_enabled){
-                teoSDL_SoundPlay();
+                if((sfront_features & FRONT_SOUND)){
+                    teoSDL_SoundPlay();
+                }
             }
-            Uint32 dt; /*milliseconds*/
+#ifndef PLATFORM_OGXBOX
+            Uint32 dt,frame_duration; /*milliseconds*/
 
-            /*TEO_MICROSECONDS_PER_FRAME = 20.000
-             * TODO: Use that and also use it in umain-x11.c
-             * */
             dt = SDL_GetTicks() - last_frame;
-            if((SDL_GetTicks() - last_frame) < 20)
-                SDL_Delay(20-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
+            if((GetTickCount() - last_frame) < frame_duration)
+                SDL_Delay(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/                
+#else
+            DWORD dt,frame_duration; /*milliseconds*/
+            dt = GetTickCount() - last_frame;
+            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
+            if((GetTickCount() - last_frame) < frame_duration)
+                Sleep(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/                
+
+#endif
         }
 
         disk_WriteTimeout();
@@ -143,14 +200,14 @@ static void sfront_RunTO8(int windowed_mode)
  * as the command code is in the global "teo" struct
  * there is no params to pass
  */
-static void sfront_ExecutePendingCommand(int windowed_mode)
+static void sfront_ExecutePendingCommand()
 {
     /* execute commands */
     if (teo.command==TEO_COMMAND_PANEL)
     {
 #ifdef ENABLE_GTK_PANEL
-        printf("windowed mode at panel code: ?d\n",windowed_mode);
-        if (windowed_mode)
+        printf("windowed mode at panel code: ?d\n",sfront_windowed_mode);
+        if (sfront_windowed_mode)
             ugui_Panel();
         else
             Dialog_MainDlg(false, 0); /*Volume adjustment diabled and direct access mask set to 0*/
@@ -164,7 +221,7 @@ static void sfront_ExecutePendingCommand(int windowed_mode)
         case TEO_COMMAND_BREAKPOINT:
         case TEO_COMMAND_DEBUGGER:
 #ifdef ENABLE_GTK_DEBUGGER
-            if (windowed_mode) {
+            if (sfront_windowed_mode) {
                 udebug_Panel();
                 if (teo_DebugBreakPoint == NULL)
                     teo_FlushFrame();
@@ -228,6 +285,15 @@ static int sfront_EventHandler(void)
             case SDL_JOYBUTTONUP:
                 teoSDL_JoystickButton(&(event.jbutton));
                 break;
+            case SDL_WINDOWEVENT:
+                if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
+/*                    printf("Window %d size changed to %dx%d\n",
+                        event.window.windowID, event.window.data1,
+                        event.window.data2);*/
+                    teoSDL_GfxReset();
+                }
+                break;
+
         }
     }
     return 1;

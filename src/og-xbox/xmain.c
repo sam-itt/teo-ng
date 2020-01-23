@@ -83,7 +83,6 @@ struct EMUTEO teo;
 
 static int reset = FALSE;
 struct STRING_LIST *remain_name = NULL;
-static int windowed_mode = TRUE;
 
 struct MC6809_DEBUG debug; 
 
@@ -418,7 +417,7 @@ int main(void)
 #endif
 
 
-    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    XVideoSetMode(720, 480, 32, REFRESH_DEFAULT);
 //    debugPrint("Content of D:\\\n");
 //
 //    WIN32_FIND_DATA findFileData;
@@ -480,11 +479,10 @@ int main(void)
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
 
 
-    rv = sfront_Init(&njoy);
+    rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK);
     if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         debugPrint("could not initialize sdl2: %s\n", SDL_GetError());
-        Sleep(30000);
 
         exit(EXIT_FAILURE);
     }
@@ -497,7 +495,7 @@ int main(void)
     printf("ok\n");
 
 
-    rv = sfront_startGfx(&windowed_mode, w_title);
+    rv = sfront_startGfx(TRUE, w_title);
     if(rv < 0){
         main_ExitMessage(is_fr?"Mode graphique non supporté."
                               :"Unsupported graphic mode");
@@ -527,10 +525,9 @@ int main(void)
     /* initialisation de l'interface utilisateur Allegro et du débogueur */
     teo_DebugBreakPoint = NULL;
 
-    main_DisplayMessage("Running in 30 seconds");
-
+    teo.setting.sound_enabled = 0;
     /* et c'est parti !!! */
-    sfront_Run(windowed_mode);
+    sfront_Run();
 
     /* Sauvegarde de l'état de l'émulateur */
     ini_Save();
