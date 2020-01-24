@@ -3,6 +3,8 @@
 #include <SDL2/SDL.h>
 
 #include "teo.h"
+#include "sdl2/sfront.h"
+#include "sdl2/teo-sdl-vkbd.h"
 #include "sdl2/gui/sdlgui.h"
 
 static SDL_Window *window = NULL;
@@ -582,6 +584,10 @@ void teoSDL_GfxRefreshScreen(void)
             dirty_cell_row += tcol->screen_cw;
         }
     }
+
+    if(sfront_show_vkbd){
+        teoSDL_VKbdUpdate();
+    }
     SDL_UpdateWindowSurface(window);
 //    SDL_UnlockSurface(screenSurface);
 }
@@ -660,6 +666,8 @@ void teoSDL_GfxReset()
 {
     screenSurface = SDL_GetWindowSurface(window);
     SDLGui_SetWindow(window);
+    teoSDL_VKbdSetWindow(window);
+
     printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
  
     scaledBlit = 0;
@@ -698,8 +706,10 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
         return NULL;
     }
 
+    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",TEO_SCREEN_W*2,TEO_SCREEN_H*2,TEO_SCREEN_W,TEO_SCREEN_H);
     screenSurface = SDL_GetWindowSurface(window);
     SDLGui_SetWindow(window);
+    teoSDL_VKbdSetWindow(window);
     printf("screenSurface is: %dx%d\n",screenSurface->w,screenSurface->h);
 
     teo_SetPointer=teoSDL_GfxSetPointer;

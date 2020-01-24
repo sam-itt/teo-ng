@@ -11,6 +11,9 @@
 #include "sdl2/teo-sdl-log.h"
 #include "sdl2/teo-sdl-jmouse.h"
 #include "sdl2/sfront.h"
+#include "sdl2/teo-sdl-vkbd.h"
+
+bool sfront_show_vkbd = false;
 
 /*These two globals are used by the GUI adapted from Hatari*/
 bool bQuitProgram = false;
@@ -47,6 +50,7 @@ int sfront_Init(int *j_support, unsigned char mode)
     }
 
     SDLGui_Init();
+    teoSDL_VKbdInit();
 
     if (*j_support >= 0 && (sfront_features & FRONT_JOYSTICK))
         *j_support = teoSDL_JoystickInit();
@@ -229,6 +233,8 @@ static int sfront_EventHandler(void)
     SDL_Event event;
 
     while(SDL_PollEvent(&event) == 1){
+        if(sfront_show_vkbd)
+            teoSDL_VKbdProcessEvent(&event);
         switch(event.type){
             case SDL_QUIT:
                 exit(0);
@@ -262,8 +268,14 @@ static int sfront_EventHandler(void)
                 }else{
                     teoSDL_JoystickButton(&(event.jbutton));
                 }
-                if(event.jbutton.button == 11)
+                if(event.jbutton.button == 9)
                     teo.command = TEO_COMMAND_PANEL;
+                if(event.jbutton.button == 11 && event.jbutton.state == SDL_PRESSED){
+                    sfront_show_vkbd = !sfront_show_vkbd;
+                    printf("sfront_show_vkbd: %d\n",sfront_show_vkbd);
+                    if(!sfront_show_vkbd)
+                        teoSDL_GfxRetraceWholeScreen();
+                }
                 break;
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){

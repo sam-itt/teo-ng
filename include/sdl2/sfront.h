@@ -1,7 +1,8 @@
 #ifndef SDL2_DRV_H
 #define SDL2_DRV_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
+#include <stdbool.h>
 
 #include "sdl2/sdl-keyboard.h"
 #include "sdl2/teo-sdl-mouse.h"
@@ -16,6 +17,7 @@
 #define sfront_enabled(feature) (sfront_features & feature)
 
 extern unsigned short int sfront_features;
+extern bool sfront_show_vkbd;
 
 int sfront_Init(int *j_support, unsigned char mode);
 int sfront_startGfx(int windowed_mode, char *w_title);

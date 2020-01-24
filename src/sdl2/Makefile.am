@@ -6,11 +6,13 @@ libsdlgfx_la_LIBADD = $(DEPS_LIBS) $(SDL2_LIBS)
 libsdlgfx_la_SOURCES = \
 	teo-sdl-gfx.c \
 	ini.c \
+	gfx.c \
 	sfront.c \
 	teo-sdl-keyboard.c \
 	teo-sdl-mouse.c \
 	teo-sdl-joystick.c \
 	teo-sdl-jmouse.c \
+	teo-sdl-vkbd.c \
 	teo-sdl-sound.c
 
 
