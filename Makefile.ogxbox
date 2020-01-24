@@ -18,7 +18,8 @@ SRCS += $(wildcard $(CURDIR)/src/sdl2/*.c)
 SRCS += $(wildcard $(CURDIR)/src/sdl2/gui/*.c)
 SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
 
-NXDK_DIR = /home/samuel/dev/xbox/nxdk
+#NXDK_DIR = /home/samuel/dev/xbox/nxdk
+NXDK_DIR = /home/samuel/dev/xbox/mine/nxdk
 NXDK_SDL = y
 DEBUG=y
 
