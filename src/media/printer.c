@@ -107,7 +107,7 @@ static int   paper_x = 0;
 static int   paper_y = 0;
 static int   paper_width;
 static int   paper_height;
-static int   paper_width_max;
+static int   paper_width_max = 0;
 static char  *paper_buffer = NULL;
 static int   paper_opened = FALSE;
 static int   paper_left_margin;
@@ -315,7 +315,9 @@ static void flush_buffer (int flush_height)
 static void gfx_eject (void)
 {
     int i;
-    char *blank_row = calloc (paper_width_max>>3, 1);
+    char *blank_row;
+
+    blank_row = calloc (paper_width_max>>3, 1);
 
     if ((printer.lprt.gfx_output != 0) && (paper_opened == TRUE))
     {
@@ -1380,12 +1382,14 @@ void printer_WriteData(int mask, int value)
  */
 void printer_Close(void)
 {
-    eject_paper ();
-    font_buffer = std_free (font_buffer);
-    font_width_buffer = std_free (font_width_buffer);
-    printer_Forget ();
-    printer_opened = FALSE;
-    mc6846.prc &= 0xBF;  /* BUSY à 0 */
+    if(printer_opened){ /*Avoid doing calloc(0) that segfaults*/
+        eject_paper ();
+        font_buffer = std_free (font_buffer);
+        font_width_buffer = std_free (font_width_buffer);
+        printer_Forget ();
+        printer_opened = FALSE;
+        mc6846.prc &= 0xBF;  /* BUSY à 0 */
+    }
 }
 
 

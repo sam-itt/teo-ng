@@ -644,7 +644,7 @@ static int file_protection (const char filename[], int protection)
 
         /* check formatrevision */
         if (hfe_hd.formatrevision != 0)
-            return file_mode_error (TEO_ERROR_FILE_FORMAT, filename, file);
+            return error_Message (TEO_ERROR_FILE_FORMAT, filename);
         
         /* check file validity */
         switch (hfe_hd.track_encoding)
