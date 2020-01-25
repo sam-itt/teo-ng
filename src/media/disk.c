@@ -727,16 +727,8 @@ int disk_ComputeCrc (uint8 *buffer, int length, int start_value)
  */
 int disk_CheckFile (const char filename[], int protection)
 {
-    FILE *file;
-
-    if ((file = fopen (filename, "rb+")) == NULL)
-    {
-        protection = TRUE;
-        if ((file = fopen (filename, "rb")) == NULL)
-            protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
-    }
-    file = std_fclose (file);
-
+    if(access(filename, F_OK) != 0)
+        protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
     return protection;
 }
 

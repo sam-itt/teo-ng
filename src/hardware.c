@@ -209,10 +209,10 @@ static void SetDeviceRegister(int addr, int val)
             if (((mc6846.crc&0x30) == 0x30)
              && ((mc6846.crc&8) != (data&8)))
             {
-                teo_PutSoundByte(mc6809_clock(),
-                                 mc6846.crc&8
-                                   ? 0x00
-                                   : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                if(teo_PutSoundByte)
+                    teo_PutSoundByte(mc6809_clock(),
+                                     mc6846.crc&8 ? 0x00
+                                     : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             }
             break;
 
@@ -336,9 +336,10 @@ static void SetDeviceRegister(int addr, int val)
                 if (((mc6821_ReadCommand(&pia_ext.portb)&0x04) != 0)
                  || ((val&0x3c) != 0x3c))
                 {
-                    teo_PutSoundByte(
-                        mc6809_clock(),
-                        (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                    if(teo_PutSoundByte)
+                        teo_PutSoundByte(
+                            mc6809_clock(),
+                            (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
                 }
             }
             break;
