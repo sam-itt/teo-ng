@@ -158,15 +158,17 @@
  * 00000000b
  * 00000001b video
  * 00000010b sound
- * 00000100b joystick(real)
- * 00001000b keyboard(real) ?
+ * 00000100b host joystick(s) emulate TO8 joystick(s)
+ * 00001000b host keyboard(real) emulate TO8 keyboard 
+ * 00010000b host joystick emulates TO8 mouse/lightpren
  */
 #define FRONT_NONE     0x00
 #define FRONT_GFX      0x01
 #define FRONT_SOUND    0x02
 #define FRONT_JOYSTICK 0x04
 #define FRONT_KEYBOARD 0x08
-#define FRONT_ALL FRONT_GFX|FRONT_SOUND|FRONT_JOYSTICK|FRONT_KEYBOARD
+#define FRONT_JMOUSE   0x08
+#define FRONT_ALL FRONT_GFX|FRONT_SOUND|FRONT_JOYSTICK|FRONT_KEYBOARD|FRONT_JMOUSE
 
 enum teo_command {
     TEO_COMMAND_NONE = 1,

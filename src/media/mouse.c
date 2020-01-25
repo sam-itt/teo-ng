@@ -55,6 +55,13 @@ static int mouse_x, mouse_y;
 
 
 /* ------------------------------------------------------------------------- */
+void mouse_GetPosition(int *x, int *y)
+{
+    *x = mouse_x;
+    *y = mouse_y;
+}
+
+
 
 /* mouse_Reset:
  *  Réinitialise les périphériques de pointage.

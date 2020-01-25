@@ -52,4 +52,5 @@ extern void  mouse_Click(int button, int release);
 extern void  mouse_Motion(int xpos, int ypos);
 extern void  mouse_GetLightpen(int *xr, int *yr, int *cc);
 
+extern void mouse_GetPosition(int *x, int *y);
 #endif

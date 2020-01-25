@@ -9,7 +9,11 @@
 #include "defs.h"
 #include "media/disk.h"
 #include "sdl2/teo-sdl-log.h"
+#include "sdl2/teo-sdl-jmouse.h"
 #include "sdl2/sfront.h"
+#include "sdl2/teo-sdl-vkbd.h"
+
+bool sfront_show_vkbd = false;
 
 /*These two globals are used by the GUI adapted from Hatari*/
 bool bQuitProgram = false;
@@ -46,6 +50,7 @@ int sfront_Init(int *j_support, unsigned char mode)
     }
 
     SDLGui_Init();
+    teoSDL_VKbdInit();
 
     if (*j_support >= 0 && (sfront_features & FRONT_JOYSTICK))
         *j_support = teoSDL_JoystickInit();
@@ -162,6 +167,8 @@ static void sfront_RunTO8()
         /* rafraîchissement de l'écran */
         teoSDL_GfxRefreshScreen();
         sfront_EventHandler();
+        if(sfront_enabled(FRONT_JMOUSE))
+            teoSDL_JMouseMove();
 
         /* synchronisation sur fréquence réelle */
         if (teo.setting.exact_speed)
@@ -257,33 +264,49 @@ static int sfront_EventHandler(void)
     SDL_Event event;
 
     while(SDL_PollEvent(&event) == 1){
+        if(sfront_show_vkbd)
+            teoSDL_VKbdProcessEvent(&event);
         switch(event.type){
             case SDL_QUIT:
                 exit(0);
                 break;
             case SDL_KEYUP:
-                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 1);
-                break;
             case SDL_KEYDOWN:
-                teoSDL_KeyboardHandler(event.key.keysym.scancode, event.key.keysym.sym, 0);
+                teoSDL_KeyboardHandler(
+                    event.key.keysym.scancode,
+                    event.key.keysym.sym,
+                    (event.type == SDL_KEYUP) ? 1 : 0
+                );
                 break;
             case SDL_MOUSEMOTION:
                 teoSDL_MouseMove(&(event.motion)); 
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                teoSDL_MouseButton(&(event.button));
-                break;
             case SDL_MOUSEBUTTONUP:
                 teoSDL_MouseButton(&(event.button));
                 break;
             case SDL_JOYAXISMOTION:
-                teoSDL_JoystickMove(&(event.jaxis));
+                if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_axis(event.jaxis.axis)){
+                    teoSDL_JMouseAccelerate(&(event.jaxis));
+                }else{
+                    teoSDL_JoystickMove(&(event.jaxis));
+                }
                 break;
             case SDL_JOYBUTTONDOWN:
-                teoSDL_JoystickButton(&(event.jbutton));
-                break;
             case SDL_JOYBUTTONUP:
-                teoSDL_JoystickButton(&(event.jbutton));
+                if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_button(event.jbutton.button)){
+                    teoSDL_JMouseButton(&(event.jbutton));
+                }else{
+                    teoSDL_JoystickButton(&(event.jbutton));
+                }
+                if(event.jbutton.button == 9)
+                    teo.command = TEO_COMMAND_PANEL;
+                if(event.jbutton.button == 11 && event.jbutton.state == SDL_PRESSED){
+                    sfront_show_vkbd = !sfront_show_vkbd;
+                    printf("sfront_show_vkbd: %d\n",sfront_show_vkbd);
+                    if(!sfront_show_vkbd)
+                        teoSDL_GfxRetraceWholeScreen();
+                }
                 break;
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){

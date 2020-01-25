@@ -2,6 +2,7 @@
 #include "sdl2/teo-sdl-mouse.h"
 #include "sdl2/teo-sdl-joystick.h"
 #include "sdl2/teo-sdl-gfx.h"
+#include "sdl2/sfront.h"
 
 #include "teo.h"
 #include "to8keys.h"
@@ -63,6 +64,10 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
         teo.command=TEO_COMMAND_DEBUGGER;
         return;
     }
+
+    if(sfront_show_vkbd)
+        return;
+
 
     /*Setting the flags on the virtual TO8 keyboard.
      * Actual scancodes are not sent to the virtual TO8
