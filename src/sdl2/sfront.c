@@ -87,9 +87,12 @@ int sfront_startGfx(int windowed_mode, char *w_title)
     teoSDL_GfxInit();    /* Binds teo_ graphic callbacks to teoSDL functions*/
 
     /* Initialise le son */
-    if(sfront_features & FRONT_SOUND)
+    if(sfront_features & FRONT_SOUND){
         teoSDL_SoundInit(51200);
-
+    }else{
+        teo_SilenceSound = NULL;
+        teo_PutSoundByte = NULL;
+    }
     return 0;
 }
 
@@ -264,7 +267,8 @@ static int sfront_EventHandler(void)
             teoSDL_VKbdProcessEvent(&event);
         switch(event.type){
             case SDL_QUIT:
-                exit(0);
+                teo.command = TEO_COMMAND_QUIT;
+//                exit(0);
                 break;
             case SDL_KEYUP:
             case SDL_KEYDOWN:
