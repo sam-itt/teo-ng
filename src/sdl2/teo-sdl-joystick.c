@@ -111,6 +111,60 @@ void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
     joystick_Move(jdix, pos);
 }
 
+void teoSDL_JoystickHatMove(SDL_JoyHatEvent *event)
+{
+    int jdix;
+    int pos;
+
+#if !SDL_STRICT_JOY_IDX
+    jdix = event->which;
+#else
+    jdix = teoSDL_GetJoystickIdx(event->which);
+#endif
+    if(jdix < 0) return;
+
+    switch(event->value){
+        case SDL_HAT_LEFTUP:
+            pos = TEO_JOYSTICK_LEFT | TEO_JOYSTICK_UP;
+            break;
+        case SDL_HAT_LEFT:
+            pos = TEO_JOYSTICK_LEFT;
+            break;
+        case SDL_HAT_LEFTDOWN:
+            pos = TEO_JOYSTICK_LEFT | TEO_JOYSTICK_DOWN;
+            break;
+        /*Up and down are swapped on purpose to get proper
+         * in-game movment.
+         * TODO: Check against "hardware" behavior. The TO8
+         * manual reads about NORTH/SOUTH/ etc directions.
+         * Check how that's implemented in TEO
+         * */
+        case SDL_HAT_UP:
+            pos = TEO_JOYSTICK_DOWN;
+            break;
+        case SDL_HAT_DOWN:
+            pos = TEO_JOYSTICK_UP;
+            break;
+        case SDL_HAT_RIGHTUP:
+            pos = TEO_JOYSTICK_RIGHT | TEO_JOYSTICK_UP;
+            break;
+        case SDL_HAT_RIGHT:
+            pos = TEO_JOYSTICK_RIGHT;
+            break;
+        case SDL_HAT_RIGHTDOWN:
+            pos = TEO_JOYSTICK_RIGHT | TEO_JOYSTICK_DOWN;
+            break;
+        case SDL_HAT_CENTERED:
+        default:
+            pos = TEO_JOYSTICK_CENTER;
+            break;
+    }
+
+    joystick_Move(jdix, pos);
+}
+
+
+
 void teoSDL_JoystickButton(SDL_JoyButtonEvent *event)
 {
     int jdix;

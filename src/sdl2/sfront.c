@@ -309,6 +309,9 @@ static int sfront_EventHandler(void)
                         teoSDL_GfxRetraceWholeScreen();
                 }
                 break;
+            case SDL_JOYHATMOTION:
+                if(!sfront_show_vkbd)
+                    teoSDL_JoystickHatMove(&(event.jhat));
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
 /*                    printf("Window %d size changed to %dx%d\n",
