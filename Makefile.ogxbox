@@ -6,6 +6,7 @@ SRCS += $(CURDIR)/src/errors.c \
         $(CURDIR)/src/image.c \
         $(CURDIR)/src/ini.c \
         $(CURDIR)/src/std.c \
+        $(CURDIR)/src/logsys.c \
         $(CURDIR)/src/teo.c 
 SRCS += $(wildcard $(CURDIR)/src/file/*.c)
 SRCS += $(wildcard $(CURDIR)/src/mc68xx/*.c)

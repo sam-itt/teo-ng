@@ -79,6 +79,7 @@
 #include "sdl2/sfront.h"
 #include "to8dbg.h"
 
+#include "logsys.h"
 struct EMUTEO teo;
 
 static int reset = FALSE;
@@ -415,6 +416,7 @@ int main(void)
 #else
     is_fr = 0;
 #endif
+    log_open("error.log");
 
 
     XVideoSetMode(720, 480, 32, REFRESH_DEFAULT);
@@ -545,6 +547,7 @@ int main(void)
     /* sortie de l'émulateur */
     printf(is_fr?"A bient“t !\n":"Goodbye !\n");
 
+    log_close();
     /* sortie de l'émulateur */
     exit(EXIT_SUCCESS);
 }
