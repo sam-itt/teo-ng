@@ -5,10 +5,7 @@
 #include "defs.h"
 #include "media/keyboard.h"
 #include "sdl2/gfx.h"
-
-#define VKB_HAXIS 2
-#define VKB_VAXIS 3
-#define VKB_BTN 4
+#include "sdl2/sfront-bindings.h"
 
 #define SPEED 1
 

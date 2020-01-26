@@ -12,6 +12,7 @@
 #include "sdl2/teo-sdl-jmouse.h"
 #include "sdl2/sfront.h"
 #include "sdl2/teo-sdl-vkbd.h"
+#include "sdl2/sfront-bindings.h"
 
 bool sfront_show_vkbd = false;
 
@@ -299,9 +300,9 @@ static int sfront_EventHandler(void)
                 }else{
                     teoSDL_JoystickButton(&(event.jbutton));
                 }
-                if(event.jbutton.button == 9)
+                if(event.jbutton.button == PANEL_TOGGLE_BUTTON)
                     teo.command = TEO_COMMAND_PANEL;
-                if(event.jbutton.button == 11 && event.jbutton.state == SDL_PRESSED){
+                if(event.jbutton.button == VKB_TOGGLE_BTN && event.jbutton.state == SDL_PRESSED){
                     sfront_show_vkbd = !sfront_show_vkbd;
                     printf("sfront_show_vkbd: %d\n",sfront_show_vkbd);
                     if(!sfront_show_vkbd)

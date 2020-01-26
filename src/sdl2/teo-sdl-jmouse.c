@@ -5,13 +5,16 @@
 
 #include "media/mouse.h"
 #include "sdl2/teo-sdl-mouse.h"
+#include "sdl2/sfront-bindings.h"
 
 #define MOUSE_SPEED 1;
 
-int jmouse_vertical_axis = 3;
-int jmouse_horizontal_axis = 2;
-int jmouse_button_left = 4;
-int jmouse_button_right = 5;
+int jmouse_vertical_axis = JMOUSE_VERTICAL_AXIS;
+bool jmouse_inverted_va = JMOUSE_INVERTED_VA;
+int jmouse_horizontal_axis = JMOUSE_HORIZONTAL_AXIS;
+bool jmouse_inverted_ha = JMOUSE_INVERTED_HA;
+int jmouse_button_left = JMOUSE_BUTTON_LEFT;
+int jmouse_button_right = JMOUSE_BUTTON_RIGHT;
 
 static Sint8 jmouse_vx = 0;
 static Sint8 jmouse_vy = 0;

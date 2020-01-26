@@ -4,13 +4,14 @@
 #include "teo.h"
 #include "defs.h" /*min/max, shoudl maybe add __typeof__ per https://stackoverflow.com/questions/3437404/min-and-max-in-c*/
 #include "media/joystick.h"
+#include "sdl2/sfront-bindings.h"
 
 #define SDL_STRICT_JOY_IDX 0
 
-#define VERTICAL_AXIS 1
-#define HORIZONTAL_AXIS 0
-#define A_BOUND_BTN 0
-#define B_BOUND_BTN 1
+//#define VJOY_VERTICAL_AXIS 1
+//#define VJOY_HORIZONTAL_AXIS 0
+//#define VJOY_A_BOUND_BTN 0
+//#define VJOY_B_BOUND_BTN 1
 
 
 #define TEO_SDL_JOYSTICK_STATE(state) ((state) == SDL_PRESSED ? TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF) 
@@ -92,7 +93,7 @@ void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
     /*Axis 0: Left(negative) / Right (positive)*/
 
     pos = TEO_JOYSTICK_CENTER;
-    if(event->axis == VERTICAL_AXIS){
+    if(event->axis == VJOY_VERTICAL_AXIS){
         if(event->value < 0)
             pos |= TEO_JOYSTICK_UP;
         if(event->value > 0)
@@ -100,7 +101,7 @@ void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
         
     }
 
-    if(event->axis == HORIZONTAL_AXIS){
+    if(event->axis == VJOY_HORIZONTAL_AXIS){
         if(event->value < 0)
             pos |= TEO_JOYSTICK_LEFT;
         if(event->value > 0)
@@ -121,9 +122,9 @@ void teoSDL_JoystickButton(SDL_JoyButtonEvent *event)
 #endif
 
 //    printf("Joystick %d button %d pressed\n", event->which, event->button);
-    if(event->button == A_BOUND_BTN)
+    if(event->button == VJOY_A_BOUND_BTN)
         joystick_Button(jdix, 0, TEO_SDL_JOYSTICK_STATE(event->state));
-    if(event->button == B_BOUND_BTN)
+    if(event->button == VJOY_B_BOUND_BTN)
         joystick_Button(jdix, 1, TEO_SDL_JOYSTICK_STATE(event->state));
 }
 
