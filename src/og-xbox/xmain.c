@@ -87,7 +87,6 @@ struct STRING_LIST *remain_name = NULL;
 
 struct MC6809_DEBUG debug; 
 
-
 /* thomson_take char:
  *  Convert Thomson ASCII char into ISO-8859-1.
  */
@@ -397,19 +396,11 @@ void main_ExitMessage(const char msg[])
 }
 
 
-/* WinMain:
- *  Point d'entrée du programme appelé par l'API Win32.
- */
 int main(void)
 {
-#if defined (GFX_BACKEND_ALLEGRO)
-    char version_name[]=PACKAGE_STRING" (Windows/DirectX)";
-#elif defined (GFX_BACKEND_SDL2)
-    char version_name[]=PACKAGE_STRING" (Windows/SDL2)";
-#endif
-    int argc=0;
+    char version_name[]=PACKAGE_STRING" (OG-XBOX/SDL2)";
+
     int njoy = 0;
-    struct STRING_LIST *str_list;
 
 #ifdef FRENCH_LANGUAGE
     is_fr = 1;
@@ -417,69 +408,33 @@ int main(void)
     is_fr = 0;
 #endif
     log_open("error.log");
+    BOOL rv;
+
+    rv = XVideoSetMode(720, 480, 32, REFRESH_DEFAULT);
+    if(rv){
+        debugPrint("Success setting 720,480,32 as a VideoMode\n");
+    }else{
+        debugPrint("FAILURE setting 720,480,32 as a VideoMode. Instead:\n");
+        VIDEO_MODE vparams;
+
+        vparams = XVideoGetMode();
+        debugPrint(
+            "Got video mode: w:%d, h:%d, bpp:%d, refresh:%d\n",
+            vparams.width,
+            vparams.height,
+            vparams.bpp,
+            vparams.refresh
+        );
+    }
+    Sleep(8000);
 
 
-    XVideoSetMode(720, 480, 32, REFRESH_DEFAULT);
-//    debugPrint("Content of D:\\\n");
-//
-//    WIN32_FIND_DATA findFileData;
-//    HANDLE hFind;
-//
-//    // Like on Windows, "*.*" and "*" will both list all files,
-//    // no matter whether they contain a dot or not
-//    hFind = FindFirstFile("D:\\*.*", &findFileData);
-//    if (hFind == INVALID_HANDLE_VALUE) {
-//        debugPrint("FindFirstHandle() failed!\n");
-//        Sleep(20000);
-//        return 1;
-//    }
-//
-//    do {
-//        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-//            debugPrint("Directory: ");
-//        } else {
-//            debugPrint("File     : ");
-//        }
-//
-//        debugPrint("%s\n", findFileData.cFileName);
-//    } while (FindNextFile(hFind, &findFileData) != 0);
-//
-//    debugPrint("\n");
-//
-//    DWORD error = GetLastError();
-//    if (error == ERROR_NO_MORE_FILES) {
-//        debugPrint("Done!\n");
-//    } else {
-//        debugPrint("error: %x\n", error);
-//    }
-//
-//    FindClose(hFind);
-//
-//    Sleep(30000);
-//
-//    return 0;
+    ini_Load();                   /* Charge les parametres par defaut */
 
-
-
-
-    /* initialise les librairies */
-//    InitCommonControls();
-//    OleInitialize(0);
-
-    /* conversion de la ligne de commande Windows */
-//    prog_inst = hInst;
-//    prog_icon = LoadIcon(hInst, "thomson_ico");
-
-
-    ini_Load();                   /* Charge les paramètres par défaut */
-//    read_command_line (argc, argv); /* Récupération des options */
-
-    int rv;
     char *w_title;
 
-    w_title = is_fr ? "Teo - l'ï¿½mulateur TO8 (menu:ESC/debogueur:F12)"
+    w_title = is_fr ? "Teo - l'emulateur TO8 (menu:ESC/debogueur:F12)"
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
-
 
     rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK);
     if(rv != 0){
@@ -490,8 +445,8 @@ int main(void)
     }
 
 
-    /* initialisation de l'émulateur */
-    printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
+    /* initialisation de l'emulateur */
+    printf(is_fr?"Initialisation de l'emulateur...":"Emulator initialization...");
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
     printf("ok\n");
@@ -499,55 +454,37 @@ int main(void)
 
     rv = sfront_startGfx(TRUE, w_title);
     if(rv < 0){
-        main_ExitMessage(is_fr?"Mode graphique non supporté."
+        main_ExitMessage(is_fr?"Mode graphique non supporte"
                               :"Unsupported graphic mode");
     }
-
-#if 0
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(teoSDL_getWindow(), &wmInfo);
-    prog_win = wmInfo.info.win.window;
-
-    SetClassLong(prog_win, GCL_HICON,   (LONG) prog_icon);
-    SetClassLong(prog_win, GCL_HICONSM, (LONG) prog_icon);
-#endif
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
     cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
     if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
         reset = 1;
 
-    /* Restitue l'état sauvegardé de l'émulateur */
+    /* Restitue l'etat sauvegarde de l'emulateur */
     teo_FullReset();
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
-    /* initialisation de l'interface utilisateur Allegro et du débogueur */
+    /* initialisation de l'interface utilisateur Allegro et du debogueur */
     teo_DebugBreakPoint = NULL;
 
     teo.setting.sound_enabled = 0;
     /* et c'est parti !!! */
     sfront_Run();
 
-    /* Sauvegarde de l'état de l'émulateur */
+    /* Sauvegarde de l'etat de l'emulateur */
     ini_Save();
     image_Save ("autosave.img");
 
     sfront_Shutdown();
 
-    /* libération de la mémoire si mode fenêtré */
-//    if (windowed_mode)
-//       wgui_Free();
-
-    /* désinstalle les librairies */
-//    OleUninitialize ();
-
-    /* sortie de l'émulateur */
-    printf(is_fr?"A bient“t !\n":"Goodbye !\n");
+    printf(is_fr?"A bientot !\n":"Goodbye !\n");
 
     log_close();
-    /* sortie de l'émulateur */
+
     exit(EXIT_SUCCESS);
 }
