@@ -145,7 +145,7 @@ static bool File_IsRootFileName(const char *pszFileName)
 	if (pszFileName[0] == DIR_SEPARATOR)
 		return true;
 
-#ifdef WIN32
+#if defined (WIN32) || defined (PLATFORM_OGXBOX)
 	if (pszFileName[1] == ':')
 		return true;
 #endif
