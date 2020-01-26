@@ -436,7 +436,7 @@ int main(void)
     w_title = is_fr ? "Teo - l'emulateur TO8 (menu:ESC/debogueur:F12)"
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
 
-    rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK);
+    rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK|FRONT_JMOUSE);
     if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         debugPrint("could not initialize sdl2: %s\n", SDL_GetError());
