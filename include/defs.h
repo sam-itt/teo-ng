@@ -128,6 +128,10 @@
 #define USEC_TO_SEC(usec) ((usec)/1000000.0)
 #define USEC_TO_MSEC(usec) ((usec)/1000.0)
 
+#define last_char(str) ((str)[strlen((str))-1])
+#define first_char(str) (*(str))
+
+
 struct GATE_ARRAY {
     int p_data;
     int p_addr;

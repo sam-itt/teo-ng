@@ -87,9 +87,6 @@
 # define  mkdir( D, M )   mkdir( D )
 #endif
 
-#define last_char(str) ((str)[strlen((str))-1])
-#define first_char(str) (*(str))
-
 #if !defined(HAVE_GETCWD) && defined(PLATFORM_OGXBOX)
 #define HAVE_GETCWD 1
 char *getcwd(char *buf, int size)
@@ -600,14 +597,10 @@ char *std_GetTeoSystemFile(char *name)
     
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
-#if PLATFORM_OGXBOX
-        if(last_char(*candidate) == '\\' || first_char(name) == '\\')
+        if(last_char(*candidate) == DIR_SEPARATOR || first_char(name) == DIR_SEPARATOR)
             fname = std_strdup_printf("%s%s", *candidate, name);
         else
-            fname = std_strdup_printf("%s\\%s", *candidate, name);
-#else
-        fname = std_strdup_printf("%s/%s", *candidate, name);
-#endif
+            fname = std_strdup_printf("%s%c%s", *candidate, DIR_SEPARATOR, name);
         std_Debug("%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             rv = fname;
