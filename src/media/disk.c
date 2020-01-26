@@ -727,9 +727,15 @@ int disk_ComputeCrc (uint8 *buffer, int length, int start_value)
  */
 int disk_CheckFile (const char filename[], int protection)
 {
+#ifdef PLATFORM_OGXBOX
+    if(!std_FileExists(filename))
+        protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
+    return protection;
+#else
     if(access(filename, F_OK) != 0)
         protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
     return protection;
+#endif
 }
 
 
