@@ -105,8 +105,12 @@ char *getcwd(char *buf, int size)
 #define HAVE_GET_CURRENT_DIR_NAME 1
 char *get_current_dir_name()
 {
+#ifdef PLATFORM_OGXBOX
+    return strdup("D:\\");
+#else
     char* path = malloc(PATH_MAX);
 	return getcwd(path, PATH_MAX);
+#endif
 }
 #endif
 
@@ -130,6 +134,19 @@ int access(const char *filename, int mode)
     return 0;
 }
 #endif
+
+const char *std_getRootPath(void)
+{
+#ifdef PLATFORM_OGXBOX
+    return "D:\\";
+#elif PLATFORM_WIN32
+    return "C:\\";
+#else
+    return "/";
+#endif
+}
+
+
 /* std_StringListLast:
  *  Renvoit le pointeur sur le dernier élément de la stringlist.
  */

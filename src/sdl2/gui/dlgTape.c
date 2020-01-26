@@ -99,7 +99,7 @@ static void DlgTape_Browse(char *dlgname, int diskid)
 	if (teo.memo.file)
 	    tmpname = teo.cass.file;
 	else
-        tmpname = teo.default_folder ? teo.default_folder : "/";
+        tmpname = teo.default_folder ? teo.default_folder : std_getRootPath();
 
 	selname = SDLGui_FileSelect("Tape image:", tmpname, &zip_path, false);
 	if (!selname)

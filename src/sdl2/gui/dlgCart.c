@@ -62,7 +62,7 @@ static void DlgCart_Browse(char *dlgname)
 	if (teo.memo.file)
 	    tmpname = teo.memo.file;
 	else
-        tmpname = teo.default_folder ? teo.default_folder : "/";
+        tmpname = teo.default_folder ? teo.default_folder : std_getRootPath();
 
 	selname = SDLGui_FileSelect("Cartridge image:", tmpname, &zip_path, false);
 	if (!selname)

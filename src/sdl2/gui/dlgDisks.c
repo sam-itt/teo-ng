@@ -136,7 +136,7 @@ static void DlgDisks_BrowseDisk(char *dlgname, int drive)
 	if (teo.disk[drive].file)
 	    tmpname = teo.disk[drive].file;
 	else
-        tmpname = teo.default_folder ? teo.default_folder : "/";
+        tmpname = teo.default_folder ? teo.default_folder : std_getRootPath();
 
 	selname = SDLGui_FileSelect("Floppy image:", tmpname, &zip_path, false);
 	if (!selname)
