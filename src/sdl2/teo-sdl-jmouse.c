@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <stdbool.h>
 
 #include "teo.h"
 #include "defs.h"
@@ -8,6 +9,13 @@
 #include "sdl2/sfront-bindings.h"
 
 #define MOUSE_SPEED 1;
+
+#ifdef PLATFORM_OGXBOX
+#define AXIS_THRESHOLD SDL_JOYSTICK_AXIS_MAX/2
+#else
+#define AXIS_THRESHOLD 0
+#endif
+
 
 int jmouse_vertical_axis = JMOUSE_VERTICAL_AXIS;
 bool jmouse_inverted_va = JMOUSE_INVERTED_VA;
@@ -30,6 +38,12 @@ void teoSDL_JMouseAccelerate(SDL_JoyAxisEvent *event)
            event->value);*/
     Sint16 factor;
 
+    if(abs(event->value) < AXIS_THRESHOLD){
+        jmouse_vx = 0;
+        jmouse_vy = 0;
+        return;
+    }
+
     /* Analogue axis go from -32768 to 32767. 
      * i.e for a horizontal axis:
      * -32768 -> 0: left
@@ -38,9 +52,14 @@ void teoSDL_JMouseAccelerate(SDL_JoyAxisEvent *event)
      * is the stick is pushed past halfway in a
      * direction we apply a speedup of twice
      * */
-    factor = (abs(event->value) < 16383) ? 1 : 2; 
+#if PLATFORM_OGXBOX
+    factor = 1;
+#else
+    factor = (abs(event->value) < 16383) ? 1 : 2;
+#endif
 
     if(event->axis == jmouse_vertical_axis){
+        event->value *= (jmouse_inverted_va) ? -1 : 1;
         if(event->value < 0){
             jmouse_vy = -1 * factor*MOUSE_SPEED
         }else if(event->value > 0){
@@ -48,9 +67,8 @@ void teoSDL_JMouseAccelerate(SDL_JoyAxisEvent *event)
         }else{
             jmouse_vy = 0;
         }
-    }
-
-    if(event->axis == jmouse_horizontal_axis){
+    }else if(event->axis == jmouse_horizontal_axis){
+        event->value *= (jmouse_inverted_ha) ? -1 : 1;
         if(event->value < 0){
             jmouse_vx = -1 * factor*MOUSE_SPEED
         }else if(event->value > 0){
@@ -59,6 +77,7 @@ void teoSDL_JMouseAccelerate(SDL_JoyAxisEvent *event)
             jmouse_vx = 0;
         }
     }
+
 }
 
 
@@ -80,8 +99,6 @@ void teoSDL_JMouseButton(SDL_JoyButtonEvent *event)
 {
     SDL_MouseButtonEvent mb_event;
     Uint32 type;
-
-    if(event->state == SDL_PRESSED)
 
     type = (event->state == SDL_PRESSED) ? 
            SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;

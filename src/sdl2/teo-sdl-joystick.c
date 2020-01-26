@@ -15,6 +15,8 @@
 
 
 #define TEO_SDL_JOYSTICK_STATE(state) ((state) == SDL_PRESSED ? TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF) 
+#define AXIS_THRESHOLD SDL_JOYSTICK_AXIS_MAX/2
+
 
 static SDL_Joystick **joys = NULL;
 static int njoys = 0;
@@ -88,6 +90,9 @@ void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
     jdix = teoSDL_GetJoystickIdx(event->which);
 #endif
     if(jdix < 0) return;
+
+    if(abs(event->value) < AXIS_THRESHOLD)
+        return;
 
     /*Axis 1: Up(negative) / Down(positive)*/
     /*Axis 0: Left(negative) / Right (positive)*/
