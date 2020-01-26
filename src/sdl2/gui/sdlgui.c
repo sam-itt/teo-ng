@@ -20,6 +20,7 @@
 #include "font5x8.h"
 #include "font10x16.h"
 #include "sdl2/teo-sdl-log.h"
+#include "sdl2/sfront-bindings.h"
 
 #define DEBUG_INFO 0
 #if DEBUG_INFO
@@ -1318,6 +1319,7 @@ int SDLGui_DoDialog(SGOBJ *dlg, SDL_Event *pEventOut, bool KeepCurrentObject)
 				break;
 
 			 case SDL_JOYAXISMOTION:
+                break;
 				value = sdlEvent.jaxis.value;
 				if (value < -3200 || value > 3200)
 				{
@@ -1347,14 +1349,26 @@ int SDLGui_DoDialog(SGOBJ *dlg, SDL_Event *pEventOut, bool KeepCurrentObject)
 				break;
 
 			 case SDL_JOYBUTTONDOWN:
-				retbutton = SDLGui_HandleSelection(dlg, focused, focused);
+                if(sdlEvent.jbutton.button == PANEL_TOGGLE_BUTTON)
+					retbutton = SDLGui_SearchFlags(dlg, SG_CANCEL);
+                else
+                    retbutton = SDLGui_HandleSelection(dlg, focused, focused);
 				break;
 
 			 case SDL_JOYBALLMOTION:
-			 case SDL_JOYHATMOTION:
 			 case SDL_MOUSEMOTION:
 				break;
+             case SDL_JOYHATMOTION:
+				if (sdlEvent.jhat.value == SDL_HAT_UP){
+                    SDLGui_RemoveFocus(dlg, focused);
+                    focused = SDLGui_FocusNext(dlg, focused, -1);
 
+                }
+				else if (sdlEvent.jhat.value == SDL_HAT_DOWN){
+                    SDLGui_RemoveFocus(dlg, focused);
+                    focused = SDLGui_FocusNext(dlg, focused, +1);
+                }
+                break;
 			 case SDL_KEYDOWN:                     /* Key pressed */
 				key = sdlEvent.key.keysym.sym;
 				/* keyboard shortcuts are with modifiers */
