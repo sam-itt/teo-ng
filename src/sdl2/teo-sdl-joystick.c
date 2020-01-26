@@ -44,6 +44,9 @@ int teoSDL_JoystickInit(void)
             Log_Printf(LOG_WARN, "Could not init joysticks: %s\n", SDL_GetError());
             return 0; 
         }
+#ifdef PLATFORM_OGXBOX
+    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+#endif
     }
 
     njoys = SDL_NumJoysticks();
