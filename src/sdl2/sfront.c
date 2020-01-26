@@ -134,30 +134,30 @@ static void sfront_RunTO8()
 {
     bool sdl_timer = true;
 
-#ifndef PLATFORM_OGXBOX /*TODO: have sdl timer + platform*/
+#ifdef PLATFORM_OGXBOX /*TODO: have sdl timer + platform*/
+    DWORD last_frame;
+#else
     Uint32 last_frame;
 
     if(!SDL_WasInit(SDL_INIT_TIMER)){
         if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0){
-            debugPrint("Could not init timers: %s\n", SDL_GetError());
+            //debugPrint("Could not init timers: %s\n", SDL_GetError());
             sdl_timer = false;
         }
     }
-#else
-    DWORD last_frame;
 #endif
 
     do{  /* Virtual TO8 running loop */
-#ifndef PLATFORM_OGXBOX
+#ifdef PLATFORM_OGXBOX
         last_frame = GetTickCount();
 #else
         last_frame = SDL_GetTicks(); 
 #endif
         if(teo.setting.exact_speed && !teo.setting.sound_enabled){
-#ifndef PLATFORM_OGXBOX
-            last_frame = SDL_GetTicks(); 
-#else
+#ifdef PLATFORM_OGXBOX
             last_frame = GetTickCount();
+#else
+            last_frame = SDL_GetTicks();
 #endif
         }
 
@@ -179,21 +179,16 @@ static void sfront_RunTO8()
                     teoSDL_SoundPlay();
                 }
             }
-#ifndef PLATFORM_OGXBOX
-            Uint32 dt,frame_duration; /*milliseconds*/
-
-            dt = SDL_GetTicks() - last_frame;
-            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
-            if((GetTickCount() - last_frame) < frame_duration)
-                SDL_Delay(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/                
-#else
+#ifdef PLATFORM_OGXBOX
             DWORD dt,frame_duration; /*milliseconds*/
             dt = GetTickCount() - last_frame;
-            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
-            if((GetTickCount() - last_frame) < frame_duration)
-                Sleep(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/                
-
+#else
+            Uint32 dt,frame_duration; /*milliseconds*/
+            dt = SDL_GetTicks() - last_frame;
 #endif
+            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
+            if(dt < frame_duration)
+                Sleep(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/                
         }
 
         disk_WriteTimeout();
