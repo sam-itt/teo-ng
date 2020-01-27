@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "defs.h"
+#include "std.h"
 #include "media/keyboard.h"
 #include "sdl2/gfx.h"
 #include "sdl2/sfront-bindings.h"
@@ -335,11 +336,21 @@ static void teoSDL_VKbdHandleKeyboard(SDL_KeyboardEvent *event, SDL_Rect *rect)
 
 void teoSDL_VKbdInit(void)
 {
-    kbdSurface = SDL_LoadBMP("keyboard.bmp");
+    char *fpath;
+
+    fpath = std_GetTeoSystemFile("keyboard.bmp");
+    if(!fpath){
+        printf("Can't load vkbd picture, bailing out\n");
+        exit(-1);
+    }
+
+
+    kbdSurface = SDL_LoadBMP(fpath);
     if(!kbdSurface){
         printf("Error: %s\n",SDL_GetError());
         exit(-1);
     }
+    free(fpath);
     kbdBuffer = SDL_CreateRGBSurface(kbdSurface->flags, kbdSurface->w, kbdSurface->h, 
                       kbdSurface->format->BitsPerPixel, kbdSurface->format->Rmask,
                       kbdSurface->format->Gmask, kbdSurface->format->Bmask,
