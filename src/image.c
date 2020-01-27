@@ -819,10 +819,7 @@ static FILE *file_open (const char filename[], const char mode[])
 
     data_dir = std_getUserDataDir();
     if(data_dir){
-        if(last_char(data_dir) == DIR_SEPARATOR || first_char(filename) == DIR_SEPARATOR)
-            name = std_strdup_printf("%s%s",data_dir, filename);
-        else
-            name = std_strdup_printf("%s%c%s",data_dir, DIR_SEPARATOR, filename);
+        name = std_PathAppend(data_dir, filename);
         std_Debug("%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
     }else{
         std_Debug("%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);

@@ -87,6 +87,10 @@
 # define  mkdir( D, M )   mkdir( D )
 #endif
 
+#define last_char(str) ((str)[strlen((str))-1])
+#define first_char(str) (*(str))
+
+
 #if !defined(HAVE_GETCWD) && defined(PLATFORM_OGXBOX)
 #define HAVE_GETCWD 1
 char *getcwd(char *buf, int size)
@@ -567,6 +571,24 @@ char *std_ApplicationPath (const char dirname[], const char filename[])
     return fname;
 }
 
+/**
+ * Adds a component to a path, with the correct separator
+ *
+ * @return: Newly allocated string on success, NULL on failure
+ * caller must free the return value
+ *
+ */
+char *std_PathAppend(const char *existing, const char *component)
+{
+    char *rv;
+
+    if(last_char(existing) == DIR_SEPARATOR || first_char(component) == DIR_SEPARATOR)
+        rv = std_strdup_printf("%s%s", existing, component);
+    else
+        rv = std_strdup_printf("%s%c%s", existing, DIR_SEPARATOR, component);
+
+    return rv;
+}
 
 /* Will search for a file in pre-defined directories 
  * Caller must free the return value
@@ -614,10 +636,7 @@ char *std_GetTeoSystemFile(char *name)
     
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
-        if(last_char(*candidate) == DIR_SEPARATOR || first_char(name) == DIR_SEPARATOR)
-            fname = std_strdup_printf("%s%s", *candidate, name);
-        else
-            fname = std_strdup_printf("%s%c%s", *candidate, DIR_SEPARATOR, name);
+        fname = std_PathAppend(*candidate, name);
         std_Debug("%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             rv = fname;
@@ -769,7 +788,7 @@ char *std_GetUserDataFile(char *filename)
 
     datadir = std_getUserDataDir();
     if(datadir){
-        rv = std_strdup_printf("%s/%s", datadir, filename);
+        rv = std_PathAppend(datadir, filename);
         std_free(datadir);
         std_Debug("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
     }else{
@@ -796,7 +815,7 @@ char *std_GetFirstExistingConfigFile(char *filename)
     dir = std_getUserConfigDir();
     if(dir){
         std_Debug("%s: Got user config dir: %s\n", __FUNCTION__, dir);
-        rv = std_strdup_printf("%s/%s", dir, filename);
+        rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
             std_Debug("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
             std_free(dir);
@@ -808,7 +827,7 @@ char *std_GetFirstExistingConfigFile(char *filename)
     dir = std_getSystemConfigDir();
     if(dir){
         std_Debug("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
-        rv = std_strdup_printf("%s/%s", dir, filename);
+        rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
             std_Debug("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
             std_free(dir);
@@ -823,7 +842,7 @@ char *std_GetFirstExistingConfigFile(char *filename)
     dir = dirname(path);
     if(dir){
         std_Debug("%s: Got exe dir: %s\n", __FUNCTION__, dir);
-        rv = std_strdup_printf("%s\\%s", dir, filename);
+        rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
             std_Debug("%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
             return rv;

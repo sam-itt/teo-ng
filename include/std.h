@@ -65,6 +65,7 @@ char *std_getUserDataDir();
 char *std_GetUserDataFile(char *filename);
 char *std_GetFirstExistingConfigFile(char *filename);
 const char *std_getRootPath(void);
+extern char *std_PathAppend(const char *existing, const char *component);
 
 extern void *std_free (void *p);
 extern void *std_stralloc (void *p, char *s);
