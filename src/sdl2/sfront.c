@@ -59,6 +59,7 @@ int sfront_Init(int *j_support, unsigned char mode)
     return rv;
 }
 
+#ifdef PLATFORM_OGXBOX
 void printSDLErrorAndReboot(void)
 {
     debugPrint("SDL_Error: %s\n", SDL_GetError());
@@ -66,7 +67,7 @@ void printSDLErrorAndReboot(void)
     Sleep(5000);
     XReboot();
 }
-
+#endif
 
 int sfront_startGfx(int windowed_mode, char *w_title)
 {
@@ -76,7 +77,9 @@ int sfront_startGfx(int windowed_mode, char *w_title)
     if(!SDL_WasInit(SDL_INIT_VIDEO)){
         if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0){
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL video.\n");
+#ifdef PLATFORM_OGXBOX
             printSDLErrorAndReboot();
+#endif
             return -1;
         }
     }
@@ -185,13 +188,16 @@ static void sfront_RunTO8()
 #ifdef PLATFORM_OGXBOX
             DWORD dt,frame_duration; /*milliseconds*/
             dt = GetTickCount() - last_frame;
+            frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
+            if(dt < frame_duration)
+                Sleep(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
 #else
             Uint32 dt,frame_duration; /*milliseconds*/
             dt = SDL_GetTicks() - last_frame;
-#endif
             frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
             if(dt < frame_duration)
-                Sleep(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/                
+                SDL_Delay(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+#endif
         }
 
         disk_WriteTimeout();
