@@ -812,21 +812,30 @@ static void (*Saver[32])(int) = {
 };
 
 
+/* TODO: Have a std_FileOpen that merges this and ini.c:file_open
+ * and handles the various search paths
+ *
+ * */
 static FILE *file_open (const char filename[], const char mode[])
 {
     char *name = NULL;
     char *data_dir;
 
-    data_dir = std_getUserDataDir();
-    if(data_dir){
-        name = std_PathAppend(data_dir, filename);
-        std_Debug("%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
-    }else{
-        std_Debug("%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
-        name = strdup(filename);
+    /*TODO: Check root path*/
+    if(!std_IsAbsolutePath(filename)){
+        data_dir = std_getUserDataDir();
+        if(data_dir){
+            name = std_PathAppend(data_dir, filename);
+            std_Debug("%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
+        }else{
+            std_Debug("%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
+        }
     }
-    file = fopen(name, mode);
-    name = std_free (name);
+
+    /* Use the filename as-is if filaname is a root path or std_getUserDataDir() fails*/
+    file = fopen(name ? name : filename, mode);
+    if(name)
+        std_free (name);
     std_free(data_dir);
     return file;
 }

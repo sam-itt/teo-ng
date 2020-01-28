@@ -590,6 +590,30 @@ char *std_PathAppend(const char *existing, const char *component)
     return rv;
 }
 
+/**
+ * Adapted from Hatari File_IsRootFileName
+ *
+ * @return: whether the given filename is a path
+ * from a filesystem root
+ */
+bool std_IsAbsolutePath(const char *filename)
+{
+	if (filename[0] == '\0')     /* If NULL string return! */
+		return false;
+
+	if (filename[0] == DIR_SEPARATOR)
+		return true;
+
+#if defined (WIN32) || defined (PLATFORM_OGXBOX)
+	if (filename[1] == ':')
+		return true;
+#endif
+
+	return false;
+}
+
+
+
 /* Will search for a file in pre-defined directories 
  * Caller must free the return value
  *

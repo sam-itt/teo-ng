@@ -44,6 +44,7 @@
 
 #ifndef STD_H
 #define STD_H
+#include <stdbool.h>
 
 struct STRING_LIST {
     char *str;
@@ -66,6 +67,7 @@ char *std_GetUserDataFile(char *filename);
 char *std_GetFirstExistingConfigFile(char *filename);
 const char *std_getRootPath(void);
 extern char *std_PathAppend(const char *existing, const char *component);
+extern bool std_IsAbsolutePath(const char *filename);
 
 extern void *std_free (void *p);
 extern void *std_stralloc (void *p, char *s);
