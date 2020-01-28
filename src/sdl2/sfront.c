@@ -23,6 +23,7 @@ bool bInFullScreen = false;
 static void sfront_RunTO8(void);
 static void sfront_ExecutePendingCommand(void);
 static int sfront_EventHandler(void);
+static void sfront_KeyboardEventHandler(SDL_KeyboardEvent *event);
 
 unsigned short int sfront_features = FRONT_NONE;
 Uint8 sfront_windowed_mode = TRUE;
@@ -274,15 +275,10 @@ static int sfront_EventHandler(void)
         switch(event.type){
             case SDL_QUIT:
                 teo.command = TEO_COMMAND_QUIT;
-//                exit(0);
                 break;
             case SDL_KEYUP:
             case SDL_KEYDOWN:
-                teoSDL_KeyboardHandler(
-                    event.key.keysym.scancode,
-                    event.key.keysym.sym,
-                    (event.type == SDL_KEYUP) ? 1 : 0
-                );
+                sfront_KeyboardEventHandler(&(event.key));
                 break;
             case SDL_MOUSEMOTION:
                 teoSDL_MouseMove(&(event.motion)); 
@@ -331,3 +327,57 @@ static int sfront_EventHandler(void)
     return 1;
 }
 
+/**
+ * Gets all the input from the host keyboard. It's job is to handle/dispatch:
+ * a) Emulators commands (open the config panel take a screenshot, etc.)
+ * b) What must be sent to the translation layer which will decide which
+ * TOKEY_ must be sent to the virutal TO8
+ */
+
+static void sfront_KeyboardEventHandler(SDL_KeyboardEvent *event)
+{
+    bool release;
+    SDL_Keycode ksym;
+
+    ksym = event->keysym.sym;
+    release = (event->state == SDL_RELEASED) ? true : false;
+
+    /*Handling keyboard-triggered emulator functions*/
+    if(ksym == SDLK_ESCAPE && !release){
+        teo.command=TEO_COMMAND_PANEL;
+        return;
+    }
+
+    if(ksym == SDLK_F11 && !release){
+        teo.command=TEO_COMMAND_SCREENSHOT;
+        return;
+    }
+
+    if(ksym == SDLK_F12 && !release){
+        teo.command=TEO_COMMAND_DEBUGGER;
+        return;
+    }
+
+    if(ksym == SDLK_RETURN && !release){ //Toggle fullscreen
+        SDL_Keymod mod;
+
+        mod = SDL_GetModState();
+        if(mod & KMOD_LALT){
+            if(sfront_windowed_mode)
+                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+            else
+                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), 0);
+            sfront_windowed_mode = !sfront_windowed_mode;
+            teoSDL_GfxReset();
+        }
+    }
+
+    /* Only send keystrockes for translation into TOKEYS_ when:
+     * -It's not restrictively bound to a emulator feature
+     * -The virtual keyboard is not active. When the virtual
+     *  keyboard is active, the host keyboard only controls emulator
+     *  features.
+     * */
+    if(!sfront_show_vkbd)
+        teoSDL_KeyboardHandler(event);
+}

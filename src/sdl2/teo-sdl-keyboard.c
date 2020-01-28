@@ -38,37 +38,16 @@ void teoSDL_KeyboardInit(void)
     }
 }
 
-void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
+void teoSDL_KeyboardHandler(SDL_KeyboardEvent *event)
 {
     int tokey;
+    SDL_Scancode key;
+    SDL_Keycode ksym;
+    bool release;
 
-/*    if(release)
-        printf("Got key_release : %s\n",teoSDL_KeyboardSDLScancodeToText(key));
-    else
-        printf("Got key_pressed : %s\n",teoSDL_KeyboardSDLScancodeToText(key));*/
-    /*Special (emulator) keys handling:
-     * do the emulator command and return.
-     * The virtual TO8 won't see the key
-     * */
-    if(ksym == SDLK_ESCAPE && !release){
-        teo.command=TEO_COMMAND_PANEL;
-        return;
-    }
-
-    if(ksym == SDLK_F11 && !release){
-        teo.command=TEO_COMMAND_SCREENSHOT;
-        return;
-    }
-
-    if(ksym == SDLK_F12 && !release){
-        teo.command=TEO_COMMAND_DEBUGGER;
-        return;
-    }
-
-    if(sfront_show_vkbd)
-        return;
-
-
+    key = event->keysym.scancode;
+    ksym = event->keysym.sym;
+    release = (event->state == SDL_RELEASED) ? true : false;
     /*Setting the flags on the virtual TO8 keyboard.
      * Actual scancodes are not sent to the virtual TO8
      * except for Capslock      
@@ -93,22 +72,6 @@ void teoSDL_KeyboardHandler(SDL_Scancode key, SDL_Keycode ksym, Uint8 release)
     if(ksym == SDLK_LSHIFT || ksym == SDLK_RSHIFT){
         keyboard_ToggleState(TEO_KEY_F_SHIFT, release);
         return;
-    }
-
-
-    if(ksym == SDLK_RETURN && !release){ //Toggle fullscreen
-        SDL_Keymod mod;
-
-        mod = SDL_GetModState();
-        if(mod & KMOD_LALT){
-            printf("TOGGLE FULLSCREEN\n");
-            if(sfront_windowed_mode)
-                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
-            else
-                SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), 0);
-            sfront_windowed_mode = !sfront_windowed_mode;
-            teoSDL_GfxReset();
-        }
     }
 
     if(ksym == SDLK_CAPSLOCK && !release){ 

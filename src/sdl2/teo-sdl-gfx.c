@@ -713,7 +713,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     );
 
     debugPrint("Builtin dimensions are: %dx%d\n",SCREEN_WIDTH,SCREEN_HEIGHT);
-    Sleep(8000);
+//    Sleep(8000);
 
     window = SDL_CreateWindow("Demo",
         SDL_WINDOWPOS_UNDEFINED,
@@ -730,7 +730,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     }
 //    XReboot();
     debugPrint("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H}*2 are: (%d, %d)\n",SCREEN_WIDTH, SCREEN_HEIGHT, TEO_SCREEN_W*2,TEO_SCREEN_H*2);
-    Sleep(4000);
+//    Sleep(4000);
 #else
     Uint32 flags;
 
@@ -748,8 +748,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
         fprintf(stderr, "could not create window: %s\n", SDL_GetError());
         return NULL;
     }
-    debugPrint("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",TEO_SCREEN_W*2,TEO_SCREEN_H*2,TEO_SCREEN_W,TEO_SCREEN_H);
-    Sleep(4000);
+    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",TEO_SCREEN_W*2,TEO_SCREEN_H*2,TEO_SCREEN_W,TEO_SCREEN_H);
 #endif
 
     screenSurface = SDL_GetWindowSurface(window);
