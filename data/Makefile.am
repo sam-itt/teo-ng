@@ -31,6 +31,10 @@ libdatadir = $(libdir)
 
 teodata_DATA = \
 	empty.hfe
+if GFX_BACKEND_SDL2
+teodata_DATA += \
+	keyboard.bmp
+endif
 
 teoconf_DATA = \
 	.keep \
@@ -147,6 +151,7 @@ EXTRA_DIST = \
 	teo.xml \
 	teo.ini \
 	empty.hfe \
+	keyboard.bmp \
 	allegro.cfg \
 	language.dat \
 	keyboard.dat \
