@@ -3,6 +3,7 @@
 #include <SDL.h>
 
 #include "teo.h"
+#include "std.h"
 #include "sdl2/sfront.h"
 #include "sdl2/teo-sdl-vkbd.h"
 #include "sdl2/gui/sdlgui.h"
@@ -10,6 +11,9 @@
 #ifdef PLATFORM_OGXBOX
 #include "hal/video.h"
 #endif
+
+static SDL_Surface *leds[2] = {NULL, NULL};
+static SDL_Rect led_location;
 
 static SDL_Window *window = NULL;
 static SDL_Surface *screenSurface = NULL;
@@ -36,7 +40,7 @@ const extern int SCREEN_HEIGHT;
 
 
 
-/* paramètres d'affichage */
+/* parametres d'affichage */
 struct SCREEN_PARAMS
 {
     int screen_w;
@@ -603,40 +607,52 @@ void teoSDL_GfxRefreshScreen(void)
 //    SDL_UnlockSurface(screenSurface);
 }
 
-#define LED_SIZE 12
+/**
+ * Load leds for the given resolution
+ *
+ */
+static void teoSDL_GfxLoadLeds(int width, int height)
+{
+    char *fpath;
+    char *ledfiles[] = {
+        "led-on.bmp",
+        "led-off.bmp"
+    };
 
+    if(leds[0] == NULL){
+        for(int i = 0; i < 2; i++){
+            fpath = std_GetTeoSystemFile(ledfiles[i]);
+            if(!fpath){
+                printf("Can't find mandatory file %s, bailing out\n",ledfiles[i]);
+                exit(-1);
+            }
+            leds[i] = SDL_LoadBMP(fpath);
+            if(!leds[i]){
+                printf("Couldn't load %s, bailing out\n",ledfiles[i]);
+                exit(-1);
+            }
+            SDL_SetColorKey(leds[i], SDL_TRUE, SDL_MapRGB(leds[i]->format, 0x0, 0x0, 0xff));
+            SDL_SetSurfaceRLE(leds[i], 1);
+            std_free(fpath);
+        }
+    }
+    led_location.w = leds[0]->w;
+    led_location.h = leds[0]->h;
+    led_location.y = 0;
+    led_location.x = width - led_location.w - 1;
+}
 
 /* SetDiskLed:
  *  Allume/éteint la Led du lecteur de disquettes.
  */
 static void teoSDL_GfxSetDiskLed(int led_on)
 {
-    static int count = 0;
-
 //    if (!graphic_mode) return;
     if (led_on){
-        if(count == 0)
-            printf("Disk");
-        printf(".");
-       /* rect    (screen, tcol->screen_w-LED_SIZE,
-                         0,
-                         tcol->screen_w-1,
-                         LED_SIZE-1,
-                         0);
-        rectfill(screen, tcol->screen_w-LED_SIZE+1,
-                         1,
-                         tcol->screen_w-2,
-                         LED_SIZE-2,
-                         makecol(0, 255, 0));
-        rect    (screen, tcol->screen_w-LED_SIZE+count,
-                         count,
-                         tcol->screen_w-1-count,
-                         LED_SIZE-1-count,
-                         0);
-        count = (count+1)%(LED_SIZE/2);*/
+        SDL_BlitSurface(leds[0], NULL, screenSurface, &led_location);
     }else{
-        printf("\n");
-//        RetraceScreen(tcol->screen_w-LED_SIZE, 0, LED_SIZE, LED_SIZE);
+        SDL_BlitSurface(leds[1], NULL, screenSurface, &led_location);
+        teo_sdl_RetraceScreen(led_location.x, led_location.y, led_location.w, led_location.h);
     }
 }
 
@@ -678,6 +694,7 @@ void teoSDL_GfxReset()
     screenSurface = SDL_GetWindowSurface(window);
     SDLGui_SetWindow(window);
     teoSDL_VKbdSetWindow(window);
+    teoSDL_GfxLoadLeds(screenSurface->w, screenSurface->h);
 
     printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
  
@@ -755,6 +772,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     SDLGui_SetWindow(window);
     teoSDL_VKbdSetWindow(window);
     printf("screenSurface is: %dx%d\n",screenSurface->w,screenSurface->h);
+    teoSDL_GfxLoadLeds(screenSurface->w, screenSurface->h);
 
     teo_SetPointer=teoSDL_GfxSetPointer;
     /* teo_SetPointer is NOT called during the virtual TO8 init.
@@ -772,6 +790,12 @@ SDL_Window *teoSDL_GfxGetWindow()
     return window;
 }
 
+/**
+ * Kind of misleading... GfxInit gets called after GfxWindow
+ * GfxWindow creates the window while GfxInit inits the "binding"
+ * with the emulator core and create memory buffers.
+ * TODO: Make it clearer, swap names ? merge the functions ?
+ */
 void teoSDL_GfxInit()
 {
     int border_support = 1;

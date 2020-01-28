@@ -33,7 +33,9 @@ teodata_DATA = \
 	empty.hfe
 if GFX_BACKEND_SDL2
 teodata_DATA += \
-	keyboard.bmp
+	keyboard.bmp \
+	led-on.bmp \
+	led-off.bmp
 endif
 
 teoconf_DATA = \
@@ -152,6 +154,8 @@ EXTRA_DIST = \
 	teo.ini \
 	empty.hfe \
 	keyboard.bmp \
+	led-on.bmp \
+	led-off.bmp \
 	allegro.cfg \
 	language.dat \
 	keyboard.dat \
