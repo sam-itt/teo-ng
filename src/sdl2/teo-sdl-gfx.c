@@ -33,6 +33,31 @@ static double scaleYFactor = 0;
 
 static int installed_pointer = TEO_STATUS_MOUSE;
 
+static SDL_Cursor *lightpen_cursor = NULL;
+static SDL_Cursor *system_cursor = NULL;
+static char scr80_pen_pointer_data[]={ 0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,0,
+                                       1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,0,
+                                       1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,2,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
+                                       0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
+
+#define SCR40_SIZE   8
+#define SCR80_SIZE  16
+#define SCR80_HOT_Y 7
+#define SCR80_HOT_X 7
+
 void printSDLErrorAndReboot(void);
 //Screen dimension constants
 const extern int SCREEN_WIDTH;
@@ -656,27 +681,66 @@ static void teoSDL_GfxSetDiskLed(int led_on)
     }
 }
 
+static SDL_Cursor *teoSDL_GetLightPenCursor(void)
+{
+	int i, row, col, idx;
+	Uint8 data[SCR80_SIZE*(SCR80_SIZE/2)];
+	Uint8 mask[SCR80_SIZE*(SCR80_SIZE/2)];
+
+	i = -1;
+	for(row = 0; row < SCR80_SIZE; row++){
+		for( col = 0; col < SCR80_SIZE; col++){
+			idx = (row * SCR80_SIZE) + col;
+			if(col % 8){
+				data[i] <<= 1;
+				mask[i] <<= 1;
+			}else{
+				++i;
+				data[i] = mask[i] = 0;
+			}
+			switch(scr80_pen_pointer_data[idx]){
+				case 1: //Black
+				  data[i] |= 0x01;
+				  mask[i] |= 0x01;
+				  break;
+				case 2: //White
+				  mask[i] |= 0x01;
+				  break;
+				default: //transp
+				  break;
+			}
+		}
+	}
+    return SDL_CreateCursor(data, mask, SCR80_SIZE, SCR80_SIZE, SCR80_HOT_X, SCR80_HOT_Y);
+}
 
 
 
-/* SetPointer:
- *  Select active pointer.
+/**
+ * Called from *within* the virtual TO8 when users selects
+ * mouse vs lightpen *in the vm*:
+ * "Settings and preferences (3)"/"Choose lightpen/mouse(2)"
+ * This allow the frontend to reflect this change to the user
+ * by changing the cursor
  */
 static void teoSDL_GfxSetPointer(int pointer)
 {
+    SDL_Cursor *current;
+
+    current = SDL_GetCursor();
     switch (pointer)
     {
         case TEO_STATUS_MOUSE :
-           // gdk_window_set_cursor (gwindow_win, NULL);
             installed_pointer=TEO_STATUS_MOUSE;
+            if(current != system_cursor)
+                SDL_SetCursor(system_cursor);
             SDL_ShowCursor(SDL_DISABLE);
             break;
 
         case TEO_STATUS_LIGHTPEN :
-           // gdk_window_set_cursor (gwindow_win, gdk_cursor_new_for_display (gdk_window_get_display (gwindow_win), GDK_PENCIL));
             installed_pointer=TEO_STATUS_LIGHTPEN;
+            SDL_SetCursor(lightpen_cursor);
             SDL_ShowCursor(SDL_ENABLE);
-            /*TODO: Set pencil cursor using data from amouse.c*/
             break;
     }
 }
@@ -773,6 +837,9 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     teoSDL_VKbdSetWindow(window);
     printf("screenSurface is: %dx%d\n",screenSurface->w,screenSurface->h);
     teoSDL_GfxLoadLeds(screenSurface->w, screenSurface->h);
+
+    lightpen_cursor  = teoSDL_GetLightPenCursor();
+    system_cursor = SDL_GetCursor();
 
     teo_SetPointer=teoSDL_GfxSetPointer;
     /* teo_SetPointer is NOT called during the virtual TO8 init.
