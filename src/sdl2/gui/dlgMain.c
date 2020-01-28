@@ -44,9 +44,9 @@ static SGOBJ maindlg[] =
 	{ SGBUTTON, 0, 0,  2, 14, 33,1, "Ca_rtridge" },
 	{ SGBUTTON, 0, 0,  2, 16, 33,1, "_Printer" },
 
-	{ SGBUTTON, SG_CANCEL, 0,  2, 19, 10,1, "_Quit" },
+	{ SGBUTTON, 0, 0,  2, 19, 10,1, "_Quit" },
 	{ SGBUTTON, 0, 0, 13, 19, 11,1, "A_bout" },
-	{ SGBUTTON, SG_DEFAULT, 0, 25, 19, 10,1, "_OK" },
+	{ SGBUTTON, SG_DEFAULT|SG_CANCEL, 0, 25, 19, 10,1, "_OK" },
 	{ SGSTOP, 0, 0, 0,0, 0,0, NULL }
 };
 

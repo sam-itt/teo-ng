@@ -305,7 +305,7 @@ static int sfront_EventHandler(void)
                 }else{
                     teoSDL_JoystickButton(&(event.jbutton));
                 }
-                if(event.jbutton.button == PANEL_TOGGLE_BUTTON)
+                if(event.jbutton.button == PANEL_TOGGLE_BUTTON && event.jbutton.state == SDL_PRESSED)
                     teo.command = TEO_COMMAND_PANEL;
                 if(event.jbutton.button == VKB_TOGGLE_BTN && event.jbutton.state == SDL_PRESSED){
                     sfront_show_vkbd = !sfront_show_vkbd;
