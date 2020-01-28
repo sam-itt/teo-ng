@@ -5,6 +5,7 @@
 #include "defs.h" /*min/max, shoudl maybe add __typeof__ per https://stackoverflow.com/questions/3437404/min-and-max-in-c*/
 #include "media/joystick.h"
 #include "sdl2/sfront-bindings.h"
+#include "sdl2/sfront.h"
 
 #define SDL_STRICT_JOY_IDX 0
 
@@ -75,6 +76,25 @@ void teoSDL_JoystickShutdown(void)
     free(joys);
 
 }
+
+void teoSDL_JoystickHandler(SDL_Event *generic_event)
+{
+
+    switch(generic_event->type){
+        case SDL_JOYAXISMOTION:
+            teoSDL_JoystickMove(&(generic_event->jaxis));
+            break;
+        case SDL_JOYBUTTONDOWN:
+        case SDL_JOYBUTTONUP:
+            teoSDL_JoystickButton(&(generic_event->jbutton));
+            break;
+        case SDL_JOYHATMOTION:
+            if(!sfront_show_vkbd)
+                teoSDL_JoystickHatMove(&(generic_event->jhat));
+            break;
+    }
+}
+
 
 void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
 {

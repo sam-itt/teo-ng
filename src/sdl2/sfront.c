@@ -24,6 +24,7 @@ static void sfront_RunTO8(void);
 static void sfront_ExecutePendingCommand(void);
 static int sfront_EventHandler(void);
 static void sfront_KeyboardEventHandler(SDL_KeyboardEvent *event);
+static void sfront_JoystickEventHandler(SDL_Event *generic_event);
 
 unsigned short int sfront_features = FRONT_NONE;
 Uint8 sfront_windowed_mode = TRUE;
@@ -288,31 +289,11 @@ static int sfront_EventHandler(void)
                 teoSDL_MouseButton(&(event.button));
                 break;
             case SDL_JOYAXISMOTION:
-                if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_axis(event.jaxis.axis)){
-                    teoSDL_JMouseAccelerate(&(event.jaxis));
-                }else{
-                    teoSDL_JoystickMove(&(event.jaxis));
-                }
-                break;
             case SDL_JOYBUTTONDOWN:
             case SDL_JOYBUTTONUP:
-                if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_button(event.jbutton.button)){
-                    teoSDL_JMouseButton(&(event.jbutton));
-                }else{
-                    teoSDL_JoystickButton(&(event.jbutton));
-                }
-                if(event.jbutton.button == PANEL_TOGGLE_BUTTON && event.jbutton.state == SDL_PRESSED)
-                    teo.command = TEO_COMMAND_PANEL;
-                if(event.jbutton.button == VKB_TOGGLE_BTN && event.jbutton.state == SDL_PRESSED){
-                    sfront_show_vkbd = !sfront_show_vkbd;
-                    printf("sfront_show_vkbd: %d\n",sfront_show_vkbd);
-                    if(!sfront_show_vkbd)
-                        teoSDL_GfxRetraceWholeScreen();
-                }
-                break;
             case SDL_JOYHATMOTION:
-                if(!sfront_show_vkbd)
-                    teoSDL_JoystickHatMove(&(event.jhat));
+                sfront_JoystickEventHandler(&event);
+                break;
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
 /*                    printf("Window %d size changed to %dx%d\n",
@@ -328,12 +309,57 @@ static int sfront_EventHandler(void)
 }
 
 /**
+ * Gets input from the host joystick and decide what to do with it:
+ * - Do "emulators" commands (show panel on press button start,
+ *   jmouse, etc).
+ * - Translate parts of these events to movements of the TO8
+ *   joystick
+ */
+#define sfront_is_jbutton_event(type) ((type) == SDL_JOYBUTTONDOWN || (type) == SDL_JOYBUTTONUP)
+#define sfront_jbutton_pressed(btn, event) ((event)->button == btn && (event)->state == SDL_PRESSED)
+static void sfront_JoystickEventHandler(SDL_Event *generic_event)
+{
+
+    /*Emulator bindings of joystick actions*/
+    if(generic_event->type == SDL_JOYAXISMOTION){
+        SDL_JoyAxisEvent *event;
+
+        event = &(generic_event->jaxis);
+        if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_axis(event->axis)){
+            teoSDL_JMouseAccelerate(event);
+            return;
+        }
+    }else if(sfront_is_jbutton_event(generic_event->type)){
+        SDL_JoyButtonEvent *event;
+
+        event = &(generic_event->jbutton);
+        if(sfront_enabled(FRONT_JMOUSE) && jmouse_use_button(event->button)){
+            teoSDL_JMouseButton(event);
+            return;
+        }else if(sfront_jbutton_pressed(PANEL_TOGGLE_BUTTON, event)){
+            teo.command = TEO_COMMAND_PANEL;
+            return;
+        }else if(sfront_jbutton_pressed(VKB_TOGGLE_BTN, event)){
+            sfront_show_vkbd = !sfront_show_vkbd;
+            if(!sfront_show_vkbd)
+                teoSDL_GfxRetraceWholeScreen();
+            return;
+        }
+    }
+    /* If we reach this part the action hasn't been bound to something
+     * in the emualator and can be safely forwarded to the virtual
+     * TO8 translation layer
+     * */
+    teoSDL_JoystickHandler(generic_event);
+}
+
+
+/**
  * Gets all the input from the host keyboard. It's job is to handle/dispatch:
  * a) Emulators commands (open the config panel take a screenshot, etc.)
  * b) What must be sent to the translation layer which will decide which
  * TOKEY_ must be sent to the virutal TO8
  */
-
 static void sfront_KeyboardEventHandler(SDL_KeyboardEvent *event)
 {
     bool release;

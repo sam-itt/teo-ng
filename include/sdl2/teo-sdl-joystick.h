@@ -4,6 +4,7 @@
 
 int teoSDL_JoystickInit(void);
 void teoSDL_JoystickShutdown(void);
+void teoSDL_JoystickHandler(SDL_Event *generic_event);
 
 void teoSDL_JoystickMove(SDL_JoyAxisEvent *event);
 void teoSDL_JoystickButton(SDL_JoyButtonEvent *event);
