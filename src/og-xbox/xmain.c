@@ -79,6 +79,8 @@
 #include "sdl2/sfront.h"
 #include "to8dbg.h"
 
+#include "og-xbox/xsound.h"
+
 #include "logsys.h"
 struct EMUTEO teo;
 
@@ -426,7 +428,14 @@ int main(void)
             vparams.refresh
         );
     }
-    Sleep(8000);
+    Sleep(1000);
+
+    BOOL ret = nxMountDrive('C', "\\Device\\Harddisk0\\Partition2\\");
+    if (!ret) {
+        debugPrint("Failed to mount C: drive!\n");
+        Sleep(5000);
+        return 1;
+    }
 
 
     ini_Load();                   /* Charge les parametres par defaut */
@@ -436,7 +445,7 @@ int main(void)
     w_title = is_fr ? "Teo - l'emulateur TO8 (menu:ESC/debogueur:F12)"
                     : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
 
-    rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK|FRONT_JMOUSE);
+    rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK|FRONT_JMOUSE|FRONT_SOUND);
     if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         debugPrint("could not initialize sdl2: %s\n", SDL_GetError());
@@ -472,16 +481,19 @@ int main(void)
     /* initialisation de l'interface utilisateur Allegro et du debogueur */
     teo_DebugBreakPoint = NULL;
 
-    teo.setting.sound_enabled = 0;
+    teo.setting.sound_enabled = 1;
     /* et c'est parti !!! */
     sfront_Run();
 
+    log_msgf(TRACE, "Run finished, about to save state\n");
     /* Sauvegarde de l'etat de l'emulateur */
     ini_Save();
+    log_msgf(TRACE, "Saved ini\n");
     image_Save ("autosave.img");
+    log_msgf(TRACE, "Saved memdump\n");
 
     sfront_Shutdown();
-
+   // xsound_Shutdown();
     printf(is_fr?"A bientot !\n":"Goodbye !\n");
 
     log_close();

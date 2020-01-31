@@ -1,3 +1,7 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
+
 #include <SDL.h>
 
 #include "teo.h"
@@ -5,6 +9,22 @@
 #include "sdl2/teo-sdl-sound.h"
 #include "sdl2/teo-sdl-log.h"
 
+#if PLATFORM_OGXBOX
+#include <hal/debug.h>
+#include <hal/video.h>
+#include <hal/xbox.h>
+#include <windows.h>
+#include <string.h>
+#include <hal/audio.h>
+#include <xboxkrnl/xboxkrnl.h>
+#include <assert.h>
+#endif
+
+#define teoSDL_SoundSpecEquals(a,b) (((a).freq == (b).freq) && ((a).format == (b).format) && ((a).channels == (b).channels))
+
+#ifdef PLATFORM_OGXBOX
+#define printf debugPrint
+#endif
 
 /*Back buffer where we store data 
  * incoming from the virtual TO8
@@ -12,12 +32,25 @@
 static int sound_freq;
 static int sound_buffer_size;
 static unsigned char *sound_buffer;
-static unsigned char *mix_buffer;
-static int last_index;
+static unsigned char *sound_convert_buffer;
 static unsigned char last_data;
+static int last_index;
 
+
+SDL_AudioSpec native_spec;
 static SDL_AudioSpec spec;
 static SDL_AudioDeviceID dev_id = 0;
+static SDL_AudioStream *sdl_stream = NULL;
+
+
+#if ENABLE_SOUND_RECORDER
+#if PLATFORM_OGXBOX
+HANDLE output = INVALID_HANDLE_VALUE;
+#else
+FILE *output = NULL;
+#endif //PLATFORM_OGXBOX
+static bool dump_pcm = false;
+#endif //ENABLE_SOUND_RECORDER
 
 static void teoSDL_SoundDumpSpec(SDL_AudioSpec *spec)
 {
@@ -38,7 +71,10 @@ static void teoSDL_SoundDumpSpec(SDL_AudioSpec *spec)
  */
 static void teoSDL_SoundSilence(void)
 {
-    last_data = spec.silence;
+    /* We only do native U8/44100 in the
+     * buffer
+     * */
+    last_data = 128;
 }
 
 /* Called by the core
@@ -57,81 +93,91 @@ static void teoSDL_SoundPutByte(unsigned long long int clock, unsigned char data
     int index=(clock%TEO_CYCLES_PER_FRAME)*sound_freq/TEO_CPU_FREQ;
     int n_bytes;
 
-//    printf("%ld-%d:0x%x\n",clock,index,data);  
     if (index < last_index)
         index=sound_buffer_size;
 
     n_bytes = index-last_index;
     if(n_bytes){
         memset (&sound_buffer[last_index], last_data, n_bytes);
-//         printf("Put Wrote %d bytes of 0x%x\n", n_bytes, last_data);
+        if(sdl_stream){ //If sdl_stream exists, it means we need to do some resempling
+            int rc = SDL_AudioStreamPut(sdl_stream, &sound_buffer[last_index], (n_bytes) * sizeof (uint8_t));
+            if (rc == -1) {
+                printf("Uhoh, failed to put samples in stream: %s\n", SDL_GetError());
+            }
+        }
     }
-
-//    for(int i=last_index; i<index; i++)
-//        sound_buffer[i]=last_data;
-
-
-
     last_index=index;
-    last_data=data;
+    last_data = data;
+}
+
+/**
+ * Fills the buffer with the last put sound byte
+ * to close the current frame.
+ *
+ * @returns: true if there is something to play
+ * false otherwise
+ */
+static bool teoSDL_SoundFinishFrame(void)
+
+{
+    if(!last_index) return false;
+
+    /* Fill the buffer with the last pending byte set by the previous call to put_sound_byte*/
+    memset (&sound_buffer[last_index], last_data, sound_buffer_size-last_index);
+    if(sdl_stream){ //If sdl_stream exists, it means we need to do some resempling
+        int rc = SDL_AudioStreamPut(sdl_stream, &sound_buffer[last_index], (sound_buffer_size-last_index) * sizeof (uint8_t));
+        if (rc == -1) {
+            printf("Uhoh, failed to put samples in stream: %s\n", SDL_GetError());
+        }
+    }
+    last_index=0;
+    
+    return true;
 }
 
 void teoSDL_SoundPlay(void)
 {
-    char *buffer_ptr;
-    int rv;
-    Uint8 *dst;
+    SDL_assert(dev_id != 0);
 
-    if(spec.callback) return;
-//    if(!dev_id || SDL_GetAudioDeviceStatus(dev_id) != SDL_AUDIO_PLAYING) return;
-    if(!dev_id) return;
+    void *play_buffer;
+    size_t play_buffer_size;
 
-    if(!last_index) return;
-
-    int n_bytes;
-    n_bytes = sound_buffer_size-last_index;
-    /* Fill the buffer with the last pending byte set by the previous call to put_sound_byte*/
-//   for (int i=last_index; i<sound_buffer_size; i++)
-//        sound_buffer[i]=last_data;
- //   if(last_data = 0xfc)
-//        last_data = 0x80;
-    memset (&sound_buffer[last_index], last_data, sound_buffer_size-last_index);
-//    printf("Filler wrote %d bytes of 0x%x\n", n_bytes,last_data);
-//    printf("last_index was %d\n",last_index);
-
-    last_index=0;
-//    last_data=0x80;
-//    memset(mix_buffer, spec.silence, sound_buffer_size);
-//    SDL_MixAudioFormat(mix_buffer, sound_buffer, AUDIO_U8, sound_buffer_size, SDL_MIX_MAXVOLUME*0.75);
-//    SDL_QueueAudio(dev_id, mix_buffer, sound_buffer_size);
-
-    SDL_QueueAudio(dev_id, sound_buffer, sound_buffer_size);
-
-//    last_data = 0x80;
-}
-
-void teoSDL_SoundAudioCallback(void *udata, Uint8 *stream, int len)
-{
-#if 0
-    int n_bytes;
-
-    if(len < sound_buffer_size){
-        printf("len too small !\n");
-        exit(-1);
-    }
-
-    n_bytes = index-last_index;
-    if(n_bytes > 0)
-        printf("Got %d bytes !\n", n_bytes);
-
-    if(n_bytes < sound_buffer_size)
+    if(!teoSDL_SoundFinishFrame())
         return;
-    printf("Got enough bytes !\n");
 
-    SDL_memset(stream, spec.silence, len);
+    play_buffer = sound_buffer;
+    play_buffer_size = sound_buffer_size;
 
-    SDL_MixAudio(stream, sound_buffer, sound_buffer_size, SDL_MIX_MAXVOLUME*0.8);
+    if(sdl_stream){
+        int available;
+        available = SDL_AudioStreamAvailable(sdl_stream);
+//        printf("Bytes available in the stream: %d, size of the buffer: %d\n",available, sound_buffer_size*10);
+//        Sleep(4000);
+        int gotten = SDL_AudioStreamGet(sdl_stream, sound_convert_buffer, sizeof(uint8_t)*available);
+        if (gotten == -1) {
+            printf("Uhoh, failed to get converted data: %s\n", SDL_GetError());
+ //           Sleep(40000);
+        }else{
+            play_buffer = sound_convert_buffer;
+            play_buffer_size = sizeof(uint8_t)*available;
+        }
+     }
+#if ENABLE_SOUND_RECORDER
+    if(dump_pcm){
+#ifdef PLATFORM_OGXBOX
+        if(output != INVALID_HANDLE_VALUE){
+            DWORD written;
+            WriteFile(output, play_buffer, play_buffer_size, &written, NULL);
+        }
+#else
+        if(output){
+            fwrite(play_buffer, sizeof(uint8_t), play_buffer_size, output);
+        }
 #endif
+    }
+#endif //ENABLE_SDL2_SOUND_RECORDER
+    SDL_QueueAudio(dev_id, play_buffer, play_buffer_size);
+//    SDL_QueueAudio(dev_id, sound_buffer, sound_buffer_size);
 }
 
 void teoSDL_SoundClear(void)
@@ -153,9 +199,10 @@ int next_pow2(int v)
     return v;
 }
 
+
 bool teoSDL_SoundInit(int freq)
 {
-    SDL_AudioSpec wanted_spec;
+    SDL_AudioSpec force_spec;
 
     if(!SDL_WasInit(SDL_INIT_AUDIO)){
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0){
@@ -164,24 +211,45 @@ bool teoSDL_SoundInit(int freq)
         }
     }
 
-    wanted_spec.freq = freq; 
-	wanted_spec.format = AUDIO_U8; 
-	wanted_spec.channels = 1; 
-	wanted_spec.samples = next_pow2(freq/TEO_FRAME_FREQ); 
-	wanted_spec.callback = NULL;
-//	wanted_spec.callback = teoSDL_SoundAudioCallback;
-    wanted_spec.userdata = NULL;
+    native_spec.freq = 44100; 
+	native_spec.format = AUDIO_U8; 
+	native_spec.channels = 1; 
+	native_spec.samples = next_pow2(freq/TEO_FRAME_FREQ); 
+	native_spec.callback = NULL;
+    native_spec.userdata = NULL;
 
-    int i;
-
-    for (i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
+    force_spec.freq = 48000; 
+	force_spec.format = AUDIO_S16; 
+	force_spec.channels = 2; 
+	force_spec.samples = 4096; 
+	force_spec.callback = NULL;
+    force_spec.userdata = NULL;
+ 
+    for(int i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
         printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
     }
 
 
+#ifdef PLATFORM_OGXBOX
+    spec.freq = 48000; 
+	spec.format = AUDIO_S16; 
+	spec.channels = 2; 
+	spec.samples = 4096; 
+	spec.callback = NULL;
+    spec.userdata = NULL;
 
-    dev_id = SDL_OpenAudioDevice(NULL, 0, &wanted_spec, &spec, 0);
-//    dev_id = SDL_OpenAudioDevice(NULL, 0, &wanted_spec, &spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    int rv;
+    rv = SDL_OpenAudio(&spec, NULL);
+    if(rv < 0){
+        debugPrint("Couldn't open audio\n");
+        Sleep(4000);
+    }
+    dev_id = 1; /* The device from SDL_OpenAudio() is always device #1. */
+#else
+//    dev_id = SDL_OpenAudioDevice(NULL, 0, &native_spec, &spec, 0);
+    dev_id = SDL_OpenAudioDevice(NULL, 0, &force_spec, NULL, 0);
+//    dev_id = SDL_OpenAudioDevice(NULL, 0, &native_spec, &spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+#endif
 
     if(!dev_id){
 		printf("ERROR: can't open audio. Error is: %s\n",SDL_GetError());
@@ -190,14 +258,34 @@ bool teoSDL_SoundInit(int freq)
     printf("dev_id is: %d\n", dev_id);
 
     printf("Asked:\n");
-    teoSDL_SoundDumpSpec(&wanted_spec);
+    teoSDL_SoundDumpSpec(&native_spec);
     printf("Got:\n");
     teoSDL_SoundDumpSpec(&spec);
 
+
     sound_freq = freq;
     sound_buffer_size = sound_freq/TEO_FRAME_FREQ;
-    sound_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
-    mix_buffer = malloc(sizeof(unsigned char)*sound_buffer_size);
+    sound_buffer = malloc(sizeof(uint8_t)*sound_buffer_size);
+    sound_convert_buffer = malloc(sizeof(uint8_t)*(sound_buffer_size*10));
+    printf("Sound buffer size is %d (bytes)\n",sizeof(uint8_t)*sound_buffer_size);
+
+#if 1 //Force converstion
+    spec.freq = 44100; 
+	spec.format = AUDIO_S16; 
+	spec.channels = 2; 
+	spec.samples = 4096; 
+	spec.callback = NULL;
+    spec.userdata = NULL;
+#endif
+
+
+//    sdl_stream = SDL_NewAudioStream(AUDIO_U8, 1, 44100, AUDIO_S16, 2, 48000);
+    if(!teoSDL_SoundSpecEquals(native_spec,spec)){
+        sdl_stream = SDL_NewAudioStream(
+            native_spec.format, native_spec.channels, native_spec.freq, 
+            spec.format, spec.channels,spec.freq
+        );
+    }
 
     teo_PutSoundByte=teoSDL_SoundPutByte;
     teo_SilenceSound=teoSDL_SoundSilence;
@@ -206,5 +294,40 @@ bool teoSDL_SoundInit(int freq)
     last_index = 0;
 
     SDL_PauseAudioDevice(dev_id, 0);
+#if ENABLE_SOUND_RECORDER
+    if(dump_pcm){
+#ifdef PLATFORM_OGXBOX
+        output = CreateFileA("D:\\xbox-dump.raw", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_FLAG_RANDOM_ACCESS, NULL);
+        if(output == INVALID_HANDLE_VALUE)
+            debugPrint("Couldn't open sound dump file !\n");
+        else
+            debugPrint("Successfuly opened sound dump file !\n");
+#else
+        output = fopen("pc-dump.raw","wb");
+        if(!output)
+            printf("Couldn't open sound dump file !\n");
+        else
+            printf("Successfuly opened sound dump file !\n");
+#endif
+    }
+#endif //ENABLE_SOUND_RECORDER
     return true;
+}
+
+void teoSDL_SoundShutdown(void)
+{
+    if(sdl_stream)
+     SDL_FreeAudioStream(sdl_stream);
+    if(dev_id){
+        SDL_PauseAudioDevice(dev_id, 1);
+    }
+    if(SDL_WasInit(SDL_INIT_AUDIO)){
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    }
+#if ENABLE_SOUND_RECORDER
+#ifdef PLATFORM_OGXBOX
+    if(output != INVALID_HANDLE_VALUE)
+        CloseHandle(output);
+#endif
+#endif //ENABLE_SOUND_RECORDER
 }

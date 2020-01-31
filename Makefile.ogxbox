@@ -22,7 +22,8 @@ SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
 #NXDK_DIR = /home/samuel/dev/xbox/nxdk
 NXDK_DIR = /home/samuel/dev/xbox/mine/nxdk
 NXDK_SDL = y
-DEBUG=y
+#DEBUG=y
+DEBUG=n
 
 CFLAGS += -I$(CURDIR)         \
           -I$(CURDIR)/include         \
@@ -33,18 +34,25 @@ CFLAGS += -I$(CURDIR)         \
 		  -DTEO_NO_BORDER \
 		  -DHAVE_CONFIG_H
 
-#CFLAGS += -O2 -funroll-loops -ffast-math
+CFLAGS += -O2 -funroll-loops -ffast-math
 
 
 all_local: cp_files all
 
 include $(NXDK_DIR)/Makefile
 
+config:
+	@diff config.h.ogxbox config.h && cp config.h.ogxbox config.h
+
 cp_files:
 	@mkdir -p $(OUTPUT_DIR)
 	cp -R data/system $(OUTPUT_DIR)/
 	cp -R /usr/share/games/teo/roms $(OUTPUT_DIR)/
-	cp -R data/sdl-keymap.ini $(OUTPUT_DIR)/
-	cp -R data/teo.ini $(OUTPUT_DIR)/
-	cp -R data/empty.hfe $(OUTPUT_DIR)/
-	cp -R data/keyboard.bmp $(OUTPUT_DIR)/
+	cp data/sdl-keymap.ini $(OUTPUT_DIR)/
+	cp data/teo.ini $(OUTPUT_DIR)/
+	cp data/empty.hfe $(OUTPUT_DIR)/
+	cp data/keyboard.bmp $(OUTPUT_DIR)/
+	cp data/led-on.bmp $(OUTPUT_DIR)/
+	cp data/led-off.bmp $(OUTPUT_DIR)/
+	cp /home/samuel/.local/teo/autosave.img $(OUTPUT_DIR)/
+	ln -sf /home/samuel/teo/github/teo/teo.iso /tmp/

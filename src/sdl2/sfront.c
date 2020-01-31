@@ -93,7 +93,7 @@ int sfront_startGfx(int windowed_mode, char *w_title)
 
     /* Initialise le son */
     if(sfront_features & FRONT_SOUND){
-        teoSDL_SoundInit(51200);
+        teoSDL_SoundInit(48000);
     }else{
         teo_SilenceSound = NULL;
         teo_PutSoundByte = NULL;
@@ -129,6 +129,7 @@ void sfront_Run(void)
     printf("%s: GOT TEO_COMMAND_QUIT\n", __FUNCTION__);
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
+    teoSDL_SoundShutdown();
 }
 
 void sfront_Shutdown()
@@ -154,7 +155,6 @@ static void sfront_RunTO8()
         }
     }
 #endif
-
     do{  /* Virtual TO8 running loop */
 #ifdef PLATFORM_OGXBOX
         last_frame = GetTickCount();
