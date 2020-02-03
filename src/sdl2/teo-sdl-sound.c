@@ -42,7 +42,7 @@ static SDL_AudioSpec spec;
 static SDL_AudioDeviceID dev_id = 0;
 static SDL_AudioStream *sdl_stream = NULL;
 
-
+#define ENABLE_SOUND_RECORDER 0
 #if ENABLE_SOUND_RECORDER
 #if PLATFORM_OGXBOX
 HANDLE output = INVALID_HANDLE_VALUE;
@@ -114,14 +114,9 @@ static void teoSDL_SoundPutByte(unsigned long long int clock, unsigned char data
  * Fills the buffer with the last put sound byte
  * to close the current frame.
  *
- * @returns: true if there is something to play
- * false otherwise
  */
-static bool teoSDL_SoundFinishFrame(void)
-
+static void teoSDL_SoundFinishFrame(void)
 {
-    if(!last_index) return false;
-
     /* Fill the buffer with the last pending byte set by the previous call to put_sound_byte*/
     memset (&sound_buffer[last_index], last_data, sound_buffer_size-last_index);
     if(sdl_stream){ //If sdl_stream exists, it means we need to do some resempling
@@ -131,9 +126,8 @@ static bool teoSDL_SoundFinishFrame(void)
         }
     }
     last_index=0;
-    
-    return true;
 }
+
 
 void teoSDL_SoundPlay(void)
 {
@@ -142,8 +136,7 @@ void teoSDL_SoundPlay(void)
     void *play_buffer;
     size_t play_buffer_size;
 
-    if(!teoSDL_SoundFinishFrame())
-        return;
+    teoSDL_SoundFinishFrame();
 
     play_buffer = sound_buffer;
     play_buffer_size = sound_buffer_size;
@@ -151,12 +144,9 @@ void teoSDL_SoundPlay(void)
     if(sdl_stream){
         int available;
         available = SDL_AudioStreamAvailable(sdl_stream);
-//        printf("Bytes available in the stream: %d, size of the buffer: %d\n",available, sound_buffer_size*10);
-//        Sleep(4000);
         int gotten = SDL_AudioStreamGet(sdl_stream, sound_convert_buffer, sizeof(uint8_t)*available);
         if (gotten == -1) {
             printf("Uhoh, failed to get converted data: %s\n", SDL_GetError());
- //           Sleep(40000);
         }else{
             play_buffer = sound_convert_buffer;
             play_buffer_size = sizeof(uint8_t)*available;
@@ -177,7 +167,6 @@ void teoSDL_SoundPlay(void)
     }
 #endif //ENABLE_SDL2_SOUND_RECORDER
     SDL_QueueAudio(dev_id, play_buffer, play_buffer_size);
-//    SDL_QueueAudio(dev_id, sound_buffer, sound_buffer_size);
 }
 
 void teoSDL_SoundClear(void)
@@ -218,13 +207,6 @@ bool teoSDL_SoundInit(int freq)
 	native_spec.callback = NULL;
     native_spec.userdata = NULL;
 
-    force_spec.freq = 48000; 
-	force_spec.format = AUDIO_S16; 
-	force_spec.channels = 2; 
-	force_spec.samples = 4096; 
-	force_spec.callback = NULL;
-    force_spec.userdata = NULL;
- 
     for(int i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
         printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
     }
@@ -246,9 +228,7 @@ bool teoSDL_SoundInit(int freq)
     }
     dev_id = 1; /* The device from SDL_OpenAudio() is always device #1. */
 #else
-//    dev_id = SDL_OpenAudioDevice(NULL, 0, &native_spec, &spec, 0);
-    dev_id = SDL_OpenAudioDevice(NULL, 0, &force_spec, NULL, 0);
-//    dev_id = SDL_OpenAudioDevice(NULL, 0, &native_spec, &spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    dev_id = SDL_OpenAudioDevice(NULL, 0, &native_spec, &spec, 0);
 #endif
 
     if(!dev_id){
@@ -264,23 +244,14 @@ bool teoSDL_SoundInit(int freq)
 
 
     sound_freq = freq;
+    /*One video frame / emulator loop worth of audio data, in samples*/
     sound_buffer_size = sound_freq/TEO_FRAME_FREQ;
     sound_buffer = malloc(sizeof(uint8_t)*sound_buffer_size);
     sound_convert_buffer = malloc(sizeof(uint8_t)*(sound_buffer_size*10));
     printf("Sound buffer size is %d (bytes)\n",sizeof(uint8_t)*sound_buffer_size);
 
-#if 1 //Force converstion
-    spec.freq = 44100; 
-	spec.format = AUDIO_S16; 
-	spec.channels = 2; 
-	spec.samples = 4096; 
-	spec.callback = NULL;
-    spec.userdata = NULL;
-#endif
-
-
-//    sdl_stream = SDL_NewAudioStream(AUDIO_U8, 1, 44100, AUDIO_S16, 2, 48000);
     if(!teoSDL_SoundSpecEquals(native_spec,spec)){
+        printf("Will convert from sound stream !\n");
         sdl_stream = SDL_NewAudioStream(
             native_spec.format, native_spec.channels, native_spec.freq, 
             spec.format, spec.channels,spec.freq
