@@ -93,7 +93,8 @@ int sfront_startGfx(int windowed_mode, char *w_title)
 
     /* Initialise le son */
     if(sfront_features & FRONT_SOUND){
-        teoSDL_SoundInit(48000);
+        /*Dare to lower me and I'll start cracking*/
+        teoSDL_SoundInit(48000); 
     }else{
         teo_SilenceSound = NULL;
         teo_PutSoundByte = NULL;
@@ -188,25 +189,10 @@ static void sfront_RunTO8()
 
                     Uint32 qlen = 0;
                     qlen = SDL_GetQueuedAudioSize(2);
-#if 0
-                    Uint32 dt,frame_duration; /*milliseconds*/
-                    double n_frames = 0.0;
-                    dt = SDL_GetTicks() - last_frame;
-
-                    n_frames = qlen*1.0/960; /*960 samples for one frame*/
-                    if(n_frames > 1){
-                        Uint32 sleep = round(n_frames*USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME));
-                        sleep -= USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
-        //                printf("Frames on stack: %0.4f, dt: %d, Sleep: %d\n",n_frames,dt, sleep);
-                        SDL_Delay(sleep);
-                    }
-#else
                     do{
                         qlen = SDL_GetQueuedAudioSize(2);
+                        SDL_Delay(USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME)/10); //Go easy on the CPU
                     }while(qlen > 960);
-#endif
-
-
                 }
             }else{
 #ifdef PLATFORM_OGXBOX
@@ -214,13 +200,13 @@ static void sfront_RunTO8()
                 dt = GetTickCount() - last_frame;
                 frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
                 if(dt < frame_duration)
-                    Sleep(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+                    Sleep(frame_duration-dt); 
 #else
                 Uint32 dt,frame_duration; /*milliseconds*/
                 dt = SDL_GetTicks() - last_frame;
                 frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
                 if(dt < frame_duration)
-                    SDL_Delay(frame_duration-dt); /*Seems to work but a better understanding of all of this timing stuff won't hurt*/
+                    SDL_Delay(frame_duration-dt);
 #endif
             }
         }

@@ -191,7 +191,6 @@ int next_pow2(int v)
 
 bool teoSDL_SoundInit(int freq)
 {
-    SDL_AudioSpec force_spec;
 
     if(!SDL_WasInit(SDL_INIT_AUDIO)){
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0){
@@ -200,7 +199,7 @@ bool teoSDL_SoundInit(int freq)
         }
     }
 
-    native_spec.freq = 44100; 
+    native_spec.freq = freq;
 	native_spec.format = AUDIO_U8; 
 	native_spec.channels = 1; 
 	native_spec.samples = next_pow2(freq/TEO_FRAME_FREQ); 
