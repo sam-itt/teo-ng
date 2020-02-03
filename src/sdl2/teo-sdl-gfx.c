@@ -68,6 +68,9 @@ const extern int SCREEN_HEIGHT;
 /* parametres d'affichage */
 struct SCREEN_PARAMS
 {
+    /*Virtual TO8 screen final rendered dimensions (size of the SDL_Surface)
+     * Must be a multiple of TEO_WINDOW_W and TEO_WINDOW_H (respectively)
+     * */
     int screen_w;
     int screen_h;
     int border_w;
@@ -76,6 +79,9 @@ struct SCREEN_PARAMS
     int screen_ch;
     int border_cw;
     int border_ch;
+
+    int gpl_size;
+    int scale_factor;
 };
 
 static const struct SCREEN_PARAMS tcol1={ TEO_WINDOW_W*2,
@@ -85,7 +91,10 @@ static const struct SCREEN_PARAMS tcol1={ TEO_WINDOW_W*2,
                                           TEO_WINDOW_CW,
                                           TEO_WINDOW_CH,
                                           0,
-                                          0 },  /* sans pourtour */
+                                          0,
+                                          TEO_GPL_SIZE*2,
+                                          2,
+                                         },  /* sans pourtour */
 
                                   tcol2={ TEO_SCREEN_W*2,
                                           TEO_SCREEN_H*2,
@@ -94,7 +103,37 @@ static const struct SCREEN_PARAMS tcol1={ TEO_WINDOW_W*2,
                                           TEO_SCREEN_CW,
                                           TEO_SCREEN_CH,
                                           TEO_BORDER_CW,
-                                          TEO_BORDER_CH };  /* avec pourtour */
+                                          TEO_BORDER_CH,
+                                          TEO_GPL_SIZE*2,
+                                          2,
+                                  };  /* avec pourtour */
+
+
+static const struct SCREEN_PARAMS tcol3 ={ /*Without border*/
+    TEO_WINDOW_W*1,
+    TEO_WINDOW_H*1,
+    0,
+    0,
+    TEO_WINDOW_CW,
+    TEO_WINDOW_CH,
+    0,
+    0,
+    TEO_GPL_SIZE*1,
+    1,
+};
+
+static const struct SCREEN_PARAMS tcol4 ={ /*Without*/
+    TEO_WINDOW_W*3,
+    TEO_WINDOW_H*3,
+    TEO_BORDER_W*3,
+    TEO_BORDER_H*3,
+    TEO_WINDOW_CW,
+    TEO_WINDOW_CH,
+    TEO_BORDER_CW,
+    TEO_BORDER_CH,
+    TEO_GPL_SIZE*3,
+    3,
+};
 
 
 int *lookupX1=NULL;
@@ -126,8 +165,8 @@ void teoSDL_GfxResizeLookup(int x,int y) {
     }
     lookupY2=(int*)malloc(sizeof(int)*y);
 
-    x_fact=(double)x/(double)(TEO_SCREEN_W*2);
-    y_fact=(double)y/(double)(TEO_SCREEN_H*2);
+    x_fact=(double)x/(double)(tcol->screen_w);
+    y_fact=(double)y/(double)(tcol->screen_h);
 
     for (x_dest=0;x_dest<x;x_dest++) {
 	lookupX1[x_dest]=(int)(x_fact*(double)x_dest+0.5);
@@ -190,13 +229,13 @@ static void teoSDL_GfxSetBorderColor(int mode, int color)
         border_color = TEO_NCOLORS;  /* couleur fixe de l'ecran de la palette */
 
         rects[0] = RECT(tcol2.border_w, 0, tcol2.screen_w-tcol2.border_w-1, tcol2.border_h-1);
-        rects[1] = RECT(0, 0, tcol2.border_w-1, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2-1);
-        rects[2] = RECT(tcol2.screen_w-tcol2.border_w, 0, tcol2.screen_w-1, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2-1);
+        rects[1] = RECT(0, 0, tcol2.border_w-1, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*tcol->scale_factor-1);
+        rects[2] = RECT(tcol2.screen_w-tcol2.border_w, 0, tcol2.screen_w-1, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*tcol->scale_factor-1);
         SDL_FillRects(screen_buffer, rects, 3, palette[border_color]);
 
         border_color = color;
-        rects[0] = RECT(0, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2, tcol2.border_w-1, tcol2.screen_h-1);
-        rects[1] = RECT(tcol2.screen_w-tcol2.border_w, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*2, tcol2.screen_w-1, tcol2.screen_h-1);
+        rects[0] = RECT(0, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*tcol->scale_factor, tcol2.border_w-1, tcol2.screen_h-1);
+        rects[1] = RECT(tcol2.screen_w-tcol2.border_w, tcol2.border_h+(TEO_PALETTE_ADDR/TEO_WINDOW_GW)*tcol->scale_factor, tcol2.screen_w-1, tcol2.screen_h-1);
         rects[2] = RECT(tcol2.border_w, tcol2.screen_h-tcol2.border_h, tcol2.screen_w-tcol2.border_w-1, tcol2.screen_h-1);
         SDL_FillRects(screen_buffer, rects, 3, palette[border_color]);
     }
@@ -307,7 +346,7 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
  */
 static inline int gpl_need_update(const Uint8 *gpl1, const Uint8 *gpl2)
 {
-    register int i = TEO_GPL_SIZE*2*pixel_size;
+    register int i = tcol->gpl_size * pixel_size;
 
     while (i--)
         if (*gpl1++ != *gpl2++)
@@ -317,17 +356,26 @@ static inline int gpl_need_update(const Uint8 *gpl1, const Uint8 *gpl2)
 }
 
 
+static void inline putXPixel(int n_pixels, int idx, Uint32 color)
+{
+    register int j;
+    n_pixels *= tcol->scale_factor;
+    for(j = 0; j < n_pixels; j++)
+        putpixel(gpl_buffer, n_pixels*idx+j,   0, color);
+}
+
 
 /* DrawGPL:
  *  Affiche un Groupe Point Ligne (un octet de VRAM).
  */
 static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
 {
-    register int i;
+    register int i,j;
     unsigned int x, y;
     Uint32 c1,c2;
     int *dirty_cell_row;
     unsigned char *gpl_src, *gpl_dest;
+    int offset;
 
     SDL_LockSurface(gpl_buffer);
 
@@ -339,7 +387,7 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
             for (i=0; i<8; i++)
             {
                 c1 = palette[((pt>>(7-i))&2)+((col>>(7-i))&1)];
-                PUT2PIXEL(i, c1);
+                putXPixel(1, i, c1);
             }
             break;
 
@@ -347,7 +395,7 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
             for (i=0; i<8; i++)
             {
                 c1 = palette[(0x80>>i)&pt ? 1 : 0];
-                PUT2PIXEL(i, c1);
+                putXPixel(1, i, c1);
             }
             break;
 
@@ -355,7 +403,7 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
             for (i=0; i<8; i++)
             {
                 c1 = palette[(0x80>>i)&pt ? 2 : 0];
-                PUT2PIXEL(i, c1);
+                putXPixel(1, i, c1);
             }
             break;
 
@@ -363,16 +411,17 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
             for (i=0; i<8; i++)
             {
                 c1= palette[(0x80>>i)&pt ? 1 : ((0x80>>i)&col ? 2 : 0)];
-                PUT2PIXEL(i, c1);
+                putXPixel(1, i, c1);
             }
             break;
 
         case TEO_COL80: /* mode 80 colonnes */
-            for (i=0; i<8; i++)
+            offset = 4*tcol->scale_factor;
+            for (i=0; i <offset; i++)
             {
                 putpixel(gpl_buffer, i,   0, palette[(0x80>>i)&pt  ? 1 : 0]);
-                putpixel(gpl_buffer, i+8, 0, palette[(0x80>>i)&col ? 1 : 0]);
-            }   
+                putpixel(gpl_buffer, i+offset, 0, palette[(0x80>>i)&col ? 1 : 0]);
+            }
             break;
 
         case TEO_STACK4: /* mode superposition 4 pages */
@@ -383,7 +432,7 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
                                            ((0x08>>i)&pt  ? 2 :
                                            ((0x80>>i)&col ? 3 :
                                            ((0x08>>i)&col ? 4 : 0)))];
-                PUT4PIXEL(i, c1);
+                putXPixel(2, i, c1);
             }
             break;
 
@@ -391,26 +440,26 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
             for (i=0; i<4; i++)
             {
                 c1 = palette[((pt>>(6-(i<<1)))&3)];
-                PUT2PIXEL(i, c1);
+                putXPixel(1, i, c1);
 
                 c2 = palette[((col>>(6-(i<<1)))&3)];
-                PUT2PIXEL(i+4, c2);
+                putXPixel(1, i+4, c2);
             }
             break;
 
         case TEO_BITMAP16: /* mode bitmap 16 couleurs */
             /* on modifie les pixels 4 par 4 */
             c1 = palette[(pt&0xF0)>>4];
-            PUT4PIXEL(0, c1);
+            putXPixel(2, 0, c1);
 
             c1 = palette[pt&0xF];
-            PUT4PIXEL(1, c1);
+            putXPixel(2, 1, c1);
 
             c1 = palette[(col&0xF0)>>4];
-            PUT4PIXEL(2, c1);
+            putXPixel(2, 2, c1);
 
             c1 = palette[col&0xF];
-            PUT4PIXEL(3, c1);
+            putXPixel(2, 3, c1);
             break;
 
         case TEO_PALETTE: /* mode écran de la palette */
@@ -430,7 +479,7 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
                 for (i=0; i<8; i++)
                 {
                     col = (0x80>>i)&pt ? c1 : c2;
-                    PUT2PIXEL(i, col);
+                    putXPixel(1, i, col);
                 }
                 break;
             }
@@ -440,16 +489,16 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
         default:
             c1 = palette[((col>>3)&7)+(((~col)&0x40)>>3)];
             c2 = palette[(col&7)+(((~col)&0x80)>>4)];
- 
+
             for (i=0; i<8; i++)
             {
                 col = (0x80>>i)&pt ? c1 : c2;
-                PUT2PIXEL(i, col);
+                putXPixel(1, i, col);
             }
     } /* end of switch */
 
-    x = tcol->border_w + (addr%TEO_WINDOW_GW)*TEO_GPL_SIZE*2;
-    y = tcol->border_h + (addr/TEO_WINDOW_GW)*2;
+    x = tcol->border_w + (addr%TEO_WINDOW_GW)*tcol->gpl_size;
+    y = tcol->border_h + (addr/TEO_WINDOW_GW)*tcol->scale_factor;
 
     SDL_LockSurface(screen_buffer);
 
@@ -458,10 +507,10 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
     if (gpl_need_update(gpl_src, gpl_dest))
     {
         /* duplication des pixels */
-        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE*2*pixel_size);
+        memcpy(gpl_dest, gpl_src, tcol->gpl_size*pixel_size);
 //        gpl_dest = (Uint8 *)screen_buffer->pixels + ((y+1) * screen_buffer->pitch) + (x * screen_buffer->format->BytesPerPixel);
         gpl_dest +=  screen_buffer->pitch;
-        memcpy(gpl_dest, gpl_src, TEO_GPL_SIZE*2*pixel_size);
+        memcpy(gpl_dest, gpl_src, tcol->gpl_size*pixel_size);
 
         /* dirty rectangles */
         x = tcol->border_cw + (addr%TEO_WINDOW_CW);
@@ -487,9 +536,9 @@ static void teoSDL_GfxDrawBorderLine(int col, int line)
 
     if (col&TEO_LEFT_BORDER)
     {
-        if (getpixel(screen_buffer, 0, line*2) != palette[border_color])
+        if (getpixel(screen_buffer, 0, line*tcol->scale_factor) != palette[border_color])
         {
-            rect = RECT(0, line*2, tcol2.border_w-1, line*2+1);
+            rect = RECT(0, line*tcol->scale_factor, tcol2.border_w-1, line*tcol->scale_factor+1);
             SDL_FillRect(screen_buffer, &rect, palette[border_color]);
         
             dirty_cell_row[0] = 1;
@@ -498,18 +547,18 @@ static void teoSDL_GfxDrawBorderLine(int col, int line)
     } 
     else if (col&TEO_RIGHT_BORDER)
     {
-        if (getpixel(screen_buffer, tcol2.screen_w-1, line*2) != palette[border_color])
+        if (getpixel(screen_buffer, tcol2.screen_w-1, line*tcol->scale_factor) != palette[border_color])
         {
-            rect = RECT(tcol2.screen_w-tcol2.border_w, line*2 , tcol2.screen_w-1, line*2+1);
+            rect = RECT(tcol2.screen_w-tcol2.border_w, line*tcol->scale_factor , tcol2.screen_w-1, line*tcol->scale_factor+1);
             SDL_FillRect(screen_buffer, &rect, palette[border_color]);
 
             dirty_cell_row[tcol2.screen_cw-tcol2.border_cw]   = 1;
             dirty_cell_row[tcol2.screen_cw-tcol2.border_cw+1] = 1;
         } 
     }
-    else if (getpixel(screen_buffer, tcol2.border_w+col*TEO_GPL_SIZE*2, line*2) != palette[border_color])
+    else if (getpixel(screen_buffer, tcol2.border_w+col*tcol->gpl_size, line*tcol->scale_factor) != palette[border_color])
     {
-        rect = RECT(tcol2.border_w+col*TEO_GPL_SIZE*2, line*2, tcol2.border_w+(col+1)*TEO_GPL_SIZE*2-1, line*2+1);
+        rect = RECT(tcol2.border_w+col*tcol->gpl_size, line*tcol->scale_factor, tcol2.border_w+(col+1)*tcol->gpl_size-1, line*tcol->scale_factor+1);
         SDL_FillRect(screen_buffer, &rect, palette[border_color]);
         
         dirty_cell_row[tcol2.border_cw+col] = 1;
@@ -560,8 +609,10 @@ void teoSDL_GfxRefreshScreen(void)
     int blend_done = 0;
 
     SDL_Rect area;
-//    teoSDL_GfxRetraceWholeScreen();
-//    return;
+#if 0
+    teoSDL_GfxRetraceWholeScreen();
+    return;
+#endif
 
 
 //    if (!graphic_mode)
@@ -590,7 +641,9 @@ void teoSDL_GfxRefreshScreen(void)
                     while ((i<tcol->screen_cw) && dirty_cell_row[i])
                         dirty_cell_row[i++]<<=2;
                     
-                    area = (SDL_Rect){cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2, (i-cell_start)*TEO_CHAR_SIZE*2, TEO_CHAR_SIZE*2};
+                    area = (SDL_Rect){cell_start*TEO_CHAR_SIZE*tcol->scale_factor,
+                                      j*TEO_CHAR_SIZE*tcol->scale_factor,
+                                      (i-cell_start)*TEO_CHAR_SIZE*tcol->scale_factor, TEO_CHAR_SIZE*tcol->scale_factor};
 
                     SDL_BlitSurface(interlace_buffer, &area, screenSurface, &area);
                     /*blit(interlace_buffer, screen,
@@ -616,8 +669,8 @@ void teoSDL_GfxRefreshScreen(void)
                     while ((i<tcol->screen_cw) && dirty_cell_row[i])
                         dirty_cell_row[i++]=0;
 
-                    teo_sdl_RetraceScreen(cell_start*TEO_CHAR_SIZE*2, j*TEO_CHAR_SIZE*2,
-                                         (i-cell_start)*TEO_CHAR_SIZE*2, TEO_CHAR_SIZE*2);
+                    teo_sdl_RetraceScreen(cell_start*TEO_CHAR_SIZE*tcol->scale_factor, j*TEO_CHAR_SIZE*tcol->scale_factor,
+                                         (i-cell_start)*TEO_CHAR_SIZE*tcol->scale_factor, TEO_CHAR_SIZE*tcol->scale_factor);
                 }
 
             /* ligne suivante */
@@ -763,10 +816,10 @@ void teoSDL_GfxReset()
     printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
  
     scaledBlit = 0;
-    if( screenSurface->w != (TEO_SCREEN_W*2) || screenSurface->h != (TEO_SCREEN_H*2)){
+    if( screenSurface->w != (TEO_SCREEN_W*tcol->scale_factor) || screenSurface->h != (TEO_SCREEN_H*tcol->scale_factor)){
         scaledBlit = 1;
-        scaleXFactor = (screenSurface->w*1.0)/(TEO_SCREEN_W*2);
-        scaleYFactor = (screenSurface->h*1.0)/(TEO_SCREEN_H*2);
+        scaleXFactor = (screenSurface->w*1.0)/(TEO_SCREEN_W*tcol->scale_factor);
+        scaleYFactor = (screenSurface->h*1.0)/(TEO_SCREEN_H*tcol->scale_factor);
         printf("Scaling. Using factors: X=%0.2f and Y=%0.2f\n",scaleXFactor,scaleYFactor);
 
         teoSDL_GfxResizeLookup(screenSurface->w, screenSurface->h);
@@ -778,9 +831,32 @@ void teoSDL_GfxReset()
 
 }
 
+static void teoSDL_InitScreenParams(void)
+{
+#if 0
+    int border_support = 1;
+
+    if (border_support)
+        tcol = &tcol2;
+    else
+    {
+        tcol = &tcol1;
+        //tcol_driver.DrawBorderLine = NULL;
+        //tcol_driver.SetBorderColor = NULL;
+    }
+#else
+    tcol = &tcol3;
+#endif
+}
+
+
 
 SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
 {
+    /*TODO: Better coop between Init and GfxWindow, code below is duplicated*/
+    teoSDL_InitScreenParams();
+
+
 #ifdef PLATFORM_OGXBOX
     VIDEO_MODE vparams;
 
@@ -810,7 +886,8 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
         printSDLErrorAndReboot();
     }
 //    XReboot();
-    debugPrint("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H}*2 are: (%d, %d)\n",SCREEN_WIDTH, SCREEN_HEIGHT, TEO_SCREEN_W*2,TEO_SCREEN_H*2);
+    debugPrint("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H}*tcol->scale_factor are: (%d, %d)\n",
+               SCREEN_WIDTH, SCREEN_HEIGHT, TEO_SCREEN_W*tcol->scale_factor,TEO_SCREEN_H*tcol->scale_factor);
 //    Sleep(4000);
 #else
     Uint32 flags;
@@ -822,14 +899,15 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     window = SDL_CreateWindow(
                 w_title,
                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                TEO_SCREEN_W*2, TEO_SCREEN_H*2,
+                TEO_SCREEN_W*tcol->scale_factor, TEO_SCREEN_H*tcol->scale_factor,
                 flags
                 );
     if (window == NULL){
         fprintf(stderr, "could not create window: %s\n", SDL_GetError());
         return NULL;
     }
-    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",TEO_SCREEN_W*2,TEO_SCREEN_H*2,TEO_SCREEN_W,TEO_SCREEN_H);
+    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",
+           TEO_SCREEN_W*tcol->scale_factor,TEO_SCREEN_H*tcol->scale_factor,TEO_SCREEN_W,TEO_SCREEN_H);
 #endif
 
     screenSurface = SDL_GetWindowSurface(window);
@@ -865,21 +943,12 @@ SDL_Window *teoSDL_GfxGetWindow()
  */
 void teoSDL_GfxInit()
 {
-    int border_support = 1;
 
-    if (border_support)
-        tcol = &tcol2;
-    else
-    {
-        tcol = &tcol1;
-        //tcol_driver.DrawBorderLine = NULL; 
-        //tcol_driver.SetBorderColor = NULL;
-    }
-
+    teoSDL_InitScreenParams();
 
 
     /*TODO: Experiment with 24-bits surfaces*/
-    gpl_buffer = SDL_CreateRGBSurfaceWithFormat(0, TEO_GPL_SIZE*2, 1, 24, SDL_PIXELFORMAT_RGBA8888);
+    gpl_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->gpl_size, 1, 24, SDL_PIXELFORMAT_RGBA8888);
     screen_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->screen_w, tcol->screen_h, 24, SDL_PIXELFORMAT_RGBA8888);
     SDL_FillRect(screen_buffer, NULL, 0x00000000);
     interlace_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->screen_w, tcol->screen_h, 24, SDL_PIXELFORMAT_RGBA8888);
