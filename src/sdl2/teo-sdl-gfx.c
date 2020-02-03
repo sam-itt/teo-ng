@@ -126,8 +126,8 @@ void teoSDL_GfxResizeLookup(int x,int y) {
     }
     lookupY2=(int*)malloc(sizeof(int)*y);
 
-    x_fact=(double)x/(double)(TEO_SCREEN_W*2);
-    y_fact=(double)y/(double)(TEO_SCREEN_H*2);
+    x_fact=(double)x/(double)(tcol->screen_w);
+    y_fact=(double)y/(double)(tcol->screen_h);
 
     for (x_dest=0;x_dest<x;x_dest++) {
 	lookupX1[x_dest]=(int)(x_fact*(double)x_dest+0.5);
@@ -763,10 +763,10 @@ void teoSDL_GfxReset()
     printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
  
     scaledBlit = 0;
-    if( screenSurface->w != (TEO_SCREEN_W*2) || screenSurface->h != (TEO_SCREEN_H*2)){
+    if( screenSurface->w != tcol->screen_w || screenSurface->h != tcol->screen_h){
         scaledBlit = 1;
-        scaleXFactor = (screenSurface->w*1.0)/(TEO_SCREEN_W*2);
-        scaleYFactor = (screenSurface->h*1.0)/(TEO_SCREEN_H*2);
+        scaleXFactor = (screenSurface->w*1.0)/(tcol->screen_w);
+        scaleYFactor = (screenSurface->h*1.0)/(tcol->screen_h);
         printf("Scaling. Using factors: X=%0.2f and Y=%0.2f\n",scaleXFactor,scaleYFactor);
 
         teoSDL_GfxResizeLookup(screenSurface->w, screenSurface->h);
@@ -779,8 +779,23 @@ void teoSDL_GfxReset()
 }
 
 
+static void teoSDL_InitScreenParams(void)
+{
+    int border_support = 0;
+
+    if (border_support){
+        tcol = &tcol2;
+    }else{
+        tcol = &tcol1;
+//        teo_DrawBorderLine = NULL;
+//        teo_SetBorderColor = NULL;
+    }
+}
+
+
 SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
 {
+    teoSDL_InitScreenParams();
 #ifdef PLATFORM_OGXBOX
     VIDEO_MODE vparams;
 
@@ -822,14 +837,14 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
     window = SDL_CreateWindow(
                 w_title,
                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                TEO_SCREEN_W*2, TEO_SCREEN_H*2,
+                tcol->screen_w, tcol->screen_h,
                 flags
                 );
     if (window == NULL){
         fprintf(stderr, "could not create window: %s\n", SDL_GetError());
         return NULL;
     }
-    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",TEO_SCREEN_W*2,TEO_SCREEN_H*2,TEO_SCREEN_W,TEO_SCREEN_H);
+    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",tcol->screen_w,tcol->screen_h,TEO_SCREEN_W,TEO_SCREEN_H);
 #endif
 
     screenSurface = SDL_GetWindowSurface(window);
@@ -865,17 +880,7 @@ SDL_Window *teoSDL_GfxGetWindow()
  */
 void teoSDL_GfxInit()
 {
-    int border_support = 1;
-
-    if (border_support)
-        tcol = &tcol2;
-    else
-    {
-        tcol = &tcol1;
-        //tcol_driver.DrawBorderLine = NULL; 
-        //tcol_driver.SetBorderColor = NULL;
-    }
-
+    teoSDL_InitScreenParams();
 
 
     /*TODO: Experiment with 24-bits surfaces*/
