@@ -185,16 +185,7 @@ static void sfront_RunTO8()
         {
             if (teo.setting.sound_enabled){
                 if((sfront_features & FRONT_SOUND)){
-                    teoSDL_SoundPlay();
-
-                    Uint32 qlen = 0;
-                    qlen = SDL_GetQueuedAudioSize(2);
-                    do{
-                        qlen = SDL_GetQueuedAudioSize(2);
-#if ENABLE_HALF_POLL
-                        SDL_Delay(USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME)/10); //Go easy on the CPU
-#endif
-                    }while(qlen > 960);
+                    teoSDL_SoundPlay(); /*Also does sync*/
                 }
             }else{
 #ifdef PLATFORM_OGXBOX

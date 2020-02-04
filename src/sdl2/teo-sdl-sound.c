@@ -129,6 +129,18 @@ static void teoSDL_SoundFinishFrame(void)
 }
 
 
+static void teoSDL_SoundSync(void)
+{
+    Uint32 qlen = 0;
+    qlen = SDL_GetQueuedAudioSize(dev_id);
+    do{
+        qlen = SDL_GetQueuedAudioSize(dev_id);
+#if ENABLE_HALF_POLL
+        SDL_Delay(USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME)/10); //Go easy on the CPU
+#endif
+    }while(qlen > 960);
+}
+
 void teoSDL_SoundPlay(void)
 {
     SDL_assert(dev_id != 0);
@@ -166,6 +178,7 @@ void teoSDL_SoundPlay(void)
 #endif
     }
 #endif //ENABLE_SDL2_SOUND_RECORDER
+    teoSDL_SoundSync();
     SDL_QueueAudio(dev_id, play_buffer, play_buffer_size);
 }
 
