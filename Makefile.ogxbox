@@ -42,7 +42,7 @@ all_local: cp_files all
 include $(NXDK_DIR)/Makefile
 
 config:
-	@diff config.h.ogxbox config.h && cp config.h.ogxbox config.h
+	cp config.h.ogxbox config.h
 
 cp_files:
 	@mkdir -p $(OUTPUT_DIR)
