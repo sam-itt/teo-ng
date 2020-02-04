@@ -152,7 +152,7 @@ static SDL_Surface *kbdBuffer;
 static SDL_Rect dst;
 static Uint32 box_color;
 static SDL_Surface *screenSurface;
-
+static bool is_dirty;
 
 static void teoSDL_VKbdPressKey(bool release);
 static int teoSDL_VKbdKeyRowSize(int row);
@@ -211,6 +211,7 @@ static void teoSDL_VKbdPressKey(bool release)
             keyboard_Press_ng(current_key->tokey, 0);
         }
    }
+   is_dirty = true;
 }
 
 
@@ -359,6 +360,7 @@ void teoSDL_VKbdInit(void)
         printf("Error: %s\n",SDL_GetError());
         exit(-1);
     }
+    is_dirty = true;
 }
 
 void teoSDL_VKbdShutdown(void)
@@ -380,6 +382,7 @@ void teoSDL_VKbdSetScreen(SDL_Surface *screen)
     dst.h=kbdSurface->h;
 
     box_color = SDL_MapRGB(screenSurface->format, 0xFF, 0x00, 0x00);
+    is_dirty = true;
 }
 
 void teoSDL_VKbdSetWindow(SDL_Window *win)
@@ -389,10 +392,19 @@ void teoSDL_VKbdSetWindow(SDL_Window *win)
     teoSDL_VKbdSetScreen(SDL_GetWindowSurface(win));
 }
 
+void teoSDL_VKbdNotifyVisibility(bool visible)
+{
+    if(visible)
+        is_dirty = true;
+}
+
 
 void teoSDL_VKbdUpdate(void)
 {
     SDL_Rect *box;
+
+    if((vx == 0 && vy == 0) && is_dirty == false)
+        return;
 
     col += vx;
     row += vy;
@@ -419,6 +431,7 @@ void teoSDL_VKbdUpdate(void)
         SDL_FillRect(kbdBuffer, &caps_led, box_color);
 
     SDL_BlitScaled(kbdBuffer, NULL, screenSurface, &dst);
+    is_dirty = false;
 }
 
 #if 0

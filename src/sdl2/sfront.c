@@ -345,6 +345,7 @@ static void sfront_JoystickEventHandler(SDL_Event *generic_event)
             sfront_show_vkbd = !sfront_show_vkbd;
             if(!sfront_show_vkbd)
                 teoSDL_GfxRetraceWholeScreen();
+            teoSDL_VKbdNotifyVisibility(sfront_show_vkbd);
             return;
         }
     }
