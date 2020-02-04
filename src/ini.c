@@ -313,7 +313,7 @@ void ini_Save (void)
     fpath = std_getUserConfigDir();
     if(fpath){
         std_Debug("%s: Got user config dir: %s\n", __FUNCTION__, fpath);
-        user_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
+        user_file = std_PathAppend(fpath, INI_FILE_NAME);
         fpath = std_free(fpath);
     }
     
@@ -321,7 +321,7 @@ void ini_Save (void)
     fpath = std_getSystemConfigDir();
     if(fpath){
         std_Debug("%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
-        sys_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
+        sys_file = std_PathAppend(fpath, INI_FILE_NAME);
         fpath = std_free(fpath);
     }
 
