@@ -781,7 +781,7 @@ void teoSDL_GfxReset()
 
 static void teoSDL_InitScreenParams(void)
 {
-    int border_support = 0;
+    int border_support = 1;
 
     if (border_support){
         tcol = &tcol2;

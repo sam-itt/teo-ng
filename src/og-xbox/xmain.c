@@ -79,8 +79,6 @@
 #include "sdl2/sfront.h"
 #include "to8dbg.h"
 
-#include "og-xbox/xsound.h"
-
 #include "logsys.h"
 struct EMUTEO teo;
 
@@ -409,7 +407,6 @@ int main(void)
 #else
     is_fr = 0;
 #endif
-    log_open("error.log");
     BOOL rv;
 
     rv = XVideoSetMode(720, 480, 32, REFRESH_DEFAULT);
@@ -481,22 +478,16 @@ int main(void)
     /* initialisation de l'interface utilisateur Allegro et du debogueur */
     teo_DebugBreakPoint = NULL;
 
-    teo.setting.sound_enabled = 1;
     /* et c'est parti !!! */
     sfront_Run();
 
-    log_msgf(TRACE, "Run finished, about to save state\n");
     /* Sauvegarde de l'etat de l'emulateur */
     ini_Save();
-    log_msgf(TRACE, "Saved ini\n");
     image_Save ("autosave.img");
-    log_msgf(TRACE, "Saved memdump\n");
 
     sfront_Shutdown();
-   // xsound_Shutdown();
     printf(is_fr?"A bientot !\n":"Goodbye !\n");
 
-    log_close();
 
     exit(EXIT_SUCCESS);
 }
