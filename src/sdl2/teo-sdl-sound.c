@@ -37,7 +37,7 @@ static unsigned char *sound_buffer;
 static unsigned char last_data;
 static int last_index;
 
-#define BUFFER_NFRAMES 1
+#define BUFFER_NFRAMES 10
 static unsigned char *frame_holder[BUFFER_NFRAMES];
 int frames_ahead = 0;
 bool need_buffer = true;
@@ -127,8 +127,9 @@ static void teoSDL_SoundFinishFrame(void)
 static void teoSDL_SoundSync(void)
 {
 #if 1 
-    while(SDL_GetQueuedAudioSize(dev_id) > 960 * BUFFER_NFRAMES)
+    while(SDL_GetQueuedAudioSize(dev_id) > 960 * (BUFFER_NFRAMES+1))
         ;
+//    printf("%d\n", SDL_GetQueuedAudioSize(dev_id));
 #else
     Uint32 qlen = 0;
 //    qlen = SDL_GetQueuedAudioSize(dev_id);
@@ -272,6 +273,7 @@ bool teoSDL_SoundInit(int freq)
     for(int i = 0; i < BUFFER_NFRAMES; i++)
         frame_holder[i] = malloc(sizeof(uint8_t)*sound_buffer_size);
     frames_ahead = 0;
+    need_buffer = BUFFER_NFRAMES ? true : false;
 
     teo_PutSoundByte=teoSDL_SoundPutByte;
     teo_SilenceSound=teoSDL_SoundSilence;
