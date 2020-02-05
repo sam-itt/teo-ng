@@ -34,10 +34,13 @@
 static int sound_freq;
 static int sound_buffer_size;
 static unsigned char *sound_buffer;
-static unsigned char *sound_convert_buffer;
 static unsigned char last_data;
 static int last_index;
 
+#define BUFFER_NFRAMES 1
+static unsigned char *frame_holder[BUFFER_NFRAMES];
+int frames_ahead = 0;
+bool need_buffer = true;
 
 SDL_AudioSpec native_spec;
 static SDL_AudioSpec spec;
@@ -47,10 +50,13 @@ static SDL_AudioDeviceID dev_id = 0;
 #if ENABLE_SOUND_RECORDER
 #if PLATFORM_OGXBOX
 HANDLE output = INVALID_HANDLE_VALUE;
+HANDLE time_output = INVALID_HANDLE_VALUE;
 #else
 FILE *output = NULL;
+FILE *time_output = NULL;
 #endif //PLATFORM_OGXBOX
-static bool dump_pcm = true;
+static bool dump_pcm = false;
+static bool dump_timing = true;
 #endif //ENABLE_SOUND_RECORDER
 
 static void teoSDL_SoundDumpSpec(SDL_AudioSpec *spec)
@@ -120,14 +126,21 @@ static void teoSDL_SoundFinishFrame(void)
 
 static void teoSDL_SoundSync(void)
 {
+#if 1 
+    while(SDL_GetQueuedAudioSize(dev_id) > 960 * BUFFER_NFRAMES)
+        ;
+#else
     Uint32 qlen = 0;
-    qlen = SDL_GetQueuedAudioSize(dev_id);
+//    qlen = SDL_GetQueuedAudioSize(dev_id);
     do{
         qlen = SDL_GetQueuedAudioSize(dev_id);
 #if ENABLE_HALF_POLL
-        SDL_Delay(USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME)/10); //Go easy on the CPU
-#endif
+        SDL_Delay(USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME)/2); //Go easy on the CPU
+#endif //ENABLE_HALF_POLL
     }while(qlen > 960);
+#endif
+
+
 }
 
 void teoSDL_SoundPlay(void)
@@ -150,8 +163,41 @@ void teoSDL_SoundPlay(void)
 #endif
     }
 #endif //ENABLE_SDL2_SOUND_RECORDER
-    teoSDL_SoundSync();
+    if(need_buffer){
+        memcpy(frame_holder[frames_ahead], sound_buffer, sound_buffer_size);
+        frames_ahead++;
+        if(frames_ahead == BUFFER_NFRAMES)
+            need_buffer = false;
+        return;
+    }
+    if(frames_ahead){
+        for(int i = 0; i < frames_ahead; i++) 
+            SDL_QueueAudio(dev_id, frame_holder[i], sound_buffer_size);
+        frames_ahead = 0;
+    }
     SDL_QueueAudio(dev_id, sound_buffer, sound_buffer_size);
+    teoSDL_SoundSync();
+#if ENABLE_SOUND_RECORDER
+    if(dump_timing){
+#ifdef PLATFORM_OGXBOX
+        if(time_output != INVALID_HANDLE_VALUE){
+            DWORD written;
+            DWORD ticks;
+            ticks = GetTickCount();
+
+            WriteFile(time_output, &ticks, sizeof(DWORD), &written, NULL);
+            WriteFile(time_output, &sound_buffer_size, sizeof(int), &written, NULL);
+        }
+#else
+        if(time_output){
+            Uint32 ticks;
+            ticks = SDL_GetTicks();
+            fwrite(&ticks, sizeof(Uint32), 1, time_output);
+            fwrite(&sound_buffer_size, sizeof(int), 1, time_output);
+        }
+#endif // PLATFORM_OGXBOX
+    }
+#endif //ENABLE_SOUND_RECORDER
 }
 
 void teoSDL_SoundClear(void)
@@ -221,8 +267,11 @@ bool teoSDL_SoundInit(int freq)
     /*One video frame / emulator loop worth of audio data, in samples*/
     sound_buffer_size = sound_freq/TEO_FRAME_FREQ;
     sound_buffer = malloc(sizeof(uint8_t)*sound_buffer_size);
-    sound_convert_buffer = malloc(sizeof(uint8_t)*(sound_buffer_size*10));
     printf("Sound buffer size is %d (bytes)\n",sizeof(uint8_t)*sound_buffer_size);
+
+    for(int i = 0; i < BUFFER_NFRAMES; i++)
+        frame_holder[i] = malloc(sizeof(uint8_t)*sound_buffer_size);
+    frames_ahead = 0;
 
     teo_PutSoundByte=teoSDL_SoundPutByte;
     teo_SilenceSound=teoSDL_SoundSilence;
@@ -247,6 +296,23 @@ bool teoSDL_SoundInit(int freq)
             printf("Successfuly opened sound dump file !\n");
 #endif
     }
+    if(dump_timing){
+
+#ifdef PLATFORM_OGXBOX
+        time_output = CreateFileA("D:\\xbox-time-dump.raw", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, 
+                                  CREATE_ALWAYS, FILE_FLAG_RANDOM_ACCESS, NULL);
+        if(time_output == INVALID_HANDLE_VALUE)
+            debugPrint("Couldn't open sound time dump file !\n");
+        else
+            debugPrint("Successfuly opened sound time dump file !\n");
+#else
+        time_output = fopen("pc-time-dump.raw","wb");
+        if(!time_output)
+            printf("Couldn't open sound time dump file !\n");
+        else
+            printf("Successfuly opened sound time dump file !\n");
+#endif
+    }
 #endif //ENABLE_SOUND_RECORDER
     return true;
 }
@@ -263,6 +329,8 @@ void teoSDL_SoundShutdown(void)
 #ifdef PLATFORM_OGXBOX
     if(output != INVALID_HANDLE_VALUE)
         CloseHandle(output);
+    if(time_output != INVALID_HANDLE_VALUE)
+        CloseHandle(time_output);
 #endif
 #endif //ENABLE_SOUND_RECORDER
 }
