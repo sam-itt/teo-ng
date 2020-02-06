@@ -41,14 +41,20 @@ static unsigned char *sound_buffer;
 static unsigned char last_data;
 static int last_index;
 
-#define BUFFER_NFRAMES 10
+#define BUFFER_NFRAMES 5
 static unsigned char *frame_holder[BUFFER_NFRAMES];
 int frames_ahead = 0;
 bool need_buffer = true;
 
+#define TEO_AUDIO_FRAME_SIZE 960 //In bytes
 SDL_AudioSpec native_spec;
 static SDL_AudioSpec spec;
 static SDL_AudioDeviceID dev_id = 0;
+
+extern bool sfront_frame_drop;
+#define FRAMEDROP_SPEED_START -8.0
+#define FRAMEDROP_SPEED_STOP -3.0
+
 
 #define ENABLE_SOUND_RECORDER 0
 #if ENABLE_SOUND_RECORDER
@@ -152,24 +158,43 @@ static void teoSDL_SoundFinishFrame(void)
     last_index=0;
 }
 
+static inline bool isThereEnoughRoomForNextFrame(void)
+{
+    Uint32 qlen;
+
+    qlen = SDL_GetQueuedAudioSize(dev_id);
+    if(qlen <= (BUFFER_NFRAMES-1)*TEO_AUDIO_FRAME_SIZE){
+        return true;
+    }
+    return false;
+}
+
 
 static void teoSDL_SoundSync(void)
 {
-#if 1 
+    /* Wait until the buffer has "room" (i.e that one frame worth of audio has been played)
+     * for one frame*/
+#if ENABLE_FRAMEDROP
+    Uint32 qlen, ticks;
+    static Uint32 last_qlen = 0;
+    static Uint32 last_ticks = 0;
+    ticks = SDL_GetTicks();
+    qlen = SDL_GetQueuedAudioSize(dev_id);
+    if(last_qlen && last_ticks){ /*One would be enough*/
+        double dq = ((double)qlen)-last_qlen;
+        double speed = dq/(ticks - last_ticks);
+        if(speed < FRAMEDROP_SPEED_START)
+            sfront_frame_drop = true;
+        if(speed > FRAMEDROP_SPEED_STOP)
+            sfront_frame_drop = false;
+        log_event(SOUND_QLEN_SPEED, speed);
+    }
+    last_qlen = qlen;
+    last_ticks = ticks;
+#endif //ENABLE_FRAMEDROP
     log_event(SOUND_DOING_SYNC, SDL_GetQueuedAudioSize(dev_id)); 
-    while(SDL_GetQueuedAudioSize(dev_id) > 960 * (BUFFER_NFRAMES+1))
+    while(isThereEnoughRoomForNextFrame() == false)
         ;
-//    printf("%d\n", SDL_GetQueuedAudioSize(dev_id));
-#else
-    Uint32 qlen = 0;
-//    qlen = SDL_GetQueuedAudioSize(dev_id);
-    do{
-        qlen = SDL_GetQueuedAudioSize(dev_id);
-#if ENABLE_HALF_POLL
-        SDL_Delay(USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME)/2); //Go easy on the CPU
-#endif //ENABLE_HALF_POLL
-    }while(qlen > 960);
-#endif
     log_event(SOUND_DONE_SYNC); 
 }
 
@@ -183,6 +208,7 @@ void teoSDL_SoundPlay(void)
     teoSDL_SoundRecordFrame();
 #endif //ENABLE_SDL2_SOUND_RECORDER
     if(need_buffer){
+        SDL_PauseAudioDevice(dev_id, 1);
         log_event(SOUND_BUFFERING, sound_buffer_size); /*qlen is */
         memcpy(frame_holder[frames_ahead], sound_buffer, sound_buffer_size);
         frames_ahead++;
@@ -196,8 +222,8 @@ void teoSDL_SoundPlay(void)
             log_event(SOUND_PUSHED_BUFFER_SAMPLES, sound_buffer_size, SDL_GetQueuedAudioSize(dev_id)); /*qlen is */
         }
         frames_ahead = 0;
+        SDL_PauseAudioDevice(dev_id, 0);
     }
-    SDL_QueueAudio(dev_id, sound_buffer, sound_buffer_size);
     teoSDL_SoundSync();
     log_event(SOUND_BEFORE_PUSH, SDL_GetQueuedAudioSize(dev_id)); /*qlen is */
     SDL_QueueAudio(dev_id, sound_buffer, sound_buffer_size);
@@ -289,7 +315,7 @@ bool teoSDL_SoundInit(int freq)
     teoSDL_SoundSilence();
     last_index = 0;
 
-    SDL_PauseAudioDevice(dev_id, 0);
+    SDL_PauseAudioDevice(dev_id, 1);
 #if ENABLE_SOUND_RECORDER
     teoSDL_SoundInitRecorder();
 #endif //ENABLE_SOUND_RECORDER

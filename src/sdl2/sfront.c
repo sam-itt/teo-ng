@@ -16,6 +16,7 @@
 #include "sdl2/sfront-bindings.h"
 
 bool sfront_show_vkbd = false;
+bool sfront_frame_drop = false;
 
 /*These two globals are used by the GUI adapted from Hatari*/
 bool bQuitProgram = false;
@@ -163,9 +164,11 @@ static void sfront_RunTO8()
 
         /* rafraîchissement de l'écran */
         log_event(MAINLOOP_DOING_SDL);
-        log_event(MAINLOOP_DOING_SDL_GFX);
-        teoSDL_GfxRefreshScreen();
-        log_event(MAINLOOP_DONE_SDL_GFX);
+        if(!sfront_frame_drop){
+            log_event(MAINLOOP_DOING_SDL_GFX);
+            teoSDL_GfxRefreshScreen();
+            log_event(MAINLOOP_DONE_SDL_GFX);
+        }
         log_event(MAINLOOP_DOING_SDL_EVENTS);
         sfront_EventHandler();
         if(sfront_enabled(FRONT_JMOUSE))
