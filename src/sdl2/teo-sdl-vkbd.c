@@ -9,6 +9,7 @@
 #include "sdl2/sfront-bindings.h"
 
 #define SPEED 1
+#define KEYBOARD_IMAGE "keyboard.bmp"
 
 typedef struct{
     SDL_Rect bounds;
@@ -339,7 +340,7 @@ void teoSDL_VKbdInit(void)
 {
     char *fpath;
 
-    fpath = std_GetTeoSystemFile("keyboard.bmp");
+    fpath = std_GetTeoSystemFile(KEYBOARD_IMAGE);
     if(!fpath){
         printf("Can't load vkbd picture, bailing out\n");
         exit(-1);
@@ -352,14 +353,6 @@ void teoSDL_VKbdInit(void)
         exit(-1);
     }
     free(fpath);
-    kbdBuffer = SDL_CreateRGBSurface(kbdSurface->flags, kbdSurface->w, kbdSurface->h, 
-                      kbdSurface->format->BitsPerPixel, kbdSurface->format->Rmask,
-                      kbdSurface->format->Gmask, kbdSurface->format->Bmask,
-                      kbdSurface->format->Amask);
-    if(!kbdBuffer){
-        printf("Error: %s\n",SDL_GetError());
-        exit(-1);
-    }
     is_dirty = true;
 }
 
@@ -373,6 +366,7 @@ void teoSDL_VKbdShutdown(void)
 void teoSDL_VKbdSetScreen(SDL_Surface *screen)
 {
     screenSurface = screen;
+    SDL_Surface *tmp;
 
     dst.x=0;
     dst.y = (screenSurface->h - kbdSurface->h) - 1;
@@ -382,6 +376,23 @@ void teoSDL_VKbdSetScreen(SDL_Surface *screen)
     dst.h=kbdSurface->h;
 
     box_color = SDL_MapRGB(screenSurface->format, 0xFF, 0x00, 0x00);
+
+    tmp = SDL_ConvertSurface(kbdSurface, screenSurface->format, 0);
+    if(tmp){
+        SDL_FreeSurface(kbdSurface);
+        kbdSurface = tmp;
+    }else{
+        printf("Failed to optimize led %s, error is %s\n", KEYBOARD_IMAGE, SDL_GetError());
+    }
+
+    kbdBuffer = SDL_CreateRGBSurface(kbdSurface->flags, kbdSurface->w, kbdSurface->h,
+                      kbdSurface->format->BitsPerPixel, kbdSurface->format->Rmask,
+                      kbdSurface->format->Gmask, kbdSurface->format->Bmask,
+                      kbdSurface->format->Amask);
+    if(!kbdBuffer){
+        printf("Error: %s\n",SDL_GetError());
+        exit(-1);
+    }
     is_dirty = true;
 }
 

@@ -591,6 +591,7 @@ void teoSDL_GfxRefreshScreen(void)
 static void teoSDL_GfxLoadLeds(int width, int height)
 {
     char *fpath;
+    SDL_Surface *tmp;
     char *ledfiles[] = {
         "led-on.bmp",
         "led-off.bmp"
@@ -610,6 +611,13 @@ static void teoSDL_GfxLoadLeds(int width, int height)
             }
             SDL_SetColorKey(leds[i], SDL_TRUE, SDL_MapRGB(leds[i]->format, 0x0, 0x0, 0xff));
             SDL_SetSurfaceRLE(leds[i], 1);
+		    tmp = SDL_ConvertSurface(leds[i], screenSurface->format, 0);
+            if(tmp){
+                SDL_FreeSurface(leds[i]);
+                leds[i] = tmp;
+            }else{
+                printf("Failed to optimize led %s, error is %s\n", ledfiles[i], SDL_GetError());
+            }
             std_free(fpath);
         }
     }
