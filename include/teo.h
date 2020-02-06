@@ -52,6 +52,8 @@
 #ifndef TEO_H
 #define TEO_H
 
+#define TEO_GFX40 1
+//#undef TEO_GFX40
 /* TEO_YEAR_STRING and TEO_VERSION_STR are now
  * defined by configure.ac and made into config.h
  * symbols.

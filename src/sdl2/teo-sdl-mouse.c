@@ -5,6 +5,7 @@
 #include "media/mouse.h"
 #include "sdl2/teo-sdl-mouse.h"
 #include "sdl2/teo-sdl-gfx.h"
+#include "sdl2/teo-sdl-gfx40.h"
 
 #define is_in_window(x,y) (((x) > (TEO_BORDER_W*2)) && ((y) > (TEO_BORDER_H*2)))
 #define clip_x(x) ((x)/2-TEO_BORDER_W)
@@ -39,7 +40,11 @@ void teoSDL_MouseButton(SDL_MouseButtonEvent *event)
         return;
     }
     /*pressed*/
+#ifdef TEO_GFX40
+    if(teo_btn == 2 && teoSDL_Gfx40GetPointer() != TEO_STATUS_MOUSE)
+#else
     if(teo_btn == 2 && teoSDL_GfxGetPointer() != TEO_STATUS_MOUSE)
+#endif
         return;
 
     mouse_Click(teo_btn, false);

@@ -13,6 +13,7 @@
 #include "sdl2/sfront.h"
 #include "sdl2/teo-sdl-vkbd.h"
 #include "sdl2/sfront-bindings.h"
+#include "sdl2/teo-sdl-gfx40.h"
 
 bool sfront_show_vkbd = false;
 
@@ -87,9 +88,17 @@ int sfront_startGfx(int windowed_mode, char *w_title)
     }
 
     sfront_windowed_mode = windowed_mode;
+#ifdef TEO_GFX40
+    w = teoSDL_Gfx40Window(sfront_windowed_mode, w_title); /* Création de la fenêtre principale */
+#else
     w = teoSDL_GfxWindow(sfront_windowed_mode, w_title); /* Création de la fenêtre principale */
+#endif
     if(!w) return -1;
+#ifdef TEO_GFX40
+    teoSDL_Gfx40Init();    /* Binds teo_ graphic callbacks to teoSDL functions*/
+#else
     teoSDL_GfxInit();    /* Binds teo_ graphic callbacks to teoSDL functions*/
+#endif
 
     /* Initialise le son */
     if(sfront_features & FRONT_SOUND){
@@ -112,7 +121,11 @@ void sfront_Run(void)
     SDL_DisplayMode DM;
     SDL_GetCurrentDisplayMode(0, &DM);
 
+#ifdef TEO_GFX40
+    teoSDL_Gfx40RetraceWholeScreen();
+#else
     teoSDL_GfxRetraceWholeScreen();
+#endif
 
     do{  /* emulator main loop */
         teo.command=TEO_COMMAND_NONE;
@@ -175,7 +188,11 @@ static void sfront_RunTO8()
                 teo.command=TEO_COMMAND_BREAKPOINT;
 
         /* rafraîchissement de l'écran */
-        teoSDL_GfxRefreshScreen();
+#ifdef TEO_GFX40
+            teoSDL_Gfx40RefreshScreen();
+#else
+            teoSDL_GfxRefreshScreen();
+#endif
         sfront_EventHandler();
         if(sfront_enabled(FRONT_JMOUSE))
             teoSDL_JMouseMove();
@@ -301,7 +318,11 @@ static int sfront_EventHandler(void)
 /*                    printf("Window %d size changed to %dx%d\n",
                         event.window.windowID, event.window.data1,
                         event.window.data2);*/
+#ifdef TEO_GFX40
+                    teoSDL_Gfx40Reset();
+#else
                     teoSDL_GfxReset();
+#endif
                 }
                 break;
 
@@ -343,8 +364,13 @@ static void sfront_JoystickEventHandler(SDL_Event *generic_event)
             return;
         }else if(sfront_jbutton_pressed(VKB_TOGGLE_BTN, event)){
             sfront_show_vkbd = !sfront_show_vkbd;
-            if(!sfront_show_vkbd)
+            if(!sfront_show_vkbd){
+#ifdef TEO_GFX40
+                teoSDL_Gfx40RetraceWholeScreen();
+#else
                 teoSDL_GfxRetraceWholeScreen();
+#endif
+            }
             teoSDL_VKbdNotifyVisibility(sfront_show_vkbd);
             return;
         }
@@ -392,12 +418,22 @@ static void sfront_KeyboardEventHandler(SDL_KeyboardEvent *event)
 
         mod = SDL_GetModState();
         if(mod & KMOD_LALT){
+#ifdef TEO_GFX40
+            if(sfront_windowed_mode)
+                SDL_SetWindowFullscreen(teoSDL_Gfx40GetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+            else
+                SDL_SetWindowFullscreen(teoSDL_Gfx40GetWindow(), 0);
+            sfront_windowed_mode = !sfront_windowed_mode;
+            teoSDL_Gfx40Reset();
+
+#else
             if(sfront_windowed_mode)
                 SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
             else
                 SDL_SetWindowFullscreen(teoSDL_GfxGetWindow(), 0);
             sfront_windowed_mode = !sfront_windowed_mode;
             teoSDL_GfxReset();
+#endif
         }
     }
 
