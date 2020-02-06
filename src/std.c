@@ -774,7 +774,7 @@ char *std_getUserDataDir()
     if(cfghome)
         rv = std_strdup_printf("%s/teo", cfghome);
     else
-        rv = std_strdup_printf("%s/.local/teo", home);
+        rv = std_strdup_printf("%s/.local/share/teo", home);
     if(!std_FileExists(rv))
         mkdir_p(rv, S_IRWXU);
 #elif PLATFORM_WIN32

@@ -54,5 +54,5 @@ cp_files:
 	cp data/keyboard.bmp $(OUTPUT_DIR)/
 	cp data/led-on.bmp $(OUTPUT_DIR)/
 	cp data/led-off.bmp $(OUTPUT_DIR)/
-	cp /home/samuel/.local/teo/autosave.img $(OUTPUT_DIR)/
+	cp /home/samuel/.local/share/teo/autosave.img $(OUTPUT_DIR)/
 	ln -sf /home/samuel/teo/github/teo/teo.iso /tmp/
