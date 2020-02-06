@@ -4,6 +4,7 @@
 
 bool teoSDL_SoundInit(int freq);
 void teoSDL_SoundPlay(void);
+void teoSDL_SoundPause(bool flag);
 
 void teoSDL_SoundClear(void);
 void teoSDL_SoundShutdown(void);

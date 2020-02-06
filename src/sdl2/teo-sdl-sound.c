@@ -209,6 +209,11 @@ void teoSDL_SoundClear(void)
     SDL_ClearQueuedAudio(dev_id);
 }
 
+void teoSDL_SoundPause(bool flag)
+{
+    SDL_PauseAudioDevice(dev_id, flag ? 1 : 0);
+}
+
 /*Thanks SO!*/
 int next_pow2(int v)
 {
