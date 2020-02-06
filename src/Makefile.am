@@ -77,6 +77,7 @@ libteo_la_SOURCES = \
 	errors.c \
 	std.c \
 	ini.c \
+	logsys.c \
 	teo.c
 
 EXTRA_DIST = \
