@@ -15,6 +15,7 @@ int teoSDL_GfxGetPointer(void);
 SDL_Window *teoSDL_GfxGetWindow(void);
 void teoSDL_GfxReset(void);
 
+void teoSDL_GfxScreenshot(void);
 #endif
 
 

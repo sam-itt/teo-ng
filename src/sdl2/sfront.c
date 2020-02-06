@@ -243,8 +243,7 @@ static void sfront_ExecutePendingCommand()
 #endif
             break;
         case TEO_COMMAND_SCREENSHOT:
-            printf("Screenshot: NOOP");
-            /*TODO: Implement SDL2 screenshots*/
+            teoSDL_GfxScreenshot();
             break;
         case TEO_COMMAND_RESET:
             teo_Reset();
@@ -344,6 +343,9 @@ static void sfront_JoystickEventHandler(SDL_Event *generic_event)
             if(!sfront_show_vkbd)
                 teoSDL_GfxRetraceWholeScreen();
             teoSDL_VKbdNotifyVisibility(sfront_show_vkbd);
+            return;
+        }else if(sfront_jbutton_pressed(SCREENSHOT_BUTTON, event)){
+            teo.command=TEO_COMMAND_SCREENSHOT;
             return;
         }
     }

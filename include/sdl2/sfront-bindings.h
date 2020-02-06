@@ -3,6 +3,7 @@
 
 #ifdef PLATFORM_OGXBOX
 #define PANEL_TOGGLE_BUTTON 7 //start
+#define SCREENSHOT_BUTTON 3 //start
 
 #define VKB_HAXIS 3 //Right thumb H
 #define VKB_VAXIS 4 //Right thumb V
@@ -24,6 +25,7 @@
 
 #else
 #define PANEL_TOGGLE_BUTTON 9
+#define SCREENSHOT_BUTTON 3 //start
 
 /*Axis/button that controls the virtual keyboard*/
 #define VKB_HAXIS 2

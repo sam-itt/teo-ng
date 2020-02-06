@@ -876,3 +876,23 @@ void teoSDL_GfxInit()
     teo_SetDiskLed = teoSDL_GfxSetDiskLed; /*Already done in teoSDL_GfxWindow()*/
 
 }
+
+void teoSDL_GfxScreenshot(void)
+{
+    static int idx = 0;
+    char *path, *fpath;
+    char *filename;
+
+    path = std_getUserDataDir();
+    if(!path)
+        return;
+
+    filename = std_strdup_printf("screen-%02d.bmp", idx);
+    fpath = std_PathAppend(path, filename);
+
+    SDL_SaveBMP(screenSurface, fpath);
+
+    free(fpath);
+    free(filename);
+    free(path);
+}
