@@ -845,7 +845,7 @@ void teoSDL_GfxInit()
     /*TODO: Experiment with 24-bits surfaces*/
 #if defined(PLATFORM_OGXBOX) && defined(ENABLE_XBOX_PFIX)
     format = SDL_PIXELFORMAT_RGB888;
-    depth = 24;
+    depth = 16;
 #else
     format = SDL_PIXELFORMAT_RGBA8888;
     depth = 32;

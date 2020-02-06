@@ -409,7 +409,7 @@ int main(void)
 #endif
     BOOL rv;
 
-    rv = XVideoSetMode(720, 480, 32, REFRESH_DEFAULT);
+    rv = XVideoSetMode(720, 480, 16, REFRESH_DEFAULT);
     if(rv){
         debugPrint("Success setting 720,480,32 as a VideoMode\n");
     }else{
