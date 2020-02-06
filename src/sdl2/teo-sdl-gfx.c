@@ -9,6 +9,9 @@
 #include "sdl2/teo-sdl-vkbd.h"
 #include "sdl2/gui/sdlgui.h"
 
+#define ENABLE_XBOX_PFIX 1
+//#undef ENABLE_XBOX_PFIX
+
 #ifdef PLATFORM_OGXBOX
 #include "hal/video.h"
 #endif
@@ -63,8 +66,6 @@ void printSDLErrorAndReboot(void);
 //Screen dimension constants
 const extern int SCREEN_WIDTH;
 const extern int SCREEN_HEIGHT;
-
-
 
 /* parametres d'affichage */
 struct SCREEN_PARAMS
@@ -155,7 +156,11 @@ static void teoSDL_GfxSetColor(int index, int r, int g, int b)
 {
     /*TODO: Experiment with 24-bits surfaces*/
 //    palette[index] = SDL_MapRGB(screen_buffer->format, r, g, b);
+#if defined(PLATFORM_OGXBOX) && defined(ENABLE_XBOX_PFIX)
+    palette[index] = SDL_MapRGB(screen_buffer->format, r, g, b);
+#else
     palette[index] = SDL_MapRGBA(screen_buffer->format, r, g, b, 255);
+#endif
 }
 
 
@@ -354,13 +359,23 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
             {
                 if ((col&0x78)==0x30)
                 {
+#if defined(PLATFORM_OGXBOX) && defined(ENABLE_XBOX_PFIX)
+                    c1= SDL_MapRGB(screen_buffer->format, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
+                    c2= SDL_MapRGB(screen_buffer->format, TEO_PALETTE_COL2>>16, (TEO_PALETTE_COL2>>8)&0xFF, TEO_PALETTE_COL2&0xFF);
+#else
                     c1= SDL_MapRGBA(screen_buffer->format, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF, 255);
                     c2= SDL_MapRGBA(screen_buffer->format, TEO_PALETTE_COL2>>16, (TEO_PALETTE_COL2>>8)&0xFF, TEO_PALETTE_COL2&0xFF, 255);
+#endif
                 }
                 else
                 {
+#if defined(PLATFORM_OGXBOX) && defined(ENABLE_XBOX_PFIX)
+                    c2= SDL_MapRGB(screen_buffer->format, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF);
+                    c1= SDL_MapRGB(screen_buffer->format, TEO_PALETTE_COL2>>16, (TEO_PALETTE_COL2>>8)&0xFF, TEO_PALETTE_COL2&0xFF);
+#else
                     c2= SDL_MapRGBA(screen_buffer->format, TEO_PALETTE_COL1>>16, (TEO_PALETTE_COL1>>8)&0xFF, TEO_PALETTE_COL1&0xFF, 255);
                     c1= SDL_MapRGBA(screen_buffer->format, TEO_PALETTE_COL2>>16, (TEO_PALETTE_COL2>>8)&0xFF, TEO_PALETTE_COL2&0xFF, 255);
+#endif
                 }
 
                 for (i=0; i<8; i++)
@@ -698,7 +713,6 @@ void teoSDL_GfxReset()
     teoSDL_GfxLoadLeds(screenSurface->w, screenSurface->h);
 
     printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
- 
     scaledBlit = 0;
     if( screenSurface->w != tcol->screen_w || screenSurface->h != tcol->screen_h){
         scaledBlit = 1;
@@ -708,7 +722,6 @@ void teoSDL_GfxReset()
 
         teoSDL_GfxResizeLookup(screenSurface->w, screenSurface->h);
     }
-
     memset(dirty_cell, 1, (tcol->screen_cw*tcol->screen_ch)*sizeof(int));
 
     teoSDL_GfxRetraceWholeScreen();
@@ -817,14 +830,22 @@ SDL_Window *teoSDL_GfxGetWindow()
  */
 void teoSDL_GfxInit()
 {
+    Uint32 format;
+    int depth;
     teoSDL_InitScreenParams();
 
-
     /*TODO: Experiment with 24-bits surfaces*/
-    gpl_buffer = SDL_CreateRGBSurfaceWithFormat(0, TEO_GPL_SIZE*2, 1, 24, SDL_PIXELFORMAT_RGBA8888);
-    screen_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->screen_w, tcol->screen_h, 24, SDL_PIXELFORMAT_RGBA8888);
+#if defined(PLATFORM_OGXBOX) && defined(ENABLE_XBOX_PFIX)
+    format = SDL_PIXELFORMAT_RGB888;
+    depth = 24;
+#else
+    format = SDL_PIXELFORMAT_RGBA8888;
+    depth = 32;
+#endif
+    gpl_buffer = SDL_CreateRGBSurfaceWithFormat(0, TEO_GPL_SIZE*2, 1, depth, format);
+    screen_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->screen_w, tcol->screen_h, depth, format);
     SDL_FillRect(screen_buffer, NULL, 0x00000000);
-    interlace_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->screen_w, tcol->screen_h, 24, SDL_PIXELFORMAT_RGBA8888);
+    interlace_buffer = SDL_CreateRGBSurfaceWithFormat(0, tcol->screen_w, tcol->screen_h, depth, format);
     SDL_FillRect(interlace_buffer, NULL, 0x00000000);
 
 
