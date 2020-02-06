@@ -49,15 +49,40 @@ static SDL_AudioDeviceID dev_id = 0;
 #define ENABLE_SOUND_RECORDER 0
 #if ENABLE_SOUND_RECORDER
 #if PLATFORM_OGXBOX
-HANDLE output = INVALID_HANDLE_VALUE;
-HANDLE time_output = INVALID_HANDLE_VALUE;
+#define PCM_FILENAME "D:\\xbox-dump.raw"
 #else
-FILE *output = NULL;
-FILE *time_output = NULL;
+#define PCM_FILENAME "pc-dump.raw"
 #endif //PLATFORM_OGXBOX
+FILE *output = NULL;
 static bool dump_pcm = false;
-static bool dump_timing = true;
+
+
+void teoSDL_SoundRecordFrame(void)
+{
+    if(!dump_pcm) return;
+    if(output){
+        fwrite(sound_buffer, sizeof(uint8_t), sound_buffer_size, output);
+    }
+}
+
+void teoSDL_SoundInitRecorder(void)
+{
+    if(dump_pcm){
+        output = fopen(PCM_FILENAME,"wb");
+        if(!output)
+            printf("Couldn't open sound dump file !\n");
+        else
+            printf("Successfuly opened sound dump file !\n");
+    }
+}
+
+void teoSDL_SoundShutdownRecorder(void)
+{
+    if(output)
+        fclose(output);
+}
 #endif //ENABLE_SOUND_RECORDER
+
 
 static void teoSDL_SoundDumpSpec(SDL_AudioSpec *spec)
 {
@@ -151,18 +176,7 @@ void teoSDL_SoundPlay(void)
     teoSDL_SoundFinishFrame();
 
 #if ENABLE_SOUND_RECORDER
-    if(dump_pcm){
-#ifdef PLATFORM_OGXBOX
-        if(output != INVALID_HANDLE_VALUE){
-            DWORD written;
-            WriteFile(output, sound_buffer, sound_buffer_size, &written, NULL);
-        }
-#else
-        if(output){
-            fwrite(sound_buffer, sizeof(uint8_t), sound_buffer_size, output);
-        }
-#endif
-    }
+    teoSDL_SoundRecordFrame();
 #endif //ENABLE_SDL2_SOUND_RECORDER
     if(need_buffer){
         memcpy(frame_holder[frames_ahead], sound_buffer, sound_buffer_size);
@@ -283,21 +297,6 @@ bool teoSDL_SoundInit(int freq)
 
     SDL_PauseAudioDevice(dev_id, 0);
 #if ENABLE_SOUND_RECORDER
-    if(dump_pcm){
-#ifdef PLATFORM_OGXBOX
-        output = CreateFileA("D:\\xbox-dump.raw", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_FLAG_RANDOM_ACCESS, NULL);
-        if(output == INVALID_HANDLE_VALUE)
-            debugPrint("Couldn't open sound dump file !\n");
-        else
-            debugPrint("Successfuly opened sound dump file !\n");
-#else
-        output = fopen("pc-dump.raw","wb");
-        if(!output)
-            printf("Couldn't open sound dump file !\n");
-        else
-            printf("Successfuly opened sound dump file !\n");
-#endif
-    }
     if(dump_timing){
 
 #ifdef PLATFORM_OGXBOX
@@ -315,6 +314,7 @@ bool teoSDL_SoundInit(int freq)
             printf("Successfuly opened sound time dump file !\n");
 #endif
     }
+    teoSDL_SoundInitRecorder();
 #endif //ENABLE_SOUND_RECORDER
     return true;
 }
@@ -328,11 +328,6 @@ void teoSDL_SoundShutdown(void)
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 #if ENABLE_SOUND_RECORDER
-#ifdef PLATFORM_OGXBOX
-    if(output != INVALID_HANDLE_VALUE)
-        CloseHandle(output);
-    if(time_output != INVALID_HANDLE_VALUE)
-        CloseHandle(time_output);
-#endif
+    teoSDL_SoundShutdownRecorder();
 #endif //ENABLE_SOUND_RECORDER
 }
