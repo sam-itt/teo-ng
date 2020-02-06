@@ -155,11 +155,6 @@ static void sfront_RunTO8()
     do{  /* Virtual TO8 running loop */
         log_event(MAINLOOP_START);
 
-        last_frame = SDL_GetTicks();
-        if(teo.setting.exact_speed && !teo.setting.sound_enabled){
-            last_frame = SDL_GetTicks();
-        }
-
         log_event(MAINLOOP_DOING_TEOFRAME);
         if (teo_DoFrame() == 0)
             if(sfront_windowed_mode)
@@ -203,6 +198,9 @@ static void sfront_RunTO8()
         gtk_main_iteration_do(FALSE);
 #endif 
         log_event(MAINLOOP_END);
+        if(teo.setting.exact_speed && !teo.setting.sound_enabled){
+            last_frame = SDL_GetTicks();
+        }
     }while (teo.command==TEO_COMMAND_NONE);  /* End of Virtual TO8 running loop*/
 }
 
