@@ -1,3 +1,5 @@
+//#define ENABLE_BINLOG 1
+#undef ENABLE_BINLOG
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
