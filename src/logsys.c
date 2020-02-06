@@ -133,8 +133,10 @@ void log_event(enum event_type etype, ...)
 	va_list args;
 
     bool rv;
-    Uint32 qlen;
+    Uint32 qlen,last_qlen;
+    Uint32 ticks, last_ticks;
     int buffer_size;
+    double speed;
 
     log_write_simple_event(etype);
 
@@ -184,6 +186,23 @@ void log_event(enum event_type etype, ...)
         buffer_size = va_arg(args, int);
         write_data(timings, &buffer_size, sizeof(int), 1);
         break;
+    case SOUND_QLEN_SPEED:
+        speed = va_arg(args, double);
+        write_data(timings, &speed, sizeof(double), 1);
+        break;
+    case SOUND_QLEN_SPEED_FULL:
+        qlen = va_arg(args, Uint32);
+        last_qlen = va_arg(args, Uint32);
+        ticks = va_arg(args, Uint32);
+        last_ticks = va_arg(args, Uint32);
+        speed = va_arg(args, double);
+        write_data(timings, &qlen, sizeof(Uint32), 1);
+        write_data(timings, &last_qlen, sizeof(Uint32), 1);
+        write_data(timings, &ticks, sizeof(Uint32), 1);
+        write_data(timings, &last_ticks, sizeof(Uint32), 1);
+        write_data(timings, &speed, sizeof(double), 1);
+        break;
+
     }
 	va_end(args);
 }
