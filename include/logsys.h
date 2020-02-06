@@ -56,6 +56,11 @@ void log_msgf(int level, const char *format, ...);
 
 void log_event_start(void);
 void log_event_stop(void);
+
+#ifdef ENABLE_BINLOG
 void log_event(enum event_type etype, ...);
+#else
+#define log_event (void)sizeof
+#endif
 
 #endif

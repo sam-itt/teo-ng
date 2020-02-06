@@ -24,6 +24,7 @@
 #define TIMING_FILENAME "pc-timings.raw"
 #endif
 
+#undef log_event
 
 int logLevel = TRACE;
 
