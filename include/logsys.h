@@ -2,7 +2,9 @@
 #define TETRIS_LOGSYS
 
 #include <stdarg.h>
-
+#ifdef DEBUG
+#undef DEBUG
+#endif
 // Log levels
 enum {
 	ALL,     // Everything
