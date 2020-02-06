@@ -261,6 +261,7 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
     register int i;
     unsigned int x, y;
     Uint32 c1,c2;
+    Uint32 color;
     int *dirty_cell_row;
     unsigned char *gpl_src, *gpl_dest;
 
@@ -364,8 +365,9 @@ static void teoSDL_GfxDrawGPL(int mode, int addr, int pt, int col)
 
                 for (i=0; i<8; i++)
                 {
-                    col = (0x80>>i)&pt ? c1 : c2;
-                    PUT2PIXEL(i, col);
+
+                    color = (0x80>>i)&pt ? c1 : c2;
+                    PUT2PIXEL(i, color);
                 }
                 break;
             }
