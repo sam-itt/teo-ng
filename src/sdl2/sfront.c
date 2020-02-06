@@ -7,6 +7,7 @@
 #include "std.h"
 #include "teo.h"
 #include "defs.h"
+#include "logsys.h"
 #include "media/disk.h"
 #include "sdl2/teo-sdl-log.h"
 #include "sdl2/teo-sdl-jmouse.h"
@@ -58,6 +59,7 @@ int sfront_Init(int *j_support, unsigned char mode)
     if (*j_support >= 0 && (sfront_features & FRONT_JOYSTICK))
         *j_support = teoSDL_JoystickInit();
 
+    log_event_start();
     return rv;
 }
 
@@ -136,6 +138,7 @@ void sfront_Run(void)
 void sfront_Shutdown()
 {
 
+    log_event_stop();
 
 }
 
@@ -157,6 +160,7 @@ static void sfront_RunTO8()
     }
 #endif
     do{  /* Virtual TO8 running loop */
+        log_event(MAINLOOP_START);
 #ifdef PLATFORM_OGXBOX
         last_frame = GetTickCount();
 #else
@@ -170,22 +174,32 @@ static void sfront_RunTO8()
 #endif
         }
 
+        log_event(MAINLOOP_DOING_TEOFRAME);
         if (teo_DoFrame() == 0)
             if(sfront_windowed_mode)
                 teo.command=TEO_COMMAND_BREAKPOINT;
+        log_event(MAINLOOP_DONE_TEOFRAME);
 
         /* rafraîchissement de l'écran */
+        log_event(MAINLOOP_DOING_SDL);
+        log_event(MAINLOOP_DOING_SDL_GFX);
         teoSDL_GfxRefreshScreen();
+        log_event(MAINLOOP_DONE_SDL_GFX);
+        log_event(MAINLOOP_DOING_SDL_EVENTS);
         sfront_EventHandler();
         if(sfront_enabled(FRONT_JMOUSE))
             teoSDL_JMouseMove();
+        log_event(MAINLOOP_DONE_SDL_EVENTS);
+        log_event(MAINLOOP_DONE_SDL);
 
         /* synchronisation sur fréquence réelle */
         if (teo.setting.exact_speed)
         {
             if (teo.setting.sound_enabled){
                 if((sfront_features & FRONT_SOUND)){
+                    log_event(MAINLOOP_DOING_SOUND);
                     teoSDL_SoundPlay(); /*Also does sync*/
+                    log_event(MAINLOOP_DONE_SOUND);
                 }
             }else{
 #ifdef PLATFORM_OGXBOX
@@ -204,10 +218,13 @@ static void sfront_RunTO8()
             }
         }
 
+        log_event(MAINLOOP_DOING_DISK);
         disk_WriteTimeout();
+        log_event(MAINLOOP_DONE_DISK);
 #ifdef ENABLE_GTK_PANEL
         gtk_main_iteration_do(FALSE);
 #endif 
+        log_event(MAINLOOP_END);
     }while (teo.command==TEO_COMMAND_NONE);  /* End of Virtual TO8 running loop*/
 }
 
