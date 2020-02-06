@@ -145,33 +145,19 @@ void sfront_Shutdown()
 
 static void sfront_RunTO8()
 {
-    bool sdl_timer = true;
-
-#ifdef PLATFORM_OGXBOX /*TODO: have sdl timer + platform*/
-    DWORD last_frame;
-#else
     Uint32 last_frame;
 
     if(!SDL_WasInit(SDL_INIT_TIMER)){
         if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0){
-            //debugPrint("Could not init timers: %s\n", SDL_GetError());
-            sdl_timer = false;
+            printf("Could not init timers: %s\n", SDL_GetError());
         }
     }
-#endif
     do{  /* Virtual TO8 running loop */
         log_event(MAINLOOP_START);
-#ifdef PLATFORM_OGXBOX
-        last_frame = GetTickCount();
-#else
-        last_frame = SDL_GetTicks(); 
-#endif
+
+        last_frame = SDL_GetTicks();
         if(teo.setting.exact_speed && !teo.setting.sound_enabled){
-#ifdef PLATFORM_OGXBOX
-            last_frame = GetTickCount();
-#else
             last_frame = SDL_GetTicks();
-#endif
         }
 
         log_event(MAINLOOP_DOING_TEOFRAME);
@@ -202,19 +188,11 @@ static void sfront_RunTO8()
                     log_event(MAINLOOP_DONE_SOUND);
                 }
             }else{
-#ifdef PLATFORM_OGXBOX
-                DWORD dt,frame_duration; /*milliseconds*/
-                dt = GetTickCount() - last_frame;
-                frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
-                if(dt < frame_duration)
-                    Sleep(frame_duration-dt); 
-#else
                 Uint32 dt,frame_duration; /*milliseconds*/
                 dt = SDL_GetTicks() - last_frame;
                 frame_duration = USEC_TO_MSEC(TEO_MICROSECONDS_PER_FRAME);
                 if(dt < frame_duration)
                     SDL_Delay(frame_duration-dt);
-#endif
             }
         }
 
