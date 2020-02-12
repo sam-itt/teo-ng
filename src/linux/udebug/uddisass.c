@@ -36,11 +36,13 @@
  *  Module     : linux/udebug/uddisass.c
  *  Version    : 1.8.5
  *  Cr�� par   : Fran�ois Mouret 14/07/2016
- *  Modifi� par:
+ *  Modifi� par: Samuel Cuella 02/2020
  *
  *  D�bogueur 6809 - Affichage des mn�moniques.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -58,6 +60,7 @@
 #include "to8dbg.h"
 #include "debug/debug.h"
 #include "linux/gui.h"
+#include "gettext.h"
 
 #define HIGHLIGHT_NAME  "teo_ddisass_highlight"
 
@@ -318,39 +321,19 @@ static void run_subroutine (GtkWidget *window, int next_pc)
           && (ptr == ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1))));
 
     if (ptr != ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1)))
-        ugui_Warning (is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le\n" \
-             "pointeur de retour vient d'être changé dans la pile."
-            :"The single-stepping has been aborted because the\n" \
-             "return pointer has just been overwritten in stack.",
+        ugui_Warning (_("The single-stepping has been aborted because the\nreturn pointer has just been overwritten in stack."),
             window);
     else
     if ((regs.sr == (sr+2)) && (regs.pc != next_pc))
-        ugui_Warning (is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le\n" \
-             "pointeur de retour vient d'être dépilé avant le\n" \
-             "retour du sous-programme."
-            :"The single-stepping has been aborted because the\n" \
-             "return pointer has just been pulled from stack before\n" \
-             "the return from subroutine.",
+        ugui_Warning (_("The single-stepping has been aborted because the\nreturn pointer has just been pulled from stack before\nthe return from subroutine."),
             window);
     else
     if (watch > WATCH_MAX)
-        ugui_Warning (is_fr
-            ?"L'exécution pas-à-pas a été interrompue à cause du\n" \
-             "trop grand nombre d'instructions exécutées.\n" \
-             "La sous-routine peut comporter une boucle infinie."
-            :"The single-stepping has been aborted because of the\n" \
-             "great number of executed instructions.\n" \
-             "The subroutine could have an infinite loop.",
+        ugui_Warning (_("The single-stepping has been aborted because of the\ngreat number of executed instructions.\nThe subroutine could have an infinite loop."),
             window);
     else
     if (regs.sr != (sr+2))
-        ugui_Warning (is_fr
-            ?"L'exécution pas-à-pas a été interrompue car\n" \
-             "le pointeur de pile a changé."
-            :"The single-stepping has been aborted because\n" \
-             "the stack pointer has changed.",
+        ugui_Warning (_("The single-stepping has been aborted because\nthe stack pointer has changed."),
             window);
 }
 
@@ -367,13 +350,7 @@ static void exit_loop (GtkWidget *window, int next_pc)
     } while (((watch++)<WATCH_MAX) && (regs.pc != next_pc));
 
     if (watch > WATCH_MAX)
-        ugui_Warning (is_fr
-            ?"L'exécution pas-à-pas a été interrompue à cause du\n" \
-             "trop grand nombre d'instructions exécutées.\n" \
-             "Il pourrait s'agir d'une boucle infinie."
-            :"The single-stepping has been aborted because of the\n" \
-             "great number of executed instructions.\n" \
-             "It could be an infinite loop.",
+        ugui_Warning (_("The single-stepping has been aborted because of the\ngreat number of executed instructions.\nIt could be an infinite loop."),
             window);
 }
 

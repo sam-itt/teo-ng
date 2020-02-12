@@ -55,6 +55,7 @@
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
 #include "defs.h"
 #include "teo.h"
@@ -76,6 +77,13 @@
 #include "alleg/afront.h"
 #include "dos/floppy.h"
 #include "dos/debug.h"
+#include "gettext.h"
+
+#if defined ENABLE_NLS && ENABLE_NLS
+#define __(a) main_Latin1ToCP850(_(a))
+#else
+#define __(a) _(a)
+#endif
 
 
 /* pour limiter la taille de l'éxécutable */
@@ -116,7 +124,57 @@ struct STRING_LIST *remain_name = NULL;
 
 int direct_write_support = TRUE;
 
+/*
+ * Despite claims by DJGPP gettext(), no transcoding
+ * is done between iso-8859 to CP850, which results 
+ * in strange chars in the output instead of accented
+ * letters. 
+ *
+ * Having the mo file in CP850 while possible will make
+ * Allegro very unhappy and display strange chars in the
+ * "in-game" menu which is worst the the problem itself.
+ *
+ * This function does a rough transliteration for console
+ * output.
+ *
+ * It will be replaced by a more sophisticated output
+ * system when messages have to go through console to reach
+ * the user.
+ *
+ */
+static const char *main_Latin1ToCP850(const char *str)
+{
+    static unsigned char *buffer = NULL;
+    static int buffer_len = 0;
+    int len;
 
+    len = strlen(str);
+    if(!buffer || len+1 > buffer_len){
+        if(buffer)
+            free(buffer);
+        buffer = malloc((len+1)*sizeof(char));
+        buffer_len = len;
+    }
+    memset(buffer, 0, buffer_len+1);
+    strcpy(buffer, str);
+    for(int i = 0; i < len; i++){
+        switch(buffer[i]){
+            case 0xE7: //&ccdeil
+                buffer[i] = 0x87;
+                break;
+            case 0xE8: //&eacute
+                buffer[i] = 0x8A;
+                break;
+            case 0xE9: //&egrave
+                buffer[i] = 0x82;
+                break;
+            case 0xF4: //ocirc
+                buffer[i] = 0x83;
+                break;
+        }
+    }
+    return buffer;
+}
 
 
 /* main_ErrorMessage:
@@ -140,36 +198,31 @@ static void ReadCommandLine(int argc, char *argv[])
 
     struct OPTION_ENTRY entries[] = {
         { "reset", 'r', OPTION_ARG_BOOL, &reset,
-           is_fr?"Reset … froid de l'‚mulateur"
-                :"Cold-reset emulator", NULL },
+           __("Cold-reset emulator"), NULL },
         { "disk0", '0', OPTION_ARG_FILENAME, &teo.disk[0].file,
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 0)"),
+           __("FILE") },
         { "disk1", '1', OPTION_ARG_FILENAME, &teo.disk[1].file,
-           is_fr?"Charge un disque virtuel (lecteur 1)"
-                :"Load virtual disk (drive 1)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 1)"),
+           __("FILE") },
         { "disk2", '2', OPTION_ARG_FILENAME, &teo.disk[2].file,
-           is_fr?"Charge un disque virtuel (lecteur 2)"
-                :"Load virtual disk (drive 2)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 2)"),
+           __("FILE") },
         { "disk3", '3', OPTION_ARG_FILENAME, &teo.disk[3].file,
-           is_fr?"Charge un disque virtuel (lecteur 3)"
-                :"Load virtual disk (drive 3)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 3)"),
+           __("FILE") },
         { "cass", '\0', OPTION_ARG_FILENAME, &teo.cass.file,
-           is_fr?"Charge une cassette":"Load a tape",
-           is_fr?"FICHIER":"FILE" },
+           __("Load a tape"),
+           __("FILE") },
         { "memo", '\0', OPTION_ARG_FILENAME, &teo.memo.file,
-           is_fr?"Charge une cartouche":"Load a cartridge",
-           is_fr?"FICHIER":"FILE" },
+           __("Load a cartridge"),
+           __("FILE") },
         { "mode40", '\0', OPTION_ARG_BOOL, &mode40,
-           is_fr?"Affichage en 40 colonnes":"40 columns display", NULL},
+           __("40 columns display"), NULL},
         { "mode80", '\0', OPTION_ARG_BOOL, &mode80,
-           is_fr?"Affichage en 80 colonnes":"80 columns display", NULL},
+           __("80 columns display"), NULL},
         { "truecolor", '\0', OPTION_ARG_BOOL, &truecolor,
-           is_fr?"Affichage en vraies couleurs":"Truecolor display", NULL},
+           __("Truecolor display"), NULL},
         { NULL, 0, 0, NULL, NULL, NULL }
     };
     message = option_Parse (argc, argv, "teo", entries, &remain_name);
@@ -484,17 +537,7 @@ void main_ExitMessage(const char msg[])
 int main(int argc, char *argv[])
 {
     char version_name[]=PACKAGE_STRING" (MSDOS/DPMI)";
-#ifdef FRENCH_LANGUAGE
-    char *mode_desc[3]= {
-        " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
-        " 2. Mode 80 colonnes 16 couleurs\n    (pour les applications fonctionnant en 80 colonnes)",
-        " 3. Mode 80 colonnes 4096 couleurs\n    (affichage lent mais support des changements dynamiques de palette)" };
-#else
-    char *mode_desc[3]= {
-        " 1. 40 columns mode 16 colors\n    (fast diplay, adapted to games and most applications)",
-        " 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)",
-        " 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)" };
-#endif
+    char *mode_desc[3];
     int direct_support = 0;
     int drive_type[4];
     int njoy = 0;  /* njoy=-1 si joystick non supportés */
@@ -503,10 +546,19 @@ int main(int argc, char *argv[])
     int windowed_mode;
     int rv;
 
-#ifdef FRENCH_LANGUAGE
-    is_fr = 1;
-#else
-    is_fr = 0;
+    mode_desc[0] = strdup(__(" 1. 40 columns mode 16 colors\n    (fast diplay, adapted to games and most applications)"));
+    mode_desc[1] = strdup(__(" 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)"));
+    mode_desc[2] = strdup(__(" 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)"));
+
+#if defined ENABLE_NLS && ENABLE_NLS
+    /* Setting the i18n environment */
+    setlocale (LC_ALL, "");
+    char *localedir = std_GetLocaleBaseDir();
+    bindtextdomain(PACKAGE, localedir);
+    bind_textdomain_codeset(PACKAGE, "iso-8859-1");
+    textdomain (PACKAGE);
+    if(localedir)
+        free(localedir);
 #endif
 
     /* traitement des paramètres */
@@ -521,28 +573,18 @@ int main(int argc, char *argv[])
    
     LOCK_VARIABLE(teo);
 
-    /* message d'entête */
-    if (is_fr) {
-    printf("Voici %s l'‚mulateur Thomson TO8.\n", version_name);
-    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, "
-           "Samuel Devulder, Samuel Cuella\n\n");
-    printf("Touches: [ESC] Panneau de contr“le\n");
-    printf("         [F11] Capture d'‚cran\n");
-    printf("         [F12] D‚bogueur\n\n");
-    } else {
-    printf("Here is %s the Thomson TO8 emulator.\n", version_name);
-    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, "
-           "Samuel Devulder, Samuel Cuella\n\n");
-    printf("Keys: [ESC] Control panel\n");
-    printf("      [F11] Screen capture\n");
-    printf("      [F12] Debugger\n\n");
-    }
+    /* message d'entete */
+    printf(__("Here comes %s the Thomson TO8 emulator.\n"), version_name);
+    printf(__("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
+    printf(__("Command keys: [ESC] Control panel\n"));           
+    printf(__("\t[F11] Screenshot\n"));           
+    printf(__("\t[F12] Debugger\n"));           
 
     /* détection de la présence de joystick(s) */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 
-    /* initialisation de l'émulateur */
-    printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
+    /* initialisation de l'emulateur */
+    printf(__("Emulator init..."));
 
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ErrorMessage(teo_error_msg);
@@ -560,15 +602,15 @@ int main(int argc, char *argv[])
             direct_support |= (1<<i);
     }
 
-    /* sélection du mode graphique */ 
-    printf(is_fr?"\nS‚lection du mode graphique:\n\n":"\nSelect graphic mode:\n\n");
+    /* selection du mode graphique */ 
+    printf(__("\nSelect graphic mode:\n\n"));
 
     if (gfx_mode == NO_GFX)
     {
         for (i=0; i<3; i++)
             printf("%s\n\n", mode_desc[i]);
             
-        printf(is_fr?"Votre choix: [1 par d‚faut] ":"Your choice: [1 by default] ");
+        printf(__("Your choice: [default 1] "));
 
         do
         {
@@ -602,22 +644,21 @@ int main(int argc, char *argv[])
 
     rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
     if(rv != 0){
-        main_ExitMessage(is_fr?"Mode graphique non supporté."
-                              :"Unsupported graphic mode");
+        main_ExitMessage(__("Unsupported graphic mode"));
     }
 
-    disk_FirstLoad ();  /* chargement des disquettes éventuelles */
-    cass_FirstLoad ();  /* chargement de la cassette éventuelle */
-    if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
+    disk_FirstLoad ();  /* chargement des disquettes eventuelles */
+    cass_FirstLoad ();  /* chargement de la cassette eventuelle */
+    if (memo_FirstLoad () < 0) /* Chargement de la cartouche eventuelle */
         reset = 1;
 
-    /* chargement des options non définies */
+    /* chargement des options non definies */
     for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
         if (option_Undefined (str_list->str) == 1)
             reset = 1;
     std_StringListFree (remain_name);
 
-    /* Restitue l'état sauvegardé de l'émulateur */
+    /* Restitue l'etat sauvegarde de l'émulateur */
     teo_FullReset();
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
@@ -626,7 +667,7 @@ int main(int argc, char *argv[])
     /* et c'est parti !!! */
     afront_Run(windowed_mode);
 
-    /* Sauvegarde de l'état de l'émulateur */
+    /* Sauvegarde de l'etat de l'emulateur */
     ini_Save();
     image_Save ("autosave.img");
 
@@ -635,10 +676,10 @@ int main(int argc, char *argv[])
     /* mise au repos de l'interface d'accès direct */
     dfloppy_Exit();
 
-    /* sortie de l'émulateur */
-    printf(is_fr?"A bient“t !\n":"Goodbye !\n");
+    /* sortie de l'emulateur */
+    printf(__("Goodbye !\n"));
 
-    /* sortie de l'émulateur */
+    /* sortie de l'emulateur */
     exit(EXIT_SUCCESS);
 }
 

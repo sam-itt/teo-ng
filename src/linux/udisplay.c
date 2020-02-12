@@ -44,7 +44,9 @@
  *
  *  Module d'interface avec le serveur X.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -67,6 +69,7 @@
 #include "media/mouse.h"
 #include "media/disk.h"
 #include "linux/graphic.h"
+#include "gettext.h"
 
 GtkWidget *wMain;
 GdkWindow *gwindow_win;
@@ -658,9 +661,7 @@ void udisplay_Window(void)
     wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_resizable (GTK_WINDOW(wMain), TRUE);
-    gtk_window_set_title (GTK_WINDOW(wMain),
-                          is_fr?"Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
-                               :"Teo - thomson TO8 emulator (menu:ESC/debugger:F12)");
+    gtk_window_set_title (GTK_WINDOW(wMain), _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)"));
 
     gtk_widget_add_events (wMain,
                      GDK_FOCUS_CHANGE_MASK

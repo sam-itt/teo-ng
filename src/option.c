@@ -37,9 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 02/10/2012 & Samuel Devulder 30/07/2011
  *  Modifié par: François Mouret 31/07/2016
+ *               Samuel Cuella   02/2020
  *
  *  Traitement de la ligne de commande.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -63,6 +67,7 @@
 #include "media/disk/fd.h"
 #include "media/memo.h"
 #include "media/cass.h"
+#include "gettext.h"
 
 
 enum {
@@ -108,14 +113,13 @@ static void help_display (struct OPTION_ENTRY option[])
  */
 static void help (char *program_name)
 {
-    printf ("\n%s:\n", is_fr?"Utilisation":"Usage");
+    printf ("\n%s:\n", _("Usage"));
     printf ("    %s [OPTION...] %s\n\n", program_name,
-                           is_fr?"[FICHIER...] [REPERTOIRE...]"
-                                :"[FILE...] [FOLDER...]");
-    printf ("%s:\n", is_fr?"Options de l'aide":"Help Options");
+                           _("[FILE...] [FOLDER...]"));
+    printf ("%s:\n", _("Help Options"));
     help_display (help_option);
     printf ("\n");
-    printf ("%s:\n", is_fr?"Options de l'application":"Application Options");
+    printf ("%s:\n", _("Application Options"));
     help_display (prog_option);
     printf ("\n");
     ini_Save();
@@ -193,7 +197,7 @@ static char *option_check (int argc, char *argv[],
             
             if (option_size == WRONG_OPTION)
                 return std_strdup_printf ("%s : %s", argv[i],
-                              is_fr?"Option inconnue":"Unknown option");
+                              _("Unknown option"));
 
             switch (option[option_i].type) {
             case OPTION_ARG_FILENAME :
@@ -209,13 +213,13 @@ static char *option_check (int argc, char *argv[],
                 }
                 if (s==NULL)
                      return std_strdup_printf ("%s %s",
-                              is_fr?"Argument manquant pour":"Missing argument for",
+                              _("Missing argument for"),
                               argv[i]);
                 break;
             case OPTION_ARG_BOOL : d = option[option_i].reg; *d = 1; break;
             case OPTION_ARG_HELP : help (internal_prog_name); break;
             default : return std_strdup_printf ("%s %s",
-                              is_fr?"Type inconnu pour":"Unknown type for",
+                              _("Unknown type for"),
                               argv[i]);
             }
         }
@@ -239,7 +243,7 @@ char *option_Parse (int argc, char *argv[],
 {
     struct OPTION_ENTRY help_option_list[] = {
         { "help", 'h', OPTION_ARG_HELP, NULL,
-          is_fr?"Aide de ce programme":"Help of this program", NULL },
+          _("Help of this program"), NULL },
         { NULL, 0, 0, NULL, NULL, NULL }
     };
 
@@ -259,8 +263,10 @@ char *option_Parse (int argc, char *argv[],
 
 
 
-/* option_Undefined:
- *     Charge les options indéfinies
+/** 
+ * An argument that is not defined by a type(tape, disk,..) option
+ * Guess what it is and act accordingly (load the file as the right
+ * media type).
  */
 int option_Undefined (char *fname)
 {

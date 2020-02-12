@@ -40,6 +40,7 @@
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
  *                               19/09/2012 18/09/2013
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des réglages.
  */
@@ -52,45 +53,16 @@
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
 #include "defs.h"
+#include "teo.h"
+#include "gettext.h"
+#include "image.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "image.h"
-#include "teo.h"
 
-/* Boîte de dialogue. */
-static DIALOG commdial[]={
-/*  dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
-{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANGUAGE
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Réglages" },
-{ d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Vitesse:" },
-{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  D_EXIT,     1, 0, "&exacte" },
-{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'r',  D_EXIT,     1, 0, "&rapide" },
-{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  D_EXIT,     0, 0, "&Son" },
-{ d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
-{ d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, "Mémoire:" },
-{ d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" },
-{ d_radio_proc,      200,  84,  76,   8, 0, 0, '5',  0,     2, 0, "&512k" },
-{ d_check_proc,       88, 104, 148,  14, 5, 0, 'v',  0,     0, 0, "&Vidéo entrelacée" },
-#else
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Settings" },
-{ d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, " Speed:" },
-{ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  D_EXIT,     1, 0, "&exact" },
-{ d_radio_proc,      205,  44,  76,   8, 0, 0, 'f',  D_EXIT,     1, 0, "&fast" },
-{ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  D_EXIT,     0, 0, "&Sound" },
-{ d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL },
-{ d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, "Memory:" },
-{ d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" },
-{ d_radio_proc,      200,  84,  76,   8, 0, 0, '5',  0,     2, 0, "&512k" },
-{ d_check_proc,       88, 104, 147,  14, 5, 0, 'i',  0,     0, 0, "&Interlaced video" },
-#endif
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
-{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
-};
 
 #define COMMDIAL_EXACTSPEED  3
 #define COMMDIAL_MAXSPEED    4
@@ -100,9 +72,47 @@ static DIALOG commdial[]={
 #define COMMDIAL_512K        9
 #define COMMDIAL_INTERLACE   10
 #define COMMDIAL_OK          11
+#define COMMDIAL_LEN         14
 
+static DIALOG *_commdial = NULL;
+#define asetting_GetDialog() ( _commdial ? _commdial : asetting_AllocDialog())
 
 /* ------------------------------------------------------------------------- */
+
+
+static DIALOG *asetting_AllocDialog(void)
+{
+    DIALOG *rv;
+    int i;
+
+    if(_commdial)
+        return _commdial;
+
+    rv = malloc(sizeof(DIALOG)*COMMDIAL_LEN);
+    i = 0;
+
+/*                        dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
+    rv[i++] = (DIALOG){ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, _("Settings") };
+    rv[i++] = (DIALOG){ d_text_proc,        60,  44,   0,   0, 0, 0,   0,  0,     0, 0, _(" Speed:") };
+    rv[i++] = (DIALOG){ d_radio_proc,      135,  44,  76,   8, 0, 0, 'e',  D_EXIT,     1, 0, _("&exact") };
+    rv[i++] = (DIALOG){ d_radio_proc,      205,  44,  76,   8, 0, 0, 'f',  D_EXIT,     1, 0, _("&fast") };
+    rv[i++] = (DIALOG){ d_check_proc,       78,  64, 120,  14, 5, 0, 's',  D_EXIT,     0, 0, _("&Sound") };
+    rv[i++] = (DIALOG){ d_slider_proc,     144,  64, 100,  15, 0, 0,   0,  0,   254, 0, NULL };
+    rv[i++] = (DIALOG){ d_text_proc,        60,  84,   0,   0, 0, 0,   0,  0,     0, 0, _("Memory:") };
+    rv[i++] = (DIALOG){ d_radio_proc,      135,  84,  76,   8, 0, 0, '2',  0,     2, 0, "&256k" };
+    rv[i++] = (DIALOG){ d_radio_proc,      200,  84,  76,   8, 0, 0, '5',  0,     2, 0, "&512k" };
+    rv[i++] = (DIALOG){ d_check_proc,       88, 104, 148,  14, 5, 0, 'i',  0,     0, 0, _("&Interlaced video") };
+    rv[i++] = (DIALOG){ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
+    rv[i++] = (DIALOG){ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
+
+
+    assert(i <= COMMDIAL_LEN);
+    _commdial = rv;
+    return rv;
+}
+
 
 /* In the scenario where a check/radio has D_EXIT,
  * Allegro4 makes user code manage the state.
@@ -116,6 +126,9 @@ static DIALOG commdial[]={
 
 static void asetting_SetToggle(int idx, int state)
 {
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
     commdial[idx].d1 = state;
     if(state)
         commdial[idx].flags |= D_SELECTED;
@@ -125,6 +138,9 @@ static void asetting_SetToggle(int idx, int state)
 
 static void asetting_ShowSoundControls(int show)
 {
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
     if(show){
         commdial[COMMDIAL_SOUND].flags &= ~D_DISABLED;
         if(commdial[COMMDIAL_SOUND].d1)
@@ -139,6 +155,9 @@ static void asetting_ShowSoundControls(int show)
 
 static void asetting_ToggleSound(void)
 {
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
     if(commdial[COMMDIAL_SOUND].d1){ /*Was selected before the click, i.e user just unselected it*/
         asetting_SetToggle(COMMDIAL_SOUND, FALSE);
         commdial[COMMDIAL_SLIDER].flags |= D_DISABLED;
@@ -151,7 +170,9 @@ static void asetting_ToggleSound(void)
 
 static void asetting_ToggleMaxSpeed(void)
 {
+    DIALOG *commdial;
 
+    commdial = asetting_GetDialog();
     if(commdial[COMMDIAL_MAXSPEED].d1){ /*Was selected before the click, i.e user just unselected it*/
         /*Boilerplate: Self selection handling*/
         asetting_SetToggle(COMMDIAL_MAXSPEED, FALSE);
@@ -175,6 +196,9 @@ static void asetting_ToggleMaxSpeed(void)
 
 static void asetting_ToggleExactSpeed(void)
 {
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
     if(commdial[COMMDIAL_EXACTSPEED].d1){ /*Was selected before the click, i.e user just unselected it*/
         asetting_SetToggle(COMMDIAL_EXACTSPEED, FALSE);
     }else{ /*User just selected it*/
@@ -201,6 +225,9 @@ void asetting_Panel(void)
     int flag;
     int first = 1;
     int ret;
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
 
     /*Speed*/
     asetting_SetToggle(COMMDIAL_EXACTSPEED, FALSE);
@@ -275,7 +302,10 @@ void asetting_Panel(void)
  *  Fixe les 3 couleurs de l'interface utilisateur.
  */
 void asetting_SetColors(int fg_color, int bg_color, int bg_entry_color)
-{
+{   
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
     set_dialog_color(commdial, fg_color, bg_color);
 }
 
@@ -286,6 +316,9 @@ void asetting_SetColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void asetting_Init(int gfx_mode)
 {
+    DIALOG *commdial;
+
+    commdial = asetting_GetDialog();
 #ifdef PLATFORM_MSDOS
     if(gfx_mode == GFX_MODE40)
         commdial[COMMDIAL_INTERLACE].flags = D_DISABLED;

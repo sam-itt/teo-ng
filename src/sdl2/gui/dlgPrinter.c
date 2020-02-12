@@ -1,5 +1,5 @@
 /*
-  Original code from Hatari, adapted for Teo
+  Original code from Hatari, adapted for Teo by Samuel Cuella
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
@@ -11,6 +11,7 @@
 #endif
 
 #include <unistd.h>
+#include <assert.h>
 
 #include "dialog.h"
 #include "sdlgui.h"
@@ -19,6 +20,7 @@
 #include "std.h"
 #include "teo.h"
 #include "media/printer.h"
+#include "gettext.h"
 
 
 static char sFile[FILENAME_MAX];
@@ -42,42 +44,53 @@ static char sRealFile[FILENAME_MAX];
 #define DLGPRN_HQ 20
 
 #define DLGPRN_OK 21
+#define DLGPRN_LEN 23
 
-static SGOBJ printerdlg[] ={
-{ SGBOX,0,0,       0,0,  46,24, NULL },
-{ SGTEXT,0,0,     17, 1, 15,1, "Needle printer" },
+static SGOBJ *_printerdlg = NULL;
 
-{ SGTEXT,0,0,      1,  3,   10,   1, "Save into:" },
-{ SGTEXT,0,0,     12,  3,  16,   1, sFile },
-{ SGBUTTON,0,0,   34,  3,    3,   1, "..." },
+static SGOBJ *sprinter_GetDialog(void)
+{
+    if(!_printerdlg){
+        int i = 0;
+        _printerdlg = malloc(sizeof(SGOBJ)*DLGPRN_LEN);
 
-/*Printer type*/
-{ SGBOX,0,0,       2,  5, 19, 9, NULL },
-{ SGTEXT,0,0,      3,  5, 7, 1, "Printer" },
-{ SGRADIOBUT,0,0,  3,  7, 8,  1, "PR90-042" },
-{ SGRADIOBUT,0,0,  3,  8, 8,  1, "PR90-055" },
-{ SGRADIOBUT,0,0,  3,  9, 8,  1, "PR90-582" },
-{ SGRADIOBUT,0,0,  3, 10, 8,  1, "PR90-600" },
-{ SGRADIOBUT,0,0,  3, 11, 8,  1, "PR90-612" },
+        _printerdlg[i++] = (SGOBJ){ SGBOX,0,0,       0,0,  46,24, NULL };
+        _printerdlg[i++] = (SGOBJ){ SGTEXT,0,0,     17, 1, 15,1, _("Dot-matrix printer") };
 
-/*Ouput*/
-{ SGBOX,0,0,      24, 5, 19,9, NULL },
-{ SGTEXT,0,0,     25, 5, 12,1, "Output mode" },
-{ SGCHECKBOX,0,0, 25, 7, 3, 1, "Raw" },
-{ SGCHECKBOX,0,0, 25, 9, 4, 1, "Text" },
-{ SGCHECKBOX,0,0, 25, 11, 8, 1, "Graphic" },
+        _printerdlg[i++] = (SGOBJ){ SGTEXT,0,0,      1,  3,   10,   1, _("Save into:") };
+        _printerdlg[i++] = (SGOBJ){ SGTEXT,0,0,     12,  3,  16,   1, sFile };
+        _printerdlg[i++] = (SGOBJ){ SGBUTTON,0,0,   34,  3,    3,   1, "..." };
 
-/*Settings*/
-{ SGBOX,0,0,      2, 15, 42, 5, NULL },
-{ SGTEXT,0,0,     3, 15,  9, 1, "Settings" },
-{ SGCHECKBOX,0,0, 3, 17, 14, 1, "Double-spaced" },
-{ SGCHECKBOX,0,0, 3, 18, 12, 1, "HQ Printing" },
+        /*Printer type*/
+        _printerdlg[i++] = (SGOBJ){ SGBOX,0,0,       2,  5, 19, 9, NULL };
+        _printerdlg[i++] = (SGOBJ){ SGTEXT,0,0,      3,  5, 7, 1, _("Printer") };
+        _printerdlg[i++] = (SGOBJ){ SGRADIOBUT,0,0,  3,  7, 8,  1, "PR90-042" };
+        _printerdlg[i++] = (SGOBJ){ SGRADIOBUT,0,0,  3,  8, 8,  1, "PR90-055" };
+        _printerdlg[i++] = (SGOBJ){ SGRADIOBUT,0,0,  3,  9, 8,  1, "PR90-582" };
+        _printerdlg[i++] = (SGOBJ){ SGRADIOBUT,0,0,  3, 10, 8,  1, "PR90-600" };
+        _printerdlg[i++] = (SGOBJ){ SGRADIOBUT,0,0,  3, 11, 8,  1, "PR90-612" };
+
+        /*Ouput*/
+        _printerdlg[i++] = (SGOBJ){ SGBOX,0,0,      24, 5, 19,9, NULL };
+        _printerdlg[i++] = (SGOBJ){ SGTEXT,0,0,     25, 5, 12,1, _("Output mode") };
+        _printerdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0, 25, 7, 3, 1, _("Raw") };
+        _printerdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0, 25, 9, 4, 1, _("Text") };
+        _printerdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0, 25, 11, 8, 1, _("Graphic") };
+
+        /*Settings*/
+        _printerdlg[i++] = (SGOBJ){ SGBOX,0,0,      2, 15, 42, 5, NULL };
+        _printerdlg[i++] = (SGOBJ){ SGTEXT,0,0,     3, 15,  9, 1, _("Settings") };
+        _printerdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0, 3, 17, 14, 1, _("Double spacing") };
+        _printerdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0, 3, 18, 12, 1, _("HQ Printing") };
 
 
-{ SGBUTTON,SG_DEFAULT,0,   34, 22, 10, 1,  "_OK" },
+        _printerdlg[i++] = (SGOBJ){ SGBUTTON,SG_DEFAULT,0,   34, 22, 10, 1,  "_OK" };
 
-{ SGSTOP, 0, 0, 0,0, 0,0, NULL }
-};
+        _printerdlg[i++] = (SGOBJ){ SGSTOP, 0, 0, 0,0, 0,0, NULL };
+        assert(i <= DLGPRN_LEN);
+    }
+    return _printerdlg;
+}
 
 
 /**
@@ -124,7 +137,9 @@ void DlgPrinter_Main(void)
 	int i;
     int but;
     int selected_printer_idx;
+    SGOBJ *printerdlg;
 
+    printerdlg = sprinter_GetDialog();
 	SDLGui_CenterDlg(printerdlg);
 
     /*Output folder*/

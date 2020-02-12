@@ -104,6 +104,7 @@
 #include "sdl2/sfront.h"
 #endif
 
+#include "gettext.h"
 struct EMUTEO teo;
 
 static gchar reset = FALSE;
@@ -135,29 +136,23 @@ static void ReadCommandLine(int argc, char *argv[])
     GOptionContext *context;
     GOptionEntry entries[] = {
         { "reset", 'r', 0, G_OPTION_ARG_NONE, &reset,
-           is_fr?"Reset à froid de l'émulateur"
-                :"Cold-reset emulator", NULL },
+           _("Cold-reset emulator"), NULL },
         { "disk0", '0', 0, G_OPTION_ARG_FILENAME, &disk_name[0],
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)", is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 0)"), _("FILE") },
         { "disk1", '1', 0, G_OPTION_ARG_FILENAME, &disk_name[1],
-           is_fr?"Charge un disque virtuel (lecteur 1)"
-                :"Load virtual disk (drive 1)", is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 1)"), _("FILE") },
         { "disk2", '2', 0, G_OPTION_ARG_FILENAME, &disk_name[2],
-           is_fr?"Charge un disque virtuel (lecteur 2)"
-                :"Load virtual disk (drive 2)", is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 2)"), _("FILE") },
         { "disk3", '3', 0, G_OPTION_ARG_FILENAME, &disk_name[3],
-           is_fr?"Charge un disque virtuel (lecteur 3)"
-                :"Load virtual disk (drive 3)", is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 3)"), _("FILE") },
         { "cass", 0, 0, G_OPTION_ARG_FILENAME, &cass_name,
-           is_fr?"Charge une cassette":"Load a tape", is_fr?"FICHIER":"FILE" },
+           _("Load a tape"), _("FILE") },
         { "memo", 0, 0, G_OPTION_ARG_FILENAME, &memo_name,
-           is_fr?"Charge une cartouche":"Load a cartridge",
-           is_fr?"FICHIER":"FILE" },
+           _("Load a cartridge"), _("FILE") },
 #ifdef GFX_BACKEND_ALLEGRO           
         { "gfx", 'g', 0, G_OPTION_ARG_STRING, &gfx_str,
-           is_fr?"Mode graphique a utiliser (windowed par defaut)"
-                :"Graphic mode to use (defaults to windowed)", "mode40,mode80,truecolor,windowed" },
+           _("Graphic mode to use (defaults to windowed)"), 
+           "mode40,mode80,truecolor,windowed" },
 #endif                
         { G_OPTION_REMAINING, 0, G_OPTION_FLAG_IN_MAIN, 
           G_OPTION_ARG_FILENAME_ARRAY, &remain_name, "", NULL },
@@ -165,13 +160,11 @@ static void ReadCommandLine(int argc, char *argv[])
     };
 
     /* Lit la ligne de commande */
-    context = g_option_context_new (is_fr?"[FICHIER...]"
-                                         :"[FILE...]");
+    context = g_option_context_new (_("[FILE...]"));
     g_option_context_add_main_entries (context, entries, NULL);
     g_option_context_set_ignore_unknown_options (context, FALSE);
-    g_option_context_set_description (context, is_fr
-         ?"Options non définies :\n  Charge cassette, disquette et cartouche\n"
-         :"Undefined options :\n  load tape, disk and cartridge\n");
+    g_option_context_set_description (context, 
+            _("Undefined options :\n  load tape, disk and cartridge\n"));
     if (g_option_context_parse (context, &argc, &argv, &error) == FALSE)
         main_ExitMessage (error->message);
    
@@ -204,7 +197,7 @@ static void ReadCommandLine(int argc, char *argv[])
         if (!strcmp(gfx_str,"mode80"))    gfx_mode = GFX_MODE80   ; else
         if (!strcmp(gfx_str,"truecolor")) gfx_mode = GFX_TRUECOLOR; else
         if (!strcmp(gfx_str,"windowed"))   gfx_mode = GFX_WINDOW; else
-        printf("Unknown graphic mode: %s, defaulting to windowed\n", gfx_str);
+        printf(_("Unknown graphic mode: %s, defaulting to windowed\n"), gfx_str); //LOG
     }
 #endif
     g_option_context_free(context);
@@ -222,7 +215,7 @@ static void init_empty_disk(char *filename)
     dst_name = std_GetUserDataFile(filename);
 
     if(!std_FileExists(src_name)){
-        printf("%s: File %s not found, not copying empty disk to user folder %s\n", __FUNCTION__, filename, dst_name);
+        printf(_("%s: File %s not found, not copying empty disk to user folder %s\n"), __FUNCTION__, filename, dst_name); //LOG
         return;
     }
 
@@ -569,13 +562,16 @@ int main(int argc, char *argv[])
     char version_name[]=PACKAGE_STRING" (Linux/SDL2) ";
 #endif
 
-    /* Sets the language */
-    lang=getenv("LANG");
-    if (lang==NULL) lang="fr_FR";        
-    setlocale(LC_ALL, "");
-    is_fr = (strncmp(lang,"fr",2)==0) ? -1 : 0;
-
-
+#if defined ENABLE_NLS && ENABLE_NLS
+    /* Setting the i18n environment */
+    setlocale (LC_ALL, "");
+    char *localedir = std_GetLocaleBaseDir();
+    bindtextdomain(PACKAGE, localedir);
+    bind_textdomain_codeset(PACKAGE, "UTF-8");
+    textdomain (PACKAGE);
+    if(localedir)
+        free(localedir);
+#endif
 
 #if defined (GFX_BACKEND_GTK_X11)
     ufront_Init();
@@ -589,12 +585,11 @@ int main(int argc, char *argv[])
     init_empty_disk("empty.hfe");
 
 #if defined (GFX_BACKEND_ALLEGRO)
-    w_title = is_fr ? "Teo - l'�mulateur TO8 (menu:ESC/debogueur:F12)"
-                    : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
+    w_title = _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)");
     /*njoy set to -1 would disable joystick detection/support*/
     rv = afront_Init(w_title, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
     if(rv != 0){
-        printf("Couldn't initialize Allegro, bailing out !\n");
+        printf(_("Couldn't initialize Allegro, bailing out !\n")); //ERROR
         exit(EXIT_FAILURE);
     }
     /* num_joysticks: filled by allegro with the number of detected joysticks */
@@ -602,26 +597,20 @@ int main(int argc, char *argv[])
 #elif defined (GFX_BACKEND_SDL2)
     rv = sfront_Init(&njoy, FRONT_ALL);
     if(rv != 0){
-        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
+        fprintf(stderr, _("could not initialize sdl2: %s\n"), SDL_GetError()); //ERROR
         exit(EXIT_FAILURE);
     }
 #endif
 
     /* Affichage du message de bienvenue du programme */
-    printf((is_fr?"Voici %s l'émulateur Thomson TO8.\n"
-                 :"Here's %s the thomson TO8 emulator.\n"),
-                 version_name);
-    printf("Copyright (C) 1997-%s Gilles Fétis, Eric Botcazou, "
-           "Alexandre Pukall, François Mouret ,Samuel Devulder, Samuel Cuella.\n\n",TEO_YEAR_STRING);
-    printf((is_fr?"Touches: [ESC] Panneau de contrôle\n"
-                 :"Keys : [ESC] Control pannel\n"));
-    printf((is_fr?"         [F12] Débogueur\n\n"
-                 :"       [F12] Debugger\n\n"));
+    printf(_("Here comes %s the Thomson TO8 emulator.\n"), version_name);
+    printf(_("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
+    printf(_("Command keys: [ESC] Control panel\n"));           
+    printf(_("\t[F12] Debugger\n"));           
 
     /* Initialisation du TO8 */
-    printf((is_fr?"Initialisation de l'émulateur..."
-                 :"Initialization of the emulator...")); fflush(stderr);
-
+    printf(_("Emulator init..."));
+    fflush(stderr);
 
     /*Number of joysticks to emualte using the keyboard*/
     if ( teo_Init(TEO_NJOYSTICKS-njoy) < 0 )
@@ -636,20 +625,17 @@ int main(int argc, char *argv[])
 #if defined (GFX_BACKEND_ALLEGRO)
     rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
     if(rv != 0){
-        main_ExitMessage(is_fr?"Mode graphique non support�."
-                              :"Unsupported graphic mode");
+        main_ExitMessage(_("Unsupported graphic mode"));
     }
 #elif defined (GFX_BACKEND_GTK_X11)
     rv = ufront_StartGfx("gdk-keymap.ini");
     if(rv < 0)
         main_DisplayMessage(teo_error_msg);
 #elif defined (GFX_BACKEND_SDL2)
-    char *title = is_fr  ? "Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
-                       : "Teo - thomson TO8 emulator (menu:ESC/debugger:F12)";
+    char *title = _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)");
     rv = sfront_startGfx(TRUE, title);
     if(rv < 0){
-        main_ExitMessage(is_fr?"Mode graphique non support�."
-                              :"Unsupported graphic mode");
+        main_ExitMessage(_("Unsupported graphic mode"));
     }
 #endif
     
@@ -678,7 +664,7 @@ int main(int argc, char *argv[])
     udebug_Init();      /* Initialise l'interface graphique */
 #endif
 
-    printf((is_fr?"Lancement de l'émulation...\n":"Launching emulation...\n"));
+    printf(_("Starting emulation...\n"));
     teo_DebugBreakPoint = NULL;
 #if defined (GFX_BACKEND_ALLEGRO)
     afront_Run(windowed_mode);
@@ -701,7 +687,7 @@ int main(int argc, char *argv[])
     sfront_Shutdown();
 #endif
 
-    printf((is_fr?"\nA bientôt !\n":"\nGoodbye !\n"));
+    printf(_("Goodbye !\n"));
     exit(EXIT_SUCCESS);
 }
 

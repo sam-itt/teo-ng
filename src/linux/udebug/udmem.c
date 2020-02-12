@@ -36,11 +36,13 @@
  *  Module     : linux/udebug/udmem.c
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 14/07/2016
- *  Modifié par:
+ *  Modifié par: Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Affichage de la mémoire.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -57,6 +59,7 @@
 #include "to8dbg.h"
 #include "debug/debug.h"
 #include "linux/gui.h"
+#include "gettext.h"
 
 #define HIGHLIGHT_NAME  "teo_dmem_highlight"
 
@@ -163,7 +166,7 @@ static void create_address_widgets (GtkWidget *grid)
 {
     int i;
     char addr[20] = "";
-    GtkWidget *label = gtk_label_new (is_fr?"Adresse:":"Address:");
+    GtkWidget *label = gtk_label_new (_("Address:"));
 
     gtk_grid_attach (GTK_GRID (grid), label, 0, 0, 1, 1);
 
@@ -196,7 +199,7 @@ static void create_cartridge_widgets (GtkWidget *grid)
 {
     int i;
     char addr[20] = "";
-    GtkWidget *label = gtk_label_new (is_fr?"Cartouche:":"Cartridge:");
+    GtkWidget *label = gtk_label_new (_("Cartridge:"));
 
     gtk_grid_attach (GTK_GRID (grid), label, 1, 0, 1, 1);
 
@@ -211,12 +214,12 @@ static void create_cartridge_widgets (GtkWidget *grid)
     }
     gtk_combo_box_text_append_text (
         GTK_COMBO_BOX_TEXT (cart_combo),
-        is_fr?"Memo":"Memo");
+        _("Memo"));
         
     for (i=0; i<teo.setting.bank_range; i++)
     {
         *addr = '\0';
-        sprintf (addr, is_fr?"Banque %d":"Bank %d", i);
+        sprintf (addr, _("Bank %d"), i);
         gtk_combo_box_text_append_text (
             GTK_COMBO_BOX_TEXT (cart_combo),
             addr);
@@ -239,17 +242,17 @@ static void create_cartridge_widgets (GtkWidget *grid)
  */
 static void create_video_widgets (GtkWidget *grid)
 {
-    GtkWidget *label = gtk_label_new (is_fr?"VidÃ©o:":"Video:");
+    GtkWidget *label = gtk_label_new (_("Video:"));
 
     gtk_grid_attach (GTK_GRID (grid), label, 2, 0, 1, 1);
 
     video_combo = gtk_combo_box_text_new ();
     gtk_combo_box_text_append_text (
         GTK_COMBO_BOX_TEXT (video_combo),
-        is_fr?"Forme":"Form");
+        _("Form"));
     gtk_combo_box_text_append_text (
         GTK_COMBO_BOX_TEXT (video_combo),
-        is_fr?"Couleur":"Colour");
+        _("Color"));
     gtk_combo_box_set_active (
         GTK_COMBO_BOX (video_combo),
         teo.debug.video_number);
@@ -270,7 +273,7 @@ static void create_ram_widgets (GtkWidget *grid)
 {
     int i;
     char addr[20] = "";
-    GtkWidget *label = gtk_label_new (is_fr?"RAM:":"RAM:");
+    GtkWidget *label = gtk_label_new ("RAM:");
 
     gtk_grid_attach (GTK_GRID (grid), label, 3, 0, 1, 1);
 
@@ -303,7 +306,7 @@ static void create_monitor_widgets (GtkWidget *grid)
 {
     int i;
     char addr[20] = "";
-    GtkWidget *label = gtk_label_new (is_fr?"Moniteur:":"Monitor:");
+    GtkWidget *label = gtk_label_new (_("Monitor:"));
 
     gtk_grid_attach (GTK_GRID (grid), label, 4, 0, 1, 1);
 

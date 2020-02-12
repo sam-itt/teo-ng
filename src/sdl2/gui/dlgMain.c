@@ -1,17 +1,23 @@
 /*
-  Original code from Hatari, adapted for Teo
+  Original code from Hatari, adapted for Teo by Samuel Cuella
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
   The main dialog.
 */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <assert.h>
 
 #include "dialog.h"
 #include "sdlgui.h"
 #include "screen.h"
 
 #include "teo.h"
+#include "gettext.h"
 
 #define MAINDLG_WARM_RESET 2
 #define MAINDLG_COLD_RESET 3
@@ -26,29 +32,38 @@
 #define MAINDLG_QUIT 10
 #define MAINDLG_ABOUT 11
 #define MAINDLG_OK 12
+#define MAINDLG_LEN 14 
 
+static SGOBJ *_maindlg = NULL;
 
-/* The main dialog: */
-static SGOBJ maindlg[] =
-{ 
-	{ SGBOX, 0, 0,     0, 0, 37,21, NULL },
-	{ SGTEXT, 0, 0,   11, 1, 16,1, "Control Panel" },
+static SGOBJ *sgui_GetDialog(void)
+{
+    if(!_maindlg){
+        int i = 0;
+        _maindlg = malloc(sizeof(SGOBJ)*MAINDLG_LEN);
 
-	{ SGBUTTON, 0, 0,  2, 3, 16,1, "_Warm reset" },
-	{ SGBUTTON, 0, 0, 19, 3, 16,1, "_Cold reset" },
-	{ SGBUTTON, 0, 0, 12, 5, 13,1, "_Full reset" },
+        _maindlg[i++] = (SGOBJ){ SGBOX, 0, 0,     0, 0, 37,21, NULL };
+        _maindlg[i++] = (SGOBJ){ SGTEXT, 0, 0,   11, 1, 16,1, _("Control panel") };
 
-	{ SGBUTTON, 0, 0,  2, 8,  33,1, "_Settings" },
-	{ SGBUTTON, 0, 0,  2, 10,  33,1, "_Disk drives" },
-	{ SGBUTTON, 0, 0,  2, 12, 33,1, "_Tape drive" },
-	{ SGBUTTON, 0, 0,  2, 14, 33,1, "Ca_rtridge" },
-	{ SGBUTTON, 0, 0,  2, 16, 33,1, "_Printer" },
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 3, 16,1, _("_Warm reset") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0, 19, 3, 16,1, _("_Cold reset") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0, 12, 5, 13,1, _("_Full reset") };
 
-	{ SGBUTTON, 0, 0,  2, 19, 10,1, "_Quit" },
-	{ SGBUTTON, 0, 0, 13, 19, 11,1, "A_bout" },
-	{ SGBUTTON, SG_DEFAULT|SG_CANCEL, 0, 25, 19, 10,1, "_OK" },
-	{ SGSTOP, 0, 0, 0,0, 0,0, NULL }
-};
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 8,  33,1, _("_Settings") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 10,  33,1, _("_Disk drives") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 12, 33,1, _("_Tape drive") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 14, 33,1, _("Ca_rtridge") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 16, 33,1, _("_Printer") };
+
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0,  2, 19, 10,1, _("_Quit") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, 0, 0, 13, 19, 11,1, _("A_bout") };
+        _maindlg[i++] = (SGOBJ){ SGBUTTON, SG_DEFAULT|SG_CANCEL, 0, 25, 19, 10,1, "_OK" };
+        _maindlg[i++] = (SGOBJ){ SGSTOP, 0, 0, 0,0, 0,0, NULL };
+
+        assert(i <= MAINDLG_LEN);
+    }
+    return _maindlg;
+}
 
 
 /**
@@ -59,7 +74,10 @@ int Dialog_MainDlg(bool adjustableVolume, int da_mask)
 	int retbut, response;
 	bool bOldMouseVisibility;
 	int nOldMouseX, nOldMouseY;
+    SGOBJ *maindlg;
 
+    maindlg = sgui_GetDialog();
+    
 	SDL_GetMouseState(&nOldMouseX, &nOldMouseY);
 	bOldMouseVisibility = SDL_ShowCursor(SDL_QUERY);
 	SDL_ShowCursor(SDL_ENABLE);

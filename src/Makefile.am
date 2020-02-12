@@ -40,7 +40,9 @@ endif #PLATFORM_MSDOS
 
 
 noinst_LTLIBRARIES = libteo.la
-libteo_la_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include -DSYSCONFDIR="\"@sysconfdir@\"" -DDATAROOTDIR="\"@datarootdir@\""
+libteo_la_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include \
+					 -DSYSCONFDIR="\"@sysconfdir@\"" -DDATAROOTDIR="\"@datarootdir@\"" \
+					 -DLOCALEDIR=\"$(localedir)\"
 libteo_la_LIBADD = $(DEPS_LIBS) $(PNG_LIBS)
 libteo_la_SOURCES = \
 	mc68xx/dasm6809.c \
@@ -77,8 +79,13 @@ libteo_la_SOURCES = \
 	errors.c \
 	std.c \
 	ini.c \
-	logsys.c \
 	teo.c
+
+
+if GFX_BACKEND_SDL2
+libteo_la_SOURCES += logsys.c
+endif
+
 
 EXTRA_DIST = \
 	change.log

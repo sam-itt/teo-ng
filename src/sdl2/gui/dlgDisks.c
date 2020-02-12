@@ -1,11 +1,15 @@
 /*
-  Original code from Hatari, adapted for Teo
+  Original code from Hatari, adapted for Teo by Samuel Cuella
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
   Dialog to load/eject flopyy disks 
 */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -19,6 +23,7 @@
 #include "teo.h"
 #include "media/disk.h"
 #include "media/disk/daccess.h"
+#include "gettext.h"
 
 
 #define DLGDSK_0_EJECT 5
@@ -47,6 +52,7 @@
 
 #define DLGDSK_DIRECT_ACCESS 28
 #define DLGDSK_OK 29
+#define DLGDSK_LEN 31
 
 #define MAX_FLOPPYDRIVES 4
 
@@ -57,58 +63,69 @@ static char sFiles[4][FILENAME_MAX]; /*Better use dynamic allocation*/
  * */
 static char snSides[4][2]; 
 
-static SGOBJ diskdlg[]={
-/*type, f,s        x    y    w    h  text */
-{ SGBOX,0,0,       0,  0,   50, 16, NULL },
-{ SGTEXT,0,0,      18,  1,   11,   1, "Disk drives" },
+static SGOBJ *_diskdlg = NULL;
 
-/*Header*/
-{ SGTEXT,0,0,     30,  2,   4, 1,  "side" },
-{ SGTEXT,0,0,     40,  2,   5, 1,  "prot." },
+static SGOBJ *sdisk_GetDialog(void)
+{
+    if(!_diskdlg){
+        int i = 0;
+        _diskdlg = malloc(sizeof(SGOBJ)*DLGDSK_LEN);
+                                /*type, f,s        x    y    w    h  text */
+        _diskdlg[i++] = (SGOBJ){ SGBOX,0,0,       0,  0,   50, 16, NULL };
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      18,  1,   11,   1, _("Disk drives") };
 
-  /* disk 0 */
-{ SGTEXT,0,0,      1,  4,   2,   1, "0:" },
-{ SGBUTTON,0,0,    4,  4,   1,   1, "x" },
-{ SGTEXT,0,0,      6,  4,  16,   1, sFiles[0] },
-{ SGBUTTON,0,0,    32, 4,   1,   1, snSides[0] },
-{ SGBUTTON,0,0,    35, 4,   3,   1, "..." },
-{ SGCHECKBOX,0,0,  41, 4,   1,   1, "" },
-  /* disk 1 */
-{ SGTEXT,0,0,      1,  6,   2,   1, "1:" },
-{ SGBUTTON,0,0,    4,  6,   1,   1, "x" },
-{ SGTEXT,0,0,      6,  6,  16,   1, sFiles[1] },
-{ SGBUTTON,0,0,    32, 6,   1,   1, snSides[1] },
-{ SGBUTTON,0,0,    35, 6,   3,   1, "..." },
-{ SGCHECKBOX,0,0,  41, 6,   1,   1, "" },
-  /* disk 2 */
-{ SGTEXT,0,0,      1,  8,   2,   1, "2:" },
-{ SGBUTTON,0,0,    4,  8,   1,   1, "x" },
-{ SGTEXT,0,0,      6,  8,  16,   1, sFiles[2] },
-{ SGBUTTON,0,0,    32, 8,   1,   1, snSides[2] },
-{ SGBUTTON,0,0,    35, 8,   3,   1, "..." },
-{ SGCHECKBOX,0,0,  41, 8,   1,   1, "" },
+        /*Header*/
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,     30,  2,   4, 1,  _("side") };
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,     40,  2,   5, 1,  _("prot.") };
 
-  /* disk 3 */
-{ SGTEXT,0,0,      1,  10,   2,   1, "3:" },
-{ SGBUTTON,0,0,    4,  10,   1,   1, "x" },
-{ SGTEXT,0,0,      6,  10,  16,   1, sFiles[3] },
-{ SGBUTTON,0,0,    32, 10,   1,   1, snSides[3] },
-{ SGBUTTON,0,0,    35, 10,   3,   1, "..." },
-{ SGCHECKBOX,0,0,  41, 10,   1,   1, "" },
+          /* disk 0 */
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      1,  4,   2,   1, "0:" };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    4,  4,   1,   1, "x" };
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      6,  4,  16,   1, sFiles[0] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    32, 4,   1,   1, snSides[0] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    35, 4,   3,   1, "..." };
+        _diskdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0,  41, 4,   1,   1, "" };
+          /* disk 1 */
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      1,  6,   2,   1, "1:" };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    4,  6,   1,   1, "x" };
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      6,  6,  16,   1, sFiles[1] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    32, 6,   1,   1, snSides[1] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    35, 6,   3,   1, "..." };
+        _diskdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0,  41, 6,   1,   1, "" };
+          /* disk 2 */
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      1,  8,   2,   1, "2:" };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    4,  8,   1,   1, "x" };
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      6,  8,  16,   1, sFiles[2] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    32, 8,   1,   1, snSides[2] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    35, 8,   3,   1, "..." };
+        _diskdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0,  41, 8,   1,   1, "" };
+          /* disk 3 */
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      1,  10,   2,   1, "3:" };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    4,  10,   1,   1, "x" };
+        _diskdlg[i++] = (SGOBJ){ SGTEXT,0,0,      6,  10,  16,   1, sFiles[3] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    32, 10,   1,   1, snSides[3] };
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    35, 10,   3,   1, "..." };
+        _diskdlg[i++] = (SGOBJ){ SGCHECKBOX,0,0,  41, 10,   1,   1, "" };
 
-  /* direct disk */
-{ SGBUTTON,0,0,     1, 12,  46,  1, "_Direct access" },
+          /* direct disk */
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,0,0,     1, 12,  46,  1, _("_Direct access") };
 
-{ SGBUTTON,SG_DEFAULT,0,   37, 14, 10,  1,  "_OK" },
-{ SGSTOP, 0, 0, 0,0, 0,0, NULL }
-};
+        _diskdlg[i++] = (SGOBJ){ SGBUTTON,SG_DEFAULT,0,   37, 14, 10,  1,  "_OK" };
+        _diskdlg[i++] = (SGOBJ){ SGSTOP, 0, 0, 0,0, 0,0, NULL };
 
+        assert(i <= DLGDSK_LEN);
+    }
+    return _diskdlg;
+}
 
 
 static void DlgDisks_EjectDisk(char *dlgname, int drive)
 {
 	assert(drive >= 0 && drive < MAX_FLOPPYDRIVES);
     int pIdx;
+    SGOBJ *diskdlg;
+
+    diskdlg = sdisk_GetDialog();
 
     pIdx = DLGDSK_0_WPROT + drive * (DLGDSK_1_WPROT-DLGDSK_0_WPROT);
     diskdlg[pIdx].state &= ~SG_SELECTED;
@@ -132,6 +149,10 @@ static void DlgDisks_BrowseDisk(char *dlgname, int drive)
 	const char *tmpname;
     int objIdx;
     int diskid;
+    SGOBJ *diskdlg;
+
+    diskdlg = sdisk_GetDialog();
+
 
 	if (teo.disk[drive].file)
 	    tmpname = teo.disk[drive].file;
@@ -191,12 +212,14 @@ static void DlgDisks_SideNext(int drive)
 static void DlgDisks_ToggleWriteProtection(int drive)
 {
     int pIdx;
+    SGOBJ *diskdlg;
+
+    diskdlg = sdisk_GetDialog();
 
     pIdx = DLGDSK_0_WPROT + drive * (DLGDSK_1_WPROT-DLGDSK_0_WPROT);
     if(teo.disk[drive].write_protect){ //Disk is currently protected
         if(disk_Protection(drive, false) == true){
-            DlgAlert_Notice(is_fr? "Ecriture impossible sur ce support."
-                                   :"Writing unavailable on this device.");
+            DlgAlert_Notice(_("Writing unavailable on this device."));
             diskdlg[pIdx].state |= SG_SELECTED;
         }else{
             diskdlg[pIdx].state &= ~SG_SELECTED;
@@ -212,6 +235,9 @@ static void DlgDisks_EnableDirectAccess(int direct_disk)
 {
     int drive;
     int objIdx;
+    SGOBJ *diskdlg;
+
+    diskdlg = sdisk_GetDialog();
 
     for (drive=0; drive<4; drive++)
     {
@@ -241,8 +267,10 @@ void DlgDisks_Main(int da_mask)
 	int i;
 	int but;
     int objIdx;
+    SGOBJ *diskdlg;
 
-    
+    diskdlg = sdisk_GetDialog();
+
 	SDLGui_CenterDlg(diskdlg);
 
     /*Here get disks files from TEO config and put them in

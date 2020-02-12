@@ -59,6 +59,7 @@ extern void  std_CleanPath (char *filename);
 extern char* std_LastDir(char *fullname);
 extern char* std_BaseName(char *fullname);
 extern char *std_ApplicationPath (const char dirname[], const char filename[]);
+const char *std_GetLocaleBaseDir(void);
 char *std_GetTeoSystemFile(char *name);
 char *std_getSystemConfigDir();
 char *std_getUserConfigDir();
@@ -67,6 +68,7 @@ char *std_GetUserDataFile(char *filename);
 char *std_GetFirstExistingConfigFile(char *filename);
 const char *std_getRootPath(void);
 extern char *std_PathAppend(const char *existing, const char *component);
+extern char *std_PathAppendMultiple(const char *existing, ...);
 extern bool std_IsAbsolutePath(const char *filename);
 
 extern void *std_free (void *p);

@@ -39,22 +39,27 @@
  *  Modifié par: Jérémie GUILLAUME alias "JnO" 1998
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
+ *               Samuel Cuella 02/2020
  *
  *  Panneau de contrôle de l'émulateur.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
+#include "std.h"
+#include "teo.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "std.h"
-#include "teo.h"
+#include "gettext.h"
 
 
 /* Facteur de correction pour la taille des boutons. */
@@ -127,47 +132,13 @@ static int PopupQuestion(const char question[], int focus)
 }
 
 /*
-if (PopupQuestion(is_fr?"Voulez-vous vraiment quitter ?":"Do you really want to quit ?", FOCUS_NO))
+if (PopupQuestion(_("Do you really want to quit ?"), FOCUS_NO))
 {
 }
 */
 
 #endif
 
-/* Boîte de dialogue. */
-static DIALOG controldial[]={
-/*  dialog proc       x    y    w    h  fg bg  key  flags  d1 d2  dp  */
-{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,  0,    0,    0, 0, NULL },
-#ifdef FRENCH_LANGUAGE
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Panneau de contrôle" },
-{ d_button_proc,      30,  35, 128,  16, 0, 0, 'c', D_EXIT, 0, 0, "Reset à &chaud" },
-{ d_button_proc,     162,  35, 128,  16, 0, 0, 'f', D_EXIT, 0, 0, "Reset à &froid" },
-{ d_button_proc,      93,  53, 128,  16, 0, 0, 'e', D_EXIT, 0, 0, "R&eset total" },
-{ d_button_proc,      30,  75, 260,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Réglages..." },
-{ d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, "Lecteurs de &disquettes..." },
-{ d_button_proc,      30, 111, 260,  16, 0, 0, 's', D_EXIT, 0, 0, "Lecteur de ca&ssettes..." },
-{ d_button_proc,      30, 129, 260,  16, 0, 0, 't', D_EXIT, 0, 0, "Lecteur de car&touches..." },
-{ d_button_proc,      30, 147, 260,  16, 0, 0, 'i', D_EXIT, 0, 0, "&Imprimante matricielle..." },
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quitter" },
-{ d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, "&A Propos" },
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-#else
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Control panel" },
-{ d_button_proc,      30,  35, 128,  16, 0, 0, 'w', D_EXIT, 0, 0, "&Warm reset" },
-{ d_button_proc,     162,  35, 128,  16, 0, 0, 'c', D_EXIT, 0, 0, "&Cold reset" },
-{ d_button_proc,      93,  53, 128,  16, 0, 0, 'f', D_EXIT, 0, 0, "&Full reset" },
-{ d_button_proc,      30,  75, 260,  16, 0, 0, 's', D_EXIT, 0, 0, "&Settings..." },
-{ d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Disk drives..." },
-{ d_button_proc,      30, 111, 260,  16, 0, 0, 't', D_EXIT, 0, 0, "&Tape recorder..." },
-{ d_button_proc,      30, 129, 260,  16, 0, 0, 'r', D_EXIT, 0, 0, "Ca&rtridge reader..." },
-{ d_button_proc,      30, 147, 260,  16, 0, 0, 'p', D_EXIT, 0, 0, "Dot-matrix &printer..." },
-{ d_button_proc,      30, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, "&Quit" },
-{ d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, "&About" },
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-#endif
-{ d_yield_proc,       20,  10,   0,   0, 0, 0,  0,    0,    0, 0, NULL },
-{ NULL,                0,   0,   0,   0, 0, 0,  0,    0,    0, 0, NULL }
-};
 
 #define CONTROLDIAL_WARMRESET 2
 #define CONTROLDIAL_COLDRESET 3
@@ -180,9 +151,46 @@ static DIALOG controldial[]={
 #define CONTROLDIAL_QUIT      10
 #define CONTROLDIAL_ABOUT     11
 #define CONTROLDIAL_OK        12
+#define CONTROLDIAL_LEN        15
 
+static DIALOG *_controldial = NULL;
+#define agui_GetDialog() ( _controldial ? _controldial: agui_AllocDialog())
 
 /* ------------------------------------------------------------------------- */
+static DIALOG *agui_AllocDialog(void)
+{
+    DIALOG *rv;
+    int i;
+
+    if(_controldial)
+        return _controldial;
+
+    rv = malloc(sizeof(DIALOG)*CONTROLDIAL_LEN);
+    i = 0;
+
+/*                        dialog proc       x    y    w    h  fg bg  key  flags  d1 d2  dp  */
+    rv[i++] = (DIALOG){ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,  0,    0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, _("Control panel") };
+    rv[i++] = (DIALOG){ d_button_proc,      30,  35, 128,  16, 0, 0, 'w', D_EXIT, 0, 0, _("&Warm reset") };
+    rv[i++] = (DIALOG){ d_button_proc,     162,  35, 128,  16, 0, 0, 'c', D_EXIT, 0, 0, _("&Cold reset") };
+    rv[i++] = (DIALOG){ d_button_proc,      93,  53, 128,  16, 0, 0, 'f', D_EXIT, 0, 0, _("&Full reset") };
+    rv[i++] = (DIALOG){ d_button_proc,      30,  75, 260,  16, 0, 0, 's', D_EXIT, 0, 0, _("&Settings...") };
+    rv[i++] = (DIALOG){ d_button_proc,      30,  93, 260,  16, 0, 0, 'd', D_EXIT, 0, 0, _("&Disk drives...") };
+    rv[i++] = (DIALOG){ d_button_proc,      30, 111, 260,  16, 0, 0, 't', D_EXIT, 0, 0, _("&Tape drive...") };
+    rv[i++] = (DIALOG){ d_button_proc,      30, 129, 260,  16, 0, 0, 'r', D_EXIT, 0, 0, _("Ca&rtridge drive...") };
+    rv[i++] = (DIALOG){ d_button_proc,      30, 147, 260,  16, 0, 0, 'p', D_EXIT, 0, 0, _("Dot-matrix &printer...") };
+    rv[i++] = (DIALOG){ d_button_proc,      30, 170,  80,  16, 0, 0, 'q', D_EXIT, 0, 0, _("&Quit") };
+    rv[i++] = (DIALOG){ d_button_proc,     120, 170,  80,  16, 0, 0, 'a', D_EXIT, 0, 0, _("&About") };
+    rv[i++] = (DIALOG){ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
+    rv[i++] = (DIALOG){ d_yield_proc,       20,  10,   0,   0, 0, 0,  0,    0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ NULL,                0,   0,   0,   0, 0, 0,  0,    0,    0, 0, NULL };
+
+    assert(i <= CONTROLDIAL_LEN);
+
+    _controldial = rv;
+
+    return rv;
+}
 
 
 /* ControlPanel:
@@ -191,6 +199,9 @@ static DIALOG controldial[]={
 void agui_Panel(void)
 {
     int response;
+    DIALOG *controldial;
+
+    controldial = agui_GetDialog();
     clear_keybuf();
     centre_dialog(controldial);
 
@@ -206,11 +217,11 @@ void agui_Panel(void)
                 return;
 
             case CONTROLDIAL_FULLRESET:
-                response = alert (is_fr?"Toute la mémoire":"All the memory",
-                                  is_fr?"sera effacée.":"will be cleared.",
+                response = alert (_("All the memory"),
+                                  _("will be cleared."),
                                   NULL,
                                   "Ok",
-                                  is_fr?"Annuler":"Cancel", 0, 0);
+                                  _("Cancel"), 0, 0);
                 if (response == 1)
                 {
                     teo.command=TEO_COMMAND_FULL_RESET;
@@ -261,6 +272,9 @@ void agui_Panel(void)
  */
 void agui_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
+    DIALOG *controldial;
+
+    controldial = agui_GetDialog();
     set_dialog_color(mesgdial, fg_color, bg_color);
 /*    set_dialog_color(questdial, fg_color, bg_color); */
     

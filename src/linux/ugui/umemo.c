@@ -40,10 +40,13 @@
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 12/06/2012
  *                               04/11/2012 31/05/2015
+ *               Samuel Cuella   02/2020
  *
  *  Gestion des cartouches.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -57,6 +60,7 @@
 #include "teo.h"
 #include "std.h"
 #include "errors.h"
+#include "gettext.h"
 
 static GtkWidget *combo;
 static gulong combo_id;
@@ -140,7 +144,7 @@ static void add_combo_entry (const char *name, const char *path)
  */
 static void init_combo (void)
 {
-    add_combo_entry (is_fr?"(Aucun)":"(None)", "");
+    add_combo_entry (_("(None)"), "");
 }
 
 
@@ -205,12 +209,12 @@ static void open_file (GtkButton *button, gpointer data)
 
     if (first) {
         dialog = gtk_file_chooser_dialog_new (
-                 is_fr?"SÃ©lectionner une cartouche":"Select a cartridge",
+                 _("Select a cartridge"),
                  (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_OPEN,
-                 is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
-                 is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
+                 _("_Cancel"), GTK_RESPONSE_CANCEL,
+                 _("_Open"), GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
-        gtk_file_filter_set_name (filter, is_fr?"Fichiers cartouche (.m7)":"Cartridge files (.m7)");
+        gtk_file_filter_set_name (filter, _("Cartridge files (.m7)"));
         gtk_file_filter_add_mime_type (filter, "application/x-thomson-cartridge-memo7");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
@@ -282,7 +286,7 @@ void umemo_Init (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Cartouche":"Cartridge"));
+    widget=gtk_label_new((_("Cartridge")));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
@@ -298,7 +302,7 @@ void umemo_Init (GtkWidget *notebook)
     emptying_button = gtk_button_new ();
     image = gtk_image_new_from_icon_name ("edit-clear", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(emptying_button), image);
-    gtk_widget_set_tooltip_text (emptying_button, is_fr?"Vide la liste des fichiers":"Empty the file list");
+    gtk_widget_set_tooltip_text (emptying_button, _("Clear the file list"));
     gtk_box_pack_start( GTK_BOX(hbox), emptying_button, FALSE, FALSE, 0);
     emptying_button_id = g_signal_connect(G_OBJECT(emptying_button), "clicked", G_CALLBACK(reset_combo), (gpointer) NULL);
 
@@ -314,7 +318,7 @@ void umemo_Init (GtkWidget *notebook)
     widget = gtk_button_new ();
     image = gtk_image_new_from_icon_name ("document-open", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(widget), image);
-    gtk_widget_set_tooltip_text (widget, is_fr?"Ouvrir un fichier cartouche":"Open a cartridge file");
+    gtk_widget_set_tooltip_text (widget, _("Open a cartridge file"));
     gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
     (void)g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(open_file), (gpointer) NULL);
     

@@ -4,7 +4,7 @@ src_dir = $(top_srcdir)/src
 bin_PROGRAMS = teo
 
 #if GFX_BACKEND_ALLEGRO only supported backend for win32.
-teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS)
+teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(INTLLIBS)
 #else
 #teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS) $(XEXT_LIBS) $(X11_LIBS) $(ALSA_LIBS)
 #endif

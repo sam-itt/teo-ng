@@ -43,7 +43,9 @@
  *
  *  Gestion de l'émulation sonore du TO8.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -60,6 +62,7 @@
 #include "std.h"
 #include "errors.h"
 #include "teo.h"
+#include "gettext.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
 #define ALSA_SOUND_FREQ  44100         /* débit */
@@ -277,14 +280,11 @@ int usound_Init(void)
 
     if (teo.setting.sound_enabled)
     {
-        printf(is_fr?"Initialisation du son (ALSA)..."
-                    :"Sound initialization (ALSA)...");
+        printf(_("Sound initialization (ALSA)..."));
 
         /* Open PCM device for playback. */
         if ((err = snd_pcm_open(&handle, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
-            return sound_error (snd_strerror(err),
-                                   is_fr?"Impossible d'ouvrir le pÃ©riphÃ©rique audio"
-                                        :"Unable to open audio device");
+            return sound_error (snd_strerror(err), _("Unable to open audio device"));
 
         /* Initialise les paramètres hardware */
         snd_pcm_hw_params_alloca (&hwparams);
@@ -300,9 +300,7 @@ int usound_Init(void)
         sound_buffer_size = period_size * ALSA_CHANNELS * (snd_pcm_format_physical_width(data_type) >> 3);
         sound_buffer = (unsigned char *)calloc (sound_buffer_size, sizeof(unsigned char));
         if (sound_buffer == NULL)
-            return sound_error (is_fr?"Erreur audio":"Audio error",
-                                is_fr?"MÃ©moire insuffisante pour le buffer"
-                                     :"Insufficient memory for buffer");
+            return sound_error (_("Audio error"), _("Insufficient memory for buffer"));
 
         snd_pcm_prepare (handle);
 

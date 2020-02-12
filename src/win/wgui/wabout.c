@@ -39,9 +39,13 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               03/11/2012 10/05/2014
+ *               Samuel Cuella 02/2020
  *
  *  Fenêtre "A Propos".
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 
 #ifndef SCAN_DEPEND
@@ -51,7 +55,9 @@
 #endif
 
 #include "teo.h"
+#include "std.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 /* ------------------------------------------------------------------------- */
 
@@ -100,19 +106,12 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SendMessage(aboutTitle, WM_SETFONT, (WPARAM)hTitleStyle, TRUE);
          SendMessage(aboutLicense, WM_SETFONT, (WPARAM)hLicenseStyle, TRUE);
          SendMessage(aboutCopyright, WM_SETFONT, (WPARAM)hCopyrightStyle, TRUE);
-#ifdef FRENCH_LANGUAGE
-         SetWindowText(hDlg, "Teo - A propos");
-         SetWindowText(aboutLink, "Teo sur SourceForge");
-         SetWindowText(aboutForum, "Forum sur le Web");
-#else
-         SetWindowText(hDlg, "Teo - About");
-         SetWindowText(aboutLink, "Teo on SourceForge");
-         SetWindowText(aboutForum, "Web forum");
-#endif
-         SetWindowText(aboutCopyright, "Copyright © 1997-"TEO_YEAR_STRING"\n" \
-                           " Gilles Fétis, Eric Botcazou, Alexandre Pukall, " \
-                           "Jérémie Guillaume, François Mouret, " \
-                           "Samuel Devulder" );
+         SetWindowText(hDlg, _("Teo - About"));
+         SetWindowText(aboutLink, _("Teo on SourceForge"));
+         SetWindowText(aboutForum, _("Web forum"));
+         char *tmp = std_strdup_printf ("Copyright © 1997-Copyright © 1997-%s\n%s", 
+                                        TEO_YEAR_STRING, TEO_AUTHORS); /*TODO: free me ?*/
+         SetWindowText(aboutCopyright, tmp );
          SetClassLongPtr(aboutLink, GCLP_HCURSOR,
                          (ULONG_PTR)LoadCursor(NULL, IDC_HAND));
          return TRUE;

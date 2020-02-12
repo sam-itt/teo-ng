@@ -85,6 +85,7 @@
 #include "SDL_syswm.h"
 #include "sdl2/sfront.h"
 #endif
+#include "gettext.h"
 
 struct EMUTEO teo;
 
@@ -105,38 +106,23 @@ static void read_command_line(int argc, char *argv[])
 
     struct OPTION_ENTRY entries[] = {
         { "reset", 'r', OPTION_ARG_BOOL, &reset,
-           is_fr?"Reset … froid de l'‚mulateur"
-                :"Cold-reset emulator", NULL },
+           _("Cold-reset emulator"), NULL },
         { "disk0", '0', OPTION_ARG_FILENAME, &teo.disk[0].file,
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 0)"), _("FILE") },
         { "disk1", '1', OPTION_ARG_FILENAME, &teo.disk[1].file,
-           is_fr?"Charge un disque virtuel (lecteur 1)"
-                :"Load virtual disk (drive 1)",
-           is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 1)"), _("FILE") },
         { "disk2", '2', OPTION_ARG_FILENAME, &teo.disk[2].file,
-           is_fr?"Charge un disque virtuel (lecteur 2)"
-                :"Load virtual disk (drive 2)",
-           is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 2)"), _("FILE") },
         { "disk3", '3', OPTION_ARG_FILENAME, &teo.disk[3].file,
-           is_fr?"Charge un disque virtuel (lecteur 3)"
-                :"Load virtual disk (drive 3)",
-           is_fr?"FICHIER":"FILE" },
+           _("Load virtual disk (drive 3)"), _("FILE") },
         { "cass", '\0', OPTION_ARG_FILENAME, &teo.cass.file,
-           is_fr?"Charge une cassette":"Load a tape",
-           is_fr?"FICHIER":"FILE" },
+           _("Load a tape"), _("FILE") },
         { "memo", '\0', OPTION_ARG_FILENAME, &teo.memo.file,
-           is_fr?"Charge une cartouche":"Load a cartridge",
-           is_fr?"FICHIER":"FILE" },
-        { "mode40", '\0', OPTION_ARG_BOOL, &mode40,
-           is_fr?"Affichage en 40 colonnes":"40 columns display", NULL},
-        { "mode80", '\0', OPTION_ARG_BOOL, &mode80,
-           is_fr?"Affichage en 80 colonnes":"80 columns display", NULL},
-        { "truecolor", '\0', OPTION_ARG_BOOL, &truecolor,
-           is_fr?"Affichage en vraies couleurs":"Truecolor display", NULL},
-        { "window", '\0', OPTION_ARG_BOOL, &windowd,
-           is_fr?"Mode fenˆtr‚":"Windowed display", NULL},
+           _("Load a cartridge"), _("FILE") },
+        { "mode40", '\0', OPTION_ARG_BOOL, &mode40, _("40 columns display"), NULL},
+        { "mode80", '\0', OPTION_ARG_BOOL, &mode80, _("80 columns display"), NULL},
+        { "truecolor", '\0', OPTION_ARG_BOOL, &truecolor, _("Truecolor display"), NULL},
+        { "window", '\0', OPTION_ARG_BOOL, &windowd, _("Windowed display"), NULL},
         { NULL, 0, 0, NULL, NULL, NULL }
     };
     message = option_Parse (argc, argv, "teow", entries, &remain_name);
@@ -432,7 +418,7 @@ void main_DisplayMessage(const char msg[])
 {
     if (windowed_mode)
     {
-        MessageBox(prog_win, (const char*)msg, is_fr?"Teo - Erreur":"Teo - Error",
+        MessageBox(prog_win, (const char*)msg, _("Teo - Error"),
                     MB_OK | MB_ICONERROR);
     }
     else
@@ -477,12 +463,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     int njoy = 0;
     struct STRING_LIST *str_list;
 
-#ifdef FRENCH_LANGUAGE
-    is_fr = 1;
-#else
-    is_fr = 0;
-#endif
-
     /* initialise les librairies */
     InitCommonControls();
     OleInitialize(0);
@@ -512,14 +492,23 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	argv = (void*)__argv;
 #endif
 
+#if defined ENABLE_NLS && ENABLE_NLS
+    /* Setting the i18n environment */
+    setlocale (LC_ALL, "");
+    char *localedir = std_GetLocaleBaseDir();
+    bindtextdomain(PACKAGE, localedir);
+    textdomain (PACKAGE);
+    if(localedir)
+        free(localedir);
+#endif
+
     ini_Load();                   /* Charge les paramètres par défaut */
     read_command_line (argc, argv); /* Récupération des options */
 
     int rv;
     char *w_title;
 
-    w_title = is_fr ? "Teo - l'ï¿½mulateur TO8 (menu:ESC/debogueur:F12)"
-                    : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
+    w_title = _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)");
 
 
 #if defined (GFX_BACKEND_ALLEGRO)
@@ -541,8 +530,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
 
 
-    /* initialisation de l'émulateur */
-    printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
+    /* initialisation de l'emulateur */
+    printf(_("Emulator init..."));
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
     printf("ok\n");
@@ -552,14 +541,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     /* initialisation du mode graphique */
     rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
     if(rv != 0){
-        main_ExitMessage(is_fr?"Mode graphique non supporté."
-                              :"Unsupported graphic mode");
+        main_ExitMessage(_("Unsupported graphic mode"));
     }
 #elif defined (GFX_BACKEND_SDL2)
-    rv = sfront_startGfx(&windowed_mode, w_title);
+    rv = sfront_startGfx(TRUE, w_title);
     if(rv < 0){
-        main_ExitMessage(is_fr?"Mode graphique non supporté."
-                              :"Unsupported graphic mode");
+        main_ExitMessage(_("Unsupported graphic mode"));
     }
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
@@ -570,18 +557,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     SetClassLong(prog_win, GCL_HICON,   (LONG) prog_icon);
     SetClassLong(prog_win, GCL_HICONSM, (LONG) prog_icon);
 
-    disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
-    cass_FirstLoad ();  /* Chargement de la cassette éventuelle */
+    disk_FirstLoad ();  /* Chargement des disquettes eventuelles */
+    cass_FirstLoad ();  /* Chargement de la cassette eventuelle */
     if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
         reset = 1;
 
-    /* Chargement des options non définies */
+    /* Chargement des options non definies */
     for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
         if (option_Undefined (str_list->str) == 1)
             reset = 1;
     std_StringListFree (remain_name);
 
-    /* Restitue l'état sauvegardé de l'émulateur */
+    /* Restitue l'etat sauvegarde de l'emulateur */
     teo_FullReset();
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
@@ -595,10 +582,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #if defined (GFX_BACKEND_ALLEGRO)
     afront_Run(windowed_mode);
 #elif defined (GFX_BACKEND_SDL2)
-    sfront_Run(windowed_mode);
+    sfront_Run();
 #endif
 
-    /* Sauvegarde de l'état de l'émulateur */
+    /* Sauvegarde de l'etat de l'emulateur */
     ini_Save();
     image_Save ("autosave.img");
 
@@ -608,16 +595,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     sfront_Shutdown();
 #endif
 
-    /* libération de la mémoire si mode fenêtré */
+    /* liberation de la memoire si mode fenetre */
     if (windowed_mode)
        wgui_Free();
 
-    /* désinstalle les librairies */
+    /* desinstalle les librairies */
     OleUninitialize ();
 
-    /* sortie de l'émulateur */
-    printf(is_fr?"A bient“t !\n":"Goodbye !\n");
-
-    /* sortie de l'émulateur */
+    /* sortie de l'emulateur */
+    printf(_("Goodbye !\n"));
     exit(EXIT_SUCCESS);
 }

@@ -40,24 +40,29 @@
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
  *                               24/10/2012
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des cassettes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
+#include "teo.h"
+#include "std.h"
+#include "gettext.h"
+#include "errors.h"
+#include "media/cass.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "media/cass.h"
-#include "errors.h"
-#include "std.h"
-#include "teo.h"
 
 /* Chemin du fichier de la cassette. */
 static char filename[MAX_PATH+1] = "";
@@ -74,39 +79,6 @@ static int updown_edit_proc(int msg, DIALOG *d, int c);
 static int up_button_proc(int msg, DIALOG *d, int c);
 static int down_button_proc(int msg, DIALOG *d, int c);
 
-/* Boîte de dialogue. */
-static DIALOG k7dial[]={
-/* (dialog proc)      x    y    w    h   fg bg key flags   d1 d2  dp */
-{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANGUAGE
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Lecteur de cassettes" },
-#else
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Tape recorder" },
-#endif
-{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "k7" },
-{ d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,     64,  40, 150,  16, 0, 0,   0,  0,     0, 0, NULL },
-{ d_button_proc,     220,  40,  30,  16, 0, 0, 'k', D_EXIT, 0, 0, "..." },
-{ d_check_proc,      260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 1, "" },
-{ d_text_proc,       255,  30,   0,   0, 0, 0,   0,  0,     0, 0, "prot." },
-#ifdef FRENCH_LANGUAGE
-{ d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Compteur:" },
-#else
-{ d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Counter:" },
-#endif
-{ d_box_proc,        106,  67,  36,  12, 0, 0,   0,  0,     0, 0, NULL },
-{ updown_edit_proc,  108,  69,  32,  10, 0, 0,   0,  0,     3, 3, k7_counter_str },
-{ up_button_proc,    145,  63,  19,  10, 0, 0,   0, D_EXIT, 0, 0, "+" },
-{ down_button_proc,  145,  74,  19,  10, 0, 0,   0,  0,     0, 0, "-" },
-#ifdef FRENCH_LANGUAGE
-{ d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rembobiner" },
-#else
-{ d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, "&Rewind" },
-#endif
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
-{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
-};
 
 #define K7DIAL_EJECT    3
 #define K7DIAL_LABEL    4
@@ -116,7 +88,46 @@ static DIALOG k7dial[]={
 #define K7DIAL_EDIT     10
 #define K7DIAL_REWIND   13
 #define K7DIAL_OK       14
+#define K7DIAL_LEN      17
 
+static DIALOG *_k7dial = NULL;
+#define acass_GetDialog() (_k7dial ? _k7dial : acass_AllocDialog())
+
+static DIALOG *acass_AllocDialog(void)
+{
+    DIALOG *rv;
+    int i;
+
+    if(_k7dial)
+        return _k7dial;
+
+    rv = malloc(sizeof(DIALOG)*K7DIAL_LEN);
+    i = 0;
+
+    /* (dialog proc)      x    y    w    h   fg bg key flags   d1 d2  dp */
+    rv[i++] = (DIALOG){ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, _("Tape drive") };
+    rv[i++] = (DIALOG){ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, _("k7") };
+    rv[i++] = (DIALOG){ d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" };
+    rv[i++] = (DIALOG){ d_textbox_proc,     64,  40, 150,  16, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,     220,  40,  30,  16, 0, 0, 'k', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_check_proc,      260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 1, "" };
+    rv[i++] = (DIALOG){ d_text_proc,       255,  30,   0,   0, 0, 0,   0,  0,     0, 0, _("prot.") };
+    rv[i++] = (DIALOG){ d_text_proc,        30,  69,   0,   0, 0, 0,   0,  0,     0, 0, "Counter:" };
+    rv[i++] = (DIALOG){ d_box_proc,        106,  67,  36,  12, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ updown_edit_proc,  108,  69,  32,  10, 0, 0,   0,  0,     3, 3, k7_counter_str };
+    rv[i++] = (DIALOG){ up_button_proc,    145,  63,  19,  10, 0, 0,   0, D_EXIT, 0, 0, "+" };
+    rv[i++] = (DIALOG){ down_button_proc,  145,  74,  19,  10, 0, 0,   0,  0,     0, 0, "-" };
+    rv[i++] = (DIALOG){ d_button_proc,     174,  65, 106,  16, 0, 0, 'r', D_EXIT, 0, 0, _("&Rewind") };
+    rv[i++] = (DIALOG){ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
+    rv[i++] = (DIALOG){ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
+
+    assert(i <= K7DIAL_LEN);
+
+    _k7dial = rv;
+    return rv;
+}
 
 /* updown_edit_proc:
  *  Procédure du champ d'entrée du compteur.
@@ -154,6 +165,10 @@ static int updown_edit_proc(int msg, DIALOG *d, int c)
  */
 static void update_counter(int *counter)
 {
+    DIALOG *k7dial;
+
+    k7dial = acass_GetDialog();
+
     *counter = MID(0, *counter, COUNTER_MAX);
     cass_SetCounter(*counter);
 
@@ -286,7 +301,9 @@ void acass_Panel(void)
     static int first=1;
     int ret;
     char *name = NULL;
+    DIALOG *k7dial;
 
+    k7dial = acass_GetDialog();
     if (first)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
@@ -299,7 +316,7 @@ void acass_Panel(void)
         if ((name == NULL) || (name[0] == '\0'))
         {
             k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
-            k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+            k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", _("(None)"));
         }
         (void)cass_SetProtection(FALSE);
         k7dial[K7DIAL_CHECK].d2=0;
@@ -323,7 +340,7 @@ void acass_Panel(void)
         {
             case K7DIAL_EJECT:
                 k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
-                k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                k7dial[K7DIAL_LABEL].dp = std_strdup_printf ("%s", _("(None)"));
                 cass_Eject();
                 break;
 
@@ -331,7 +348,7 @@ void acass_Panel(void)
                 init_filename();
                 std_CleanPath (filename);
                 strcat (filename, "\\");
-                if (file_select_ex(is_fr?"Choisissez votre cassette:":"Choose your tape:", filename, "k7", 
+                if (file_select_ex(_("Select a tape:"), filename, "k7", 
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     ret=cass_Load(filename);
@@ -401,6 +418,9 @@ void acass_Panel(void)
  */
 void acass_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
+    DIALOG *k7dial;
+
+    k7dial = acass_GetDialog();
     set_dialog_color(k7dial, fg_color, bg_color);
     k7dial[K7DIAL_LABEL].bg = bg_entry_color;
     k7dial[K7DIAL_BOXEDIT].bg = bg_entry_color;
@@ -422,5 +442,8 @@ void acass_Init(void)
  */
 void acass_Free(void)
 {
+    DIALOG *k7dial;
+
+    k7dial = acass_GetDialog();
     k7dial[K7DIAL_LABEL].dp = std_free (k7dial[K7DIAL_LABEL].dp);
 }

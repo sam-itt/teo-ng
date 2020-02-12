@@ -1,11 +1,15 @@
 /*
-  Original code from Hatari, adapted for Teo
+  Original code from Hatari, adapted for Teo by Samuel Cuella
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
   Dialog to load/eject magnetic tape images 
 */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -17,6 +21,7 @@
 #include "errors.h"
 #include "std.h"
 #include "teo.h"
+#include "gettext.h"
 
 
 
@@ -31,6 +36,7 @@
 #define DLGTPE_REWIND 12
 
 #define DLGDSK_OK 13
+#define DLGTPE_LEN 15
 
 /*Borrowed from Allegro4*/
 #ifndef MID
@@ -51,37 +57,48 @@ static bool wp_active;
 
 //x,y base = 20,10
 //w,h box !  280,180
-static SGOBJ tapedlg[]={
-/*type, f,s        x    y    w    h  text */
-{ SGBOX,0,0,       0,  0,   50, 11, NULL },
-{ SGTEXT,0,0,      18,  1,   11,   1, "Tape drive" },
+static SGOBJ *_tapedlg = NULL;
 
-/*Header*/
-{ SGTEXT,0,0,     40,  2,   5, 1,  "prot." },
+static SGOBJ *scass_GetDialog(void)
+{
+    if(!_tapedlg){
+        int i = 0;
+        _tapedlg = malloc(sizeof(SGOBJ)*DLGTPE_LEN);
 
-  /* disk 0 */
-{ SGTEXT,0,0,      1,  4,   2,   1, "k7" },
-{ SGBUTTON,0,0,    4,  4,   1,   1, "x" },
-{ SGTEXT,0,0,      6,  4,  16,   1, sFile },
-{ SGBUTTON,0,0,    35, 4,   3,   1, "..." },
-{ SGCHECKBOX,0,0,  41, 4,   1,   1, "" },
+                                 /*type, f,s        x    y    w    h  text */
+        _tapedlg[i++] = (SGOBJ){SGBOX,0,0,       0,  0,   50, 11, NULL };
+        _tapedlg[i++] = (SGOBJ){SGTEXT,0,0,      18,  1,   11,   1, _("Tape drive") };
 
-  /* Counter block */
-{ SGTEXT,0,0,      1,  6,  8,    1, "Counter:" },
-{ SGBUTTON,0,0,   18,  6,  1,    1, "\x04", SG_SHORTCUT_LEFT },
-{ SGTEXT,0,0,     20,  6,  3,    1, sTapeIdx },
-{ SGBUTTON,0,0,   24,  6,  1,    1, "\x03", SG_SHORTCUT_RIGHT },
-{ SGBUTTON,0,0,   30,  6,  6,    1, "Rewind" },
+        /*Header*/
+        _tapedlg[i++] = (SGOBJ){SGTEXT,0,0,     40,  2,   5, 1,  _("prot.") };
 
-{ SGBUTTON,SG_DEFAULT,0,   37, 9, 10,  1,  "_OK" },
-{ SGSTOP, 0, 0, 0,0, 0,0, NULL }
-};
+          /* disk 0 */
+        _tapedlg[i++] = (SGOBJ){SGTEXT,0,0,      1,  4,   2,   1, "k7" };
+        _tapedlg[i++] = (SGOBJ){SGBUTTON,0,0,    4,  4,   1,   1, "x" };
+        _tapedlg[i++] = (SGOBJ){SGTEXT,0,0,      6,  4,  16,   1, sFile };
+        _tapedlg[i++] = (SGOBJ){SGBUTTON,0,0,    35, 4,   3,   1, "..." };
+        _tapedlg[i++] = (SGOBJ){SGCHECKBOX,0,0,  41, 4,   1,   1, "" };
+
+          /* Counter block */
+        _tapedlg[i++] = (SGOBJ){SGTEXT,0,0,      1,  6,  8,    1, _("Counter:") };
+        _tapedlg[i++] = (SGOBJ){SGBUTTON,0,0,   18,  6,  1,    1, "\x04", SG_SHORTCUT_LEFT };
+        _tapedlg[i++] = (SGOBJ){SGTEXT,0,0,     20,  6,  3,    1, sTapeIdx };
+        _tapedlg[i++] = (SGOBJ){SGBUTTON,0,0,   24,  6,  1,    1, "\x03", SG_SHORTCUT_RIGHT };
+        _tapedlg[i++] = (SGOBJ){SGBUTTON,0,0,   30,  6,  strlen(_("Rewind")),    1, _("Rewind") };
+
+        _tapedlg[i++] = (SGOBJ){SGBUTTON,SG_DEFAULT,0,   37, 9, 10,  1,  "_OK" };
+        _tapedlg[i++] = (SGOBJ){SGSTOP, 0, 0, 0,0, 0,0, NULL };
+
+        assert(i <= DLGTPE_LEN);
+    }
+    return _tapedlg;
+}
 
 
 
 static void DlgTape_Eject(char *dlgname)
 {
-    snprintf(dlgname, FILENAME_MAX-1, "%s", "(None)");
+    snprintf(dlgname, FILENAME_MAX-1, "%s", _("(None)"));
     cass_Eject();
 }
 
@@ -95,13 +112,16 @@ static void DlgTape_Browse(char *dlgname, int diskid)
 {
 	char *selname, *zip_path;
 	const char *tmpname;
+    SGOBJ *tapedlg;
+
+    tapedlg = scass_GetDialog();
 
 	if (teo.memo.file)
 	    tmpname = teo.cass.file;
 	else
         tmpname = teo.default_folder ? teo.default_folder : std_getRootPath();
 
-	selname = SDLGui_FileSelect("Tape image:", tmpname, &zip_path, false);
+	selname = SDLGui_FileSelect(_("Tape image:"), tmpname, &zip_path, false);
 	if (!selname)
 		return;
 
@@ -127,7 +147,7 @@ static void DlgTape_Browse(char *dlgname, int diskid)
              * because the user asked so 
              * */
             if( (rv > 0) && !wp_active ){
-                DlgAlert_Notice("Warning: writing unavailable.");
+                DlgAlert_Notice(_("Warning: writing unavailable."));
                 tapedlg[DLGTPE_WP].state |= SG_SELECTED;
                 wp_active = 1;
             }
@@ -144,14 +164,16 @@ static void DlgTape_Browse(char *dlgname, int diskid)
 static void DlgTape_ToggleWriteProtection()
 {
     bool wp_active = 0;
+    SGOBJ *tapedlg;
+
+    tapedlg = scass_GetDialog();
     if(wp_active){
         /* The write protection was active
          * before the click thus the "command"
          * is to make the protection inactive
          * */
         if (cass_SetProtection(false)==true){ /*Failure to do so*/
-            DlgAlert_Notice(is_fr?"Ecriture impossible sur ce support."
-                                   :"Writing unavailable on this device.");
+            DlgAlert_Notice(_("Writing unavailable on this device."));
             /* Forceful recheck to box the user has just unchecked */
             tapedlg[DLGTPE_WP].state |= SG_SELECTED;
             wp_active = true;          
@@ -200,8 +222,9 @@ static void DlgTape_ChangeCounter(bool down)
 void DlgTape_Main(void)
 {
 	int but;
+    SGOBJ *tapedlg;
 
-
+    tapedlg = scass_GetDialog();
 	SDLGui_CenterDlg(tapedlg);
 
     /* Init values from Teo current config */
@@ -209,7 +232,7 @@ void DlgTape_Main(void)
     /*Tape image filename*/
     printf("Tape: %s\n",teo.cass.file );
     if(!teo.cass.file || *teo.cass.file == '\0')
-        snprintf(sFile, FILENAME_MAX-1, "%s", "(None)");
+        snprintf(sFile, FILENAME_MAX-1, "%s", _("(None)"));
     else
         snprintf(sFile, FILENAME_MAX-1, "%s", std_BaseName(teo.cass.file));
 

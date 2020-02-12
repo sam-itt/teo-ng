@@ -15,7 +15,7 @@
 #include <xboxkrnl/xboxkrnl.h>
 #include <assert.h>
 #else
-#include <SDL2/SDL.h> //Make YouCompleteMe Happy
+#include <SDL2/SDL.h>
 #endif
 
 #if PLATFORM_OGXBOX

@@ -39,10 +39,13 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               24/10/2012 10/05/2014
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des cassettes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -56,6 +59,7 @@
 #include "errors.h"
 #include "media/cass.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 #define COUNTER_MAX  999
 
@@ -169,8 +173,7 @@ static void toggle_check_cass (HWND hWnd)
     else
     if (cass_SetProtection(FALSE)==TRUE)
     {
-        MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
-                              :"Warning: writing unavailable on this device."
+        MessageBox(hWnd, _("Warning: writing unavailable on this device.")
                        , PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
         CheckDlgButton(hWnd, IDC_K7_PROT_CHECK, BST_CHECKED); 
     }
@@ -212,8 +215,7 @@ static void add_combo_entry (HWND hWnd, const char *path)
  */
 static void init_combo (HWND hWnd)
 {
-    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)");
-}
+    add_combo_entry (hWnd, _("(None)"));}
 
 
 
@@ -265,11 +267,22 @@ static void open_file (HWND hWnd)
     memset(&ofn, 0, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hWnd;
-    ofn.lpstrFilter = is_fr?"Fichiers K7\0*.k7\0":"K7 files\0*.k7\0";
+
+    /*Gettext can't handle in-string \0. They are encoded
+     * as \a(bell) and in-place converted to suit format specified
+     * for OPENFILENAME lpstrFilter*/
+    char *_filter = strdup(_("K7 files\a*.k7\a"));
+    int filter_len = strlen(_filter);
+    for(int i = 0; i < filter_len; i++){
+        if(_filter[i] == '\a')
+            _filter[i] = '\0';
+    }
+    ofn.lpstrFilter = _filter;
+
     ofn.nFilterIndex = 1;
     ofn.lpstrFile = current_file;
     ofn.nMaxFile = BUFFER_SIZE;
-    ofn.lpstrTitle = is_fr?"Choisissez votre cassette:":"Choose your tape";
+    ofn.lpstrTitle = _("Select your tape");
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     ofn.lpstrDefExt ="k7";
 
@@ -293,6 +306,7 @@ static void open_file (HWND hWnd)
              update_params(hWnd);
          }
     }
+    free(_filter);
 }
 
 
@@ -364,17 +378,15 @@ int CALLBACK wcass_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
          /* initialisation des textes */
          SetWindowText(GetDlgItem(hWnd, IDC_K7_COUNTER_LTEXT),
-                         is_fr?"Compteur:":" Counter:");
+                         _("Counter:"));
          SetWindowText(GetDlgItem(hWnd, IDC_K7_REWIND_BUTTON),
-                         is_fr?"Rembobiner":"Rewind");
+                         _("Rewind"));
 
          /* initialisation des info-bulles */
          wgui_CreateTooltip (hWnd, IDC_K7_EJECT_BUTTON,
-                             is_fr?"Vider la liste des fichiers"
-                                  :"Empty the file list");
+                             _("clear the file list"));
          wgui_CreateTooltip (hWnd, IDC_K7_MORE_BUTTON,
-                             is_fr?"Ouvrir un fichier cassette"
-                                  :"Open a tape file");
+                             _("Open a tape file"));
          update_params(hWnd);
          return TRUE;
 

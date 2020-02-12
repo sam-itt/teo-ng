@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
  *  Modifié par: François Mouret 15/07/2016
+ *               Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Affichage de la mémoire.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -53,6 +56,7 @@
 #include "mc68xx/dasm6809.h"
 #include "debug/debug.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 static HFONT hfont_normal = NULL;
 
@@ -93,8 +97,8 @@ static void init_addresses_combo (HWND hDlg)
     /* initialize the video combo */
     hwnd = GetDlgItem(hDlg, IDC_DEBUG_VIDEO_COMBO);
     ComboBox_ResetContent(hwnd);
-    ComboBox_AddItemData(hwnd, is_fr?"Forme":"Form");
-    ComboBox_AddItemData(hwnd, is_fr?"Couleur":"Colour");
+    ComboBox_AddItemData(hwnd, _("Form"));
+    ComboBox_AddItemData(hwnd, _("Color"));
     ComboBox_SetCurSel(hwnd, teo.debug.video_number);
 
     /* initialize the CART combo */
@@ -106,11 +110,11 @@ static void init_addresses_combo (HWND hDlg)
         sprintf (addr, "%d", i);
         ComboBox_AddItemData(hwnd, addr);
     }
-    ComboBox_AddItemData(hwnd, is_fr?"Memo":"Memo");
+    ComboBox_AddItemData(hwnd, _("Memo"));
     for (i=0; i<teo.setting.bank_range; i++)
     {
         *addr = '\0';
-        sprintf (addr, is_fr?"Banque %d":"Bank %d", i);
+        sprintf (addr, _("Bank %d"), i);
         ComboBox_AddItemData(hwnd, addr);
     }
     ComboBox_SetCurSel(hwnd, teo.debug.cart_number);
@@ -202,15 +206,15 @@ void wdmem_Init(HWND hDlg)
         SetWindowFont(hwnd, hfont_normal, TRUE);
 
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_MEM_LTEXT);
-    SetWindowText(hwnd, is_fr?"Adresse:":"Address:");
+    SetWindowText(hwnd, _("Address:"));
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_CART_LTEXT);
-    SetWindowText(hwnd, is_fr?"Cartouche:":"Cartridge:");
+    SetWindowText(hwnd, _("Cartridge:"));
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_VIDEO_LTEXT);
-    SetWindowText(hwnd, is_fr?"Vidéo:":"Video:");
+    SetWindowText(hwnd, _("Video:"));
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_RAM_LTEXT);
-    SetWindowText(hwnd, is_fr?"RAM:":"RAM:");
+    SetWindowText(hwnd, _("RAM:"));
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_MON_LTEXT);
-    SetWindowText(hwnd, is_fr?"Monit:":"Monit:");
+    SetWindowText(hwnd, _("Monit:"));
 
     init_addresses_combo(hDlg);
     prev_address = -1;

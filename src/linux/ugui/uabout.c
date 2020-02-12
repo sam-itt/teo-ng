@@ -58,6 +58,7 @@
 #include "teo.h"
 #include "linux/gui.h"
 #include <gtk/gtk.h>
+#include "gettext.h"
 
 /* run_about_window:
  *  Affiche le panneau "A propos"
@@ -79,7 +80,7 @@ void uabout_Dialog (GtkButton *button, gpointer user_data)
                            "copyright", "Copyright © 1997-"TEO_YEAR_STRING,
                            "comments", "Linux/X11",
                            "website", "http://sourceforge.net/projects/teoemulator/",
-                           "website-label", is_fr?"Teo sur Sourceforge":"Teo on Sourceforge",
+                           "website-label", _("Teo on Sourceforge"),
                            "authors", authors_list,
                            "license-type", GTK_LICENSE_GPL_2_0,
                            NULL);

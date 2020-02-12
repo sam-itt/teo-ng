@@ -819,7 +819,7 @@ static void (*Saver[32])(int) = {
 static FILE *file_open (const char filename[], const char mode[])
 {
     char *name = NULL;
-    char *data_dir;
+    char *data_dir = NULL;
 
     /*TODO: Check root path*/
     if(!std_IsAbsolutePath(filename)){

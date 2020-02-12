@@ -1,11 +1,14 @@
 /*
-  Original code from Hatari, adapted for Teo
+  Original code from Hatari, adapted for Teo by Samuel Cuella
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
 
   Dialog to load/eject memo7 cartidges 
 */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <stdio.h>
 #include <assert.h>
@@ -19,31 +22,42 @@
 #include "errors.h"
 #include "std.h"
 #include "teo.h"
+#include "gettext.h"
 
 
 #define DLGCART_EJECT 3
 #define DLGCART_NAME 4
 #define DLGCART_BROWSE 5
 #define DLGCART_OK 6
+#define DLGCART_LEN 8
 
 
 static char sFile[FILENAME_MAX];
 
+static SGOBJ *_cartdlg = NULL;
 
-static SGOBJ cartdlg[]={
-/*type, f,s        x    y    w    h  text */
-{ SGBOX,0,0,       0,  0,   40, 16, NULL },
-{ SGTEXT,0,0,      18,  1,   11,   1, "Cartridge drive" },
+static SGOBJ *smemo_GetDialog(void)
+{
+    if(!_cartdlg){
+        int i = 0;
+        _cartdlg = malloc(sizeof(SGOBJ)*DLGCART_LEN);
 
-{ SGTEXT,0,0,      1,  3,   2,   1, "m7" },
-{ SGBUTTON,0,0,    4,  3,   1,   1, "x" },
-{ SGTEXT,0,0,      6,  3,  16,   1, sFile },
-{ SGBUTTON,0,0,    35, 3,   3,   1, "..." },
+                               /*type, f,s        x    y    w    h  text */
+        _cartdlg[i++] = (SGOBJ){ SGBOX,0,0,       0,  0,   40, 16, NULL };
+        _cartdlg[i++] = (SGOBJ){ SGTEXT,0,0,      18,  1,   11,   1, _("Cartridge drive") };
 
-{ SGBUTTON,SG_DEFAULT,0,   28, 14, 10,  1,  "_OK" },
-{ SGSTOP, 0, 0, 0,0, 0,0, NULL }
-};
+        _cartdlg[i++] = (SGOBJ){ SGTEXT,0,0,      1,  3,   2,   1, "m7" };
+        _cartdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    4,  3,   1,   1, "x" };
+        _cartdlg[i++] = (SGOBJ){ SGTEXT,0,0,      6,  3,  16,   1, sFile };
+        _cartdlg[i++] = (SGOBJ){ SGBUTTON,0,0,    35, 3,   3,   1, "..." };
 
+        _cartdlg[i++] = (SGOBJ){ SGBUTTON,SG_DEFAULT,0,   28, 14, 10,  1,  "_OK" };
+        _cartdlg[i++] = (SGOBJ){ SGSTOP, 0, 0, 0,0, 0,0, NULL };
+
+        assert(i <= DLGCART_LEN);
+    }
+    return _cartdlg;
+}
 
 
 static void DlgCart_Eject(char *dlgname)
@@ -104,7 +118,9 @@ static void DlgCart_Browse(char *dlgname)
 void DlgCart_Main(void)
 {
 	int but;
-    
+    SGOBJ *cartdlg;
+
+    cartdlg = smemo_GetDialog();
 	SDLGui_CenterDlg(cartdlg);
 
     /*Current cartridge (if any)*/

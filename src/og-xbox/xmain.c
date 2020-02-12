@@ -80,6 +80,9 @@
 #include "to8dbg.h"
 
 #include "logsys.h"
+
+#include "gettext.h"
+
 struct EMUTEO teo;
 
 static int reset = FALSE;
@@ -372,8 +375,7 @@ void main_DisplayMessage(const char msg[])
 #if 0
     if (windowed_mode)
     {
-        MessageBox(prog_win, (const char*)msg, is_fr?"Teo - Erreur":"Teo - Error",
-                    MB_OK | MB_ICONERROR);
+        MessageBox(prog_win, (const char*)msg, _("Teo - Error"), MB_OK | MB_ICONERROR);
     }
     else
     {
@@ -401,12 +403,6 @@ int main(void)
     char version_name[]=PACKAGE_STRING" (OG-XBOX/SDL2)";
 
     int njoy = 0;
-
-#ifdef FRENCH_LANGUAGE
-    is_fr = 1;
-#else
-    is_fr = 0;
-#endif
     BOOL rv;
 
     rv = XVideoSetMode(720, 480, 16, REFRESH_DEFAULT);
@@ -439,9 +435,7 @@ int main(void)
 
     char *w_title;
 
-    w_title = is_fr ? "Teo - l'emulateur TO8 (menu:ESC/debogueur:F12)"
-                    : "Teo - the TO8 emulator (menu:ESC/debugger:F12)";
-
+    w_title = _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)");
     rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK|FRONT_JMOUSE|FRONT_SOUND);
     if(rv != 0){
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
@@ -452,7 +446,7 @@ int main(void)
 
 
     /* initialisation de l'emulateur */
-    printf(is_fr?"Initialisation de l'emulateur...":"Emulator initialization...");
+    printf(_("Emulator init..."));
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
     printf("ok\n");
@@ -460,8 +454,7 @@ int main(void)
 
     rv = sfront_startGfx(TRUE, w_title);
     if(rv < 0){
-        main_ExitMessage(is_fr?"Mode graphique non supporte"
-                              :"Unsupported graphic mode");
+        main_ExitMessage(_("Unsupported graphic mode"));
     }
 
     disk_FirstLoad ();  /* Chargement des disquettes éventuelles */
@@ -486,7 +479,7 @@ int main(void)
     image_Save ("autosave.img");
 
     sfront_Shutdown();
-    printf(is_fr?"A bientot !\n":"Goodbye !\n");
+    printf(_("Goodbye !\n"));
 
 
     exit(EXIT_SUCCESS);

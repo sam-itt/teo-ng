@@ -40,10 +40,13 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 26/01/2010 08/2011 25/04/2012
  *               Samuel Devulder 07/2011
+ *               Samuel Cuella 02/2020
  *
  *  Gestion de l'affichage du TO8.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <string.h>
@@ -58,6 +61,7 @@
 
 #include "linux/display.h"
 #include "teo.h"
+#include "gettext.h"
 
 
 /* variables globales */
@@ -679,7 +683,7 @@ void ugraphic_Init(void)
 	    if (!XMatchVisualInfo(display, screen, 32, TrueColor, &visualinfo))
 		if (!XMatchVisualInfo(display, screen, 8, PseudoColor, &visualinfo))
 		{
-		    fprintf(stderr,is_fr?"%s: aucun visual disponible.\n":"%s: no available visual.\n",PROG_NAME);
+		    fprintf(stderr,_("%s: no available visual.\n"),PROG_NAME);
 		    exit(EXIT_FAILURE);
 		}
 
@@ -721,7 +725,7 @@ void ugraphic_Init(void)
 
 	    if (colormap == DefaultColormap(display, screen))
 	    {
-		fprintf(stderr,is_fr?"%s: palette de couleurs immuable.\n":"%s: immutable color palette.\n",PROG_NAME);
+		fprintf(stderr,_("%s: immutable color palette.\n"),PROG_NAME);
 		exit(EXIT_FAILURE);
 	    }
 
@@ -775,7 +779,7 @@ void ugraphic_Init(void)
 		    XSync(display, False);
 
 		    /* enfin ... */
-		    printf(is_fr?"Extension MIT-SHM utilisÃ©e.\n":"MIT-SHM extention used.\n");
+		    printf(_("MIT-SHM extention enabled.\n"));
 		}
 	    }
 	}

@@ -60,6 +60,7 @@
 #include "linux/gui.h"
 #include "linux/sound.h"
 #include "teo.h"
+#include "gettext.h"
 
 static GtkWidget *sound_widget = NULL;
 static int bank_range;
@@ -204,7 +205,7 @@ void usetting_Init (GtkWidget *notebook)
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
     gtk_container_set_border_width (GTK_CONTAINER(frame), 5);
-    widget=gtk_label_new((is_fr?"RÃ©glages":"Settings"));
+    widget=gtk_label_new((_("Settings")));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
     
     /* grille associée à la frame */
@@ -216,20 +217,20 @@ void usetting_Init (GtkWidget *notebook)
 
     /* ---------------- Speed ------------------ */
 
-    /* Création de la frame */
-    vbox = create_new_frame (is_fr?"Vitesse":"Speed", grid, 0, 0);
+    /* Creation de la frame */
+    vbox = create_new_frame (_("Speed"), grid, 0, 0);
 
     /* bouton de vitesse maximale */
     hbox = create_new_hbox (vbox);
     gtk_box_set_homogeneous (GTK_BOX(hbox), TRUE);
-    widget=gtk_radio_button_new_with_label(NULL, (is_fr?"rapide":"fast"));
+    widget=gtk_radio_button_new_with_label(NULL, (_("fast")));
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* bouton de vitesse exacte */
     hbox = create_new_hbox (vbox);
     widget=gtk_radio_button_new_with_label_from_widget(
                             GTK_RADIO_BUTTON (widget),
-                            is_fr?"exacte":"exact");
+                            _("exact"));
     gtk_box_pack_end( GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 
     /* Buttons connexion */
@@ -242,8 +243,8 @@ void usetting_Init (GtkWidget *notebook)
 
     /* ---------------- Memory extension ------------------ */
 
-    /* Création de la frame */
-    vbox = create_new_frame (is_fr?"MÃ©moire":"Memory", grid, 1, 0);
+    /* Creation de la frame */
+    vbox = create_new_frame (_("Memory"), grid, 1, 0);
 
     hbox = create_new_hbox (vbox);
     ram_size_radio_1 =gtk_radio_button_new_with_label(NULL, (""));
@@ -265,13 +266,12 @@ void usetting_Init (GtkWidget *notebook)
 
     /* ---------------- Display ------------------ */
 
-    /* Création de la frame */
-    vbox = create_new_frame (is_fr?"Affichage":"Display", grid, 2, 0);
+    /* Creation de la frame */
+    vbox = create_new_frame (_("Display"), grid, 2, 0);
 
-    /* checkbox du mode entrelacé */
+    /* checkbox du mode entrelace */
     hbox = create_new_hbox (vbox);
-    widget=gtk_check_button_new_with_label((is_fr?"VidÃ©o entrelacÃ©"
-                                                 :"Interlaced video"));
+    widget=gtk_check_button_new_with_label((_("Interlaced video")));
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget),
                                   teo.setting.interlaced_video);
     g_signal_connect(G_OBJECT(widget),
@@ -282,12 +282,12 @@ void usetting_Init (GtkWidget *notebook)
 
     /* ---------------- Sound ------------------ */
 
-    /* Création de la frame */
-    vbox = create_new_frame (is_fr?"Son":"Sound", grid, 0, 1);
+    /* Creation de la frame */
+    vbox = create_new_frame (_("Sound"), grid, 0, 1);
 
     /* checkbox du son */
     hbox = create_new_hbox (vbox);
-    sound_widget=gtk_check_button_new_with_label((is_fr?"Actif":"Activated"));
+    sound_widget=gtk_check_button_new_with_label((_("Enabled")));
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(sound_widget),
                                   teo.setting.sound_enabled);
     g_signal_connect(G_OBJECT(sound_widget),

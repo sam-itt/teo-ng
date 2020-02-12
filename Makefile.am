@@ -1,10 +1,10 @@
-AM_CPPFLAGS = @AM_CPPFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@ 
 ACLOCAL_AMFLAGS = -I m4
 
 MKDIR_P = mkdir -p
 
 
-SUBDIRS =  . data src
+SUBDIRS = po . data src
 
 if BUILD_EXTRA_TOOLS
 SUBDIRS += tools
@@ -14,7 +14,8 @@ if INSTALL_DOC
 SUBDIRS += doc
 endif
 
-EXTRA_DIST= \
+EXTRA_DIST=	\
+	m4/ChangeLog  \
 	LISEZMOI.txt \
 	licence-fr.txt \
 	licence-en.txt \

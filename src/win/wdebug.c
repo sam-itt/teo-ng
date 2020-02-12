@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 08/10/2013
  *  Modifié par: François Mouret 04/06/2015 15/07/2016
+ *               Samuel Cuella 02/2020
  *
  *  Débogueur 6809.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -51,6 +54,7 @@
 #include "to8dbg.h"
 #include "debug/debug.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 struct MC6809_DEBUG debug;
 
@@ -278,11 +282,7 @@ static int CALLBACK wdebug_Proc(HWND hDlg, UINT uMsg,
     switch(uMsg)
     {
         case WM_INITDIALOG:
-#ifdef FRENCH_LANGUAGE
-            SetWindowText(hDlg, "Teo - Débogueur");
-#else
-            SetWindowText(hDlg, "Teo - Debugger");
-#endif
+            SetWindowText(hDlg, _("Teo - Debugger"));
             get_dimensions_at_init (hDlg);
             wdtoolb_Init (hDlg);
             wdstatus_Init (hDlg);

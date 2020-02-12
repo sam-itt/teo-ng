@@ -58,6 +58,7 @@
  * Including it here to provide compat for the 
  * existing code base
  * */
+#define TEO_AUTHORS "Gilles Fetis, Eric Botcazou, Alexandre Pukall, Francois Mouret, Samuel Devulder, Samuel Cuella"
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif

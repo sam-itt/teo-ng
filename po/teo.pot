@@ -1,0 +1,1365 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-02-11 10:12+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/dos/dmain.c:511
+#, c-format
+msgid "\t[F11] Screenshot\n"
+msgstr ""
+
+#: src/dos/dmain.c:512 src/linux/umain.c:615
+#, c-format
+msgid "\t[F12] Debugger\n"
+msgstr ""
+
+#. selection du mode graphique
+#: src/dos/dmain.c:537
+#, c-format
+msgid ""
+"\n"
+"Select graphic mode:\n"
+"\n"
+msgstr ""
+
+#: src/dos/dmemmng.c:96
+msgid ""
+"                               TO8 memory "
+"manager                               "
+msgstr ""
+
+#: src/dos/ddebug.c:445
+msgid "               MC6809E Disassembler              "
+msgstr ""
+
+#: src/dos/dmemmng.c:488
+msgid "          Content of the memory           "
+msgstr ""
+
+#: src/dos/ddebug.c:294
+msgid "         Breakpoint          "
+msgstr ""
+
+#: src/dos/dmemmng.c:389
+msgid "        3.assembler"
+msgstr ""
+
+#: src/dos/dmemmng.c:490
+msgid "       MC6809E Disassembler        "
+msgstr ""
+
+#: src/dos/ddebug.c:128
+msgid "      PIA 6821 system         "
+msgstr ""
+
+#: src/dos/ddebug.c:126
+msgid "      PIA 6846 system         "
+msgstr ""
+
+#: src/dos/ddebug.c:138
+msgid "     Memory pages status      "
+msgstr ""
+
+#: src/dos/ddebug.c:130
+msgid "   PIA 6821 music and games   "
+msgstr ""
+
+#: src/dos/dmain.c:484
+msgid ""
+" 1. 40 columns mode 16 colors\n"
+"    (fast diplay, adapted to games and most applications)"
+msgstr ""
+
+#: src/dos/dmain.c:485
+msgid ""
+" 2. 80 columns mode 16 colors\n"
+"    (for applications which needs 80 columns)"
+msgstr ""
+
+#: src/dos/dmain.c:486
+msgid ""
+" 3. 80 columns mode 4096 colors\n"
+"    (slow display but allow dynamic changes of palette)"
+msgstr ""
+
+#: src/win/wdebug/wdtoolb.c:77
+msgid " Leave "
+msgstr ""
+
+#: src/win/wdebug/wdtoolb.c:76
+msgid " Run "
+msgstr ""
+
+#: src/alleg/agui/asetting.c:130
+msgid " Speed:"
+msgstr ""
+
+#: src/win/wdebug/wdtoolb.c:74
+msgid " Step "
+msgstr ""
+
+#: src/win/wdebug/wdtoolb.c:75
+msgid " Step over "
+msgstr ""
+
+#: src/dos/dmemmng.c:124
+msgid " TAB;+,-: move around"
+msgstr ""
+
+#: src/sdl2/gui/dlgSystem.c:79
+msgid " _Sound"
+msgstr ""
+
+#: src/dos/dmemmng.c:122
+msgid " a: go to <address>"
+msgstr ""
+
+#: src/dos/ddebug.c:89
+msgid " a: show TO8 screen"
+msgstr ""
+
+#: src/dos/ddebug.c:104
+msgid " b: add a breakpoint       "
+msgstr ""
+
+#: src/dos/ddebug.c:88
+msgid " b: manage breakpoints"
+msgstr ""
+
+#: src/dos/ddebug.c:85
+msgid " c: continue"
+msgstr ""
+
+#: src/dos/dmemmng.c:120
+msgid " c: load a memory block"
+msgstr ""
+
+#: src/dos/ddebug.c:105
+msgid " d: delete a breakpoint     "
+msgstr ""
+
+#: src/dos/dmemmng.c:123
+msgid " e: edit a byte"
+msgstr ""
+
+#: src/dos/ddebug.c:90
+msgid " m: show TO8 memory manager"
+msgstr ""
+
+#: src/dos/ddebug.c:86
+msgid " n: run next locale instruction"
+msgstr ""
+
+#: src/dos/ddebug.c:106
+msgid " q: quit                      "
+msgstr ""
+
+#: src/dos/ddebug.c:91
+msgid " q: quit the debugger   "
+msgstr ""
+
+#: src/dos/dmemmng.c:125
+msgid " q: quit the memory manager"
+msgstr ""
+
+#: src/dos/ddebug.c:87
+msgid " s: run next instruction"
+msgstr ""
+
+#: src/dos/dmemmng.c:121
+msgid " s: save a memory block"
+msgstr ""
+
+#: src/linux/umain.c:218
+#, c-format
+msgid "%s: File %s not found, not copying empty disk to user folder %s\n"
+msgstr ""
+
+#: src/linux/ugraphic.c:725
+#, c-format
+msgid "%s: immutable color palette.\n"
+msgstr ""
+
+#: src/linux/ugraphic.c:683
+#, c-format
+msgid "%s: no available visual.\n"
+msgstr ""
+
+#: src/alleg/agui.c:217
+msgid "&About"
+msgstr ""
+
+#: src/alleg/agui.c:209
+msgid "&Cold reset"
+msgstr ""
+
+#. direct disk
+#: src/alleg/agui/adisk.c:203
+msgid "&Direct access"
+msgstr ""
+
+#: src/alleg/agui.c:212
+msgid "&Disk drives..."
+msgstr ""
+
+#: src/alleg/agui.c:210
+msgid "&Full reset"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:149
+msgid "&High quality print"
+msgstr ""
+
+#: src/alleg/agui/asetting.c:138
+msgid "&Interlaced video"
+msgstr ""
+
+#: src/alleg/agui.c:216
+msgid "&Quit"
+msgstr ""
+
+#: src/alleg/agui/acass.c:154
+msgid "&Rewind"
+msgstr ""
+
+#: src/alleg/agui.c:211
+msgid "&Settings..."
+msgstr ""
+
+#: src/alleg/agui/asetting.c:133
+msgid "&Sound"
+msgstr ""
+
+#: src/alleg/agui.c:213
+msgid "&Tape drive..."
+msgstr ""
+
+#: src/alleg/agui.c:208
+msgid "&Warm reset"
+msgstr ""
+
+#: src/alleg/agui/asetting.c:131
+msgid "&exact"
+msgstr ""
+
+#: src/alleg/agui/asetting.c:132
+msgid "&fast"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:153
+msgid "&graphic"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:151
+msgid "&raw"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:152
+msgid "&text"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:273 src/win/wgui/wdisk.c:316
+msgid "(Direct Access)"
+msgstr ""
+
+#: src/alleg/agui/acass.c:352 src/alleg/agui/acass.c:376
+#: src/alleg/agui/adisk.c:301 src/alleg/agui/adisk.c:333
+#: src/alleg/agui/amemo.c:169 src/alleg/agui/amemo.c:184
+#: src/linux/ugui/ucass.c:267 src/linux/ugui/udisk.c:271
+#: src/linux/ugui/umemo.c:144 src/sdl2/gui/dlgTape.c:125
+#: src/sdl2/gui/dlgTape.c:259 src/win/wgui/wcass.c:215 src/win/wgui/wdisk.c:313
+#: src/win/wgui/wmemo.c:148
+msgid "(None)"
+msgstr ""
+
+#: src/dos/dmain.c:164 src/win/wmain.c:122
+msgid "40 columns display"
+msgstr ""
+
+#: src/dos/dmain.c:166 src/win/wmain.c:123
+msgid "80 columns display"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:79
+msgid "A_bout"
+msgstr ""
+
+#. bouton de "A Propos"
+#: src/linux/ugui.c:193 src/win/wgui.c:139
+msgid "About"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:167 src/win/wdebug/wdmem.c:206
+msgid "Address:"
+msgstr ""
+
+#: src/dos/dmemmng.c:313
+msgid "Address: "
+msgstr ""
+
+#. Gettext can't handle in-string \0. They are encoded
+#. * as \a(bell) and in-place converted to suit format specified
+#. * for OPENFILENAME lpstrFilter
+#: src/win/wgui/wdisk.c:360
+msgid ""
+"All files\a*.*\aHFE files\a*.hfe\aSAP files\a*.sap\aRaw floppy files\a*.fd\a"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:332
+msgid "All files(*)"
+msgstr ""
+
+#: src/linux/ugui.c:88 src/win/wgui.c:204
+msgid "All the RAM memory will be cleared."
+msgstr ""
+
+#: src/alleg/agui.c:254
+msgid "All the memory"
+msgstr ""
+
+#: src/option.c:118
+msgid "Application Options"
+msgstr ""
+
+#: src/linux/usound.c:301
+msgid "Audio error"
+msgstr ""
+
+#: src/alleg/agui/aabout.c:88 src/sdl2/gui/dlgAbout.c:32
+msgid "Authors:"
+msgstr ""
+
+#: src/sdl2/gui/dlgSystem.c:91
+msgid "Back to main menu"
+msgstr ""
+
+#: src/errors.c:83
+msgid "Bad BMP format"
+msgstr ""
+
+#: src/errors.c:98
+msgid "Bad checksum for memo header"
+msgstr ""
+
+#: src/errors.c:96
+msgid "Bad count of joysticks"
+msgstr ""
+
+#: src/errors.c:90
+msgid "Bad file format"
+msgstr ""
+
+#: src/errors.c:99
+msgid "Bad name for memo header"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:220 src/win/wdebug/wdmem.c:114
+#, c-format
+msgid "Bank %d"
+msgstr ""
+
+#: src/linux/udebug/udbkpt.c:173
+msgid "Breakpoints"
+msgstr ""
+
+#: src/alleg/agui.c:214
+msgid "Ca&rtridge drive..."
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:75
+msgid "Ca_rtridge"
+msgstr ""
+
+#: src/alleg/agui.c:258
+msgid "Cancel"
+msgstr ""
+
+#: src/errors.c:85
+msgid "Cannot create disk"
+msgstr ""
+
+#: src/linux/ugui/umemo.c:286 src/win/wgui.c:149
+msgid "Cartridge"
+msgstr ""
+
+#: src/alleg/agui/amemo.c:112 src/sdl2/gui/dlgCart.c:60
+msgid "Cartridge drive"
+msgstr ""
+
+#: src/linux/ugui/umemo.c:214
+msgid "Cartridge files (.m7)"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:200 src/win/wdebug/wdmem.c:208
+msgid "Cartridge:"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:443 src/linux/ugui/udisk.c:477
+#: src/linux/ugui/umemo.c:302 src/win/wgui/wdisk.c:482 src/win/wgui/wmemo.c:320
+msgid "Clear the file list"
+msgstr ""
+
+#: src/linux/udebug/udstatus.c:111 src/win/wdebug/wdstatus.c:82
+msgid "Clock"
+msgstr ""
+
+#. bouton de redemarrage a froid
+#: src/linux/ugui.c:215 src/win/wgui.c:137
+msgid "Cold reset"
+msgstr ""
+
+#: src/linux/ugui.c:228 src/win/wgui.c:166
+msgid ""
+"Cold reset and\n"
+"clear the RAM memory"
+msgstr ""
+
+#: src/linux/ugui.c:218 src/win/wgui.c:164
+msgid ""
+"Cold reset without\n"
+"clearing RAM memory"
+msgstr ""
+
+#: src/dos/dmain.c:144 src/linux/umain.c:139 src/win/wmain.c:109
+msgid "Cold-reset emulator"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:253 src/win/wdebug/wdmem.c:98
+msgid "Color"
+msgstr ""
+
+#: src/linux/udebug/udstatus.c:130 src/win/wdebug/wdstatus.c:99
+msgid "Column"
+msgstr ""
+
+#: src/dos/dmain.c:510 src/linux/umain.c:614
+#, c-format
+msgid "Command keys: [ESC] Control panel\n"
+msgstr ""
+
+#: src/dos/ddebug.c:84 src/dos/dmemmng.c:119
+msgid "Commands:"
+msgstr ""
+
+#: src/dos/ddebug.c:103
+msgid "Commands:                     "
+msgstr ""
+
+#: src/alleg/agui.c:207 src/linux/ugui.c:178 src/sdl2/gui/dlgMain.c:66
+#: src/win/wgui.c:135
+msgid "Control panel"
+msgstr ""
+
+#: src/dos/dmain.c:509 src/linux/umain.c:613
+#, c-format
+msgid ""
+"Copyright (C) 1997-%s Teo Authors: .%s\n"
+"\n"
+msgstr ""
+
+#: src/linux/umain.c:598
+#, c-format
+msgid "Couldn't initialize Allegro, bailing out !\n"
+msgstr ""
+
+#. molette du compteur de cassette
+#. Counter block
+#: src/linux/ugui/ucass.c:491 src/sdl2/gui/dlgTape.c:107
+#: src/win/wgui/wcass.c:378
+msgid "Counter:"
+msgstr ""
+
+#: src/alleg/agui/adisk.c:421
+msgid "Direct Access"
+msgstr ""
+
+#: src/errors.c:84
+msgid "Directory full"
+msgstr ""
+
+#: src/errors.c:86
+msgid "Disk I/O error"
+msgstr ""
+
+#: src/alleg/agui/adisk.c:173 src/sdl2/gui/dlgDisks.c:119
+msgid "Disk drives"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:317
+msgid "Disk files"
+msgstr ""
+
+#: src/errors.c:88
+msgid "Disk write protected"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:442 src/win/wgui.c:145
+msgid "Disks"
+msgstr ""
+
+#. ---------------- Display ------------------
+#. Creation de la frame
+#: src/linux/ugui/usetting.c:270
+msgid "Display"
+msgstr ""
+
+#: src/alleg/agui.c:215
+msgid "Dot-matrix &printer..."
+msgstr ""
+
+#: src/sdl2/gui/dlgPrinter.c:96
+msgid "Dot-matrix printer"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:142
+msgid "Dot-matrix printers"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:148
+msgid "Double &spacing"
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:227 src/sdl2/gui/dlgPrinter.c:121
+#: src/win/wgui/wprinter.c:202
+msgid "Double spacing"
+msgstr ""
+
+#. initialisation de l'emulateur
+#. Initialisation du TO8
+#. initialisation de l'emulateur
+#: src/dos/dmain.c:518 src/linux/umain.c:618 src/og-xbox/xmain.c:449
+#: src/win/wmain.c:524
+#, c-format
+msgid "Emulator init..."
+msgstr ""
+
+#: src/linux/ugui/usetting.c:290
+msgid "Enabled"
+msgstr ""
+
+#: src/dos/dmemmng.c:382
+msgid "End address: "
+msgstr ""
+
+#: src/dos/dmemmng.c:341 src/dos/dmemmng.c:398
+msgid "Error !!!"
+msgstr ""
+
+#: src/errors.c:93
+msgid "Error while reading file"
+msgstr ""
+
+#: src/errors.c:95
+msgid "Error while writing file"
+msgstr ""
+
+#: src/linux/udebug/udtoolb.c:151 src/win/wdebug/wdtoolb.c:145
+msgid "Execute the machine code step by step"
+msgstr ""
+
+#: src/win/wdebug/wdtoolb.c:149
+msgid ""
+"Execute the machine code step by step\n"
+"but don't jump to sub-programs"
+msgstr ""
+
+#: src/linux/udebug/udtoolb.c:171
+msgid ""
+"Execute the machine code step by step\n"
+"but don't jump to sub-programs and\n"
+"backward loops"
+msgstr ""
+
+#: src/dos/dmain.c:147 src/dos/dmain.c:150 src/dos/dmain.c:153
+#: src/dos/dmain.c:156 src/dos/dmain.c:159 src/dos/dmain.c:162
+#: src/linux/umain.c:141 src/linux/umain.c:143 src/linux/umain.c:145
+#: src/linux/umain.c:147 src/linux/umain.c:149 src/linux/umain.c:151
+#: src/win/wmain.c:111 src/win/wmain.c:113 src/win/wmain.c:115
+#: src/win/wmain.c:117 src/win/wmain.c:119 src/win/wmain.c:121
+msgid "FILE"
+msgstr ""
+
+#: src/errors.c:89
+msgid "File is empty"
+msgstr ""
+
+#: src/dos/dmemmng.c:333 src/dos/dmemmng.c:380
+msgid "File name: "
+msgstr ""
+
+#: src/errors.c:91
+msgid "File not found"
+msgstr ""
+
+#: src/errors.c:94
+msgid "File too large"
+msgstr ""
+
+#: src/dos/dmemmng.c:353 src/dos/dmemmng.c:436
+msgid "Finished"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:250 src/win/wdebug/wdmem.c:97
+msgid "Form"
+msgstr ""
+
+#: src/dos/dmemmng.c:385
+msgid "Format: 1.binary"
+msgstr ""
+
+#: src/linux/udebug/udstatus.c:119 src/win/wdebug/wdstatus.c:89
+msgid "Frame"
+msgstr ""
+
+#. bouton de redemarrage a froid avec effacement de la memoire
+#: src/linux/ugui.c:225 src/win/wgui.c:138
+msgid "Full reset"
+msgstr ""
+
+#. sortie de l'emulateur
+#: src/dos/dmain.c:611 src/linux/umain.c:696 src/og-xbox/xmain.c:482
+#: src/win/wmain.c:596
+#, c-format
+msgid "Goodbye !\n"
+msgstr ""
+
+#: src/sdl2/gui/dlgPrinter.c:116
+msgid "Graphic"
+msgstr ""
+
+#: src/linux/umain.c:154
+msgid "Graphic mode to use (defaults to windowed)"
+msgstr ""
+
+#: src/sdl2/gui/dlgPrinter.c:122
+msgid "HQ Printing"
+msgstr ""
+
+#: src/option.c:115
+msgid "Help Options"
+msgstr ""
+
+#: src/option.c:242
+msgid "Help of this program"
+msgstr ""
+
+#. message d'entete
+#. Affichage du message de bienvenue du programme
+#: src/dos/dmain.c:508 src/linux/umain.c:612
+#, c-format
+msgid "Here comes %s the Thomson TO8 emulator.\n"
+msgstr ""
+
+#: src/win/wgui/wprinter.c:204
+msgid "High quality print"
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:239
+msgid "High-quality print"
+msgstr ""
+
+#. affichage du nombre de joystick(s) detecte(s)
+#: src/alleg/ajoyint.c:115
+#, c-format
+msgid "Initialization of input devices : %d joystick(s) detected)\n"
+msgstr ""
+
+#: src/linux/usound.c:301
+msgid "Insufficient memory for buffer"
+msgstr ""
+
+#: src/sdl2/gui/dlgSystem.c:89
+msgid "Interlaced _video"
+msgstr ""
+
+#: src/linux/ugui/usetting.c:274
+msgid "Interlaced video"
+msgstr ""
+
+#. Gettext can't handle in-string \0. They are encoded
+#. * as \a(bell) and in-place converted to suit format specified
+#. * for OPENFILENAME lpstrFilter
+#: src/win/wgui/wcass.c:271
+msgid "K7 files\a*.k7\a"
+msgstr ""
+
+#: src/linux/udebug/udtoolb.c:205
+msgid "Leave"
+msgstr ""
+
+#: src/alleg/agui/aabout.c:95
+msgid "Licence: GPL 2.0"
+msgstr ""
+
+#: src/linux/udebug/udstatus.c:125 src/win/wdebug/wdstatus.c:94
+msgid "Line"
+msgstr ""
+
+#: src/dos/dmain.c:161 src/linux/umain.c:151 src/win/wmain.c:121
+msgid "Load a cartridge"
+msgstr ""
+
+#: src/dos/dmain.c:158 src/linux/umain.c:149 src/win/wmain.c:119
+msgid "Load a tape"
+msgstr ""
+
+#: src/dos/dmain.c:146 src/linux/umain.c:141 src/win/wmain.c:111
+msgid "Load virtual disk (drive 0)"
+msgstr ""
+
+#: src/dos/dmain.c:149 src/linux/umain.c:143 src/win/wmain.c:113
+msgid "Load virtual disk (drive 1)"
+msgstr ""
+
+#: src/dos/dmain.c:152 src/linux/umain.c:145 src/win/wmain.c:115
+msgid "Load virtual disk (drive 2)"
+msgstr ""
+
+#: src/dos/dmain.c:155 src/linux/umain.c:147 src/win/wmain.c:117
+msgid "Load virtual disk (drive 3)"
+msgstr ""
+
+#. Gettext can't handle in-string \0. They are encoded
+#. * as \a(bell) and in-place converted to suit format specified
+#. * for OPENFILENAME lpstrFilter
+#: src/win/wgui/wmemo.c:208
+msgid "M7 files\a*.m7\a"
+msgstr ""
+
+#. enfin ...
+#: src/linux/ugraphic.c:779
+#, c-format
+msgid "MIT-SHM extention enabled.\n"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:215 src/win/wdebug/wdmem.c:110
+msgid "Memo"
+msgstr ""
+
+#. ---------------- Memory extension ------------------
+#. Creation de la frame
+#: src/linux/ugui/usetting.c:247 src/win/wgui/wsetting.c:180
+msgid "Memory"
+msgstr ""
+
+#: src/alleg/agui/asetting.c:135 src/sdl2/gui/dlgSystem.c:85
+msgid "Memory:"
+msgstr ""
+
+#: src/option.c:212
+msgid "Missing argument for"
+msgstr ""
+
+#: src/win/wdebug/wdmem.c:214
+msgid "Monit:"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:307
+msgid "Monitor:"
+msgstr ""
+
+#: src/errors.c:100
+msgid "Multiple instance of Teo"
+msgstr ""
+
+#: src/dos/dmemmng.c:587
+msgid "New address: "
+msgstr ""
+
+#: src/dos/dmemmng.c:314
+msgid "New value : "
+msgstr ""
+
+#: src/errors.c:87
+msgid "No disk"
+msgstr ""
+
+#: src/errors.c:97
+msgid "No more media available"
+msgstr ""
+
+#: src/errors.c:82
+msgid "No more memory space"
+msgstr ""
+
+#: src/linux/ugui.c:182
+msgid "OK"
+msgstr ""
+
+#: src/linux/ugui/umemo.c:318 src/win/wgui/wmemo.c:323
+msgid "Open a cartridge file"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:510 src/win/wgui/wdisk.c:484
+msgid "Open a disk file"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:475 src/win/wgui/wcass.c:386
+msgid "Open a tape file"
+msgstr ""
+
+#. ---------------- Output -------------------
+#. Creation de la frame
+#: src/linux/ugui/uprinter.c:251 src/win/wgui/wprinter.c:206
+msgid "Output"
+msgstr ""
+
+#: src/sdl2/gui/dlgPrinter.c:113
+msgid "Output mode"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:150
+msgid "Output:"
+msgstr ""
+
+#: src/dos/dmemmng.c:357 src/dos/dmemmng.c:440
+msgid "Press <space bar>"
+msgstr ""
+
+#. Creation de la frame
+#: src/linux/ugui/uprinter.c:163 src/linux/ugui/uprinter.c:201
+#: src/sdl2/gui/dlgPrinter.c:104 src/win/wgui.c:151 src/win/wgui/wprinter.c:198
+msgid "Printer"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:146
+msgid "Printer:"
+msgstr ""
+
+#: src/linux/ugui.c:181 src/win/wgui.c:140
+msgid "Quit"
+msgstr ""
+
+#: src/dos/ddebug.c:210
+#, c-format
+msgid "RAM cartridge page    : %d"
+msgstr ""
+
+#: src/debug/dreg.c:144
+#, c-format
+msgid "RAM cartridge page :%d%s"
+msgstr ""
+
+#: src/dos/ddebug.c:219
+#, c-format
+msgid "RAM page (PIA)        : %d"
+msgstr ""
+
+#: src/debug/dreg.c:153
+#, c-format
+msgid "RAM page (PIA)     :%d"
+msgstr ""
+
+#: src/dos/ddebug.c:216
+#, c-format
+msgid "RAM page (register)   : %d"
+msgstr ""
+
+#: src/debug/dreg.c:150
+#, c-format
+msgid "RAM page (register):%d%s"
+msgstr ""
+
+#: src/win/wdebug/wdmem.c:212
+msgid "RAM:"
+msgstr ""
+
+#: src/dos/ddebug.c:207
+#, c-format
+msgid "ROM cartridge page    : %d"
+msgstr ""
+
+#: src/debug/dreg.c:141
+#, c-format
+msgid "ROM cartridge page :%d%s"
+msgstr ""
+
+#: src/sdl2/gui/dlgPrinter.c:114
+msgid "Raw"
+msgstr ""
+
+#: src/sdl2/gui/dlgTape.c:111 src/win/wgui/wcass.c:380
+msgid "Rewind"
+msgstr ""
+
+#. bouton rembobinage
+#: src/linux/ugui/ucass.c:503
+msgid "Rewind tape"
+msgstr ""
+
+#: src/linux/udebug/udtoolb.c:187
+msgid "Run"
+msgstr ""
+
+#: src/errors.c:102
+msgid "SAP archive not valid"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:143 src/sdl2/gui/dlgPrinter.c:98
+msgid "Save into:"
+msgstr ""
+
+#: src/win/wgui/wprinter.c:216
+msgid "Saving output files in "
+msgstr ""
+
+#: src/alleg/agui/amemo.c:193 src/linux/ugui/umemo.c:209
+msgid "Select a cartridge"
+msgstr ""
+
+#: src/win/wgui/wmemo.c:220
+msgid "Select a cartridge:"
+msgstr ""
+
+#: src/win/wgui/wprinter.c:107
+msgid "Select a directory"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:312
+msgid "Select a disk"
+msgstr ""
+
+#: src/alleg/agui/adisk.c:345
+msgid "Select a disk:"
+msgstr ""
+
+#: src/alleg/agui/aprinter.c:218
+msgid "Select a folder:"
+msgstr ""
+
+#: src/win/wgui/wprinter.c:221
+msgid "Select a save folder"
+msgstr ""
+
+#: src/linux/ugui/udisk.c:520
+msgid "Select a side"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:329
+msgid "Select a tape"
+msgstr ""
+
+#: src/alleg/agui/acass.c:384
+msgid "Select a tape:"
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:177
+msgid "Select the folder to save in"
+msgstr ""
+
+#: src/win/wgui/wdisk.c:379
+msgid "Select your disk:"
+msgstr ""
+
+#: src/win/wgui/wcass.c:283
+msgid "Select your tape"
+msgstr ""
+
+#. Cree les onglets
+#: src/alleg/agui/asetting.c:129 src/linux/ugui/usetting.c:208
+#: src/sdl2/gui/dlgPrinter.c:120 src/sdl2/gui/dlgSystem.c:73 src/win/wgui.c:143
+msgid "Settings"
+msgstr ""
+
+#. label pour la face de disquette
+#: src/linux/ugui/udisk.c:518
+msgid "Side"
+msgstr ""
+
+#. ---------------- Sound ------------------
+#. Creation de la frame
+#: src/linux/ugui/usetting.c:286 src/win/wgui/wsetting.c:176
+msgid "Sound"
+msgstr ""
+
+#: src/linux/usound.c:281
+#, c-format
+msgid "Sound initialization (ALSA)..."
+msgstr ""
+
+#: src/alleg/asound.c:186
+#, c-format
+msgid "Sound initialization..."
+msgstr ""
+
+#. ---------------- Speed ------------------
+#. Creation de la frame
+#: src/linux/ugui/usetting.c:221 src/win/wgui/wsetting.c:173
+msgid "Speed"
+msgstr ""
+
+#: src/sdl2/gui/dlgSystem.c:75
+msgid "Speed:"
+msgstr ""
+
+#: src/dos/dmemmng.c:334 src/dos/dmemmng.c:381
+msgid "Start address: "
+msgstr ""
+
+#: src/linux/umain.c:673
+#, c-format
+msgid "Starting emulation...\n"
+msgstr ""
+
+#: src/linux/udebug/udtoolb.c:149
+msgid "Step by step"
+msgstr ""
+
+#: src/linux/udebug/udtoolb.c:169
+msgid "Step over"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:426 src/win/wgui.c:147
+msgid "Tape"
+msgstr ""
+
+#: src/alleg/agui/acass.c:142 src/sdl2/gui/dlgTape.c:94
+msgid "Tape drive"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:334
+msgid "Tape files (.k7)"
+msgstr ""
+
+#: src/sdl2/gui/dlgTape.c:148
+msgid "Tape image:"
+msgstr ""
+
+#: src/win/wgui/wabout.c:104
+msgid "Teo - About"
+msgstr ""
+
+#: src/linux/udebug.c:231 src/win/wdebug.c:282
+msgid "Teo - Debugger"
+msgstr ""
+
+#: src/og-xbox/xmain.c:378 src/win/wgui.c:273 src/win/wmain.c:421
+msgid "Teo - Error"
+msgstr ""
+
+#: src/win/wgui.c:205
+msgid "Teo - Question"
+msgstr ""
+
+#: src/linux/udisplay.c:662 src/linux/umain.c:594 src/linux/umain.c:641
+#: src/og-xbox/xmain.c:438 src/win/wmain.c:501
+msgid "Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)"
+msgstr ""
+
+#: src/win/wgui.c:285
+msgid "Teo - Warning"
+msgstr ""
+
+#: src/win/wgui/wabout.c:105
+msgid "Teo on SourceForge"
+msgstr ""
+
+#: src/alleg/agui/aabout.c:92
+msgid "Teo on SourceForge:"
+msgstr ""
+
+#: src/linux/ugui/uabout.c:83
+msgid "Teo on Sourceforge"
+msgstr ""
+
+#: src/sdl2/gui/dlgPrinter.c:115
+msgid "Text"
+msgstr ""
+
+#: src/linux/udebug/uddisass.c:334 src/win/wdebug/wddisass.c:146
+msgid ""
+"The single-stepping has been aborted because\n"
+"the stack pointer has changed."
+msgstr ""
+
+#: src/linux/udebug/uddisass.c:351 src/win/wdebug/wddisass.c:162
+msgid ""
+"The single-stepping has been aborted because of the\n"
+"great number of executed instructions.\n"
+"It could be an infinite loop."
+msgstr ""
+
+#: src/linux/udebug/uddisass.c:330 src/win/wdebug/wddisass.c:143
+msgid ""
+"The single-stepping has been aborted because of the\n"
+"great number of executed instructions.\n"
+"The subroutine could have an infinite loop."
+msgstr ""
+
+#: src/linux/udebug/uddisass.c:322 src/win/wdebug/wddisass.c:137
+msgid ""
+"The single-stepping has been aborted because the\n"
+"return pointer has just been overwritten in stack."
+msgstr ""
+
+#: src/linux/udebug/uddisass.c:326 src/win/wdebug/wddisass.c:140
+msgid ""
+"The single-stepping has been aborted because the\n"
+"return pointer has just been pulled from stack before\n"
+"the return from subroutine."
+msgstr ""
+
+#: src/dos/dmain.c:168 src/win/wmain.c:124
+msgid "Truecolor display"
+msgstr ""
+
+#: src/errors.c:92
+msgid "Unable to open"
+msgstr ""
+
+#: src/linux/usound.c:285
+msgid "Unable to open audio device"
+msgstr ""
+
+#: src/linux/umain.c:167
+msgid ""
+"Undefined options :\n"
+"  load tape, disk and cartridge\n"
+msgstr ""
+
+#: src/errors.c:103
+msgid "Unknown error"
+msgstr ""
+
+#: src/linux/umain.c:200
+#, c-format
+msgid "Unknown graphic mode: %s, defaulting to windowed\n"
+msgstr ""
+
+#: src/option.c:196
+msgid "Unknown option"
+msgstr ""
+
+#: src/option.c:218
+msgid "Unknown type for"
+msgstr ""
+
+#: src/dos/dmain.c:578 src/linux/umain.c:634 src/linux/umain.c:644
+#: src/og-xbox/xmain.c:457 src/win/wmain.c:534 src/win/wmain.c:539
+msgid "Unsupported graphic mode"
+msgstr ""
+
+#: src/errors.c:101
+msgid "Unsupported image format"
+msgstr ""
+
+#: src/option.c:112
+msgid "Usage"
+msgstr ""
+
+#: src/dos/ddebug.c:213
+#, c-format
+msgid "VRAM page             : %d"
+msgstr ""
+
+#: src/debug/dreg.c:147
+#, c-format
+msgid "VRAM page          :%d%s"
+msgstr ""
+
+#: src/linux/udebug/udmem.c:243 src/win/wdebug/wdmem.c:210
+msgid "Video:"
+msgstr ""
+
+#. bouton de reinitialisation
+#: src/linux/ugui.c:205 src/win/wgui.c:136
+msgid "Warm reset"
+msgstr ""
+
+#: src/linux/ugui.c:208 src/win/wgui.c:162
+msgid ""
+"Warm reset without\n"
+"clearing RAM memory"
+msgstr ""
+
+#: src/win/wgui/wcass.c:173 src/win/wgui/wdisk.c:131
+msgid "Warning: writing unavailable on this device."
+msgstr ""
+
+#: src/sdl2/gui/dlgTape.c:174
+msgid "Warning: writing unavailable."
+msgstr ""
+
+#: src/win/wgui/wabout.c:106
+msgid "Web forum"
+msgstr ""
+
+#: src/win/wmain.c:125
+msgid "Windowed display"
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:172
+msgid "Write output files in"
+msgstr ""
+
+#. The write protection was active
+#. * before the click thus the "command"
+#. * is to make the protection inactive
+#. *
+#. Failure to do so
+#: src/linux/ugui/ucass.c:215 src/linux/ugui/udisk.c:125
+#: src/sdl2/gui/dlgDisks.c:266 src/sdl2/gui/dlgTape.c:200
+msgid "Writing unavailable on this device."
+msgstr ""
+
+#: src/dos/dmain.c:544
+#, c-format
+msgid "Your choice: [default 1] "
+msgstr ""
+
+#. Lit la ligne de commande
+#: src/linux/umain.c:163
+msgid "[FILE...]"
+msgstr ""
+
+#: src/option.c:114
+msgid "[FILE...] [FOLDER...]"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:331 src/linux/ugui/udisk.c:314
+#: src/linux/ugui/umemo.c:211 src/linux/ugui/uprinter.c:180
+msgid "_Cancel"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:69
+msgid "_Cold reset"
+msgstr ""
+
+#. direct disk
+#: src/sdl2/gui/dlgDisks.c:155
+msgid "_Direct access"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:73
+msgid "_Disk drives"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:70
+msgid "_Full reset"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:332 src/linux/ugui/udisk.c:315
+#: src/linux/ugui/umemo.c:212 src/linux/ugui/uprinter.c:181
+msgid "_Open"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:76
+msgid "_Printer"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:78
+msgid "_Quit"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:72
+msgid "_Settings"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:74
+msgid "_Tape drive"
+msgstr ""
+
+#: src/sdl2/gui/dlgMain.c:68
+msgid "_Warm reset"
+msgstr ""
+
+#. Width in chars
+#: src/sdl2/gui/dlgSystem.c:76
+msgid "_exact"
+msgstr ""
+
+#: src/sdl2/gui/dlgSystem.c:77
+msgid "_fast"
+msgstr ""
+
+#: src/win/wgui/wsetting.c:177
+msgid "activated"
+msgstr ""
+
+#: src/dos/ddebug.c:275
+msgid "address: "
+msgstr ""
+
+#: src/win/wgui/wcass.c:384
+msgid "clear the file list"
+msgstr ""
+
+#: src/linux/umain.c:606
+#, c-format
+msgid "could not initialize sdl2: %s\n"
+msgstr ""
+
+#: src/alleg/asound.c:202
+msgid "error\n"
+msgstr ""
+
+#: src/linux/ugui/usetting.c:233 src/win/wgui/wsetting.c:174
+msgid "exact"
+msgstr ""
+
+#: src/linux/ugui/usetting.c:226 src/win/wgui/wsetting.c:175
+msgid "fast"
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:278 src/win/wgui/wprinter.c:212
+msgid "graphic"
+msgstr ""
+
+#: src/win/wgui/wsetting.c:181
+msgid "interlaced video"
+msgstr ""
+
+#: src/alleg/agui/acass.c:143
+msgid "k7"
+msgstr ""
+
+#: src/win/wgui/wsetting.c:179
+msgid "max"
+msgstr ""
+
+#: src/win/wgui/wsetting.c:178
+msgid "min"
+msgstr ""
+
+#: src/dos/ddebug.c:285
+msgid "number: "
+msgstr ""
+
+#. Header
+#: src/alleg/agui/acass.c:148 src/alleg/agui/adisk.c:205
+#: src/sdl2/gui/dlgDisks.c:123 src/sdl2/gui/dlgTape.c:97
+msgid "prot."
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:256 src/win/wgui/wprinter.c:208
+msgid "raw"
+msgstr ""
+
+#. Header
+#: src/alleg/agui/adisk.c:204 src/sdl2/gui/dlgDisks.c:122
+#: src/win/wgui/wdisk.c:472 src/win/wgui/wdisk.c:474 src/win/wgui/wdisk.c:476
+#: src/win/wgui/wdisk.c:478
+msgid "side"
+msgstr ""
+
+#: src/linux/ugui/uprinter.c:267 src/win/wgui/wprinter.c:210
+msgid "text"
+msgstr ""
+
+#: src/alleg/agui.c:255
+msgid "will be cleared."
+msgstr ""

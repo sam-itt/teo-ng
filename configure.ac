@@ -116,6 +116,8 @@ AC_TYPE_SIZE_T
 #AC_FUNC_REALLOC
 AC_FUNC_MKTIME
 AC_CHECK_FUNCS([malloc realloc atexit access getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name scandir alphasort])
+AM_GNU_GETTEXT([external])
+#AM_GNU_GETTEXT_VERSION([0.19])
 
 # check if the dirent structure of a d_type field and DT_UNKNOWN is defined
 AC_MSG_CHECKING(if the dirent structure of a d_type field)
@@ -388,6 +390,7 @@ AC_SUBST(AM_CFLAGS, [$E_AM_CFLAGS])
 
 
 AC_CONFIG_FILES([Makefile
+                 po/Makefile.in
                  src/Makefile
                  data/Makefile])
 AM_COND_IF([GFX_BACKEND_ALLEGRO],

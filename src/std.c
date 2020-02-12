@@ -55,7 +55,7 @@
 #endif
 #include <limits.h>
 
-#ifndef PLATFORM_OGXBOX
+#if !defined(PLATFORM_OGXBOX) && !defined(PLATFORM_MSDOS)
 #include <libgen.h>
 #endif
 #ifndef PATH_MAX
@@ -80,6 +80,11 @@
 #ifndef DATAROOTDIR
 # define DATAROOTDIR "/usr/share"
 #endif
+
+#ifndef LOCALEDIR
+# define LOCALEDIR DATAROOTDIR"/locale" 
+#endif
+
 
 #ifdef __MINGW32__
 #include <shlobj.h>
@@ -590,6 +595,58 @@ char *std_PathAppend(const char *existing, const char *component)
     return rv;
 }
 
+/*
+ * Build a path using DIR_SEPARATOR from a NULL-terminated
+ * list of elements.
+ *
+ * Caller must free returned value
+ *
+ */
+char *std_PathAppendMultiple(const char *existing, ...)
+{
+    va_list va;
+    char *component;
+    int clen;
+    int cpos;
+    char *rv;
+    int i;
+    size_t length;
+
+    /*First pass, count the args and accumulate length*/
+    va_start (va, existing);
+    i = 0;
+    length = strlen(existing);
+    while((component = va_arg(va, char*))){
+        length += strlen(component);
+        i++;
+    }
+    /*length: total length of all path components
+     * 1: first sep between existing and first component
+     * i-1: separators between all path components
+     * +1 for the last \0 */
+    rv = malloc(sizeof(char)*((1+length+(i-1))+1));
+    strcpy(rv, existing);
+    cpos = strlen(existing);
+    if(last_char(existing) != DIR_SEPARATOR){
+        rv[cpos] = DIR_SEPARATOR;
+        cpos++;
+    }
+    /*Second pass, build the return value*/
+    va_start (va, existing);
+    while(component = va_arg(va, char*)){
+        if(first_char(component) == DIR_SEPARATOR)
+            component++;
+        clen = strlen(component);
+        if(last_char(component) == DIR_SEPARATOR)
+            clen--;
+        strncpy(&rv[cpos], component,clen);
+        cpos += clen;
+        rv[cpos++] = DIR_SEPARATOR;
+    }
+    rv[cpos-1] = '\0';
+    return rv;
+}
+
 /**
  * Adapted from Hatari File_IsRootFileName
  *
@@ -612,6 +669,61 @@ bool std_IsAbsolutePath(const char *filename)
 	return false;
 }
 
+const char *std_GetLocaleBaseDir(void)
+{
+#if PLATFORM_UNIX
+    const char *search_path[] = {
+        LOCALEDIR,
+        NULL
+    };
+#elif PLATFORM_WIN32
+    char path[MAX_PATH];
+    char *search_path[2] = {NULL, NULL};
+
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
+        search_path[0] = std_PathAppend(path, PACKAGE);
+	}
+
+    GetModuleFileName(NULL, path, ARRAYSIZE(path));
+    search_path[1] = strdup(dirname(path));
+#elif PLATFORM_MSDOS 
+/*TODO: Lookup where is teo.exe (argv[0] ?) and use it as TEO_HOME is not defined*/
+/*TODO: declare TEO_HOME it in a BAT file for launching teo*/
+    char *search_path[2] = {NULL, NULL};
+    char *teo_home;
+
+    teo_home = getenv("TEO_HOME");
+    if(teo_home)
+        search_path[0] = strdup(teo_home);
+    else{
+        search_path[0] = get_current_dir_name();
+        std_Debug("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+    }
+    search_path[1] = get_current_dir_name();
+#endif
+    char *fname;
+    char **candidate;
+    char *rv;
+    
+    rv = NULL;
+    for(candidate = (char **)search_path; *candidate != NULL; candidate++){
+//        printf("candidate is: %s\n", *candidate);
+        fname = std_PathAppendMultiple(*candidate, "fr", "LC_MESSAGES", PACKAGE".mo", NULL);
+        printf("%s checking for %s\n", __FUNCTION__, fname);
+        if(std_FileExists(fname)){
+            free(fname);
+            rv = strdup(*candidate);
+            break;
+        }
+        free(fname);
+    }
+#if PLATFORM_WIN32 || PLATFORM_MSDOS
+    std_free(search_path[0]);
+    std_free(search_path[1]);
+#endif
+    printf("%s returning %s\n",__FUNCTION__,rv);
+    return rv;
+}
 
 
 /* Will search for a file in pre-defined directories 

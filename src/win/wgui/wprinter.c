@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 22/04/2012
  *  Modifié par: François Mouret 24/10/2012 20/09/2013 10/05/2014
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des imprimantes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -53,6 +56,7 @@
 #include "teo.h"
 #include "media/printer.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 
 static void update_options (HWND hWnd, int number)
@@ -103,7 +107,7 @@ static void open_folder (HWND hWnd)
     bi.hwndOwner = hWnd;
     bi.pidlRoot = NULL;
     bi.pszDisplayName = (LPTSTR)folder;
-    bi.lpszTitle = is_fr ? "Choisir un répertoire":"Choose a directory";
+    bi.lpszTitle = _("Select a directory");
     bi.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
     bi.lpfn = BrowseCallbackProc;
     bi.lParam = (LPARAM)folder;
@@ -194,33 +198,30 @@ int CALLBACK wprinter_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
          /* initialisation des textes */
          hw = GetDlgItem(hWnd, IDC_PRINTER_OPTIONS_GROUP);
-         SetWindowText(hw, is_fr?"Imprimante":"Printer");
+         SetWindowText(hw, _("Printer"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_CHOOSE_RTEXT);
          SetWindowText(hw, "Type ");
          hw = GetDlgItem(hWnd, IDC_PRINTER_DIP_CHECK);
-         SetWindowText(hw, is_fr?"Double interligne":"Double spacing");
+         SetWindowText(hw, _("Double spacing"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_NLQ_CHECK);
-         SetWindowText(hw, is_fr?"Imprime en haute qualité"
-                                :"High quality print");
+         SetWindowText(hw, _("High quality print"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_OUTPUT_GROUP);
-         SetWindowText(hw, is_fr?"Sortie":"Output");
+         SetWindowText(hw, _("Output"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_RAW_CHECK);
-         SetWindowText(hw, is_fr?"brute":"raw");
+         SetWindowText(hw, _("raw"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_TXT_CHECK);
-         SetWindowText(hw, is_fr?"texte":"text");
+         SetWindowText(hw, _("text"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_GFX_CHECK);
-         SetWindowText(hw, is_fr?"graphique":"graphic");
+         SetWindowText(hw, _("graphic"));
          hw = GetDlgItem(hWnd, IDC_PRINTER_MORE_EDIT);
          SetWindowText(hw, std_LastDir(teo.lprt.folder));
          hw = GetDlgItem(hWnd, IDC_PRINTER_MORE_RTEXT);
-         SetWindowText(hw, is_fr?"Sauver les fichiers dans "
-                                :"Saving output files in ");
+         SetWindowText(hw, _("Saving output files in "));
 
          /* initialisation des info-bulles */
          wgui_CreateTooltip (hWnd,
                              IDC_PRINTER_MORE_BUTTON,
-                             is_fr?"Choisir un répertoire de sauvegarde"
-                                  :"Choose a save folder");
+                             _("Select a save folder"));
          update_options (hWnd, combo_index);
          return TRUE;
 
