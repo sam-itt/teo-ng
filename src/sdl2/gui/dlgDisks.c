@@ -129,7 +129,7 @@ static void DlgDisks_EjectDisk(char *dlgname, int drive)
 
     pIdx = DLGDSK_0_WPROT + drive * (DLGDSK_1_WPROT-DLGDSK_0_WPROT);
     diskdlg[pIdx].state &= ~SG_SELECTED;
-    snprintf(dlgname, FILENAME_MAX-1, "%s", "(None)");
+    snprintf(dlgname, FILENAME_MAX-1, "%s", _("(None)"));
 
     disk_Eject(drive);
 }
@@ -184,7 +184,7 @@ static void DlgDisks_BrowseDisk(char *dlgname, int drive)
             objIdx = DLGDSK_0_WPROT + drive * (DLGDSK_1_WPROT-DLGDSK_0_WPROT);
             diskdlg[objIdx].state &= ~SG_SELECTED;
             if(rv == true){
-                DlgAlert_Notice("Warning: Writing unavailable.");
+                DlgAlert_Notice(_("Warning: Writing unavailable."));
                 diskdlg[objIdx].state |= SG_SELECTED;
             }
             if (teo.disk[drive].side >= disk[drive].side_count)
@@ -244,7 +244,7 @@ static void DlgDisks_EnableDirectAccess(int direct_disk)
         if (direct_disk & (1<<drive))
         {
             objIdx = DLGDSK_0_NAME + (DLGDSK_1_NAME - DLGDSK_0_NAME) * drive;
-            snprintf(sFiles[drive], FILENAME_MAX-1, "Direct Access");
+            snprintf(sFiles[drive], FILENAME_MAX-1, _("Direct Access"));
             teo.disk[drive].file = std_free (teo.disk[drive].file);
 
             objIdx = DLGDSK_0_WPROT + (DLGDSK_1_WPROT - DLGDSK_0_WPROT) * drive;
@@ -283,10 +283,9 @@ void DlgDisks_Main(int da_mask)
         /*Init disk name*/
         objIdx = DLGDSK_0_NAME + i * (DLGDSK_1_NAME-DLGDSK_0_NAME);
         if(teo.disk[i].file){
-            printf("drive %d: %s\n",i, teo.disk[i].file);
             snprintf(sFiles[i], FILENAME_MAX-1, "%s", std_BaseName(teo.disk[i].file));
         }else{
-            snprintf(sFiles[i], FILENAME_MAX-1, "%s", "(None)");
+            snprintf(sFiles[i], FILENAME_MAX-1, "%s", _("(None)"));
             teo.disk[i].side = 0;
             disk[i].side_count = 1; /*Exported by disk.h*/
         }

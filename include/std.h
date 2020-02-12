@@ -44,6 +44,8 @@
 
 #ifndef STD_H
 #define STD_H
+#include <stdio.h>
+#include <stdarg.h>
 #include <stdbool.h>
 
 struct STRING_LIST {
@@ -60,7 +62,7 @@ extern char* std_LastDir(char *fullname);
 extern char* std_BaseName(char *fullname);
 extern char *std_ApplicationPath (const char dirname[], const char filename[]);
 const char *std_GetLocaleBaseDir(void);
-char *std_GetTeoSystemFile(char *name);
+char *std_GetTeoSystemFile(char *name, bool can_fail);
 char *std_getSystemConfigDir();
 char *std_getUserConfigDir();
 char *std_getUserDataDir();
@@ -81,8 +83,7 @@ extern size_t std_FileSize (const char filename[]);
 extern void std_rtrim (char *s);
 extern char *std_skpspc(char *p);
 extern char *std_strdup_printf (char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+char *std_vastrdup_printf (char *fmt, va_list ap);
 extern size_t std_snprintf (char *dest, size_t size, const char*fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
-int std_Debug(char *format, ...);
 #endif
-

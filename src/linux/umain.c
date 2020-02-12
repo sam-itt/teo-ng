@@ -80,6 +80,7 @@
 #include "main.h"
 #include "std.h"
 #include "ini.h"
+#include "logsys.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -197,7 +198,7 @@ static void ReadCommandLine(int argc, char *argv[])
         if (!strcmp(gfx_str,"mode80"))    gfx_mode = GFX_MODE80   ; else
         if (!strcmp(gfx_str,"truecolor")) gfx_mode = GFX_TRUECOLOR; else
         if (!strcmp(gfx_str,"windowed"))   gfx_mode = GFX_WINDOW; else
-        printf(_("Unknown graphic mode: %s, defaulting to windowed\n"), gfx_str); //LOG
+        log_msgf(LOG_INFO,_("Unknown graphic mode: %s, defaulting to windowed\n"), gfx_str);
     }
 #endif
     g_option_context_free(context);
@@ -211,11 +212,11 @@ static void init_empty_disk(char *filename)
     FILE *dst_file = NULL;
     int c;
 
-    src_name = std_GetTeoSystemFile(filename);
+    src_name = std_GetTeoSystemFile(filename, true);
     dst_name = std_GetUserDataFile(filename);
 
     if(!std_FileExists(src_name)){
-        printf(_("%s: File %s not found, not copying empty disk to user folder %s\n"), __FUNCTION__, filename, dst_name); //LOG
+        log_msgf(LOG_INFO,_("%s: File %s not found, not copying empty disk to user folder %s\n"), __FUNCTION__, filename, dst_name); //LOG
         return;
     }
 
@@ -516,25 +517,57 @@ char *main_ThomsonToPcText (char *thomson_text)
 /* DisplayMessage:
  *  Affiche un message.
  */
-void main_DisplayMessage(const char msg[])
+void main_DisplayMessageVA(const char *format, va_list ap)
 {
-    fprintf(stderr, "%s\n", msg);
+    char *msg;
+
+    vfprintf(stderr, format, ap);
+    log_vamsgf(LOG_ERROR, format, ap);
 #if defined (GFX_BACKEND_GTK_X11) || defined (ENABLE_GTK_DEBUGGER) || defined (ENABLE_GTK_PANEL)
+    msg = std_vastrdup_printf (format, ap);
     ugui_Error (msg, NULL);
+    std_free(msg);
 #elif defined (GFX_BACKEND_ALLEGRO)
+    msg = std_vastrdup_printf (format, ap);
     agui_PopupMessage (msg);
+    std_free(msg);
 #endif
+}
+
+void main_DisplayMessage(const char *format, ...)
+{
+    va_list args;
+
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
 }
 
 
 /* ExitMessage:
  *  Affiche un message de sortie et sort du programme.
  */
-void main_ExitMessage(const char msg[])
+void main_ExitMessage(const char *format, ...)
 {
-    main_DisplayMessage(msg);
+    va_list args;
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
     exit(EXIT_FAILURE);
 }
+
+int main_ConsoleOutput(const char *format, ...)
+{   
+    va_list args;
+    int rv;
+
+    va_start(args, format);
+    rv = vprintf(format,args);
+    va_end(args);
+
+    return rv;
+}
+
 
 
 #define IS_3_INCHES(drive) ((drive_type[drive]>2) && (drive_type[drive]<7))
@@ -561,6 +594,8 @@ int main(int argc, char *argv[])
 #elif defined (GFX_BACKEND_SDL2)
     char version_name[]=PACKAGE_STRING" (Linux/SDL2) ";
 #endif
+
+    log_open("teo.log");
 
 #if defined ENABLE_NLS && ENABLE_NLS
     /* Setting the i18n environment */
@@ -589,27 +624,25 @@ int main(int argc, char *argv[])
     /*njoy set to -1 would disable joystick detection/support*/
     rv = afront_Init(w_title, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
     if(rv != 0){
-        printf(_("Couldn't initialize Allegro, bailing out !\n")); //ERROR
-        exit(EXIT_FAILURE);
+        main_ExitMessage(_("Couldn't initialize Allegro, bailing out !\n"));
     }
     /* num_joysticks: filled by allegro with the number of detected joysticks */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 #elif defined (GFX_BACKEND_SDL2)
     rv = sfront_Init(&njoy, FRONT_ALL);
     if(rv != 0){
-        fprintf(stderr, _("could not initialize sdl2: %s\n"), SDL_GetError()); //ERROR
-        exit(EXIT_FAILURE);
+        main_ExitMessage(_("could not initialize sdl2: %s\n"), SDL_GetError());
     }
 #endif
 
     /* Affichage du message de bienvenue du programme */
-    printf(_("Here comes %s the Thomson TO8 emulator.\n"), version_name);
-    printf(_("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
-    printf(_("Command keys: [ESC] Control panel\n"));           
-    printf(_("\t[F12] Debugger\n"));           
+    main_ConsoleOutput(_("Here comes %s the Thomson TO8 emulator.\n"), version_name);
+    main_ConsoleOutput(_("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
+    main_ConsoleOutput(_("Command keys: [ESC] Control panel\n"));           
+    main_ConsoleOutput(_("\t[F12] Debugger\n"));           
 
     /* Initialisation du TO8 */
-    printf(_("Emulator init..."));
+    main_ConsoleOutput(_("Emulator init..."));
     fflush(stderr);
 
     /*Number of joysticks to emualte using the keyboard*/
@@ -664,7 +697,7 @@ int main(int argc, char *argv[])
     udebug_Init();      /* Initialise l'interface graphique */
 #endif
 
-    printf(_("Starting emulation...\n"));
+    main_ConsoleOutput(_("Starting emulation...\n"));
     teo_DebugBreakPoint = NULL;
 #if defined (GFX_BACKEND_ALLEGRO)
     afront_Run(windowed_mode);
@@ -687,7 +720,8 @@ int main(int argc, char *argv[])
     sfront_Shutdown();
 #endif
 
-    printf(_("Goodbye !\n"));
+    main_ConsoleOutput(_("Goodbye !\n"));
+    log_close();
     exit(EXIT_SUCCESS);
 }
 

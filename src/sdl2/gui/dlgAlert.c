@@ -151,8 +151,6 @@ static int DlgAlert_ShowDlg(const char *text)
 		
 	SDLGui_CenterDlg(alertdlg);
 
-//	printf("bWasEmuActive = Main_PauseEmulation(true);\n");
-
 	SDL_GetMouseState(&nOldMouseX, &nOldMouseY);
 	bOldMouseVisibility = SDL_ShowCursor(SDL_QUERY);
 	SDL_ShowCursor(SDL_ENABLE);
@@ -161,15 +159,10 @@ static int DlgAlert_ShowDlg(const char *text)
 
 	SDL_UpdateRect(SDLGui_GetScreen(), 0,0, 0,0);
 	SDL_ShowCursor(bOldMouseVisibility);
-//	printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
 
 #if WITH_SDL2
 	SDL_SetRelativeMouseMode(bOldMouseMode);
 #endif
-
-//	if (bWasEmuActive)
-//		printf("Main_UnPauseEmulation();\n");
-
 	return (i == DLGALERT_OK);
 }
 

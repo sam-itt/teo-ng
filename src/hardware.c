@@ -967,8 +967,6 @@ void hardware_Init(void)
 
     srand((unsigned) time(&t));
 
-    printf("Doing (virtual) hardware inits\n");
-
     mc6809_interface.FetchInstr   = FetchInstr;
     mc6809_interface.LoadByte     = LoadByte;
     mc6809_interface.LoadWord     = LoadWord;
@@ -992,11 +990,7 @@ void hardware_Init(void)
         mem.rom.bank[i] = NULL;
 
     for(i = 0; i < mem.rom.nbank; i++){
-        mem.rom.filename[i] = std_GetTeoSystemFile((char *)sysroms[i]); /*TODO: Have a shutdown function that frees me*/
-        if(!mem.rom.filename[i]){
-            printf("Error: Couldn't find mandatory file %s, bailing out\n", sysroms[i]);
-            exit(EXIT_FAILURE);
-        }
+        mem.rom.filename[i] = std_GetTeoSystemFile((char *)sysroms[i], false); /*TODO: Have a shutdown function that frees me*/
     }
 
     /* 512ko de RAM */
@@ -1013,11 +1007,7 @@ void hardware_Init(void)
         mem.mon.bank[i] = NULL;
 
     for(i = 0; i < mem.mon.nbank; i++){
-        mem.mon.filename[i] = std_GetTeoSystemFile((char *)sysmons[i]); /*TODO: Have a shutdown function that frees me*/
-        if(!mem.mon.filename[i]){
-            printf("Error: Couldn't find mandatory file %s, bailing out\n", sysmons[i]);
-            exit(EXIT_FAILURE);
-        }
+        mem.mon.filename[i] = std_GetTeoSystemFile((char *)sysmons[i], false); /*TODO: Have a shutdown function that frees me*/
     }
 
     /* définition de la carte mémoire logique */

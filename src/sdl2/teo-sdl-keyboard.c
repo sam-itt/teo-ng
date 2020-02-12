@@ -6,6 +6,7 @@
 
 #include "teo.h"
 #include "to8keys.h"
+#include "logsys.h"
 #include "media/keyboard.h"
 #include "media/joystick.h"
 #include "ini.h"
@@ -85,14 +86,14 @@ void teoSDL_KeyboardHandler(SDL_KeyboardEvent *event)
         int jdx; 
         int jdir;
 
-//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) %s as a joystick action\n", teoSDL_KeyboardSDLScancodeToText(key),key, release ? "(release)":"");
+//        log_msgf(LOG_TRACE,"Magic key enabled(NUMLOCK off), interpreting %s(%d) %s as a joystick action\n", teoSDL_KeyboardSDLScancodeToText(key),key, release ? "(release)":"");
 //        joystick_VerboseDebugCommand(keymap[key].joycode);
 
         jdx = TEO_JOYN(keymap[key].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[key].joycode);
 
         if(keymap[key].joycode & TEO_JOYSTICK_BUTTON_A){
-//                printf("%s: joystick_Button(%d, 0, %d)\n",__FUNCTION__,jdx-1, 
+//                log_msgf(LOG_TRACE,"%s: joystick_Button(%d, 0, %d)\n",__FUNCTION__,jdx-1, 
 //                       (release != 0) ? TEO_JOYSTICK_FIRE_OFF
 //                                      : TEO_JOYSTICK_FIRE_ON);
                 joystick_Button (jdx-1, 0,
@@ -100,7 +101,7 @@ void teoSDL_KeyboardHandler(SDL_KeyboardEvent *event)
                                                 : TEO_JOYSTICK_FIRE_ON);
         }
         if(keymap[key].joycode & TEO_JOYSTICK_BUTTON_B){
-//                printf("%s: joystick_Button(%d, 1, %d)\n",__FUNCTION__,jdx-1, 
+//                log_msgf(LOG_TRACE,"%s: joystick_Button(%d, 1, %d)\n",__FUNCTION__,jdx-1, 
 //                       (release != 0) ? TEO_JOYSTICK_FIRE_OFF
 //                                      : TEO_JOYSTICK_FIRE_ON);
                 joystick_Button (jdx-1, 1,
@@ -122,7 +123,7 @@ void teoSDL_KeyboardHandler(SDL_KeyboardEvent *event)
                 jdir_buffer[jdx-1][0]=jdir;
             }
         }
-//        printf("%s: joystick_Move(%d, %d)\n",__FUNCTION__,jdx-1, jdir_buffer[jdx-1][0]);
+//        log_msgf(LOG_TRACE,"%s: joystick_Move(%d, %d)\n",__FUNCTION__,jdx-1, jdir_buffer[jdx-1][0]);
         joystick_Move (jdx-1, jdir_buffer[jdx-1][0]);
 
         /*Here we don't return as in the original code where
@@ -162,10 +163,10 @@ static void teoSDL_KeyboardRegisterJoystickBinding(char *sdl_scode, int jdx, cha
     if(jdir2)
         jd_int |= joystick_SymbolToInt(jdir2);
 
-//    printf("SDL key %s(%d) will produce %s + %s (%d)\n",sdl_scode,code,jdir,jdir2,jd_int);
+//    log_msgf(LOG_TRACE,"SDL key %s(%d) will produce %s + %s (%d)\n",sdl_scode,code,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
     keymap[code].joycode = jd_int;
-//    printf("keymap[%d].joycode = %d\n",code,keymap[code].joycode);
+//    log_msgf(LOG_TRACE,"keymap[%d].joycode = %d\n",code,keymap[code].joycode);
 }
 
 
@@ -177,7 +178,7 @@ static Uint8 teoSDL_KeyboardReadJoystickBindings(ini_t *key_file, char *section,
     char *sdl_sym;
     char *jdir, *jdir2;
 
-    printf("Loading up joystick emulation key mappings\n");
+    log_msgf(LOG_INFO,"Loading up joystick emulation key mappings\n");
     n_bindings = ini_count_keys(key_file, section);
     if(!n_bindings) return -1;
 
@@ -192,7 +193,7 @@ static Uint8 teoSDL_KeyboardReadJoystickBindings(ini_t *key_file, char *section,
          * */
         jdir = strdup(jdir); 
 
-//        printf("Key %s will emit %s\n", sdl_sym, jdir);
+//        log_msgf(LOG_TRACE,"Key %s will emit %s\n", sdl_sym, jdir);
 
         jdir2 = strchr(jdir,'+');
         if(jdir2){
@@ -219,17 +220,17 @@ static void teoSDL_KeyboardRegisterBinding(char *sdl_scode, char *tokey, char *m
     to_int = keyboard_TokeyToInt(tokey);
 
     if(!modifier){
-//        printf("SDL key %s(%d) will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
+//        log_msgf(LOG_TRACE,"SDL key %s(%d) will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
         keymap[code].tokey = to_int;
         return;
     }
     if(strcmp(modifier,"SHIFT") == 0){
-//        printf("SDL key %s(%d) + SHIFT will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
+//        log_msgf(LOG_TRACE,"SDL key %s(%d) + SHIFT will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
         keymap[code].shift = to_int;
         return;
     }
     if(strcmp(modifier,"ALTGR") == 0){
-//        printf("SDL key %s(%d) + ALTGR will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
+//        log_msgf(LOG_TRACE,"SDL key %s(%d) + ALTGR will produce %s(%d)\n",sdl_scode,code,tokey,to_int);
         keymap[code].altgr = to_int;
         return;
     }
@@ -250,16 +251,16 @@ void teoSDL_KeyboardLoadKeybindings(char *filename)
 
     key_file = ini_load(filename);
     if(!key_file){
-        printf("Error loading key file: %s\n",filename);
+        log_msgf(LOG_ERROR,"Error loading key file: %s\n",filename);
         return;
     }
 
-    printf("Loading up key mappings\n");
+    log_msgf(LOG_INFO,"Loading up key mappings\n");
     tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
-//        printf("Resolving mapping for emulator definition %s... ", *tokey);
+//        log_msgf(LOG_TRACE,"Resolving mapping for emulator definition %s... ", *tokey);
         binding = (char *)ini_get(key_file, "keymapping", *tokey);
-//        printf("got %s\n", binding);
+//        log_msgf(LOG_TRACE,"got %s\n", binding);
         if(!binding) continue;
         /*ini_get returns static char *, while we need to modify it*/
         binding = strdup(binding); 

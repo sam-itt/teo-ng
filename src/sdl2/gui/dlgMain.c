@@ -136,7 +136,7 @@ int Dialog_MainDlg(bool adjustableVolume, int da_mask)
 	        && retbut != SDLGUI_ERROR && !bQuitProgram);
 
 	SDL_ShowCursor(bOldMouseVisibility);
-	//printf("Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
+	//log_msgf(LOG_TRACE,"Main_WarpMouse(nOldMouseX, nOldMouseY, true);\n");
 
 	return (retbut == MAINDLG_OK);
 }

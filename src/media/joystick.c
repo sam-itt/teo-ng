@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "logsys.h"
 #include "hardware.h"
 #include "media/joystick.h"  /* MacOS */
 
@@ -189,16 +190,15 @@ int joystick_SymbolToInt(char *symbol)
 
 void joystick_VerboseDebugCommand(int value)
 {
-    printf("Joystick command for joystick %d. Raw value is: %d, meaning: ",TEO_JOYN(value),value);
-    if(value&TEO_JOYSTICK_CENTER) printf("TEO_JOYSTICK_CENTER ");
-    if(value&TEO_JOYSTICK_UP) printf("TEO_JOYSTICK_UP ");
-    if(value&TEO_JOYSTICK_DOWN) printf("TEO_JOYSTICK_DOWN ");
-    if(value&TEO_JOYSTICK_LEFT) printf("TEO_JOYSTICK_LEFT ");
-    if(value&TEO_JOYSTICK_RIGHT) printf("TEO_JOYSTICK_RIGHT ");
-    if(value&TEO_JOYSTICK_RIGHT) printf("TEO_JOYSTICK_RIGHT ");
-    if(value&TEO_JOYSTICK_BUTTON_A) printf("TEO_JOYSTICK_BUTTON_A ");
-    if(value&TEO_JOYSTICK_BUTTON_B) printf("TEO_JOYSTICK_BUTTON_B ");
-
-    printf("\n");
+    log_msgf(LOG_DEBUG,"Joystick command for joystick %d. Raw value is: %d, meaning: ",TEO_JOYN(value),value);
+    if(value&TEO_JOYSTICK_CENTER) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_CENTER ");
+    if(value&TEO_JOYSTICK_UP) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_UP ");
+    if(value&TEO_JOYSTICK_DOWN) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_DOWN ");
+    if(value&TEO_JOYSTICK_LEFT) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_LEFT ");
+    if(value&TEO_JOYSTICK_RIGHT) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_RIGHT ");
+    if(value&TEO_JOYSTICK_RIGHT) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_RIGHT ");
+    if(value&TEO_JOYSTICK_BUTTON_A) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_BUTTON_A ");
+    if(value&TEO_JOYSTICK_BUTTON_B) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_BUTTON_B ");
+    log_msgf(LOG_DEBUG,"\n");
 }
 

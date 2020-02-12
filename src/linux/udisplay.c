@@ -63,6 +63,7 @@
 #include "std.h"
 #include "defs.h"
 #include "teo.h"
+#include "main.h"
 #include "to8keys.h"
 #include "media/keyboard.h"
 #include "media/joystick.h"
@@ -70,6 +71,7 @@
 #include "media/disk.h"
 #include "linux/graphic.h"
 #include "gettext.h"
+#include "logsys.h"
 
 GtkWidget *wMain;
 GdkWindow *gwindow_win;
@@ -136,7 +138,7 @@ static gboolean udisplay_HandleKeyEvent(GdkEventKey *event, int release)
     int tokey;
 
     if(event->hardware_keycode > 255){
-        std_Debug("Ignoring OOB hardware_keycode %d while max is %d\n",event->hardware_keycode,255);
+        log_msgf(LOG_DEBUG,"Ignoring OOB hardware_keycode %d while max is %d\n",event->hardware_keycode,255);
         return FALSE;
     }
 
@@ -189,10 +191,8 @@ static gboolean udisplay_HandleKeyEvent(GdkEventKey *event, int release)
         int jdx; 
         int jdir;
 
-#ifdef DEBUG
-        std_Debug("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
+        log_msgf(LOG_DEBUG,"Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
         joystick_VerboseDebugCommand(keymap[event->hardware_keycode].joycode);
-#endif
 
         jdx = TEO_JOYN(keymap[event->hardware_keycode].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[event->hardware_keycode].joycode);
@@ -382,9 +382,7 @@ configure_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     if ( (event->configure.width != last_width) || (event->configure.height != last_height) ) {
         last_width=event->configure.width;
         last_height=event->configure.height; 
-#ifdef DEBUG
-	fprintf(stderr,"Resize x=%d y=%d\n",last_width,last_height);
-#endif
+        log_msgf(LOG_DEBUG, "Resize x=%d y=%d\n",last_width,last_height);
         ugraphic_resize_zoom();
         /* ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2); */
     }
@@ -404,7 +402,7 @@ static gboolean udisplay_GetEntriesForKeyval(char *keyval_name, XkbStateRec *xkb
 
     ksym = strstr(keyval_name,"GDK_KEY_");
     if(!ksym){
-        std_Debug("Not a recognized GDK KeySym: %s\n",keyval_name);
+        log_msgf(LOG_DEBUG,"Not a recognized GDK KeySym: %s\n",keyval_name);
         return FALSE;
     }
     ksym = strchr(keyval_name,'_');
@@ -413,7 +411,7 @@ static gboolean udisplay_GetEntriesForKeyval(char *keyval_name, XkbStateRec *xkb
     ksym++;
 
     XkbGetState(display, XkbUseCoreKbd, xkbState);
-    std_Debug("Active group would be %d\n",xkbState->group);
+    log_msgf(LOG_DEBUG,"Active group would be %d\n",xkbState->group);
 
     odisplay = gdk_display_get_default(); 
     okeymap = gdk_keymap_get_for_display(odisplay);
@@ -459,7 +457,7 @@ static void udisplay_RegisterJoystickBinding(char *gksym, int jdx, char *jdir, c
 
     a_int = udisplay_GksymToKeycode(gksym);
     if(a_int < 0){
-        std_Debug("%s not bound: Couldn't find keycodes for keyval %s\n",jdir, gksym);
+        log_msgf(LOG_DEBUG,"%s not bound: Couldn't find keycodes for keyval %s\n",jdir, gksym);
         return;
     }
 
@@ -467,10 +465,10 @@ static void udisplay_RegisterJoystickBinding(char *gksym, int jdx, char *jdir, c
     if(jdir2)
         jd_int |= joystick_SymbolToInt(jdir2);
 
-    std_Debug("GDK key %s(%d) will produce %s + %s (%d)\n",gksym,a_int,jdir,jdir2,jd_int);
+    log_msgf(LOG_DEBUG,"GDK key %s(%d) will produce %s + %s (%d)\n",gksym,a_int,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
     keymap[a_int].joycode = jd_int;
-    std_Debug("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
+    log_msgf(LOG_DEBUG,"keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
 static gboolean udisplay_ReadJoystickBindings(GKeyFile *key_file, char *section, int jdx)
@@ -481,7 +479,7 @@ static gboolean udisplay_ReadJoystickBindings(GKeyFile *key_file, char *section,
     char *gksym;
     char *jdir, *jdir2;
 
-    std_Debug("Loading up joystick emulation key mappings\n");
+    log_msgf(LOG_INFO,"Loading up joystick emulation key mappings\n");
     bindings = g_key_file_get_keys(key_file, section, &n_bindings, NULL);
     if(!bindings) return FALSE;
 
@@ -490,7 +488,7 @@ static gboolean udisplay_ReadJoystickBindings(GKeyFile *key_file, char *section,
         jdir = g_key_file_get_value(key_file, section, gksym, NULL);
         if(!jdir) continue;
 
-        std_Debug("Key %s will emit %s\n", gksym, jdir);
+        log_msgf(LOG_DEBUG,"Key %s will emit %s\n", gksym, jdir);
 
         jdir2 = strchr(jdir,'+');
         if(jdir2){
@@ -520,7 +518,7 @@ static gboolean udisplay_RegisterBinding(char *xkb_symbol, char *tokey)
 
     rv = udisplay_GetEntriesForKeyval(xkb_symbol, &xkbState, &okeys, &on_keys);
     if(!rv)
-        std_Debug("%s not bound: Couldn't find keycodes for keyval %s\n",tokey, xkb_symbol);
+        log_msgf(LOG_DEBUG,"%s not bound: Couldn't find keycodes for keyval %s\n",tokey, xkb_symbol);
 
     /*Groups seems to be used to manage multiple keyboard layouts (at least using MATE) 
      * instead/on top of their orignal meaning. Getting the active layout seems to be 
@@ -538,11 +536,11 @@ static gboolean udisplay_RegisterBinding(char *xkb_symbol, char *tokey)
         }
     }
     for(int i = 0; i < on_keys; i++){
-        std_Debug("Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
+        log_msgf(LOG_DEBUG,"Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
         if(okeys[i].group == xkbState.group || !has_group_match){
             switch(okeys[i].level){
                 case 0:
-                    std_Debug("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                    log_msgf(LOG_DEBUG,"GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     keymap[okeys[i].keycode].tokey = to_int;
                     break;
                 case 1:
@@ -551,18 +549,18 @@ static gboolean udisplay_RegisterBinding(char *xkb_symbol, char *tokey)
                      * */
                     if(!strstr(xkb_symbol,"GDK_KEY_KP")){ 
                         keymap[okeys[i].keycode].shift = to_int;
-                        std_Debug("GDK keycode %d + SHIFT will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                        log_msgf(LOG_DEBUG,"GDK keycode %d + SHIFT will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     }else{
                         keymap[okeys[i].keycode].tokey = to_int;
-                        std_Debug("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                        log_msgf(LOG_DEBUG,"GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     }
                     break;
                 case 2:
-                    std_Debug("GDK keycode %d + ALTGR will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                    log_msgf(LOG_DEBUG,"GDK keycode %d + ALTGR will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     keymap[okeys[i].keycode].altgr = to_int;
                     break;
                 default:
-                    std_Debug("Got an unsupported combination for %s: keycode %d and level %d. NOT BOUND\n",tokey, okeys[i].keycode, okeys[i].level);
+                    log_msgf(LOG_DEBUG,"Got an unsupported combination for %s: keycode %d and level %d. NOT BOUND\n",tokey, okeys[i].keycode, okeys[i].level);
                     break;
                 }
          }
@@ -593,12 +591,12 @@ static void udisplay_LoadKeyBinding(char *filename)
         return;
     }
 
-    std_Debug("Loading up key mappings\n");
+    log_msgf(LOG_DEBUG,"Loading up key mappings\n");
     tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
-        std_Debug("Resolving mapping for emulator definition %s... ", *tokey);
+        log_msgf(LOG_DEBUG,"Resolving mapping for emulator definition %s... ", *tokey);
         binding = g_key_file_get_value(key_file, "keymapping", *tokey, NULL);
-        std_Debug("got %s\n", binding);
+        log_msgf(LOG_DEBUG,"got %s\n", binding);
         if(!binding) continue;
 
         b2 = strchr(binding,',');
@@ -738,6 +736,6 @@ void udisplay_Window(void)
 
     teo_SetPointer=SetPointer;
 
-    printf("ok\n");
+    main_ConsoleOutput("ok\n");
 }
 

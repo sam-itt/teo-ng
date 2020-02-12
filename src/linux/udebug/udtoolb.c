@@ -139,11 +139,7 @@ GtkWidget *udtoolb_Init (void)
     gtk_box_pack_start (GTK_BOX(box), tool_bar, FALSE, FALSE, 0);
 
     /* Tool item step by step */
-    sysicon = std_GetTeoSystemFile(STEP_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", STEP_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(STEP_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
@@ -159,11 +155,7 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (tool_button), -1);
 
     /* Tool item step over */
-    sysicon = std_GetTeoSystemFile(STEP_OVER_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", STEP_OVER_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(STEP_OVER_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
@@ -179,11 +171,7 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (tool_button), -1);
 
     /* Tool item run */
-    sysicon = std_GetTeoSystemFile(RUN_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", RUN_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(RUN_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
@@ -195,11 +183,7 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (run_button), -1);
 
     /* Tool item leave */
-    sysicon = std_GetTeoSystemFile(LEAVE_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", LEAVE_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(LEAVE_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);

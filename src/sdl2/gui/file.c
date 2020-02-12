@@ -40,8 +40,7 @@
 #include <SDL2/SDL_stdinc.h>
 #endif
 
-
-#include "sdl2/teo-sdl-log.h"
+#include "logsys.h"
 
 #ifdef PLATFORM_OGXBOX
 #include <windows.h>
@@ -232,7 +231,7 @@ Uint8 *File_Read(const char *pszFileName, long *pFileSize, const char * const pp
 				char tmp[1024];
 				if (gzread(hGzFile, tmp, sizeof(tmp)) < 0)
 				{
-					fprintf(stderr, "Failed to read gzip file!\n");
+					log_msgf(LOG_ERROR, "Failed to read gzip file!\n");
 					free(filepath);
 					return NULL;
 				}
@@ -434,7 +433,7 @@ bool File_QueryOverwrite(const char *pszFileName)
 		/* File does exist, are we OK to overwrite? */
 		szString = malloc(strlen(pszFileName) + strlen(fmt) + 1);
 		sprintf(szString, fmt, pszFileName);
-		fprintf(stderr, "%s\n", szString);
+		log_msgf(LOG_TRACE, "%s\n", szString);
 		ret = DlgAlert_Query(szString);
 		free(szString);
 	}
@@ -640,10 +639,10 @@ FILE *File_Open(const char *path, const char *mode)
 	/* Open a normal log file */
 	fp = fopen(path, mode);
 	if (!fp)
-		fprintf(stderr, "Can't open file '%s' (wr=%i, rd=%i):\n  %s\n",
+		log_msgf(LOG_TRACE, "Can't open file '%s' (wr=%i, rd=%i):\n  %s\n",
 			path, wr, rd, strerror(errno));
 
-	/* printf("'%s' opened in mode '%s'\n", path, mode, fp); */
+	/* log_msgf(LOG_TRACE,"'%s' opened in mode '%s'\n", path, mode, fp); */
 	return fp;
 }
 
@@ -998,7 +997,7 @@ char* WinTmpFile(void)
                            lpTempPathBuffer);		/* buffer for path */
 	if (dwRetVal > MAX_PATH || (dwRetVal == 0))
 	{
-		Log_Printf(LOG_ERROR, "GetTempPath failed.\n");
+		log_msgf(LOG_ERROR, "GetTempPath failed.\n");
 		return NULL;
 	}
 
@@ -1009,7 +1008,7 @@ char* WinTmpFile(void)
                               szTempFileName);		/* buffer for name */
 	if (uRetVal == 0)
 	{
-		Log_Printf(LOG_ERROR, "GetTempFileName failed.\n");
+		log_msgf(LOG_ERROR, "GetTempFileName failed.\n");
 		return NULL;
 	}
 	return (char*)szTempFileName;

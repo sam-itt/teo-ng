@@ -16,6 +16,7 @@
 #include "sdlgui.h"
 
 #include "teo.h"
+#include "logsys.h"
 #include "gettext.h"
 
 static char sSoundVolume[4];
@@ -145,36 +146,35 @@ void DlgSystem_Main(bool adjustableVolume)
 
 
     /*Speed*/
-    printf("Speed: ");
+    log_msgf(LOG_TRACE,"Speed: ");
     if(systemdlg[DLGSET_SPD_EXACT].state & SG_SELECTED)
-        printf("exact\n");
+        log_msgf(LOG_TRACE,"exact\n");
     else if(systemdlg[DLGSET_SPD_FAST].state & SG_SELECTED)
-        printf("fast\n");
+        log_msgf(LOG_TRACE,"fast\n");
     else
-        printf("undefined\n");
+        log_msgf(LOG_TRACE,"undefined\n");
     teo.setting.exact_speed = get_state(systemdlg[DLGSET_SPD_EXACT]);
 
     /*Sound*/
-    printf("Sound: %s\n", systemdlg[DLGSET_SOUND].state & SG_SELECTED ? "on" : "off");
-    printf("Volume: %s%%\n", sSoundVolume);
+    log_msgf(LOG_TRACE,"Sound: %s\n", systemdlg[DLGSET_SOUND].state & SG_SELECTED ? "on" : "off");
+    log_msgf(LOG_TRACE,"Volume: %s%%\n", sSoundVolume);
     teo.setting.sound_enabled = get_state(systemdlg[DLGSET_SOUND]);
 
 
     /*Memory*/
-    printf("Memory: ");
+    log_msgf(LOG_TRACE,"Memory: ");
     if(systemdlg[DLGSET_MEM_256].state & SG_SELECTED)
-        printf("256k\n");
+        log_msgf(LOG_TRACE,"256k\n");
     else if(systemdlg[DLGSET_MEM_512].state & SG_SELECTED)
-        printf("512k\n");
+        log_msgf(LOG_TRACE,"512k\n");
     else
-        printf("undefined\n");
+        log_msgf(LOG_TRACE,"undefined\n");
     mem_size = get_state(systemdlg[DLGSET_MEM_512]) ? 32 : 16;
     if (mem_size != teo.setting.bank_range)
         teo.command = TEO_COMMAND_COLD_RESET;
     teo.setting.bank_range = mem_size;
 
     /*Video*/
-    printf("Interlaced video: %s\n", systemdlg[DLGSET_INTL_VID].state & SG_SELECTED ? "on" : "off");
+    log_msgf(LOG_TRACE,"Interlaced video: %s\n", systemdlg[DLGSET_INTL_VID].state & SG_SELECTED ? "on" : "off");
     teo.setting.interlaced_video = get_state(systemdlg[DLGSET_INTL_VID]);
-
 }

@@ -5,6 +5,7 @@
 #include "teo.h"
 #include "std.h"
 #include "gfx.h"
+#include "logsys.h"
 #include "sdl2/sfront.h"
 #include "sdl2/teo-sdl-vkbd.h"
 #include "sdl2/gui/sdlgui.h"
@@ -142,7 +143,7 @@ void teoSDL_GfxResizeLookup(int x,int y) {
     }
 
 #ifdef DEBUG
-    fprintf(stderr,"recalc OK\n");
+    log_msgf(LOG_ERROR,"recalc OK\n");
 #endif
 }
 
@@ -166,7 +167,7 @@ static void teoSDL_GfxSetColor(int index, int r, int g, int b)
 
 static void dump_sdl_rect(SDL_Rect *r)
 {
-    printf("%p: (x,y) = (%d,%d), size (w x h) =  (%dx%d)\n",r,r->x,r->y,r->w,r->h);
+    log_msgf(LOG_TRACE,"%p: (x,y) = (%d,%d), size (w x h) =  (%dx%d)\n",r,r->x,r->y,r->w,r->h);
 }
 
 /*RECT makes a SDL_Rect from a set of up-left and bottom-right coordinates
@@ -192,7 +193,7 @@ static void teoSDL_GfxSetBorderColor(int mode, int color)
     /* on dessine dans le screen buffer */
     if (mode == TEO_PALETTE)
     {
-        printf("Doing border as mode == TEO_PALETTE\n");
+        log_msgf(LOG_TRACE,"Doing border as mode == TEO_PALETTE\n");
         border_color = TEO_NCOLORS;  /* couleur fixe de l'ecran de la palette */
 
         rects[0] = RECT(tcol2.border_w, 0, tcol2.screen_w-tcol2.border_w-1, tcol2.border_h-1);
@@ -599,16 +600,8 @@ static void teoSDL_GfxLoadLeds(int width, int height)
 
     if(leds[0] == NULL){
         for(int i = 0; i < 2; i++){
-            fpath = std_GetTeoSystemFile(ledfiles[i]);
-            if(!fpath){
-                printf("Can't find mandatory file %s, bailing out\n",ledfiles[i]);
-                exit(-1);
-            }
+            fpath = std_GetTeoSystemFile(ledfiles[i], false);
             leds[i] = SDL_LoadBMP(fpath);
-            if(!leds[i]){
-                printf("Couldn't load %s, bailing out\n",ledfiles[i]);
-                exit(-1);
-            }
             SDL_SetColorKey(leds[i], SDL_TRUE, SDL_MapRGB(leds[i]->format, 0x0, 0x0, 0xff));
             SDL_SetSurfaceRLE(leds[i], 1);
 		    tmp = SDL_ConvertSurface(leds[i], screenSurface->format, 0);
@@ -616,7 +609,7 @@ static void teoSDL_GfxLoadLeds(int width, int height)
                 SDL_FreeSurface(leds[i]);
                 leds[i] = tmp;
             }else{
-                printf("Failed to optimize led %s, error is %s\n", ledfiles[i], SDL_GetError());
+                log_msgf(LOG_INFO,"Failed to optimize led %s, error is %s\n", ledfiles[i], SDL_GetError());
             }
             std_free(fpath);
         }
@@ -720,13 +713,13 @@ void teoSDL_GfxReset()
     teoSDL_VKbdSetWindow(window);
     teoSDL_GfxLoadLeds(screenSurface->w, screenSurface->h);
 
-    printf("screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
+    log_msgf(LOG_TRACE,"screenSurface is now: %dx%d\n",screenSurface->w,screenSurface->h);
     scaledBlit = 0;
     if( screenSurface->w != tcol->screen_w || screenSurface->h != tcol->screen_h){
         scaledBlit = 1;
         scaleXFactor = (screenSurface->w*1.0)/(tcol->screen_w);
         scaleYFactor = (screenSurface->h*1.0)/(tcol->screen_h);
-        printf("Scaling. Using factors: X=%0.2f and Y=%0.2f\n",scaleXFactor,scaleYFactor);
+        log_msgf(LOG_TRACE,"Scaling. Using factors: X=%0.2f and Y=%0.2f\n",scaleXFactor,scaleYFactor);
 
         teoSDL_GfxResizeLookup(screenSurface->w, screenSurface->h);
     }
@@ -799,16 +792,16 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
                 flags
                 );
     if (window == NULL){
-        fprintf(stderr, "could not create window: %s\n", SDL_GetError());
+        log_msgf(LOG_ERROR, "could not create window: %s\n", SDL_GetError());
         return NULL;
     }
-    printf("Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",tcol->screen_w,tcol->screen_h,TEO_SCREEN_W,TEO_SCREEN_H);
+    log_msgf(LOG_TRACE,"Window will be (w x h): (%d x %d), while TEO_SCREEN_{W,H} are: (%d, %d)\n",tcol->screen_w,tcol->screen_h,TEO_SCREEN_W,TEO_SCREEN_H);
 #endif
 
     screenSurface = SDL_GetWindowSurface(window);
     SDLGui_SetWindow(window);
     teoSDL_VKbdSetWindow(window);
-    printf("screenSurface is: %dx%d\n",screenSurface->w,screenSurface->h);
+    log_msgf(LOG_TRACE,"screenSurface is: %dx%d\n",screenSurface->w,screenSurface->h);
     teoSDL_GfxLoadLeds(screenSurface->w, screenSurface->h);
 
     lightpen_cursor  = teoSDL_GetLightPenCursor();
@@ -821,7 +814,7 @@ SDL_Window *teoSDL_GfxWindow(int windowed_mode, const char *w_title)
      * AND call SDL_ShowCursor
      * */
     SDL_ShowCursor(SDL_DISABLE); 
-    printf("ok\n");
+    log_msgf(LOG_TRACE,"ok\n");
     return window;
 }
 

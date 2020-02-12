@@ -4,6 +4,8 @@
 
 #include "defs.h"
 #include "std.h"
+#include "logsys.h"
+#include "main.h"
 #include "media/keyboard.h"
 #include "sdl2/gfx.h"
 #include "sdl2/sfront-bindings.h"
@@ -340,17 +342,10 @@ void teoSDL_VKbdInit(void)
 {
     char *fpath;
 
-    fpath = std_GetTeoSystemFile(KEYBOARD_IMAGE);
-    if(!fpath){
-        printf("Can't load vkbd picture, bailing out\n");
-        exit(-1);
-    }
-
-
+    fpath = std_GetTeoSystemFile(KEYBOARD_IMAGE, false);
     kbdSurface = SDL_LoadBMP(fpath);
     if(!kbdSurface){
-        printf("Error: %s\n",SDL_GetError());
-        exit(-1);
+        main_ExitMessage("Error: %s\n",SDL_GetError());
     }
     free(fpath);
     is_dirty = true;
@@ -382,7 +377,7 @@ void teoSDL_VKbdSetScreen(SDL_Surface *screen)
         SDL_FreeSurface(kbdSurface);
         kbdSurface = tmp;
     }else{
-        printf("Failed to optimize led %s, error is %s\n", KEYBOARD_IMAGE, SDL_GetError());
+        log_msgf(LOG_INFO,"Failed to optimize led %s, error is %s\n", KEYBOARD_IMAGE, SDL_GetError());
     }
 
     kbdBuffer = SDL_CreateRGBSurface(kbdSurface->flags, kbdSurface->w, kbdSurface->h,
@@ -390,8 +385,7 @@ void teoSDL_VKbdSetScreen(SDL_Surface *screen)
                       kbdSurface->format->Gmask, kbdSurface->format->Bmask,
                       kbdSurface->format->Amask);
     if(!kbdBuffer){
-        printf("Error: %s\n",SDL_GetError());
-        exit(-1);
+        main_ExitMessage("Error: %s\n",SDL_GetError());
     }
     is_dirty = true;
 }

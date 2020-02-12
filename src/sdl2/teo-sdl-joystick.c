@@ -1,8 +1,9 @@
 #include "sdl2/teo-sdl-joystick.h"
-#include "sdl2/teo-sdl-log.h"
+#include "logsys.h"
 
 #include "teo.h"
 #include "defs.h" /*min/max, shoudl maybe add __typeof__ per https://stackoverflow.com/questions/3437404/min-and-max-in-c*/
+#include "logsys.h"
 #include "media/joystick.h"
 #include "sdl2/sfront-bindings.h"
 #include "sdl2/sfront.h"
@@ -42,7 +43,7 @@ int teoSDL_JoystickInit(void)
    
     if(!SDL_WasInit(SDL_INIT_JOYSTICK)){
         if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0){
-            Log_Printf(LOG_WARN, "Could not init joysticks: %s\n", SDL_GetError());
+            log_msgf(LOG_WARNING, "Could not init joysticks: %s\n", SDL_GetError());
             return 0; 
         }
 #ifdef PLATFORM_OGXBOX
@@ -52,14 +53,14 @@ int teoSDL_JoystickInit(void)
 
     njoys = SDL_NumJoysticks();
     usable = MIN(TEO_NJOYSTICKS, njoys);
-    printf("%d joysticks detected, using first %d\n", njoys, usable);
+    log_msgf(LOG_TRACE,"%d joysticks detected, using first %d\n", njoys, usable);
     njoys = usable;
    
     joys = (SDL_Joystick **)malloc(sizeof(SDL_Joystick *)*njoys);
 
     for(int i = 0; i < njoys; i++){
         joys[i] = SDL_JoystickOpen(i);
-        printf("Opened joystick %d: %s\n", i, SDL_JoystickName(joys[i]));
+        log_msgf(LOG_TRACE,"Opened joystick %d: %s\n", i, SDL_JoystickName(joys[i]));
     }
 
     return njoys;
@@ -101,7 +102,7 @@ void teoSDL_JoystickMove(SDL_JoyAxisEvent *event)
     int jdix;
     int pos;
 
-/*    printf("Joystick %d axis %d value changed to: %d\n", 
+/*    log_msgf(LOG_TRACE,"Joystick %d axis %d value changed to: %d\n", 
            event->which, 
            event->axis,
            event->value);*/
@@ -203,7 +204,7 @@ void teoSDL_JoystickButton(SDL_JoyButtonEvent *event)
     jdix = teoSDL_GetJoystickIdx(event->which);
 #endif
 
-//    printf("Joystick %d button %d pressed\n", event->which, event->button);
+//    log_msgf(LOG_TRACE,"Joystick %d button %d pressed\n", event->which, event->button);
     if(event->button == VJOY_A_BOUND_BTN)
         joystick_Button(jdix, 0, TEO_SDL_JOYSTICK_STATE(event->state));
     if(event->button == VJOY_B_BOUND_BTN)

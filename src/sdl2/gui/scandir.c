@@ -20,7 +20,7 @@
 
 
 #include "scandir.h"
-#include "sdl2/teo-sdl-log.h"
+#include "logsys.h"
 
 /*-----------------------------------------------------------------------
  * Here come alphasort and scandir for POSIX-like OSes
@@ -194,7 +194,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 		return -1;
 
 	strcpy(findIn, dirname);
-	Log_Printf(LOG_DEBUG, "scandir : findIn orign='%s'\n", findIn);
+	log_msgf(LOG_DEBUG, "scandir : findIn orign='%s'\n", findIn);
 
 	for (d = findIn; *d; d++)
 		if (*d=='/')
@@ -223,7 +223,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 		*d = 0;
 	}
 
-	Log_Printf(LOG_DEBUG, "scandir : findIn processed='%s'\n", findIn);
+	log_msgf(LOG_DEBUG, "scandir : findIn processed='%s'\n", findIn);
 
 #if defined(__CEGCC__)
 	void *findInW = NULL;
@@ -238,7 +238,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 
 	if (h == INVALID_HANDLE_VALUE)
 	{
-		Log_Printf(LOG_DEBUG, "scandir : FindFirstFile error\n");
+		log_msgf(LOG_DEBUG, "scandir : FindFirstFile error\n");
 		ret = GetLastError();
 		if (ret != ERROR_NO_MORE_FILES)
 		{
@@ -256,7 +256,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 #else
 		strcpy(selectDir->d_name, find.cFileName);
 #endif
-		//Log_Printf(LOG_DEBUG, "scandir : findFile='%s'\n", selectDir->d_name);
+		//log_msgf(LOG_DEBUG, "scandir : findFile='%s'\n", selectDir->d_name);
 		if (!sdfilter || (*sdfilter)(selectDir))
 		{
 			if (nDir==NDir)
@@ -290,7 +290,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 	if (ret != ERROR_NO_MORE_FILES)
 	{
 		// TODO: return some error code
-		Log_Printf(LOG_DEBUG, "scandir: last error = %ld\n", ret);
+		log_msgf(LOG_DEBUG, "scandir: last error = %ld\n", ret);
 	}
 
 	FindClose(h);

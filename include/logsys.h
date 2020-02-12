@@ -1,19 +1,22 @@
-#ifndef TETRIS_LOGSYS
-#define TETRIS_LOGSYS
+#ifndef TEO_LOGSYS_H
+#define TEO_LOGSYS_H
 
 #include <stdarg.h>
+
 #ifdef DEBUG
 #undef DEBUG
 #endif
 // Log levels
 enum {
-	ALL,     // Everything
-	TRACE,   // Excessive debugging
-	DEBUG,   // Verbose information
-	INFO,    // Information
-	WARNING, // Potential problem
-	ERROR,   // Something went wrong
-	FATAL    // Crash
+	LOG_ALL,     // Everything
+	LOG_TRACE,   // Excessive debugging
+	LOG_DEBUG,   // Verbose information
+	LOG_INFO,    // Information
+	LOG_WARNING, // Potential problem
+	LOG_ERROR,   // Something went wrong
+	LOG_FATAL,   // Crash
+
+    LOG_NONE
 };
 
 enum event_type{
@@ -45,21 +48,14 @@ enum event_type{
     TYPE_LAST
 };
 
-
-// Opens a log file to write to
+/*Standard text loggging*/
 void log_open(const char *filename);
-
-// Closes log file if one is open
 void log_close();
 
-// Log simple message
-//void log_msg(int level, const char *msg);
-
-// Log with formatting, syntax like fprintf
 void log_msgf(int level, const char *format, ...);
+void log_vamsgf(int level, const char *format, va_list ap);
 
-
-
+/*Binary log timing of specific portion of code*/
 void log_event_start(void);
 void log_event_stop(void);
 

@@ -23,7 +23,7 @@
 #include "sdlgui.h"
 #include "file.h"
 #include "scandir.h"
-
+#include "logsys.h"
 
 #define SGFS_NUMENTRIES   16            /* How many entries are displayed at once */
 
@@ -679,7 +679,7 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 				files = NULL;
 				if(!files)
 				{
-					printf("SDLGui_FileSelect: ZIP_GetFilesDir() error!\n");
+					log_msgf(LOG_ERROR,"SDLGui_FileSelect: ZIP_GetFilesDir() error!\n");
 					goto clean_exit;
 				}
 			}
@@ -705,7 +705,7 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 
 			if (entries < 0)
 			{
-				printf("SDLGui_FileSelect: Path not found.\n");
+				log_msgf(LOG_ERROR,"SDLGui_FileSelect: Path not found.\n");
 				goto clean_exit;
 			}
 
@@ -770,7 +770,7 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 				if (!strcat_maxlen(tempstr, FILENAME_MAX,
 						   zipdir, files[retbut-SGFSDLG_ENTRYFIRST+ypos]->d_name))
 				{
-					printf("SDLGui_FileSelect: Path name too long!\n");
+					log_msgf(LOG_ERROR,"SDLGui_FileSelect: Path name too long!\n");
 					free(tempstr);
 					goto clean_exit;
 				}
@@ -828,7 +828,7 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 				if (!strcat_maxlen(tempstr, FILENAME_MAX,
 						   path, files[retbut-SGFSDLG_ENTRYFIRST+ypos]->d_name))
 				{
-					printf("SDLGui_FileSelect: Path name too long!\n");
+					log_msgf(LOG_ERROR,"SDLGui_FileSelect: Path name too long!\n");
 					free(tempstr);
 					goto clean_exit;
 				}
@@ -915,10 +915,10 @@ char* SDLGui_FileSelect(const char *title, const char *path_and_name, char **zip
 			case SGFSDLG_CWD:                   /* Change to current work directory */
 				if (retbut == SGFSDLG_CWD){
                     home = get_current_dir_name();
-					//printf("home = Paths_GetWorkingDir();\n");
+					//log_msgf(LOG_ERROR,"home = Paths_GetWorkingDir();\n");
 				}else{
                     home = strdup(getenv("HOME"));
-//					printf("home = Paths_GetUserHome();\n");
+//					log_msgf(LOG_ERROR,"home = Paths_GetUserHome();\n");
                 }
 				if (home == NULL || !*home)
 					break;

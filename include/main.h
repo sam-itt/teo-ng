@@ -44,9 +44,14 @@
 
 #ifndef MAIN_H
 #define MAIN_H
+#include <stdarg.h>
 
-extern void  main_DisplayMessage(const char msg[]);
-extern void  main_ExitMessage(const char msg[]);
+int main_ConsoleOutput(const char *format, ...);
+
+extern void  main_DisplayMessage(const char *format, ...);
+extern void  main_DisplayMessageVA(const char *format, va_list ap);
+
+extern void  main_ExitMessage(const char *format, ...);
 extern char *main_ThomsonToPcText (char *thomson_text);
 
 #endif

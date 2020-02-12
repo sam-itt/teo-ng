@@ -653,12 +653,7 @@ static FILE *open_printer_file (char *name)
                     FOLDER_SLASH,
                     name);
     
-    fpath = std_GetTeoSystemFile(filename);
-    if(!fpath){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", filename);
-        exit(EXIT_FAILURE);
-    }
-
+    fpath = std_GetTeoSystemFile(filename, false);
     file = fopen (fpath, "rb");
     filename = std_free (filename);
     free(fpath);

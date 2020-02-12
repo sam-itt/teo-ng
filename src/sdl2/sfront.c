@@ -11,7 +11,6 @@
 #include "defs.h"
 #include "logsys.h"
 #include "media/disk.h"
-#include "sdl2/teo-sdl-log.h"
 #include "sdl2/teo-sdl-jmouse.h"
 #include "sdl2/sfront.h"
 #include "sdl2/teo-sdl-vkbd.h"
@@ -46,14 +45,14 @@ int sfront_Init(int *j_support, unsigned char mode)
     if(rv != 0){
         return rv;
     }
-    printf("SDL init ok\n");
+    log_msgf(LOG_TRACE,"SDL init ok\n");
     teoSDL_KeyboardInit();
     cfg_file = std_GetFirstExistingConfigFile("sdl-keymap.ini");
     if(cfg_file){
         teoSDL_KeyboardLoadKeybindings(cfg_file);
         std_free(cfg_file);
     }else{
-        printf("Keymap %s not found !\n","sdl-keymap.ini");
+        log_msgf(LOG_TRACE,"Keymap %s not found !\n","sdl-keymap.ini");
     }
 
     SDLGui_Init();
@@ -132,7 +131,6 @@ void sfront_Run(void)
         gtk_main_iteration_do(FALSE);
 #endif 
     }while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-    printf("%s: GOT TEO_COMMAND_QUIT\n", __FUNCTION__);
     /* Finit d'exécuter l'instruction et/ou l'interruption courante */
     mc6809_FlushExec();
     teoSDL_SoundShutdown();
@@ -152,7 +150,7 @@ static void sfront_RunTO8()
 
     if(!SDL_WasInit(SDL_INIT_TIMER)){
         if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0){
-            printf("Could not init timers: %s\n", SDL_GetError());
+            log_msgf(LOG_TRACE,"Could not init timers: %s\n", SDL_GetError());
         }
     }
     do{  /* Virtual TO8 running loop */
@@ -220,7 +218,6 @@ static void sfront_ExecutePendingCommand()
     if (teo.command==TEO_COMMAND_PANEL)
     {
 #ifdef ENABLE_GTK_PANEL
-        printf("windowed mode at panel code: ?d\n",sfront_windowed_mode);
         if (sfront_windowed_mode)
             ugui_Panel();
         else
@@ -295,9 +292,6 @@ static int sfront_EventHandler(void)
                 break;
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
-/*                    printf("Window %d size changed to %dx%d\n",
-                        event.window.windowID, event.window.data1,
-                        event.window.data2);*/
                     teoSDL_GfxReset();
                 }
                 break;

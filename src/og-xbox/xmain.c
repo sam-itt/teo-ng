@@ -366,36 +366,54 @@ char *main_ThomsonToPcText (char *thomson_text)
 /* DisplayMessage:
  *  Affiche un message.
  */
-void main_DisplayMessage(const char msg[])
+void main_DisplayMessageVA(const char *format, va_list ap)
 {
-    fprintf(stderr, "%s\n", msg);
-    debugPrint("%s\n", msg);
-    Sleep(30000);
+    char *msg;
 
-#if 0
-    if (windowed_mode)
-    {
-        MessageBox(prog_win, (const char*)msg, _("Teo - Error"), MB_OK | MB_ICONERROR);
-    }
-    else
-    {
-#if defined (GFX_BACKEND_ALLEGRO)
-        agui_PopupMessage (msg);
-#endif
-    }
-#endif
+    log_vamsgf(LOG_ERROR, format, ap);
+
+    msg = std_vastrdup_printf(format, ap);
+    debugPrint("%s\n", msg);
+    std_free(msg);
+    Sleep(30000);
 }
 
+void main_DisplayMessage(const char *format, ...)
+{
+    va_list args;
 
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+}
 
 /* ExitMessage:
  *  Affiche un message de sortie et sort du programme.
  */
-void main_ExitMessage(const char msg[])
+void main_ExitMessage(const char *format, ...)
 {
-    main_DisplayMessage(msg);
+    va_list args;
+
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+
     exit(EXIT_FAILURE);
 }
+
+/*No console on the Xbox redirecting to log*/
+int main_ConsoleOutput(const char *format, ...)
+{   
+    va_list args;
+    int rv;
+
+    va_start(args, format);
+    log_vamsgf(LOG_ERROR, format, args); 
+    va_end(args);
+
+    return rv;
+}
+
 
 
 int main(void)
@@ -438,18 +456,15 @@ int main(void)
     w_title = _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)");
     rv = sfront_Init(&njoy, FRONT_GFX|FRONT_JOYSTICK|FRONT_JMOUSE|FRONT_SOUND);
     if(rv != 0){
-        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
-        debugPrint("could not initialize sdl2: %s\n", SDL_GetError());
-
-        exit(EXIT_FAILURE);
+        main_ExitMessage(_("could not initialize sdl2: %s\n"), SDL_GetError());
     }
 
 
     /* initialisation de l'emulateur */
-    printf(_("Emulator init..."));
+    main_ConsoleOutput(_("Emulator init..."));
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
-    printf("ok\n");
+    main_ConsoleOutput("ok\n");
 
 
     rv = sfront_startGfx(TRUE, w_title);
@@ -479,7 +494,7 @@ int main(void)
     image_Save ("autosave.img");
 
     sfront_Shutdown();
-    printf(_("Goodbye !\n"));
+    main_ConsoleOutput(_("Goodbye !\n"));
 
 
     exit(EXIT_SUCCESS);

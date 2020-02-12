@@ -127,6 +127,7 @@
 
 #define USEC_TO_SEC(usec) ((usec)/1000000.0)
 #define USEC_TO_MSEC(usec) ((usec)/1000.0)
+#define SEC_TO_USEC(sec) ((sec)*1000000.0)
 
 
 struct GATE_ARRAY {

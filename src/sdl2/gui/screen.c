@@ -8,6 +8,7 @@
 #if WITH_SDL2
 #include <SDL.h>
 #include "sdl2/gui/sdlgui.h"
+#include "logsys.h"
 /*static SDL_Renderer *sdlRenderer;
 static SDL_Texture *sdlTexture;
 static bool bUseSdlRenderer = false; */           /* true when using SDL2 renderer */
@@ -23,7 +24,7 @@ void SDL_UpdateRects(SDL_Surface *screen, int numrects, SDL_Rect *rects)
 	else*/
 	{
         if(screen != SDLGui_GetScreen()){
-            printf("%s:%d window/screen mismatch. THIS SHOULDN'T HAPPEN",__FUNCTION__,__LINE__);
+            log_msgf(LOG_ERROR,"%s:%d window/screen mismatch. THIS SHOULDN'T HAPPEN",__FUNCTION__,__LINE__);
         }
 		SDL_UpdateWindowSurfaceRects(SDLGui_GetWindow(), rects, numrects);
         

@@ -115,7 +115,7 @@ void ajoyint_Update(void)
 void ajoyint_Init(int num_joy)
 {
     /* affichage du nombre de joystick(s) detecte(s) */
-    printf(_("Initialization of input devices : %d joystick(s) detected)\n"), num_joy);
+    main_ConsoleOutput(_("Initialization of input devices : %d joystick(s) detected)\n"), num_joy);
 
     njoy = num_joy;
 }

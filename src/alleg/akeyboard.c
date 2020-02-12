@@ -71,6 +71,7 @@
 #include "std.h"
 #include "teo.h"
 #include "to8keys.h"
+#include "logsys.h"
 #include "media/keyboard.h"
 #include "media/joystick.h"
 
@@ -147,10 +148,8 @@ void akeyboard_Handler(int key)
         int jdx; 
         int jdir;
 
-#ifdef DEBUG
-        std_Debug("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
+        log_msgf(LOG_DEBUG,"Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
         joystick_VerboseDebugCommand(keymap[key].joycode);
-#endif
 
         jdx = TEO_JOYN(keymap[key].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[key].joycode);
@@ -352,10 +351,10 @@ static void akeyboard_RegisterJoystickBinding(char *allegro_key, int jdx, char *
     if(jdir2)
         jd_int |= joystick_SymbolToInt(jdir2);
 
-    std_Debug("Allegro key %s(%d) will produce %s + %s (%d)\n",allegro_key,a_int,jdir,jdir2,jd_int);
+    log_msgf(LOG_DEBUG,"Allegro key %s(%d) will produce %s + %s (%d)\n",allegro_key,a_int,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
     keymap[a_int].joycode = jd_int;
-    std_Debug("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
+    log_msgf(LOG_DEBUG,"keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
 static void akeyboard_ReadJoystickBindings(char *section, int jdx)
@@ -366,7 +365,7 @@ static void akeyboard_ReadJoystickBindings(char *section, int jdx)
     char *alkey;
     char *jdir, *jdir2;
 
-    std_Debug("Loading up joystick emulation key mappings\n");
+    log_msgf(LOG_INFO,"Loading up joystick emulation key mappings\n");
     bindings = NULL;
     //Todo: #define section name
     n_bindings = list_config_entries(section, (const char ***)&bindings);
@@ -374,7 +373,7 @@ static void akeyboard_ReadJoystickBindings(char *section, int jdx)
         alkey = bindings[i]; 
         jdir = (char*)get_config_string(section, alkey, NULL);
         if(!jdir) continue;
-        std_Debug("Key %s will emit %s\n", alkey, jdir);
+        log_msgf(LOG_DEBUG,"Key %s will emit %s\n", alkey, jdir);
 
         jdir2 = strchr(jdir,'+');
         if(jdir2){
@@ -394,17 +393,17 @@ static void akeyboard_RegisterBinding(char *allegro_key, char *tokey, char *modi
     to_int = keyboard_TokeyToInt(tokey);
 
     if(!modifier){
-        std_Debug("Allegro key %s(%d) will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
+        log_msgf(LOG_DEBUG,"Allegro key %s(%d) will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
         keymap[a_int].tokey = to_int;
         return;
     }
     if(strcmp(modifier,"SHIFT") == 0){
-        std_Debug("Allegro key %s(%d) + SHIFT will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
+        log_msgf(LOG_DEBUG,"Allegro key %s(%d) + SHIFT will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
         keymap[a_int].shift = to_int;
         return;
     }
     if(strcmp(modifier,"ALTGR") == 0){
-        std_Debug("Allegro key %s(%d) + ALTGR will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
+        log_msgf(LOG_DEBUG,"Allegro key %s(%d) + ALTGR will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
         keymap[a_int].altgr = to_int;
         return;
     }
@@ -421,13 +420,13 @@ static void akeyboard_LoadKeybindings(void)
     for(int i = 0; i < KEY_MAX; i++)
         keymap[i].joycode = -1;
 
-    std_Debug("Loading up key mappings\n");
+    log_msgf(LOG_INFO,"Loading up key mappings\n");
     tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
-        std_Debug("Resolving mapping for emualtor definition %s... ", *tokey);
+        log_msgf(LOG_INFO,"Resolving mapping for emualtor definition %s... ", *tokey);
         //Todo: #define section name
         binding = get_config_string("keymapping",*tokey, NULL);
-        std_Debug("got %s\n", binding);
+        log_msgf(LOG_INFO,"got %s\n", binding);
         if(!binding) continue;
 
         modifier = strchr(binding,'+');

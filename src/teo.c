@@ -60,6 +60,7 @@
 #include "image.h"
 #include "ini.h"
 #include "std.h"
+#include "logsys.h"
 #include "hardware.h"
 #include "media/disk.h"
 #include "media/joystick.h"
@@ -165,14 +166,14 @@ static int InitMemory(void)
 
     for (i=0; i<mem.rom.nbank; i++){
         if (LoadFile(mem.rom.filename[i], mem.rom.bank[i], mem.rom.size) < 0){
-            printf("Couldn't load file %s\n",mem.rom.filename[i]);
+            log_msgf(LOG_ERROR,"Couldn't load file %s\n",mem.rom.filename[i]);
             return TEO_ERROR;
         }
     }
 
     for (i=0; i<mem.mon.nbank; i++){
         if (LoadFile(mem.mon.filename[i], mem.mon.bank[i], mem.mon.size) < 0){
-            printf("Couldn't load file %s\n",mem.rom.filename[i]);
+            log_msgf(LOG_ERROR,"Couldn't load file %s\n",mem.rom.filename[i]);
             return TEO_ERROR;
         }
     }

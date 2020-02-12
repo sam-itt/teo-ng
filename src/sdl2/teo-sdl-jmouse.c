@@ -3,6 +3,7 @@
 
 #include "teo.h"
 #include "defs.h"
+#include "logsys.h"
 
 #include "media/mouse.h"
 #include "sdl2/teo-sdl-mouse.h"
@@ -32,7 +33,7 @@ static Sint8 jmouse_vy = 0;
 
 void teoSDL_JMouseAccelerate(SDL_JoyAxisEvent *event)
 {
-/*    printf("Joystick %d axis %d value changed to: %d\n", 
+/*    log_msgf(LOG_TRACE,"Joystick %d axis %d value changed to: %d\n", 
            event->which, 
            event->axis,
            event->value);*/

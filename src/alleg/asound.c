@@ -54,6 +54,7 @@
 #endif
 
 #include "teo.h"
+#include "main.h"
 #include "gettext.h"
 
 
@@ -186,7 +187,7 @@ void asound_Init(int freq)
 
     teo.sound_enabled=FALSE;
 
-    printf(_("Sound initialization..."));
+    main_ConsoleOutput(_("Sound initialization..."));
 
     /* pas de compensation de volume */
     set_volume_per_voice(0);
@@ -202,5 +203,5 @@ void asound_Init(int freq)
     silence_sound ();
     last_index = 0;
 
-    printf(teo.sound_enabled ? "ok\n" : (_("error\n")));
+    main_ConsoleOutput(teo.sound_enabled ? "ok\n" : _("error\n"));
 }

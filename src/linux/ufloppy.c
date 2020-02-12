@@ -58,6 +58,7 @@
 #endif
 
 #include "teo.h"
+#include "logsys.h"
 #include "linux/sound.h"
 
 
@@ -144,10 +145,10 @@ static int execute_command(int drive, struct floppy_raw_cmd *fd_cmd)
         return 0x10;  /* lecteur non prêt */
 
 #ifdef DEBUG
-    printf("fd_cmd reply: ");
+    log_msgf(LOG_TRACE,"fd_cmd reply: ");
     for (i=0; i<3; i++)
-        printf("ST%d=%02x ", i, fd_cmd->reply[i]);
-    printf("\n");
+        log_msgf(LOG_TRACE,"ST%d=%02x ", i, fd_cmd->reply[i]);
+    log_msgf(LOG_TRACE,"\n");
 #endif
 
     switch (fd_cmd->reply[1])  /* ST1 */

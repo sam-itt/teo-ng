@@ -71,7 +71,9 @@
 #include "defs.h"
 #include "std.h"
 #include "teo.h"
+#include "main.h"
 #include "media/printer.h"
+#include "logsys.h"
 
 #ifndef SYSCONFDIR
 # define SYSCONFDIR "/etc"
@@ -122,19 +124,6 @@ char *get_current_dir_name()
 #endif
 }
 #endif
-
-
-int std_Debug(char *format, ...)
-{
-    int rv = 0;
-#ifdef DEBUG
-    va_list args;
-    va_start(args, format);
-    rv = vprintf(format, args);
-    va_end(args);
-#endif
-    return rv;
-}
 
 #ifndef HAVE_ACCESS
 #define HAVE_ACCESS 1
@@ -496,6 +485,19 @@ char *std_strdup_printf (char *fmt, ...)
     return ptr;
 }
 
+char *std_vastrdup_printf (char *fmt, va_list ap)
+{
+    char *ptr = NULL;
+    
+#if HAVE_VASPRINTF
+    vasprintf(&ptr, fmt, ap);
+#else
+    ptr = std_strdup_printf_run ((char *)fmt, ap);
+#endif
+    return ptr;
+}
+
+
 
 
 /* std_snprintf:
@@ -697,9 +699,12 @@ const char *std_GetLocaleBaseDir(void)
         search_path[0] = strdup(teo_home);
     else{
         search_path[0] = get_current_dir_name();
-        std_Debug("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+        log_msgf(LOG_DEBUG,"%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
     }
     search_path[1] = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    char *search_path[2] = {NULL, NULL};
+    search_path[0] = strdup("D:\\");
 #endif
     char *fname;
     char **candidate;
@@ -707,9 +712,9 @@ const char *std_GetLocaleBaseDir(void)
     
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
-//        printf("candidate is: %s\n", *candidate);
+//        log_msgf(LOG_TRACE,"candidate is: %s\n", *candidate);
         fname = std_PathAppendMultiple(*candidate, "fr", "LC_MESSAGES", PACKAGE".mo", NULL);
-        printf("%s checking for %s\n", __FUNCTION__, fname);
+        log_msgf(LOG_TRACE,"%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             free(fname);
             rv = strdup(*candidate);
@@ -721,7 +726,7 @@ const char *std_GetLocaleBaseDir(void)
     std_free(search_path[0]);
     std_free(search_path[1]);
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -730,7 +735,7 @@ const char *std_GetLocaleBaseDir(void)
  * Caller must free the return value
  *
  * */
-char *std_GetTeoSystemFile(char *name)
+char *std_GetTeoSystemFile(char *name, bool can_fail)
 {
 #if PLATFORM_UNIX
     const char *search_path[] = {
@@ -759,7 +764,7 @@ char *std_GetTeoSystemFile(char *name)
         search_path[0] = strdup(teo_home);
     else{
         search_path[0] = get_current_dir_name();
-        std_Debug("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+        log_msgf(LOG_DEBUG,"%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
     }
     search_path[1] = get_current_dir_name();
 #elif PLATFORM_OGXBOX
@@ -773,7 +778,7 @@ char *std_GetTeoSystemFile(char *name)
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
         fname = std_PathAppend(*candidate, name);
-        std_Debug("%s checking for %s\n", __FUNCTION__, fname);
+        log_msgf(LOG_DEBUG,"%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             rv = fname;
             break;
@@ -784,7 +789,10 @@ char *std_GetTeoSystemFile(char *name)
     std_free(search_path[0]);
     std_free(search_path[1]);
 #endif
-//    std_Debug("%s returning %s\n",__FUNCTION__,rv);
+    if(!rv && !can_fail){
+        main_ExitMessage("Error: Couldn't find mandatory file %s, bailing out\n", name);
+    }
+//    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -820,7 +828,7 @@ char *std_getSystemConfigDir()
 #elif PLATFORM_OGXBOX
     rv = strdup("D:\\");
 #endif
-    std_Debug("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -839,8 +847,8 @@ char *std_getUserConfigDir()
     if (!cfghome) {
         home = getenv("HOME");
         if (!home){ 
-            std_Debug("Couldn't get a value for $HOME - this shoudl't happen\n");
-            std_Debug("%s returning NULL\n",__FUNCTION__);
+            log_msgf(LOG_DEBUG,"Couldn't get a value for $HOME - this shoudl't happen\n");
+            log_msgf(LOG_DEBUG,"%s returning NULL\n",__FUNCTION__);
             return NULL;
         }
     }
@@ -859,7 +867,7 @@ char *std_getUserConfigDir()
             mkdir_p(rv, S_IRWXU);
 	}
 #endif
-    std_Debug("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -878,8 +886,8 @@ char *std_getUserDataDir()
     if (!cfghome) {
         home = getenv("HOME");
         if (!home){ 
-            std_Debug("Couldn't get a value for $HOME - this shoudl't happen\n");
-            std_Debug("%s returning NULL\n",__FUNCTION__);
+            log_msgf(LOG_DEBUG,"Couldn't get a value for $HOME - this shoudl't happen\n");
+            log_msgf(LOG_DEBUG,"%s returning NULL\n",__FUNCTION__);
             return NULL;
         }
     }
@@ -908,7 +916,7 @@ char *std_getUserDataDir()
 #elif PLATFORM_OGXBOX
     rv = strdup("D:\\");
 #endif
-    std_Debug("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -926,7 +934,7 @@ char *std_GetUserDataFile(char *filename)
     if(datadir){
         rv = std_PathAppend(datadir, filename);
         std_free(datadir);
-        std_Debug("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
+        log_msgf(LOG_DEBUG,"%s: Found datadir, returning %s\n", __FUNCTION__, rv);
     }else{
         rv = strdup(filename);
     }
@@ -950,10 +958,10 @@ char *std_GetFirstExistingConfigFile(char *filename)
 
     dir = std_getUserConfigDir();
     if(dir){
-        std_Debug("%s: Got user config dir: %s\n", __FUNCTION__, dir);
+        log_msgf(LOG_DEBUG,"%s: Got user config dir: %s\n", __FUNCTION__, dir);
         rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
-            std_Debug("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
+            log_msgf(LOG_DEBUG,"%s: User config file %s exists, using it\n", __FUNCTION__, rv);
             std_free(dir);
             return rv;
         }
@@ -962,10 +970,10 @@ char *std_GetFirstExistingConfigFile(char *filename)
 
     dir = std_getSystemConfigDir();
     if(dir){
-        std_Debug("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
+        log_msgf(LOG_DEBUG,"%s: Got sys config dir: %s\n", __FUNCTION__, dir);
         rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
-            std_Debug("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
+            log_msgf(LOG_DEBUG,"%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
             std_free(dir);
             return rv;
         }
@@ -977,15 +985,15 @@ char *std_GetFirstExistingConfigFile(char *filename)
     GetModuleFileName(NULL, path, ARRAYSIZE(path));
     dir = dirname(path);
     if(dir){
-        std_Debug("%s: Got exe dir: %s\n", __FUNCTION__, dir);
+        log_msgf(LOG_DEBUG,"%s: Got exe dir: %s\n", __FUNCTION__, dir);
         rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
-            std_Debug("%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
+            log_msgf(LOG_DEBUG,"%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
             return rv;
         }
     }
 #endif
-    std_Debug("%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
+    log_msgf(LOG_DEBUG,"%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
     return NULL;
 }
 

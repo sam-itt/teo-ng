@@ -15,6 +15,7 @@
 #include "teo.h"
 #include "std.h"
 #include "defs.h"
+#include "logsys.h"
 #include "media/disk.h"
 #include "alleg/mouse.h"
 #include "alleg/joyint.h"
@@ -64,7 +65,11 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
     char *cfg_file;
 
     /* Allegro lib int */
+#ifdef PLATFORM_MSDOS
     set_uformat(U_ASCII);  /* Latin-1 accents */
+#else
+    set_uformat(U_UTF8);  /* Latin-1 accents */
+#endif
     if(allegro_init() != 0){
 #if !PLATFORM_MSDOS && !PLATFORM_WIN32
         return -1;
@@ -76,7 +81,7 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
         set_config_file(cfg_file);
         std_free(cfg_file);
     }else{
-        printf("Config file %s not found, using default values\n",alconfig_file);
+        log_msgf(LOG_INFO,"Config file %s not found, using default values\n",alconfig_file);
     }
 
     cfg_file = std_GetFirstExistingConfigFile((char *)keymap_file);
@@ -84,7 +89,7 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
         override_config_file(cfg_file);
         std_free(cfg_file);
     }else{
-        printf("Keymap %s not found !\n",keymap_file);
+        log_msgf(LOG_INFO,"Keymap %s not found !\n",keymap_file);
     }
 
     akeybint_Init();

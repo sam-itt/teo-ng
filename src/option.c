@@ -92,17 +92,17 @@ static void help_display (struct OPTION_ENTRY option[])
     for (i=0; option[i].long_name!=NULL; i++)
     {
         size = 0;
-        printf ("  ");
+        main_ConsoleOutput ("  ");
         if (option[i].short_name != '\0')
-            size += printf ("-%c, ", option[i].short_name);
-        size += printf ("--%s", option[i].long_name);
+            size += main_ConsoleOutput ("-%c, ", option[i].short_name);
+        size += main_ConsoleOutput ("--%s", option[i].long_name);
         if (option[i].argument != NULL)
-            size += printf ("=%s",option[i].argument);
+            size += main_ConsoleOutput ("=%s",option[i].argument);
         if (option[i].comment != NULL) {
-           do { size += printf (" "); } while (size < 19);
-           (void)printf (" %s", option[i].comment);
+           do { size += main_ConsoleOutput (" "); } while (size < 19);
+           (void)main_ConsoleOutput (" %s", option[i].comment);
         }
-        (void)printf ("\n");
+        (void)main_ConsoleOutput ("\n");
     }
 }
 
@@ -113,15 +113,15 @@ static void help_display (struct OPTION_ENTRY option[])
  */
 static void help (char *program_name)
 {
-    printf ("\n%s:\n", _("Usage"));
-    printf ("    %s [OPTION...] %s\n\n", program_name,
+    main_ConsoleOutput ("\n%s:\n", _("Usage"));
+    main_ConsoleOutput ("    %s [OPTION...] %s\n\n", program_name,
                            _("[FILE...] [FOLDER...]"));
-    printf ("%s:\n", _("Help Options"));
+    main_ConsoleOutput ("%s:\n", _("Help Options"));
     help_display (help_option);
-    printf ("\n");
-    printf ("%s:\n", _("Application Options"));
+    main_ConsoleOutput ("\n");
+    main_ConsoleOutput ("%s:\n", _("Application Options"));
     help_display (prog_option);
-    printf ("\n");
+    main_ConsoleOutput ("\n");
     ini_Save();
     exit(EXIT_FAILURE);
 }

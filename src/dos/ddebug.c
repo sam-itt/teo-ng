@@ -48,6 +48,7 @@
    #include <conio.h>
    #include <stdio.h>
 #endif
+#include <stdlib.h>
 #include <assert.h>
 
 
@@ -78,7 +79,7 @@ static int breakpoint[MAX_BREAKPOINTS];
 static struct MC6809_REGS regs, prev_regs;
 
 
-static char *ddebug_GetMenu(void)
+static char **ddebug_GetMenu(void)
 {
     if(!_menu_line){
         int i = 0;
@@ -97,7 +98,7 @@ static char *ddebug_GetMenu(void)
     return _menu_line;
 }
 
-static char *ddebug_GetBreakMenu(void)
+static char **ddebug_GetBreakMenu(void)
 {
     if(!_break_menu_line){
         int i = 0;

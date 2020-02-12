@@ -59,6 +59,7 @@
 
 #include "defs.h"
 #include "teo.h"
+#include "main.h"
 #include "option.h"
 #include "ini.h"
 #include "image.h"
@@ -77,6 +78,7 @@
 #include "alleg/afront.h"
 #include "dos/floppy.h"
 #include "dos/debug.h"
+#include "logsys.h"
 #include "gettext.h"
 
 #if defined ENABLE_NLS && ENABLE_NLS
@@ -124,28 +126,27 @@ struct STRING_LIST *remain_name = NULL;
 
 int direct_write_support = TRUE;
 
+unsigned char main_LatinCharToCP850(unsigned char c);
 /*
  * Despite claims by DJGPP gettext(), no transcoding
- * is done between iso-8859 to CP850, which results 
+ * is done between iso-8859 to CP850, which results
  * in strange chars in the output instead of accented
- * letters. 
+ * letters.
  *
  * Having the mo file in CP850 while possible will make
  * Allegro very unhappy and display strange chars in the
  * "in-game" menu which is worst the the problem itself.
  *
- * This function does a rough transliteration for console
- * output.
+ * This function does a converstion from iso-8859-1 to
+ * CP850 for console output.
  *
- * It will be replaced by a more sophisticated output
- * system when messages have to go through console to reach
- * the user.
  *
  */
 static const char *main_Latin1ToCP850(const char *str)
 {
     static unsigned char *buffer = NULL;
     static int buffer_len = 0;
+    unsigned char c;
     int len;
 
     len = strlen(str);
@@ -156,36 +157,71 @@ static const char *main_Latin1ToCP850(const char *str)
         buffer_len = len;
     }
     memset(buffer, 0, buffer_len+1);
-    strcpy(buffer, str);
+    strcpy((char*)buffer, str);
     for(int i = 0; i < len; i++){
-        switch(buffer[i]){
-            case 0xE7: //&ccdeil
-                buffer[i] = 0x87;
-                break;
-            case 0xE8: //&eacute
-                buffer[i] = 0x8A;
-                break;
-            case 0xE9: //&egrave
-                buffer[i] = 0x82;
-                break;
-            case 0xF4: //ocirc
-                buffer[i] = 0x83;
-                break;
-        }
+        c = main_LatinCharToCP850(buffer[i]);
+        if(c != buffer[i])
+            buffer[i] = c;
     }
     return buffer;
 }
 
 
-/* main_ErrorMessage:
- *  Affiche un message d'erreur et sort du programme.
+
+/* main_DisplayMessage:
+ *  Affiche un message de sortie et sort du programme.
  */
-static void main_ErrorMessage(const char msg[])
+void main_DisplayMessage(const char *format, ...)
 {
-    fprintf(stderr, "%s\n", msg);
+    va_list args;
+
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+}
+
+void main_DisplayMessageVA(const char *format, va_list ap)
+{
+    char *msg;
+
+    vfprintf(stderr, format, ap);
+    log_vamsgf(LOG_ERROR, format, ap);
+
+    /*TODO: IF GFX MODE*/
+    msg = std_vastrdup_printf(format, ap);
+    agui_PopupMessage(msg);
+    std_free(msg);
+}
+
+
+
+/* main_ExitMessage:
+ *  Affiche un message de sortie et sort du programme.
+ */
+void main_ExitMessage(const char *format, ...)
+{
+    va_list args;
+
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+
     exit(EXIT_FAILURE);
 }
 
+
+int main_ConsoleOutput(const char *format, ...)
+{   
+    va_list args;
+    int rv;
+
+    va_start(args, format);
+
+    rv = vprintf(main_Latin1ToCP850(format), args);
+    va_end(args);
+
+    return rv;
+}
 
 
 /* ReadCommandLine:
@@ -227,7 +263,7 @@ static void ReadCommandLine(int argc, char *argv[])
     };
     message = option_Parse (argc, argv, "teo", entries, &remain_name);
     if (message != NULL)
-        main_ErrorMessage(message);
+        main_ExitMessage(message);
         
     if (mode40)    gfx_mode = GFX_MODE40   ; else
     if (mode80)    gfx_mode = GFX_MODE80   ; else
@@ -509,23 +545,6 @@ char *main_ThomsonToPcText (char *thomson_text)
 
 
 
-/* main_DisplayMessage:
- *  Affiche un message de sortie et sort du programme.
- */
-void main_DisplayMessage(const char msg[])
-{
-    agui_PopupMessage (msg);
-}
-
-
-/* main_ExitMessage:
- *  Affiche un message de sortie et sort du programme.
- */
-void main_ExitMessage(const char msg[])
-{
-    main_DisplayMessage(msg);
-    exit(EXIT_FAILURE);
-}
 
 
 
@@ -546,10 +565,6 @@ int main(int argc, char *argv[])
     int windowed_mode;
     int rv;
 
-    mode_desc[0] = strdup(__(" 1. 40 columns mode 16 colors\n    (fast diplay, adapted to games and most applications)"));
-    mode_desc[1] = strdup(__(" 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)"));
-    mode_desc[2] = strdup(__(" 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)"));
-
 #if defined ENABLE_NLS && ENABLE_NLS
     /* Setting the i18n environment */
     setlocale (LC_ALL, "");
@@ -561,35 +576,38 @@ int main(int argc, char *argv[])
         free(localedir);
 #endif
 
+    mode_desc[0] = strdup(__(" 1. 40 columns mode 16 colors\n    (fast diplay, adapted to games and most applications)"));
+    mode_desc[1] = strdup(__(" 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)"));
+    mode_desc[2] = strdup(__(" 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)"));
+
     /* traitement des paramètres */
     ini_Load();                   /* Charge les paramètres par défaut */
     ReadCommandLine (argc, argv); /* Récupération des options */
 
     rv = afront_Init(NULL, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
     if(rv != 0){
-        printf("Couldn't initialize Allegro, bailing out !\n");
-        exit(EXIT_FAILURE);
+        main_ExitMessage(_("Couldn't initialize Allegro, bailing out !\n"));
     }
    
     LOCK_VARIABLE(teo);
 
     /* message d'entete */
-    printf(__("Here comes %s the Thomson TO8 emulator.\n"), version_name);
-    printf(__("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
-    printf(__("Command keys: [ESC] Control panel\n"));           
-    printf(__("\t[F11] Screenshot\n"));           
-    printf(__("\t[F12] Debugger\n"));           
+    main_ConsoleOutput(_("Here comes %s the Thomson TO8 emulator.\n"), version_name);
+    main_ConsoleOutput(_("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
+    main_ConsoleOutput(_("Command keys: [ESC] Control panel\n"));           
+    main_ConsoleOutput(_("\t[F11] Screenshot\n"));           
+    main_ConsoleOutput(_("\t[F12] Debugger\n"));           
 
     /* détection de la présence de joystick(s) */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 
     /* initialisation de l'emulateur */
-    printf(__("Emulator init..."));
+    main_ConsoleOutput(_("Emulator init..."));
 
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
-        main_ErrorMessage(teo_error_msg);
+        main_ExitMessage(teo_error_msg);
 
-    printf("ok\n");
+    main_ConsoleOutput("ok\n");
 
 
     /* initialisation de l'interface d'accès direct */
@@ -603,17 +621,13 @@ int main(int argc, char *argv[])
     }
 
     /* selection du mode graphique */ 
-    printf(__("\nSelect graphic mode:\n\n"));
-
+    main_ConsoleOutput(_("\nSelect graphic mode:\n\n"));
     if (gfx_mode == NO_GFX)
     {
         for (i=0; i<3; i++)
-            printf("%s\n\n", mode_desc[i]);
-            
-        printf(__("Your choice: [default 1] "));
-
-        do
-        {
+            main_ConsoleOutput("%s\n\n", mode_desc[i]);
+        main_ConsoleOutput(_("Your choice: [default 1] "));
+        do{
             scancode = readkey()>>8;
 
             if (key_shifts&KB_CTRL_FLAG)
@@ -634,12 +648,9 @@ int main(int argc, char *argv[])
                     gfx_mode=GFX_TRUECOLOR;
                     break;
             }
-        }
-        while (gfx_mode == NO_GFX);
-    }
-    else
-    {
-        printf("%s\n\n", mode_desc[gfx_mode-1]);
+        }while (gfx_mode == NO_GFX);
+    }else{
+        main_ConsoleOutput("%s\n\n", mode_desc[gfx_mode-1]);
     }
 
     rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
@@ -677,9 +688,112 @@ int main(int argc, char *argv[])
     dfloppy_Exit();
 
     /* sortie de l'emulateur */
-    printf(__("Goodbye !\n"));
+    main_ConsoleOutput(_("\n"));
+    main_ConsoleOutput(_("Goodbye !\n"));
 
     /* sortie de l'emulateur */
     exit(EXIT_SUCCESS);
 }
 
+
+unsigned char main_LatinCharToCP850(unsigned char c)
+{
+    if(c == 0xA0) return 0XFF;
+    if(c == 0xA1) return 0XAD;
+    if(c == 0xA2) return 0XBD;
+    if(c == 0xA3) return 0X9C;
+    if(c == 0xA4) return 0XCF;
+    if(c == 0xA5) return 0XBE;
+    if(c == 0xA6) return 0XDD;
+    if(c == 0xA7) return 0XF5;
+    if(c == 0xA8) return 0XF9;
+    if(c == 0xA9) return 0XB8;
+    if(c == 0xAA) return 0XA6;
+    if(c == 0xAB) return 0XAE;
+    if(c == 0xAC) return 0XAA;
+    if(c == 0xAD) return 0XF0;
+    if(c == 0xAE) return 0XA9;
+    if(c == 0xAF) return 0XEE;
+    if(c == 0xB0) return 0XF8;
+    if(c == 0xB1) return 0XF1;
+    if(c == 0xB2) return 0XFD;
+    if(c == 0xB3) return 0XFC;
+    if(c == 0xB4) return 0XEF;
+    if(c == 0xB5) return 0XE6;
+    if(c == 0xB6) return 0XF4;
+    if(c == 0xB7) return 0XFA;
+    if(c == 0xB8) return 0XF7;
+    if(c == 0xB9) return 0XFB;
+    if(c == 0xBA) return 0XA7;
+    if(c == 0xBB) return 0XAF;
+    if(c == 0xBC) return 0XAC;
+    if(c == 0xBD) return 0XAB;
+    if(c == 0xBE) return 0XF3;
+    if(c == 0xBF) return 0XA8;
+    if(c == 0xC0) return 0XB7;
+    if(c == 0xC1) return 0XB5;
+    if(c == 0xC2) return 0XB6;
+    if(c == 0xC3) return 0XC7;
+    if(c == 0xC4) return 0X8E;
+    if(c == 0xC5) return 0X8F;
+    if(c == 0xC6) return 0X92;
+    if(c == 0xC7) return 0X80;
+    if(c == 0xC8) return 0XD4;
+    if(c == 0xC9) return 0X90;
+    if(c == 0xCA) return 0XD2;
+    if(c == 0xCB) return 0XD3;
+    if(c == 0xCC) return 0XDE;
+    if(c == 0xCD) return 0XD6;
+    if(c == 0xCE) return 0XD7;
+    if(c == 0xCF) return 0XD8;
+    if(c == 0xD0) return 0XD1;
+    if(c == 0xD1) return 0XA5;
+    if(c == 0xD2) return 0XE3;
+    if(c == 0xD3) return 0XE0;
+    if(c == 0xD4) return 0XE2;
+    if(c == 0xD5) return 0XE5;
+    if(c == 0xD6) return 0X99;
+    if(c == 0xD7) return 0X9E;
+    if(c == 0xD8) return 0X9D;
+    if(c == 0xD9) return 0XEB;
+    if(c == 0xDA) return 0XE9;
+    if(c == 0xDB) return 0XEA;
+    if(c == 0xDC) return 0X9A;
+    if(c == 0xDD) return 0XED;
+    if(c == 0xDE) return 0XE8;
+    if(c == 0xDF) return 0XE1;
+    if(c == 0xE0) return 0X85;
+    if(c == 0xE1) return 0XA0;
+    if(c == 0xE2) return 0X83;
+    if(c == 0xE3) return 0XC6;
+    if(c == 0xE4) return 0X84;
+    if(c == 0xE5) return 0X86;
+    if(c == 0xE6) return 0X91;
+    if(c == 0xE7) return 0X87;
+    if(c == 0xE8) return 0X8A;
+    if(c == 0xE9) return 0X82;
+    if(c == 0xEA) return 0X88;
+    if(c == 0xEB) return 0X89;
+    if(c == 0xEC) return 0X8D;
+    if(c == 0xED) return 0XA1;
+    if(c == 0xEE) return 0X8C;
+    if(c == 0xEF) return 0X8B;
+    if(c == 0xF0) return 0XD0;
+    if(c == 0xF1) return 0XA4;
+    if(c == 0xF2) return 0X95;
+    if(c == 0xF3) return 0XA2;
+    if(c == 0xF4) return 0X93;
+    if(c == 0xF5) return 0XE4;
+    if(c == 0xF6) return 0X94;
+    if(c == 0xF7) return 0XF6;
+    if(c == 0xF8) return 0X9B;
+    if(c == 0xF9) return 0X97;
+    if(c == 0xFA) return 0XA3;
+    if(c == 0xFB) return 0X96;
+    if(c == 0xFC) return 0X81;
+    if(c == 0xFD) return 0XEC;
+    if(c == 0xFE) return 0XE7;
+    if(c == 0xFF) return 0X98;
+
+    return c;
+}

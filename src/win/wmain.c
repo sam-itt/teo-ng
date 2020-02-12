@@ -66,6 +66,7 @@
 #include "image.h"
 #include "main.h"
 #include "errors.h"
+#include "logsys.h"
 #include "media/disk.h"
 #include "media/cass.h"
 #include "media/memo.h"
@@ -414,34 +415,65 @@ char *main_ThomsonToPcText (char *thomson_text)
 /* DisplayMessage:
  *  Affiche un message.
  */
-void main_DisplayMessage(const char msg[])
+void main_DisplayMessageVA(const char *format, va_list ap)
 {
-    if (windowed_mode)
-    {
+    char *msg;
+
+    vfprintf(stderr, format, ap);
+    log_vamsgf(LOG_ERROR, format, ap);
+
+    if (windowed_mode){
+        msg = std_vastrdup_printf(format, ap);
         MessageBox(prog_win, (const char*)msg, _("Teo - Error"),
-                    MB_OK | MB_ICONERROR);
-    }
-    else
-    {
+                   MB_OK | MB_ICONERROR);
+        std_free(msg);
+    }else{
 #if defined (GFX_BACKEND_ALLEGRO)
+        msg = std_vastrdup_printf(format, ap);
         agui_PopupMessage (msg);
+        std_free(msg);
 #endif
     }
 }
 
+void main_DisplayMessage(const char *format, ...)
+{
+    va_list args;
 
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+}
 
 /* ExitMessage:
  *  Affiche un message de sortie et sort du programme.
  */
-void main_ExitMessage(const char msg[])
+void main_ExitMessage(const char *format, ...)
 {
+    va_list args;
+    va_start(args, format);
 #if defined (GFX_BACKEND_ALLEGRO)
     allegro_exit(); /* pour éviter une fenêtre DirectX zombie */
 #endif
-    main_DisplayMessage(msg);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
     exit(EXIT_FAILURE);
 }
+
+int main_ConsoleOutput(const char *format, ...)
+{   
+    va_list args;
+    int rv;
+
+    va_start(args, format);
+    rv = vprintf(format,args);
+    va_end(args);
+
+    return rv;
+}
+
+
+
 
 
 /* WinMain:
@@ -514,7 +546,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #if defined (GFX_BACKEND_ALLEGRO)
     rv = afront_Init(w_title, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
     if(rv != 0){
-        printf("Couldn't initialize Allegro, bailing out !\n");
+        main_ExitMessage(_("Couldn't initialize Allegro, bailing out !\n"));
         exit(EXIT_FAILURE);
     }
     /* détection de la présence de joystick(s) */
@@ -523,18 +555,17 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 #elif defined (GFX_BACKEND_SDL2)
     rv = sfront_Init(&njoy, FRONT_ALL);
     if(rv != 0){
-        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
+        main_ExitMessage(_("could not initialize sdl2: %s\n"),SDL_GetError());
     }
 #endif
 
 
 
     /* initialisation de l'emulateur */
-    printf(_("Emulator init..."));
+    main_ConsoleOutput(_("Emulator init..."));
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
         main_ExitMessage(teo_error_msg);
-    printf("ok\n");
+    main_ConsoleOutput("ok\n");
 
 
 #if defined (GFX_BACKEND_ALLEGRO)
@@ -603,6 +634,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     OleUninitialize ();
 
     /* sortie de l'emulateur */
-    printf(_("Goodbye !\n"));
+    main_ConsoleOutput(_("Goodbye !\n"));
     exit(EXIT_SUCCESS);
 }

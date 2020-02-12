@@ -54,6 +54,7 @@
 
 #include "defs.h"
 #include "teo.h"
+#include "logsys.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "mc68xx/mc6821.h"
@@ -826,9 +827,9 @@ static FILE *file_open (const char filename[], const char mode[])
         data_dir = std_getUserDataDir();
         if(data_dir){
             name = std_PathAppend(data_dir, filename);
-            std_Debug("%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
+            log_msgf(LOG_DEBUG,"%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
         }else{
-            std_Debug("%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
+            log_msgf(LOG_DEBUG,"%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
         }
     }
 

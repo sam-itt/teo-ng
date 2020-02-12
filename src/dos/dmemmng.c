@@ -51,6 +51,7 @@
    #include <stdio.h>
    #include <conio.h>
 #endif
+#include <stdlib.h>
 #include <assert.h>
 
 #include "defs.h"

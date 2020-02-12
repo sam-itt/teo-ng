@@ -21,6 +21,7 @@
 #include "errors.h"
 #include "std.h"
 #include "teo.h"
+#include "logsys.h"
 #include "gettext.h"
 
 
@@ -230,7 +231,7 @@ void DlgTape_Main(void)
     /* Init values from Teo current config */
 
     /*Tape image filename*/
-    printf("Tape: %s\n",teo.cass.file );
+    log_msgf(LOG_TRACE,"Tape: %s\n",teo.cass.file );
     if(!teo.cass.file || *teo.cass.file == '\0')
         snprintf(sFile, FILENAME_MAX-1, "%s", _("(None)"));
     else

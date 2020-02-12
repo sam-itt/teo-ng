@@ -61,6 +61,7 @@
 #include "teo.h"
 #include "media/printer.h"
 #include "std.h"
+#include "logsys.h"
 
 #ifdef PLATFORM_OGXBOX
 #include "og-xbox/io.h"
@@ -312,7 +313,7 @@ void ini_Save (void)
     user_file = NULL;
     fpath = std_getUserConfigDir();
     if(fpath){
-        std_Debug("%s: Got user config dir: %s\n", __FUNCTION__, fpath);
+        log_msgf(LOG_DEBUG,"%s: Got user config dir: %s\n", __FUNCTION__, fpath);
         user_file = std_PathAppend(fpath, INI_FILE_NAME);
         fpath = std_free(fpath);
     }
@@ -320,22 +321,22 @@ void ini_Save (void)
     sys_file = NULL;
     fpath = std_getSystemConfigDir();
     if(fpath){
-        std_Debug("%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
+        log_msgf(LOG_DEBUG,"%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
         sys_file = std_PathAppend(fpath, INI_FILE_NAME);
         fpath = std_free(fpath);
     }
 
     if(user_file){
-        std_Debug("%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
+        log_msgf(LOG_DEBUG,"%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
         file_open(user_file,  "w");
     }else{
-        std_Debug("%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
+        log_msgf(LOG_DEBUG,"%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
         file_open(sys_file,  "w");
     }
 
     if (file == NULL){
-        std_Debug("%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
-        std_Debug("Erro is: %d: %s\n", errno, strerror(errno));
+        log_msgf(LOG_DEBUG,"%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
+        log_msgf(LOG_DEBUG,"Erro is: %d: %s\n", errno, strerror(errno));
         return;
     }
     fprintf (file, ";-----------------------------------------------------\n");

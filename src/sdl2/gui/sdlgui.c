@@ -1,5 +1,5 @@
 /*
-  Original code from Hatari, adapted for Teo
+  Original code from Hatari, adapted for Teo by Samuel Cuella
 
   This file is distributed under the GNU General Public License, version 2
   or at your option any later version. Read the file gpl.txt for details.
@@ -19,8 +19,11 @@
 
 #include "font5x8.h"
 #include "font10x16.h"
-#include "sdl2/teo-sdl-log.h"
+
+#include "main.h"
+#include "logsys.h"
 #include "sdl2/sfront-bindings.h"
+
 
 #define DEBUG_INFO 0
 #if DEBUG_INFO
@@ -71,7 +74,7 @@ static SDL_Surface *SDLGui_LoadXBM(int w, int h, const Uint8 *pXbmBits)
 	bitmap = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 8, 0, 0, 0, 0);
 	if (bitmap == NULL)
 	{
-		Log_Printf(LOG_ERROR, "SDLGui: failed to allocate bitmap: %s", SDL_GetError());
+		log_msgf(LOG_ERROR, "SDLGui: failed to allocate bitmap: %s", SDL_GetError());
 		return NULL;
 	}
 
@@ -116,7 +119,7 @@ int SDLGui_Init(void)
 	pBigFontGfx = SDLGui_LoadXBM(font10x16_width, font10x16_height, font10x16_bits);
 	if (pSmallFontGfx == NULL || pBigFontGfx == NULL)
 	{
-		Log_Printf(LOG_ERROR, "SDLGui: cannot init font graphics!\n");
+		log_msgf(LOG_ERROR, "SDLGui: cannot init font graphics!\n");
 		return -1;
 	}
 
@@ -192,7 +195,7 @@ int SDLGui_SetScreen(SDL_Surface *pScrn)
 
 	if (pFontGfx == NULL)
 	{
-		Log_Printf(LOG_ERROR, "SDLGui: a problem with the font occurred!\n");
+		log_msgf(LOG_ERROR, "SDLGui: a problem with the font occurred!\n");
 		return -1;
 	}
 
@@ -299,7 +302,7 @@ static void SDLGui_TextInt(int x, int y, const char *txt, bool underline)
 		}
 		else if (c >= 0x80)
 		{
-			Log_Printf(LOG_WARN, "Unsupported character '%c' (0x%x)\n", c, c);
+			log_msgf(LOG_WARNING, "Unsupported character '%c' (0x%x)\n", c, c);
 		}
 #endif
 		x += sdlgui_fontwidth;
@@ -888,9 +891,9 @@ static void SDLGui_DebugPrintDialog(const SGOBJ *dlg)
 {
 #if DEBUG_INFO
 	int i;
-	printf("obj: flags | state\n");
+	log_msgf(LOG_TRACE,"obj: flags | state\n");
 	for (i = 0; dlg[i].type != SGSTOP; i++)
-		printf("%3d:  0x%02x | 0x%02x\n", i, dlg[i].flags, dlg[i].state);
+		log_msgf(LOG_TRACE,"%3d:  0x%02x | 0x%02x\n", i, dlg[i].flags, dlg[i].state);
 #endif
 }
 
@@ -932,8 +935,7 @@ static void SDLGui_SetShortcuts(SGOBJ *dlg)
 				dlg[i].shortcut = chr;
 				if (used[chr])
 				{
-					fprintf(stderr, "ERROR: Duplicate Hatari SDL GUI shortcut in '%s'!\n", dlg[i].txt);
-					exit(1);
+                    main_ExitMessage("ERROR: Duplicate SDL GUI shortcut in '%s'!\n", dlg[i].txt);
 				}
 				used[chr] = 1;
 			}
@@ -1157,7 +1159,7 @@ int SDLGui_DoDialog(SGOBJ *dlg, SDL_Event *pEventOut, bool KeepCurrentObject)
 
 	if (pSdlGuiScrn->h / sdlgui_fontheight < dlg[0].h)
 	{
-		Log_Printf(LOG_ERROR, "Screen size too small for dialog!\n");
+		log_msgf(LOG_ERROR, "Screen size too small for dialog!\n");
 		return SDLGUI_ERROR;
 	}
 
@@ -1184,7 +1186,7 @@ int SDLGui_DoDialog(SGOBJ *dlg, SDL_Event *pEventOut, bool KeepCurrentObject)
 	}
 	else
 	{
-		Log_Printf(LOG_ERROR, "SDLGUI_DoDialog: CreateRGBSurface failed: %s\n", SDL_GetError());
+		log_msgf(LOG_ERROR, "SDLGUI_DoDialog: CreateRGBSurface failed: %s\n", SDL_GetError());
 	}
 	SDLGui_DebugPrintDialog(dlg);
 

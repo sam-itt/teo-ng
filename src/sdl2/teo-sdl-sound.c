@@ -7,7 +7,7 @@
 #include "teo.h"
 #include "defs.h" //MIN/MAX
 #include "sdl2/teo-sdl-sound.h"
-#include "sdl2/teo-sdl-log.h"
+#include "logsys.h"
 
 //#define ENABLE_BINLOG 1
 #undef ENABLE_BINLOG
@@ -24,9 +24,6 @@
 #include <assert.h>
 #endif
 
-#ifdef PLATFORM_OGXBOX
-#define printf debugPrint
-#endif
 /*Half-polling test results:
  * -no effect on Xbox (but useless as we are
  *  the only running process)
@@ -80,9 +77,9 @@ void teoSDL_SoundInitRecorder(void)
     if(dump_pcm){
         output = fopen(PCM_FILENAME,"wb");
         if(!output)
-            printf("Couldn't open sound dump file !\n");
+            log_msgf(LOG_ERROR,"Couldn't open sound dump file !\n");
         else
-            printf("Successfuly opened sound dump file !\n");
+            log_msgf(LOG_INFO,"Successfuly opened sound dump file !\n");
     }
 }
 
@@ -96,15 +93,15 @@ void teoSDL_SoundShutdownRecorder(void)
 
 static void teoSDL_SoundDumpSpec(SDL_AudioSpec *spec)
 {
-    printf("Spec %p:\n", spec);
-    printf("\tfreq: %d\n",spec->freq);
-    printf("\tformat: %d\n",spec->format);
-    printf("\tchannels: %d\n",spec->channels);
-    printf("\tsilence: %d\n",spec->silence);
-    printf("\tsamples: %d\n",spec->samples);
-    printf("\tsize: %d\n",spec->size);
-    printf("\tcallback: %p\n",spec->callback);
-    printf("\tuserdata: %p\n",spec->userdata);
+    log_msgf(LOG_TRACE,"Spec %p:\n", spec);
+    log_msgf(LOG_TRACE,"\tfreq: %d\n",spec->freq);
+    log_msgf(LOG_TRACE,"\tformat: %d\n",spec->format);
+    log_msgf(LOG_TRACE,"\tchannels: %d\n",spec->channels);
+    log_msgf(LOG_TRACE,"\tsilence: %d\n",spec->silence);
+    log_msgf(LOG_TRACE,"\tsamples: %d\n",spec->samples);
+    log_msgf(LOG_TRACE,"\tsize: %d\n",spec->size);
+    log_msgf(LOG_TRACE,"\tcallback: %p\n",spec->callback);
+    log_msgf(LOG_TRACE,"\tuserdata: %p\n",spec->userdata);
 }
 
 
@@ -258,7 +255,7 @@ bool teoSDL_SoundInit(int freq)
 {
     if(!SDL_WasInit(SDL_INIT_AUDIO)){
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0){
-            Log_Printf(LOG_WARN, "Could not init audio: %s\n", SDL_GetError());
+            log_msgf(LOG_WARNING, "Could not init audio: %s\n", SDL_GetError());
             return false;
         }
     }
@@ -269,10 +266,6 @@ bool teoSDL_SoundInit(int freq)
 	native_spec.samples = next_pow2(freq/TEO_FRAME_FREQ); 
 	native_spec.callback = NULL;
     native_spec.userdata = NULL;
-
-    for(int i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
-        printf("Audio driver %d: %s\n", i, SDL_GetAudioDriver(i));
-    }
 
 #ifdef PLATFORM_OGXBOX
     int rv;
@@ -287,14 +280,14 @@ bool teoSDL_SoundInit(int freq)
 #endif // PLATFORM_OGXBOX
 
     if(!dev_id){
-		printf("ERROR: can't open audio. Error is: %s\n",SDL_GetError());
+		log_msgf(LOG_ERROR,"ERROR: can't open audio. Error is: %s\n",SDL_GetError());
 		return false;
 	}
-    printf("dev_id is: %d\n", dev_id);
+    log_msgf(LOG_TRACE,"dev_id is: %d\n", dev_id);
 
-    printf("Asked:\n");
+    log_msgf(LOG_TRACE,"Asked:\n");
     teoSDL_SoundDumpSpec(&native_spec);
-    printf("Got:\n");
+    log_msgf(LOG_TRACE,"Got:\n");
     teoSDL_SoundDumpSpec(&spec);
 
 
@@ -302,7 +295,7 @@ bool teoSDL_SoundInit(int freq)
     /*One video frame / emulator loop worth of audio data, in samples*/
     sound_buffer_size = sound_freq/TEO_FRAME_FREQ;
     sound_buffer = malloc(sizeof(uint8_t)*sound_buffer_size);
-    printf("Sound buffer size is %d (bytes)\n",sizeof(uint8_t)*sound_buffer_size);
+    log_msgf(LOG_DEBUG,"Sound buffer size is %d (bytes)\n",sizeof(uint8_t)*sound_buffer_size);
 
     for(int i = 0; i < BUFFER_NFRAMES; i++)
         frame_holder[i] = malloc(sizeof(uint8_t)*sound_buffer_size);
