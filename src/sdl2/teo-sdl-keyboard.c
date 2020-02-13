@@ -9,7 +9,7 @@
 #include "logsys.h"
 #include "media/keyboard.h"
 #include "media/joystick.h"
-#include "ini.h"
+#include "sdl2/ini.h"
 
 
 extern Uint8 sfront_windowed_mode;

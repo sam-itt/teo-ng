@@ -44,6 +44,9 @@ libteo_la_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include \
 					 -DSYSCONFDIR="\"@sysconfdir@\"" -DDATAROOTDIR="\"@datarootdir@\"" \
 					 -DLOCALEDIR=\"$(localedir)\" $(SDL2_CFLAGS)
 libteo_la_LIBADD = $(DEPS_LIBS) $(PNG_LIBS)
+if PLATFORM_WIN32
+libteo_la_LDFLAGS = -static-libgcc
+endif
 libteo_la_SOURCES = \
 	mc68xx/dasm6809.c \
 	mc68xx/mc6804.c \

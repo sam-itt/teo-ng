@@ -16,8 +16,6 @@ libsdlgfx_la_SOURCES = \
 	teo-sdl-sound.c
 
 
-
-
 libsdlgfx_la_SOURCES += \
 	gui/dlgPrinter.c \
 	gui/dlgMain.c \

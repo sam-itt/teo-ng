@@ -50,6 +50,10 @@ if GFX_BACKEND_GTK_X11
 teoconf_DATA += \
 	gdk-keymap.ini
 endif
+if GFX_BACKEND_SDL2
+teoconf_DATA += \
+	sdl-keymap.ini
+endif
 
 if PLATFORM_MSDOS
 bindata_DATA = \
@@ -60,11 +64,24 @@ endif
 if PLATFORM_WIN32
 libdata_DATA = \
 	libpng3.dll \
-	alleg40.dll \
 	libpng16.dll \
-	alleg44.dll \
-	zlib1.dll 
+	zlib1.dll \
+	libiconv-2.dll \
+	libintl-8.dll \
+	libgcc_s_sjlj-1.dll
+if GFX_BACKEND_ALLEGRO
+libdata_DATA += \
+	alleg40.dll \
+	alleg44.dll
 endif
+
+if GFX_BACKEND_SDL2
+libdata_DATA += \
+	SDL2.dll
+endif
+
+endif #PLATFORM_WIN32
+
 
 printer612_DATA = \
 	system/printer/612/elitc.txt \
@@ -156,6 +173,7 @@ EXTRA_DIST = \
 	keyboard.bmp \
 	led-on.bmp \
 	led-off.bmp \
+	sdl-keymap.ini \
 	allegro.cfg \
 	language.dat \
 	keyboard.dat \
@@ -172,6 +190,10 @@ EXTRA_DIST = \
 	libpng16.dll \
 	alleg44.dll \
 	alleg40.dll \
+	SDL2.dll \
+	libiconv-2.dll \
+	libintl-8.dll \
+	libgcc_s_sjlj-1.dll \
 	.keep
 
 userrom_DATA = \

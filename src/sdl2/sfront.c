@@ -60,8 +60,9 @@ int sfront_Init(int *j_support, unsigned char mode)
 
     if (*j_support >= 0 && (sfront_features & FRONT_JOYSTICK))
         *j_support = teoSDL_JoystickInit();
-
+#if defined(ENABLE_BINLOG) && ENABLE_BINLOG
     log_event_start();
+#endif 
     return rv;
 }
 
@@ -138,9 +139,9 @@ void sfront_Run(void)
 
 void sfront_Shutdown()
 {
-
+#if defined(ENABLE_BINLOG) && ENABLE_BINLOG
     log_event_stop();
-
+#endif
 }
 
 

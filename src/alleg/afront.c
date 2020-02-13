@@ -65,7 +65,7 @@ int afront_Init(const char *w_title, unsigned char j_support, const char *alconf
     char *cfg_file;
 
     /* Allegro lib int */
-#ifdef PLATFORM_MSDOS
+#if PLATFORM_MSDOS
     set_uformat(U_ASCII);  /* Latin-1 accents */
 #else
     set_uformat(U_UTF8);  /* Latin-1 accents */

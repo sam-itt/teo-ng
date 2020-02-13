@@ -14,7 +14,6 @@ src/alleg/agui/asetting.c
 src/dos/ddebug.c
 src/dos/dmain.c
 src/dos/dmemmng.c
-src/linux/teoemulatorresources.c
 src/linux/udebug.c
 src/linux/udebug/udbkpt.c
 src/linux/udebug/uddisass.c

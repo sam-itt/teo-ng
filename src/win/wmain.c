@@ -495,6 +495,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     int njoy = 0;
     struct STRING_LIST *str_list;
 
+    log_open("teo.log");
+
     /* initialise les librairies */
     InitCommonControls();
     OleInitialize(0);
@@ -635,5 +637,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
     /* sortie de l'emulateur */
     main_ConsoleOutput(_("Goodbye !\n"));
+    log_close();
     exit(EXIT_SUCCESS);
 }

@@ -397,7 +397,7 @@ msgstr "Lecteur de cartouches"
 
 #: src/alleg/agui.c:258
 msgid "Cancel"
-msgstr "Annu_ler"
+msgstr "Annuler"
 
 #: src/errors.c:85
 msgid "Cannot create disk"

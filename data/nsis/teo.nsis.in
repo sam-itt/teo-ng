@@ -11,7 +11,7 @@
 ;  !define VERSION_MINOR @PACKAGE_VERSION_MINOR@
 ;  !define VERSION_FULL  @PACKAGE_VERSION_MAJOR@.@PACKAGE_VERSION_MINOR@.@PACKAGE_VERSION_MICRO@.@PACKAGE_VERSION_NANO@
   !define PUBLISHER     "Teo authors"
-  !define WEBSITE_URL   "https://sourceforge.net/projects/teoemulator/"
+  !define WEBSITE_URL   "@WEBSITE_URL@"
   !addplugindir         @srcdir@
 
   !define MULTIUSER_EXECUTIONLEVEL Highest
@@ -110,16 +110,31 @@ Section "Teo" BfWSection
 ;Binaries
   SetOutPath "$INSTDIR"
   File "${top_srcdir}/src/win/teo.exe"
-  File "${top_srcdir}/data/alleg44.dll"
   File "${top_srcdir}/data/libpng16.dll"
   File "${top_srcdir}/data/zlib1.dll"
-;TODO: Handle extra-tools if applicable 
+  File "${top_srcdir}/data/libiconv-2.dll"
+  File "${top_srcdir}/data/libintl-8.dll"
+  File "${top_srcdir}/data/libgcc_s_sjlj-1.dll"
 
-;Data files
+;Backends + data files
+
+!if @GFX_BACKEND@ == "allegro"
+  File "${top_srcdir}/data/alleg44.dll"
   File "${top_srcdir}/data/language.dat"
   File "${top_srcdir}/data/keyboard.dat"
   File "${top_srcdir}/data/allegro.cfg"
   File "${top_srcdir}/data/akeymap.ini"
+!endif
+
+!if @GFX_BACKEND@ == "sdl2"
+  File "${top_srcdir}/data/SDL2.dll"
+  File "${top_srcdir}/data/keyboard.bmp"
+  File "${top_srcdir}/data/led-off.bmp"
+  File "${top_srcdir}/data/led-on.bmp"
+  File "${top_srcdir}/data/sdl-keymap.ini"
+!endif
+
+;TODO: Handle extra-tools if applicable 
 
 ;Licence and stuff
 ;TODO: handle linguas
@@ -129,6 +144,10 @@ Section "Teo" BfWSection
   File "${top_srcdir}/change-fr.log"
   File "${top_srcdir}/licence-en.txt"
   File "${top_srcdir}/licence-fr.txt"
+
+;Gettext PO-files
+  SetOutPath "$INSTDIR\fr\LC_MESSAGES"
+  File /oname=@PACKAGE@.mo "${top_srcdir}/po/fr.gmo"
 
 ;Documentation TODO: Make me optional
   SetOutPath "$INSTDIR\doc"
@@ -224,15 +243,30 @@ Section "un.Teo" un.BfW
   RMDir /r "$INSTDIR\system"
 
   Delete "$INSTDIR\teo.exe"
-  Delete "$INSTDIR\alleg44.dll"
   Delete "$INSTDIR\libpng16.dll"
   Delete "$INSTDIR\zlib1.dll"
+  Delete "$INSTDIR\libiconv-2.dll"
+  Delete "$INSTDIR\libintl-8.dll"
+  Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
+  Delete "$INSTDIR\teo.log"
+
 ;TODO: Handle extra-tools if applicable 
 
+!if @GFX_BACKEND@ == "allegro"
+  Delete "$INSTDIR\alleg44.dll"
   Delete "$INSTDIR\language.dat"
   Delete "$INSTDIR\keyboard.dat"
   Delete "$INSTDIR\allegro.cfg"
   Delete "$INSTDIR\akeymap.ini"
+!endif
+
+!if @GFX_BACKEND@ == "sdl2"
+  Delete "$INSTDIR\SDL2.dll"
+  Delete "$INSTDIR\keyboard.bmp"
+  Delete "$INSTDIR\led-off.bmp"
+  Delete "$INSTDIR\led-on.bmp"
+  Delete "$INSTDIR\sdl-keymap.ini"
+!endif
 
 ;TODO: handle linguas
   Delete "$INSTDIR\README.TXT"
@@ -241,6 +275,11 @@ Section "un.Teo" un.BfW
   Delete "$INSTDIR\change-fr.log"
   Delete "$INSTDIR\licence-en.txt"
   Delete "$INSTDIR\licence-fr.txt"
+
+;Gettext PO-files
+  Delete "$INSTDIR\fr\LC_MESSAGES\@PACKAGE@.mo"
+  RMDir "$INSTDIR\fr\LC_MESSAGES"
+  RMDir "$INSTDIR\fr"
 
   Delete "$INSTDIR\Uninstall.exe"
 

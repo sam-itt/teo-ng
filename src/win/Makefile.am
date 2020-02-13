@@ -6,16 +6,16 @@ src_dir = $(top_srcdir)/src
 	$(WINDRES) --include-dir $(top_srcdir)/include --include-dir $(top_srcdir) -DHAVE_CONFIG_H -D_WIN32_IE=0x0300 -o $@ -i $<
 
 bin_PROGRAMS = teo
-
+teo_LDFLAGS = -static-libgcc
+teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(INTLLIBS)
 if GFX_BACKEND_ALLEGRO
-teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS) $(INTLLIBS)
+teo_LDADD += $(src_dir)/alleg/libagfx.la $(GTK_LIBS)
 else
 if GFX_BACKEND_SDL2
-teo_LDADD = $(src_dir)/sdl2/libsdlgfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) -lcomdlg32 -lcomctl32 $(INTLLIBS)
+teo_LDADD += $(src_dir)/sdl2/libsdlgfx.la -lcomdlg32 -lcomctl32 
 endif #GFX_BACKEND_SDL2
 endif
 teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) $(SDL2_CFLAGS) -I$(top_srcdir)/include
-
 teo_SOURCES = \
 	wmain.c \
 	wgui.c \

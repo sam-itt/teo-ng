@@ -33,7 +33,7 @@ AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as de
 AC_DEFINE(TEO_VERSION_WRC, [teo_version_wrc], [Package version constant, in a format suitable for Win32 resource files])
 
 AC_DEFUN([AC_PROG_GCR], [AC_CHECK_PROG([GCR],[glib-compile-resources],[yes])])
-
+AC_SUBST(WEBSITE_URL,[https://sourceforge.net/projects/teoemulator/])
 
 # For functions like asprintf, get_current_dir_name
 AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions.])
@@ -57,13 +57,6 @@ AC_ARG_ENABLE([debian_build], [AS_HELP_STRING([--enable-debian-build], [Enable s
 AC_ARG_ENABLE([extra_tools], [AS_HELP_STRING([--enable-extra-tools], [Enable extra tools (default=no)])],
             [],
             [extra_tools=no])
-
-
-
-#This is temporary until we add gettext support
-AC_ARG_WITH([language], [AS_HELP_STRING([--with-language=fr,en], [Select program messages language (default=fr)])],
-            [],
-            [with_language=fr])
 
 
 
@@ -262,6 +255,7 @@ AS_CASE(["x$with_gfx_backend"],
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
     AM_CONDITIONAL(GFX_BACKEND_SDL2, false)
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
+    AC_SUBST(GFX_BACKEND,[allegro])
     PKG_CHECK_MODULES([ALLEGRO], [allegro])
     PKG_CHECK_MODULES([PNG], [libpng])
     AS_IF([test "x$platform_unix" = "xyes"],[
@@ -276,6 +270,7 @@ AS_CASE(["x$with_gfx_backend"],
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
     AM_CONDITIONAL(GFX_BACKEND_SDL2, false)
     AC_DEFINE(GFX_BACKEND_GTK_X11,[],[Use GTK/X11 for gfx rendering])
+    AC_SUBST(GFX_BACKEND,[gtk_x11])
     PKG_CHECK_MODULES([GTK], [gtk+-3.0])
     PKG_CHECK_MODULES([XEXT], [xext])
     PKG_CHECK_MODULES([X11], [x11])
@@ -290,6 +285,7 @@ AS_CASE(["x$with_gfx_backend"],
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
     AM_CONDITIONAL(GFX_BACKEND_SDL2, true)
     AC_DEFINE(GFX_BACKEND_SDL2,[],[Use SDL2 for gfx rendering])
+    AC_SUBST(GFX_BACKEND,[sdl2])
     PKG_CHECK_MODULES([SDL2], [sdl2])
     AC_DEFINE(WITH_SDL2,[1],[Use SDL2 features that were not in SDL1.2])
    ],
@@ -372,19 +368,6 @@ if test "x$enable_debian_build" = "xyes"; then
 fi
 
 
-
-#This is temporary until we add gettext support
-AS_CASE(["x$with_language"],
-   ["xfr"],[
-    E_AM_CFLAGS+=" -DFRENCH_LANGUAGE"
-   ],
-   ["xen"],[
-    E_AM_CFLAGS+=" -DENGLISH_LANGUAGE"
-   ],
-   [
-    AC_MSG_ERROR(["Valid values for --with-language are 'fr' and 'en'"])
-   ]
-)
 AC_MSG_RESULT([$E_AM_CFLAGS])
 AC_SUBST(AM_CFLAGS, [$E_AM_CFLAGS])
 

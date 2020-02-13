@@ -25,7 +25,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "ini.h"
+#include "sdl2/ini.h"
 
 struct ini_t {
   char *data;
