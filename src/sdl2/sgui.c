@@ -69,7 +69,7 @@ static SGOBJ *sgui_GetDialog(void)
 /**
  * This functions sets up the actual font and then displays the main dialog.
  */
-int Dialog_MainDlg(bool adjustableVolume, int da_mask)
+int sgui_Panel(bool adjustableVolume, int da_mask)
 {
 	int retbut, response;
 	bool bOldMouseVisibility;
@@ -105,19 +105,19 @@ int Dialog_MainDlg(bool adjustableVolume, int da_mask)
             break;
          /*Other dialogs*/
          case MAINDLG_SETTINGS:
-            DlgSystem_Main(adjustableVolume); 
+            ssetting_Panel(adjustableVolume); 
             break;
          case MAINDLG_DISKS:
-            DlgDisks_Main(da_mask); 
+            sdisk_Panel(da_mask); 
             break;
          case MAINDLG_TAPE:
-            DlgTape_Main();
+            scass_Panel();
             break;
          case MAINDLG_CARTRIDGE:
-            DlgCart_Main();
+            smemo_Panel();
             break;
          case MAINDLG_PRINTER:
-            DlgPrinter_Main();
+            sprinter_Panel();
             break;
          /*Other actions*/
          case MAINDLG_QUIT:
@@ -128,7 +128,7 @@ int Dialog_MainDlg(bool adjustableVolume, int da_mask)
 //			bQuitProgram = true;
             break;
          case MAINDLG_ABOUT:
-            Dialog_AboutDlg();
+            sabout_Panel();
             break;
 		}
 	}

@@ -131,7 +131,7 @@ msgstr " Passe jumps "
 msgid " TAB;+,-: move around"
 msgstr " TAB,+,-: naviguer"
 
-#: src/sdl2/gui/dlgSystem.c:79
+#: src/sdl2/sgui/ssetting.c:79
 msgid " _Sound"
 msgstr " _Son"
 
@@ -291,8 +291,8 @@ msgstr "(Accès Direct)"
 #: src/alleg/agui/adisk.c:301 src/alleg/agui/adisk.c:333
 #: src/alleg/agui/amemo.c:169 src/alleg/agui/amemo.c:184
 #: src/linux/ugui/ucass.c:267 src/linux/ugui/udisk.c:271
-#: src/linux/ugui/umemo.c:144 src/sdl2/gui/dlgTape.c:125
-#: src/sdl2/gui/dlgTape.c:259 src/win/wgui/wcass.c:215 src/win/wgui/wdisk.c:313
+#: src/linux/ugui/umemo.c:144 src/sdl2/sgui/scass.c:125
+#: src/sdl2/sgui/scass.c:259 src/win/wgui/wcass.c:215 src/win/wgui/wdisk.c:313
 #: src/win/wgui/wmemo.c:148
 msgid "(None)"
 msgstr "(Aucun)"
@@ -305,7 +305,7 @@ msgstr "Affichage en 40 colonnes"
 msgid "80 columns display"
 msgstr "Affichage en 80 colonnes"
 
-#: src/sdl2/gui/dlgMain.c:79
+#: src/sdl2/sgui.c:79
 msgid "A_bout"
 msgstr "_A Propos"
 
@@ -350,11 +350,11 @@ msgstr "Options de l'application"
 msgid "Audio error"
 msgstr "Erreur audio"
 
-#: src/alleg/agui/aabout.c:88 src/sdl2/gui/dlgAbout.c:32
+#: src/alleg/agui/aabout.c:88 src/sdl2/sgui/sabout.c:32
 msgid "Authors:"
 msgstr "Auteurs:"
 
-#: src/sdl2/gui/dlgSystem.c:91
+#: src/sdl2/sgui/ssetting.c:91
 msgid "Back to main menu"
 msgstr "Retour"
 
@@ -391,7 +391,7 @@ msgstr "Points d'arrêts"
 msgid "Ca&rtridge drive..."
 msgstr "Lecteur de cartouches"
 
-#: src/sdl2/gui/dlgMain.c:75
+#: src/sdl2/sgui.c:75
 msgid "Ca_rtridge"
 msgstr "Lecteur de cartouches"
 
@@ -407,7 +407,7 @@ msgstr "Impossible de créer la disquette"
 msgid "Cartridge"
 msgstr "Cartouche"
 
-#: src/alleg/agui/amemo.c:112 src/sdl2/gui/dlgCart.c:60
+#: src/alleg/agui/amemo.c:112 src/sdl2/sgui/smemo.c:60
 msgid "Cartridge drive"
 msgstr "Lecteur de cartouches"
 
@@ -474,7 +474,7 @@ msgstr "Commandes:"
 msgid "Commands:                     "
 msgstr "Commandes:                    "
 
-#: src/alleg/agui.c:207 src/linux/ugui.c:178 src/sdl2/gui/dlgMain.c:66
+#: src/alleg/agui.c:207 src/linux/ugui.c:178 src/sdl2/sgui.c:66
 #: src/win/wgui.c:135
 msgid "Control panel"
 msgstr "Panneau de contrôle"
@@ -495,7 +495,7 @@ msgstr "Impossible d'initialiser Allegro, abandon !\n"
 
 #. molette du compteur de cassette
 #. Counter block
-#: src/linux/ugui/ucass.c:491 src/sdl2/gui/dlgTape.c:107
+#: src/linux/ugui/ucass.c:491 src/sdl2/sgui/scass.c:107
 #: src/win/wgui/wcass.c:378
 msgid "Counter:"
 msgstr "Compteur:"
@@ -512,7 +512,7 @@ msgstr "Répertoire plein"
 msgid "Disk I/O error"
 msgstr "Erreur sur le disque"
 
-#: src/alleg/agui/adisk.c:173 src/sdl2/gui/dlgDisks.c:119
+#: src/alleg/agui/adisk.c:173 src/sdl2/sgui/sdisk.c:119
 msgid "Disk drives"
 msgstr "Lecteurs de disquettes"
 
@@ -538,7 +538,7 @@ msgstr "Affichage"
 msgid "Dot-matrix &printer..."
 msgstr "&Imprimante matricielle..."
 
-#: src/sdl2/gui/dlgPrinter.c:96
+#: src/sdl2/sgui/sprinter.c:96
 msgid "Dot-matrix printer"
 msgstr "Imprimantes matricielles"
 
@@ -550,7 +550,7 @@ msgstr "Imprimantes matricielles"
 msgid "Double &spacing"
 msgstr "Double &interligne"
 
-#: src/linux/ugui/uprinter.c:227 src/sdl2/gui/dlgPrinter.c:121
+#: src/linux/ugui/uprinter.c:227 src/sdl2/sgui/sprinter.c:121
 #: src/win/wgui/wprinter.c:202
 msgid "Double spacing"
 msgstr "Double interligne"
@@ -660,7 +660,7 @@ msgstr "Reset total"
 msgid "Goodbye !\n"
 msgstr "A bientôt !\n"
 
-#: src/sdl2/gui/dlgPrinter.c:116
+#: src/sdl2/sgui/sprinter.c:116
 msgid "Graphic"
 msgstr "Graph"
 
@@ -668,7 +668,7 @@ msgstr "Graph"
 msgid "Graphic mode to use (defaults to windowed)"
 msgstr "Mode graphique à utiliser (fenêtre par defaut)"
 
-#: src/sdl2/gui/dlgPrinter.c:122
+#: src/sdl2/sgui/sprinter.c:122
 msgid "HQ Printing"
 msgstr "Haute Qualité"
 
@@ -702,7 +702,7 @@ msgstr "Initialisation des périphériques d'entrée: %d joystick(s) détecté(s
 msgid "Insufficient memory for buffer"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:89
+#: src/sdl2/sgui/ssetting.c:89
 msgid "Interlaced _video"
 msgstr "_Vidéo entrelacée"
 
@@ -773,7 +773,7 @@ msgstr "Memo"
 msgid "Memory"
 msgstr "Mémoire"
 
-#: src/alleg/agui/asetting.c:135 src/sdl2/gui/dlgSystem.c:85
+#: src/alleg/agui/asetting.c:135 src/sdl2/sgui/ssetting.c:85
 msgid "Memory:"
 msgstr "Mémoire:"
 
@@ -835,7 +835,7 @@ msgstr "Ouvrir un fichier cassette"
 msgid "Output"
 msgstr "Sortie"
 
-#: src/sdl2/gui/dlgPrinter.c:113
+#: src/sdl2/sgui/sprinter.c:113
 msgid "Output mode"
 msgstr "Sortie:"
 
@@ -849,7 +849,7 @@ msgstr "Appuyer sur <espace>"
 
 #. Creation de la frame
 #: src/linux/ugui/uprinter.c:163 src/linux/ugui/uprinter.c:201
-#: src/sdl2/gui/dlgPrinter.c:104 src/win/wgui.c:151 src/win/wgui/wprinter.c:198
+#: src/sdl2/sgui/sprinter.c:104 src/win/wgui.c:151 src/win/wgui/wprinter.c:198
 msgid "Printer"
 msgstr "Imprimante"
 
@@ -905,11 +905,11 @@ msgstr "page de ROM cartouche : %d"
 msgid "ROM cartridge page :%d%s"
 msgstr "page de ROM cartouche :%d%s"
 
-#: src/sdl2/gui/dlgPrinter.c:114
+#: src/sdl2/sgui/sprinter.c:114
 msgid "Raw"
 msgstr "Brute"
 
-#: src/sdl2/gui/dlgTape.c:111 src/win/wgui/wcass.c:380
+#: src/sdl2/sgui/scass.c:111 src/win/wgui/wcass.c:380
 msgid "Rewind"
 msgstr "Rembobiner"
 
@@ -926,7 +926,7 @@ msgstr "Lancer"
 msgid "SAP archive not valid"
 msgstr "Archive SAP invalide"
 
-#: src/alleg/agui/aprinter.c:143 src/sdl2/gui/dlgPrinter.c:98
+#: src/alleg/agui/aprinter.c:143 src/sdl2/sgui/sprinter.c:98
 msgid "Save into:"
 msgstr "Sauver dans:"
 
@@ -988,7 +988,7 @@ msgstr "Choisissez une cassette"
 
 #. Cree les onglets
 #: src/alleg/agui/asetting.c:129 src/linux/ugui/usetting.c:208
-#: src/sdl2/gui/dlgPrinter.c:120 src/sdl2/gui/dlgSystem.c:73 src/win/wgui.c:143
+#: src/sdl2/sgui/sprinter.c:120 src/sdl2/sgui/ssetting.c:73 src/win/wgui.c:143
 msgid "Settings"
 msgstr "Réglages"
 
@@ -1019,7 +1019,7 @@ msgstr "Initialisation du son..."
 msgid "Speed"
 msgstr "Vitesse"
 
-#: src/sdl2/gui/dlgSystem.c:75
+#: src/sdl2/sgui/ssetting.c:75
 msgid "Speed:"
 msgstr "Vitesse:"
 
@@ -1044,7 +1044,7 @@ msgstr "Passe jumps"
 msgid "Tape"
 msgstr "Cassette"
 
-#: src/alleg/agui/acass.c:142 src/sdl2/gui/dlgTape.c:94
+#: src/alleg/agui/acass.c:142 src/sdl2/sgui/scass.c:94
 msgid "Tape drive"
 msgstr "Lecteur de cassettes"
 
@@ -1052,7 +1052,7 @@ msgstr "Lecteur de cassettes"
 msgid "Tape files (.k7)"
 msgstr "Fichiers cassette (.k7)"
 
-#: src/sdl2/gui/dlgTape.c:148
+#: src/sdl2/sgui/scass.c:148
 msgid "Tape image:"
 msgstr "Fichier cassette:"
 
@@ -1093,7 +1093,7 @@ msgstr "Teo sur SourceForge"
 msgid "Teo on Sourceforge"
 msgstr "Teo sur SourceForge"
 
-#: src/sdl2/gui/dlgPrinter.c:115
+#: src/sdl2/sgui/sprinter.c:115
 msgid "Text"
 msgstr "Texte"
 
@@ -1221,7 +1221,7 @@ msgstr ""
 msgid "Warning: writing unavailable on this device."
 msgstr "Attention: Ecriture impossible sur ce support."
 
-#: src/sdl2/gui/dlgTape.c:174
+#: src/sdl2/sgui/scass.c:174
 msgid "Warning: writing unavailable."
 msgstr "Attention: écriture indisponible"
 
@@ -1243,7 +1243,7 @@ msgstr "Répertoire de sortie:"
 #. *
 #. Failure to do so
 #: src/linux/ugui/ucass.c:215 src/linux/ugui/udisk.c:125
-#: src/sdl2/gui/dlgDisks.c:266 src/sdl2/gui/dlgTape.c:200
+#: src/sdl2/sgui/sdisk.c:266 src/sdl2/sgui/scass.c:200
 msgid "Writing unavailable on this device."
 msgstr "Ecriture impossible sur ce support."
 
@@ -1266,20 +1266,20 @@ msgstr "[FILE...] [FOLDER...]"
 msgid "_Cancel"
 msgstr "Annu_ler"
 
-#: src/sdl2/gui/dlgMain.c:69
+#: src/sdl2/sgui.c:69
 msgid "_Cold reset"
 msgstr "Reset à _froid"
 
 #. direct disk
-#: src/sdl2/gui/dlgDisks.c:155
+#: src/sdl2/sgui/sdisk.c:155
 msgid "_Direct access"
 msgstr "Accès _direct"
 
-#: src/sdl2/gui/dlgMain.c:73
+#: src/sdl2/sgui.c:73
 msgid "_Disk drives"
 msgstr "Lecteurs de disquettes"
 
-#: src/sdl2/gui/dlgMain.c:70
+#: src/sdl2/sgui.c:70
 msgid "_Full reset"
 msgstr "Reset _total"
 
@@ -1288,32 +1288,32 @@ msgstr "Reset _total"
 msgid "_Open"
 msgstr "_Ouvrir"
 
-#: src/sdl2/gui/dlgMain.c:76
+#: src/sdl2/sgui.c:76
 msgid "_Printer"
 msgstr "Im_primante"
 
-#: src/sdl2/gui/dlgMain.c:78
+#: src/sdl2/sgui.c:78
 msgid "_Quit"
 msgstr "_Quitter"
 
-#: src/sdl2/gui/dlgMain.c:72
+#: src/sdl2/sgui.c:72
 msgid "_Settings"
 msgstr "_Réglages"
 
-#: src/sdl2/gui/dlgMain.c:74
+#: src/sdl2/sgui.c:74
 msgid "_Tape drive"
 msgstr "Lecteur de cas_sette"
 
-#: src/sdl2/gui/dlgMain.c:68
+#: src/sdl2/sgui.c:68
 msgid "_Warm reset"
 msgstr "Reset à _chaud"
 
 #. Width in chars
-#: src/sdl2/gui/dlgSystem.c:76
+#: src/sdl2/sgui/ssetting.c:76
 msgid "_exact"
 msgstr "_exacte"
 
-#: src/sdl2/gui/dlgSystem.c:77
+#: src/sdl2/sgui/ssetting.c:77
 msgid "_fast"
 msgstr "ra_pide"
 
@@ -1369,7 +1369,7 @@ msgstr "numéro: "
 
 #. Header
 #: src/alleg/agui/acass.c:148 src/alleg/agui/adisk.c:205
-#: src/sdl2/gui/dlgDisks.c:123 src/sdl2/gui/dlgTape.c:97
+#: src/sdl2/sgui/sdisk.c:123 src/sdl2/sgui/scass.c:97
 msgid "prot."
 msgstr "prot."
 
@@ -1378,7 +1378,7 @@ msgid "raw"
 msgstr "brute"
 
 #. Header
-#: src/alleg/agui/adisk.c:204 src/sdl2/gui/dlgDisks.c:122
+#: src/alleg/agui/adisk.c:204 src/sdl2/sgui/sdisk.c:122
 #: src/win/wgui/wdisk.c:472 src/win/wgui/wdisk.c:474 src/win/wgui/wdisk.c:476
 #: src/win/wgui/wdisk.c:478
 msgid "side"

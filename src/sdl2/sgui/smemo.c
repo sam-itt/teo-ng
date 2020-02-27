@@ -60,7 +60,7 @@ static SGOBJ *smemo_GetDialog(void)
 }
 
 
-static void DlgCart_Eject(char *dlgname)
+static void smemo_Eject(char *dlgname)
 {
     snprintf(dlgname, FILENAME_MAX-1, "%s", "(None)");
     memo_Eject();
@@ -68,7 +68,7 @@ static void DlgCart_Eject(char *dlgname)
 }
 
 
-static void DlgCart_Browse(char *dlgname)
+static void smemo_Browse(char *dlgname)
 {
 	char *selname, *zip_path;
 	const char *tmpname;
@@ -115,7 +115,7 @@ static void DlgCart_Browse(char *dlgname)
 /**
  * Show and process the "Cartridge" dialog
  */
-void DlgCart_Main(void)
+void smemo_Panel(void)
 {
 	int but;
     SGOBJ *cartdlg;
@@ -134,10 +134,10 @@ void DlgCart_Main(void)
         but = SDLGui_DoDialog(cartdlg, NULL, false);
 		switch(but){
          case DLGCART_BROWSE:
-            DlgCart_Browse(sFile);
+            smemo_Browse(sFile);
             break;
 		 case DLGCART_EJECT:
-            DlgCart_Eject(sFile);
+            smemo_Eject(sFile);
 			break;
         }
     }while (but != DLGCART_OK && but != SDLGUI_QUIT

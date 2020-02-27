@@ -67,7 +67,7 @@ static SGOBJ *sabout_GetDialog(void)
 /**
  * Show the "about" dialog:
  */
-void Dialog_AboutDlg(void)
+void sabout_Panel(void)
 {
     SGOBJ *aboutdlg;
 

@@ -17,17 +17,17 @@ libsdlgfx_la_SOURCES = \
 
 
 libsdlgfx_la_SOURCES += \
-	gui/dlgPrinter.c \
-	gui/dlgMain.c \
-	gui/dlgFileSelect.c \
-	gui/dlgTape.c \
-	gui/dlgAbout.c \
-	gui/dlgCart.c \
-	gui/dlgSystem.c \
-	gui/dlgAlert.c \
-	gui/sdlgui.c \
-	gui/file.c \
-	gui/scandir.c \
-	gui/screen.c \
-	gui/dlgDisks.c
+	sgui.c \
+	sgui/sprinter.c \
+	sgui/fileselect.c \
+	sgui/scass.c \
+	sgui/sabout.c \
+	sgui/smemo.c \
+	sgui/ssetting.c \
+	sgui/alert.c \
+	sgui/sdlgui.c \
+	sgui/file.c \
+	sgui/scandir.c \
+	sgui/screen.c \
+	sgui/sdisk.c
 

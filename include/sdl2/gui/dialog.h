@@ -10,14 +10,14 @@
 #include <stdbool.h>
 
 /* prototypes for gui-sdl/dlg*.c functions: */
-extern int Dialog_MainDlg(bool adjustableVolume, int da_mask);
+extern int sgui_Panel(bool adjustableVolume, int da_mask);
 
-extern void DlgSystem_Main(bool adjustableVolume);
-extern void DlgDisks_Main(int da_mask);
-extern void DlgTape_Main(void);
-extern void DlgCart_Main(void);
-extern void DlgPrinter_Main(void);
-extern void Dialog_AboutDlg(void);
+extern void ssetting_Panel(bool adjustableVolume);
+extern void sdisk_Panel(int da_mask);
+extern void scass_Panel(void);
+extern void smemo_Panel(void);
+extern void sprinter_Panel(void);
+extern void sabout_Panel(void);
 
 
 int DlgAlert_Query(const char *text);

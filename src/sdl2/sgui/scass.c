@@ -97,7 +97,7 @@ static SGOBJ *scass_GetDialog(void)
 
 
 
-static void DlgTape_Eject(char *dlgname)
+static void scass_Eject(char *dlgname)
 {
     snprintf(dlgname, FILENAME_MAX-1, "%s", _("(None)"));
     cass_Eject();
@@ -109,7 +109,7 @@ static void DlgTape_Eject(char *dlgname)
  * @diskid: id of the dialog object displaying the text (index the window
  * array)
  */
-static void DlgTape_Browse(char *dlgname, int diskid)
+static void scass_Browse(char *dlgname, int diskid)
 {
 	char *selname, *zip_path;
 	const char *tmpname;
@@ -162,7 +162,7 @@ static void DlgTape_Browse(char *dlgname, int diskid)
 	free(selname);
 }
 
-static void DlgTape_ToggleWriteProtection()
+static void scass_ToggleWriteProtection()
 {
     bool wp_active = 0;
     SGOBJ *tapedlg;
@@ -199,7 +199,7 @@ static void DlgTape_ToggleWriteProtection()
     }
 }
 
-static void DlgTape_ChangeCounter(bool down)
+static void scass_ChangeCounter(bool down)
 {
     int counter;
 
@@ -220,7 +220,7 @@ static void DlgTape_ChangeCounter(bool down)
 /**
  * Show and process the "Tape" dialog
  */
-void DlgTape_Main(void)
+void scass_Panel(void)
 {
 	int but;
     SGOBJ *tapedlg;
@@ -256,19 +256,19 @@ void DlgTape_Main(void)
 		switch(but){
          /* Choose a new disk*/
 		 case DLGTPE_BROWSE:                        
-			DlgTape_Browse(sFile, DLGTPE_NAME);
+			scass_Browse(sFile, DLGTPE_NAME);
 			break;
 		 case DLGTPE_EJECT:
-            DlgTape_Eject(sFile);
+            scass_Eject(sFile);
 			break;
          case DLGTPE_WP:
-            DlgTape_ToggleWriteProtection();
+            scass_ToggleWriteProtection();
             break;
 		 case DLGTPE_IDX_MORE:
-            DlgTape_ChangeCounter(false);
+            scass_ChangeCounter(false);
 			break;
 		 case DLGTPE_IDX_LESS:
-            DlgTape_ChangeCounter(true);
+            scass_ChangeCounter(true);
 			break;
          case DLGTPE_REWIND:
             cass_SetCounter(0);

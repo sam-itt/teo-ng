@@ -76,7 +76,7 @@ static SGOBJ *ssetting_GetDialog(void)
 /**
  * Show and process the "System" dialog
  */
-void DlgSystem_Main(bool adjustableVolume)
+void ssetting_Panel(bool adjustableVolume)
 {
 	int but;
     int volume;

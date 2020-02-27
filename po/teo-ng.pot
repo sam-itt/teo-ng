@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: teo-ng 1.9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-13 12:46+0100\n"
+"POT-Creation-Date: 2020-02-14 11:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,15 +167,15 @@ msgstr ""
 msgid "Initialization of input devices : %d joystick(s) detected)\n"
 msgstr ""
 
-#: src/alleg/asound.c:189
+#: src/alleg/asound.c:190
 msgid "Sound initialization..."
 msgstr ""
 
-#: src/alleg/asound.c:205
+#: src/alleg/asound.c:206
 msgid "error\n"
 msgstr ""
 
-#: src/alleg/agui.c:173 src/linux/ugui.c:179 src/sdl2/gui/dlgMain.c:46
+#: src/alleg/agui.c:173 src/linux/ugui.c:179 src/sdl2/sgui.c:46
 #: src/win/wgui.c:138
 msgid "Control panel"
 msgstr ""
@@ -232,7 +232,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/alleg/agui/aabout.c:90 src/sdl2/gui/dlgAbout.c:33
+#: src/alleg/agui/aabout.c:90 src/sdl2/sgui/sabout.c:33
 msgid "Authors:"
 msgstr ""
 
@@ -244,7 +244,7 @@ msgstr ""
 msgid "Licence: GPL 2.0"
 msgstr ""
 
-#: src/alleg/agui/acass.c:109 src/sdl2/gui/dlgTape.c:71
+#: src/alleg/agui/acass.c:109 src/sdl2/sgui/scass.c:71
 msgid "Tape drive"
 msgstr ""
 
@@ -253,7 +253,7 @@ msgid "k7"
 msgstr ""
 
 #: src/alleg/agui/acass.c:115 src/alleg/agui/adisk.c:155
-#: src/sdl2/gui/dlgDisks.c:79 src/sdl2/gui/dlgTape.c:74
+#: src/sdl2/sgui/sdisk.c:79 src/sdl2/sgui/scass.c:74
 msgid "prot."
 msgstr ""
 
@@ -265,9 +265,9 @@ msgstr ""
 #: src/alleg/agui/adisk.c:251 src/alleg/agui/adisk.c:283
 #: src/alleg/agui/amemo.c:152 src/alleg/agui/amemo.c:167
 #: src/linux/ugui/ucass.c:270 src/linux/ugui/udisk.c:274
-#: src/linux/ugui/umemo.c:147 src/sdl2/gui/dlgDisks.c:132
-#: src/sdl2/gui/dlgDisks.c:288 src/sdl2/gui/dlgTape.c:102
-#: src/sdl2/gui/dlgTape.c:236 src/win/wgui/wcass.c:218 src/win/wgui/wdisk.c:316
+#: src/linux/ugui/umemo.c:147 src/sdl2/sgui/sdisk.c:132
+#: src/sdl2/sgui/sdisk.c:288 src/sdl2/sgui/scass.c:102
+#: src/sdl2/sgui/scass.c:236 src/win/wgui/wcass.c:218 src/win/wgui/wdisk.c:316
 #: src/win/wgui/wmemo.c:151
 msgid "(None)"
 msgstr ""
@@ -276,7 +276,7 @@ msgstr ""
 msgid "Select a tape:"
 msgstr ""
 
-#: src/alleg/agui/adisk.c:123 src/sdl2/gui/dlgDisks.c:75
+#: src/alleg/agui/adisk.c:123 src/sdl2/sgui/sdisk.c:75
 msgid "Disk drives"
 msgstr ""
 
@@ -284,7 +284,7 @@ msgstr ""
 msgid "&Direct access"
 msgstr ""
 
-#: src/alleg/agui/adisk.c:154 src/sdl2/gui/dlgDisks.c:78
+#: src/alleg/agui/adisk.c:154 src/sdl2/sgui/sdisk.c:78
 #: src/win/wgui/wdisk.c:467 src/win/wgui/wdisk.c:469 src/win/wgui/wdisk.c:471
 #: src/win/wgui/wdisk.c:473
 msgid "side"
@@ -294,12 +294,12 @@ msgstr ""
 msgid "Select a disk:"
 msgstr ""
 
-#: src/alleg/agui/adisk.c:371 src/sdl2/gui/dlgDisks.c:247
+#: src/alleg/agui/adisk.c:371 src/sdl2/sgui/sdisk.c:247
 #, c-format
 msgid "Direct Access"
 msgstr ""
 
-#: src/alleg/agui/amemo.c:95 src/sdl2/gui/dlgCart.c:47
+#: src/alleg/agui/amemo.c:95 src/sdl2/sgui/smemo.c:47
 msgid "Cartridge drive"
 msgstr ""
 
@@ -311,7 +311,7 @@ msgstr ""
 msgid "Dot-matrix printers"
 msgstr ""
 
-#: src/alleg/agui/aprinter.c:108 src/sdl2/gui/dlgPrinter.c:60
+#: src/alleg/agui/aprinter.c:108 src/sdl2/sgui/sprinter.c:60
 msgid "Save into:"
 msgstr ""
 
@@ -348,7 +348,7 @@ msgid "Select a folder:"
 msgstr ""
 
 #: src/alleg/agui/asetting.c:96 src/linux/ugui/usetting.c:208
-#: src/sdl2/gui/dlgPrinter.c:82 src/sdl2/gui/dlgSystem.c:48 src/win/wgui.c:146
+#: src/sdl2/sgui/sprinter.c:82 src/sdl2/sgui/ssetting.c:48 src/win/wgui.c:146
 msgid "Settings"
 msgstr ""
 
@@ -368,7 +368,7 @@ msgstr ""
 msgid "&Sound"
 msgstr ""
 
-#: src/alleg/agui/asetting.c:102 src/sdl2/gui/dlgSystem.c:60
+#: src/alleg/agui/asetting.c:102 src/sdl2/sgui/ssetting.c:60
 msgid "Memory:"
 msgstr ""
 
@@ -376,239 +376,243 @@ msgstr ""
 msgid "&Interlaced video"
 msgstr ""
 
-#: src/dos/ddebug.c:86 src/dos/dmemmng.c:120
+#: src/dos/ddebug.c:87 src/dos/dmemmng.c:121
 msgid "Commands:"
 msgstr ""
 
-#: src/dos/ddebug.c:87
+#: src/dos/ddebug.c:88
 msgid " c: continue"
 msgstr ""
 
-#: src/dos/ddebug.c:88
+#: src/dos/ddebug.c:89
 msgid " n: run next locale instruction"
 msgstr ""
 
-#: src/dos/ddebug.c:89
+#: src/dos/ddebug.c:90
 msgid " s: run next instruction"
 msgstr ""
 
-#: src/dos/ddebug.c:90
+#: src/dos/ddebug.c:91
 msgid " b: manage breakpoints"
 msgstr ""
 
-#: src/dos/ddebug.c:91
+#: src/dos/ddebug.c:92
 msgid " a: show TO8 screen"
 msgstr ""
 
-#: src/dos/ddebug.c:92
+#: src/dos/ddebug.c:93
 msgid " m: show TO8 memory manager"
 msgstr ""
 
-#: src/dos/ddebug.c:93
+#: src/dos/ddebug.c:94
 msgid " q: quit the debugger   "
 msgstr ""
 
-#: src/dos/ddebug.c:105
+#: src/dos/ddebug.c:106
 msgid "Commands:                     "
 msgstr ""
 
-#: src/dos/ddebug.c:106
+#: src/dos/ddebug.c:107
 msgid " b: add a breakpoint       "
 msgstr ""
 
-#: src/dos/ddebug.c:107
+#: src/dos/ddebug.c:108
 msgid " d: delete a breakpoint     "
 msgstr ""
 
-#: src/dos/ddebug.c:108
+#: src/dos/ddebug.c:109
 msgid " q: quit                      "
 msgstr ""
 
-#: src/dos/ddebug.c:128
+#: src/dos/ddebug.c:129
 msgid "      PIA 6846 system         "
 msgstr ""
 
-#: src/dos/ddebug.c:130
+#: src/dos/ddebug.c:131
 msgid "      PIA 6821 system         "
 msgstr ""
 
-#: src/dos/ddebug.c:132
+#: src/dos/ddebug.c:133
 msgid "   PIA 6821 music and games   "
 msgstr ""
 
-#: src/dos/ddebug.c:140
+#: src/dos/ddebug.c:141
 msgid "     Memory pages status      "
 msgstr ""
 
-#: src/dos/ddebug.c:209
+#: src/dos/ddebug.c:210
 #, c-format
 msgid "ROM cartridge page    : %d"
 msgstr ""
 
-#: src/dos/ddebug.c:212
+#: src/dos/ddebug.c:213
 #, c-format
 msgid "RAM cartridge page    : %d"
 msgstr ""
 
-#: src/dos/ddebug.c:215
+#: src/dos/ddebug.c:216
 #, c-format
 msgid "VRAM page             : %d"
 msgstr ""
 
-#: src/dos/ddebug.c:218
+#: src/dos/ddebug.c:219
 #, c-format
 msgid "RAM page (register)   : %d"
 msgstr ""
 
-#: src/dos/ddebug.c:221
+#: src/dos/ddebug.c:222
 #, c-format
 msgid "RAM page (PIA)        : %d"
 msgstr ""
 
-#: src/dos/ddebug.c:277
+#: src/dos/ddebug.c:278
 msgid "address: "
 msgstr ""
 
-#: src/dos/ddebug.c:287
+#: src/dos/ddebug.c:288
 msgid "number: "
 msgstr ""
 
-#: src/dos/ddebug.c:296
+#: src/dos/ddebug.c:297
 msgid "         Breakpoint          "
 msgstr ""
 
-#: src/dos/ddebug.c:447
+#: src/dos/ddebug.c:448
 msgid "               MC6809E Disassembler              "
 msgstr ""
 
-#: src/dos/dmain.c:587 src/linux/umain.c:625 src/win/wmain.c:548
+#: src/dos/dmain.c:589 src/linux/umain.c:627 src/win/wmain.c:551
 msgid "Couldn't initialize Allegro, bailing out !\n"
 msgstr ""
 
-#: src/dos/dmain.c:593 src/linux/umain.c:637
+#: src/dos/dmain.c:595 src/linux/umain.c:639
 #, c-format
 msgid "Here comes %s the Thomson TO8 emulator.\n"
 msgstr ""
 
-#: src/dos/dmain.c:594 src/linux/umain.c:638
+#: src/dos/dmain.c:596 src/linux/umain.c:640
 #, c-format
 msgid ""
 "Copyright (C) 1997-%s Teo Authors: %s.\n"
 "\n"
 msgstr ""
 
-#: src/dos/dmain.c:595 src/linux/umain.c:639
+#: src/dos/dmain.c:597 src/linux/umain.c:641
 msgid "Command keys: [ESC] Control panel\n"
 msgstr ""
 
-#: src/dos/dmain.c:596
+#: src/dos/dmain.c:598
 msgid "\t[F11] Screenshot\n"
 msgstr ""
 
-#: src/dos/dmain.c:597 src/linux/umain.c:640
+#: src/dos/dmain.c:599 src/linux/umain.c:642
 msgid "\t[F12] Debugger\n"
 msgstr ""
 
-#: src/dos/dmain.c:603 src/linux/umain.c:643 src/og-xbox/xmain.c:464
-#: src/win/wmain.c:564
+#: src/dos/dmain.c:605 src/linux/umain.c:645 src/og-xbox/xmain.c:464
+#: src/win/wmain.c:567
 msgid "Emulator init..."
 msgstr ""
 
-#: src/dos/dmain.c:622
+#: src/dos/dmain.c:624
 msgid ""
 "\n"
 "Select graphic mode:\n"
 "\n"
 msgstr ""
 
-#: src/dos/dmain.c:627
+#: src/dos/dmain.c:629
 msgid "Your choice: [default 1] "
 msgstr ""
 
-#: src/dos/dmain.c:689 src/linux/umain.c:721 src/og-xbox/xmain.c:497
-#: src/win/wmain.c:636
+#: src/dos/dmain.c:691
+msgid "\n"
+msgstr ""
+
+#: src/dos/dmain.c:692 src/linux/umain.c:723 src/og-xbox/xmain.c:497
+#: src/win/wmain.c:639
 msgid "Goodbye !\n"
 msgstr ""
 
-#: src/dos/dmemmng.c:97
+#: src/dos/dmemmng.c:98
 msgid ""
 "                               TO8 memory "
 "manager                               "
 msgstr ""
 
-#: src/dos/dmemmng.c:121
+#: src/dos/dmemmng.c:122
 msgid " c: load a memory block"
 msgstr ""
 
-#: src/dos/dmemmng.c:122
+#: src/dos/dmemmng.c:123
 msgid " s: save a memory block"
 msgstr ""
 
-#: src/dos/dmemmng.c:123
+#: src/dos/dmemmng.c:124
 msgid " a: go to <address>"
 msgstr ""
 
-#: src/dos/dmemmng.c:124
+#: src/dos/dmemmng.c:125
 msgid " e: edit a byte"
 msgstr ""
 
-#: src/dos/dmemmng.c:125
+#: src/dos/dmemmng.c:126
 msgid " TAB;+,-: move around"
 msgstr ""
 
-#: src/dos/dmemmng.c:126
+#: src/dos/dmemmng.c:127
 msgid " q: quit the memory manager"
 msgstr ""
 
-#: src/dos/dmemmng.c:314
+#: src/dos/dmemmng.c:315
 msgid "Address: "
 msgstr ""
 
-#: src/dos/dmemmng.c:315
+#: src/dos/dmemmng.c:316
 msgid "New value : "
 msgstr ""
 
-#: src/dos/dmemmng.c:334 src/dos/dmemmng.c:381
+#: src/dos/dmemmng.c:335 src/dos/dmemmng.c:382
 msgid "File name: "
 msgstr ""
 
-#: src/dos/dmemmng.c:335 src/dos/dmemmng.c:382
+#: src/dos/dmemmng.c:336 src/dos/dmemmng.c:383
 msgid "Start address: "
 msgstr ""
 
-#: src/dos/dmemmng.c:342 src/dos/dmemmng.c:399
+#: src/dos/dmemmng.c:343 src/dos/dmemmng.c:400
 msgid "Error !!!"
 msgstr ""
 
-#: src/dos/dmemmng.c:354 src/dos/dmemmng.c:437
+#: src/dos/dmemmng.c:355 src/dos/dmemmng.c:438
 msgid "Finished"
 msgstr ""
 
-#: src/dos/dmemmng.c:358 src/dos/dmemmng.c:441
+#: src/dos/dmemmng.c:359 src/dos/dmemmng.c:442
 msgid "Press <space bar>"
 msgstr ""
 
-#: src/dos/dmemmng.c:383
+#: src/dos/dmemmng.c:384
 msgid "End address: "
 msgstr ""
 
-#: src/dos/dmemmng.c:386
+#: src/dos/dmemmng.c:387
 msgid "Format: 1.binary"
 msgstr ""
 
-#: src/dos/dmemmng.c:390
+#: src/dos/dmemmng.c:391
 msgid "        3.assembler"
 msgstr ""
 
-#: src/dos/dmemmng.c:489
+#: src/dos/dmemmng.c:490
 msgid "          Content of the memory           "
 msgstr ""
 
-#: src/dos/dmemmng.c:491
+#: src/dos/dmemmng.c:492
 msgid "       MC6809E Disassembler        "
 msgstr ""
 
-#: src/dos/dmemmng.c:588
+#: src/dos/dmemmng.c:589
 msgid "New address: "
 msgstr ""
 
@@ -729,8 +733,8 @@ msgstr ""
 msgid "Leave"
 msgstr ""
 
-#: src/linux/udisplay.c:661 src/linux/umain.c:621 src/linux/umain.c:666
-#: src/og-xbox/xmain.c:456 src/win/wmain.c:542
+#: src/linux/udisplay.c:662 src/linux/umain.c:623 src/linux/umain.c:668
+#: src/og-xbox/xmain.c:456 src/win/wmain.c:545
 msgid "Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)"
 msgstr ""
 
@@ -799,7 +803,7 @@ msgid "Teo on Sourceforge"
 msgstr ""
 
 #: src/linux/ugui/ucass.c:218 src/linux/ugui/udisk.c:128
-#: src/sdl2/gui/dlgDisks.c:222 src/sdl2/gui/dlgTape.c:177
+#: src/sdl2/sgui/sdisk.c:222 src/sdl2/sgui/scass.c:177
 msgid "Writing unavailable on this device."
 msgstr ""
 
@@ -834,7 +838,7 @@ msgstr ""
 msgid "Open a tape file"
 msgstr ""
 
-#: src/linux/ugui/ucass.c:494 src/sdl2/gui/dlgTape.c:84
+#: src/linux/ugui/ucass.c:494 src/sdl2/sgui/scass.c:84
 #: src/win/wgui/wcass.c:381
 msgid "Counter:"
 msgstr ""
@@ -888,7 +892,7 @@ msgid "Open a cartridge file"
 msgstr ""
 
 #: src/linux/ugui/uprinter.c:166 src/linux/ugui/uprinter.c:204
-#: src/sdl2/gui/dlgPrinter.c:66 src/win/wgui.c:154 src/win/wgui/wprinter.c:201
+#: src/sdl2/sgui/sprinter.c:66 src/win/wgui.c:154 src/win/wgui/wprinter.c:201
 msgid "Printer"
 msgstr ""
 
@@ -900,7 +904,7 @@ msgstr ""
 msgid "Select the folder to save in"
 msgstr ""
 
-#: src/linux/ugui/uprinter.c:230 src/sdl2/gui/dlgPrinter.c:83
+#: src/linux/ugui/uprinter.c:230 src/sdl2/sgui/sprinter.c:83
 #: src/win/wgui/wprinter.c:205
 msgid "Double spacing"
 msgstr ""
@@ -957,38 +961,38 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: src/linux/umain.c:140 src/win/wmain.c:109
+#: src/linux/umain.c:140 src/win/wmain.c:110
 msgid "Cold-reset emulator"
 msgstr ""
 
-#: src/linux/umain.c:142 src/win/wmain.c:111
+#: src/linux/umain.c:142 src/win/wmain.c:112
 msgid "Load virtual disk (drive 0)"
 msgstr ""
 
 #: src/linux/umain.c:142 src/linux/umain.c:144 src/linux/umain.c:146
 #: src/linux/umain.c:148 src/linux/umain.c:150 src/linux/umain.c:152
-#: src/win/wmain.c:111 src/win/wmain.c:113 src/win/wmain.c:115
-#: src/win/wmain.c:117 src/win/wmain.c:119 src/win/wmain.c:121
+#: src/win/wmain.c:112 src/win/wmain.c:114 src/win/wmain.c:116
+#: src/win/wmain.c:118 src/win/wmain.c:120 src/win/wmain.c:122
 msgid "FILE"
 msgstr ""
 
-#: src/linux/umain.c:144 src/win/wmain.c:113
+#: src/linux/umain.c:144 src/win/wmain.c:114
 msgid "Load virtual disk (drive 1)"
 msgstr ""
 
-#: src/linux/umain.c:146 src/win/wmain.c:115
+#: src/linux/umain.c:146 src/win/wmain.c:116
 msgid "Load virtual disk (drive 2)"
 msgstr ""
 
-#: src/linux/umain.c:148 src/win/wmain.c:117
+#: src/linux/umain.c:148 src/win/wmain.c:118
 msgid "Load virtual disk (drive 3)"
 msgstr ""
 
-#: src/linux/umain.c:150 src/win/wmain.c:119
+#: src/linux/umain.c:150 src/win/wmain.c:120
 msgid "Load a tape"
 msgstr ""
 
-#: src/linux/umain.c:152 src/win/wmain.c:121
+#: src/linux/umain.c:152 src/win/wmain.c:122
 msgid "Load a cartridge"
 msgstr ""
 
@@ -1016,17 +1020,17 @@ msgstr ""
 msgid "%s: File %s not found, not copying empty disk to user folder %s\n"
 msgstr ""
 
-#: src/linux/umain.c:632 src/og-xbox/xmain.c:459 src/win/wmain.c:557
+#: src/linux/umain.c:634 src/og-xbox/xmain.c:459 src/win/wmain.c:560
 #, c-format
 msgid "could not initialize sdl2: %s\n"
 msgstr ""
 
-#: src/linux/umain.c:659 src/linux/umain.c:669 src/og-xbox/xmain.c:472
-#: src/win/wmain.c:574 src/win/wmain.c:579
+#: src/linux/umain.c:661 src/linux/umain.c:671 src/og-xbox/xmain.c:472
+#: src/win/wmain.c:577 src/win/wmain.c:582
 msgid "Unsupported graphic mode"
 msgstr ""
 
-#: src/linux/umain.c:698
+#: src/linux/umain.c:700
 msgid "Starting emulation...\n"
 msgstr ""
 
@@ -1046,131 +1050,131 @@ msgstr ""
 msgid "Insufficient memory for buffer"
 msgstr ""
 
-#: src/sdl2/gui/dlgDisks.c:111
+#: src/sdl2/sgui/sdisk.c:111
 msgid "_Direct access"
 msgstr ""
 
-#: src/sdl2/gui/dlgDisks.c:187
+#: src/sdl2/sgui/sdisk.c:187
 msgid "Warning: Writing unavailable."
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:48
+#: src/sdl2/sgui.c:48
 msgid "_Warm reset"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:49
+#: src/sdl2/sgui.c:49
 msgid "_Cold reset"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:50
+#: src/sdl2/sgui.c:50
 msgid "_Full reset"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:52
+#: src/sdl2/sgui.c:52
 msgid "_Settings"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:53
+#: src/sdl2/sgui.c:53
 msgid "_Disk drives"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:54
+#: src/sdl2/sgui.c:54
 msgid "_Tape drive"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:55
+#: src/sdl2/sgui.c:55
 msgid "Ca_rtridge"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:56
+#: src/sdl2/sgui.c:56
 msgid "_Printer"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:58
+#: src/sdl2/sgui.c:58
 msgid "_Quit"
 msgstr ""
 
-#: src/sdl2/gui/dlgMain.c:59
+#: src/sdl2/sgui.c:59
 msgid "A_bout"
 msgstr ""
 
-#: src/sdl2/gui/dlgPrinter.c:58
+#: src/sdl2/sgui/sprinter.c:58
 msgid "Dot-matrix printer"
 msgstr ""
 
-#: src/sdl2/gui/dlgPrinter.c:75
+#: src/sdl2/sgui/sprinter.c:75
 msgid "Output mode"
 msgstr ""
 
-#: src/sdl2/gui/dlgPrinter.c:76
+#: src/sdl2/sgui/sprinter.c:76
 msgid "Raw"
 msgstr ""
 
-#: src/sdl2/gui/dlgPrinter.c:77
+#: src/sdl2/sgui/sprinter.c:77
 msgid "Text"
 msgstr ""
 
-#: src/sdl2/gui/dlgPrinter.c:78
+#: src/sdl2/sgui/sprinter.c:78
 msgid "Graphic"
 msgstr ""
 
-#: src/sdl2/gui/dlgPrinter.c:84
+#: src/sdl2/sgui/sprinter.c:84
 msgid "HQ Printing"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:50
+#: src/sdl2/sgui/ssetting.c:50
 msgid "Speed:"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:51
+#: src/sdl2/sgui/ssetting.c:51
 msgid "_exact"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:52
+#: src/sdl2/sgui/ssetting.c:52
 msgid "_fast"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:54
+#: src/sdl2/sgui/ssetting.c:54
 msgid " _Sound"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:64
+#: src/sdl2/sgui/ssetting.c:64
 msgid "Interlaced _video"
 msgstr ""
 
-#: src/sdl2/gui/dlgSystem.c:66
+#: src/sdl2/sgui/ssetting.c:66
 msgid "Back to main menu"
 msgstr ""
 
-#: src/sdl2/gui/dlgTape.c:88 src/win/wgui/wcass.c:383
+#: src/sdl2/sgui/scass.c:88 src/win/wgui/wcass.c:383
 msgid "Rewind"
 msgstr ""
 
-#: src/sdl2/gui/dlgTape.c:125
+#: src/sdl2/sgui/scass.c:125
 msgid "Tape image:"
 msgstr ""
 
-#: src/sdl2/gui/dlgTape.c:151
+#: src/sdl2/sgui/scass.c:151
 msgid "Warning: writing unavailable."
 msgstr ""
 
-#: src/win/wmain.c:122
+#: src/win/wmain.c:123
 msgid "40 columns display"
 msgstr ""
 
-#: src/win/wmain.c:123
+#: src/win/wmain.c:124
 msgid "80 columns display"
 msgstr ""
 
-#: src/win/wmain.c:124
+#: src/win/wmain.c:125
 msgid "Truecolor display"
 msgstr ""
 
-#: src/win/wmain.c:125
+#: src/win/wmain.c:126
 msgid "Windowed display"
 msgstr ""
 
-#: src/win/wmain.c:426 src/win/wgui.c:276
+#: src/win/wmain.c:427 src/win/wgui.c:276
 msgid "Teo - Error"
 msgstr ""
 

@@ -16,7 +16,7 @@ SRCS += $(wildcard $(CURDIR)/src/media/printer/*.c)
 SRCS += $(wildcard $(CURDIR)/src/media/disk/*.c)
 SRCS += $(wildcard $(CURDIR)/src/media/disk/controlr/*.c)
 SRCS += $(wildcard $(CURDIR)/src/sdl2/*.c)
-SRCS += $(wildcard $(CURDIR)/src/sdl2/gui/*.c)
+SRCS += $(wildcard $(CURDIR)/src/sdl2/sgui/*.c)
 SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
 
 #NXDK_DIR = /home/samuel/dev/xbox/nxdk

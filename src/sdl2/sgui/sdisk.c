@@ -119,7 +119,7 @@ static SGOBJ *sdisk_GetDialog(void)
 }
 
 
-static void DlgDisks_EjectDisk(char *dlgname, int drive)
+static void sdisk_EjectDisk(char *dlgname, int drive)
 {
 	assert(drive >= 0 && drive < MAX_FLOPPYDRIVES);
     int pIdx;
@@ -141,7 +141,7 @@ static void DlgDisks_EjectDisk(char *dlgname, int drive)
  * @diskid: id of the dialog object displaying the text (index the window
  * array)
  */
-static void DlgDisks_BrowseDisk(char *dlgname, int drive)
+static void sdisk_BrowseDisk(char *dlgname, int drive)
 {
 	assert(drive >= 0 && drive < MAX_FLOPPYDRIVES);
 
@@ -200,7 +200,7 @@ static void DlgDisks_BrowseDisk(char *dlgname, int drive)
 	free(selname);
 }
 
-static void DlgDisks_SideNext(int drive)
+static void sdisk_SideNext(int drive)
 {
     teo.disk[drive].side++;
     if (teo.disk[drive].side >= disk[drive].side_count)
@@ -209,7 +209,7 @@ static void DlgDisks_SideNext(int drive)
 }
 
 
-static void DlgDisks_ToggleWriteProtection(int drive)
+static void sdisk_ToggleWriteProtection(int drive)
 {
     int pIdx;
     SGOBJ *diskdlg;
@@ -231,7 +231,7 @@ static void DlgDisks_ToggleWriteProtection(int drive)
 
 
 
-static void DlgDisks_EnableDirectAccess(int direct_disk)
+static void sdisk_EnableDirectAccess(int direct_disk)
 {
     int drive;
     int objIdx;
@@ -262,7 +262,7 @@ static void DlgDisks_EnableDirectAccess(int direct_disk)
  * Show and process the "Disks" dialog
  * @da_mask: bitmask that shows which host drives support direct access
  */
-void DlgDisks_Main(int da_mask)
+void sdisk_Panel(int da_mask)
 {
 	int i;
 	int but;
@@ -315,14 +315,14 @@ void DlgDisks_Main(int da_mask)
 		 case DLGDSK_2_BROWSE:                    
 		 case DLGDSK_3_BROWSE:                  
             objIdx = (but - DLGDSK_0_BROWSE)/(DLGDSK_1_BROWSE-DLGDSK_0_BROWSE);
-			DlgDisks_BrowseDisk(sFiles[objIdx], objIdx);
+			sdisk_BrowseDisk(sFiles[objIdx], objIdx);
 			break;
 		 case DLGDSK_0_EJECT:
 		 case DLGDSK_1_EJECT:
    		 case DLGDSK_2_EJECT:
    		 case DLGDSK_3_EJECT:
             objIdx = (but - DLGDSK_0_EJECT)/(DLGDSK_1_EJECT-DLGDSK_0_EJECT);
-            DlgDisks_EjectDisk(sFiles[objIdx], objIdx);
+            sdisk_EjectDisk(sFiles[objIdx], objIdx);
 			break;
          
          case DLGDSK_0_SIDE:
@@ -330,18 +330,18 @@ void DlgDisks_Main(int da_mask)
          case DLGDSK_2_SIDE:
          case DLGDSK_3_SIDE:
             objIdx=(but - DLGDSK_0_SIDE)/(DLGDSK_1_SIDE - DLGDSK_0_SIDE);
-            DlgDisks_SideNext(objIdx);
+            sdisk_SideNext(objIdx);
             break;
          case DLGDSK_0_WPROT:
          case DLGDSK_1_WPROT:
          case DLGDSK_2_WPROT:
          case DLGDSK_3_WPROT:
             objIdx=(but - DLGDSK_0_WPROT)/(DLGDSK_1_WPROT - DLGDSK_0_WPROT);
-            DlgDisks_ToggleWriteProtection(objIdx);
+            sdisk_ToggleWriteProtection(objIdx);
             break;
          case DLGDSK_DIRECT_ACCESS:
             if(da_mask)
-                DlgDisks_EnableDirectAccess(da_mask);
+                sdisk_EnableDirectAccess(da_mask);
             break;
 
         }

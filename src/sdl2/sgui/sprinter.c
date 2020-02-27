@@ -101,7 +101,7 @@ static SGOBJ *sprinter_GetDialog(void)
  * @maxlen: space available for display in the dialog box
  *
  */
-static bool DlgPrinter_BrowseDir(char *dlgname, char *confname, int maxlen)
+static bool sprinter_BrowseDir(char *dlgname, char *confname, int maxlen)
 {
 	char *selname;
     int i;
@@ -132,7 +132,7 @@ static bool DlgPrinter_BrowseDir(char *dlgname, char *confname, int maxlen)
 /**
  * Show and process the "Printer" dialog
  */
-void DlgPrinter_Main(void)
+void sprinter_Panel(void)
 {
 	int i;
     int but;
@@ -190,7 +190,7 @@ void DlgPrinter_Main(void)
         but = SDLGui_DoDialog(printerdlg, NULL, false);
 		switch(but){
             case DLGPRN_BROWSE:
-			    DlgPrinter_BrowseDir(sFile, sRealFile, printerdlg[DLGPRN_DIRECTORY].w);
+			    sprinter_BrowseDir(sFile, sRealFile, printerdlg[DLGPRN_DIRECTORY].w);
                 break;
         }
     }while (but != DLGPRN_OK && but != SDLGUI_QUIT

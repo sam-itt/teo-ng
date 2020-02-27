@@ -222,10 +222,10 @@ static void sfront_ExecutePendingCommand()
         if (sfront_windowed_mode)
             ugui_Panel();
         else
-            Dialog_MainDlg(false, 0); /*Volume adjustment diabled and direct access mask set to 0*/
+            sgui_Panel(false, 0); /*Volume adjustment diabled and direct access mask set to 0*/
 #else
         /*Volume adjustment diabled and direct access mask set to 0*/
-        Dialog_MainDlg(false, 0);
+        sgui_Panel(false, 0);
 #endif
     }
 
