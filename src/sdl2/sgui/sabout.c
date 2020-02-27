@@ -11,6 +11,7 @@
 #endif
 #include <assert.h>
 
+#include "teo.h"
 #include "dialog.h"
 #include "sdlgui.h"
 #include "gettext.h"
@@ -30,17 +31,21 @@ static SGOBJ *sabout_GetDialog(void)
         int i = 0;
         char *tmp;
 
-        tmp = std_strdup_printf("%s %s", _("Authors:"), "Gilles Fetis - Eric Botcazou");
-
         _aboutdlg = malloc(sizeof(SGOBJ)*ABOUTDLG_LEN);
 
         _aboutdlg[i++] = (SGOBJ){ SGBOX, 0, 0, 0,0, 43,25, NULL };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 13,1, 13,1, aboutstr };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 13,2, 14,1, "=============" };
+#ifdef ENABLE_FULL_CREDITS
+        tmp = std_strdup_printf("%s %s", _("Authors:"), "Gilles Fetis - Eric Botcazou");
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,4, 42,1, tmp };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,5, 42,1, "Alex Pukall - Jeremie Guillaume" };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,6, 42,1, "Francois Mouret - Samuel Devulder" };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,7, 42,1, "Samuel Cuella" };
+#else
+        tmp = std_strdup_printf("%s %s", _("Authors:"), TEO_AUTHORS);
+        _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,4, 42,1, tmp };
+#endif
 
 
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,9,  42,1, "Github: https://github.com/sam-itt/teo-ng" };

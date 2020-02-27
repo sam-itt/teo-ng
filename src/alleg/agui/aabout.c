@@ -88,9 +88,15 @@ static DIALOG *aabout_AllocDialog(void)
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  30,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
     rv[i++] = (DIALOG){ d_text_proc,        30,  50,   0,   0, 0, 0,   0,  0,     0, 0, _("Authors:") };
+#ifdef ENABLE_FULL_CREDITS
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  60,   0,   0, 0, 0,   0,  0,     0, 0, "Gilles Fétis - Eric Botcazou" };
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "Alex Pukall - Jérémie Guillaume" };
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "François Mouret - Samuel Devulder" };
+#else
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  60,   0,   0, 0, 0,   0,  0,     0, 0, TEO_AUTHORS };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "" };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "" };
+#endif
     rv[i++] = (DIALOG){ d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, _("Teo on SourceForge:") };
     rv[i++] = (DIALOG){ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "http://sourceforge.net/projects/" };
     rv[i++] = (DIALOG){ d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "                     teoemulator/" };

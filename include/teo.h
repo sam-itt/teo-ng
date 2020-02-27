@@ -49,18 +49,22 @@
  */
 
 
-#ifndef TEO_H
-#define TEO_H
-
 /* TEO_YEAR_STRING and TEO_VERSION_STR are now
  * defined by configure.ac and made into config.h
  * symbols.
  * Including it here to provide compat for the 
  * existing code base
  * */
-#define TEO_AUTHORS "Gilles Fetis, Eric Botcazou, Alexandre Pukall, Francois Mouret, Samuel Devulder, Samuel Cuella"
+#ifndef TEO_H
+#define TEO_H
 #if HAVE_CONFIG_H
 # include <config.h>
+#endif
+
+#ifdef ENABLE_FULL_CREDITS
+#define TEO_AUTHORS "Gilles Fetis, Eric Botcazou, Alexandre Pukall, Francois Mouret, Samuel Devulder, Samuel Cuella"
+#else
+#define TEO_AUTHORS PACKAGE" authors"
 #endif
 
 #if PLATFORM_OGXBOX

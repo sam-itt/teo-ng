@@ -82,9 +82,13 @@ FILETYPE VFT_APP
             VALUE "Comments", "Voir le fichier LICENCE.TXT pour les conditions "\
                               "de distribution et le fichier README.TXT pour "\
                               "les remarques générales sur l'utilisation du logiciel."
+#ifdef ENABLE_FULL_CREDITS
             VALUE "CompanyName", "Teo Developers: Gilles Fétis, Eric Botcazou, "\
                                  "Alexandre Pukall, Jérémie Guillaume, François Mouret, "\
-                                 "Samuel Devulder."
+                                 "Samuel Devulder, Samuel Cuella."
+#else
+            VALUE "CompanyName", "Teo Developers"
+#endif
             VALUE "FileDescription", "Teo - l'émulateur TO8"
             VALUE "FileVersion", TEO_VERSION_STR
             VALUE "InternalName", "TEOW.EXE"
