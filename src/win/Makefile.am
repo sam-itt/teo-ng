@@ -36,6 +36,7 @@ teo_SOURCES = \
 	wgui/wsetting.c 
 
 EXTRA_DIST= \
+	wdialog.rc.in \
 	panel.bmp \
 	thomson.bmp \
 	to8.bmp \

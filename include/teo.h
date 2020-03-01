@@ -64,7 +64,7 @@
 #ifdef ENABLE_FULL_CREDITS
 #define TEO_AUTHORS "Gilles Fetis, Eric Botcazou, Alexandre Pukall, Francois Mouret, Samuel Devulder, Samuel Cuella"
 #else
-#define TEO_AUTHORS PACKAGE" authors"
+#define TEO_AUTHORS PACKAGE_NAME" Developers"
 #endif
 
 #if PLATFORM_OGXBOX

@@ -387,6 +387,7 @@ AM_COND_IF([PLATFORM_UNIX],
 AM_COND_IF([PLATFORM_WIN32],[
     AC_CONFIG_FILES([src/win/Makefile])
     AC_CONFIG_FILES([data/nsis/teo.nsis])
+    AC_CONFIG_FILES([src/win/wdialog.rc])
 ])
 AM_COND_IF([INSTALL_DOC],[
     AC_CONFIG_FILES([doc/Makefile])
