@@ -68,6 +68,7 @@ char *std_getUserConfigDir();
 char *std_getUserDataDir();
 char *std_GetUserDataFile(char *filename);
 char *std_GetFirstExistingConfigFile(char *filename);
+char *std_GetExecutablePath(void);
 const char *std_getRootPath(void);
 extern char *std_PathAppend(const char *existing, const char *component);
 extern char *std_PathAppendMultiple(const char *existing, ...);
@@ -86,4 +87,7 @@ extern char *std_strdup_printf (char *fmt, ...) __attribute__ ((format (printf, 
 char *std_vastrdup_printf (char *fmt, va_list ap);
 extern size_t std_snprintf (char *dest, size_t size, const char*fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
+#ifndef HAVE_GET_CURRENT_DIR_NAME
+char *get_current_dir_name(void);
+#endif
 #endif

@@ -47,6 +47,8 @@
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
+   #include <errno.h>
+   #include <stdint.h>
    #include <string.h>
    #include <ctype.h>
    #include <sys/stat.h>
@@ -66,6 +68,10 @@
 #ifdef PLATFORM_OGXBOX
 #include <windows.h>
 #include "og-xbox/io.h"
+#endif
+
+#if PLATFORM_OSX
+#include <mach-o/dyld.h>
 #endif
 
 #include "defs.h"
@@ -119,8 +125,16 @@ char *get_current_dir_name()
 #ifdef PLATFORM_OGXBOX
     return strdup("D:\\");
 #else
-    char* path = malloc(PATH_MAX);
-	return getcwd(path, PATH_MAX);
+	char *val;
+    char *path;
+	path  = calloc(PATH_MAX, sizeof(char));
+	if(!path) return NULL;
+	val = getcwd(path, PATH_MAX);
+	if(!val){
+		log_msgf(LOG_DEBUG,"%s: getcwd failed with errno: %d (%s)\n",__FUNCTION__,errno,strerror(errno));
+		return NULL;
+	}
+	return path;
 #endif
 }
 #endif
@@ -671,13 +685,47 @@ bool std_IsAbsolutePath(const char *filename)
 	return false;
 }
 
+
+char *std_GetExecutablePath(void)
+{
+    char *rv = NULL;
+#if PLATFORM_OSX
+    int val;
+    uint32_t size;
+   
+    size = 256 * sizeof(char);
+    rv = calloc(1, size);
+    val = _NSGetExecutablePath(rv, &size);
+    if(val == -1){ //Buffer not large enough, size has the correct size
+        rv = realloc(rv, size);
+        val = _NSGetExecutablePath(rv, &size);
+        if(!val){
+            free(rv);
+            return NULL;
+        }
+    }
+#endif
+    return rv;
+}
+
+
 const char *std_GetLocaleBaseDir(void)
 {
-#if PLATFORM_UNIX
+#if PLATFORM_UNIX && !PLATFORM_OSX
     const char *search_path[] = {
         LOCALEDIR,
         NULL
     };
+#elif PLATFORM_OSX
+    char *tmp;
+    char *search_path[2] = {NULL, NULL};
+
+    tmp = std_GetExecutablePath();
+    if(!tmp) return NULL;
+
+    std_CleanPath(tmp);
+    search_path[0] = std_PathAppend(tmp, "../Resources/share/locale");
+    free(tmp);
 #elif PLATFORM_WIN32
     char path[MAX_PATH];
     char *search_path[2] = {NULL, NULL};
@@ -725,6 +773,8 @@ const char *std_GetLocaleBaseDir(void)
 #if PLATFORM_WIN32 || PLATFORM_MSDOS
     std_free(search_path[0]);
     std_free(search_path[1]);
+#elif PLATFORM_OSX
+    std_free(search_path[0]);
 #endif
     log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
@@ -737,12 +787,27 @@ const char *std_GetLocaleBaseDir(void)
  * */
 char *std_GetTeoSystemFile(char *name, bool can_fail)
 {
-#if PLATFORM_UNIX
+#if PLATFORM_UNIX && !PLATFORM_OSX
     const char *search_path[] = {
         DATAROOTDIR"/teo", /*Debian*/
         DATAROOTDIR"/games/teo",
         NULL
     };
+#elif PLATFORM_OSX
+    char *tmp;
+    char *search_path[] = {
+        NULL,
+        DATAROOTDIR"/teo", /*Debian*/
+        DATAROOTDIR"/games/teo",
+        NULL
+    };
+
+    tmp = std_GetExecutablePath();
+    if(!tmp) return NULL;
+
+    std_CleanPath(tmp);
+    search_path[0] = std_PathAppend(tmp, "../Resources/teo");
+    free(tmp);
 #elif PLATFORM_WIN32 
     char path[MAX_PATH];
     char *search_path[2] = {NULL, NULL};
@@ -788,6 +853,8 @@ char *std_GetTeoSystemFile(char *name, bool can_fail)
 #if PLATFORM_WIN32 || PLATFORM_MSDOS || PLATFORM_OGXBOX
     std_free(search_path[0]);
     std_free(search_path[1]);
+#elif PLATFORM_OSX
+    std_free(search_path[0]);
 #endif
     if(!rv && !can_fail){
         main_ExitMessage("Error: Couldn't find mandatory file %s, bailing out\n", name);
@@ -809,8 +876,16 @@ char *std_getSystemConfigDir()
     char *rv;
 
     rv = NULL;
-#if PLATFORM_UNIX
+#if PLATFORM_UNIX && !PLATFORM_OSX
     rv = strdup(SYSCONFDIR"/teo");
+#elif PLATFORM_OSX
+    char *tmp;
+    tmp = std_GetExecutablePath();
+    if(tmp){
+        std_CleanPath(tmp);
+        rv = std_PathAppend(tmp, "../Resources/etc/teo");
+        free(tmp);
+    }
 #elif PLATFORM_WIN32
     char path[MAX_PATH];
 
