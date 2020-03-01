@@ -48,7 +48,7 @@ static SGOBJ *sabout_GetDialog(void)
 #endif
 
 
-        _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,9,  42,1, "Github: https://github.com/sam-itt/teo-ng" };
+        _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,9,  42,1, "Homepage: "PACKAGE_HOMEPAGE };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,11, 42,1, "This program is free software; you can" };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,12, 42,1, "redistribute it and/or modify it under" };
         _aboutdlg[i++] = (SGOBJ){ SGTEXT, 0, 0, 1,13, 42,1, "the terms of the GNU General Public" };

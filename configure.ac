@@ -37,6 +37,7 @@ AC_DEFUN([AC_PROG_GCR], [AC_CHECK_PROG([GCR],[glib-compile-resources],[yes])])
 AC_SUBST(PACKAGE_HOMEPAGE,[http://www.teo-ng.com])
 AC_SUBST(PACKAGE_CONTACT,[contact@teo-ng.com])
 AC_SUBST(BUILD_TIMESTAMP,`date +%s`)
+AC_DEFINE(PACKAGE_HOMEPAGE,["http://www.teo-ng.com"], [Website of the project])
 
 # For functions like asprintf, get_current_dir_name
 AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions.])

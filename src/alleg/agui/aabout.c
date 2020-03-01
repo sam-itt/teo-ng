@@ -97,9 +97,9 @@ static DIALOG *aabout_AllocDialog(void)
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  70,   0,   0, 0, 0,   0,  0,     0, 0, "" };
     rv[i++] = (DIALOG){ d_ctext_proc,      160,  80,   0,   0, 0, 0,   0,  0,     0, 0, "" };
 #endif
-    rv[i++] = (DIALOG){ d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, _("Teo on SourceForge:") };
-    rv[i++] = (DIALOG){ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, "http://sourceforge.net/projects/" };
-    rv[i++] = (DIALOG){ d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "                     teoemulator/" };
+    rv[i++] = (DIALOG){ d_text_proc,        30, 100,   0,   0, 0, 0,   0,  0,     0, 0, _(PACKAGE_NAME" homepage:") };
+    rv[i++] = (DIALOG){ d_text_proc,        30, 110,   0,   0, 0, 0,   0,  0,     0, 0, PACKAGE_HOMEPAGE };
+    rv[i++] = (DIALOG){ d_text_proc,        30, 120,   0,   0, 0, 0,   0,  0,     0, 0, "" };
     rv[i++] = (DIALOG){ d_ctext_proc,      160, 140,   0,   0, 0, 0,   0,  0,     0, 0, _("Licence: GPL 2.0") };
     rv[i++] = (DIALOG){ d_button_proc,     120, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
     rv[i++] = (DIALOG){ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL };

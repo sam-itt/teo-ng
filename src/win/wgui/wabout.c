@@ -106,8 +106,8 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
          SendMessage(aboutTitle, WM_SETFONT, (WPARAM)hTitleStyle, TRUE);
          SendMessage(aboutLicense, WM_SETFONT, (WPARAM)hLicenseStyle, TRUE);
          SendMessage(aboutCopyright, WM_SETFONT, (WPARAM)hCopyrightStyle, TRUE);
-         SetWindowText(hDlg, _("Teo - About"));
-         SetWindowText(aboutLink, _("Teo on SourceForge"));
+         SetWindowText(hDlg, _(PACKAGE_NAME" - About"));
+         SetWindowText(aboutLink, _(PACKAGE_NAME" homepage"));
          SetWindowText(aboutForum, _("Web forum"));
          char *tmp = std_strdup_printf ("Copyright © 1997-Copyright © 1997-%s\n%s", 
                                         TEO_YEAR_STRING, TEO_AUTHORS); /*TODO: free me ?*/
@@ -173,7 +173,7 @@ int CALLBACK wabout_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             case IDC_ABOUT_STATIC_LINK :
                ShellExecute(NULL, "open",
-                            "http://sourceforge.net/projects/teoemulator/",
+                            PACKAGE_HOMEPAGE,
                             0, 0, SW_SHOWNORMAL);
 
             case IDC_ABOUT_STATIC_FORUM :
