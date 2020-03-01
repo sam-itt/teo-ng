@@ -2,7 +2,7 @@ AM_CPPFLAGS = @AM_CPPFLAGS@
 ACLOCAL_AMFLAGS = -I m4
 
 MKDIR_P = mkdir -p
-
+LN_S = ln -s
 
 SUBDIRS = po . data src
 
@@ -142,3 +142,29 @@ win32-bindist:
 win32-setup:
 	@makensis $(top_srcdir)/data/nsis/teo.nsis
 	@mv $(top_srcdir)/data/nsis/teo-*.exe .
+
+macos-bundle:
+	$(eval TMPDIR := $(shell mktemp -d))
+	@rm -Rf ${CURDIR}/Teo-ng.dmg 2>/dev/null || true
+	@$(MAKE) DESTDIR=${TMPDIR} install
+	${MKDIR_P} ${TMPDIR}/image
+	${LN_S} /Applications ${TMPDIR}/image/
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app/Contents
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app/Contents/MacOS
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app/Contents/Libraries
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app/Contents/Resources
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app/Contents/Resources/share
+	${MKDIR_P} ${TMPDIR}/image/Teo-ng.app/Contents/Resources/etc
+	@cp data/teo.icns ${TMPDIR}/image/Teo-ng.app/Contents/Resources
+	@cp data/Info.plist ${TMPDIR}/image/Teo-ng.app/Contents
+	@plutil -convert binary1 ${TMPDIR}/image/Teo-ng.app/Contents/Info.plist
+	@mv ${TMPDIR}/usr/bin/teo ${TMPDIR}/image/Teo-ng.app/Contents/MacOS
+	@mv ${TMPDIR}/usr/share/locale ${TMPDIR}/image/Teo-ng.app/Contents/Resources/share
+	@mv ${TMPDIR}/usr/share/games/teo ${TMPDIR}/image/Teo-ng.app/Contents/Resources
+	@mv ${TMPDIR}/etc/teo ${TMPDIR}/image/Teo-ng.app/Contents/Resources/etc/
+	@dylibbundler -od -b -x ${TMPDIR}/image/Teo-ng.app/Contents/MacOS/teo \
+	                     -d ${TMPDIR}/image/Teo-ng.app/Contents/Libraries \
+	                     -p "@executable_path/../Libraries"
+	@hdiutil create -volname @PACKAGE_NAME@ -srcfolder ${TMPDIR}/image -ov -format UDZO @PACKAGE@.dmg
+	@rm -Rf ${TMPDIR}

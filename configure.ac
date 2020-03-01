@@ -203,6 +203,27 @@ AS_IF([test "x$platform_unix" = "xyes"],[
     AC_DEFINE(DIR_SEPARATOR,['\\'],[Char that goes between directories in a path])
 ])
 
+####################
+# Check for OS X 
+####################
+#OSX/macOS
+AC_MSG_CHECKING([if compiling for macOS(Darwin)])
+case "$host_os" in
+  darwin*) 
+    platform_osx=yes
+    ;;
+  *)
+    platform_osx=no
+    ;;
+esac
+AC_MSG_RESULT([$platform_osx])
+AM_CONDITIONAL([PLATFORM_OSX], [test "x$platform_osx" = "xyes"])
+AS_IF([test "x$platform_osx" = "xyes"],[
+    AC_DEFINE(PLATFORM_OSX,[1],[Building for OS X and alike systems])
+],[
+    AC_DEFINE(PLATFORM_OSX,[0],[Building for OS X and alike systems])
+])
+
 #Win32 specific compiler flags
 AS_IF([test "x$platform_win32" = "xyes" && test "x$enable_debug" != "xyes"],[
     CC_CHECK_CFLAGS_APPEND([-mwindows])
@@ -381,7 +402,8 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  data/Makefile
                  data/com.teo-ng.Teo.appdata.xml
-                 data/com.teo-ng.Teo.desktop])
+                 data/com.teo-ng.Teo.desktop
+                 data/Info.plist])
 AM_COND_IF([GFX_BACKEND_ALLEGRO],
            [AC_CONFIG_FILES([src/alleg/Makefile])])
 AM_COND_IF([GFX_BACKEND_SDL2],

@@ -179,6 +179,8 @@ EXTRA_DIST = \
 	keyboard.dat \
 	akeymap.ini \
 	gdk-keymap.ini \
+	teo.icns \
+	Info.plist.in \
 	cc90hfe/cc90.hfe \
 	cc90hfe/cc90.fd \
 	cc90hfe/cc90.sap \
@@ -227,8 +229,8 @@ mime_DATA = \
 
 install-data-hook:
 if PLATFORM_UNIX
-	sed -i "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	sed -i" " "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
 else
-	sed -i "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	sed -i" " "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
 endif
 
