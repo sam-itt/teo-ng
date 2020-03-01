@@ -33,7 +33,10 @@ AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as de
 AC_DEFINE(TEO_VERSION_WRC, [teo_version_wrc], [Package version constant, in a format suitable for Win32 resource files])
 
 AC_DEFUN([AC_PROG_GCR], [AC_CHECK_PROG([GCR],[glib-compile-resources],[yes])])
-AC_SUBST(WEBSITE_URL,[https://sourceforge.net/projects/teoemulator/])
+#AC_SUBST(PACKAGE_HOMEPAGE,[https://sourceforge.net/projects/teoemulator/])
+AC_SUBST(PACKAGE_HOMEPAGE,[http://www.teo-ng.com])
+AC_SUBST(PACKAGE_CONTACT,[contact@teo-ng.com])
+AC_SUBST(BUILD_TIMESTAMP,`date +%s`)
 
 # For functions like asprintf, get_current_dir_name
 AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions.])
@@ -375,7 +378,9 @@ AC_SUBST(AM_CFLAGS, [$E_AM_CFLAGS])
 AC_CONFIG_FILES([Makefile
                  po/Makefile.in
                  src/Makefile
-                 data/Makefile])
+                 data/Makefile
+                 data/com.teo-ng.Teo.appdata.xml
+                 data/com.teo-ng.Teo.desktop])
 AM_COND_IF([GFX_BACKEND_ALLEGRO],
            [AC_CONFIG_FILES([src/alleg/Makefile])])
 AM_COND_IF([GFX_BACKEND_SDL2],

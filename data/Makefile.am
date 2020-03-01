@@ -164,9 +164,9 @@ EXTRA_DIST = \
 	system/icons/stepover.ico \
 	system/icons/step.ico \
 	system/icons/run.ico \
-	net.sourceforge.Teo.appdata.xml \
-	net.sourceforge.Teo.png \
-	net.sourceforge.Teo.desktop \
+	com.teo-ng.Teo.appdata.xml.in \
+	com.teo-ng.Teo.png \
+	com.teo-ng.Teo.desktop.in \
 	teo.xml \
 	teo.ini \
 	empty.hfe \
@@ -209,15 +209,15 @@ disk_DATA = \
 	.keep
 
 app_DATA = \
-	net.sourceforge.Teo.desktop
+	com.teo-ng.Teo.desktop
 if BUILD_CC90
 app_DATA += \
 	cc90hfe/cc90hfe.desktop
 endif
 metainfo_DATA = \
-	net.sourceforge.Teo.appdata.xml
+	com.teo-ng.Teo.appdata.xml
 pixmap_DATA = \
-	net.sourceforge.Teo.png
+	com.teo-ng.Teo.png
 if BUILD_CC90
 pixmap_DATA += \
 	cc90hfe/cc90hfe.png
