@@ -76,7 +76,7 @@ AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enable G
 #graphic backend
 AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11,sdl2], [Select graphic backend])],
             [],
-            [with_gfx_backend=allegro])
+            [with_gfx_backend=sdl2])
 
 #Documentation
 AC_ARG_WITH([doc],
