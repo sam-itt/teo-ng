@@ -20,3 +20,11 @@ $ make
 
 Cross-compile for MS-DOS or Win32 using --host= and your cross compiler
 basename
+
+
+
+Known issues
+----------------
+- MS-DOS: Automatic sound card detection *can* fail. If that occurs
+you can still manually configure correct settings (card type, port,
+DMA channel and IRQ #) in the allegro.cfg config file.

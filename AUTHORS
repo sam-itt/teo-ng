@@ -1,10 +1,11 @@
-Teo emulator originally written by: Gilles Fetis, Eric Botcazou, Alexandre Pukall, 
-                                    Francois Mouret, Samuel Devulder
-
 Teo-ng a continuation of teo, started by Samuel Cuella, brings improvements such as:
 -Allegro(which provides joystick supprot) on Linux instead of X11 only. 
--SDL2 port for Linux and Win32
+-SDL2 port for Linux and Win32 (with virtual keyboard)
 -Original Xbox port using SDL2 and nxdk
 -Gettext instead of static strings for all platforms, including MS-DOS
 -Autotools-enabled build system which supports cross-compiling from Linux
  to MS-DOS (DJGPP) and Win32(mingw)
+
+Teo emulator originally written by: Gilles Fetis, Eric Botcazou, Alexandre Pukall, 
+                                    Francois Mouret, Samuel Devulder
+
