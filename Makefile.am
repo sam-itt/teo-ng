@@ -15,13 +15,11 @@ SUBDIRS += doc
 endif
 
 EXTRA_DIST=	\
-	m4/ChangeLog  \
-	LISEZMOI.txt \
-	licence-fr.txt \
-	licence-en.txt \
-	README.txt \
-	change-en.log \
-	change-fr.log \
+	README.md \
+	CHANGELOG.md \
+	ChangeLog \
+	Makefile.ogxbox \
+	config.h.ogxbox \
 	include/to8keys.h \
 	include/alleg/akeybint.h \
 	include/alleg/afront.h \
@@ -104,7 +102,9 @@ EXTRA_DIST=	\
 	include/og-xbox/sys/stat.h \
 	include/og-xbox/_mingw_off_t.h \
 	include/og-xbox/dirent.h \
-	include/og-xbox/io.h 
+	include/og-xbox/io.h \
+	src/og-xbox/xmain.c \
+	src/og-xbox/strcasecmp.c
 
 #end of autotools standard stuff. Bespoke rules to create bin dist for win32/MSDOS
 DIR := ${CURDIR}

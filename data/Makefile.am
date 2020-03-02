@@ -229,8 +229,10 @@ mime_DATA = \
 
 install-data-hook:
 if PLATFORM_UNIX
-	sed -i" " "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@sed -i.bak "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@rm $(DESTDIR)/$(teoconfdir)/teo.ini.bak
 else
-	sed -i" " "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@sed -i.bak "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@rm $(DESTDIR)/$(teoconfdir)/teo.ini.bak
 endif
 

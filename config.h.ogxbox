@@ -7,6 +7,9 @@
 /* Char that goes between directories in a path */
 #define DIR_SEPARATOR '\\'
 
+/* Disable gettext for the xbox*/
+#define ENABLE_NLS 0
+
 /* Use GTK for debugger GUI */
 /* #undef ENABLE_GTK_DEBUGGER */
 
@@ -149,11 +152,14 @@
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
 
+/* Website of the project */
+#define PACKAGE_HOMEPAGE "http://www.teo-ng.com"
+
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "Teo-ng"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Teo-ng 1.9.0"
+#define PACKAGE_STRING "Teo-ng 0.9.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "teo-ng"
@@ -162,7 +168,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.9.0"
+#define PACKAGE_VERSION "0.9.0"
 
 /* Building for MS-DOS and alike systems */
 #define PLATFORM_MSDOS 0
@@ -177,19 +183,19 @@
 #define STDC_HEADERS 1
 
 /* Package version constant, as defined in existing code base */
-#define TEO_VERSION_STR "1.9.0"
+#define TEO_VERSION_STR "0.9.0"
 
 /* Package version constant, in a format suitable for Win32 resource files */
-#define TEO_VERSION_WRC 1, 9, 0, 0
+#define TEO_VERSION_WRC 0, 9, 0, 0
 
 /* Release year matching package version, as defined in existing code base */
-#define TEO_YEAR_STRING "2019"
+#define TEO_YEAR_STRING "2020"
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "1.9.0"
+#define VERSION "0.9.0"
 
 /* Use SDL2 features that were not in SDL1.2 */
 #define WITH_SDL2 1

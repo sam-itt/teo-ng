@@ -20,10 +20,10 @@ SRCS += $(wildcard $(CURDIR)/src/sdl2/sgui/*.c)
 SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
 
 #NXDK_DIR = /home/samuel/dev/xbox/nxdk
-NXDK_DIR = /home/samuel/dev/xbox/mine/nxdk
+#NXDK_DIR = /home/samuel/dev/xbox/mine/nxdk
 NXDK_SDL = y
-#DEBUG=y
 DEBUG=n
+#DEBUG=y
 
 CFLAGS += -I$(CURDIR)         \
           -I$(CURDIR)/include         \
@@ -46,7 +46,7 @@ config:
 cp_files:
 	@mkdir -p $(OUTPUT_DIR)
 	cp -R data/system $(OUTPUT_DIR)/
-	cp -R /usr/share/games/teo/roms $(OUTPUT_DIR)/
+#	cp -R /usr/share/games/teo/roms $(OUTPUT_DIR)/
 	cp data/sdl-keymap.ini $(OUTPUT_DIR)/
 	cp data/teo.ini $(OUTPUT_DIR)/
 	sed -i 's#\$${romsdir}#D:\\roms#' $(OUTPUT_DIR)/teo.ini
@@ -54,5 +54,3 @@ cp_files:
 	cp data/keyboard.bmp $(OUTPUT_DIR)/
 	cp data/led-on.bmp $(OUTPUT_DIR)/
 	cp data/led-off.bmp $(OUTPUT_DIR)/
-	cp /home/samuel/.local/share/teo/autosave.img $(OUTPUT_DIR)/
-	ln -sf /home/samuel/teo/github/teo/teo.iso /tmp/
