@@ -3,19 +3,12 @@
 #CFLAGS="-g"
 AC_PREREQ([2.69])
 
-#While in dev cycle
-#m4_define(teo_major_version,[0])
-#m4_define(teo_minor_version,[9999])
-#m4_define(teo_micro_version,[0])
-#m4_define(teo_nano_version,[0])
-
-# Releases
-m4_define(teo_major_version,[1])
-m4_define(teo_minor_version,[9])
+# Version 
+m4_define(teo_major_version,[0])
+m4_define(teo_minor_version,[9999])
 m4_define(teo_micro_version,[0])
 m4_define(teo_nano_version,[0])
 
-#m4_define(teo_version,[0.9999])
 #nano intentionaly left out, only used in windows dialog
 m4_define([teo_version], [teo_major_version.teo_minor_version.teo_micro_version])
 m4_define([teo_version_wrc], [teo_major_version, teo_minor_version, teo_micro_version, teo_nano_version])
