@@ -159,7 +159,7 @@
 #define PACKAGE_NAME "Teo-ng"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Teo-ng 0.9.0"
+#define PACKAGE_STRING "Teo-ng 2.0.0b"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "teo-ng"
@@ -168,7 +168,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.9.0"
+#define PACKAGE_VERSION "2.0.0b"
 
 /* Building for MS-DOS and alike systems */
 #define PLATFORM_MSDOS 0
@@ -183,10 +183,10 @@
 #define STDC_HEADERS 1
 
 /* Package version constant, as defined in existing code base */
-#define TEO_VERSION_STR "0.9.0"
+#define TEO_VERSION_STR "2.0.0b"
 
 /* Package version constant, in a format suitable for Win32 resource files */
-#define TEO_VERSION_WRC 0, 9, 0, 0
+#define TEO_VERSION_WRC 2, 0, 0b, 0
 
 /* Release year matching package version, as defined in existing code base */
 #define TEO_YEAR_STRING "2020"
@@ -195,7 +195,7 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "0.9.0"
+#define VERSION "2.0.0b"
 
 /* Use SDL2 features that were not in SDL1.2 */
 #define WITH_SDL2 1

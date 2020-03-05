@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-14 11:11+0100\n"
+"POT-Creation-Date: 2020-03-03 15:10+0100\n"
 "PO-Revision-Date: 2020-02-07 11:37+0100\n"
 "Last-Translator:  <samuel.cuella@gmail.com>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -232,15 +232,16 @@ msgstr "Toute la mémoire RAM sera effacée."
 msgid "Cancel"
 msgstr "Annu_ler"
 
-#: src/alleg/agui/aabout.c:90 src/sdl2/sgui/sabout.c:33
+#: src/alleg/agui/aabout.c:90 src/sdl2/sgui/sabout.c:40
+#: src/sdl2/sgui/sabout.c:46
 msgid "Authors:"
 msgstr "Auteurs:"
 
-#: src/alleg/agui/aabout.c:94
-msgid "Teo on SourceForge:"
-msgstr "Teo sur SourceForge"
+#: src/alleg/agui/aabout.c:100
+msgid " homepage:"
+msgstr ""
 
-#: src/alleg/agui/aabout.c:97
+#: src/alleg/agui/aabout.c:103
 msgid "Licence: GPL 2.0"
 msgstr "Licence: GPL 2.0"
 
@@ -284,9 +285,8 @@ msgstr "Lecteurs de disquettes"
 msgid "&Direct access"
 msgstr "Accès &direct"
 
-#: src/alleg/agui/adisk.c:154 src/sdl2/sgui/sdisk.c:78
-#: src/win/wgui/wdisk.c:467 src/win/wgui/wdisk.c:469 src/win/wgui/wdisk.c:471
-#: src/win/wgui/wdisk.c:473
+#: src/alleg/agui/adisk.c:154 src/sdl2/sgui/sdisk.c:78 src/win/wgui/wdisk.c:467
+#: src/win/wgui/wdisk.c:469 src/win/wgui/wdisk.c:471 src/win/wgui/wdisk.c:473
 msgid "side"
 msgstr "face"
 
@@ -828,9 +828,9 @@ msgstr ""
 "Redémarre à froid et \n"
 "efface la mémoire RAM"
 
-#: src/linux/ugui/uabout.c:83
-msgid "Teo on Sourceforge"
-msgstr "Teo sur SourceForge"
+#: src/linux/ugui/uabout.c:83 src/win/wgui/wabout.c:110
+msgid " homepage"
+msgstr ""
 
 #: src/linux/ugui/ucass.c:218 src/linux/ugui/udisk.c:128
 #: src/sdl2/sgui/sdisk.c:222 src/sdl2/sgui/scass.c:177
@@ -868,8 +868,7 @@ msgstr "Vide la liste des fichiers"
 msgid "Open a tape file"
 msgstr "Ouvrir un fichier cassette"
 
-#: src/linux/ugui/ucass.c:494 src/sdl2/sgui/scass.c:84
-#: src/win/wgui/wcass.c:381
+#: src/linux/ugui/ucass.c:494 src/sdl2/sgui/scass.c:84 src/win/wgui/wcass.c:381
 msgid "Counter:"
 msgstr "Compteur:"
 
@@ -1221,12 +1220,10 @@ msgid "Teo - Warning"
 msgstr "Teo - Attention"
 
 #: src/win/wgui/wabout.c:109
-msgid "Teo - About"
+#, fuzzy
+#| msgid "Teo - About"
+msgid " - About"
 msgstr "Teo - A propos"
-
-#: src/win/wgui/wabout.c:110
-msgid "Teo on SourceForge"
-msgstr "Teo sur SourceForge"
 
 #: src/win/wgui/wabout.c:111
 msgid "Web forum"
@@ -1318,6 +1315,15 @@ msgid ""
 msgstr ""
 "Exécute le code machine pas à pas\n"
 "mais ne saute pas aux sous-programmes"
+
+#~ msgid "Teo on SourceForge:"
+#~ msgstr "Teo sur SourceForge"
+
+#~ msgid "Teo on Sourceforge"
+#~ msgstr "Teo sur SourceForge"
+
+#~ msgid "Teo on SourceForge"
+#~ msgstr "Teo sur SourceForge"
 
 #~ msgid ""
 #~ " 1. 40 columns mode 16 colors\n"

@@ -4,9 +4,9 @@
 AC_PREREQ([2.69])
 
 # Version 
-m4_define(teo_major_version,[0])
-m4_define(teo_minor_version,[9999])
-m4_define(teo_micro_version,[0])
+m4_define(teo_major_version,[2])
+m4_define(teo_minor_version,[0])
+m4_define(teo_micro_version,[0b])
 m4_define(teo_nano_version,[0])
 
 #nano intentionaly left out, only used in windows dialog
