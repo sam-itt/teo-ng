@@ -138,12 +138,10 @@ Section "Teo" BfWSection
 
 ;Licence and stuff
 ;TODO: handle linguas
-  File "${top_srcdir}/README.TXT"
-  File "${top_srcdir}/LISEZMOI.TXT"
-  File "${top_srcdir}/change-en.log"
-  File "${top_srcdir}/change-fr.log"
-  File "${top_srcdir}/licence-en.txt"
-  File "${top_srcdir}/licence-fr.txt"
+  File "${top_srcdir}/README.md"
+  File "${top_srcdir}/CHANGELOG.md"
+  File "${top_srcdir}/AUTHORS"
+  File "${top_srcdir}/COPYING"
 
 ;Gettext PO-files
   SetOutPath "$INSTDIR\fr\LC_MESSAGES"
