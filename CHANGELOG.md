@@ -1,4 +1,4 @@
-## [0.0.9b] - 2020-03-XX
+## [2.0.0b] - 2020-03-06
 
 ### Added
 - Allegro support on Linux (joystick support and fullscreen enabled)
