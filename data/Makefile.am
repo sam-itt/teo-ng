@@ -29,6 +29,15 @@ mimedir=$(datadir)/mime/packages
 bindatadir = $(bindir)
 libdatadir = $(libdir)
 
+teodata_DATA = \
+	empty.hfe
+if GFX_BACKEND_SDL2
+teodata_DATA += \
+	keyboard.bmp \
+	led-on.bmp \
+	led-off.bmp
+endif
+
 teoconf_DATA = \
 	.keep \
 	teo.ini
@@ -41,6 +50,10 @@ if GFX_BACKEND_GTK_X11
 teoconf_DATA += \
 	gdk-keymap.ini
 endif
+if GFX_BACKEND_SDL2
+teoconf_DATA += \
+	sdl-keymap.ini
+endif
 
 if PLATFORM_MSDOS
 bindata_DATA = \
@@ -51,11 +64,24 @@ endif
 if PLATFORM_WIN32
 libdata_DATA = \
 	libpng3.dll \
-	alleg40.dll \
 	libpng16.dll \
-	alleg44.dll \
-	zlib1.dll 
+	zlib1.dll \
+	libiconv-2.dll \
+	libintl-8.dll \
+	libgcc_s_sjlj-1.dll
+if GFX_BACKEND_ALLEGRO
+libdata_DATA += \
+	alleg40.dll \
+	alleg44.dll
 endif
+
+if GFX_BACKEND_SDL2
+libdata_DATA += \
+	SDL2.dll
+endif
+
+endif #PLATFORM_WIN32
+
 
 printer612_DATA = \
 	system/printer/612/elitc.txt \
@@ -138,17 +164,23 @@ EXTRA_DIST = \
 	system/icons/stepover.ico \
 	system/icons/step.ico \
 	system/icons/run.ico \
-	net.sourceforge.Teo.appdata.xml \
-	net.sourceforge.Teo.png \
-	net.sourceforge.Teo.desktop \
+	com.teo-ng.Teo.appdata.xml.in \
+	com.teo-ng.Teo.png \
+	com.teo-ng.Teo.desktop.in \
 	teo.xml \
 	teo.ini \
 	empty.hfe \
+	keyboard.bmp \
+	led-on.bmp \
+	led-off.bmp \
+	sdl-keymap.ini \
 	allegro.cfg \
 	language.dat \
 	keyboard.dat \
 	akeymap.ini \
 	gdk-keymap.ini \
+	teo.icns \
+	Info.plist.in \
 	cc90hfe/cc90.hfe \
 	cc90hfe/cc90.fd \
 	cc90hfe/cc90.sap \
@@ -160,6 +192,10 @@ EXTRA_DIST = \
 	libpng16.dll \
 	alleg44.dll \
 	alleg40.dll \
+	SDL2.dll \
+	libiconv-2.dll \
+	libintl-8.dll \
+	libgcc_s_sjlj-1.dll \
 	.keep
 
 userrom_DATA = \
@@ -175,15 +211,15 @@ disk_DATA = \
 	.keep
 
 app_DATA = \
-	net.sourceforge.Teo.desktop
+	com.teo-ng.Teo.desktop
 if BUILD_CC90
 app_DATA += \
 	cc90hfe/cc90hfe.desktop
 endif
 metainfo_DATA = \
-	net.sourceforge.Teo.appdata.xml
+	com.teo-ng.Teo.appdata.xml
 pixmap_DATA = \
-	net.sourceforge.Teo.png
+	com.teo-ng.Teo.png
 if BUILD_CC90
 pixmap_DATA += \
 	cc90hfe/cc90hfe.png
@@ -193,8 +229,10 @@ mime_DATA = \
 
 install-data-hook:
 if PLATFORM_UNIX
-	sed -i "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@sed -i.bak "s@\$${romsdir}@$(userromdir)@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@rm $(DESTDIR)/$(teoconfdir)/teo.ini.bak
 else
-	sed -i "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@sed -i.bak "s@\$${romsdir}@@g" $(DESTDIR)/$(teoconfdir)/teo.ini
+	@rm $(DESTDIR)/$(teoconfdir)/teo.ini.bak
 endif
 

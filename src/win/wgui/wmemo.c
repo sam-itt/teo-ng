@@ -39,10 +39,13 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               24/10/2012 10/05/2014
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des cartouches.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -56,6 +59,7 @@
 #include "errors.h"
 #include "media/memo.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 static int entry_max = 0;
 static int combo_index = 0;
@@ -144,7 +148,7 @@ static void add_combo_entry (HWND hWnd, const char *name, const char *path)
  */
 static void init_combo (HWND hWnd)
 {
-    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)", "");
+    add_combo_entry (hWnd, _("(None)"), "");
 }
 
 
@@ -200,11 +204,21 @@ static void open_file (HWND hWnd)
    memset(&ofn, 0, sizeof(OPENFILENAME));
    ofn.lStructSize = sizeof(OPENFILENAME);
    ofn.hwndOwner = hWnd;
-   ofn.lpstrFilter = is_fr?"Fichiers M7\0*.m7\0":"M7 files\0*.m7\0";
+   /*Gettext can't handle in-string \0. They are encoded
+    * as \a(bell) and in-place converted to suit format specified
+    * for OPENFILENAME lpstrFilter*/
+   char *_filter = strdup( _("M7 files\a*.m7\a"));
+   int filter_len = strlen(_filter);
+   for(int i = 0; i < filter_len; i++){
+       if(_filter[i] == '\a')
+           _filter[i] = '\0';
+   }
+   ofn.lpstrFilter = _filter;
+
    ofn.nFilterIndex = 1;
    ofn.lpstrFile = current_file;
    ofn.nMaxFile = BUFFER_SIZE;
-   ofn.lpstrTitle = is_fr?"Choisissez votre cartouche:":"Choose your cartridge:";
+   ofn.lpstrTitle = _("Select a cartridge:");
    ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
    ofn.lpstrDefExt ="m7";
 
@@ -229,6 +243,7 @@ static void open_file (HWND hWnd)
           update_params(hWnd);
       }
    }
+   free(_filter);
 }
 
 
@@ -304,12 +319,10 @@ int CALLBACK wmemo_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
          /* initialisation de l'info-bulle */
          wgui_CreateTooltip (hWnd,
                              IDC_MEMO7_EJECT_BUTTON,
-                             is_fr?"Vider la liste des fichiers"
-                                  :"Empty the file list");
+                             _("Clear the file list"));
          wgui_CreateTooltip (hWnd,
                              IDC_MEMO7_MORE_BUTTON,
-                             is_fr?"Ouvrir un fichier cartouche"
-                                  :"Open a cartridge file");
+                             _("Open a cartridge file"));
 
          update_params (hWnd);
          return TRUE;

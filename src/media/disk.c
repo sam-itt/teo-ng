@@ -60,6 +60,7 @@
 #include "main.h"
 #include "hardware.h"
 #include "errors.h"
+#include "logsys.h"
 #include "media/disk.h"
 #include "media/disk/sap.h"
 #include "media/disk/hfe.h"
@@ -437,7 +438,7 @@ void disk_WriteTrack (void)
      && (disk[dkcurr].drv->track.last < disk[dkcurr].track_count))
     {
 #ifdef DO_PRINT
-        printf ("disk_WriteTrack drive %d track %d\n",
+        log_msgf(LOG_TRACE,"disk_WriteTrack drive %d track %d\n",
             dkcurr,
             disk[dkcurr].drv->track.last);
         fflush (stdout);
@@ -460,7 +461,7 @@ void disk_WriteTimeout (void)
         if (track_written != 0)
         {
 #ifdef DO_PRINT
-            printf ("disk_WriteTimeout drive %d track %d (%d)\n",
+            log_msgf(LOG_TRACE,"disk_WriteTimeout drive %d track %d (%d)\n",
                 dkcurr,
                 disk[dkcurr].drv->track.curr,
                 disk[dkcurr].drv->track.last);
@@ -487,7 +488,7 @@ void disk_ReadTrack (int drive)
         if (disk[drive].ReadTrack != NULL)
         {
 #ifdef DO_PRINT
-            printf ("disk_ReadTrack drive %d track %d (%d)\n",
+            log_msgf(LOG_TRACE,"disk_ReadTrack drive %d track %d (%d)\n",
                 drive,
                 disk[drive].drv->track.curr,
                 disk[drive].drv->track.last);
@@ -514,7 +515,7 @@ void disk_WriteSector (int drive)
 
         disk[drive].drv->sector = LOAD_BYTE(0x604C);
 #ifdef DO_PRINT
-        printf ("disk_WriteSector drive %d track %d sector %d\n",
+        log_msgf(LOG_TRACE,"disk_WriteSector drive %d track %d sector %d\n",
              drive,
              disk[drive].drv->track.curr,
              disk[drive].drv->sector);
@@ -542,7 +543,7 @@ void disk_ReadSector (int drive)
     
         disk[drive].drv->sector = LOAD_BYTE(0x604C);
 #ifdef DO_PRINT
-        printf ("disk_ReadSector drive %d track %d (%d) sector %d\n",
+        log_msgf(LOG_TRACE,"disk_ReadSector drive %d track %d (%d) sector %d\n",
                 drive,
                 disk[drive].drv->track.curr,
                 disk[drive].drv->track.last,
@@ -574,7 +575,7 @@ int disk_FormatTrack (int drive)
         disk_WriteTrack ();
 
 #ifdef DO_PRINT
-        printf ("disk_FormatTrack track %d drive %d\n",
+        log_msgf(LOG_TRACE,"disk_FormatTrack track %d drive %d\n",
                 disk[drive].drv->track.last,
                 drive);
         fflush (stdout);
@@ -727,17 +728,15 @@ int disk_ComputeCrc (uint8 *buffer, int length, int start_value)
  */
 int disk_CheckFile (const char filename[], int protection)
 {
-    FILE *file;
-
-    if ((file = fopen (filename, "rb+")) == NULL)
-    {
-        protection = TRUE;
-        if ((file = fopen (filename, "rb")) == NULL)
-            protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
-    }
-    file = std_fclose (file);
-
+#ifdef PLATFORM_OGXBOX
+    if(!std_FileExists(filename))
+        protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
     return protection;
+#else
+    if(access(filename, F_OK) != 0)
+        protection = error_Message(TEO_ERROR_FILE_OPEN, filename);
+    return protection;
+#endif
 }
 
 

@@ -39,10 +39,13 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               19/09/2012 18/09/2013 10/05/2014
+ *               Samuel Cuella 02/2020
  *
  *  Interface utilisateur Windows native.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -54,6 +57,7 @@
 #include "image.h"
 #include "alleg/sound.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 
 #define MIN_POS    0
@@ -94,13 +98,20 @@ static void init_bar (HWND hDlg)
    SendMessage(volume_bar, TBM_SETTICFREQ, PAGE_STEP, 0);
 
    SendMessage(volume_bar, TBM_SETPOS, TRUE, teo.setting.sound_volume);
+#if defined (GFX_BACKEND_ALLEGRO)
    asound_SetVolume(teo.setting.sound_volume);
+#endif
 }
 
 
 static void update_bar(WPARAM wParam)
 {
+#if defined (GFX_BACKEND_ALLEGRO)
    int pos = asound_GetVolume()-1;
+#else
+    int pos = teo.setting.sound_volume;
+#endif
+  
 
    switch(LOWORD(wParam))
    {
@@ -138,8 +149,10 @@ static void update_bar(WPARAM wParam)
          break;
    }
 
+#if defined (GFX_BACKEND_ALLEGRO)
    asound_SetVolume(pos+1);
    teo.setting.sound_volume = pos+1;
+#endif
 }
 
 
@@ -158,27 +171,15 @@ int CALLBACK wsetting_TabProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
    switch(uMsg)
    {
       case WM_INITDIALOG:
-#ifdef FRENCH_LANGUAGE
-         SetWindowText(GetDlgItem(hDlg, IDC_SPEED_GROUP), "Vitesse");
-         SetWindowText(GetDlgItem(hDlg, IDC_EXACT_SPEED_BUTTON), "exacte");
-         SetWindowText(GetDlgItem(hDlg, IDC_MAX_SPEED_BUTTON), "rapide");
-         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_GROUP), "Son");
-         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_CHECK), "actif");
-         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_LOW_LTEXT), "min");
-         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_HIGH_LTEXT), "max");
-         SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_GROUP), "Mémoire");
-         SetWindowText(GetDlgItem(hDlg, IDC_INTERLACED_CHECK), "vidéo entrelacée");
-#else
-         SetWindowText(GetDlgItem(hDlg, IDC_SPEED_GROUP), "Speed");
-         SetWindowText(GetDlgItem(hDlg, IDC_EXACT_SPEED_BUTTON), "exact");
-         SetWindowText(GetDlgItem(hDlg, IDC_MAX_SPEED_BUTTON), "fast");
-         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_GROUP), "Sound");
-         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_CHECK), "activated");
-         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_LOW_LTEXT), "min");
-         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_HIGH_LTEXT), "max");
-         SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_GROUP), "Memory");
-         SetWindowText(GetDlgItem(hDlg, IDC_INTERLACED_CHECK), "interlaced video");
-#endif
+         SetWindowText(GetDlgItem(hDlg, IDC_SPEED_GROUP), _("Speed"));
+         SetWindowText(GetDlgItem(hDlg, IDC_EXACT_SPEED_BUTTON), _("exact"));
+         SetWindowText(GetDlgItem(hDlg, IDC_MAX_SPEED_BUTTON), _("fast"));
+         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_GROUP), _("Sound"));
+         SetWindowText(GetDlgItem(hDlg, IDC_SOUND_CHECK), _("Enabled"));
+         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_LOW_LTEXT), _("min"));
+         SetWindowText(GetDlgItem(hDlg, IDC_VOLUME_HIGH_LTEXT), _("max"));
+         SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_GROUP), _("Memory"));
+         SetWindowText(GetDlgItem(hDlg, IDC_INTERLACED_CHECK), _("Interlaced video"));
          if (teo.setting.bank_range == 32)
          {
             SetWindowText(GetDlgItem(hDlg, IDC_MEMORY_256K_RADIO), "256k (+reset)");

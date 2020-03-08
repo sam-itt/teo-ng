@@ -37,6 +37,7 @@
  *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou 12/02/2001
  *  Modifié par: Eric Botcazou 06/03/2001
+ *               Samuel Cuella 10/2019
  *
  *  Gestion des manettes du TO8.
  */
@@ -44,6 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "logsys.h"
 #include "hardware.h"
 #include "media/joystick.h"  /* MacOS */
 
@@ -174,7 +176,7 @@ void joystick_Init(void)
     LOCK_FUNCTION(joystick_Button);
 }
 
-int joystick_symbol_to_int(char *symbol)
+int joystick_SymbolToInt(char *symbol)
 {
     if(strcmp(symbol,"TEO_JOYSTICK_CENTER") == 0) return TEO_JOYSTICK_CENTER;
     if(strcmp(symbol,"TEO_JOYSTICK_LEFT") == 0) return TEO_JOYSTICK_LEFT;
@@ -186,18 +188,17 @@ int joystick_symbol_to_int(char *symbol)
     return -1;
 }
 
-void joystick_verbose_debug_command(int value)
+void joystick_VerboseDebugCommand(int value)
 {
-    printf("Joystick command for joystick %d. Raw value is: %d, meaning: ",TEO_JOYN(value),value);
-    if(value&TEO_JOYSTICK_CENTER) printf("TEO_JOYSTICK_CENTER ");
-    if(value&TEO_JOYSTICK_UP) printf("TEO_JOYSTICK_UP ");
-    if(value&TEO_JOYSTICK_DOWN) printf("TEO_JOYSTICK_DOWN ");
-    if(value&TEO_JOYSTICK_LEFT) printf("TEO_JOYSTICK_LEFT ");
-    if(value&TEO_JOYSTICK_RIGHT) printf("TEO_JOYSTICK_RIGHT ");
-    if(value&TEO_JOYSTICK_RIGHT) printf("TEO_JOYSTICK_RIGHT ");
-    if(value&TEO_JOYSTICK_BUTTON_A) printf("TEO_JOYSTICK_BUTTON_A ");
-    if(value&TEO_JOYSTICK_BUTTON_B) printf("TEO_JOYSTICK_BUTTON_B ");
-
-    printf("\n");
+    log_msgf(LOG_DEBUG,"Joystick command for joystick %d. Raw value is: %d, meaning: ",TEO_JOYN(value),value);
+    if(value&TEO_JOYSTICK_CENTER) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_CENTER ");
+    if(value&TEO_JOYSTICK_UP) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_UP ");
+    if(value&TEO_JOYSTICK_DOWN) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_DOWN ");
+    if(value&TEO_JOYSTICK_LEFT) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_LEFT ");
+    if(value&TEO_JOYSTICK_RIGHT) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_RIGHT ");
+    if(value&TEO_JOYSTICK_RIGHT) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_RIGHT ");
+    if(value&TEO_JOYSTICK_BUTTON_A) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_BUTTON_A ");
+    if(value&TEO_JOYSTICK_BUTTON_B) log_msgf(LOG_DEBUG,"TEO_JOYSTICK_BUTTON_B ");
+    log_msgf(LOG_DEBUG,"\n");
 }
 

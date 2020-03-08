@@ -57,6 +57,7 @@
 #define DASM_LINE_LENGTH_STRING  "54"
 #undef DASM_NLINES
 #define DASM_NLINES 150
+#include "to8dbg.h"
 
 extern struct MC6809_DEBUG debug;
 

@@ -40,10 +40,13 @@
  *  Modifié par: Eric Botcazou 24/10/2003
  *               François Mouret 26/01/2010 08/2011 25/04/2012
  *               Samuel Devulder 07/2011
+ *               Samuel Cuella 02/2020
  *
  *  Gestion de l'affichage du TO8.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <string.h>
@@ -56,8 +59,11 @@
    #include <X11/extensions/XShm.h>
 #endif
 
-#include "linux/display.h"
 #include "teo.h"
+#include "std.h"
+#include "main.h"
+#include "gettext.h"
+#include "linux/display.h"
 
 
 /* variables globales */
@@ -519,7 +525,7 @@ void ugraphic_resize_lookup(int x,int y) {
     }
 
 #ifdef DEBUG
-    fprintf(stderr,"recalc OK\n");
+    log_msgf(LOG_TRACE,"recalc OK\n");
 #endif
 }
 
@@ -541,7 +547,7 @@ void ugraphic_resize_zoom() {
         last_width=attr.width;
         last_height=attr.height;
 #ifdef DEBUG
-            fprintf(stderr,"XGetWindowAttributes width=%d height=%d changed\n",attr.width,attr.height);
+            log_msgf(LOG_TRACE,"XGetWindowAttributes width=%d height=%d changed\n",attr.width,attr.height);
 #endif
             if ( ((TEO_SCREEN_W*2)==attr.width) && ((TEO_SCREEN_H*2)==attr.height) ) {
                 l_stretchBlit=0;
@@ -664,9 +670,9 @@ void ugraphic_Refresh(void)
 }
 
 
-/* ugraphic_Init:
- *  Sélectionne le visual, met en place la palette de couleurs et
- *  initialise le mécanisme de bufferisation (dirty rectangles).
+/** ugraphic_Init:
+ * Create and allocate palette, buffers and plug gfx-related
+ * teo_ callbacks
  */
 void ugraphic_Init(void)
 {
@@ -679,8 +685,7 @@ void ugraphic_Init(void)
 	    if (!XMatchVisualInfo(display, screen, 32, TrueColor, &visualinfo))
 		if (!XMatchVisualInfo(display, screen, 8, PseudoColor, &visualinfo))
 		{
-		    fprintf(stderr,is_fr?"%s: aucun visual disponible.\n":"%s: no available visual.\n",PROG_NAME);
-		    exit(EXIT_FAILURE);
+            main_ExitMessage(_("%s: no available visual.\n"),PROG_NAME);
 		}
 
     /* Initialisation de la palette de couleurs */
@@ -721,8 +726,7 @@ void ugraphic_Init(void)
 
 	    if (colormap == DefaultColormap(display, screen))
 	    {
-		fprintf(stderr,is_fr?"%s: palette de couleurs immuable.\n":"%s: immutable color palette.\n",PROG_NAME);
-		exit(EXIT_FAILURE);
+            main_ExitMessage(_("%s: immutable color palette.\n"),PROG_NAME);
 	    }
 
 	    XSetWindowColormap(display, screen_win, colormap);
@@ -775,7 +779,7 @@ void ugraphic_Init(void)
 		    XSync(display, False);
 
 		    /* enfin ... */
-		    printf(is_fr?"Extension MIT-SHM utilisÃ©e.\n":"MIT-SHM extention used.\n");
+		    main_ConsoleOutput(_("MIT-SHM extention enabled.\n"));
 		}
 	    }
 	}
@@ -793,11 +797,11 @@ void ugraphic_Init(void)
         int ret;
         ret=XGetWindowAttributes(display,screen_win,&attr);
 #ifdef DEBUG
-        fprintf(stderr,"XGetWindowAttributes ret=%d\n",ret);
+        log_msgf(LOG_TRACE,"XGetWindowAttributes ret=%d\n",ret);
 #endif
         if (ret!=0) {
 #ifdef DEBUG
-            fprintf(stderr,"XGetWindowAttributes width=%d height=%d\n",attr.width,attr.height);
+            log_msgf(LOG_TRACE,"XGetWindowAttributes width=%d height=%d\n",attr.width,attr.height);
 #endif
             if ( ((TEO_SCREEN_W*2)==attr.width) && ((TEO_SCREEN_H*2)==attr.height) ) {
                 l_stretchBlit=0;
@@ -813,18 +817,18 @@ void ugraphic_Init(void)
     }
 
 #ifdef DEBUG
-    fprintf(stderr, "buffer:  width=%d, height=%d\n", screen_buffer->width, screen_buffer->height);
-    fprintf(stderr, "         format=%s\n", screen_buffer->format==XYBitmap ? "XYBitmap" : (screen_buffer->format==XYPixmap ? "XYPixmap" : "ZPixmap"));
-    fprintf(stderr, "         byte_order=%s\n", screen_buffer->byte_order==LSBFirst ? "LSBFirst" : "MSBFirst");
-    fprintf(stderr, "         bitmap_unit=%d\n", screen_buffer->bitmap_unit);
-    fprintf(stderr, "         bitmap_bit_order=%s\n", screen_buffer->bitmap_bit_order==LSBFirst ? "LSBFirst" : "MSBFirst");
-    fprintf(stderr, "         bitmap_pad=%d\n", screen_buffer->bitmap_pad);
-    fprintf(stderr, "         depth=%d\n", screen_buffer->depth);
-    fprintf(stderr, "         bytes_per_lines=%d\n", screen_buffer->bytes_per_line);
-    fprintf(stderr, "         bits_per_pixel=%d\n",  screen_buffer->bits_per_pixel);
-    fprintf(stderr, "          red_mask=%lx\n",  screen_buffer->red_mask);
-    fprintf(stderr, "          green_mask=%lx\n",  screen_buffer->green_mask);
-    fprintf(stderr, "          blue_mask=%lx\n",  screen_buffer->blue_mask);
+    log_msgf(LOG_TRACE, "buffer:  width=%d, height=%d\n", screen_buffer->width, screen_buffer->height);
+    log_msgf(LOG_TRACE, "         format=%s\n", screen_buffer->format==XYBitmap ? "XYBitmap" : (screen_buffer->format==XYPixmap ? "XYPixmap" : "ZPixmap"));
+    log_msgf(LOG_TRACE, "         byte_order=%s\n", screen_buffer->byte_order==LSBFirst ? "LSBFirst" : "MSBFirst");
+    log_msgf(LOG_TRACE, "         bitmap_unit=%d\n", screen_buffer->bitmap_unit);
+    log_msgf(LOG_TRACE, "         bitmap_bit_order=%s\n", screen_buffer->bitmap_bit_order==LSBFirst ? "LSBFirst" : "MSBFirst");
+    log_msgf(LOG_TRACE, "         bitmap_pad=%d\n", screen_buffer->bitmap_pad);
+    log_msgf(LOG_TRACE, "         depth=%d\n", screen_buffer->depth);
+    log_msgf(LOG_TRACE, "         bytes_per_lines=%d\n", screen_buffer->bytes_per_line);
+    log_msgf(LOG_TRACE, "         bits_per_pixel=%d\n",  screen_buffer->bits_per_pixel);
+    log_msgf(LOG_TRACE, "          red_mask=%lx\n",  screen_buffer->red_mask);
+    log_msgf(LOG_TRACE, "          green_mask=%lx\n",  screen_buffer->green_mask);
+    log_msgf(LOG_TRACE, "          blue_mask=%lx\n",  screen_buffer->blue_mask);
 #endif
 
     gpl_buffer = XCreateImage(display, visualinfo.visual, visualinfo.depth, ZPixmap, 0, NULL, TEO_GPL_SIZE*2, 1, 32, 0);

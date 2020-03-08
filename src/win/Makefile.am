@@ -6,18 +6,19 @@ src_dir = $(top_srcdir)/src
 	$(WINDRES) --include-dir $(top_srcdir)/include --include-dir $(top_srcdir) -DHAVE_CONFIG_H -D_WIN32_IE=0x0300 -o $@ -i $<
 
 bin_PROGRAMS = teo
-
-#if GFX_BACKEND_ALLEGRO only supported backend for win32.
-teo_LDADD = $(src_dir)/alleg/libagfx.la $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS)
-#else
-#teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(GTK_LIBS) $(XEXT_LIBS) $(X11_LIBS) $(ALSA_LIBS)
-#endif
-teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) -I$(top_srcdir)/include
-
+teo_LDFLAGS = -static-libgcc
+teo_LDADD = $(src_dir)/libteo.la $(DEPS_LIBS) $(PNG_LIBS) $(INTLLIBS)
+if GFX_BACKEND_ALLEGRO
+teo_LDADD += $(src_dir)/alleg/libagfx.la $(GTK_LIBS)
+else
+if GFX_BACKEND_SDL2
+teo_LDADD += $(src_dir)/sdl2/libsdlgfx.la -lcomdlg32 -lcomctl32 
+endif #GFX_BACKEND_SDL2
+endif
+teo_CPPFLAGS = $(DEPS_CFLAGS) $(PNG_CFLAGS) $(SDL2_CFLAGS) -I$(top_srcdir)/include
 teo_SOURCES = \
 	wmain.c \
 	wgui.c \
-	wkeybint.c \
 	wdebug.c \
 	wdialog.rc \
 	wdebug/wdtoolb.c \
@@ -35,6 +36,7 @@ teo_SOURCES = \
 	wgui/wsetting.c 
 
 EXTRA_DIST= \
+	wdialog.rc.in \
 	panel.bmp \
 	thomson.bmp \
 	to8.bmp \

@@ -3,19 +3,12 @@
 #CFLAGS="-g"
 AC_PREREQ([2.69])
 
-#While in dev cycle
-#m4_define(teo_major_version,[0])
-#m4_define(teo_minor_version,[9999])
-#m4_define(teo_micro_version,[0])
-#m4_define(teo_nano_version,[0])
-
-# Releases
-m4_define(teo_major_version,[1])
-m4_define(teo_minor_version,[9])
-m4_define(teo_micro_version,[0])
+# Version 
+m4_define(teo_major_version,[2])
+m4_define(teo_minor_version,[0])
+m4_define(teo_micro_version,[0b])
 m4_define(teo_nano_version,[0])
 
-#m4_define(teo_version,[0.9999])
 #nano intentionaly left out, only used in windows dialog
 m4_define([teo_version], [teo_major_version.teo_minor_version.teo_micro_version])
 m4_define([teo_version_wrc], [teo_major_version, teo_minor_version, teo_micro_version, teo_nano_version])
@@ -31,7 +24,16 @@ AC_CANONICAL_HOST
 AC_DEFINE(TEO_VERSION_STR, "[teo_version]", [Package version constant, as defined in existing code base])
 AC_DEFINE(TEO_YEAR_STRING, "2019", [Release year matching package version, as defined in existing code base])
 AC_DEFINE(TEO_VERSION_WRC, [teo_version_wrc], [Package version constant, in a format suitable for Win32 resource files])
-#AC_SUBST([TEO_VERSION_WRC],[teo_version_wrc])
+
+AC_DEFUN([AC_PROG_GCR], [AC_CHECK_PROG([GCR],[glib-compile-resources],[yes])])
+#AC_SUBST(PACKAGE_HOMEPAGE,[https://sourceforge.net/projects/teoemulator/])
+AC_SUBST(PACKAGE_HOMEPAGE,[http://www.teo-ng.com])
+AC_SUBST(PACKAGE_CONTACT,[contact@teo-ng.com])
+AC_SUBST(BUILD_TIMESTAMP,`date +%s`)
+AC_DEFINE(PACKAGE_HOMEPAGE,["http://www.teo-ng.com"], [Website of the project])
+
+# For functions like asprintf, get_current_dir_name
+AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions.])
 
 #compile options
 AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug], [Build an executable with debug sybmols and all optimization turned off (default=no)])],
@@ -55,13 +57,6 @@ AC_ARG_ENABLE([extra_tools], [AS_HELP_STRING([--enable-extra-tools], [Enable ext
 
 
 
-#This is temporary until we add gettext support
-AC_ARG_WITH([language], [AS_HELP_STRING([--with-language=fr,en], [Select program messages language (default=fr)])],
-            [],
-            [with_language=fr])
-
-
-
 #options
 AC_ARG_ENABLE([gtk_panel], [AS_HELP_STRING([--enable-gtk-panel], [Enable GTK Panel when building against Allegro on Unix])],
             [],
@@ -72,9 +67,9 @@ AC_ARG_ENABLE([gtk_debugger], [AS_HELP_STRING([--enable-gtk-debugger], [Enable G
             [enable_gtk_debugger=no])
 
 #graphic backend
-AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11], [Select graphic backend])],
+AC_ARG_WITH([gfx_backend], [AS_HELP_STRING([--with-gfx-backend=allegro,gtk-x11,sdl2], [Select graphic backend])],
             [],
-            [with_gfx_backend=allegro])
+            [with_gfx_backend=sdl2])
 
 #Documentation
 AC_ARG_WITH([doc],
@@ -91,7 +86,7 @@ AM_CONDITIONAL([INSTALL_DOC], [test "x${with_doc}" = xyes])
 # Don't use the default -Wall -g -O2
 #save_CFLAGS=$CFLAGS
 AC_PROG_CC
-CFLAGS="-Wall"
+CFLAGS="-Wall -O2"
 AC_PROG_MAKE_SET
 
 
@@ -110,7 +105,30 @@ AC_TYPE_SIZE_T
 #AC_FUNC_MALLOC
 #AC_FUNC_REALLOC
 AC_FUNC_MKTIME
-AC_CHECK_FUNCS([malloc realloc atexit getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name])
+AC_CHECK_FUNCS([malloc realloc atexit access getcwd memmove memset mkdir setlocale strchr strcspn strpbrk strrchr strstr strtol vasprintf get_current_dir_name scandir alphasort])
+AM_GNU_GETTEXT([external])
+#AM_GNU_GETTEXT_VERSION([0.19])
+
+# check if the dirent structure of a d_type field and DT_UNKNOWN is defined
+AC_MSG_CHECKING(if the dirent structure of a d_type field)
+AC_LINK_IFELSE(
+[
+  AC_LANG_SOURCE([[
+    #include <dirent.h>
+
+    int main() {
+      struct dirent entry;
+      return entry.d_type == DT_UNKNOWN;
+    }
+  ]])
+],[have_dirent_d_type=yes],[have_dirent_d_type=no])
+AC_MSG_RESULT($have_dirent_d_type)
+
+if test "$have_dirent_d_type" = yes; then
+    AC_DEFINE(HAVE_DIRENT_D_TYPE, 1,
+              [Define to 1 if the dirent structure has a d_type field])
+fi
+
 
 ##########################
 # Checking target platform
@@ -172,8 +190,31 @@ AC_MSG_RESULT([$platform_unix])
 AM_CONDITIONAL(PLATFORM_UNIX, test "x$platform_unix" = "xyes")
 AS_IF([test "x$platform_unix" = "xyes"],[
     AC_DEFINE(PLATFORM_UNIX,[1],[Building for unix-compatible systems])
+    AC_DEFINE(DIR_SEPARATOR,['/'],[Char that goes between directories in a path])
 ],[
     AC_DEFINE(PLATFORM_UNIX,[0],[Building for unix-compatible systems])
+    AC_DEFINE(DIR_SEPARATOR,['\\'],[Char that goes between directories in a path])
+])
+
+####################
+# Check for OS X 
+####################
+#OSX/macOS
+AC_MSG_CHECKING([if compiling for macOS(Darwin)])
+case "$host_os" in
+  darwin*) 
+    platform_osx=yes
+    ;;
+  *)
+    platform_osx=no
+    ;;
+esac
+AC_MSG_RESULT([$platform_osx])
+AM_CONDITIONAL([PLATFORM_OSX], [test "x$platform_osx" = "xyes"])
+AS_IF([test "x$platform_osx" = "xyes"],[
+    AC_DEFINE(PLATFORM_OSX,[1],[Building for OS X and alike systems])
+],[
+    AC_DEFINE(PLATFORM_OSX,[0],[Building for OS X and alike systems])
 ])
 
 #Win32 specific compiler flags
@@ -207,6 +248,10 @@ AS_IF([test "x$enable_gtk_panel" != "xno"], [
     PKG_CHECK_MODULES([GTK], [gtk+-3.0])
     AM_CONDITIONAL(ENABLE_GTK_PANEL, true)
     AC_DEFINE(ENABLE_GTK_PANEL,[],[Use GTK for GUI])
+    AC_PROG_GCR
+    if test "x$GCR" != "xyes" ; then
+        AC_MSG_ERROR([glib-compile-resource needed for GTK/X11 backend and for GTK Panel])
+    fi
 ], [
     AM_CONDITIONAL(ENABLE_GTK_PANEL, false)
 ])
@@ -226,9 +271,14 @@ AS_CASE(["x$with_gfx_backend"],
    ["xallegro"],[
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, true)
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
+    AM_CONDITIONAL(GFX_BACKEND_SDL2, false)
     AC_DEFINE(GFX_BACKEND_ALLEGRO,[],[Use Allegro for gfx rendering])
+    AC_SUBST(GFX_BACKEND,[allegro])
     PKG_CHECK_MODULES([ALLEGRO], [allegro])
     PKG_CHECK_MODULES([PNG], [libpng])
+    AS_IF([test "x$platform_unix" = "xyes"],[
+        AC_DEFINE(ALLEGRO_UNIX,[],[Building for Allegro on Unix])
+    ],[]);
    ],
    ["xgtk-x11"],[
     AS_IF([test "x$platform_unix" != "xyes"],[
@@ -236,14 +286,29 @@ AS_CASE(["x$with_gfx_backend"],
     ],[]);
     AM_CONDITIONAL(GFX_BACKEND_GTK_X11, true)
     AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
+    AM_CONDITIONAL(GFX_BACKEND_SDL2, false)
     AC_DEFINE(GFX_BACKEND_GTK_X11,[],[Use GTK/X11 for gfx rendering])
+    AC_SUBST(GFX_BACKEND,[gtk_x11])
     PKG_CHECK_MODULES([GTK], [gtk+-3.0])
     PKG_CHECK_MODULES([XEXT], [xext])
     PKG_CHECK_MODULES([X11], [x11])
     PKG_CHECK_MODULES([ALSA], [alsa])
+    AC_PROG_GCR
+    if test "x$GCR" != "xyes" ; then
+        AC_MSG_ERROR([glib-compile-resource needed for GTK/X11 backend and for GTK Panel])
+    fi
+   ],
+   ["xsdl2"],[
+    AM_CONDITIONAL(GFX_BACKEND_GTK_X11, false)
+    AM_CONDITIONAL(GFX_BACKEND_ALLEGRO, false)
+    AM_CONDITIONAL(GFX_BACKEND_SDL2, true)
+    AC_DEFINE(GFX_BACKEND_SDL2,[],[Use SDL2 for gfx rendering])
+    AC_SUBST(GFX_BACKEND,[sdl2])
+    PKG_CHECK_MODULES([SDL2], [sdl2])
+    AC_DEFINE(WITH_SDL2,[1],[Use SDL2 features that were not in SDL1.2])
    ],
    [
-    AC_MSG_ERROR(["Valid values for --with-gfx-backend are 'allegro' and 'gtk-x11'"])
+    AC_MSG_ERROR(["Valid values for --with-gfx-backend are 'allegro','gtk-x11' and 'sdl2'"])
    ]
 )
 
@@ -321,28 +386,21 @@ if test "x$enable_debian_build" = "xyes"; then
 fi
 
 
-
-#This is temporary until we add gettext support
-AS_CASE(["x$with_language"],
-   ["xfr"],[
-    E_AM_CFLAGS+=" -DFRENCH_LANGUAGE"
-   ],
-   ["xen"],[
-    E_AM_CFLAGS+=" -DENGLISH_LANGUAGE"
-   ],
-   [
-    AC_MSG_ERROR(["Valid values for --with-language are 'fr' and 'en'"])
-   ]
-)
 AC_MSG_RESULT([$E_AM_CFLAGS])
 AC_SUBST(AM_CFLAGS, [$E_AM_CFLAGS])
 
 
 AC_CONFIG_FILES([Makefile
+                 po/Makefile.in
                  src/Makefile
-                 data/Makefile])
+                 data/Makefile
+                 data/com.teo-ng.Teo.appdata.xml
+                 data/com.teo-ng.Teo.desktop
+                 data/Info.plist])
 AM_COND_IF([GFX_BACKEND_ALLEGRO],
            [AC_CONFIG_FILES([src/alleg/Makefile])])
+AM_COND_IF([GFX_BACKEND_SDL2],
+           [AC_CONFIG_FILES([src/sdl2/Makefile])])
 AM_COND_IF([PLATFORM_MSDOS],
            [AC_CONFIG_FILES([src/dos/Makefile])])
 AM_COND_IF([PLATFORM_UNIX],
@@ -350,6 +408,7 @@ AM_COND_IF([PLATFORM_UNIX],
 AM_COND_IF([PLATFORM_WIN32],[
     AC_CONFIG_FILES([src/win/Makefile])
     AC_CONFIG_FILES([data/nsis/teo.nsis])
+    AC_CONFIG_FILES([src/win/wdialog.rc])
 ])
 AM_COND_IF([INSTALL_DOC],[
     AC_CONFIG_FILES([doc/Makefile])

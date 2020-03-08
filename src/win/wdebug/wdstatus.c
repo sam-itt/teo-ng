@@ -37,9 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
  *  Modifié par: François Mouret 15/07/2016
+ *               Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Gestion de la barre d'état.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -48,6 +52,7 @@
 #include "defs.h"
 #include "teo.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 static mc6809_clock_t prev_clock = 0;
 
@@ -78,24 +83,24 @@ void wdstatus_Display (HWND hDlg)
 
     /* display the clock */
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Horloge":"Clock", clock-prev_clock);
+    sprintf (str, "%s: %lld", _("Clock"), clock-prev_clock);
     SendMessage(hwnd, SB_SETTEXT, 0, (LPARAM)str);
     prev_clock = clock;
 
     /* display the clock */
     clock %= TEO_CYCLES_PER_FRAME;
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Frame":"Frame", clock);
+    sprintf (str, "%s: %lld", _("Frame"), clock);
     SendMessage(hwnd, SB_SETTEXT, 1, (LPARAM)str);
 
     /* display the number of the line */
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Ligne":"Line", clock/FULL_LINE_CYCLES);
+    sprintf (str, "%s: %lld", _("Line"), clock/FULL_LINE_CYCLES);
     SendMessage(hwnd, SB_SETTEXT, 2, (LPARAM)str);
 
     /* display the number of the column */
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Colonne":"Column", clock%FULL_LINE_CYCLES);
+    sprintf (str, "%s: %lld", _("Column"), clock%FULL_LINE_CYCLES);
     SendMessage(hwnd, SB_SETTEXT, 3, (LPARAM)str);
 }
 

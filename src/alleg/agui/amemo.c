@@ -40,16 +40,20 @@
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
  *                               24/10/2012
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des cartouches.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
@@ -58,32 +62,50 @@
 #include "errors.h"
 #include "std.h"
 #include "teo.h"
+#include "gettext.h"
 
 /* Chemin du fichier de la cartouche. */
 static char filename[MAX_PATH+1] = "";
 
-/* Boîte de dialogue. */
-static DIALOG m7dial[]={
-/*  dialog proc        x    y    w    h  fg bg  key flags  d1 d2  dp */
-{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL },
-#ifdef FRENCH_LANGUAGE
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Lecteur de cartouches" },
-#else
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Cartridge reader" },
-#endif
-{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "m7" },
-{ d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,     64,  40, 191,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,     260,  40,  30,  16, 0, 0, 'm', D_EXIT, 0, 0, "..." },
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
-{ NULL,                0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
-};
 
 #define M7DIAL_EJECT   3
 #define M7DIAL_LABEL   4
 #define M7DIAL_BUTTON  5
 #define M7DIAL_OK      6
+#define M7DIAL_LEN     9
+
+static DIALOG *_m7dial = NULL;
+#define amemo_GetDialog() ( _m7dial ? _m7dial : amemo_AllocDialog())
+
+/* ------------------------------------------------------------------------- */
+
+static DIALOG *amemo_AllocDialog(void)
+{
+    DIALOG *rv;
+    int i;
+
+    if(_m7dial)
+        return _m7dial;
+
+    rv = malloc(sizeof(DIALOG)*M7DIAL_LEN);
+    i = 0;
+
+/*                       dialog proc        x    y    w    h  fg bg  key flags  d1 d2  dp */
+    rv[i++] = (DIALOG){ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,   0,    0, 0, _("Cartridge drive") };
+    rv[i++] = (DIALOG){ d_text_proc,        30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "m7" };
+    rv[i++] = (DIALOG){ d_button_proc,      47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" };
+    rv[i++] = (DIALOG){ d_textbox_proc,     64,  40, 191,  16, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,     260,  40,  30,  16, 0, 0, 'm', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
+    rv[i++] = (DIALOG){ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ NULL,                0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL };
+
+    assert(i <= M7DIAL_LEN);
+
+    _m7dial = rv;
+    return rv;
+}
 
 
 /* init_filename:
@@ -104,7 +126,6 @@ static void init_filename(void)
 }
 
 
-/* ------------------------------------------------------------------------- */
 
 
 /* amemo_Panel:
@@ -115,7 +136,9 @@ void amemo_Panel(void)
     static int first=1;
     int ret;
     char *name;
+    DIALOG *m7dial;
 
+    m7dial = amemo_GetDialog();
     if (first)
     {
         /* La première fois on tente d'ouvrir le répertoire par défaut. */
@@ -126,7 +149,7 @@ void amemo_Panel(void)
         if ((name == NULL) || (*name == '\0'))
         {
             m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
-            m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+            m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", _("(None)"));
         }
         first=0;
     }
@@ -141,7 +164,7 @@ void amemo_Panel(void)
         {
             case M7DIAL_EJECT:
                 m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
-                m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", _("(None)"));
                 memo_Eject();
                 teo.command=TEO_COMMAND_COLD_RESET;
                 break;
@@ -150,7 +173,7 @@ void amemo_Panel(void)
                 init_filename();
                 std_CleanPath (filename);
                 strcat (filename, "\\");
-                if (file_select_ex(is_fr?"Choisissez votre cartouche:":"Choose your cartridge", filename, "m7",
+                if (file_select_ex(_("Select a cartridge"), filename, "m7",
                                    MAX_PATH, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
                     if (memo_Load(filename) < 0)
@@ -181,6 +204,9 @@ void amemo_Panel(void)
  */
 void amemo_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
+    DIALOG *m7dial;
+
+    m7dial = amemo_GetDialog();
     set_dialog_color(m7dial, fg_color, bg_color);
     m7dial[M7DIAL_LABEL].bg = bg_entry_color;
 }
@@ -192,6 +218,9 @@ void amemo_SetColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void amemo_Init(void)
 {
+    DIALOG *m7dial;
+
+    m7dial = amemo_GetDialog();
     if (teo.memo.label != NULL)
         m7dial[M7DIAL_LABEL].dp = std_strdup_printf ("%s", teo.memo.label);
 }
@@ -202,5 +231,8 @@ void amemo_Init(void)
  */
 void amemo_Free(void)
 {
+    DIALOG *m7dial;
+
+    m7dial = amemo_GetDialog();
     m7dial[M7DIAL_LABEL].dp = std_free (m7dial[M7DIAL_LABEL].dp);
 }

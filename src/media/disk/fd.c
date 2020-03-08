@@ -92,17 +92,17 @@ static void display_track (char *message, int drive, int track)
 {
     int i;
 
-    printf ("---------------------------------------\n");
-    printf ("FD %s drive %d track %d\n", message, drive, track);
+    log_msgf(LOG_TRACE,"---------------------------------------\n");
+    log_msgf(LOG_TRACE,"FD %s drive %d track %d\n", message, drive, track);
     for (i=0; i<disk[drive].track_size;i++)
     {
         if ((i&15) == 0)
-            printf ("\n%04x   ", i);
-        printf ("%02x%02x ",
+            log_msgf(LOG_TRACE,"\n%04x   ", i);
+        log_msgf(LOG_TRACE,"%02x%02x ",
             disk[drive].clck[i],
             disk[drive].data[i]);
     }
-    printf ("\n\n");
+    log_msgf(LOG_TRACE,"\n\n");
 }
 #endif
 
@@ -303,7 +303,6 @@ static int file_protection (const char filename[], int protection)
         file_size = std_FileSize(filename);
         for (fd_type=0; file_size != fd_list[fd_type].file_size; fd_type++){
            if (fd_type == (NUM_FD_TYPES - 1)){
-           //    printf("Error with fd_type");
                return error_Message (TEO_ERROR_FILE_FORMAT, filename);
            }
         }
@@ -311,18 +310,15 @@ static int file_protection (const char filename[], int protection)
         /* check name of file */
         name_length = strlen(filename);
         if (name_length < 3){
-          //  printf("Error with name length: %d while min is %d\n",name_length,3);
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
         }
 
         if (strcasecmp(filename+name_length-3, fd_list[fd_type].suffix) != 0){
-        //    printf("Error with name suffix: %s while it should be %s\n",filename+name_length-3,fd_list[fd_type].suffix);
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
         }
 
         /* check number_of_tracks */
         if (fd_list[fd_type].track_count != TEO_DISK_TRACK_NUMBER_MAX){
-          //  printf("Error with tracks. Got %d while max is %d\n",fd_list[fd_type].track_count,TEO_DISK_TRACK_NUMBER_MAX);
             return error_Message (TEO_ERROR_FILE_FORMAT, filename);
         }
     }

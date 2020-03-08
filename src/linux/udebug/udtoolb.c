@@ -36,10 +36,13 @@
  *  Module     : linux/udebug/udstatus.c
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 14/07/2016
- *  Modifié par:
+ *  Modifié par: Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Gestion de la barre d'outils.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -50,6 +53,7 @@
 #include "teo.h"
 #include "linux/gui.h"
 #include "std.h"
+#include "gettext.h"
 
 #define STEP_ICON "system/icons/step.ico"
 #define STEP_OVER_ICON "system/icons/stepover.ico"
@@ -135,20 +139,15 @@ GtkWidget *udtoolb_Init (void)
     gtk_box_pack_start (GTK_BOX(box), tool_bar, FALSE, FALSE, 0);
 
     /* Tool item step by step */
-    sysicon = std_GetTeoSystemFile(STEP_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", STEP_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(STEP_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
     tool_button = gtk_tool_button_new (
         image,
-        is_fr?"Pas-Ã -pas":"Step by step");
+        _("Step by step"));
     gtk_widget_set_tooltip_text (GTK_WIDGET (tool_button),
-        is_fr?"ExÃ©cute le code machine pas Ã  pas"
-             :"Execute the machine code step by step");
+        _("Execute the machine code step by step"));
     g_signal_connect(G_OBJECT(tool_button),
                      "clicked",
                      G_CALLBACK (do_step_by_step),
@@ -156,24 +155,15 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (tool_button), -1);
 
     /* Tool item step over */
-    sysicon = std_GetTeoSystemFile(STEP_OVER_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", STEP_OVER_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(STEP_OVER_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
     tool_button = gtk_tool_button_new (
         image,
-        is_fr?"Passe jumps":"Step over");
+        _("Step over"));
     gtk_widget_set_tooltip_text (GTK_WIDGET (tool_button),
-        is_fr?"ExÃ©cute le code machine pas Ã  pas\n" \
-              "mais ne saute pas aux sous-programmes\n" \
-              "et aux boucles vers l'arriÃ¨re"
-             :"Execute the machine code step by step\n" \
-              "but don't jump to sub-programs and\n" \
-              "backward loops");
+        _("Execute the machine code step by step\nbut don't jump to sub-programs and\nbackward loops"));
     g_signal_connect(G_OBJECT(tool_button),
                      "clicked",
                      G_CALLBACK (do_step_over),
@@ -181,17 +171,11 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (tool_button), -1);
 
     /* Tool item run */
-    sysicon = std_GetTeoSystemFile(RUN_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", RUN_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(RUN_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
-    run_button = gtk_tool_button_new (
-        image,
-        is_fr?"Lancer":"Run");
+    run_button = gtk_tool_button_new (image, _("Run"));
     g_signal_connect(G_OBJECT(run_button),
                      "clicked",
                      G_CALLBACK (do_quit),
@@ -199,17 +183,13 @@ GtkWidget *udtoolb_Init (void)
     gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), GTK_TOOL_ITEM (run_button), -1);
 
     /* Tool item leave */
-    sysicon = std_GetTeoSystemFile(LEAVE_ICON);
-    if(!sysicon){
-        printf("Error: Couldn't find mandatory file %s, bailing out\n", LEAVE_ICON);
-        exit(EXIT_FAILURE);
-    }
+    sysicon = std_GetTeoSystemFile(LEAVE_ICON, false);
     pixbuf = gdk_pixbuf_new_from_file (sysicon, NULL);
 
     image = gtk_image_new_from_pixbuf (pixbuf);
     tool_button = gtk_tool_button_new (
         image,
-        is_fr?"Abandonner":"Leave");
+        _("Leave"));
     g_signal_connect(G_OBJECT(tool_button),
                      "clicked",
                      G_CALLBACK (do_quit),

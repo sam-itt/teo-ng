@@ -41,10 +41,13 @@
  *               François Mouret 08/2011 25/04/2012 01/11/2012
  *                               19/09/2013 13/04/2014 31/07/2016
  *                               25/10/2018
+ *               Samuel Cuella   01/2020
  *
  *  Boucle principale de l'émulateur.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -52,9 +55,11 @@
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
 #include "defs.h"
 #include "teo.h"
+#include "main.h"
 #include "option.h"
 #include "ini.h"
 #include "image.h"
@@ -70,12 +75,21 @@
 #include "alleg/joyint.h"
 #include "alleg/mouse.h"
 #include "alleg/sound.h"
-#include "dos/keybint.h"
+#include "alleg/afront.h"
 #include "dos/floppy.h"
 #include "dos/debug.h"
+#include "logsys.h"
+#include "gettext.h"
+
+#if defined ENABLE_NLS && ENABLE_NLS
+#define __(a) main_Latin1ToCP850(_(a))
+#else
+#define __(a) _(a)
+#endif
 
 
 /* pour limiter la taille de l'éxécutable */
+
 BEGIN_COLOR_DEPTH_LIST
     COLOR_DEPTH_8
     COLOR_DEPTH_15
@@ -101,141 +115,113 @@ END_DIGI_DRIVER_LIST
 BEGIN_MIDI_DRIVER_LIST
 END_MIDI_DRIVER_LIST
 
+
+
+
 struct EMUTEO teo;
 
 static int reset = FALSE;
 static int gfx_mode = NO_GFX;
 struct STRING_LIST *remain_name = NULL;
 
-int frame;                 /* compteur de frame vidéo */
 int direct_write_support = TRUE;
-static volatile int tick;  /* compteur du timer */
 
-
-static void Timer(void)
-{
-    tick++;
-}
-END_OF_FUNCTION(Timer)
-
-
-
-/* RunTO8:
- *  Boucle principale de l'émulateur.
+unsigned char main_LatinCharToCP850(unsigned char c);
+/*
+ * Despite claims by DJGPP gettext(), no transcoding
+ * is done between iso-8859 to CP850, which results
+ * in strange chars in the output instead of accented
+ * letters.
+ *
+ * Having the mo file in CP850 while possible will make
+ * Allegro very unhappy and display strange chars in the
+ * "in-game" menu which is worst the the problem itself.
+ *
+ * This function does a converstion from iso-8859-1 to
+ * CP850 for console output.
+ *
+ *
  */
-static void RunTO8(void)
+static const char *main_Latin1ToCP850(const char *str)
 {
-    amouse_Install (TEO_STATUS_MOUSE); /* la souris est le périphérique de pointage par défaut */
-    RetraceScreen(0, 0, SCREEN_W, SCREEN_H);
+    static unsigned char *buffer = NULL;
+    static int buffer_len = 0;
+    unsigned char c;
+    int len;
 
-    do  /* boucle principale de l'émulateur */
-    {
-        teo.command=TEO_COMMAND_NONE;
-
-        /* installation des handlers clavier, souris et son */ 
-        dkeybint_Install();
-        amouse_Install(LAST_POINTER);
-
-        if (teo.setting.exact_speed)
-        {
-            if (teo.setting.sound_enabled)
-                asound_Start();
-            else
-            {
-                install_int_ex(Timer, BPS_TO_TIMER(TEO_FRAME_FREQ));
-                frame=1;
-                tick=frame;
-            }
-        }
-
-        do  /* boucle d'émulation */
-        {
-            (void)teo_DoFrame();
-
-            /* rafraîchissement de la palette */ 
-            if (need_palette_refresh)
-                RefreshPalette();
-
-            /* rafraîchissement de l'écran */
-            RefreshScreen();
-
-            /* mise à jour de la position des joysticks */
-            ajoyint_Update();
-
-            /* synchronisation sur fréquence réelle */
-            if (teo.setting.exact_speed)
-            {
-                if (teo.setting.sound_enabled)
-                    asound_Play ();
-                else
-                    while (frame==tick)
-                        ;
-            }
-            disk_WriteTimeout();
-            frame++;
-        }
-        while (teo.command==TEO_COMMAND_NONE);  /* fin de la boucle d'émulation */
-
-        /* désinstallation des handlers clavier, souris et son */
-        if (teo.setting.exact_speed)
-        {
-            if (teo.setting.sound_enabled)
-                asound_Stop();
-            else
-                remove_int(Timer);
-        }
-
-        amouse_ShutDown();
-        dkeybint_ShutDown();
-
-        /* éxécution des commandes */
-        if (teo.command==TEO_COMMAND_PANEL)
-            agui_Panel();
-
-        if (teo.command==TEO_COMMAND_SCREENSHOT)
-            agfxdrv_Screenshot();
-
-        if (teo.command==TEO_COMMAND_DEBUGGER)
-        {
-            remove_keyboard();
-            SetGraphicMode(SHUTDOWN);
-            ddebug_Run();
-            SetGraphicMode(RESTORE);
-            install_keyboard();
-        }
-
-        if (teo.command==TEO_COMMAND_RESET)
-            teo_Reset();
-
-        if (teo.command==TEO_COMMAND_COLD_RESET)
-        {
-            teo_ColdReset();
-            amouse_Install(TEO_STATUS_MOUSE);
-        }
-
-        if (teo.command==TEO_COMMAND_FULL_RESET)
-        {
-            teo_FullReset();
-            amouse_Install(TEO_STATUS_MOUSE);
-        }
+    len = strlen(str);
+    if(!buffer || len+1 > buffer_len){
+        if(buffer)
+            free(buffer);
+        buffer = malloc((len+1)*sizeof(char));
+        buffer_len = len;
     }
-    while (teo.command != TEO_COMMAND_QUIT);  /* fin de la boucle principale */
-
-    /* Finit d'exécuter l'instruction et/ou l'interruption courante */
-    mc6809_FlushExec();
+    memset(buffer, 0, buffer_len+1);
+    strcpy((char*)buffer, str);
+    for(int i = 0; i < len; i++){
+        c = main_LatinCharToCP850(buffer[i]);
+        if(c != buffer[i])
+            buffer[i] = c;
+    }
+    return buffer;
 }
 
 
 
-/* main_ErrorMessage:
- *  Affiche un message d'erreur et sort du programme.
+/* main_DisplayMessage:
+ *  Affiche un message de sortie et sort du programme.
  */
-static void main_ErrorMessage(const char msg[])
+void main_DisplayMessage(const char *format, ...)
 {
-    fprintf(stderr, "%s\n", msg);
+    va_list args;
+
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+}
+
+void main_DisplayMessageVA(const char *format, va_list ap)
+{
+    char *msg;
+
+    vfprintf(stderr, format, ap);
+    log_vamsgf(LOG_ERROR, format, ap);
+
+    /*TODO: IF GFX MODE*/
+    msg = std_vastrdup_printf(format, ap);
+    agui_PopupMessage(msg);
+    std_free(msg);
+}
+
+
+
+/* main_ExitMessage:
+ *  Affiche un message de sortie et sort du programme.
+ */
+void main_ExitMessage(const char *format, ...)
+{
+    va_list args;
+
+    va_start(args, format);
+    main_DisplayMessageVA(format, args);
+    va_end(args);
+
     exit(EXIT_FAILURE);
 }
 
+
+int main_ConsoleOutput(const char *format, ...)
+{   
+    va_list args;
+    int rv;
+
+    va_start(args, format);
+
+    rv = vprintf(main_Latin1ToCP850(format), args);
+    va_end(args);
+
+    return rv;
+}
 
 
 /* ReadCommandLine:
@@ -248,41 +234,36 @@ static void ReadCommandLine(int argc, char *argv[])
 
     struct OPTION_ENTRY entries[] = {
         { "reset", 'r', OPTION_ARG_BOOL, &reset,
-           is_fr?"Reset … froid de l'‚mulateur"
-                :"Cold-reset emulator", NULL },
+           __("Cold-reset emulator"), NULL },
         { "disk0", '0', OPTION_ARG_FILENAME, &teo.disk[0].file,
-           is_fr?"Charge un disque virtuel (lecteur 0)"
-                :"Load virtual disk (drive 0)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 0)"),
+           __("FILE") },
         { "disk1", '1', OPTION_ARG_FILENAME, &teo.disk[1].file,
-           is_fr?"Charge un disque virtuel (lecteur 1)"
-                :"Load virtual disk (drive 1)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 1)"),
+           __("FILE") },
         { "disk2", '2', OPTION_ARG_FILENAME, &teo.disk[2].file,
-           is_fr?"Charge un disque virtuel (lecteur 2)"
-                :"Load virtual disk (drive 2)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 2)"),
+           __("FILE") },
         { "disk3", '3', OPTION_ARG_FILENAME, &teo.disk[3].file,
-           is_fr?"Charge un disque virtuel (lecteur 3)"
-                :"Load virtual disk (drive 3)",
-           is_fr?"FICHIER":"FILE" },
+           __("Load virtual disk (drive 3)"),
+           __("FILE") },
         { "cass", '\0', OPTION_ARG_FILENAME, &teo.cass.file,
-           is_fr?"Charge une cassette":"Load a tape",
-           is_fr?"FICHIER":"FILE" },
+           __("Load a tape"),
+           __("FILE") },
         { "memo", '\0', OPTION_ARG_FILENAME, &teo.memo.file,
-           is_fr?"Charge une cartouche":"Load a cartridge",
-           is_fr?"FICHIER":"FILE" },
+           __("Load a cartridge"),
+           __("FILE") },
         { "mode40", '\0', OPTION_ARG_BOOL, &mode40,
-           is_fr?"Affichage en 40 colonnes":"40 columns display", NULL},
+           __("40 columns display"), NULL},
         { "mode80", '\0', OPTION_ARG_BOOL, &mode80,
-           is_fr?"Affichage en 80 colonnes":"80 columns display", NULL},
+           __("80 columns display"), NULL},
         { "truecolor", '\0', OPTION_ARG_BOOL, &truecolor,
-           is_fr?"Affichage en vraies couleurs":"Truecolor display", NULL},
+           __("Truecolor display"), NULL},
         { NULL, 0, 0, NULL, NULL, NULL }
     };
     message = option_Parse (argc, argv, "teo", entries, &remain_name);
     if (message != NULL)
-        main_ErrorMessage(message);
+        main_ExitMessage(message);
         
     if (mode40)    gfx_mode = GFX_MODE40   ; else
     if (mode80)    gfx_mode = GFX_MODE80   ; else
@@ -564,23 +545,6 @@ char *main_ThomsonToPcText (char *thomson_text)
 
 
 
-/* main_DisplayMessage:
- *  Affiche un message de sortie et sort du programme.
- */
-void main_DisplayMessage(const char msg[])
-{
-    agui_PopupMessage (msg);
-}
-
-
-/* main_ExitMessage:
- *  Affiche un message de sortie et sort du programme.
- */
-void main_ExitMessage(const char msg[])
-{
-    main_DisplayMessage(msg);
-    exit(EXIT_FAILURE);
-}
 
 
 
@@ -591,97 +555,60 @@ void main_ExitMessage(const char msg[])
  */
 int main(int argc, char *argv[])
 {
-    char version_name[]="Teo "TEO_VERSION_STR" (MSDOS/DPMI)";
-#ifdef FRENCH_LANGUAGE
-    char *mode_desc[3]= {
-        " 1. Mode 40 colonnes 16 couleurs\n    (affichage rapide, adapt‚ aux jeux et … la plupart des applications)",
-        " 2. Mode 80 colonnes 16 couleurs\n    (pour les applications fonctionnant en 80 colonnes)",
-        " 3. Mode 80 colonnes 4096 couleurs\n    (affichage lent mais support des changements dynamiques de palette)" };
-#else
-    char *mode_desc[3]= {
-        " 1. 40 columns mode 16 colors\n    (fast diplay, adapted to games and most applications)",
-        " 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)",
-        " 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)" };
-#endif
+    char version_name[]=PACKAGE_STRING" (MSDOS/DPMI)";
+    char *mode_desc[3];
     int direct_support = 0;
     int drive_type[4];
     int njoy = 0;  /* njoy=-1 si joystick non supportés */
     int scancode, i;
     struct STRING_LIST *str_list = NULL;
-    char *cfg_file;
+    int windowed_mode;
+    int rv;
 
-#ifdef FRENCH_LANGUAGE
-    is_fr = 1;
-#else
-    is_fr = 0;
+#if defined ENABLE_NLS && ENABLE_NLS
+    /* Setting the i18n environment */
+    setlocale (LC_ALL, "");
+    char *localedir = std_GetLocaleBaseDir();
+    bindtextdomain(PACKAGE, localedir);
+    bind_textdomain_codeset(PACKAGE, "iso-8859-1");
+    textdomain (PACKAGE);
+    if(localedir)
+        free(localedir);
 #endif
+
+    mode_desc[0] = strdup(__(" 1. 40 columns mode 16 colors\n    (fast diplay, adapted to games and most applications)"));
+    mode_desc[1] = strdup(__(" 2. 80 columns mode 16 colors\n    (for applications which needs 80 columns)"));
+    mode_desc[2] = strdup(__(" 3. 80 columns mode 4096 colors\n    (slow display but allow dynamic changes of palette)"));
 
     /* traitement des paramètres */
     ini_Load();                   /* Charge les paramètres par défaut */
     ReadCommandLine (argc, argv); /* Récupération des options */
 
-    /* initialisation de la librairie Allegro */
-    set_uformat(U_ASCII);  /* pour les accents français */
-    allegro_init();
-    /*
-    if(allegro_init() != 0){
-        printf("Couldn't initialize Allegro, bailing out !\n");
-        exit(EXIT_FAILURE);
-    }*/
-
-    cfg_file = std_GetFirstExistingConfigFile(ALLEGRO_CONFIG_FILE);
-    if(cfg_file){
-        set_config_file(cfg_file);
-        std_free(cfg_file);
-    }else{
-        printf("Config file %s not found, using default values\n",ALLEGRO_CONFIG_FILE);
+    rv = afront_Init(NULL, (njoy >= 0), ALLEGRO_CONFIG_FILE, "akeymap.ini");
+    if(rv != 0){
+        main_ExitMessage(_("Couldn't initialize Allegro, bailing out !\n"));
     }
-
-    cfg_file = std_GetFirstExistingConfigFile("akeymap.ini");
-    if(cfg_file){
-        override_config_file(cfg_file);
-        std_free(cfg_file);
-    }else{
-        printf("Keymap %s not found !\n","akeymap.ini");
-        exit(-1);
-    }
-
-    install_keyboard();
-    install_timer();
-    if (njoy >= 0)
-        install_joystick(JOY_TYPE_AUTODETECT);
+   
     LOCK_VARIABLE(teo);
-    LOCK_VARIABLE(tick);
-    LOCK_FUNCTION(Timer);
 
-    /* message d'entête */
-    if (is_fr) {
-    printf("Voici %s l'‚mulateur Thomson TO8.\n", version_name);
-    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
-    printf("Touches: [ESC] Panneau de contr“le\n");
-    printf("         [F11] Capture d'‚cran\n");
-    printf("         [F12] D‚bogueur\n\n");
-    } else {
-    printf("Here is %s the Thomson TO8 emulator.\n", version_name);
-    printf("Copyright 1997-2012 Gilles F‚tis, Eric Botcazou, Alex Pukall,J‚r‚mie Guillaume, Fran‡ois Mouret, Samuel Devulder\n\n");
-    printf("Keys: [ESC] Control panel\n");
-    printf("      [F11] Screen capture\n");
-    printf("      [F12] Debugger\n\n");
-    }
+    /* message d'entete */
+    main_ConsoleOutput(_("Here comes %s the Thomson TO8 emulator.\n"), version_name);
+    main_ConsoleOutput(_("Copyright (C) 1997-%s Teo Authors: %s.\n\n"), TEO_YEAR_STRING, TEO_AUTHORS);                 
+    main_ConsoleOutput(_("Command keys: [ESC] Control panel\n"));           
+    main_ConsoleOutput(_("\t[F11] Screenshot\n"));           
+    main_ConsoleOutput(_("\t[F12] Debugger\n"));           
 
     /* détection de la présence de joystick(s) */
     njoy = MIN(TEO_NJOYSTICKS, num_joysticks);
 
-    /* initialisation de l'émulateur */
-    printf(is_fr?"Initialisation de l'‚mulateur...":"Emulator initialization...");
+    /* initialisation de l'emulateur */
+    main_ConsoleOutput(_("Emulator init..."));
 
     if (teo_Init(TEO_NJOYSTICKS-njoy) < 0)
-        main_ErrorMessage(teo_error_msg);
+        main_ExitMessage(teo_error_msg);
 
-    printf("ok\n");
+    main_ConsoleOutput("ok\n");
 
-    /* initialisation de l'interface clavier */
-    dkeybint_Init();
 
     /* initialisation de l'interface d'accès direct */
     dfloppy_Init (drive_type, direct_write_support);
@@ -693,24 +620,14 @@ int main(int argc, char *argv[])
             direct_support |= (1<<i);
     }
 
-    /* initialisation du son */
-    asound_Init(25600);  /* 25600 Hz */
-
-    /* initialisation des joysticks */
-    ajoyint_Init(njoy);
-
-    /* sélection du mode graphique */ 
-    printf(is_fr?"\nS‚lection du mode graphique:\n\n":"\nSelect graphic mode:\n\n");
-
+    /* selection du mode graphique */ 
+    main_ConsoleOutput(_("\nSelect graphic mode:\n\n"));
     if (gfx_mode == NO_GFX)
     {
         for (i=0; i<3; i++)
-            printf("%s\n\n", mode_desc[i]);
-            
-        printf(is_fr?"Votre choix: [1 par d‚faut] ":"Your choice: [1 by default] ");
-
-        do
-        {
+            main_ConsoleOutput("%s\n\n", mode_desc[i]);
+        main_ConsoleOutput(_("Your choice: [default 1] "));
+        do{
             scancode = readkey()>>8;
 
             if (key_shifts&KB_CTRL_FLAG)
@@ -731,80 +648,152 @@ int main(int argc, char *argv[])
                     gfx_mode=GFX_TRUECOLOR;
                     break;
             }
-        }
-        while (gfx_mode == NO_GFX);
-    }
-    else
-    {
-        printf("%s\n\n", mode_desc[gfx_mode-1]);
+        }while (gfx_mode == NO_GFX);
+    }else{
+        main_ConsoleOutput("%s\n\n", mode_desc[gfx_mode-1]);
     }
 
-    /* initialisation du mode graphique */
-    switch (gfx_mode)
-    {
-        case GFX_MODE40:
-            if (agfxdrv_Init(GFX_MODE40, 8, GFX_VGA, FALSE))
-                goto driver_found;
-            break;
-
-        case GFX_MODE80:
-            for (i=0; i<3; i++)
-                if (agfxdrv_Init(GFX_MODE80, 8, GFX_AUTODETECT, FALSE))
-                    goto driver_found;
-            break;
-                
-        case GFX_TRUECOLOR:
-            for (i=0; i<3; i++)
-                if (agfxdrv_Init(GFX_TRUECOLOR, 15, GFX_AUTODETECT, FALSE) || 
-                           agfxdrv_Init(GFX_TRUECOLOR, 16, GFX_AUTODETECT, FALSE))
-                    goto driver_found;
-           break;
+    rv = afront_startGfx(gfx_mode, &windowed_mode, version_name);
+    if(rv != 0){
+        main_ExitMessage(__("Unsupported graphic mode"));
     }
 
-    main_ErrorMessage(is_fr?"\nErreur: mode graphique non support‚.":"\nError: unsupported graphic mode.");
-
-  driver_found:
-
-    disk_FirstLoad ();  /* chargement des disquettes éventuelles */
-    cass_FirstLoad ();  /* chargement de la cassette éventuelle */
-    if (memo_FirstLoad () < 0) /* Chargement de la cartouche éventuelle */
+    disk_FirstLoad ();  /* chargement des disquettes eventuelles */
+    cass_FirstLoad ();  /* chargement de la cassette eventuelle */
+    if (memo_FirstLoad () < 0) /* Chargement de la cartouche eventuelle */
         reset = 1;
 
-    /* chargement des options non définies */
+    /* chargement des options non definies */
     for (str_list=remain_name; str_list!=NULL; str_list=str_list->next)
         if (option_Undefined (str_list->str) == 1)
             reset = 1;
     std_StringListFree (remain_name);
 
-    /* Restitue l'état sauvegardé de l'émulateur */
+    /* Restitue l'etat sauvegarde de l'émulateur */
     teo_FullReset();
     if (reset == 0)
         if (image_Load ("autosave.img") != 0)
             teo_FullReset();
 
-    /* initialisation de l'interface utilisateur */
-    agui_Init(version_name, gfx_mode, direct_support);
-    
     /* et c'est parti !!! */
-    RunTO8();
+    afront_Run(windowed_mode);
 
-    /* Sauvegarde de l'état de l'émulateur */
+    /* Sauvegarde de l'etat de l'emulateur */
     ini_Save();
     image_Save ("autosave.img");
 
-    /* libère la mémoire de la GUI */
-    agui_Free();
-
-    /* sortie du mode graphique */
-    SetGraphicMode(SHUTDOWN);
+    afront_Shutdown();
 
     /* mise au repos de l'interface d'accès direct */
     dfloppy_Exit();
 
-    /* sortie de l'émulateur */
-    printf(is_fr?"A bient“t !\n":"Goodbye !\n");
+    /* sortie de l'emulateur */
+    main_ConsoleOutput(_("\n"));
+    main_ConsoleOutput(_("Goodbye !\n"));
 
-    /* sortie de l'émulateur */
+    /* sortie de l'emulateur */
     exit(EXIT_SUCCESS);
 }
 
+
+unsigned char main_LatinCharToCP850(unsigned char c)
+{
+    if(c == 0xA0) return 0XFF;
+    if(c == 0xA1) return 0XAD;
+    if(c == 0xA2) return 0XBD;
+    if(c == 0xA3) return 0X9C;
+    if(c == 0xA4) return 0XCF;
+    if(c == 0xA5) return 0XBE;
+    if(c == 0xA6) return 0XDD;
+    if(c == 0xA7) return 0XF5;
+    if(c == 0xA8) return 0XF9;
+    if(c == 0xA9) return 0XB8;
+    if(c == 0xAA) return 0XA6;
+    if(c == 0xAB) return 0XAE;
+    if(c == 0xAC) return 0XAA;
+    if(c == 0xAD) return 0XF0;
+    if(c == 0xAE) return 0XA9;
+    if(c == 0xAF) return 0XEE;
+    if(c == 0xB0) return 0XF8;
+    if(c == 0xB1) return 0XF1;
+    if(c == 0xB2) return 0XFD;
+    if(c == 0xB3) return 0XFC;
+    if(c == 0xB4) return 0XEF;
+    if(c == 0xB5) return 0XE6;
+    if(c == 0xB6) return 0XF4;
+    if(c == 0xB7) return 0XFA;
+    if(c == 0xB8) return 0XF7;
+    if(c == 0xB9) return 0XFB;
+    if(c == 0xBA) return 0XA7;
+    if(c == 0xBB) return 0XAF;
+    if(c == 0xBC) return 0XAC;
+    if(c == 0xBD) return 0XAB;
+    if(c == 0xBE) return 0XF3;
+    if(c == 0xBF) return 0XA8;
+    if(c == 0xC0) return 0XB7;
+    if(c == 0xC1) return 0XB5;
+    if(c == 0xC2) return 0XB6;
+    if(c == 0xC3) return 0XC7;
+    if(c == 0xC4) return 0X8E;
+    if(c == 0xC5) return 0X8F;
+    if(c == 0xC6) return 0X92;
+    if(c == 0xC7) return 0X80;
+    if(c == 0xC8) return 0XD4;
+    if(c == 0xC9) return 0X90;
+    if(c == 0xCA) return 0XD2;
+    if(c == 0xCB) return 0XD3;
+    if(c == 0xCC) return 0XDE;
+    if(c == 0xCD) return 0XD6;
+    if(c == 0xCE) return 0XD7;
+    if(c == 0xCF) return 0XD8;
+    if(c == 0xD0) return 0XD1;
+    if(c == 0xD1) return 0XA5;
+    if(c == 0xD2) return 0XE3;
+    if(c == 0xD3) return 0XE0;
+    if(c == 0xD4) return 0XE2;
+    if(c == 0xD5) return 0XE5;
+    if(c == 0xD6) return 0X99;
+    if(c == 0xD7) return 0X9E;
+    if(c == 0xD8) return 0X9D;
+    if(c == 0xD9) return 0XEB;
+    if(c == 0xDA) return 0XE9;
+    if(c == 0xDB) return 0XEA;
+    if(c == 0xDC) return 0X9A;
+    if(c == 0xDD) return 0XED;
+    if(c == 0xDE) return 0XE8;
+    if(c == 0xDF) return 0XE1;
+    if(c == 0xE0) return 0X85;
+    if(c == 0xE1) return 0XA0;
+    if(c == 0xE2) return 0X83;
+    if(c == 0xE3) return 0XC6;
+    if(c == 0xE4) return 0X84;
+    if(c == 0xE5) return 0X86;
+    if(c == 0xE6) return 0X91;
+    if(c == 0xE7) return 0X87;
+    if(c == 0xE8) return 0X8A;
+    if(c == 0xE9) return 0X82;
+    if(c == 0xEA) return 0X88;
+    if(c == 0xEB) return 0X89;
+    if(c == 0xEC) return 0X8D;
+    if(c == 0xED) return 0XA1;
+    if(c == 0xEE) return 0X8C;
+    if(c == 0xEF) return 0X8B;
+    if(c == 0xF0) return 0XD0;
+    if(c == 0xF1) return 0XA4;
+    if(c == 0xF2) return 0X95;
+    if(c == 0xF3) return 0XA2;
+    if(c == 0xF4) return 0X93;
+    if(c == 0xF5) return 0XE4;
+    if(c == 0xF6) return 0X94;
+    if(c == 0xF7) return 0XF6;
+    if(c == 0xF8) return 0X9B;
+    if(c == 0xF9) return 0X97;
+    if(c == 0xFA) return 0XA3;
+    if(c == 0xFB) return 0X96;
+    if(c == 0xFC) return 0X81;
+    if(c == 0xFD) return 0XEC;
+    if(c == 0xFE) return 0XE7;
+    if(c == 0xFF) return 0X98;
+
+    return c;
+}

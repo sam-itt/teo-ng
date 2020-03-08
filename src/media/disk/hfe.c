@@ -303,17 +303,17 @@ static void display_track (char *message, int drive, int track)
 {
     int i;
 
-    printf ("---------------------------------------\n");
-    printf ("HFE %s drive %d track %d\n", message, drive, track);
+    log_msgf(LOG_TRACE,"---------------------------------------\n");
+    log_msgf(LOG_TRACE,"HFE %s drive %d track %d\n", message, drive, track);
     for (i=0; i<disk[drive].track_size;i++)
     {
         if ((i&15) == 0)
-            printf ("\n%04x   ", i);
-        printf ("%02x%02x ",
+            log_msgf(LOG_TRACE,"\n%04x   ", i);
+        log_msgf(LOG_TRACE,"%02x%02x ",
             disk[drive].clck[i],
             disk[drive].data[i]);
     }
-    printf ("\n\n");
+    log_msgf(LOG_TRACE,"\n\n");
 }
 #endif
 
@@ -644,7 +644,7 @@ static int file_protection (const char filename[], int protection)
 
         /* check formatrevision */
         if (hfe_hd.formatrevision != 0)
-            return file_mode_error (TEO_ERROR_FILE_FORMAT, filename, file);
+            return error_Message (TEO_ERROR_FILE_FORMAT, filename);
         
         /* check file validity */
         switch (hfe_hd.track_encoding)

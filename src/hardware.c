@@ -46,7 +46,9 @@
  *	- circuits d'entrée/sortie du système
  *	- circuits d'entrée/sortie des périphériques
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 
 #ifndef SCAN_DEPEND
@@ -71,6 +73,11 @@
 #include "media/cass.h"
 #include "media/mouse.h"
 #include "media/printer.h"
+
+#ifdef PLATFORM_OGXBOX
+#include <winbase.h>
+#include <windows.h>
+#endif
 
 
 /* les composants métériels de l'émulateur */
@@ -202,10 +209,10 @@ static void SetDeviceRegister(int addr, int val)
             if (((mc6846.crc&0x30) == 0x30)
              && ((mc6846.crc&8) != (data&8)))
             {
-                teo_PutSoundByte(mc6809_clock(),
-                                 mc6846.crc&8
-                                   ? 0x00
-                                   : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                if(teo_PutSoundByte)
+                    teo_PutSoundByte(mc6809_clock(),
+                                     mc6846.crc&8 ? 0x00
+                                     : (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
             }
             break;
 
@@ -329,9 +336,10 @@ static void SetDeviceRegister(int addr, int val)
                 if (((mc6821_ReadCommand(&pia_ext.portb)&0x04) != 0)
                  || ((val&0x3c) != 0x3c))
                 {
-                    teo_PutSoundByte(
-                        mc6809_clock(),
-                        (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
+                    if(teo_PutSoundByte)
+                        teo_PutSoundByte(
+                            mc6809_clock(),
+                            (mc6821_ReadPort(&pia_ext.portb)&0x3F)<<2);
                 }
             }
             break;
@@ -748,17 +756,27 @@ static void FetchInstr(int addr, unsigned char fetch_buffer[])
  */
 static int BiosCall(struct MC6809_REGS *regs)
 {
+#ifdef PLATFORM_OGXBOX
+    SYSTEMTIME t;
+#else
     time_t x;
     struct tm *t;
-
+#endif
     switch (regs->pc)
     {
         case 0x25D4:  /* routine d'affichage de la date */
+#ifdef PLATFORM_OGXBOX
+            GetSystemTime(&t);
+            STORE_BYTE(0x607C,t.wDay);
+            STORE_BYTE(0x607D,t.wMonth+1);
+            STORE_BYTE(0x607E,t.wYear%100);
+#else
             time(&x);
             t = gmtime(&x);
             STORE_BYTE(0x607C,t->tm_mday);
             STORE_BYTE(0x607D,t->tm_mon+1);
             STORE_BYTE(0x607E,t->tm_year%100);
+#endif
             return 0x10; /* LDY immédiat */
 
         case 0x315A:  /* routine de sélection souris/crayon optique */
@@ -914,6 +932,23 @@ void hardware_Init(void)
     register int i;
 
     time_t t;
+#if PLATFORM_OGXBOX
+    const char *sysroms[] = {
+        "system\\rom\\basic512.rom",
+        "system\\rom\\extramon.rom",
+        "system\\rom\\basic1.rom",
+        "system\\rom\\expl.rom",
+        NULL
+    };
+
+    const char *sysmons[] = {
+        "system\\rom\\monitor1.rom",
+        "system\\rom\\monitor2.rom",
+        NULL
+    };
+
+
+#else
     const char *sysroms[] = {
         "system/rom/basic512.rom",
         "system/rom/extramon.rom",
@@ -927,12 +962,10 @@ void hardware_Init(void)
         "system/rom/monitor2.rom",
         NULL
     };
-
+#endif
 
 
     srand((unsigned) time(&t));
-
-    printf("Doing (virtual) hardware inits\n");
 
     mc6809_interface.FetchInstr   = FetchInstr;
     mc6809_interface.LoadByte     = LoadByte;
@@ -957,11 +990,7 @@ void hardware_Init(void)
         mem.rom.bank[i] = NULL;
 
     for(i = 0; i < mem.rom.nbank; i++){
-        mem.rom.filename[i] = std_GetTeoSystemFile((char *)sysroms[i]); /*TODO: Have a shutdown function that frees me*/
-        if(!mem.rom.filename[i]){
-            printf("Error: Couldn't find mandatory file %s, bailing out\n", sysroms[i]);
-            exit(EXIT_FAILURE);
-        }
+        mem.rom.filename[i] = std_GetTeoSystemFile((char *)sysroms[i], false); /*TODO: Have a shutdown function that frees me*/
     }
 
     /* 512ko de RAM */
@@ -978,11 +1007,7 @@ void hardware_Init(void)
         mem.mon.bank[i] = NULL;
 
     for(i = 0; i < mem.mon.nbank; i++){
-        mem.mon.filename[i] = std_GetTeoSystemFile((char *)sysmons[i]); /*TODO: Have a shutdown function that frees me*/
-        if(!mem.mon.filename[i]){
-            printf("Error: Couldn't find mandatory file %s, bailing out\n", sysmons[i]);
-            exit(EXIT_FAILURE);
-        }
+        mem.mon.filename[i] = std_GetTeoSystemFile((char *)sysmons[i], false); /*TODO: Have a shutdown function that frees me*/
     }
 
     /* définition de la carte mémoire logique */

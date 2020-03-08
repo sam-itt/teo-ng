@@ -38,6 +38,7 @@
  *  Créé par   : Gilles Fétis 1998
  *  Modifié par: Eric Botcazou 27/11/2002
  *               François Mouret 08/2011 01/11/2012 02/06/2014 28/10/2017
+ *               Samuel Cuella   02/2020
  *
  *  Débogueur du TO8.
  */
@@ -47,6 +48,8 @@
    #include <conio.h>
    #include <stdio.h>
 #endif
+#include <stdlib.h>
+#include <assert.h>
 
 
 #include "defs.h"
@@ -56,54 +59,59 @@
 #include "alleg/gfxdrv.h"
 #include "dos/memmng.h"
 #include "media/disk.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "teo.h"
+#include "gettext.h"
 
 #define MENU_NLINES 8
 #define MENU_POS_X  4
 #define MENU_POS_Y 42
-
-#ifdef FRENCH_LANGUAGE
-static char menu_line[MENU_NLINES][50]={ "Commandes:",
-                                         " c: continuer",
-                                         " n: ‚x‚cuter l'instruction locale suivante",
-                                         " s: ‚x‚cuter l'instruction suivante",
-                                         " b: g‚rer les points d'arrˆt",
-                                         " a: afficher l'‚cran du TO8",
-                                         " m: lancer le gestionnaire de m‚moire du TO8",
-                                         " q: quitter le d‚bogueur"};
-#else
-static char menu_line[MENU_NLINES][50]={ "Commands:",
-                                         " c: continue",
-                                         " n: running next locale instruction",
-                                         " s: running next instruction",
-                                         " b: managing breakpoints",
-                                         " a: displaying TO8 screen",
-                                         " m: running TO8 memory manager",
-                                         " q: quit the debugger   "};
-#endif
+static char **_menu_line = NULL;
 
 #undef DASM_NLINES
 #define DASM_NLINES 40
 
 #define BREAK_MENU_NLINES 4
-#ifdef FRENCH_LANGUAGE
-static char
-break_menu_line[BREAK_MENU_NLINES][32]={ "Commandes:                    ",
-                                         " b: ajouter un point d'arrˆt  ",
-                                         " d: supprimer un point d'arrˆt",
-                                         " q: quitter                   "};
-#else
-static char
-break_menu_line[BREAK_MENU_NLINES][32]={ "Commands:                     ",
-                                         " b: adding a breakpoint       ",
-                                         " d: deleting a breakpoint     ",
-                                         " q: quit                      "};
-#endif
+char **_break_menu_line = NULL;
 
 static int breakpoint[MAX_BREAKPOINTS];
 
 static struct MC6809_REGS regs, prev_regs;
+
+
+static char **ddebug_GetMenu(void)
+{
+    if(!_menu_line){
+        int i = 0;
+        _menu_line = (char**)malloc(sizeof(char *)*MENU_NLINES);
+        _menu_line[i++] = _("Commands:");
+        _menu_line[i++] = _(" c: continue");
+        _menu_line[i++] = _(" n: run next locale instruction");
+        _menu_line[i++] = _(" s: run next instruction");
+        _menu_line[i++] = _(" b: manage breakpoints");
+        _menu_line[i++] = _(" a: show TO8 screen");
+        _menu_line[i++] = _(" m: show TO8 memory manager");
+        _menu_line[i++] = _(" q: quit the debugger   ");
+
+        assert(i <= MENU_NLINES);
+    }
+    return _menu_line;
+}
+
+static char **ddebug_GetBreakMenu(void)
+{
+    if(!_break_menu_line){
+        int i = 0;
+        _break_menu_line = (char**)malloc(sizeof(char *)*BREAK_MENU_NLINES);
+        _break_menu_line[i++] = _("Commands:                     ");
+        _break_menu_line[i++] = _(" b: add a breakpoint       ");
+        _break_menu_line[i++] = _(" d: delete a breakpoint     ");
+        _break_menu_line[i++] = _(" q: quit                      ");
+
+        assert(i <= BREAK_MENU_NLINES);
+    }
+    return _break_menu_line;
+}
 
 
 /* DisplayRegs:
@@ -118,14 +126,11 @@ static void DisplayRegs(void)
     cprintf("        CPU MC6809E           ");
 
     gotoxy(1,11);
-    cprintf(is_fr?"      PIA 6846 systŠme        "
-                 :"      PIA 6846 system         ");
+    cprintf(_("      PIA 6846 system         "));
     gotoxy(1,16);
-    cprintf(is_fr?"      PIA 6821 systŠme        "
-                 :"      PIA 6821 system         ");
+    cprintf(_("      PIA 6821 system         "));
     gotoxy(1,20);
-    cprintf(is_fr?"   PIA 6821 musique et jeux   "
-                 :"   PIA 6821 music and games   ");
+    cprintf(_("   PIA 6821 music and games   "));
     gotoxy(1,24);
     cprintf("    Gate Array mode_page      ");
 
@@ -133,8 +138,7 @@ static void DisplayRegs(void)
     cprintf("    Gate Array disk_ctrl      ");
 
     gotoxy(1,35);
-    cprintf(is_fr?"   Statut des pages m‚moire   "
-                 :"     Memory pages status      ");
+    cprintf(_("     Memory pages status      "));
     textbackground(BLACK);
     textcolor(WHITE);
 
@@ -203,19 +207,19 @@ static void DisplayRegs(void)
     cprintf(" WDATA: %02X    RDATA: %02X",disk[0].dkc->wr3, disk[0].dkc->rr3);
 
     gotoxy(2,36);
-    cprintf(is_fr?"page de ROM cartouche : %d":"ROM cartridge page    : %d",
+    cprintf(_("ROM cartridge page    : %d"),
                                                      mempager.cart.rom_page);
     gotoxy(2,37);
-    cprintf(is_fr?"page de RAM cartouche : %d":"RAM cartridge page    : %d",
+    cprintf(_("RAM cartridge page    : %d"),
                                                      mempager.cart.ram_page);
     gotoxy(2,38);
-    cprintf(is_fr?"page de VRAM          : %d":"VRAM page             : %d",
+    cprintf(_("VRAM page             : %d"),
                                                      mempager.screen.vram_page);
     gotoxy(2,39);
-    cprintf(is_fr?"page de RAM (registre): %d":"RAM page (register)   : %d",
+    cprintf(_("RAM page (register)   : %d"),
                                                      mempager.data.reg_page);
     gotoxy(2,40);
-    cprintf(is_fr?"page de RAM (PIA)     : %d":"RAM page (PIA)        : %d",
+    cprintf(_("RAM page (PIA)        : %d"),
                                                      mempager.data.pia_page);
 }
 
@@ -255,6 +259,9 @@ static void ReadByte(int *val, int pos_x, int pos_y, const char *mesg)
 static void SetBreakpoints(void)
 {
     int c=0, i;
+    char **break_menu_line;
+
+    break_menu_line = ddebug_GetBreakMenu();
 
     do
     {
@@ -268,7 +275,7 @@ static void SetBreakpoints(void)
             {
                 int addr;
                 ReadAddress(&addr, 2, 14+MAX_BREAKPOINTS/2+BREAK_MENU_NLINES,
-                                                is_fr?"adresse: ":"address: ");
+                                                _("address: "));
                 if ((0<=addr) && (addr<=0xFFFF))
                     breakpoint[i] = addr+1;
             }
@@ -278,7 +285,7 @@ static void SetBreakpoints(void)
         {
             int n;
             ReadByte(&n, 2, 14+MAX_BREAKPOINTS/2+BREAK_MENU_NLINES,
-                             is_fr?"num‚ro: ":"number: ");
+                             _("number: "));
             if ((1<=n) && (n<=MAX_BREAKPOINTS))
                 breakpoint[n-1] = 0;
         }
@@ -287,8 +294,7 @@ static void SetBreakpoints(void)
         textcolor(LIGHTGRAY);
 
         gotoxy(1,11);
-        cprintf(is_fr?"       Points d'arrˆt        "
-                     :"         Breakpoint          ");
+        cprintf(_("         Breakpoint          "));
 
         textbackground(BLACK);
         textcolor(WHITE);
@@ -342,7 +348,9 @@ void ddebug_Run(void)
     register int i,j;
              int c=0,pc;
     struct MC6809_DASM mc6809_dasm;
+    char **menu_line;
 
+    menu_line = ddebug_GetMenu();
     mc6809_FlushExec ();
 
     _set_screen_lines(50);
@@ -437,8 +445,7 @@ void ddebug_Run(void)
 
         /* le désassembleur */
         gotoxy(33,1);
-        cprintf(is_fr?"              D‚sassembleur MC6809E             "
-                     :"               MC6809E Disassembler              ");
+        cprintf(_("               MC6809E Disassembler              "));
 
         textbackground(BLACK);
         textcolor(WHITE);

@@ -40,27 +40,31 @@
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
  *                               24/10/2012
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des disquettes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
 #include "defs.h"
 #include "teo.h"
+#include "std.h"
+#include "media/disk.h"
+#include "media/disk/daccess.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
 #include "alleg/gui.h"
-#include "media/disk.h"
-#include "media/disk/daccess.h"
 #include "errors.h"
-#include "std.h"
-#include "teo.h"
+#include "gettext.h"
 
 /* Chemin du fichier de la disquette. */
 static char filename[MAX_PATH+1] = "";
@@ -68,56 +72,7 @@ static char filename[MAX_PATH+1] = "";
 /* Masque de bits décrivant les lecteurs supportant la lecture directe. */
 static int direct_disk = 0;
 
-/* Boîte de dialogue. */
-static DIALOG diskdial[]={
-/*  dialog proc       x    y    w    h  fg bg  key flags  d1  d2 dp */
-{ d_shadow_box_proc, 20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL },
-#ifdef FRENCH_LANGUAGE
-{ d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Lecteurs de disquettes" },
-#else
-{ d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, "Disk drives" },
-#endif
-  /* disk 0 */
-{ d_text_proc,       30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "0:" },
-{ d_button_proc,     47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  40, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    202,  40,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
-{ d_button_proc,    228,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
-{ d_check_proc,     260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
-  /* disk 1 */
-{ d_text_proc,       30,  68,   0,   0, 0, 0,   0,   0,    0, 0, "1:" },
-{ d_button_proc,     47,  66,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  64, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    202,  64,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
-{ d_button_proc,    228,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." },
-{ d_check_proc,     260,  64,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
-  /* disk 2 */
-{ d_text_proc,       30,  92,   0,   0, 0, 0,   0,   0,    0, 0, "2:" },
-{ d_button_proc,     47,  90,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64,  88, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    202,  88,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
-{ d_button_proc,    228,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." },
-{ d_check_proc,     260,  88,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
-  /* disk 3 */
-{ d_text_proc,       30, 116,   0,   0, 0, 0,   0,   0,    0, 0, "3:" },
-{ d_button_proc,     47, 114,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" },
-{ d_textbox_proc,    64, 112, 130,  16, 0, 0,   0,   0,    0, 0, NULL },
-{ d_button_proc,    202, 112,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL },
-{ d_button_proc,    228, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." },
-{ d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" },
-  /* direct disk */
-#ifdef FRENCH_LANGUAGE
-{ d_button_proc,     30, 136, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "Accès &direct" },
-{ d_text_proc,      198,  30,   0,   0, 0, 0,   0,   0,    0, 0, "face" },
-#else
-{ d_button_proc,     30, 146, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, "&Direct access" },
-{ d_text_proc,      198,  30,   0,   0, 0, 0,   0,   0,    0, 0, "side" },
-#endif
-{ d_text_proc,      255,  30,   0,   0, 0, 0,   0,   0,    0, 0, "prot." },
-{ d_button_proc,    210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-{ d_yield_proc,      20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL },
-{ NULL,               0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL }
-};
+
 
 #define DISKDIAL_EJECT0   3
 #define DISKDIAL_LABEL0   4
@@ -146,6 +101,67 @@ static DIALOG diskdial[]={
 #define DISKDIAL_DIRECT   26
 
 #define DISKDIAL_OK       29
+#define DISKDIAL_LEN      32
+
+static DIALOG *_diskdial = NULL;
+#define adisk_GetDialog() ( _diskdial ? _diskdial : adisk_AllocDialog())
+
+
+static DIALOG *adisk_AllocDialog(void)
+{
+    DIALOG *rv;
+    int i;
+
+    if(_diskdial)
+        return _diskdial;
+
+    rv = malloc(sizeof(DIALOG)*DISKDIAL_LEN);
+    i = 0;
+
+/*  dialog proc       x    y    w    h  fg bg  key flags  d1  d2 dp */
+    rv[i++] = (DIALOG){ d_shadow_box_proc, 20,  10, 280, 180, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_ctext_proc,     160,  20,   0,   0, 0, 0,   0,   0,    0, 0, _("Disk drives") };
+      /* disk 0 */
+    rv[i++] = (DIALOG){ d_text_proc,       30,  44,   0,   0, 0, 0,   0,   0,    0, 0, "0:" };
+    rv[i++] = (DIALOG){ d_button_proc,     47,  42,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" };
+    rv[i++] = (DIALOG){ d_textbox_proc,    64,  40, 130,  16, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    202,  40,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    228,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_check_proc,     260,  40,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" };
+      /* disk 1 */
+    rv[i++] = (DIALOG){ d_text_proc,       30,  68,   0,   0, 0, 0,   0,   0,    0, 0, "1:" };
+    rv[i++] = (DIALOG){ d_button_proc,     47,  66,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" };
+    rv[i++] = (DIALOG){ d_textbox_proc,    64,  64, 130,  16, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    202,  64,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    228,  64,  30,  16, 0, 0, '1', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_check_proc,     260,  64,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" };
+      /* disk 2 */
+    rv[i++] = (DIALOG){ d_text_proc,       30,  92,   0,   0, 0, 0,   0,   0,    0, 0, "2:" };
+    rv[i++] = (DIALOG){ d_button_proc,     47,  90,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" };
+    rv[i++] = (DIALOG){ d_textbox_proc,    64,  88, 130,  16, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    202,  88,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    228,  88,  30,  16, 0, 0, '2', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_check_proc,     260,  88,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" };
+      /* disk 3 */
+    rv[i++] = (DIALOG){ d_text_proc,       30, 116,   0,   0, 0, 0,   0,   0,    0, 0, "3:" };
+    rv[i++] = (DIALOG){ d_button_proc,     47, 114,  15,  12, 0, 0,   0, D_EXIT, 0, 0, "x" };
+    rv[i++] = (DIALOG){ d_textbox_proc,    64, 112, 130,  16, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    202, 112,  20,  16, 0, 0,   0, D_EXIT, 0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,    228, 112,  30,  16, 0, 0, '3', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_check_proc,     260, 112,  15,  15, 0, 0,   0, D_EXIT, 0, 0, "" };
+      /* direct disk */
+    rv[i++] = (DIALOG){ d_button_proc,     30, 146, 250,  16, 0, 0, 'd', D_EXIT, 0, 0, _("&Direct access") };
+    rv[i++] = (DIALOG){ d_text_proc,      198,  30,   0,   0, 0, 0,   0,   0,    0, 0, _("side") };
+    rv[i++] = (DIALOG){ d_text_proc,      255,  30,   0,   0, 0, 0,   0,   0,    0, 0, _("prot.") };
+    rv[i++] = (DIALOG){ d_button_proc,    210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
+    rv[i++] = (DIALOG){ d_yield_proc,      20,  10,   0,   0, 0, 0,   0,   0,    0, 0, NULL };
+    rv[i++] = (DIALOG){ NULL,               0,   0,   0,   0, 0, 0,   0,   0,    0, 0, NULL };
+
+    assert(i <= DISKDIAL_LEN);
+
+    _diskdial = rv;
+    return rv;
+}
 
 
 
@@ -154,6 +170,9 @@ static DIALOG diskdial[]={
  */
 static void update_params (int dial_nbr, int drive)
 {
+    DIALOG *diskdial;
+
+    diskdial = adisk_GetDialog();
     int state = diskdial[dial_nbr].flags & D_SELECTED;
 
     diskdial[dial_nbr].d2 = (state) ? 1 : 0;
@@ -167,6 +186,9 @@ static void update_params (int dial_nbr, int drive)
  */
 static void update_side_button(int drive)
 {
+    DIALOG *diskdial;
+
+    diskdial = adisk_GetDialog();
     int dial_nbr = DISKDIAL_SIDE0+(DISKDIAL_SIDE1-DISKDIAL_SIDE0)*drive;
 
     if (teo.disk[drive].side >= disk[drive].side_count)
@@ -207,7 +229,9 @@ void adisk_Panel(void)
     int drive, ret, ret2;
     int dial_nbr;
     char *name = NULL;
-    
+    DIALOG *diskdial;
+
+    diskdial = adisk_GetDialog();
     if (first)
     {
         centre_dialog(diskdial);
@@ -224,7 +248,7 @@ void adisk_Panel(void)
             if ((name == NULL) || (*name == '\0'))
             {
                 diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
-                diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                diskdial[dial_nbr].dp = std_strdup_printf ("%s", _("(None)"));
                 teo.disk[drive].side = 0;
                 disk[drive].side_count = 1;
             }
@@ -256,7 +280,7 @@ void adisk_Panel(void)
                 drive=(ret-DISKDIAL_EJECT0)/(DISKDIAL_EJECT1-DISKDIAL_EJECT0);
                 dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
                 diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
-                diskdial[dial_nbr].dp = std_strdup_printf ("%s", is_fr?"(Aucun)":"(None)");
+                diskdial[dial_nbr].dp = std_strdup_printf ("%s", _("(None)"));
                 disk_Eject(drive);
                 break;
 
@@ -268,7 +292,7 @@ void adisk_Panel(void)
                 init_filename(drive);
                 std_CleanPath (filename);
                 strcat (filename, "\\");
-                if (file_select_ex(is_fr?"Choisissez votre disquette:":"Choose your disk:",
+                if (file_select_ex(_("Select a disk:"),
                                    filename, "sap;hfe;fd;qd", MAX_PATH,
                                    OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT))
                 {
@@ -344,7 +368,7 @@ void adisk_Panel(void)
                         dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;
                         diskdial[dial_nbr].dp = std_free (diskdial[dial_nbr].dp);
                         diskdial[dial_nbr].dp = std_strdup_printf ("%s",
-                                                    is_fr?"Accès Direct":"Direct Access");
+                                                    _("Direct Access"));
                         teo.disk[drive].file = std_free (teo.disk[drive].file);
 
                         dial_nbr = DISKDIAL_CHECK0+(DISKDIAL_CHECK1-DISKDIAL_CHECK0)*drive;
@@ -370,6 +394,9 @@ void adisk_Panel(void)
  */
 void adisk_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
+    DIALOG *diskdial;
+
+    diskdial = adisk_GetDialog();
     set_dialog_color(diskdial, fg_color, bg_color);
     diskdial[DISKDIAL_LABEL0].bg = bg_entry_color;
     diskdial[DISKDIAL_LABEL1].bg = bg_entry_color;
@@ -388,6 +415,9 @@ void adisk_SetColors(int fg_color, int bg_color, int bg_entry_color)
  */
 void adisk_Init(int direct_disk_support)
 {
+    DIALOG *diskdial;
+
+    diskdial = adisk_GetDialog();
     if (!direct_disk_support)
         diskdial[DISKDIAL_DIRECT].flags=D_HIDDEN;
 
@@ -403,7 +433,9 @@ void adisk_Free(void)
 {
     int drive;
     int dial_nbr;
+    DIALOG *diskdial;
 
+    diskdial = adisk_GetDialog();
     for (drive=0; drive<NBDRIVE; drive++)
     {
         dial_nbr = DISKDIAL_LABEL0+(DISKDIAL_LABEL1-DISKDIAL_LABEL0)*drive;

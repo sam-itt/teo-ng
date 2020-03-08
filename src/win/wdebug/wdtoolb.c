@@ -36,10 +36,13 @@
  *  Module     : win/wdebug/wdstatus.c
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
- *  Modifié par: 
+ *  Modifié par: Samuel Cuella 02/2020 
  *
  *  Débogueur 6809 - Gestion de la barre d'outils.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -48,7 +51,13 @@
 #include "defs.h"
 #include "teo.h"
 #include "win/gui.h"
+#include "gettext.h"
 
+typedef struct button{
+    int message_id;
+    char *text;
+    char image_name[20];
+}button_t; 
 
 static HIMAGELIST imgl;
 
@@ -64,25 +73,16 @@ void wdtoolb_Init (HWND hDlg)
     HWND hwnd;
     TBBUTTON tbButton;
     HICON imgh;
-    
-    static struct {
-        int message_id;
-        char text[20];
-        char image_name[20];
-    } button[NUM_TOOLBAR_BUTTONS] = 
-    {
-#ifdef FRENCH_LANGUAGE
-        { IDM_DEBUG_BUTTON_STEP     , " Pas-à-pas "  , "step_ico"},
-        { IDM_DEBUG_BUTTON_STEP_OVER, " Passe jumps ", "stepover_ico"},
-        { IDM_DEBUG_BUTTON_RUN      , " Lancer "     , "run_ico"},
-        { IDM_DEBUG_BUTTON_LEAVE    , " Abandonner " , "leave_ico"},
-#else
-        { IDM_DEBUG_BUTTON_STEP     , " Step "       , "step_ico"},
-        { IDM_DEBUG_BUTTON_STEP_OVER, " Step over "  , "stepover_ico"},
-        { IDM_DEBUG_BUTTON_RUN      , " Run "        , "run_ico"},
-        { IDM_DEBUG_BUTTON_LEAVE    , " Leave "      , "leave_ico"},
-#endif
-    };
+
+    static button_t *button = NULL;
+
+    if(!button){
+        button = (button_t*)malloc(sizeof(button_t)*NUM_TOOLBAR_BUTTONS);
+        button[0] = (button_t){IDM_DEBUG_BUTTON_STEP,      _(" Step "),     "step_ico"};
+        button[1] = (button_t){IDM_DEBUG_BUTTON_STEP_OVER, _(" Step over "),"stepover_ico"};
+        button[2] = (button_t){IDM_DEBUG_BUTTON_RUN,       _(" Run "),      "run_ico"};
+        button[3] = (button_t){IDM_DEBUG_BUTTON_LEAVE,     _(" Leave "),    "leave_ico"};
+    }
 
     hwnd = GetDlgItem (hDlg, IDC_DEBUG_TOOL_BAR);
 
@@ -149,21 +149,11 @@ void wdtoolb_DisplayTooltips (LPARAM lParam)
     switch (idButton) 
     {
         case IDM_DEBUG_BUTTON_STEP :
-#ifdef FRENCH_LANGUAGE
-            lpttt->lpszText = "Exécute le code machine pas à pas";
-#else
-            lpttt->lpszText = "Execute the machine code step by step\n";
-#endif
+            lpttt->lpszText = _("Execute the machine code step by step");
             break;
                 
         case IDM_DEBUG_BUTTON_STEP_OVER:
-#ifdef FRENCH_LANGUAGE
-            lpttt->lpszText = "Exécute le code machine pas à pas\n" \
-                              "mais ne saute pas aux sous-programmes";
-#else
-            lpttt->lpszText = "Execute the machine code step by step\n" \
-                              "but don't jump to sub-programs";
-#endif
+            lpttt->lpszText = _("Execute the machine code step by step\nbut don't jump to sub-programs");
             break;
     }
 }

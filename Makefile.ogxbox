@@ -1,0 +1,56 @@
+XBE_TITLE = teo
+GEN_XISO = $(XBE_TITLE).iso
+
+SRCS += $(CURDIR)/src/errors.c \
+        $(CURDIR)/src/hardware.c \
+        $(CURDIR)/src/image.c \
+        $(CURDIR)/src/ini.c \
+        $(CURDIR)/src/std.c \
+        $(CURDIR)/src/logsys.c \
+        $(CURDIR)/src/teo.c 
+SRCS += $(wildcard $(CURDIR)/src/file/*.c)
+SRCS += $(wildcard $(CURDIR)/src/mc68xx/*.c)
+SRCS += $(wildcard $(CURDIR)/src/debug/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/printer/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/disk/*.c)
+SRCS += $(wildcard $(CURDIR)/src/media/disk/controlr/*.c)
+SRCS += $(wildcard $(CURDIR)/src/sdl2/*.c)
+SRCS += $(wildcard $(CURDIR)/src/sdl2/sgui/*.c)
+SRCS += $(wildcard $(CURDIR)/src/og-xbox/*.c)
+
+#NXDK_DIR = /home/samuel/dev/xbox/nxdk
+#NXDK_DIR = /home/samuel/dev/xbox/mine/nxdk
+NXDK_SDL = y
+DEBUG=n
+#DEBUG=y
+
+CFLAGS += -I$(CURDIR)         \
+          -I$(CURDIR)/include         \
+          -I$(CURDIR)/include/sdl2         \
+          -I$(CURDIR)/include/sdl2/gui         \
+          -I$(CURDIR)/include/og-xbox \
+		  -DPLATFORM_OGXBOX \
+		  -DTEO_NO_BORDER \
+		  -DHAVE_CONFIG_H
+
+CFLAGS += -O2 -funroll-loops -ffast-math
+
+all_local: cp_files all
+
+include $(NXDK_DIR)/Makefile
+
+config:
+	cp config.h.ogxbox config.h
+
+cp_files:
+	@mkdir -p $(OUTPUT_DIR)
+	cp -R data/system $(OUTPUT_DIR)/
+#	cp -R /usr/share/games/teo/roms $(OUTPUT_DIR)/
+	cp data/sdl-keymap.ini $(OUTPUT_DIR)/
+	cp data/teo.ini $(OUTPUT_DIR)/
+	sed -i 's#\$${romsdir}#D:\\roms#' $(OUTPUT_DIR)/teo.ini
+	cp data/empty.hfe $(OUTPUT_DIR)/
+	cp data/keyboard.bmp $(OUTPUT_DIR)/
+	cp data/led-on.bmp $(OUTPUT_DIR)/
+	cp data/led-off.bmp $(OUTPUT_DIR)/

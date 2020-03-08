@@ -40,10 +40,13 @@
  *               Gilles Fétis 27/07/2011
  *               François Mouret 07/08/2011 24/03/2012 12/06/2012
  *                               04/11/2012 31/05/2015 31/07/2016
+ *               Samuel Cuella   02/2020
  *
  *  Gestion des disquettes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -61,6 +64,7 @@
 #include "media/disk/daccess.h"
 #include "media/printer.h"
 #include "linux/gui.h"
+#include "gettext.h"
 
 
 struct FILE_VECTOR {
@@ -121,8 +125,7 @@ static void set_protection_check (GtkWidget *button, struct FILE_VECTOR *vector)
     if ((protection == FALSE)
      && (disk_Protection (vector->id, FALSE) == TRUE))
     {
-        ugui_Error (is_fr?"Ecriture impossible sur ce support."
-                         :"Writing unavailable on this device.", wControl);
+        ugui_Error (_("Writing unavailable on this device."), wControl);
         protection = TRUE;
         gtk_toggle_button_set_active (
             GTK_TOGGLE_BUTTON (vector->check_prot),
@@ -268,10 +271,9 @@ static void init_combo (struct FILE_VECTOR *vector)
     g_signal_handler_block (vector->combo, vector->combo_id);
     gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT(vector->combo));
 
-    add_combo_entry (is_fr?"(Aucun)":"(None)", 0, 1, FALSE, vector);
+    add_combo_entry (_("(None)"), 0, 1, FALSE, vector);
     if (vector->direct)
-        add_combo_entry (is_fr?"(AccÃ¨s Direct)"
-                              :"(Direct Access)",
+        add_combo_entry (_("(Direct Access)"),
                          vector->id,
                          vector->id+1,
                          TRUE,
@@ -310,13 +312,12 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
 
     if (vector->first_file) {
         dialog = gtk_file_chooser_dialog_new (
-                 is_fr?"SÃ©lectionner une disquette":"Select a disk",
+                 _("Select a disk"),
                  (GtkWindow *) wControl, GTK_FILE_CHOOSER_ACTION_OPEN,
-                 is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
-                 is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
+                 _("_Cancel"), GTK_RESPONSE_CANCEL,
+                 _("_Open"), GTK_RESPONSE_ACCEPT, NULL);
         filter = gtk_file_filter_new ();
-        gtk_file_filter_set_name (filter, is_fr?"Fichiers disquette"
-                                               :"Disk files");
+        gtk_file_filter_set_name (filter, _("Disk files"));
         gtk_file_filter_add_mime_type (filter, "application/x-thomson-sap-image");
         gtk_file_filter_add_mime_type (filter, "application/x-hfe-floppy-image");
         gtk_file_filter_add_mime_type (filter, "application/x-raw-floppy-disk-image");
@@ -331,8 +332,7 @@ static void open_file (GtkButton *button, struct FILE_VECTOR *vector)
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
         filter = gtk_file_filter_new ();
-        gtk_file_filter_set_name (filter, is_fr?"Tous les fichiers(*)"
-                                               :"All files(*)");
+        gtk_file_filter_set_name (filter, _("All files(*)"));
         gtk_file_filter_add_pattern (filter, "*");
         gtk_file_chooser_add_filter ((GtkFileChooser *)dialog, filter);
 
@@ -442,7 +442,7 @@ void udisk_Init (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Disquettes":"Disks"));
+    widget=gtk_label_new((_("Disks")));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
@@ -477,8 +477,7 @@ void udisk_Init (GtkWidget *notebook)
             FALSE,
             0);
         gtk_widget_set_tooltip_text (s_vector[i].emptying_button,
-                                     is_fr?"Vide la liste des fichiers"
-                                          :"Empty the file list");
+                                     _("Clear the file list"));
         (void)g_signal_connect(G_OBJECT(s_vector[i].emptying_button),
                                "clicked",
                                G_CALLBACK(emptying_button_clicked),
@@ -511,8 +510,7 @@ void udisk_Init (GtkWidget *notebook)
         gtk_button_set_image(GTK_BUTTON(widget), image);
         gtk_widget_set_tooltip_text (
             widget,
-            is_fr?"Ouvrir un fichier disquette"
-                 :"Open a disk file");
+            _("Open a disk file"));
         gtk_box_pack_start( GTK_BOX(hbox), widget, FALSE, FALSE, 0);
         (void)g_signal_connect(G_OBJECT(widget),
                                "clicked",
@@ -520,10 +518,9 @@ void udisk_Init (GtkWidget *notebook)
                                (gpointer)&s_vector[i]);
 
         /* label pour la face de disquette */
-        s_vector[i].side_text=gtk_label_new((is_fr)?"Face":"Side");
+        s_vector[i].side_text=gtk_label_new(_("Side"));
         gtk_widget_set_tooltip_text (s_vector[i].side_text,
-                                     is_fr?"Choisir une face"
-                                          :"Choose a side");
+                                     _("Select a side"));
         gtk_box_pack_start(GTK_BOX(hbox), s_vector[i].side_text, FALSE, FALSE,0);
 
         /* combobox pour la face de disquette */

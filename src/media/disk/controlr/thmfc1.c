@@ -207,6 +207,7 @@
 #include "errors.h"
 #include "std.h"
 #include "main.h"
+#include "logsys.h"
 #include "hardware.h"
 #include "media/disk.h"
 
@@ -356,8 +357,8 @@ static void auto_check_synchro (struct DISK_SIDE *dsd)
     if (dsd->dkc->rr4 != MFM_DATA_CLOCK_VALUE)
     {
 #ifdef DO_PRINT
-        printf ("-----------------------------------\n");
-        printf ("%02x auto_check_synchro\n", dsd->dkc->rr3);
+        log_msgf(LOG_TRACE,"-----------------------------------\n");
+        log_msgf(LOG_TRACE,"%02x auto_check_synchro\n", dsd->dkc->rr3);
 #endif
         dsd->dkc->process++;
     }
@@ -373,7 +374,7 @@ static void auto_check_synchro (struct DISK_SIDE *dsd)
 static void auto_check_info_id (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("%02x auto_check_info_id\n", dsd->dkc->rr3);
+    log_msgf(LOG_TRACE,"%02x auto_check_info_id\n", dsd->dkc->rr3);
 #endif
     if (dsd->dkc->rr3 == MFM_INFO_ID)
     {
@@ -391,7 +392,7 @@ static void auto_check_info_id (struct DISK_SIDE *dsd)
 static void auto_read_address_wait_for_id (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("%02x auto_read_address_wait_for_id\n", dsd->dkc->rr3);
+    log_msgf(LOG_TRACE,"%02x auto_read_address_wait_for_id\n", dsd->dkc->rr3);
 #endif
     if (dsd->dkc->rr3 == MFM_INFO_ID)
     {
@@ -413,7 +414,7 @@ static void auto_check_track (struct DISK_SIDE *dsd)
     uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
 
 #ifdef DO_PRINT
-    printf ("%02x auto_check_track\n", dsd->dkc->rr3);
+    log_msgf(LOG_TRACE,"%02x auto_check_track\n", dsd->dkc->rr3);
 #endif
     if (dsd->dkc->rr3 == dsd->dkc->wr6)
         dsd->dkc->process++;
@@ -432,7 +433,7 @@ static void auto_check_head (struct DISK_SIDE *dsd)
     uint8 tmp_uint8 = dsd->dkc->rr3;
 
 #ifdef DO_PRINT
-    printf ("%02x auto_check_head\n", dsd->dkc->rr3);
+    log_msgf(LOG_TRACE,"%02x auto_check_head\n", dsd->dkc->rr3);
 #endif
     if (dsd->dkc->rr3 == ((dsd->dkc->wr1 & CMD1_AUTO_HEAD) >> 4))
         dsd->dkc->process++;
@@ -451,7 +452,7 @@ static void auto_check_sector (struct DISK_SIDE *dsd)
     uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
 
 #ifdef DO_PRINT
-    printf ("%02x auto_check_sector\n", dsd->dkc->rr3);
+    log_msgf(LOG_TRACE,"%02x auto_check_sector\n", dsd->dkc->rr3);
 #endif
     if (dsd->dkc->rr3 == dsd->dkc->wr5)
         dsd->dkc->process++;
@@ -470,7 +471,7 @@ static void auto_check_size (struct DISK_SIDE *dsd)
     uint8 tmp_uint8 = (uint8)dsd->dkc->rr3;
 
 #ifdef DO_PRINT
-    printf ("%02x auto_check_size\n", dsd->dkc->rr3);
+    log_msgf(LOG_TRACE,"%02x auto_check_size\n", dsd->dkc->rr3);
 #endif
     if (dsd->dkc->rr3 == ((dsd->dkc->wr1 & CMD1_SECTOR_SIZE_MASK) >> 5))
         dsd->dkc->process++;
@@ -487,7 +488,7 @@ static void auto_check_size (struct DISK_SIDE *dsd)
 static void auto_check_crc_high_rewind (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("auto_check_crc_high_rewind\n");
+    log_msgf(LOG_TRACE,"auto_check_crc_high_rewind\n");
 #endif
     if (dsd->dkc->rr3 == (uint8)(dsd->dkc->crc>>8))
         dsd->dkc->process++;
@@ -502,7 +503,7 @@ static void auto_check_crc_high_rewind (struct DISK_SIDE *dsd)
 static void auto_check_crc_low_rewind (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("auto_check_crc_low_rewind\n");
+    log_msgf(LOG_TRACE,"auto_check_crc_low_rewind\n");
 #endif
     if (dsd->dkc->rr3 == (uint8)dsd->dkc->crc)
         dsd->dkc->process++;
@@ -517,7 +518,7 @@ static void auto_check_crc_low_rewind (struct DISK_SIDE *dsd)
 static void auto_check_crc_high (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("auto_check_crc_high\n");
+    log_msgf(LOG_TRACE,"auto_check_crc_high\n");
 #endif
     if (dsd->dkc->rr3 != (uint8)(dsd->dkc->crc>>8))
         dsd->dkc->rr0 |= STAT0_CRC_ERROR;
@@ -532,7 +533,7 @@ static void auto_check_crc_high (struct DISK_SIDE *dsd)
 static void auto_check_crc_low (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("auto_check_crc_low\n");
+    log_msgf(LOG_TRACE,"auto_check_crc_low\n");
 #endif
     if (dsd->dkc->rr3 != (uint8)dsd->dkc->crc)
         dsd->dkc->rr0 |= STAT0_CRC_ERROR;
@@ -549,7 +550,7 @@ static void auto_skip_27_datas (struct DISK_SIDE *dsd)
     if (++dsd->dkc->process_cpt == 27)
     {
 #ifdef DO_PRINT
-        printf ("auto_skip_27_datas\n");
+        log_msgf(LOG_TRACE,"auto_skip_27_datas\n");
 #endif
         dsd->dkc->process++;
         dsd->dkc->process_cpt = 0;
@@ -565,7 +566,7 @@ static void auto_read_wait_42 (struct DISK_SIDE *dsd)
     if (++dsd->dkc->process_cpt == 42)
     {
 #ifdef DO_PRINT
-        printf ("auto_read_wait_42");
+        log_msgf(LOG_TRACE,"auto_read_wait_42");
 #endif
         dsd->dkc->process = 0;
         dsd->dkc->process_cpt = 0;
@@ -588,7 +589,7 @@ static void auto_read_wait_sector_id (struct DISK_SIDE *dsd)
     if (dsd->dkc->rr3 == MFM_SECTOR_ID)
     {
 #ifdef DO_PRINT
-        printf ("auto_read_wait_sector_id\n");
+        log_msgf(LOG_TRACE,"auto_read_wait_sector_id\n");
 #endif
         dsd->dkc->crc = MFM_CRC_DATA_INIT;
         dsd->dkc->auto_count = 128<<((dsd->dkc->wr1&CMD1_SECTOR_SIZE_MASK)>>5);
@@ -618,21 +619,21 @@ static void auto_count_data (struct DISK_SIDE *dsd)
 #ifdef DO_PRINT
         for (y=0; y<pos; y+=16)
         {
-            printf ("%04d  ", y);
+            log_msgf(LOG_TRACE,"%04d  ", y);
 
             for (x=0; x<16; x++)
             {
-                printf ("%02x ", sector[y+x]);
+                log_msgf(LOG_TRACE,"%02x ", sector[y+x]);
             }
-            printf (" ");
+            log_msgf(LOG_TRACE," ");
             for (x=0; x<16; x++)
             {
                 if ((sector[y+x] > 32) && (sector[y+x] < 0x7e))
-                    printf ("%c", sector[y+x]);
+                    log_msgf(LOG_TRACE,"%c", sector[y+x]);
                 else
-                    printf (".");
+                    log_msgf(LOG_TRACE,".");
             }
-            printf ("\n");
+            log_msgf(LOG_TRACE,"\n");
         }
         pos = 0;
 #endif
@@ -647,7 +648,7 @@ static void auto_skip_22_datas (struct DISK_SIDE *dsd)
     if (++dsd->dkc->process_cpt == 22)
     {
 #ifdef DO_PRINT
-        printf ("auto_skip_22_datas\n");
+        log_msgf(LOG_TRACE,"auto_skip_22_datas\n");
 #endif
         dsd->dkc->rr3 = MFM_PRE_SYNC_DATA_VALUE;
         dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
@@ -666,7 +667,7 @@ static void auto_write_pre_synchro (struct DISK_SIDE *dsd)
     if (++dsd->dkc->process_cpt == 12)
     {
 #ifdef DO_PRINT
-        printf ("auto_write_pre_synchro\n");
+        log_msgf(LOG_TRACE,"auto_write_pre_synchro\n");
 #endif
         dsd->dkc->rr3 = MFM_SYNCHRO_DATA_VALUE;
         dsd->dkc->rr4 = MFM_SYNCHRO_CLOCK_VALUE;
@@ -680,7 +681,7 @@ static void auto_write_pre_synchro (struct DISK_SIDE *dsd)
 static void auto_write_ready (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("auto_write_ready\n");
+    log_msgf(LOG_TRACE,"auto_write_ready\n");
 #endif
     dsd->dkc->rr0 |= STAT0_DREQ;
     dsd->dkc->process++;
@@ -695,7 +696,7 @@ static void auto_write_wait_sector_id (struct DISK_SIDE *dsd)
     if (dsd->dkc->rr3 == MFM_SECTOR_ID)
     {
 #ifdef DO_PRINT
-        printf ("auto_write_wait_sector\n");
+        log_msgf(LOG_TRACE,"auto_write_wait_sector\n");
 #endif
         dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
         dsd->clck[dsd->drv->pos.curr] = DATA_CLOCK_MARK_WRITE;
@@ -710,7 +711,7 @@ static void auto_write_wait_sector_id (struct DISK_SIDE *dsd)
 static void auto_write_crc_high (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("%02x auto_write_crc_high\n", (int)dsd->dkc->rr3&0xff);
+    log_msgf(LOG_TRACE,"%02x auto_write_crc_high\n", (int)dsd->dkc->rr3&0xff);
 #endif
     dsd->dkc->rr3 = (uint8)(dsd->dkc->crc>>8);
     dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
@@ -724,7 +725,7 @@ static void auto_write_crc_high (struct DISK_SIDE *dsd)
 static void auto_write_crc_low (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("%02x auto_write_crc_low\n", (int)dsd->dkc->rr3&0xff);
+    log_msgf(LOG_TRACE,"%02x auto_write_crc_low\n", (int)dsd->dkc->rr3&0xff);
 #endif
     dsd->dkc->rr3 = (uint8)dsd->dkc->crc;
     dsd->dkc->rr4 = MFM_DATA_CLOCK_VALUE;
@@ -738,7 +739,7 @@ static void auto_write_crc_low (struct DISK_SIDE *dsd)
 static void auto_finished (struct DISK_SIDE *dsd)
 {
 #ifdef DO_PRINT
-    printf ("auto_finished\n");
+    log_msgf(LOG_TRACE,"auto_finished\n");
 #endif
     dsd->dkc->rr0 |= STAT0_FINISHED | STAT0_DRQ;
     dsd->dkc->process = 0;
@@ -850,7 +851,7 @@ static int get_reg0 (void)
     }
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg0=$%02x\n", regs.pc, disk[dkcurr].dkc->rr0);
+    log_msgf(LOG_TRACE,"%04X get_reg0=$%02x\n", regs.pc, disk[dkcurr].dkc->rr0);
 #endif
     return dsd->dkc->rr0;
 }
@@ -924,7 +925,7 @@ static int get_reg1 (void)
 
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg1=$%02x\n", regs.pc, disk[dkcurr].dkc->rr1);
+    log_msgf(LOG_TRACE,"%04X get_reg1=$%02x\n", regs.pc, disk[dkcurr].dkc->rr1);
 #endif
     return disk[dkcurr].dkc->rr1;
 }
@@ -938,7 +939,7 @@ static int get_reg2 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg2=$%02x\n", regs.pc, disk[dkcurr].dkc->rr2);
+    log_msgf(LOG_TRACE,"%04X get_reg2=$%02x\n", regs.pc, disk[dkcurr].dkc->rr2);
 #endif
     return disk[dkcurr].dkc->rr2;
 }
@@ -956,7 +957,7 @@ static int get_reg3 (void)
 
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg3=$%02x\n", regs.pc, disk[dkcurr].dkc->rr3);
+    log_msgf(LOG_TRACE,"%04X get_reg3=$%02x\n", regs.pc, disk[dkcurr].dkc->rr3);
 #endif
     return disk[dkcurr].dkc->rr3;
 }
@@ -970,7 +971,7 @@ static int get_reg4 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg4=$%02x\n", regs.pc, disk[dkcurr].dkc->rr3);
+    log_msgf(LOG_TRACE,"%04X get_reg4=$%02x\n", regs.pc, disk[dkcurr].dkc->rr3);
 #endif
     return disk[dkcurr].dkc->rr3;
 }
@@ -985,7 +986,7 @@ static int get_reg5 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg5=$%02x\n", regs.pc, disk[dkcurr].dkc->rr5);
+    log_msgf(LOG_TRACE,"%04X get_reg5=$%02x\n", regs.pc, disk[dkcurr].dkc->rr5);
 #endif
     return disk[dkcurr].dkc->rr5;
 }
@@ -1000,7 +1001,7 @@ static int get_reg6 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg6=$%02x\n", regs.pc, disk[dkcurr].dkc->rr6);
+    log_msgf(LOG_TRACE,"%04X get_reg6=$%02x\n", regs.pc, disk[dkcurr].dkc->rr6);
 #endif
     return disk[dkcurr].dkc->rr6;
 }
@@ -1015,7 +1016,7 @@ static int get_reg7 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg7=$%02x\n", regs.pc, disk[dkcurr].dkc->rr7);
+    log_msgf(LOG_TRACE,"%04X get_reg7=$%02x\n", regs.pc, disk[dkcurr].dkc->rr7);
 #endif
     return disk[dkcurr].dkc->rr7;
 }
@@ -1030,7 +1031,7 @@ static int get_reg8 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg8=$%02x\n", regs.pc, disk[dkcurr].dkc->rr0);
+    log_msgf(LOG_TRACE,"%04X get_reg8=$%02x\n", regs.pc, disk[dkcurr].dkc->rr0);
 #endif
     return disk[dkcurr].dkc->rr0;
 }
@@ -1045,7 +1046,7 @@ static int get_reg9 (void)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X get_reg9=$%02x\n", regs.pc, disk[dkcurr].dkc->rr1);
+    log_msgf(LOG_TRACE,"%04X get_reg9=$%02x\n", regs.pc, disk[dkcurr].dkc->rr1);
 #endif
     return disk[dkcurr].dkc->rr1;
 }
@@ -1061,7 +1062,7 @@ static void set_reg0 (int val)
 
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg0=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg0=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->wr0 = val;
 
@@ -1104,7 +1105,7 @@ static void set_reg1 (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg1=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg1=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->wr1 = val;
 }
@@ -1175,7 +1176,7 @@ static void set_reg2 (int val)
 
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg2=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg2=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->wr2 = val;
 
@@ -1222,7 +1223,7 @@ static void set_reg2 (int val)
                 }
             }
 #ifdef DO_PRINT
-            printf ("move head to track %d\n", disk[dkcurr].drv->track.curr);
+            log_msgf(LOG_TRACE,"move head to track %d\n", disk[dkcurr].drv->track.curr);
 #endif
         }
     }
@@ -1238,7 +1239,7 @@ static void set_reg3 (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg3=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg3=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->rr3 = val;
 
@@ -1257,7 +1258,7 @@ static void set_reg4 (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg4=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg4=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->rr4 = val;
 
@@ -1276,7 +1277,7 @@ static void set_reg5 (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg5=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg5=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->wr5 = val;
 }
@@ -1291,7 +1292,7 @@ static void set_reg6 (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg6=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg6=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->wr6 = val;
 }
@@ -1306,7 +1307,7 @@ static void set_reg7 (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_reg7=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_reg7=$%02x\n", regs.pc, val);
 #endif
     disk[dkcurr].dkc->wr7 = val;
 }
@@ -1320,7 +1321,7 @@ static void set_nop (int val)
 {
 #ifdef DO_PRINT
     mc6809_GetRegs(&regs);
-    printf ("%04X set_nop=$%02x\n", regs.pc, val);
+    log_msgf(LOG_TRACE,"%04X set_nop=$%02x\n", regs.pc, val);
 #endif
     (void)val;
 }

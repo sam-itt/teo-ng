@@ -36,11 +36,13 @@
  *  Module     : linux/udebug/udbkpt.c
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 14/07/2016
- *  Modifié par:
+ *  Modifié par: Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Gestion des breakpoints.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -52,6 +54,7 @@
 #include "defs.h"
 #include "teo.h"
 #include "linux/gui.h"
+#include "gettext.h"
 
 static GtkWidget *entry[MAX_BREAKPOINTS];
 
@@ -169,7 +172,7 @@ GtkWidget *udbkpt_Init (void)
                           G_CALLBACK (entry_changed), GINT_TO_POINTER (i));
     }
 
-    frame = gtk_frame_new (is_fr?"Points d'arrÃªts":"Breakpoints");
+    frame = gtk_frame_new (_("Breakpoints"));
     gtk_widget_set_hexpand (frame, FALSE);
     gtk_widget_set_vexpand (frame, FALSE);
     gtk_container_add (GTK_CONTAINER (frame), grid);

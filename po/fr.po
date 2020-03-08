@@ -1,0 +1,1356 @@
+# Teo a Thomson TO8 emulator.
+# Copyright (C) 2020
+# This file is distributed under the same license as the teo package.
+#  <samuel.cuella@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-06 09:50+0100\n"
+"PO-Revision-Date: 2020-02-07 11:37+0100\n"
+"Last-Translator:  <samuel.cuella@gmail.com>\n"
+"Language-Team: French <traduc@traduc.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/option.c:116
+msgid "Usage"
+msgstr "Utilisation"
+
+#: src/option.c:118
+msgid "[FILE...] [FOLDER...]"
+msgstr "[FILE...] [FOLDER...]"
+
+#: src/option.c:119
+msgid "Help Options"
+msgstr "Options de l'aide"
+
+#: src/option.c:122
+msgid "Application Options"
+msgstr "Options de l'application"
+
+#: src/option.c:200
+msgid "Unknown option"
+msgstr "Option inconnue"
+
+#: src/option.c:216
+msgid "Missing argument for"
+msgstr "Argument manquant pour"
+
+#: src/option.c:222
+msgid "Unknown type for"
+msgstr "Type inconnu pour"
+
+#: src/option.c:246
+msgid "Help of this program"
+msgstr "Aide de ce programme"
+
+#: src/errors.c:85
+msgid "No more memory space"
+msgstr "Plus de mémoire"
+
+#: src/errors.c:86
+msgid "Bad BMP format"
+msgstr "Format BMP incorrect"
+
+#: src/errors.c:87
+msgid "Directory full"
+msgstr "Répertoire plein"
+
+#: src/errors.c:88
+msgid "Cannot create disk"
+msgstr "Impossible de créer la disquette"
+
+#: src/errors.c:89
+msgid "Disk I/O error"
+msgstr "Erreur sur le disque"
+
+#: src/errors.c:90
+msgid "No disk"
+msgstr "Disque absent"
+
+#: src/errors.c:91
+msgid "Disk write protected"
+msgstr "Disque protégé en écriture"
+
+#: src/errors.c:92
+msgid "File is empty"
+msgstr "Fichier vide"
+
+#: src/errors.c:93
+msgid "Bad file format"
+msgstr "Mauvais format de fichier"
+
+#: src/errors.c:94
+msgid "File not found"
+msgstr "Fichier introuvable"
+
+#: src/errors.c:95
+msgid "Unable to open"
+msgstr "Ouverture impossible"
+
+#: src/errors.c:96
+msgid "Error while reading file"
+msgstr "Erreur de lecture du fichier"
+
+#: src/errors.c:97
+msgid "File too large"
+msgstr "Fichier trop important"
+
+#: src/errors.c:98
+msgid "Error while writing file"
+msgstr "Erreur d'écriture du fichier"
+
+#: src/errors.c:99
+msgid "Bad count of joysticks"
+msgstr "Nombre de joysticks incorrect"
+
+#: src/errors.c:100
+msgid "No more media available"
+msgstr "Plus de media libre"
+
+#: src/errors.c:101
+msgid "Bad checksum for memo header"
+msgstr "Checksum d'en-tête de memo erroné"
+
+#: src/errors.c:102
+msgid "Bad name for memo header"
+msgstr "Nom d'en-tête de memo incorrect"
+
+#: src/errors.c:103
+msgid "Multiple instance of Teo"
+msgstr "Instance multiple de Teo"
+
+#: src/errors.c:104
+msgid "Unsupported image format"
+msgstr "Image d'un format non supporté"
+
+#: src/errors.c:105
+msgid "SAP archive not valid"
+msgstr "Archive SAP invalide"
+
+#: src/errors.c:106
+msgid "Unknown error"
+msgstr "Erreur inconnue"
+
+#: src/debug/dreg.c:144
+#, c-format
+msgid "ROM cartridge page :%d%s"
+msgstr "page de ROM cartouche :%d%s"
+
+#: src/debug/dreg.c:147
+#, c-format
+msgid "RAM cartridge page :%d%s"
+msgstr "page de RAM cartouche :%d%s"
+
+#: src/debug/dreg.c:150
+#, c-format
+msgid "VRAM page          :%d%s"
+msgstr "page de VRAM          :%d%s"
+
+#: src/debug/dreg.c:153
+#, c-format
+msgid "RAM page (register):%d%s"
+msgstr "page de RAM (registre):%d%s"
+
+#: src/debug/dreg.c:156
+#, c-format
+msgid "RAM page (PIA)     :%d"
+msgstr "page de RAM (PIA)     :%d"
+
+#: src/alleg/ajoyint.c:118
+#, c-format
+msgid "Initialization of input devices : %d joystick(s) detected)\n"
+msgstr "Initialisation des périphériques d'entrée: %d joystick(s) détecté(s)\n"
+
+#: src/alleg/asound.c:190
+msgid "Sound initialization..."
+msgstr "Initialisation du son..."
+
+#: src/alleg/asound.c:206
+msgid "error\n"
+msgstr "erreur\n"
+
+#: src/alleg/agui.c:173 src/linux/ugui.c:179 src/sdl2/sgui.c:46
+#: src/win/wgui.c:138
+msgid "Control panel"
+msgstr "Panneau de contrôle"
+
+#: src/alleg/agui.c:174
+msgid "&Warm reset"
+msgstr "Reset à chaud"
+
+#: src/alleg/agui.c:175
+msgid "&Cold reset"
+msgstr "Reset à froid"
+
+#: src/alleg/agui.c:176
+msgid "&Full reset"
+msgstr "Reset total"
+
+#: src/alleg/agui.c:177
+msgid "&Settings..."
+msgstr "&Réglages..."
+
+#: src/alleg/agui.c:178
+msgid "&Disk drives..."
+msgstr "Lecteurs de &disquettes..."
+
+#: src/alleg/agui.c:179
+msgid "&Tape drive..."
+msgstr "Lecteur de cassettes"
+
+#: src/alleg/agui.c:180
+msgid "Ca&rtridge drive..."
+msgstr "Lecteur de cartouches"
+
+#: src/alleg/agui.c:181
+msgid "Dot-matrix &printer..."
+msgstr "&Imprimante matricielle..."
+
+#: src/alleg/agui.c:182
+msgid "&Quit"
+msgstr "Quitter"
+
+#: src/alleg/agui.c:183
+msgid "&About"
+msgstr "A Propos"
+
+#: src/alleg/agui.c:220
+msgid "All the memory"
+msgstr "Toute la mémoire"
+
+#: src/alleg/agui.c:221
+msgid "will be cleared."
+msgstr "Toute la mémoire RAM sera effacée."
+
+#: src/alleg/agui.c:224
+msgid "Cancel"
+msgstr "Annu_ler"
+
+#: src/alleg/agui/aabout.c:90 src/sdl2/sgui/sabout.c:40
+#: src/sdl2/sgui/sabout.c:46
+msgid "Authors:"
+msgstr "Auteurs:"
+
+#: src/alleg/agui/aabout.c:100
+msgid " homepage:"
+msgstr ""
+
+#: src/alleg/agui/aabout.c:103
+msgid "Licence: GPL 2.0"
+msgstr "Licence: GPL 2.0"
+
+#: src/alleg/agui/acass.c:109 src/sdl2/sgui/scass.c:71
+msgid "Tape drive"
+msgstr "Lecteur de cassettes"
+
+#: src/alleg/agui/acass.c:110
+msgid "k7"
+msgstr "k7"
+
+#: src/alleg/agui/acass.c:115 src/alleg/agui/adisk.c:155
+#: src/sdl2/sgui/sdisk.c:79 src/sdl2/sgui/scass.c:74
+msgid "prot."
+msgstr "prot."
+
+#: src/alleg/agui/acass.c:121
+msgid "&Rewind"
+msgstr "Rembobiner"
+
+#: src/alleg/agui/acass.c:319 src/alleg/agui/acass.c:343
+#: src/alleg/agui/adisk.c:251 src/alleg/agui/adisk.c:283
+#: src/alleg/agui/amemo.c:152 src/alleg/agui/amemo.c:167
+#: src/linux/ugui/ucass.c:270 src/linux/ugui/udisk.c:274
+#: src/linux/ugui/umemo.c:147 src/sdl2/sgui/sdisk.c:132
+#: src/sdl2/sgui/sdisk.c:288 src/sdl2/sgui/scass.c:102
+#: src/sdl2/sgui/scass.c:236 src/win/wgui/wcass.c:218 src/win/wgui/wdisk.c:316
+#: src/win/wgui/wmemo.c:151
+msgid "(None)"
+msgstr "(Aucun)"
+
+#: src/alleg/agui/acass.c:351
+msgid "Select a tape:"
+msgstr "Choisissez une cassette"
+
+#: src/alleg/agui/adisk.c:123 src/sdl2/sgui/sdisk.c:75
+msgid "Disk drives"
+msgstr "Lecteurs de disquettes"
+
+#: src/alleg/agui/adisk.c:153
+msgid "&Direct access"
+msgstr "Accès &direct"
+
+#: src/alleg/agui/adisk.c:154 src/sdl2/sgui/sdisk.c:78 src/win/wgui/wdisk.c:467
+#: src/win/wgui/wdisk.c:469 src/win/wgui/wdisk.c:471 src/win/wgui/wdisk.c:473
+msgid "side"
+msgstr "face"
+
+#: src/alleg/agui/adisk.c:295
+msgid "Select a disk:"
+msgstr "Choisissez une disquette"
+
+#: src/alleg/agui/adisk.c:371 src/sdl2/sgui/sdisk.c:247
+#, c-format
+msgid "Direct Access"
+msgstr "(Accès Direct)"
+
+#: src/alleg/agui/amemo.c:95 src/sdl2/sgui/smemo.c:47
+msgid "Cartridge drive"
+msgstr "Lecteur de cartouches"
+
+#: src/alleg/agui/amemo.c:176 src/linux/ugui/umemo.c:212
+msgid "Select a cartridge"
+msgstr "Choisissez une cartouche"
+
+#: src/alleg/agui/aprinter.c:107
+msgid "Dot-matrix printers"
+msgstr "Imprimantes matricielles"
+
+#: src/alleg/agui/aprinter.c:108 src/sdl2/sgui/sprinter.c:60
+msgid "Save into:"
+msgstr "Sauver dans:"
+
+#: src/alleg/agui/aprinter.c:111
+msgid "Printer:"
+msgstr "Imprimante"
+
+#: src/alleg/agui/aprinter.c:113
+msgid "Double &spacing"
+msgstr "Double &interligne"
+
+#: src/alleg/agui/aprinter.c:114
+msgid "&High quality print"
+msgstr "Imprime en de &haute qualité"
+
+#: src/alleg/agui/aprinter.c:115
+msgid "Output:"
+msgstr "Sortie"
+
+#: src/alleg/agui/aprinter.c:116
+msgid "&raw"
+msgstr "&brute"
+
+#: src/alleg/agui/aprinter.c:117
+msgid "&text"
+msgstr "texte"
+
+#: src/alleg/agui/aprinter.c:118
+msgid "&graphic"
+msgstr "graph"
+
+#: src/alleg/agui/aprinter.c:183
+msgid "Select a folder:"
+msgstr "Choisissez un répertoire"
+
+#: src/alleg/agui/asetting.c:96 src/linux/ugui/usetting.c:208
+#: src/sdl2/sgui/sprinter.c:82 src/sdl2/sgui/ssetting.c:48 src/win/wgui.c:146
+msgid "Settings"
+msgstr "Réglages"
+
+#: src/alleg/agui/asetting.c:97
+msgid " Speed:"
+msgstr "Vitesse:"
+
+#: src/alleg/agui/asetting.c:98
+msgid "&exact"
+msgstr "exacte"
+
+#: src/alleg/agui/asetting.c:99
+msgid "&fast"
+msgstr "rapide"
+
+#: src/alleg/agui/asetting.c:100
+msgid "&Sound"
+msgstr "Son"
+
+#: src/alleg/agui/asetting.c:102 src/sdl2/sgui/ssetting.c:60
+msgid "Memory:"
+msgstr "Mémoire:"
+
+#: src/alleg/agui/asetting.c:105
+msgid "&Interlaced video"
+msgstr "Vidéo &entrelacée"
+
+#: src/dos/ddebug.c:87 src/dos/dmemmng.c:121
+msgid "Commands:"
+msgstr "Commandes:"
+
+#: src/dos/ddebug.c:88
+msgid " c: continue"
+msgstr " c: continuer"
+
+#: src/dos/ddebug.c:89
+msgid " n: run next locale instruction"
+msgstr " n: éxécuter l'instruction locale suivante"
+
+#: src/dos/ddebug.c:90
+msgid " s: run next instruction"
+msgstr " s: éxécuter l'instruction suivante"
+
+#: src/dos/ddebug.c:91
+msgid " b: manage breakpoints"
+msgstr " b: gérer les points d'arrêt"
+
+#: src/dos/ddebug.c:92
+msgid " a: show TO8 screen"
+msgstr " a: afficher l'écran du TO8"
+
+#: src/dos/ddebug.c:93
+msgid " m: show TO8 memory manager"
+msgstr " m: lancer le gestionnaire de m<émoire du TO8"
+
+#: src/dos/ddebug.c:94
+msgid " q: quit the debugger   "
+msgstr " q: quitter le débogueur"
+
+#: src/dos/ddebug.c:106
+msgid "Commands:                     "
+msgstr "Commandes:                    "
+
+#: src/dos/ddebug.c:107
+msgid " b: add a breakpoint       "
+msgstr " b: ajouter un point d'arr<88>t  "
+
+#: src/dos/ddebug.c:108
+msgid " d: delete a breakpoint     "
+msgstr " d: supprimer un point d'arrêt"
+
+#: src/dos/ddebug.c:109
+msgid " q: quit                      "
+msgstr " q: quitter                   "
+
+#: src/dos/ddebug.c:129
+msgid "      PIA 6846 system         "
+msgstr "      PIA 6846 système        "
+
+#: src/dos/ddebug.c:131
+msgid "      PIA 6821 system         "
+msgstr "      PIA 6821 système        "
+
+#: src/dos/ddebug.c:133
+msgid "   PIA 6821 music and games   "
+msgstr "   PIA 6821 musique et jeux   "
+
+#: src/dos/ddebug.c:141
+msgid "     Memory pages status      "
+msgstr "   Statut des pages mémoire   "
+
+#: src/dos/ddebug.c:210
+#, c-format
+msgid "ROM cartridge page    : %d"
+msgstr "page de ROM cartouche : %d"
+
+#: src/dos/ddebug.c:213
+#, c-format
+msgid "RAM cartridge page    : %d"
+msgstr "page de RAM cartouche : %d"
+
+#: src/dos/ddebug.c:216
+#, c-format
+msgid "VRAM page             : %d"
+msgstr "page de VRAM          : %d"
+
+#: src/dos/ddebug.c:219
+#, c-format
+msgid "RAM page (register)   : %d"
+msgstr "page de RAM (registre): %d"
+
+#: src/dos/ddebug.c:222
+#, c-format
+msgid "RAM page (PIA)        : %d"
+msgstr "page de RAM (PIA)     : %d"
+
+#: src/dos/ddebug.c:278
+msgid "address: "
+msgstr "adresse: "
+
+#: src/dos/ddebug.c:288
+msgid "number: "
+msgstr "numéro: "
+
+#: src/dos/ddebug.c:297
+msgid "         Breakpoint          "
+msgstr "       Points d'arrêt        "
+
+#: src/dos/ddebug.c:448
+msgid "               MC6809E Disassembler              "
+msgstr "              Désassembleur MC6809E             "
+
+#: src/dos/dmain.c:589 src/linux/umain.c:627 src/win/wmain.c:551
+msgid "Couldn't initialize Allegro, bailing out !\n"
+msgstr "Impossible d'initialiser Allegro, abandon !\n"
+
+#: src/dos/dmain.c:595 src/linux/umain.c:639
+#, c-format
+msgid "Here comes %s the Thomson TO8 emulator.\n"
+msgstr "Voici %s l'émulateur Thomson TO8.\n"
+
+#: src/dos/dmain.c:596 src/linux/umain.c:640
+#, fuzzy, c-format
+#| msgid ""
+#| "Copyright (C) 1997-%s Teo Authors: .%s\n"
+#| "\n"
+msgid ""
+"Copyright (C) 1997-%s Teo Authors: %s.\n"
+"\n"
+msgstr ""
+"Copyright (C) 1997-%s Auteurs: .%s\n"
+"\n"
+
+#: src/dos/dmain.c:597 src/linux/umain.c:641
+msgid "Command keys: [ESC] Control panel\n"
+msgstr "Touches: [ESC] Panneau de contrôle\n"
+
+#: src/dos/dmain.c:598
+msgid "\t[F11] Screenshot\n"
+msgstr "\t[F11] Capture d'écran\n"
+
+# c-format
+#: src/dos/dmain.c:599 src/linux/umain.c:642
+msgid "\t[F12] Debugger\n"
+msgstr "\t[F12] Débogueur\n"
+
+#: src/dos/dmain.c:605 src/linux/umain.c:645 src/og-xbox/xmain.c:464
+#: src/win/wmain.c:567
+msgid "Emulator init..."
+msgstr "Initialisation de l'émulateur..."
+
+#: src/dos/dmain.c:624
+msgid ""
+"\n"
+"Select graphic mode:\n"
+"\n"
+msgstr ""
+"\n"
+"Sélection du mode graphique:\n"
+"\n"
+
+#: src/dos/dmain.c:629
+msgid "Your choice: [default 1] "
+msgstr "Votre choix: [1 par défaut] "
+
+#: src/dos/dmain.c:691
+msgid "\n"
+msgstr ""
+
+#: src/dos/dmain.c:692 src/linux/umain.c:723 src/og-xbox/xmain.c:497
+#: src/win/wmain.c:639
+msgid "Goodbye !\n"
+msgstr "A bientôt !\n"
+
+#: src/dos/dmemmng.c:98
+msgid ""
+"                               TO8 memory "
+"manager                               "
+msgstr ""
+"                          Gestionnaire de mémoire du "
+"TO8                        "
+
+#: src/dos/dmemmng.c:122
+msgid " c: load a memory block"
+msgstr " c: charger un bloc mémoire"
+
+#: src/dos/dmemmng.c:123
+msgid " s: save a memory block"
+msgstr " s: sauver un bloc mémoire"
+
+#: src/dos/dmemmng.c:124
+msgid " a: go to <address>"
+msgstr " a: aller à l'<adresse>"
+
+#: src/dos/dmemmng.c:125
+msgid " e: edit a byte"
+msgstr " e: éditer un octet"
+
+#: src/dos/dmemmng.c:126
+msgid " TAB;+,-: move around"
+msgstr " TAB,+,-: naviguer"
+
+#: src/dos/dmemmng.c:127
+msgid " q: quit the memory manager"
+msgstr " q: quitter le gestionnaire"
+
+#: src/dos/dmemmng.c:315
+msgid "Address: "
+msgstr "Adresse: "
+
+#: src/dos/dmemmng.c:316
+msgid "New value : "
+msgstr "Nouvelle valeur : "
+
+#: src/dos/dmemmng.c:335 src/dos/dmemmng.c:382
+msgid "File name: "
+msgstr "Nom du fichier: "
+
+#: src/dos/dmemmng.c:336 src/dos/dmemmng.c:383
+msgid "Start address: "
+msgstr "Adresse de début: "
+
+#: src/dos/dmemmng.c:343 src/dos/dmemmng.c:400
+msgid "Error !!!"
+msgstr "Erreur !!!"
+
+#: src/dos/dmemmng.c:355 src/dos/dmemmng.c:438
+msgid "Finished"
+msgstr "Terminé"
+
+#: src/dos/dmemmng.c:359 src/dos/dmemmng.c:442
+msgid "Press <space bar>"
+msgstr "Appuyer sur <espace>"
+
+#: src/dos/dmemmng.c:384
+msgid "End address: "
+msgstr "Adresse de fin: "
+
+#: src/dos/dmemmng.c:387
+msgid "Format: 1.binary"
+msgstr "Format: 1.binaire"
+
+#: src/dos/dmemmng.c:391
+msgid "        3.assembler"
+msgstr "        3.assembleur"
+
+#: src/dos/dmemmng.c:490
+msgid "          Content of the memory           "
+msgstr "          Contenu de la mémoire           "
+
+#: src/dos/dmemmng.c:492
+msgid "       MC6809E Disassembler        "
+msgstr "       Désassembleur MC6809E       "
+
+#: src/dos/dmemmng.c:589
+msgid "New address: "
+msgstr "Nouvelle adresse: "
+
+#: src/linux/udebug.c:234 src/win/wdebug.c:285
+msgid "Teo - Debugger"
+msgstr "Teo - Débogueur"
+
+#: src/linux/udebug/udbkpt.c:175
+msgid "Breakpoints"
+msgstr "Points d'arrêts"
+
+#: src/linux/udebug/uddisass.c:324 src/win/wdebug/wddisass.c:140
+msgid ""
+"The single-stepping has been aborted because the\n"
+"return pointer has just been overwritten in stack."
+msgstr ""
+"L'exécution pas-à-pas a été interrompue car le\n"
+"pointeur de retour vient d'être changé dans la pile."
+
+#: src/linux/udebug/uddisass.c:328 src/win/wdebug/wddisass.c:143
+msgid ""
+"The single-stepping has been aborted because the\n"
+"return pointer has just been pulled from stack before\n"
+"the return from subroutine."
+msgstr ""
+"L'exécution pas-à-pas a été interrompue car le\n"
+"pointeur de retour vient d'être dépilé avant le retour\n"
+"du sous-programme."
+
+#: src/linux/udebug/uddisass.c:332 src/win/wdebug/wddisass.c:146
+msgid ""
+"The single-stepping has been aborted because of the\n"
+"great number of executed instructions.\n"
+"The subroutine could have an infinite loop."
+msgstr ""
+"L'exécution pas-à-pas a été interrompue à cause du\n"
+"trop grand nombre d'instructions exécutées.\n"
+"La sous-routine peut comporter une boucle infinie."
+
+#: src/linux/udebug/uddisass.c:336 src/win/wdebug/wddisass.c:149
+msgid ""
+"The single-stepping has been aborted because\n"
+"the stack pointer has changed."
+msgstr ""
+
+#: src/linux/udebug/uddisass.c:353 src/win/wdebug/wddisass.c:165
+msgid ""
+"The single-stepping has been aborted because of the\n"
+"great number of executed instructions.\n"
+"It could be an infinite loop."
+msgstr ""
+"L'exécution pas-à-pas a été interrompue car\n"
+"le pointeur de pile a changé."
+
+#: src/linux/udebug/udmem.c:169 src/win/wdebug/wdmem.c:209
+msgid "Address:"
+msgstr "Adresse:"
+
+#: src/linux/udebug/udmem.c:202 src/win/wdebug/wdmem.c:211
+msgid "Cartridge:"
+msgstr "Cartouche:"
+
+#: src/linux/udebug/udmem.c:217 src/win/wdebug/wdmem.c:113
+msgid "Memo"
+msgstr "Memo"
+
+#: src/linux/udebug/udmem.c:222 src/win/wdebug/wdmem.c:117
+#, c-format
+msgid "Bank %d"
+msgstr "Banque %d"
+
+#: src/linux/udebug/udmem.c:245 src/win/wdebug/wdmem.c:213
+msgid "Video:"
+msgstr "Vidéo:"
+
+#: src/linux/udebug/udmem.c:252 src/win/wdebug/wdmem.c:100
+msgid "Form"
+msgstr "Forme"
+
+#: src/linux/udebug/udmem.c:255 src/win/wdebug/wdmem.c:101
+msgid "Color"
+msgstr "Couleur"
+
+#: src/linux/udebug/udmem.c:309
+msgid "Monitor:"
+msgstr "Moniteur:"
+
+#: src/linux/udebug/udstatus.c:114 src/win/wdebug/wdstatus.c:86
+msgid "Clock"
+msgstr "Horloge"
+
+#: src/linux/udebug/udstatus.c:122 src/win/wdebug/wdstatus.c:93
+msgid "Frame"
+msgstr "Frame"
+
+#: src/linux/udebug/udstatus.c:128 src/win/wdebug/wdstatus.c:98
+msgid "Line"
+msgstr "Ligne"
+
+#: src/linux/udebug/udstatus.c:133 src/win/wdebug/wdstatus.c:103
+msgid "Column"
+msgstr "Colonne"
+
+#: src/linux/udebug/udtoolb.c:148
+msgid "Step by step"
+msgstr "Pas-à-pas"
+
+#: src/linux/udebug/udtoolb.c:150 src/win/wdebug/wdtoolb.c:152
+msgid "Execute the machine code step by step"
+msgstr "Exécute le code machine pas à pas"
+
+#: src/linux/udebug/udtoolb.c:164
+msgid "Step over"
+msgstr "Passe jumps"
+
+#: src/linux/udebug/udtoolb.c:166
+msgid ""
+"Execute the machine code step by step\n"
+"but don't jump to sub-programs and\n"
+"backward loops"
+msgstr ""
+"Exécute le code machine pas à pas\n"
+"mais ne saute pas aux sous-programmes\n"
+"et aux boucles vers l'arrière"
+
+#: src/linux/udebug/udtoolb.c:178
+msgid "Run"
+msgstr "Lancer"
+
+#: src/linux/udebug/udtoolb.c:192
+msgid "Leave"
+msgstr "Abandonner"
+
+#: src/linux/udisplay.c:662 src/linux/umain.c:623 src/linux/umain.c:668
+#: src/og-xbox/xmain.c:456 src/win/wmain.c:545
+msgid "Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)"
+msgstr "Teo - l'émulateur TO8 (menu:ESC/débogueur:F12)"
+
+#: src/linux/ugraphic.c:688
+#, c-format
+msgid "%s: no available visual.\n"
+msgstr "%s: aucun visual disponible.\n"
+
+#: src/linux/ugraphic.c:729
+#, c-format
+msgid "%s: immutable color palette.\n"
+msgstr "%s: palette de couleurs immuable.\n"
+
+#: src/linux/ugraphic.c:782
+msgid "MIT-SHM extention enabled.\n"
+msgstr "Extension MIT-SHM utilisée.\n"
+
+#: src/linux/ugui.c:89 src/win/wgui.c:207
+msgid "All the RAM memory will be cleared."
+msgstr "Toute la mémoire RAM sera effacée."
+
+#: src/linux/ugui.c:182 src/win/wgui.c:143
+msgid "Quit"
+msgstr "Quitter"
+
+#: src/linux/ugui.c:183
+msgid "OK"
+msgstr "Valider"
+
+#: src/linux/ugui.c:194 src/win/wgui.c:142
+msgid "About"
+msgstr "A Propos"
+
+#: src/linux/ugui.c:206 src/win/wgui.c:139
+msgid "Warm reset"
+msgstr "Reset à chaud"
+
+#: src/linux/ugui.c:209 src/win/wgui.c:165
+msgid ""
+"Warm reset without\n"
+"clearing RAM memory"
+msgstr ""
+"Redémarre à chaud sans\n"
+"effacer la mémoire RAM"
+
+#: src/linux/ugui.c:216 src/win/wgui.c:140
+msgid "Cold reset"
+msgstr "Reset à froid"
+
+#: src/linux/ugui.c:219 src/win/wgui.c:167
+msgid ""
+"Cold reset without\n"
+"clearing RAM memory"
+msgstr ""
+"Redémarre à froid sans\n"
+"effacer la mémoire RAM"
+
+#: src/linux/ugui.c:226 src/win/wgui.c:141
+msgid "Full reset"
+msgstr "Reset total"
+
+#: src/linux/ugui.c:229 src/win/wgui.c:169
+msgid ""
+"Cold reset and\n"
+"clear the RAM memory"
+msgstr ""
+"Redémarre à froid et \n"
+"efface la mémoire RAM"
+
+#: src/linux/ugui/uabout.c:83 src/win/wgui/wabout.c:110
+msgid " homepage"
+msgstr ""
+
+#: src/linux/ugui/ucass.c:218 src/linux/ugui/udisk.c:128
+#: src/sdl2/sgui/sdisk.c:222 src/sdl2/sgui/scass.c:177
+msgid "Writing unavailable on this device."
+msgstr "Ecriture impossible sur ce support."
+
+#: src/linux/ugui/ucass.c:332
+msgid "Select a tape"
+msgstr "Choisissez une cassette"
+
+#: src/linux/ugui/ucass.c:334 src/linux/ugui/udisk.c:317
+#: src/linux/ugui/umemo.c:214 src/linux/ugui/uprinter.c:183
+msgid "_Cancel"
+msgstr "Annu_ler"
+
+#: src/linux/ugui/ucass.c:335 src/linux/ugui/udisk.c:318
+#: src/linux/ugui/umemo.c:215 src/linux/ugui/uprinter.c:184
+msgid "_Open"
+msgstr "_Ouvrir"
+
+#: src/linux/ugui/ucass.c:337
+msgid "Tape files (.k7)"
+msgstr "Fichiers cassette (.k7)"
+
+#: src/linux/ugui/ucass.c:429 src/win/wgui.c:150
+msgid "Tape"
+msgstr "Cassette"
+
+#: src/linux/ugui/ucass.c:446 src/linux/ugui/udisk.c:480
+#: src/linux/ugui/umemo.c:305 src/win/wgui/wdisk.c:477 src/win/wgui/wmemo.c:322
+msgid "Clear the file list"
+msgstr "Vide la liste des fichiers"
+
+#: src/linux/ugui/ucass.c:478 src/win/wgui/wcass.c:389
+msgid "Open a tape file"
+msgstr "Ouvrir un fichier cassette"
+
+#: src/linux/ugui/ucass.c:494 src/sdl2/sgui/scass.c:84 src/win/wgui/wcass.c:381
+msgid "Counter:"
+msgstr "Compteur:"
+
+#: src/linux/ugui/ucass.c:506
+msgid "Rewind tape"
+msgstr "Rembobiner la cassette"
+
+#: src/linux/ugui/udisk.c:276 src/win/wgui/wdisk.c:319
+msgid "(Direct Access)"
+msgstr "(Accès Direct)"
+
+#: src/linux/ugui/udisk.c:315
+msgid "Select a disk"
+msgstr "Choisissez une disquette"
+
+#: src/linux/ugui/udisk.c:320
+msgid "Disk files"
+msgstr "Fichiers disquette"
+
+#: src/linux/ugui/udisk.c:335
+msgid "All files(*)"
+msgstr "Tous les fichiers(*)"
+
+#: src/linux/ugui/udisk.c:445 src/win/wgui.c:148
+msgid "Disks"
+msgstr "Disquettes"
+
+#: src/linux/ugui/udisk.c:513 src/win/wgui/wdisk.c:479
+msgid "Open a disk file"
+msgstr "Ouvrir un fichier disquette"
+
+#: src/linux/ugui/udisk.c:521
+msgid "Side"
+msgstr "Face"
+
+#: src/linux/ugui/udisk.c:523
+msgid "Select a side"
+msgstr "Choisissez une cartouche"
+
+#: src/linux/ugui/umemo.c:217
+msgid "Cartridge files (.m7)"
+msgstr "Cartridge files (.m7)"
+
+#: src/linux/ugui/umemo.c:289 src/win/wgui.c:152
+msgid "Cartridge"
+msgstr "Cartouche"
+
+#: src/linux/ugui/umemo.c:321 src/win/wgui/wmemo.c:325
+msgid "Open a cartridge file"
+msgstr "Ouvrir un fichier cartouche"
+
+#: src/linux/ugui/uprinter.c:166 src/linux/ugui/uprinter.c:204
+#: src/sdl2/sgui/sprinter.c:66 src/win/wgui.c:154 src/win/wgui/wprinter.c:201
+msgid "Printer"
+msgstr "Imprimante"
+
+#: src/linux/ugui/uprinter.c:175
+msgid "Write output files in"
+msgstr "Répertoire de sortie:"
+
+#: src/linux/ugui/uprinter.c:180
+msgid "Select the folder to save in"
+msgstr "Répertoire de destination:"
+
+#: src/linux/ugui/uprinter.c:230 src/sdl2/sgui/sprinter.c:83
+#: src/win/wgui/wprinter.c:205
+msgid "Double spacing"
+msgstr "Double interligne"
+
+#: src/linux/ugui/uprinter.c:242 src/win/wgui/wprinter.c:207
+msgid "High quality print"
+msgstr "Imprime en de haute qualité"
+
+#: src/linux/ugui/uprinter.c:254 src/win/wgui/wprinter.c:209
+msgid "Output"
+msgstr "Sortie"
+
+#: src/linux/ugui/uprinter.c:259 src/win/wgui/wprinter.c:211
+msgid "raw"
+msgstr "brute"
+
+#: src/linux/ugui/uprinter.c:270 src/win/wgui/wprinter.c:213
+msgid "text"
+msgstr "texte"
+
+#: src/linux/ugui/uprinter.c:281 src/win/wgui/wprinter.c:215
+msgid "graphic"
+msgstr "graph"
+
+#: src/linux/ugui/usetting.c:221 src/win/wgui/wsetting.c:174
+msgid "Speed"
+msgstr "Vitesse"
+
+#: src/linux/ugui/usetting.c:226 src/win/wgui/wsetting.c:176
+msgid "fast"
+msgstr "rapide"
+
+#: src/linux/ugui/usetting.c:233 src/win/wgui/wsetting.c:175
+msgid "exact"
+msgstr "exacte"
+
+#: src/linux/ugui/usetting.c:247 src/win/wgui/wsetting.c:181
+msgid "Memory"
+msgstr "Mémoire"
+
+#: src/linux/ugui/usetting.c:270
+msgid "Display"
+msgstr "Affichage"
+
+#: src/linux/ugui/usetting.c:274 src/win/wgui/wsetting.c:182
+msgid "Interlaced video"
+msgstr "Vidéo entrelacée"
+
+#: src/linux/ugui/usetting.c:286 src/win/wgui/wsetting.c:177
+msgid "Sound"
+msgstr "Son"
+
+#: src/linux/ugui/usetting.c:290 src/win/wgui/wsetting.c:178
+msgid "Enabled"
+msgstr "Actif"
+
+#: src/linux/umain.c:140 src/win/wmain.c:110
+msgid "Cold-reset emulator"
+msgstr "Reset à froid de l'émulateur"
+
+#: src/linux/umain.c:142 src/win/wmain.c:112
+msgid "Load virtual disk (drive 0)"
+msgstr "Charge un disque virtuel (lecteur 0)"
+
+#: src/linux/umain.c:142 src/linux/umain.c:144 src/linux/umain.c:146
+#: src/linux/umain.c:148 src/linux/umain.c:150 src/linux/umain.c:152
+#: src/win/wmain.c:112 src/win/wmain.c:114 src/win/wmain.c:116
+#: src/win/wmain.c:118 src/win/wmain.c:120 src/win/wmain.c:122
+msgid "FILE"
+msgstr "FICHIER"
+
+#: src/linux/umain.c:144 src/win/wmain.c:114
+msgid "Load virtual disk (drive 1)"
+msgstr "Charge un disque virtuel (lecteur 1)"
+
+#: src/linux/umain.c:146 src/win/wmain.c:116
+msgid "Load virtual disk (drive 2)"
+msgstr "Charge un disque virtuel (lecteur 2)"
+
+#: src/linux/umain.c:148 src/win/wmain.c:118
+msgid "Load virtual disk (drive 3)"
+msgstr "Charge un disque virtuel (lecteur 3)"
+
+#: src/linux/umain.c:150 src/win/wmain.c:120
+msgid "Load a tape"
+msgstr "Charge une cassette"
+
+#: src/linux/umain.c:152 src/win/wmain.c:122
+msgid "Load a cartridge"
+msgstr "Charge une cartouche"
+
+#: src/linux/umain.c:155
+msgid "Graphic mode to use (defaults to windowed)"
+msgstr "Mode graphique à utiliser (fenêtre par defaut)"
+
+#: src/linux/umain.c:164
+msgid "[FILE...]"
+msgstr "FICHIER"
+
+#: src/linux/umain.c:168
+msgid ""
+"Undefined options :\n"
+"  load tape, disk and cartridge\n"
+msgstr ""
+"Options non définies :\n"
+"  Charge cassette, disquette et cartouche\n"
+
+#: src/linux/umain.c:201
+#, c-format
+msgid "Unknown graphic mode: %s, defaulting to windowed\n"
+msgstr "Mode graphique inconnu: %s, mode fenêtre sélectionné\n"
+
+#: src/linux/umain.c:219
+#, c-format
+msgid "%s: File %s not found, not copying empty disk to user folder %s\n"
+msgstr ""
+
+#: src/linux/umain.c:634 src/og-xbox/xmain.c:459 src/win/wmain.c:560
+#, c-format
+msgid "could not initialize sdl2: %s\n"
+msgstr "impossible d'initialiser sdl2: %s\n"
+
+#: src/linux/umain.c:661 src/linux/umain.c:671 src/og-xbox/xmain.c:472
+#: src/win/wmain.c:577 src/win/wmain.c:582
+msgid "Unsupported graphic mode"
+msgstr "Mode graphique non supporté"
+
+#: src/linux/umain.c:700
+msgid "Starting emulation...\n"
+msgstr "Lancement de l'émulation...\n"
+
+#: src/linux/usound.c:285
+msgid "Sound initialization (ALSA)..."
+msgstr "Initialisation du son (ALSA)..."
+
+#: src/linux/usound.c:289
+msgid "Unable to open audio device"
+msgstr "Impossible d'ouvrir le périphérique audio"
+
+#: src/linux/usound.c:305
+msgid "Audio error"
+msgstr "Erreur audio"
+
+#: src/linux/usound.c:305
+msgid "Insufficient memory for buffer"
+msgstr ""
+
+#: src/sdl2/sgui/sdisk.c:111
+msgid "_Direct access"
+msgstr "Accès _direct"
+
+#: src/sdl2/sgui/sdisk.c:187
+#, fuzzy
+#| msgid "Warning: writing unavailable."
+msgid "Warning: Writing unavailable."
+msgstr "Attention: écriture indisponible"
+
+#: src/sdl2/sgui.c:48
+msgid "_Warm reset"
+msgstr "Reset à _chaud"
+
+#: src/sdl2/sgui.c:49
+msgid "_Cold reset"
+msgstr "Reset à _froid"
+
+#: src/sdl2/sgui.c:50
+msgid "_Full reset"
+msgstr "Reset _total"
+
+#: src/sdl2/sgui.c:52
+msgid "_Settings"
+msgstr "_Réglages"
+
+#: src/sdl2/sgui.c:53
+msgid "_Disk drives"
+msgstr "Lecteurs de disquettes"
+
+#: src/sdl2/sgui.c:54
+msgid "_Tape drive"
+msgstr "Lecteur de cas_sette"
+
+#: src/sdl2/sgui.c:55
+msgid "Ca_rtridge"
+msgstr "Lecteur de cartouches"
+
+#: src/sdl2/sgui.c:56
+msgid "_Printer"
+msgstr "Im_primante"
+
+#: src/sdl2/sgui.c:58
+msgid "_Quit"
+msgstr "_Quitter"
+
+#: src/sdl2/sgui.c:59
+msgid "A_bout"
+msgstr "_A Propos"
+
+#: src/sdl2/sgui/sprinter.c:58
+msgid "Dot-matrix printer"
+msgstr "Imprimantes matricielles"
+
+#: src/sdl2/sgui/sprinter.c:75
+msgid "Output mode"
+msgstr "Sortie:"
+
+#: src/sdl2/sgui/sprinter.c:76
+msgid "Raw"
+msgstr "Brute"
+
+#: src/sdl2/sgui/sprinter.c:77
+msgid "Text"
+msgstr "Texte"
+
+#: src/sdl2/sgui/sprinter.c:78
+msgid "Graphic"
+msgstr "Graph"
+
+#: src/sdl2/sgui/sprinter.c:84
+msgid "HQ Printing"
+msgstr "Haute Qualité"
+
+#: src/sdl2/sgui/ssetting.c:50
+msgid "Speed:"
+msgstr "Vitesse:"
+
+#: src/sdl2/sgui/ssetting.c:51
+msgid "_exact"
+msgstr "_exacte"
+
+#: src/sdl2/sgui/ssetting.c:52
+msgid "_fast"
+msgstr "ra_pide"
+
+#: src/sdl2/sgui/ssetting.c:54
+msgid " _Sound"
+msgstr " _Son"
+
+#: src/sdl2/sgui/ssetting.c:64
+msgid "Interlaced _video"
+msgstr "_Vidéo entrelacée"
+
+#: src/sdl2/sgui/ssetting.c:66
+msgid "Back to main menu"
+msgstr "Retour"
+
+#: src/sdl2/sgui/scass.c:88 src/win/wgui/wcass.c:383
+msgid "Rewind"
+msgstr "Rembobiner"
+
+#: src/sdl2/sgui/scass.c:125
+msgid "Tape image:"
+msgstr "Fichier cassette:"
+
+#: src/sdl2/sgui/scass.c:151
+msgid "Warning: writing unavailable."
+msgstr "Attention: écriture indisponible"
+
+#: src/win/wmain.c:123
+msgid "40 columns display"
+msgstr "Affichage en 40 colonnes"
+
+#: src/win/wmain.c:124
+msgid "80 columns display"
+msgstr "Affichage en 80 colonnes"
+
+#: src/win/wmain.c:125
+msgid "Truecolor display"
+msgstr "Affichage en couleurs vraies"
+
+#: src/win/wmain.c:126
+msgid "Windowed display"
+msgstr "Mode fenêtré"
+
+#: src/win/wmain.c:427 src/win/wgui.c:276
+msgid "Teo - Error"
+msgstr "Teo - Erreur"
+
+#: src/win/wgui.c:208
+msgid "Teo - Question"
+msgstr "Teo - Question"
+
+#: src/win/wgui.c:288
+msgid "Teo - Warning"
+msgstr "Teo - Attention"
+
+#: src/win/wgui/wabout.c:109
+#, fuzzy
+#| msgid "Teo - About"
+msgid " - About"
+msgstr "Teo - A propos"
+
+#: src/win/wgui/wabout.c:111
+msgid "Web forum"
+msgstr "Forum sur le Web"
+
+#: src/win/wgui/wcass.c:176 src/win/wgui/wdisk.c:134
+msgid "Warning: writing unavailable on this device."
+msgstr "Attention: Ecriture impossible sur ce support."
+
+#: src/win/wgui/wcass.c:274
+msgid "K7 files\a*.k7\a"
+msgstr "Fichiers K7\a*.k7\a"
+
+#: src/win/wgui/wcass.c:285
+msgid "Select your tape"
+msgstr "Choisissez une cassette"
+
+#: src/win/wgui/wcass.c:387
+msgid "clear the file list"
+msgstr "Vide la liste des fichiers"
+
+#: src/win/wgui/wdisk.c:362
+msgid ""
+"All files\a*.*\aHFE files\a*.hfe\aSAP files\a*.sap\aRaw floppy files\a*.fd\a"
+msgstr ""
+"Tous les fichiers\a*.*\aFichiers HFE\a*.hfe\aFichiers SAP\a*.sap\aFichiers "
+"disque bruts\a*.fd\a"
+
+#: src/win/wgui/wdisk.c:373
+msgid "Select your disk:"
+msgstr "Choisissez une disquette"
+
+#: src/win/wgui/wmemo.c:210
+msgid "M7 files\a*.m7\a"
+msgstr "Fichiers M7\a*.m7\a"
+
+#: src/win/wgui/wmemo.c:221
+msgid "Select a cartridge:"
+msgstr "Choisissez une cartouche"
+
+#: src/win/wgui/wprinter.c:110
+msgid "Select a directory"
+msgstr "Choisissez une disquette"
+
+#: src/win/wgui/wprinter.c:219
+msgid "Saving output files in "
+msgstr "Sauver les fichiers dans "
+
+#: src/win/wgui/wprinter.c:224
+msgid "Select a save folder"
+msgstr "Choisissez une cassette"
+
+#: src/win/wgui/wsetting.c:179
+msgid "min"
+msgstr "min"
+
+#: src/win/wgui/wsetting.c:180
+msgid "max"
+msgstr "max"
+
+#: src/win/wdebug/wdmem.c:215
+msgid "RAM:"
+msgstr "RAM:"
+
+#: src/win/wdebug/wdmem.c:217
+msgid "Monit:"
+msgstr "Monit:"
+
+#: src/win/wdebug/wdtoolb.c:81
+msgid " Step "
+msgstr " Pas-à-pas "
+
+#: src/win/wdebug/wdtoolb.c:82
+msgid " Step over "
+msgstr " Passe jumps "
+
+#: src/win/wdebug/wdtoolb.c:83
+msgid " Run "
+msgstr " Lancer "
+
+#: src/win/wdebug/wdtoolb.c:84
+msgid " Leave "
+msgstr " Abandonner "
+
+#: src/win/wdebug/wdtoolb.c:156
+msgid ""
+"Execute the machine code step by step\n"
+"but don't jump to sub-programs"
+msgstr ""
+"Exécute le code machine pas à pas\n"
+"mais ne saute pas aux sous-programmes"
+
+#~ msgid "Teo on SourceForge:"
+#~ msgstr "Teo sur SourceForge"
+
+#~ msgid "Teo on Sourceforge"
+#~ msgstr "Teo sur SourceForge"
+
+#~ msgid "Teo on SourceForge"
+#~ msgstr "Teo sur SourceForge"
+
+#~ msgid ""
+#~ " 1. 40 columns mode 16 colors\n"
+#~ "    (fast diplay, adapted to games and most applications)"
+#~ msgstr ""
+#~ " 1. Mode 40 colonnes 16 couleurs\n"
+#~ "    (affichage rapide, adapté aux jeux et à la plupart des applications)"
+
+#~ msgid ""
+#~ " 2. 80 columns mode 16 colors\n"
+#~ "    (for applications which needs 80 columns)"
+#~ msgstr ""
+#~ " 2. Mode 80 colonnes 16 couleurs\n"
+#~ "    (pour les applications fonctionnant en 80 colonnes)"
+
+#~ msgid ""
+#~ " 3. 80 columns mode 4096 colors\n"
+#~ "    (slow display but allow dynamic changes of palette)"
+#~ msgstr ""
+#~ " 3. Mode 80 colonnes 4096 couleurs\n"
+#~ "    (affichage lent mais support des changements dynamiques de palette)"
+
+#~ msgid "Disk"
+#~ msgstr "Disquette"
+
+#~ msgid "&Tape recorder..."
+#~ msgstr "Lecteur de ca&ssettes..."
+
+#~ msgid "Ca&rtridge reader..."
+#~ msgstr "Lecteur de car&touches..."

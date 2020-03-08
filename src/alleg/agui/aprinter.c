@@ -40,19 +40,24 @@
  *               Eric Botcazou 28/10/2003
  *               François Mouret 12/08/2011 18/03/2012 25/04/2012
  *                               24/10/2012
+ *               Samuel Cuella 02/2020
  *
  *  Gestion de l'imprimante.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <string.h>
    #include <allegro.h>
 #endif
+#include <assert.h>
 
 #include "std.h"
 #include "teo.h"
+#include "gettext.h"
 #include "alleg/gui.h"
 #include "alleg/sound.h"
 #include "alleg/gfxdrv.h"
@@ -68,41 +73,6 @@ static char *listbox_getter(int index, int *list_size)
     return NULL;
 }
 
-/* Boîte de dialogue. */
-static DIALOG printerdial[]={
-/*  dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
-{ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL },
-#ifdef FRENCH_LANGUAGE
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimantes matricielles" },
-{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Sauver dans:" },
-{ d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, NULL },
-{ d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
-{ d_text_proc,        60,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Imprimante:" },
-{ d_list_proc,       150,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
-{ d_button_proc,      40, 100, 240,  16, 0, 0, 'i',  0,     0, 0, "Double &interligne" },
-{ d_button_proc,      40, 118, 240,  16, 0, 0, 'h',  0,     0, 0, "Imprime en de &haute qualité" },
-{ d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, "Sortie:" },
-{ d_check_proc,       90, 142,  60,  14, 0, 0, 'b',  0,     0, 0, "&brute" },
-{ d_check_proc,      160, 142,  60,  14, 0, 0, 't',  0,     0, 0, "&texte" },
-{ d_check_proc,      230, 142,  50,  14, 0, 0, 'g',  0,     0, 0, "&graph" },
-#else
-{ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, "Dot-matrix printers" },
-{ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, "Save in:" },
-{ d_textbox_proc,    100,  40, 148,  16, 0, 0,   0,  0,     0, 0, NULL },
-{ d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." },
-{ d_text_proc,        70,  74,   0,   0, 0, 0,   0,  0,     0, 0, "Printer:" },
-{ d_list_proc,       140,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter},
-{ d_button_proc,      40, 100, 240,  16, 0, 0, 's',  0,     0, 0, "Double &spacing" },
-{ d_button_proc,      40, 118, 240,  16, 0, 0, 'h',  0,     0, 0, "&High quality print" },
-{ d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, "Output:" },
-{ d_check_proc,       98, 142,  42,  14, 0, 0, 'r',  0,     0, 0, "&raw" },
-{ d_check_proc,      152, 142,  50,  14, 0, 0, 't',  0,     0, 0, "&text" },
-{ d_check_proc,      214, 142,  66,  14, 0, 0, 'g',  0,     0, 0, "&graphic" },
-#endif
-{ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" },
-{ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL },
-{ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL }
-};
 
 #define PRINTERDIAL_FOLDER      3
 #define PRINTERDIAL_MORE        4
@@ -113,9 +83,48 @@ static DIALOG printerdial[]={
 #define PRINTERDIAL_TXT_OUTPUT  11
 #define PRINTERDIAL_GFX_OUTPUT  12
 #define PRINTERDIAL_OK          13
+#define PRINTERDIAL_LEN         17
+
+static DIALOG *_printerdial = NULL;
+#define aprinter_GetDialog() (_printerdial ? _printerdial : aprinter_AllocDialog())
 
 
 /* ------------------------------------------------------------------------- */
+
+static DIALOG *aprinter_AllocDialog(void)
+{
+    DIALOG *rv;
+    int i;
+
+    if(_printerdial)
+        return _printerdial;
+
+    rv = malloc(sizeof(DIALOG)*PRINTERDIAL_LEN);
+    i = 0;
+
+/*                         dialog proc       x    y    w    h  fg bg  key flags   d1 d2  dp */
+    rv[i++] = (DIALOG){ d_shadow_box_proc,  20,  10, 280, 180, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ d_ctext_proc,      160,  20,   0,   0, 0, 0,   0,  0,     0, 0, _("Dot-matrix printers") };
+    rv[i++] = (DIALOG){ d_text_proc,        30,  44,   0,   0, 0, 0,   0,  0,     0, 0, _("Save into:") };
+    rv[i++] = (DIALOG){ d_textbox_proc,    132,  40, 116,  16, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ d_button_proc,     258,  40,  30,  16, 0, 0, '0', D_EXIT, 0, 0, "..." };
+    rv[i++] = (DIALOG){ d_text_proc,        70,  74,   0,   0, 0, 0,   0,  0,     0, 0, _("Printer:") };
+    rv[i++] = (DIALOG){ d_list_proc,       140,  64, 100,  30, 0, 0,   0,  0,     0, 0, (void *)listbox_getter};
+    rv[i++] = (DIALOG){ d_button_proc,      40, 100, 240,  16, 0, 0, 's',  0,     0, 0, _("Double &spacing") };
+    rv[i++] = (DIALOG){ d_button_proc,      40, 118, 240,  16, 0, 0, 'h',  0,     0, 0, _("&High quality print") };
+    rv[i++] = (DIALOG){ d_text_proc,        30, 145,   0,   0, 0, 0,   0,  0,     0, 0, _("Output:") };
+    rv[i++] = (DIALOG){ d_check_proc,       90, 142,  60,  14, 0, 0, 'r',  0,     0, 0, _("&raw") };
+    rv[i++] = (DIALOG){ d_check_proc,      160, 142,  60,  14, 0, 0, 't',  0,     0, 0, _("&text") };
+    rv[i++] = (DIALOG){ d_check_proc,      220, 142,  50,  14, 0, 0, 'g',  0,     0, 0, _("&graphic") };
+    rv[i++] = (DIALOG){ d_button_proc,     210, 170,  80,  16, 0, 0, 'o', D_EXIT, 0, 0, "&OK" };
+    rv[i++] = (DIALOG){ d_yield_proc,       20,  10,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
+    rv[i++] = (DIALOG){ NULL,                0,   0,   0,   0, 0, 0,   0,  0,     0, 0, NULL };
+
+    assert(i <= PRINTERDIAL_LEN);
+
+    _printerdial = rv;
+    return rv;
+}
 
 
 /* aprinter_Panel:
@@ -127,6 +136,9 @@ void aprinter_Panel(void)
     static int first = 1;
     static char printer_folder[MAX_PATH+1] = "";
     int printer_number = 0;
+    DIALOG *printerdial;
+
+    printerdial = aprinter_GetDialog();
 
     centre_dialog(printerdial);
     if (first)
@@ -168,12 +180,12 @@ void aprinter_Panel(void)
                 break;
 
             case PRINTERDIAL_MORE:
-                (void)file_select_ex(is_fr?"Choisissez un répertoire:":"Choose a folder:",
-                               printer_folder, "/+s+d", MAX_PATH,
+                (void)file_select_ex(_("Select a folder:"),
+                               printer_folder, "/+d", MAX_PATH,
                                OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
                 i = strlen (printer_folder) - 1;
                 if (i > 0)
-                    while ((i >= 0) && (printer_folder[i] == '\\'))
+                    while ((i >= 0) && (printer_folder[i] == DIR_SEPARATOR))
                         printer_folder[i--] = '\0';
                 printerdial[PRINTERDIAL_FOLDER].dp = std_free (printerdial[PRINTERDIAL_FOLDER].dp);
                 printerdial[PRINTERDIAL_FOLDER].dp = std_strdup_printf ("%s", get_filename(printer_folder));
@@ -200,6 +212,9 @@ void aprinter_Panel(void)
  */
 void aprinter_SetColors(int fg_color, int bg_color, int bg_entry_color)
 {
+    DIALOG *printerdial;
+
+    printerdial = aprinter_GetDialog();
     set_dialog_color(printerdial, fg_color, bg_color);
     printerdial[PRINTERDIAL_FOLDER].bg = bg_entry_color;
 }
@@ -220,5 +235,8 @@ void aprinter_Init(void)
  */
 void aprinter_Free(void)
 {
-     printerdial[PRINTERDIAL_FOLDER].dp = std_free (printerdial[PRINTERDIAL_FOLDER].dp);
+    DIALOG *printerdial;
+
+    printerdial = aprinter_GetDialog();
+    printerdial[PRINTERDIAL_FOLDER].dp = std_free (printerdial[PRINTERDIAL_FOLDER].dp);
 }

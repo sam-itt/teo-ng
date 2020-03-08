@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2018 Bastien Nocera <hadess@hadess.net> -->
+<component type="desktop">
+  <id>com.teo-ng.Teo.desktop</id>
+  <name>@PACKAGE_NAME@</name>
+  <summary>Thomson TO8D emulator</summary>
+  <summary xml:lang="fr">Émulateur Thomson TO8D</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0+</project_license>
+  <description>
+    <p>
+      @PACKAGE_NAME@ is an emulator of the Thomson TO8D 8-bit micro-computer.
+    </p>
+    <p xml:lang="fr">@PACKAGE_NAME@ est un émulateur de l'ordinateur 8-bits Thomson TO8D.</p>
+  </description>
+  <url type="homepage">@PACKAGE_HOMEPAGE@</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Start-up menu</caption>
+      <image width="704" height="464">
+        http://www.teo-ng.com/images/screenshots/teo-1.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Playing “Wizball”</caption>
+      <image width="704" height="464">
+        http://www.teo-ng.com/images/screenshots/teo-2.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Playing “Sorcery”</caption>
+      <image width="704" height="464">
+        http://www.teo-ng.com/images/screenshots/teo-3.png
+      </image>
+    </screenshot>
+    <screenshot>
+      <caption>Playing “Les Passagers du Vent”</caption>
+      <image width="704" height="464">
+        http://www.teo-ng.com/images/screenshots/teo-4.png
+      </image>
+    </screenshot>
+  </screenshots>
+
+  <developer_name>@PACKAGE_NAME@ Developers</developer_name>
+  <releases>
+    <release version="@PACKAGE_VERSION@" timestamp="@BUILD_TIMESTAMP@"/>
+  </releases>
+  <update_contact>@PACKAGE_CONTACT@</update_contact>
+  <content_rating type="oars-1.0" />
+</component>

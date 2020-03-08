@@ -40,10 +40,13 @@
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               21/09/2012 18/09/2013 11/04/2014
  *                               04/06/2015
+ *               Samuel Cuella 02/2020
  *
  *  Interface utilisateur Windows native.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -54,6 +57,7 @@
 #include "teo.h"
 #include "alleg/gfxdrv.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 /* ressources globales de l'application */
 #define NBTABS_MASTER 5
@@ -131,55 +135,38 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg,
    switch(uMsg)
    {
       case WM_INITDIALOG:
-#ifdef FRENCH_LANGUAGE
-         SetWindowText(hDlg, "Panneau de contrôle");
-         SetWindowText(GetDlgItem(hDlg, IDC_RESET_BUTTON), "Reset à chaud");
-         SetWindowText(GetDlgItem(hDlg, IDC_COLDRESET_BUTTON), "Reset à froid");
-         SetWindowText(GetDlgItem(hDlg, IDC_FULLRESET_BUTTON), "Reset total");
-         SetWindowText(GetDlgItem(hDlg, IDC_ABOUT_BUTTON), "A propos");
-         SetWindowText(GetDlgItem(hDlg, IDC_QUIT_BUTTON), "Quitter");
-#else
-         SetWindowText(hDlg, "Control panel");
-         SetWindowText(GetDlgItem(hDlg, IDC_RESET_BUTTON), "Warm reset");
-         SetWindowText(GetDlgItem(hDlg, IDC_COLDRESET_BUTTON), "Cold reset");
-         SetWindowText(GetDlgItem(hDlg, IDC_FULLRESET_BUTTON), "Full reset");
-         SetWindowText(GetDlgItem(hDlg, IDC_ABOUT_BUTTON), "About");
-         SetWindowText(GetDlgItem(hDlg, IDC_QUIT_BUTTON), "Quit");
-#endif
-         /* Crée les onglets */
-         hTab[0] = CreateTab(hDlg, 0, is_fr?"Réglage":"Setting",
+         SetWindowText(hDlg, _("Control panel"));
+         SetWindowText(GetDlgItem(hDlg, IDC_RESET_BUTTON), _("Warm reset"));
+         SetWindowText(GetDlgItem(hDlg, IDC_COLDRESET_BUTTON), _("Cold reset"));
+         SetWindowText(GetDlgItem(hDlg, IDC_FULLRESET_BUTTON), _("Full reset"));
+         SetWindowText(GetDlgItem(hDlg, IDC_ABOUT_BUTTON), _("About"));
+         SetWindowText(GetDlgItem(hDlg, IDC_QUIT_BUTTON), _("Quit"));
+
+         /* Cree les onglets */
+         hTab[0] = CreateTab(hDlg, 0, _("Settings"),
                              IDC_SETTING_TAB, wsetting_TabProc);
-         hTab[1] = CreateTab(hDlg, 1, is_fr?"Disquette":"Disk",
+         hTab[1] = CreateTab(hDlg, 1, _("Disks"),
                              IDC_DISK_TAB, wdisk_TabProc);
-         hTab[2] = CreateTab(hDlg, 2, is_fr?"Cassette":"Tape",
+         hTab[2] = CreateTab(hDlg, 2, _("Tape"),
                              IDC_K7_TAB, wcass_TabProc);
-         hTab[3] = CreateTab(hDlg, 3, is_fr?"Cartouche":"Cartridge",
+         hTab[3] = CreateTab(hDlg, 3, _("Cartridge"),
                              IDC_MEMO7_TAB, wmemo_TabProc);
-         hTab[4] = CreateTab(hDlg, 4, is_fr?"Imprimante":"Printer",
+         hTab[4] = CreateTab(hDlg, 4, _("Printer"),
                              IDC_PRINTER_TAB, wprinter_TabProc);
          TabCtrl_SetCurSel(GetDlgItem(hDlg, IDC_CONTROL_TAB), nCurrentTab);
          ShowTab(hDlg);
 
-         /* mise en place de l'icône */
+         /* mise en place de l'icone */
          SetClassLong(hDlg, GCL_HICON,   (LONG) prog_icon);
          SetClassLong(hDlg, GCL_HICONSM, (LONG) prog_icon);
 
-         /* crée les tooltips */
+         /* cree les tooltips */
          wgui_CreateTooltip (hDlg, IDC_RESET_BUTTON,
-								 is_fr?"Redémarre à chaud sans " \
-                                       "effacer la mémoire RAM"
-                                      :"Warm reset without to\n"
-                                       "clear the RAM memory");
+								 _("Warm reset without\nclearing RAM memory"));
          wgui_CreateTooltip (hDlg, IDC_COLDRESET_BUTTON,
-                                 is_fr?"Redémarre à froid sans " \
-                                       "effacer la mémoire RAM"
-                                      :"Cold reset without to\n" \
-                                       "clear the RAM memory");
+                                 _("Cold reset without\nclearing RAM memory"));
          wgui_CreateTooltip (hDlg, IDC_FULLRESET_BUTTON,
-                                 is_fr?"Redémarre à froid et " \
-                                       "efface la mémoire RAM"
-                                      :"Cold reset and\n" \
-                                       "clear the RAM memory");
+                                 _("Cold reset and\nclear the RAM memory"));
          return TRUE;
 
       case WM_DESTROY :
@@ -217,9 +204,8 @@ static BOOL CALLBACK ControlDialogProc(HWND hDlg, UINT uMsg,
             case IDC_FULLRESET_BUTTON:
                response = MessageBox(
                                 NULL,
-                                is_fr?"Toute la mémoire RAM sera effacée."
-                                     :"All the RAM memory will be cleared.",
-                                is_fr?"Teo - Question":"Teo - Question",
+                                _("All the RAM memory will be cleared."),
+                                _("Teo - Question"),
                                 MB_OKCANCEL | MB_ICONEXCLAMATION);
 		       if (response == IDOK)
 		       {
@@ -287,7 +273,7 @@ void wgui_CreateTooltip (HWND hWnd, WORD id, char *text)
 void wgui_Error (HWND hwnd, const char *message)
 {
     MessageBox(hwnd, (const char*)message,
-               is_fr?"Teo - Erreur":"Teo - Error",
+               _("Teo - Error"),
                MB_OK | MB_ICONERROR);
 }
 
@@ -299,7 +285,7 @@ void wgui_Error (HWND hwnd, const char *message)
 void wgui_Warning (HWND hwnd, const char *message)
 {
     MessageBox(hwnd, (const char*)message,
-               is_fr?"Teo - Attention":"Teo - Warning",
+               _("Teo - Warning"),
                MB_OK | MB_ICONWARNING);
 }
 

@@ -1,0 +1,300 @@
+/*
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *    TTTTTTTTTTTTTT  EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EEEEEEEEEE      OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EE              OO          OO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *          TT        EEEEEEEEEEEEEE  OOOOOOOOOOOOOO
+ *
+ *                  L'émulateur Thomson TO8
+ *
+ *  Copyright (C) 1997-2018 Gilles Fétis, Eric Botcazou, Alexandre Pukall,
+ *                          Jérémie Guillaume, François Mouret
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ *  Module     : win/dialog.rc
+ *  Version    : 1.8.5
+ *  Créé par   : Eric Botcazou 14/09/2000
+ *  Modifié par: Eric Botcazou 26/10/2003
+ *               François Mouret 27/09/2006 26/01/2010 10/08/2011
+ *                               17/03/2012 20/09/2012 18/09/2013
+ *                               11/04/2014 04/06/2015
+ *
+ *  Définition des boîtes de dialogue.
+ */
+
+#ifndef SCAN_DEPEND
+   #include <windows.h>
+   #include <commctrl.h>
+#endif
+
+#include "win/dialog.rh"
+#include "teo.h"
+
+
+a            ICON   "thomson.ico"   // To force it to be the program icon
+thomson_ico  ICON   "thomson.ico"
+thomson_bmp  BITMAP "thomson.bmp"
+panel_bmp    BITMAP "panel.bmp"
+to8_bmp      BITMAP "to8.bmp"
+/* control panel icons */
+clearlst_ico ICON   "wgui/clearlst.ico"
+folder_ico   ICON   "wgui/folder.ico"
+/* debugger icons */
+step_ico     ICON   "wdebug/step.ico"
+stepover_ico ICON   "wdebug/stepover.ico"
+run_ico      ICON   "wdebug/run.ico"
+leave_ico    ICON   "wdebug/leave.ico"
+
+
+
+1 VERSIONINFO 
+FILEVERSION TEO_VERSION_WRC
+PRODUCTVERSION TEO_VERSION_WRC
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040C04E4"
+        {
+            VALUE "Comments", "Voir le fichier LICENCE.TXT pour les conditions "\
+                              "de distribution et le fichier README.TXT pour "\
+                              "les remarques générales sur l'utilisation du logiciel."
+
+#ifdef ENABLE_FULL_CREDITS
+            VALUE "CompanyName", "@PACKAGE_NAME@ Developers: Gilles Fétis, Eric Botcazou, "\
+                                 "Alexandre Pukall, Jérémie Guillaume, François Mouret, "\
+                                 "Samuel Devulder, Samuel Cuella."
+#else
+            VALUE "CompanyName", "@PACKAGE_NAME@ Developers"
+
+#endif
+            VALUE "FileDescription", "@PACKAGE_NAME@ - l'émulateur TO8" 
+            VALUE "FileVersion", TEO_VERSION_STR
+            VALUE "InternalName", "TEOW.EXE"
+            VALUE "LegalCopyright", "Copyright © 1997-2020 @PACKAGE_NAME@ Developpers" 
+            VALUE "OriginalFilename", "TEOW.EXE"
+            VALUE "ProductName", PACKAGE_NAME
+            VALUE "ProductVersion", TEO_VERSION_STR
+        }
+    }
+
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x040C, 1252
+    }
+}
+
+
+IDC_CONTROL_DIALOG DIALOGEX 0, 0, 266, 178
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    PUSHBUTTON      "&OK", IDOK, 218, 152, 40, 14, WS_GROUP | WS_TABSTOP
+    PUSHBUTTON      "", IDC_QUIT_BUTTON, 52, 152, 40, 14 
+    CONTROL         "panel_bmp", -1, "static", SS_BITMAP, 0, 0, 320, 64
+    PUSHBUTTON      "", IDC_RESET_BUTTON, 8, 18, 80, 14
+    PUSHBUTTON      "", IDC_COLDRESET_BUTTON, 92, 18, 80, 14
+    PUSHBUTTON      "", IDC_FULLRESET_BUTTON, 176, 18, 80, 14
+    CONTROL         "Tab1", IDC_CONTROL_TAB, "SysTabControl32", WS_TABSTOP, 8, 36, 250, 110
+    PUSHBUTTON      "", IDC_ABOUT_BUTTON, 8, 152, 40, 14
+}
+
+
+IDC_SETTING_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    GROUPBOX        "", IDC_SPEED_GROUP, 6, 12, 50, 48
+    AUTORADIOBUTTON "", IDC_EXACT_SPEED_BUTTON, 14, 24, 40, 14, WS_GROUP
+    AUTORADIOBUTTON "", IDC_MAX_SPEED_BUTTON, 14, 38, 40, 14
+    GROUPBOX        "", IDC_MEMORY_GROUP, 62, 12, 74, 48
+    AUTORADIOBUTTON "", IDC_MEMORY_512K_RADIO, 70, 24, 60, 14, WS_GROUP
+    AUTORADIOBUTTON "", IDC_MEMORY_256K_RADIO, 70, 38, 60, 14
+    GROUPBOX        "", IDC_SOUND_GROUP, 142, 12, 96, 48
+    AUTOCHECKBOX    "", IDC_SOUND_CHECK, 150, 24, 60, 14
+    LTEXT           "", IDC_VOLUME_LOW_LTEXT, 150, 38, 16, 14
+    CONTROL         "", IDC_VOLUME_BAR, TRACKBAR_CLASSA, TBS_HORZ | TBS_BOTTOM | TBS_AUTOTICKS, 164, 38, 50, 12
+    RTEXT           "", IDC_VOLUME_HIGH_LTEXT, 214, 38, 16, 14
+    AUTOCHECKBOX    "", IDC_INTERLACED_CHECK, 8, 66, 70, 14
+}
+
+
+IDC_MEMO7_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "m7", -1, 10, 12, 12, 14
+    PUSHBUTTON      "", IDC_MEMO7_EJECT_BUTTON, 24, 10, 16, 13, BS_ICON
+    COMBOBOX        IDC_MEMO7_COMBO, 44, 10, 168, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    PUSHBUTTON      "", IDC_MEMO7_MORE_BUTTON, 216, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+}
+
+
+IDC_K7_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "k7", -1, 10, 12, 12, 14
+    PUSHBUTTON      "", IDC_K7_EJECT_BUTTON, 24, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    COMBOBOX        IDC_K7_COMBO, 44, 10, 140, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    PUSHBUTTON      "", IDC_K7_MORE_BUTTON, 188, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    AUTOCHECKBOX    "prot.", IDC_K7_PROT_CHECK, 208, 12, 50, 10
+    LTEXT           "", IDC_K7_COUNTER_LTEXT, 10, 28, 40, 14
+    EDITTEXT        IDC_K7_COUNTER_EDIT, 52, 26, 30, 12, ES_NUMBER | ES_RIGHT
+    /* Ne pas utiliser UDS_SETBUDDYINT car il envoie un message EN_CHANGE avant
+       le message WM_INITDIALOG du dialogue.  */
+    CONTROL         "", IDC_K7_UPDOWN, UPDOWN_CLASSA, UDS_AUTOBUDDY | UDS_ALIGNRIGHT, 52, 26, 45, 14
+    PUSHBUTTON      "", IDC_K7_REWIND_BUTTON, 90, 26, 72, 14
+}
+
+
+IDC_DISK_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    LTEXT           "0:", -1, 10, 12, 12, 14
+    LTEXT           "1:", -1, 10, 28, 12, 14
+    LTEXT           "2:", -1, 10, 44, 12, 14
+    LTEXT           "3:", -1, 10, 60, 12, 14
+    PUSHBUTTON      "", IDC_DISK0_EJECT_BUTTON, 24, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    PUSHBUTTON      "", IDC_DISK1_EJECT_BUTTON, 24, 26, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    PUSHBUTTON      "", IDC_DISK2_EJECT_BUTTON, 24, 42, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    PUSHBUTTON      "", IDC_DISK3_EJECT_BUTTON, 24, 58, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    COMBOBOX        IDC_DISK0_COMBO, 44, 10, 94, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DISK1_COMBO, 44, 26, 94, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DISK2_COMBO, 44, 42, 94, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DISK3_COMBO, 44, 58, 94, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    PUSHBUTTON      "", IDC_DISK0_MORE_BUTTON, 142, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    PUSHBUTTON      "", IDC_DISK1_MORE_BUTTON, 142, 26, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    PUSHBUTTON      "", IDC_DISK2_MORE_BUTTON, 142, 42, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    PUSHBUTTON      "", IDC_DISK3_MORE_BUTTON, 142, 58, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    RTEXT           "face", IDC_DISK0_SIDE_RTEXT, 158, 12, 20, 14
+    RTEXT           "face", IDC_DISK1_SIDE_RTEXT, 158, 28, 20, 14
+    RTEXT           "face", IDC_DISK2_SIDE_RTEXT, 158, 44, 20, 14
+    RTEXT           "face", IDC_DISK3_SIDE_RTEXT, 158, 60, 20, 14
+    COMBOBOX        IDC_DISK0_SIDE_COMBO, 180, 10, 24, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DISK1_SIDE_COMBO, 180, 26, 24, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DISK2_SIDE_COMBO, 180, 42, 24, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DISK3_SIDE_COMBO, 180, 58, 24, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    AUTOCHECKBOX    "prot.", IDC_DISK0_PROT_CHECK, 208, 10, 50, 14
+    AUTOCHECKBOX    "prot.", IDC_DISK1_PROT_CHECK, 208, 26, 50, 14
+    AUTOCHECKBOX    "prot.", IDC_DISK2_PROT_CHECK, 208, 42, 50, 14
+    AUTOCHECKBOX    "prot.", IDC_DISK3_PROT_CHECK, 208, 58, 50, 14
+}
+
+
+IDC_PRINTER_TAB DIALOGEX DISCARDABLE 0,0,200,200
+STYLE WS_CHILD | DS_SETFONT | WS_VISIBLE | WS_TABSTOP
+FONT 8, "Tahoma"
+{
+    RTEXT           "", IDC_PRINTER_MORE_RTEXT, 8, 12, 110, 14
+    EDITTEXT        IDC_PRINTER_MORE_EDIT, 120, 10, 72, 13, WS_GROUP | WS_TABSTOP | ES_READONLY
+    PUSHBUTTON      "", IDC_PRINTER_MORE_BUTTON, 196, 10, 16, 13, BS_ICON, WS_EX_TRANSPARENT
+    GROUPBOX        "", IDC_PRINTER_OPTIONS_GROUP, 8, 26, 110, 62
+    LTEXT           "", IDC_PRINTER_CHOOSE_RTEXT, 14, 40, 20, 14
+    COMBOBOX        IDC_PRINTER_CHOOSE_COMBO, 36, 38, 56, 60, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    AUTOCHECKBOX    "", IDC_PRINTER_DIP_CHECK, 14, 54, 100, 14
+    AUTOCHECKBOX    "", IDC_PRINTER_NLQ_CHECK, 14, 70, 100, 14
+    GROUPBOX        "", IDC_PRINTER_OUTPUT_GROUP, 128, 26, 110, 62
+    AUTOCHECKBOX    "", IDC_PRINTER_RAW_CHECK, 134, 38, 36, 14
+    AUTOCHECKBOX    "", IDC_PRINTER_TXT_CHECK, 134, 54, 36, 14
+    AUTOCHECKBOX    "", IDC_PRINTER_GFX_CHECK, 134, 70, 50, 14
+}
+
+
+IDC_DEBUG_DIALOG DIALOGEX 0, 0, 465, 264
+STYLE DS_MODALFRAME | WS_OVERLAPPED | WS_THICKFRAME | DS_SETFONT | DS_CENTER | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    CONTROL         "", IDC_DEBUG_TOOL_BAR, TOOLBARCLASSNAME, WS_CHILD | WS_VISIBLE | TBSTYLE_FLAT  | TBSTYLE_TOOLTIPS | WS_BORDER, 0, 0, 14, 0
+    LTEXT           "CC", IDC_DEBUG_CC_NAME_LTEXT, 2, 32, 14, 9
+    LTEXT           "", IDC_DEBUG_CC_VALUE_LTEXT, 16, 32, 44, 9
+    LTEXT           "A", IDC_DEBUG_AR_NAME_LTEXT, 76, 32, 14, 9
+    LTEXT           "", IDC_DEBUG_AR_VALUE_LTEXT, 86, 32, 14, 9
+    LTEXT           "B", IDC_DEBUG_BR_NAME_LTEXT, 118, 32, 14, 9
+    LTEXT           "", IDC_DEBUG_BR_VALUE_LTEXT, 128, 32, 14, 9
+    LTEXT           "DP", IDC_DEBUG_DP_NAME_LTEXT, 160, 32, 14, 9
+    LTEXT           "", IDC_DEBUG_DP_VALUE_LTEXT, 176, 32, 14, 9
+    LTEXT           "X", IDC_DEBUG_XR_NAME_LTEXT, 2, 41, 14, 9
+    LTEXT           "", IDC_DEBUG_XR_VALUE_LTEXT, 16, 41, 190, 9
+    LTEXT           "Y", IDC_DEBUG_YR_NAME_LTEXT, 2, 50, 14, 9
+    LTEXT           "", IDC_DEBUG_YR_VALUE_LTEXT, 16, 50, 190, 9
+    LTEXT           "U", IDC_DEBUG_UR_NAME_LTEXT, 2, 59, 14, 9
+    LTEXT           "", IDC_DEBUG_UR_VALUE_LTEXT, 16, 59, 190, 9
+    LTEXT           "S", IDC_DEBUG_SR_NAME_LTEXT, 2, 68, 14, 9
+    LTEXT           "", IDC_DEBUG_SR_VALUE_LTEXT, 16, 68, 190, 9
+    LTEXT           "PC", IDC_DEBUG_PC_NAME_LTEXT, 2, 77, 14, 9
+    LTEXT           "", IDC_DEBUG_PC_VALUE_LTEXT, 16, 77, 190, 9
+    GROUPBOX        "Breakpoints", IDC_DEBUG_GROUP_BKPT, 2, 86, 237, 40
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT1, 5, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT2, 34, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT3, 63, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT4, 92, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT5, 121, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT6, 150, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT7, 179, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT8, 208, 95, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT9, 5, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT10, 34, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT11, 63, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT12, 92, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT13, 121, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT14, 150, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT15, 179, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_EDIT_BKPT16, 208, 109, 28, 14, WS_BORDER | ES_AUTOHSCROLL | ES_UPPERCASE
+    EDITTEXT        IDC_DEBUG_REG_EDIT, 2, 128, 238, 48, WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL | ES_READONLY
+    LTEXT           "", IDC_DEBUG_MEM_LTEXT, 2, 179, 46, 12
+    LTEXT           "", IDC_DEBUG_CART_LTEXT, 50, 179, 60, 12
+    LTEXT           "", IDC_DEBUG_VIDEO_LTEXT, 112, 179, 50, 12
+    LTEXT           "", IDC_DEBUG_RAM_LTEXT, 164, 179, 34, 12
+    LTEXT           "", IDC_DEBUG_MON_LTEXT, 200, 179, 34,12
+    COMBOBOX        IDC_DEBUG_MEM_COMBO, 2, 188, 46, 98, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DEBUG_CART_COMBO, 50, 188, 60, 98, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DEBUG_VIDEO_COMBO, 112, 188, 50, 98, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DEBUG_RAM_COMBO, 164, 188, 34, 98, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    COMBOBOX        IDC_DEBUG_MON_COMBO, 200, 188, 34, 98, CBS_HASSTRINGS | CBS_DROPDOWNLIST | WS_VSCROLL
+    EDITTEXT        IDC_DEBUG_MEM_EDIT, 2, 203, 238, 48, WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL | ES_READONLY
+    EDITTEXT        IDC_DEBUG_DASM_EDIT, 241, 32, 223, 219, WS_BORDER | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL | ES_READONLY
+    CONTROL         "", IDC_DEBUG_STATUS_BAR, STATUSCLASSNAME, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,0, 0, 0, 0
+}
+
+
+IDC_ABOUT_DIALOG DIALOGEX 0, 0, 258, 180
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION ""
+FONT 8, "Tahoma"
+{
+    CONTROL         "to8_bmp", -1, "static", SS_BITMAP, 8, 8, 80, 280
+    PUSHBUTTON      "&OK", IDOK, 140, 160, 40, 14, WS_GROUP | WS_TABSTOP
+    CTEXT           "Teo (Windows/DirectX)\n Version "\
+                    TEO_VERSION_STR, IDC_ABOUT_CTEXT_TITLE, 70, 6, 180, 42
+    CTEXT           "", IDC_ABOUT_CTEXT_COPYRIGHT, 70, 50, 180, 50
+    CONTROL         "", IDC_ABOUT_STATIC_LINK, "static", SS_NOTIFY | SS_CENTER, 70, 94, 180, 16
+    CONTROL         "", IDC_ABOUT_STATIC_FORUM, "static", SS_NOTIFY | SS_CENTER, 70, 108, 180, 16
+    CTEXT           "License GPL 2.0", IDC_ABOUT_CTEXT_LICENSE, 70, 130, 180, 16
+}

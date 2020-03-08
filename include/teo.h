@@ -43,13 +43,11 @@
  *                               20/10/2017
  *               Gilles Fétis 27/07/2011
  *               Samuel Devulder 05/02/2012
+ *               Samuel Cuella 01/2020
  *
  *  Module de pilotage de l'émulateur.
  */
 
-
-#ifndef TEO_H
-#define TEO_H
 
 /* TEO_YEAR_STRING and TEO_VERSION_STR are now
  * defined by configure.ac and made into config.h
@@ -57,10 +55,21 @@
  * Including it here to provide compat for the 
  * existing code base
  * */
+#ifndef TEO_H
+#define TEO_H
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
 
+#ifdef ENABLE_FULL_CREDITS
+#define TEO_AUTHORS "Gilles Fetis, Eric Botcazou, Alexandre Pukall, Francois Mouret, Samuel Devulder, Samuel Cuella"
+#else
+#define TEO_AUTHORS PACKAGE_NAME" Developers"
+#endif
+
+#if PLATFORM_OGXBOX
+#include <windef.h>
+#endif
 
 #ifndef MAX_PATH
 #   define MAX_PATH 300
@@ -148,6 +157,23 @@
 #define TEO_JOY_DIRECTIONS(bitfield) ((bitfield)&0x0f) 
 
 #define TEO_TRAP_CODE          0xCD   /* code pour le trap */
+
+/* Frontend features 
+ *
+ * 00000000b
+ * 00000001b video
+ * 00000010b sound
+ * 00000100b host joystick(s) emulate TO8 joystick(s)
+ * 00001000b host keyboard(real) emulate TO8 keyboard 
+ * 00010000b host joystick emulates TO8 mouse/lightpren
+ */
+#define FRONT_NONE     0x00
+#define FRONT_GFX      0x01
+#define FRONT_SOUND    0x02
+#define FRONT_JOYSTICK 0x04
+#define FRONT_KEYBOARD 0x08
+#define FRONT_JMOUSE   0x08
+#define FRONT_ALL FRONT_GFX|FRONT_SOUND|FRONT_JOYSTICK|FRONT_KEYBOARD|FRONT_JMOUSE
 
 enum teo_command {
     TEO_COMMAND_NONE = 1,

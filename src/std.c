@@ -36,7 +36,7 @@
  *  Module     : std.c
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 28/09/2012
- *  Modifié par:
+ *  Modifié par: Samuel Cuella 10/2019
  *
  *  Fonctions utilitaires.
  */
@@ -44,11 +44,11 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE 1 /*Needed to silence vasprintf warning*/
-
 #ifndef SCAN_DEPEND
    #include <stdio.h>
    #include <stdlib.h>
+   #include <errno.h>
+   #include <stdint.h>
    #include <string.h>
    #include <ctype.h>
    #include <sys/stat.h>
@@ -57,10 +57,29 @@
 #endif
 #include <limits.h>
 
+#if !defined(PLATFORM_OGXBOX) && !defined(PLATFORM_MSDOS)
+#include <libgen.h>
+#endif
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+
+
+#ifdef PLATFORM_OGXBOX
+#include <windows.h>
+#include "og-xbox/io.h"
+#endif
+
+#if PLATFORM_OSX
+#include <mach-o/dyld.h>
+#endif
+
 #include "defs.h"
 #include "std.h"
 #include "teo.h"
+#include "main.h"
 #include "media/printer.h"
+#include "logsys.h"
 
 #ifndef SYSCONFDIR
 # define SYSCONFDIR "/etc"
@@ -70,20 +89,74 @@
 # define DATAROOTDIR "/usr/share"
 #endif
 
+#ifndef LOCALEDIR
+# define LOCALEDIR DATAROOTDIR"/locale" 
+#endif
+
+
 #ifdef __MINGW32__
 #include <shlobj.h>
 #include <windows.h>
 # define  mkdir( D, M )   mkdir( D )
 #endif
 
+#define last_char(str) ((str)[strlen((str))-1])
+#define first_char(str) (*(str))
+
+
+#if !defined(HAVE_GETCWD) && defined(PLATFORM_OGXBOX)
+#define HAVE_GETCWD 1
+char *getcwd(char *buf, int size)
+{
+    char *rv;
+
+    rv = buf;
+//    GetCurrentDirectory(size, buf);
+    snprintf(buf, size, "D:\\");
+    return rv;
+
+}
+#endif
+
 #ifndef HAVE_GET_CURRENT_DIR_NAME
 #define HAVE_GET_CURRENT_DIR_NAME 1
 char *get_current_dir_name()
 {
-    char* path = malloc(PATH_MAX);
-	return getcwd(path, PATH_MAX);
+#ifdef PLATFORM_OGXBOX
+    return strdup("D:\\");
+#else
+	char *val;
+    char *path;
+	path  = calloc(PATH_MAX, sizeof(char));
+	if(!path) return NULL;
+	val = getcwd(path, PATH_MAX);
+	if(!val){
+		log_msgf(LOG_DEBUG,"%s: getcwd failed with errno: %d (%s)\n",__FUNCTION__,errno,strerror(errno));
+		return NULL;
+	}
+	return path;
+#endif
 }
 #endif
+
+#ifndef HAVE_ACCESS
+#define HAVE_ACCESS 1
+int access(const char *filename, int mode)
+{
+    return 0;
+}
+#endif
+
+const char *std_getRootPath(void)
+{
+#ifdef PLATFORM_OGXBOX
+    return "D:\\";
+#elif PLATFORM_WIN32
+    return "C:\\";
+#else
+    return "/";
+#endif
+}
 
 
 /* std_StringListLast:
@@ -257,7 +330,16 @@ FILE *std_fclose (FILE *fp)
  * */
 unsigned char std_FileExists(char *fname)
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(fname);
+    if(attr < 0)
+        return FALSE;
+    return TRUE;
+#else
     return ( access(fname, F_OK) != -1 );
+#endif
 }
 
 
@@ -266,10 +348,22 @@ unsigned char std_FileExists(char *fname)
  */
 int std_IsFile (const char filename[])
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(filename);
+    if(attr >= 0){
+        if(!(attr & FILE_ATTRIBUTE_DIRECTORY) && !(attr & FILE_ATTRIBUTE_DEVICE)){
+            return TRUE;
+        }
+    }
+    return FALSE;
+#else
     struct stat st;
 
     return ((stat(filename, &st) == 0)
-         && (S_ISREG(st.st_mode) != 0)) ? TRUE : FALSE;
+           && (S_ISREG(st.st_mode) != 0)) ? TRUE : FALSE;
+#endif
 }
 
 
@@ -279,10 +373,23 @@ int std_IsFile (const char filename[])
  */
 int std_IsDir (const char filename[])
 {
+#ifdef PLATFORM_OGXBOX
+    DWORD attr;
+
+    attr = GetFileAttributes(filename);
+    if(attr >= 0){
+        if(attr & FILE_ATTRIBUTE_DIRECTORY){
+            return TRUE;
+        }
+    }
+    return FALSE;
+#else
     struct stat st;
 
     return ((stat(filename, &st) == 0)
-         && (S_ISDIR(st.st_mode) != 0)) ? TRUE : FALSE;
+            && (S_ISDIR(st.st_mode) != 0)) ? TRUE : FALSE;
+#endif
+    return 0;
 }
 
 
@@ -292,9 +399,26 @@ int std_IsDir (const char filename[])
  */
 size_t std_FileSize (const char filename[])
 {
+#ifdef PLATFORM_OGXBOX
+    HANDLE h;
+    DWORD rv;
+
+    /*Xbox SDK has no separate open(), one should use 
+     * CreateFile to create or open an existing file
+     * */
+    rv = 0;
+    h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, 
+                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if( h != INVALID_HANDLE_VALUE){
+        rv = GetFileSize(h, NULL);
+        CloseHandle(h);
+    }
+    return (size_t)rv;
+#else
     struct stat st;
  
-    return (stat(filename, &st) == 0) ? (size_t)st.st_size : 0;
+   return (stat(filename, &st) == 0) ? (size_t)st.st_size : 0;
+#endif
 }
 
 /* Function with behaviour like `mkdir -p'  
@@ -313,11 +437,19 @@ static void mkdir_p(const char *dir, mode_t mode) {
     for(p = tmp + 1; *p; p++){
         if(*p == '/') {
             *p = 0;
+#ifdef PLATFORM_OGXBOX
+            mkdir(tmp);
+#else
             mkdir(tmp, mode);
+#endif
             *p = '/';
         }
     }
+#ifdef PLATFORM_OGXBOX
+            mkdir(tmp);
+#else
     mkdir(tmp, mode);
+#endif
 }
 
 
@@ -366,6 +498,19 @@ char *std_strdup_printf (char *fmt, ...)
 #endif
     return ptr;
 }
+
+char *std_vastrdup_printf (char *fmt, va_list ap)
+{
+    char *ptr = NULL;
+    
+#if HAVE_VASPRINTF
+    vasprintf(&ptr, fmt, ap);
+#else
+    ptr = std_strdup_printf_run ((char *)fmt, ap);
+#endif
+    return ptr;
+}
+
 
 
 
@@ -447,19 +592,222 @@ char *std_ApplicationPath (const char dirname[], const char filename[])
     return fname;
 }
 
+/**
+ * Adds a component to a path, with the correct separator
+ *
+ * @return: Newly allocated string on success, NULL on failure
+ * caller must free the return value
+ *
+ */
+char *std_PathAppend(const char *existing, const char *component)
+{
+    char *rv;
+
+    if(last_char(existing) == DIR_SEPARATOR || first_char(component) == DIR_SEPARATOR)
+        rv = std_strdup_printf("%s%s", existing, component);
+    else
+        rv = std_strdup_printf("%s%c%s", existing, DIR_SEPARATOR, component);
+
+    return rv;
+}
+
+/*
+ * Build a path using DIR_SEPARATOR from a NULL-terminated
+ * list of elements.
+ *
+ * Caller must free returned value
+ *
+ */
+char *std_PathAppendMultiple(const char *existing, ...)
+{
+    va_list va;
+    char *component;
+    int clen;
+    int cpos;
+    char *rv;
+    int i;
+    size_t length;
+
+    /*First pass, count the args and accumulate length*/
+    va_start (va, existing);
+    i = 0;
+    length = strlen(existing);
+    while((component = va_arg(va, char*))){
+        length += strlen(component);
+        i++;
+    }
+    /*length: total length of all path components
+     * 1: first sep between existing and first component
+     * i-1: separators between all path components
+     * +1 for the last \0 */
+    rv = malloc(sizeof(char)*((1+length+(i-1))+1));
+    strcpy(rv, existing);
+    cpos = strlen(existing);
+    if(last_char(existing) != DIR_SEPARATOR){
+        rv[cpos] = DIR_SEPARATOR;
+        cpos++;
+    }
+    /*Second pass, build the return value*/
+    va_start (va, existing);
+    while(component = va_arg(va, char*)){
+        if(first_char(component) == DIR_SEPARATOR)
+            component++;
+        clen = strlen(component);
+        if(last_char(component) == DIR_SEPARATOR)
+            clen--;
+        strncpy(&rv[cpos], component,clen);
+        cpos += clen;
+        rv[cpos++] = DIR_SEPARATOR;
+    }
+    rv[cpos-1] = '\0';
+    return rv;
+}
+
+/**
+ * Adapted from Hatari File_IsRootFileName
+ *
+ * @return: whether the given filename is a path
+ * from a filesystem root
+ */
+bool std_IsAbsolutePath(const char *filename)
+{
+	if (filename[0] == '\0')     /* If NULL string return! */
+		return false;
+
+	if (filename[0] == DIR_SEPARATOR)
+		return true;
+
+#if defined (WIN32) || defined (PLATFORM_OGXBOX)
+	if (filename[1] == ':')
+		return true;
+#endif
+
+	return false;
+}
+
+
+char *std_GetExecutablePath(void)
+{
+    char *rv = NULL;
+#if PLATFORM_OSX
+    int val;
+    uint32_t size;
+   
+    size = 256 * sizeof(char);
+    rv = calloc(1, size);
+    val = _NSGetExecutablePath(rv, &size);
+    if(val == -1){ //Buffer not large enough, size has the correct size
+        rv = realloc(rv, size);
+        val = _NSGetExecutablePath(rv, &size);
+        if(!val){
+            free(rv);
+            return NULL;
+        }
+    }
+#endif
+    return rv;
+}
+
+
+const char *std_GetLocaleBaseDir(void)
+{
+#if PLATFORM_UNIX && !PLATFORM_OSX
+    const char *search_path[] = {
+        LOCALEDIR,
+        NULL
+    };
+#elif PLATFORM_OSX
+    char *tmp;
+    char *search_path[2] = {NULL, NULL};
+
+    tmp = std_GetExecutablePath();
+    if(!tmp) return NULL;
+
+    std_CleanPath(tmp);
+    search_path[0] = std_PathAppend(tmp, "../Resources/share/locale");
+    free(tmp);
+#elif PLATFORM_WIN32
+    char path[MAX_PATH];
+    char *search_path[2] = {NULL, NULL};
+
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
+        search_path[0] = std_PathAppend(path, PACKAGE);
+	}
+
+    GetModuleFileName(NULL, path, ARRAYSIZE(path));
+    search_path[1] = strdup(dirname(path));
+#elif PLATFORM_MSDOS 
+/*TODO: Lookup where is teo.exe (argv[0] ?) and use it as TEO_HOME is not defined*/
+/*TODO: declare TEO_HOME it in a BAT file for launching teo*/
+    char *search_path[2] = {NULL, NULL};
+    char *teo_home;
+
+    teo_home = getenv("TEO_HOME");
+    if(teo_home)
+        search_path[0] = strdup(teo_home);
+    else{
+        search_path[0] = get_current_dir_name();
+        log_msgf(LOG_DEBUG,"%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+    }
+    search_path[1] = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    char *search_path[2] = {NULL, NULL};
+    search_path[0] = strdup("D:\\");
+#endif
+    char *fname;
+    char **candidate;
+    char *rv;
+    
+    rv = NULL;
+    for(candidate = (char **)search_path; *candidate != NULL; candidate++){
+//        log_msgf(LOG_TRACE,"candidate is: %s\n", *candidate);
+        fname = std_PathAppendMultiple(*candidate, "fr", "LC_MESSAGES", PACKAGE".mo", NULL);
+        log_msgf(LOG_TRACE,"%s checking for %s\n", __FUNCTION__, fname);
+        if(std_FileExists(fname)){
+            free(fname);
+            rv = strdup(*candidate);
+            break;
+        }
+        free(fname);
+    }
+#if PLATFORM_WIN32 || PLATFORM_MSDOS
+    std_free(search_path[0]);
+    std_free(search_path[1]);
+#elif PLATFORM_OSX
+    std_free(search_path[0]);
+#endif
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
+    return rv;
+}
+
 
 /* Will search for a file in pre-defined directories 
  * Caller must free the return value
  *
  * */
-char *std_GetTeoSystemFile(char *name)
+char *std_GetTeoSystemFile(char *name, bool can_fail)
 {
-#if PLATFORM_UNIX
+#if PLATFORM_UNIX && !PLATFORM_OSX
     const char *search_path[] = {
         DATAROOTDIR"/teo", /*Debian*/
         DATAROOTDIR"/games/teo",
         NULL
     };
+#elif PLATFORM_OSX
+    char *tmp;
+    char *search_path[] = {
+        NULL,
+        DATAROOTDIR"/teo", /*Debian*/
+        DATAROOTDIR"/games/teo",
+        NULL
+    };
+
+    tmp = std_GetExecutablePath();
+    if(!tmp) return NULL;
+
+    std_CleanPath(tmp);
+    search_path[0] = std_PathAppend(tmp, "../Resources/teo");
+    free(tmp);
 #elif PLATFORM_WIN32 
     char path[MAX_PATH];
     char *search_path[2] = {NULL, NULL};
@@ -481,9 +829,12 @@ char *std_GetTeoSystemFile(char *name)
         search_path[0] = strdup(teo_home);
     else{
         search_path[0] = get_current_dir_name();
-        printf("%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
+        log_msgf(LOG_DEBUG,"%s: TEO_HOME not set, using the current directory (%s) as a fallback.\n", __FUNCTION__,search_path[0]);
     }
-    search_path[1] = get_current_dir_name(); 
+    search_path[1] = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    char *search_path[2] = {NULL, NULL};
+    search_path[0] = strdup("D:\\");
 #endif
     char *fname;
     char **candidate;
@@ -491,19 +842,24 @@ char *std_GetTeoSystemFile(char *name)
     
     rv = NULL;
     for(candidate = (char **)search_path; *candidate != NULL; candidate++){
-        fname = std_strdup_printf("%s/%s", *candidate, name);
-        printf("%s checking for %s\n", __FUNCTION__, fname);
+        fname = std_PathAppend(*candidate, name);
+        log_msgf(LOG_DEBUG,"%s checking for %s\n", __FUNCTION__, fname);
         if(std_FileExists(fname)){
             rv = fname;
             break;
         }
         free(fname);
     }
-#if PLATFORM_WIN32 || PLATFORM_MSDOS
+#if PLATFORM_WIN32 || PLATFORM_MSDOS || PLATFORM_OGXBOX
     std_free(search_path[0]);
     std_free(search_path[1]);
+#elif PLATFORM_OSX
+    std_free(search_path[0]);
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    if(!rv && !can_fail){
+        main_ExitMessage("Error: Couldn't find mandatory file %s, bailing out\n", name);
+    }
+//    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -520,8 +876,16 @@ char *std_getSystemConfigDir()
     char *rv;
 
     rv = NULL;
-#if PLATFORM_UNIX
+#if PLATFORM_UNIX && !PLATFORM_OSX
     rv = strdup(SYSCONFDIR"/teo");
+#elif PLATFORM_OSX
+    char *tmp;
+    tmp = std_GetExecutablePath();
+    if(tmp){
+        std_CleanPath(tmp);
+        rv = std_PathAppend(tmp, "../Resources/etc/teo");
+        free(tmp);
+    }
 #elif PLATFORM_WIN32
     char path[MAX_PATH];
 
@@ -536,8 +900,10 @@ char *std_getSystemConfigDir()
         rv = strdup(teo_home);
     else
         rv = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    rv = strdup("D:\\");
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -556,8 +922,8 @@ char *std_getUserConfigDir()
     if (!cfghome) {
         home = getenv("HOME");
         if (!home){ 
-            printf("Couldn't get a value for $HOME - this shoudl't happen\n");
-            printf("%s returning NULL\n",__FUNCTION__);
+            log_msgf(LOG_DEBUG,"Couldn't get a value for $HOME - this shoudl't happen\n");
+            log_msgf(LOG_DEBUG,"%s returning NULL\n",__FUNCTION__);
             return NULL;
         }
     }
@@ -576,7 +942,7 @@ char *std_getUserConfigDir()
             mkdir_p(rv, S_IRWXU);
 	}
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -595,15 +961,15 @@ char *std_getUserDataDir()
     if (!cfghome) {
         home = getenv("HOME");
         if (!home){ 
-            printf("Couldn't get a value for $HOME - this shoudl't happen\n");
-            printf("%s returning NULL\n",__FUNCTION__);
+            log_msgf(LOG_DEBUG,"Couldn't get a value for $HOME - this shoudl't happen\n");
+            log_msgf(LOG_DEBUG,"%s returning NULL\n",__FUNCTION__);
             return NULL;
         }
     }
     if(cfghome)
         rv = std_strdup_printf("%s/teo", cfghome);
     else
-        rv = std_strdup_printf("%s/.local/teo", home);
+        rv = std_strdup_printf("%s/.local/share/teo", home);
     if(!std_FileExists(rv))
         mkdir_p(rv, S_IRWXU);
 #elif PLATFORM_WIN32
@@ -622,8 +988,10 @@ char *std_getUserDataDir()
         rv = strdup(teo_home);
     else
         rv = get_current_dir_name();
+#elif PLATFORM_OGXBOX
+    rv = strdup("D:\\");
 #endif
-    printf("%s returning %s\n",__FUNCTION__,rv);
+    log_msgf(LOG_DEBUG,"%s returning %s\n",__FUNCTION__,rv);
     return rv;
 }
 
@@ -639,13 +1007,9 @@ char *std_GetUserDataFile(char *filename)
 
     datadir = std_getUserDataDir();
     if(datadir){
-//#if PLATFORM_UNIX
-        rv = std_strdup_printf("%s/%s", datadir, filename);
-//#else
-//        rv = std_strdup_printf("%s\\%s", datadir, filename);
-//#endif
+        rv = std_PathAppend(datadir, filename);
         std_free(datadir);
-        printf("%s: Found datadir, returning %s\n", __FUNCTION__, rv);
+        log_msgf(LOG_DEBUG,"%s: Found datadir, returning %s\n", __FUNCTION__, rv);
     }else{
         rv = strdup(filename);
     }
@@ -669,14 +1033,10 @@ char *std_GetFirstExistingConfigFile(char *filename)
 
     dir = std_getUserConfigDir();
     if(dir){
-        printf("%s: Got user config dir: %s\n", __FUNCTION__, dir);
-//#if PLATFORM_UNIX
-        rv = std_strdup_printf("%s/%s", dir, filename);
-//#else
-//        rv = std_strdup_printf("%s\\%s", dir, filename);
-//#endif
+        log_msgf(LOG_DEBUG,"%s: Got user config dir: %s\n", __FUNCTION__, dir);
+        rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
-            printf("%s: User config file %s exists, using it\n", __FUNCTION__, rv);
+            log_msgf(LOG_DEBUG,"%s: User config file %s exists, using it\n", __FUNCTION__, rv);
             std_free(dir);
             return rv;
         }
@@ -685,14 +1045,10 @@ char *std_GetFirstExistingConfigFile(char *filename)
 
     dir = std_getSystemConfigDir();
     if(dir){
-        printf("%s: Got sys config dir: %s\n", __FUNCTION__, dir);
-//#if PLATFORM_UNIX
-        rv = std_strdup_printf("%s/%s", dir, filename);
-//#else
-//        rv = std_strdup_printf("%s\\%s", dir, filename);
-//#endif
+        log_msgf(LOG_DEBUG,"%s: Got sys config dir: %s\n", __FUNCTION__, dir);
+        rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
-            printf("%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
+            log_msgf(LOG_DEBUG,"%s: User config file %s DOES NOT exist, falling back on system-wide config file %s\n", __FUNCTION__, filename, rv);
             std_free(dir);
             return rv;
         }
@@ -704,15 +1060,15 @@ char *std_GetFirstExistingConfigFile(char *filename)
     GetModuleFileName(NULL, path, ARRAYSIZE(path));
     dir = dirname(path);
     if(dir){
-        printf("%s: Got exe dir: %s\n", __FUNCTION__, dir);
-        rv = std_strdup_printf("%s\\%s", dir, filename);
+        log_msgf(LOG_DEBUG,"%s: Got exe dir: %s\n", __FUNCTION__, dir);
+        rv = std_PathAppend(dir, filename);
         if(std_FileExists(rv)){
-            printf("%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
+            log_msgf(LOG_DEBUG,"%s: User config file %s DOES NOT exist, falling back on exe-dir config file %s\n", __FUNCTION__, filename, rv);
             return rv;
         }
     }
 #endif
-    printf("%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
+    log_msgf(LOG_DEBUG,"%s: Neither user or system config file exists for %s, returning NULL\n", __FUNCTION__, filename);
     return NULL;
 }
 

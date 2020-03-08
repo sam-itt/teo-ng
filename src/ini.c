@@ -42,6 +42,10 @@
  *
  *  Chargement/Sauvegarde du fichier de configuration.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -57,7 +61,11 @@
 #include "teo.h"
 #include "media/printer.h"
 #include "std.h"
+#include "logsys.h"
 
+#ifdef PLATFORM_OGXBOX
+#include "og-xbox/io.h"
+#endif
 
 #define INI_FILE_NAME  "teo.ini"
 
@@ -305,30 +313,30 @@ void ini_Save (void)
     user_file = NULL;
     fpath = std_getUserConfigDir();
     if(fpath){
-        printf("%s: Got user config dir: %s\n", __FUNCTION__, fpath);
-        user_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
+        log_msgf(LOG_DEBUG,"%s: Got user config dir: %s\n", __FUNCTION__, fpath);
+        user_file = std_PathAppend(fpath, INI_FILE_NAME);
         fpath = std_free(fpath);
     }
     
     sys_file = NULL;
     fpath = std_getSystemConfigDir();
     if(fpath){
-        printf("%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
-        sys_file = std_strdup_printf("%s/%s", fpath, INI_FILE_NAME );
+        log_msgf(LOG_DEBUG,"%s: Got sys config dir: %s\n", __FUNCTION__, fpath);
+        sys_file = std_PathAppend(fpath, INI_FILE_NAME);
         fpath = std_free(fpath);
     }
 
     if(user_file){
-        printf("%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
+        log_msgf(LOG_DEBUG,"%s: User config file %s usable for writting using it\n", __FUNCTION__, user_file);
         file_open(user_file,  "w");
     }else{
-        printf("%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
+        log_msgf(LOG_DEBUG,"%s: User config file %s NOT usable for writting, using system file %s instead\n", __FUNCTION__, user_file, sys_file);
         file_open(sys_file,  "w");
     }
 
     if (file == NULL){
-        printf("%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
-        printf("Erro is: %d: %s\n", errno, strerror(errno));
+        log_msgf(LOG_DEBUG,"%s: Couldn't open file for writing, won't be saving ini specs\n", __FUNCTION__);
+        log_msgf(LOG_DEBUG,"Erro is: %d: %s\n", errno, strerror(errno));
         return;
     }
     fprintf (file, ";-----------------------------------------------------\n");

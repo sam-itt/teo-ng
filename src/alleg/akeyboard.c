@@ -55,11 +55,12 @@
  *  Just like the previous implementation, this mode is toggled on/off using the numlock key (active=no jostick emulation). The 
  *  mapping is also read from a config file during startup 
  *
- *  Symbolic mapping from Allegro KEY_*
- *  to TOKEY_. T
- *      Reads symbolic mapping from config files
+ *  Symbolic mapping from Allegro KEY_* to TOKEY_*
+ *  Reads symbolic mapping from config files
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <stdio.h> //printf
 #ifndef SCAN_DEPEND
@@ -67,8 +68,10 @@
    #include <allegro/internal/aintern.h>
 #endif
 
+#include "std.h"
 #include "teo.h"
 #include "to8keys.h"
+#include "logsys.h"
 #include "media/keyboard.h"
 #include "media/joystick.h"
 
@@ -91,7 +94,6 @@ void akeyboard_Handler(int key)
 
     key&=0x7F; /*What is that ? Why ? 7-bits set to 1*/
 
-//    printf("Got key : %s\n",scancode_to_name(key));
     /*Special (emulator) keys handling:
      * do the emulator command and return.
      * The virtual TO8 won't see the key
@@ -146,8 +148,8 @@ void akeyboard_Handler(int key)
         int jdx; 
         int jdir;
 
-//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
-//        joystick_verbose_debug_command(keymap[key].joycode);
+        log_msgf(LOG_DEBUG,"Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
+        joystick_VerboseDebugCommand(keymap[key].joycode);
 
         jdx = TEO_JOYN(keymap[key].joycode);
         jdir = TEO_JOY_DIRECTIONS(keymap[key].joycode);
@@ -207,7 +209,7 @@ void akeyboard_Handler(int key)
 END_OF_FUNCTION(akeyboard_Handler)
 
 
-int allegro_name_to_scancode(char *alkey)
+int akeyboard_AllegroNameToScancode(char *alkey)
 {
     if(strcmp(alkey,"KEY_A") == 0) return KEY_A;
     if(strcmp(alkey,"KEY_B") == 0) return KEY_B;
@@ -340,22 +342,22 @@ int allegro_name_to_scancode(char *alkey)
     return -1;
 }
 
-static void register_joystick_binding(char *allegro_key, int jdx, char *jdir, char *jdir2)
+static void akeyboard_RegisterJoystickBinding(char *allegro_key, int jdx, char *jdir, char *jdir2)
 {
     int a_int, jd_int;
 
-    a_int = allegro_name_to_scancode(allegro_key);
-    jd_int = joystick_symbol_to_int(jdir);
+    a_int = akeyboard_AllegroNameToScancode(allegro_key);
+    jd_int = joystick_SymbolToInt(jdir);
     if(jdir2)
-        jd_int |= joystick_symbol_to_int(jdir2);
+        jd_int |= joystick_SymbolToInt(jdir2);
 
-    printf("Allegro key %s(%d) will produce %s + %s (%d)\n",allegro_key,a_int,jdir,jdir2,jd_int);
+    log_msgf(LOG_DEBUG,"Allegro key %s(%d) will produce %s + %s (%d)\n",allegro_key,a_int,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
     keymap[a_int].joycode = jd_int;
-    printf("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
+    log_msgf(LOG_DEBUG,"keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
-static void akeyboard_read_joystick_bindings(char *section, int jdx)
+static void akeyboard_ReadJoystickBindings(char *section, int jdx)
 {
 
     char **bindings;
@@ -363,7 +365,7 @@ static void akeyboard_read_joystick_bindings(char *section, int jdx)
     char *alkey;
     char *jdir, *jdir2;
 
-    printf("Loading up joystick emulation key mappings\n");
+    log_msgf(LOG_INFO,"Loading up joystick emulation key mappings\n");
     bindings = NULL;
     //Todo: #define section name
     n_bindings = list_config_entries(section, (const char ***)&bindings);
@@ -371,7 +373,7 @@ static void akeyboard_read_joystick_bindings(char *section, int jdx)
         alkey = bindings[i]; 
         jdir = (char*)get_config_string(section, alkey, NULL);
         if(!jdir) continue;
-        printf("Key %s will emit %s\n", alkey, jdir);
+        log_msgf(LOG_DEBUG,"Key %s will emit %s\n", alkey, jdir);
 
         jdir2 = strchr(jdir,'+');
         if(jdir2){
@@ -379,35 +381,35 @@ static void akeyboard_read_joystick_bindings(char *section, int jdx)
             jdir2++;
         }
 
-        register_joystick_binding(alkey, jdx, (char*)jdir, jdir2);
+        akeyboard_RegisterJoystickBinding(alkey, jdx, (char*)jdir, jdir2);
     }
 }
 
-static void register_binding(char *allegro_key, char *tokey, char *modifier)
+static void akeyboard_RegisterBinding(char *allegro_key, char *tokey, char *modifier)
 {
     int a_int, to_int;
 
-    a_int = allegro_name_to_scancode(allegro_key);
-    to_int = keyboard_tokey_to_int(tokey);
+    a_int = akeyboard_AllegroNameToScancode(allegro_key);
+    to_int = keyboard_TokeyToInt(tokey);
 
     if(!modifier){
-        printf("Allegro key %s(%d) will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
+        log_msgf(LOG_DEBUG,"Allegro key %s(%d) will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
         keymap[a_int].tokey = to_int;
         return;
     }
     if(strcmp(modifier,"SHIFT") == 0){
-        printf("Allegro key %s(%d) + SHIFT will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
+        log_msgf(LOG_DEBUG,"Allegro key %s(%d) + SHIFT will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
         keymap[a_int].shift = to_int;
         return;
     }
     if(strcmp(modifier,"ALTGR") == 0){
-        printf("Allegro key %s(%d) + ALTGR will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
+        log_msgf(LOG_DEBUG,"Allegro key %s(%d) + ALTGR will produce %s(%d)\n",allegro_key,a_int,tokey,to_int);
         keymap[a_int].altgr = to_int;
         return;
     }
 }
 
-static void load_keybindings(void)
+static void akeyboard_LoadKeybindings(void)
 {
     char **tokey;
     char **tokeys;
@@ -418,13 +420,13 @@ static void load_keybindings(void)
     for(int i = 0; i < KEY_MAX; i++)
         keymap[i].joycode = -1;
 
-    printf("Loading up key mappings\n");
-    tokeys = keyboard_get_tokeys();
+    log_msgf(LOG_INFO,"Loading up key mappings\n");
+    tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
-        printf("Resolving mapping for emualtor definition %s... ", *tokey);
+        log_msgf(LOG_INFO,"Resolving mapping for emualtor definition %s... ", *tokey);
         //Todo: #define section name
         binding = get_config_string("keymapping",*tokey, NULL);
-        printf("got %s\n", binding);
+        log_msgf(LOG_INFO,"got %s\n", binding);
         if(!binding) continue;
 
         modifier = strchr(binding,'+');
@@ -437,20 +439,23 @@ static void load_keybindings(void)
         if(b2){
             *b2 = '\0';
             b2++;
-            register_binding(b2, *tokey, modifier);
+            akeyboard_RegisterBinding(b2, *tokey, modifier);
         }
-        register_binding((char*)binding, *tokey, modifier);
+        akeyboard_RegisterBinding((char*)binding, *tokey, modifier);
     }
 
-    akeyboard_read_joystick_bindings("joyemu1", 1);
-    akeyboard_read_joystick_bindings("joyemu2", 2);
+    akeyboard_ReadJoystickBindings("joyemu1", 1);
+    akeyboard_ReadJoystickBindings("joyemu2", 2);
 }
 
 
-void akeyboard_init(void) 
+void akeyboard_Init(void) 
 {
+    for(int i = 0; i < KEY_MAX; i++){
+        keymap[i] = (teo_kmap_t){0,0,0,-1};
+    }
 
-    load_keybindings();
+    akeyboard_LoadKeybindings();
 
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 

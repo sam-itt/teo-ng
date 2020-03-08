@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 18/04/2012
  *  Modifié par: François Mouret 29/10/2012 13/04/2014 31/05/2015
+ *               Samuel Cuella   02/2020
  *
  *  Gestion des imprimantes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -54,6 +57,7 @@
 #include "std.h"
 #include "media/printer.h"
 #include "linux/gui.h"
+#include "gettext.h"
 
 GtkWidget *widget_nlq = NULL;
 GtkWidget *widget_dip = NULL;
@@ -159,7 +163,7 @@ void uprinter_Init (GtkWidget *notebook)
     frame=gtk_frame_new("");
     gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE);
     gtk_frame_set_label_align( GTK_FRAME(frame), 0.985, 0.0);
-    widget=gtk_label_new((is_fr?"Imprimante":"Printer"));
+    widget=gtk_label_new((_("Printer")));
     gtk_notebook_append_page( GTK_NOTEBOOK(notebook), frame, widget);
 
     /* boîte verticale associée à la frame */
@@ -168,18 +172,16 @@ void uprinter_Init (GtkWidget *notebook)
     gtk_container_add( GTK_CONTAINER(frame), vbox);
 
     hbox2 = create_new_hbox (vbox);
-    widget=gtk_label_new(is_fr?"Ecrire les fichiers de sortie dans"
-                              :"Write output files in");
+    widget=gtk_label_new(_("Write output files in"));
     gtk_box_pack_start( GTK_BOX(hbox2), widget, FALSE, FALSE, 0);
 
     /* dialog pour le répertoire */
     dialog = gtk_file_chooser_dialog_new (
-             is_fr?"SÃ©lectionner un rÃ©pertoire de sauvegarde"
-                  :"Select the folder to save in",
+             _("Select the folder to save in"),
              (GtkWindow *) wControl,
              GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-             is_fr?"_Annuler":"_Cancel", GTK_RESPONSE_CANCEL,
-             is_fr?"_Ouvrir":"_Open", GTK_RESPONSE_ACCEPT, NULL);
+             _("_Cancel"), GTK_RESPONSE_CANCEL,
+             _("_Open"), GTK_RESPONSE_ACCEPT, NULL);
     gtk_file_chooser_set_current_folder(
                      (GtkFileChooser *)dialog,
                      (teo.lprt.folder == NULL)?"":teo.lprt.folder);
@@ -198,8 +200,8 @@ void uprinter_Init (GtkWidget *notebook)
     gtk_box_set_homogeneous (GTK_BOX(hbox), FALSE);
     gtk_container_add( GTK_CONTAINER(vbox), hbox);
 
-    /* Création de la frame */
-    vbox2 = create_new_frame (hbox, is_fr?"Imprimante":"Printer");
+    /* Creation de la frame */
+    vbox2 = create_new_frame (hbox, _("Printer"));
 
     /* label pour l'imprimante */
     hbox2 = create_new_hbox (vbox2);
@@ -225,8 +227,7 @@ void uprinter_Init (GtkWidget *notebook)
     /* bouton check pour le dip */
     hbox2 = create_new_hbox (vbox2);
     widget_dip=gtk_check_button_new_with_label(
-                        is_fr?"Double interligne"
-                             :"Double spacing");
+                        _("Double spacing"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_dip),
                                  teo.lprt.dip);
     g_signal_connect(G_OBJECT(widget_dip),
@@ -238,8 +239,7 @@ void uprinter_Init (GtkWidget *notebook)
     /* bouton check pour le nlq */
     hbox2 = create_new_hbox (vbox2);
     widget_nlq=gtk_check_button_new_with_label(
-                        is_fr?"Imprime en haute qualitÃ©"
-                             :"High-quality print");
+                        _("High quality print"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget_nlq),
                                  teo.lprt.nlq);
     g_signal_connect(G_OBJECT(widget_nlq),
@@ -250,13 +250,13 @@ void uprinter_Init (GtkWidget *notebook)
 
     /* ---------------- Output ------------------- */
 
-    /* Création de la frame */
-    vbox2 = create_new_frame (hbox, is_fr?"Sortie":"Output");
+    /* Creation de la frame */
+    vbox2 = create_new_frame (hbox, _("Output"));
 
-    /* label pour le répertoire */
+    /* label pour le repertoire */
     /* bouton check pour la sortie brute */
     hbox2 = create_new_hbox (vbox2);
-    widget=gtk_check_button_new_with_label(is_fr?"brute":"raw");
+    widget=gtk_check_button_new_with_label(_("raw"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
                                  teo.lprt.raw_output);
     g_signal_connect(G_OBJECT(widget),
@@ -267,7 +267,7 @@ void uprinter_Init (GtkWidget *notebook)
 
     /* bouton check pour la sortie texte */
     hbox2 = create_new_hbox (vbox2);
-    widget=gtk_check_button_new_with_label(is_fr?"texte":"text");
+    widget=gtk_check_button_new_with_label(_("text"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
                                  teo.lprt.txt_output);
     g_signal_connect(G_OBJECT(widget),
@@ -278,7 +278,7 @@ void uprinter_Init (GtkWidget *notebook)
 
     /* bouton check pour la sortie graphique */
     hbox2 = create_new_hbox (vbox2);
-    widget=gtk_check_button_new_with_label(is_fr?"graphique":"graphic");
+    widget=gtk_check_button_new_with_label(_("graphic"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
                                  teo.lprt.gfx_output);
     g_signal_connect(G_OBJECT(widget),

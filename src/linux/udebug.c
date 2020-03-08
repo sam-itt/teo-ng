@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 08/10/2013
  *  Modifié par: François Mouret 04/06/2015 14/07/2016
+ *               Samuel Cuella   02/2020
  *
  *  Débogueur 6809.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -51,8 +54,9 @@
 #include "teo.h"
 #include "linux/gui.h"
 #include "linux/display.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "debug/debug.h"
+#include "gettext.h"
 
 static GtkWidget *window;
 struct MC6809_DEBUG debug;
@@ -227,8 +231,7 @@ void udebug_Init(void)
     gtk_window_set_destroy_with_parent (GTK_WINDOW(wMain), TRUE);
     gtk_window_set_title (
         GTK_WINDOW(window),
-        is_fr?"Teo - DÃ©bogueur"
-             :"Teo - Debugger");
+        _("Teo - Debugger"));
 
     /* Connect signals */
     gtk_widget_add_events (window, GDK_STRUCTURE_MASK);

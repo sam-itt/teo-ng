@@ -36,10 +36,13 @@
  *  Module     : linux/udebug/udstatus.c
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 14/07/2016
- *  Modifié par:
+ *  Modifié par: Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Gestion de la barre d'état.
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -49,6 +52,7 @@
 #include "defs.h"
 #include "teo.h"
 #include "linux/gui.h"
+#include "gettext.h"
 
 static GtkWidget *label_clock;
 static GtkWidget *label_frame;
@@ -107,7 +111,7 @@ static void display (void)
     /* display the clock */
     str[0] = '\0';
     sprintf (str, "%s: %lld",
-             is_fr?"Horloge":"Clock",
+             _("Clock"),
              clock-prev_clock);
     gtk_label_set_text (GTK_LABEL (label_clock), str);
     prev_clock = clock;
@@ -115,18 +119,18 @@ static void display (void)
     /* display the frame */
     clock %= TEO_CYCLES_PER_FRAME;
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Frame":"Frame", clock);
+    sprintf (str, "%s: %lld", _("Frame"), clock);
     gtk_label_set_text (GTK_LABEL (label_frame), str);
 
     /* display the number of the line */
 
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Ligne":"Line", clock/FULL_LINE_CYCLES);
+    sprintf (str, "%s: %lld", _("Line"), clock/FULL_LINE_CYCLES);
     gtk_label_set_text (GTK_LABEL (label_line), str);
 
     /* display the number of the column */
     str[0] = '\0';
-    sprintf (str, "%s: %lld", is_fr?"Colonne":"Column", clock%FULL_LINE_CYCLES);
+    sprintf (str, "%s: %lld", _("Column"), clock%FULL_LINE_CYCLES);
     gtk_label_set_text (GTK_LABEL (label_column), str);
 }
 

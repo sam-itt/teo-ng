@@ -61,6 +61,9 @@
 #include "std.h"
 #include "teo.h"
 
+#ifdef PLATFORM_OGXBOX
+#include "windows.h"
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -80,16 +83,32 @@ int memo_IsMemo (const char filename[])
     struct stat st;
 
     /* check size of file */
+#if PLATFORM_OGXBOX
+    HANDLE h;
+    DWORD rv;
+
+    /*Xbox SDK has no separate open(), one should use 
+     * CreateFile to create or open an existing file
+     * */
+    rv = 0;
+    h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, 
+                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if( h == INVALID_HANDLE_VALUE)
+        return TEO_ERROR_FILE_OPEN;
+        
+    size = (size_t)GetFileSize(h, NULL);
+    CloseHandle(h);
+#else
     if (stat (filename, &st) != 0)
     {
         return TEO_ERROR_FILE_OPEN;
     }
     size = (size_t)st.st_size;
+#endif
     if ((size > 65536) || ((size % 4096) != 0))
     {
         return TEO_ERROR_FILE_FORMAT;
     }
-
     /* load the header of the file */
     if ((file = fopen (filename,"rb")) == NULL)
     {

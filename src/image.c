@@ -41,7 +41,9 @@
  *
  *  Gestion des fichier-images de l'état de l'émulateur.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -52,6 +54,7 @@
 
 #include "defs.h"
 #include "teo.h"
+#include "logsys.h"
 #include "mc68xx/mc6809.h"
 #include "mc68xx/mc6846.h"
 #include "mc68xx/mc6821.h"
@@ -810,21 +813,30 @@ static void (*Saver[32])(int) = {
 };
 
 
+/* TODO: Have a std_FileOpen that merges this and ini.c:file_open
+ * and handles the various search paths
+ *
+ * */
 static FILE *file_open (const char filename[], const char mode[])
 {
     char *name = NULL;
-    char *data_dir;
+    char *data_dir = NULL;
 
-    data_dir = std_getUserDataDir();
-    if(data_dir){
-        name = std_strdup_printf("%s/%s",data_dir, filename);
-        printf("%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
-    }else{
-        printf("%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
-        name = strdup(filename);
+    /*TODO: Check root path*/
+    if(!std_IsAbsolutePath(filename)){
+        data_dir = std_getUserDataDir();
+        if(data_dir){
+            name = std_PathAppend(data_dir, filename);
+            log_msgf(LOG_DEBUG,"%s: Datadir found, using %s as image file.\n", __FUNCTION__, name);
+        }else{
+            log_msgf(LOG_DEBUG,"%s: Datadir NOT FOUND (this shouldn't happen). Falling back to current directory for %s\n", __FUNCTION__, name);
+        }
     }
-    file = fopen(name, mode);
-    name = std_free (name);
+
+    /* Use the filename as-is if filaname is a root path or std_getUserDataDir() fails*/
+    file = fopen(name ? name : filename, mode);
+    if(name)
+        std_free (name);
     std_free(data_dir);
     return file;
 }

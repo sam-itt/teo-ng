@@ -50,6 +50,7 @@
    #include <zlib.h>
 //#endif
 #endif
+#include <png.h>
 
 #include "defs.h"
 #include "teo.h"

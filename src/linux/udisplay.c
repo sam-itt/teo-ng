@@ -40,10 +40,13 @@
  *               François Mouret 26/01/2010 08/2011 02/06/2012 28/12/2012
  *                               23/08/2015 31/07/2016
  *               Gilles Fétis 07/2011
+ *               Samuel Cuella 01/2020
  *
  *  Module d'interface avec le serveur X.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -57,22 +60,21 @@
    #include <X11/keysym.h>
 #endif
 
+#include "std.h"
 #include "defs.h"
 #include "teo.h"
+#include "main.h"
 #include "to8keys.h"
 #include "media/keyboard.h"
 #include "media/joystick.h"
 #include "media/mouse.h"
 #include "media/disk.h"
-//#include "linux/gui.h"
-//#include "linux/display.h"
 #include "linux/graphic.h"
+#include "gettext.h"
+#include "logsys.h"
 
-
-/*MOVED TO UGUI*/
 GtkWidget *wMain;
 GdkWindow *gwindow_win;
-/**/
 
 Display *display;
 int screen;
@@ -131,16 +133,14 @@ delete_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
 
 
-static gboolean handle_key_event(GdkEventKey *event, int release)
+static gboolean udisplay_HandleKeyEvent(GdkEventKey *event, int release)
 {
     int tokey;
 
     if(event->hardware_keycode > 255){
-        printf("Ignoring OOB hardware_keycode %d while max is %d\n",event->hardware_keycode,255);
+        log_msgf(LOG_DEBUG,"Ignoring OOB hardware_keycode %d while max is %d\n",event->hardware_keycode,255);
         return FALSE;
     }
- //   printf("Got hardware_keycode %d %s\n",event->hardware_keycode,release ? "released" : "");
-
 
     /*Special (emulator) keys handling:
      * do the emulator command and return.
@@ -190,15 +190,11 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
     if(!keyboard_hasFlag(TEO_KEY_F_NUMLOCK) && keymap[event->hardware_keycode].joycode != -1){
         int jdx; 
         int jdir;
-        int astate,bstate;
 
-//        printf("Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",scancode_to_name(key),key);
-//        joystick_verbose_debug_command(keymap[key].joycode);
+        log_msgf(LOG_DEBUG,"Magic key enabled(NUMLOCK off), interpreting %s(%d) as a joystick action\n",gdk_keyval_name(event->keyval), event->hardware_keycode);
+        joystick_VerboseDebugCommand(keymap[event->hardware_keycode].joycode);
 
         jdx = TEO_JOYN(keymap[event->hardware_keycode].joycode);
-        astate = (keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
-        bstate = (keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A) ?  TEO_JOYSTICK_FIRE_ON : TEO_JOYSTICK_FIRE_OFF;
-
         jdir = TEO_JOY_DIRECTIONS(keymap[event->hardware_keycode].joycode);
 
         if(keymap[event->hardware_keycode].joycode & TEO_JOYSTICK_BUTTON_A){
@@ -251,7 +247,7 @@ static gboolean handle_key_event(GdkEventKey *event, int release)
     if(!tokey){
         tokey = keymap[event->hardware_keycode].tokey; 
     }
-  //  printf("Resolved to TOKEY %d\n",tokey);
+
     if(tokey){
         keyboard_Press_ng(tokey, release);
     }
@@ -265,7 +261,6 @@ static gboolean
 key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     int value = 0;
-    int teo_key = 0;
 
     if (need_modifiers_reset)
     {
@@ -277,7 +272,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
         keyboard_Reset ((1<<TEO_KEY_F_MAX)-1, value);
         need_modifiers_reset = FALSE;
     }
-    return handle_key_event(&(event->key), FALSE);
+    return udisplay_HandleKeyEvent(&(event->key), FALSE);
 }
 
 
@@ -287,7 +282,7 @@ key_press_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 static gboolean
 key_release_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    return handle_key_event(&(event->key), TRUE);
+    return udisplay_HandleKeyEvent(&(event->key), TRUE);
 }
 
 
@@ -367,8 +362,8 @@ focus_in_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 static gboolean 
 visibility_notify_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-    //if (event->visibility.state == GDK_VISIBILITY_UNOBSCURED)
-      //  ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
+    if (event->visibility.state == GDK_VISIBILITY_UNOBSCURED)
+        ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2);
 
     return FALSE;
     (void)widget;
@@ -387,10 +382,8 @@ configure_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
     if ( (event->configure.width != last_width) || (event->configure.height != last_height) ) {
         last_width=event->configure.width;
         last_height=event->configure.height; 
-#ifdef DEBUG
-	fprintf(stderr,"Resize x=%d y=%d\n",last_width,last_height);
-#endif
-        //ugraphic_resize_zoom();
+        log_msgf(LOG_DEBUG, "Resize x=%d y=%d\n",last_width,last_height);
+        ugraphic_resize_zoom();
         /* ugraphic_Retrace(0, 0, TEO_SCREEN_W*2, TEO_SCREEN_H*2); */
     }
     return FALSE;
@@ -400,7 +393,7 @@ configure_event (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 
 
 /* ------------------------------------------------------------------------- */
-static gboolean udisplay_get_entries_for_keyval(char *keyval_name, XkbStateRec *xkbState, GdkKeymapKey **keys, gint *n_keys)
+static gboolean udisplay_GetEntriesForKeyval(char *keyval_name, XkbStateRec *xkbState, GdkKeymapKey **keys, gint *n_keys)
 {
     char *ksym;
     GdkKeymap *okeymap;
@@ -409,7 +402,7 @@ static gboolean udisplay_get_entries_for_keyval(char *keyval_name, XkbStateRec *
 
     ksym = strstr(keyval_name,"GDK_KEY_");
     if(!ksym){
-        printf("Not a recognized GDK KeySym: %s\n",keyval_name);
+        log_msgf(LOG_DEBUG,"Not a recognized GDK KeySym: %s\n",keyval_name);
         return FALSE;
     }
     ksym = strchr(keyval_name,'_');
@@ -418,7 +411,7 @@ static gboolean udisplay_get_entries_for_keyval(char *keyval_name, XkbStateRec *
     ksym++;
 
     XkbGetState(display, XkbUseCoreKbd, xkbState);
-//    printf("Active group would be %d\n",xkbState->group);
+    log_msgf(LOG_DEBUG,"Active group would be %d\n",xkbState->group);
 
     odisplay = gdk_display_get_default(); 
     okeymap = gdk_keymap_get_for_display(odisplay);
@@ -431,7 +424,7 @@ static gboolean udisplay_get_entries_for_keyval(char *keyval_name, XkbStateRec *
 
 
 
-static int gksym_to_keycode(char *gksym)
+static int udisplay_GksymToKeycode(char *gksym)
 {
     gboolean rv;
     GdkKeymapKey *keys;
@@ -440,7 +433,7 @@ static int gksym_to_keycode(char *gksym)
 
     XkbStateRec xkbState;
 
-    rv = udisplay_get_entries_for_keyval(gksym, &xkbState, &keys, &n_keys);
+    rv = udisplay_GetEntriesForKeyval(gksym, &xkbState, &keys, &n_keys);
     if(!rv)
         return -1;
 
@@ -452,34 +445,33 @@ static int gksym_to_keycode(char *gksym)
         }
     }
     for(int i = 0; i < n_keys; i++){
-//        printf("Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
         if(keys[i].group == xkbState.group || !has_group_match)
             return keys[i].keycode;
     }
     return -1;
 }
 
-static void register_joystick_binding(char *gksym, int jdx, char *jdir, char *jdir2)
+static void udisplay_RegisterJoystickBinding(char *gksym, int jdx, char *jdir, char *jdir2)
 {
     int a_int, jd_int;
 
-    a_int = gksym_to_keycode(gksym);
+    a_int = udisplay_GksymToKeycode(gksym);
     if(a_int < 0){
-        printf("%s not bound: Couldn't find keycodes for keyval %s\n",jdir, gksym);
+        log_msgf(LOG_DEBUG,"%s not bound: Couldn't find keycodes for keyval %s\n",jdir, gksym);
         return;
     }
 
-    jd_int = joystick_symbol_to_int(jdir);
+    jd_int = joystick_SymbolToInt(jdir);
     if(jdir2)
-        jd_int |= joystick_symbol_to_int(jdir2);
+        jd_int |= joystick_SymbolToInt(jdir2);
 
-    printf("GDK key %s(%d) will produce %s + %s (%d)\n",gksym,a_int,jdir,jdir2,jd_int);
+    log_msgf(LOG_DEBUG,"GDK key %s(%d) will produce %s + %s (%d)\n",gksym,a_int,jdir,jdir2,jd_int);
     jd_int |= ((jdx == 1) ? TEO_JOY1 : TEO_JOY2); 
     keymap[a_int].joycode = jd_int;
-    printf("keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
+    log_msgf(LOG_DEBUG,"keymap[%d].joycode = %d\n",a_int,keymap[a_int].joycode);
 }
 
-static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *section, int jdx)
+static gboolean udisplay_ReadJoystickBindings(GKeyFile *key_file, char *section, int jdx)
 {
 
     char **bindings;
@@ -487,7 +479,7 @@ static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *sectio
     char *gksym;
     char *jdir, *jdir2;
 
-    printf("Loading up joystick emulation key mappings\n");
+    log_msgf(LOG_INFO,"Loading up joystick emulation key mappings\n");
     bindings = g_key_file_get_keys(key_file, section, &n_bindings, NULL);
     if(!bindings) return FALSE;
 
@@ -496,7 +488,7 @@ static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *sectio
         jdir = g_key_file_get_value(key_file, section, gksym, NULL);
         if(!jdir) continue;
 
-        printf("Key %s will emit %s\n", gksym, jdir);
+        log_msgf(LOG_DEBUG,"Key %s will emit %s\n", gksym, jdir);
 
         jdir2 = strchr(jdir,'+');
         if(jdir2){
@@ -504,28 +496,29 @@ static gboolean udisplay_read_joystick_bindings(GKeyFile *key_file, char *sectio
             jdir2++;
         }
 
-        register_joystick_binding(gksym, jdx, (char*)jdir, jdir2);
+        udisplay_RegisterJoystickBinding(gksym, jdx, (char*)jdir, jdir2);
         g_free(jdir);
     }
     g_strfreev(bindings);
+    return True;
 }
 
 
 
-static gboolean register_binding(char *xkb_symbol, char *tokey)
+static gboolean udisplay_RegisterBinding(char *xkb_symbol, char *tokey)
 {
-    int a_int, to_int;
+    int to_int;
     gboolean rv;
     GdkKeymapKey *okeys;
     gint on_keys;
 
     XkbStateRec xkbState;
     
-    to_int = keyboard_tokey_to_int(tokey);
+    to_int = keyboard_TokeyToInt(tokey);
 
-    rv = udisplay_get_entries_for_keyval(xkb_symbol, &xkbState, &okeys, &on_keys);
+    rv = udisplay_GetEntriesForKeyval(xkb_symbol, &xkbState, &okeys, &on_keys);
     if(!rv)
-        printf("%s not bound: Couldn't find keycodes for keyval %s\n",tokey, xkb_symbol);
+        log_msgf(LOG_DEBUG,"%s not bound: Couldn't find keycodes for keyval %s\n",tokey, xkb_symbol);
 
     /*Groups seems to be used to manage multiple keyboard layouts (at least using MATE) 
      * instead/on top of their orignal meaning. Getting the active layout seems to be 
@@ -543,11 +536,11 @@ static gboolean register_binding(char *xkb_symbol, char *tokey)
         }
     }
     for(int i = 0; i < on_keys; i++){
-//        printf("Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
+        log_msgf(LOG_DEBUG,"Checking key %d: keycode: %d, group: %d, level: %d\n",i, okeys[i].keycode,okeys[i].group,okeys[i].level);
         if(okeys[i].group == xkbState.group || !has_group_match){
             switch(okeys[i].level){
                 case 0:
-                    printf("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                    log_msgf(LOG_DEBUG,"GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     keymap[okeys[i].keycode].tokey = to_int;
                     break;
                 case 1:
@@ -556,18 +549,18 @@ static gboolean register_binding(char *xkb_symbol, char *tokey)
                      * */
                     if(!strstr(xkb_symbol,"GDK_KEY_KP")){ 
                         keymap[okeys[i].keycode].shift = to_int;
-                        printf("GDK keycode %d + SHIFT will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                        log_msgf(LOG_DEBUG,"GDK keycode %d + SHIFT will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     }else{
                         keymap[okeys[i].keycode].tokey = to_int;
-                        printf("GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                        log_msgf(LOG_DEBUG,"GDK keycode %d will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     }
                     break;
                 case 2:
-                    printf("GDK keycode %d + ALTGR will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
+                    log_msgf(LOG_DEBUG,"GDK keycode %d + ALTGR will produce %s(%d)\n", okeys[i].keycode, tokey, to_int);
                     keymap[okeys[i].keycode].altgr = to_int;
                     break;
                 default:
-                    printf("Got an unsupported combination for %s: keycode %d and level %d. NOT BOUND\n",tokey, okeys[i].keycode, okeys[i].level);
+                    log_msgf(LOG_DEBUG,"Got an unsupported combination for %s: keycode %d and level %d. NOT BOUND\n",tokey, okeys[i].keycode, okeys[i].level);
                     break;
                 }
          }
@@ -579,7 +572,7 @@ static gboolean register_binding(char *xkb_symbol, char *tokey)
 
 
 
-static void load_keybinding(char *filename)
+static void udisplay_LoadKeyBinding(char *filename)
 {
     GError *error = NULL;
     GKeyFile *key_file;
@@ -598,42 +591,46 @@ static void load_keybinding(char *filename)
         return;
     }
 
-    printf("Loading up key mappings\n");
-    tokeys = keyboard_get_tokeys();
+    log_msgf(LOG_DEBUG,"Loading up key mappings\n");
+    tokeys = keyboard_GetTokeys();
     for(tokey = tokeys; *tokey != NULL; tokey++){
-        printf("Resolving mapping for emulator definition %s... ", *tokey);
+        log_msgf(LOG_DEBUG,"Resolving mapping for emulator definition %s... ", *tokey);
         binding = g_key_file_get_value(key_file, "keymapping", *tokey, NULL);
-        printf("got %s\n", binding);
+        log_msgf(LOG_DEBUG,"got %s\n", binding);
         if(!binding) continue;
 
         b2 = strchr(binding,',');
         if(b2){
             *b2 = '\0';
             b2++;
-            register_binding(b2, *tokey);
+            udisplay_RegisterBinding(b2, *tokey);
         }
-        register_binding(binding, *tokey);
+        udisplay_RegisterBinding(binding, *tokey);
         g_free(binding);
     }
-    udisplay_read_joystick_bindings(key_file, "joyemu1", 1);
-    udisplay_read_joystick_bindings(key_file, "joyemu2", 2);
+    udisplay_ReadJoystickBindings(key_file, "joyemu1", 1);
+    udisplay_ReadJoystickBindings(key_file, "joyemu2", 2);
     g_key_file_free(key_file);
 
 }
 
-/* udisplay_Init:
- *  Ouvre la connexion avec le serveur X et initialise le clavier.
+/** 
+ * Init the file-wide X handle and tries to enable X-SHM
+ * Also inits the keyboard
  */
-void udisplay_Init(void)
+void udisplay_Init(const char *keyfile)
 {
-    int i;
     int ret1, ret2, ret3;
 
     /* Connexion au serveur X */
     display=gdk_x11_get_default_xdisplay();
     screen=DefaultScreen(display);
 
-    load_keybinding("gdk-keymap.ini");
+    for(int i = 0; i < 256; i++){
+        keymap[i] = (teo_kmap_t){0,0,0,-1};
+    }
+
+    udisplay_LoadKeyBinding((char*)keyfile);
     jdir_buffer[0][0] =  jdir_buffer[0][1] = TEO_JOYSTICK_CENTER; 
     jdir_buffer[1][0] =  jdir_buffer[1][1] = TEO_JOYSTICK_CENTER; 
 
@@ -643,8 +640,14 @@ void udisplay_Init(void)
 }
 
 
-/* udisplay_Window:
- *   Crée la fenêtre principale.
+/**
+ * GTK works: Create a window of appropriate size and 
+ * activates callbacks for keypresses, focus and visibility.
+ *
+ * Init file-wide X-related symbols
+ *
+ * Sets the callback for teo_SetPointer
+ *
  */
 void udisplay_Window(void)
 {
@@ -656,9 +659,7 @@ void udisplay_Window(void)
     wMain = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
     gtk_window_set_resizable (GTK_WINDOW(wMain), TRUE);
-    gtk_window_set_title (GTK_WINDOW(wMain),
-                          is_fr?"Teo - l'Ã©mulateur TO8 (menu:ESC/dÃ©bogueur:F12)"
-                               :"Teo - thomson TO8 emulator (menu:ESC/debugger:F12)");
+    gtk_window_set_title (GTK_WINDOW(wMain), _("Teo - Thomson TO8 emulator (menu:ESC/debugger:F12)"));
 
     gtk_widget_add_events (wMain,
                      GDK_FOCUS_CHANGE_MASK
@@ -735,6 +736,6 @@ void udisplay_Window(void)
 
     teo_SetPointer=SetPointer;
 
-    printf("ok\n");
+    main_ConsoleOutput("ok\n");
 }
 

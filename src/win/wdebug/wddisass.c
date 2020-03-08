@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
  *  Modifié par: François Mouret 04/06/2015 15/07/2016
+ *               Samuel Cuella 02/2020
  *
  *  Débogueur 6809 - Affichage des mnémoniques.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
     #include <stdio.h>
@@ -52,9 +55,10 @@
 #include "hardware.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "debug/debug.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 static HFONT hfont_normal = NULL;
 static struct MC6809_REGS regs;
@@ -133,36 +137,16 @@ static void run_subroutine (HWND hwnd, int next_pc)
         && (ptr == ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1))));
 
     if (ptr != ((LOAD_BYTE(sr)<<8)|LOAD_BYTE(sr+1)))
-        wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le\n" \
-             "pointeur de retour vient d'être changé dans la pile."
-            :"The single-stepping has been aborted because the\n" \
-             "return pointer has just been overwritten in stack.");
+        wgui_Warning (hwnd, _("The single-stepping has been aborted because the\nreturn pointer has just been overwritten in stack."));
     else
     if ((regs.sr == (sr+2)) && (regs.pc != next_pc))
-        wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue car le\n" \
-             "pointeur de retour vient d'être dépilé avant le retour\n" \
-             "du sous-programme."
-            :"The single-stepping has been aborted because the\n" \
-             "return pointer has just been pulled from stack before\n" \
-             "the return from subroutine.");
+        wgui_Warning (hwnd, _("The single-stepping has been aborted because the\nreturn pointer has just been pulled from stack before\nthe return from subroutine."));
     else
     if (watch > WATCH_MAX)
-        wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue à cause du\n" \
-             "trop grand nombre d'instructions exécutées.\n" \
-             "La sous-routine peut comporter une boucle infinie."
-            :"The single-stepping has been aborted because of the\n" \
-             "great number of executed instructions.\n" \
-             "The subroutine could have an infinite loop.");
+        wgui_Warning (hwnd, _("The single-stepping has been aborted because of the\ngreat number of executed instructions.\nThe subroutine could have an infinite loop."));
     else
     if (regs.sr != (sr+2))
-        wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue car\n" \
-             "le pointeur de pile a changé."
-            :"The single-stepping has been aborted because\n" \
-             "the stack pointer has changed.");
+        wgui_Warning (hwnd, _("The single-stepping has been aborted because\nthe stack pointer has changed."));
 }
 
 
@@ -178,13 +162,7 @@ static void exit_loop (HWND hwnd, int next_pc)
     } while (((watch++)<WATCH_MAX) && (regs.pc != next_pc));
 
     if (watch > WATCH_MAX)
-        wgui_Warning (hwnd, is_fr
-            ?"L'exécution pas-à-pas a été interrompue à cause du\n" \
-             "trop grand nombre d'instructions exécutées.\n" \
-             "Il pourrait s'agir d'une boucle infinie."
-            :"The single-stepping has been aborted because of the\n" \
-             "great number of executed instructions.\n" \
-             "It could be an infinite loop.");
+        wgui_Warning (hwnd, _("The single-stepping has been aborted because of the\ngreat number of executed instructions.\nIt could be an infinite loop."));
 }
 
 

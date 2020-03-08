@@ -36,7 +36,7 @@
 #ifndef ALLEG_KEYBOARD_H 
 #define ALLEG_KEYBOARD_H 
 
-void akeyboard_init(void);
+void akeyboard_Init(void);
 void akeyboard_Handler(int key);
 
 #endif //ALLEG_KEYBOARD_H

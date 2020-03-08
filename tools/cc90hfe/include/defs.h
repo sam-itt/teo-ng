@@ -27,9 +27,12 @@
  *
  *  Definitions.
  */
-
 #ifndef DEFS_H
 #define DEFS_H 1
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef TRUE
 #define TRUE  1
@@ -55,7 +58,7 @@
 
 #define PROG_CREATION_MONTH "April"
 #define PROG_CREATION_YEAR "2018"
-#define PROG_WEB_SITE       "http://sourceforge.net/projects/teoemulator/"
+#define PROG_WEB_SITE       PACKAGE_HOMEPAGE
 #define PROG_WEB_FORUM      "http://www.logicielsmoto.com/"
 #define PROG_DESCRIPTION    "Serial transfers for CC90-232"
 

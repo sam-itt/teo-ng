@@ -37,10 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : Gilles Fétis & François Mouret 10/05/2014
  *  Modifié par: François Mouret 16/11/2015 09/03/2016 14/07/2016
+ *               Samuel Cuella   02/2020
  *
  *  Débogueur 6809 - Affichage des registres.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -54,6 +57,7 @@
 #include "mc68xx/mc6821.h"
 #include "mc68xx/dasm6809.h"
 #include "media/disk.h"
+#include "gettext.h"
 
 
 /* ------------------------------------------------------------------------- */
@@ -137,24 +141,19 @@ char *dreg_GetText (char *special_cr)
                          disk[0].dkc->wr3,
                          disk[0].dkc->rr3,
                          special_cr);
-        p += sprintf(p, is_fr?"page de ROM cartouche :%d%s"
-                             :"ROM cartridge page :%d%s",
+        p += sprintf(p, _("ROM cartridge page :%d%s"),
                          mempager.cart.rom_page,
                          special_cr);
-        p += sprintf(p, is_fr?"page de RAM cartouche :%d%s"
-                             :"RAM cartridge page :%d%s",
+        p += sprintf(p, _("RAM cartridge page :%d%s"),
                          mempager.cart.ram_page,
                          special_cr);
-        p += sprintf(p, is_fr?"page de VRAM          :%d%s"
-                             :"VRAM page          :%d%s",
+        p += sprintf(p, _("VRAM page          :%d%s"),
                          mempager.screen.vram_page,
                          special_cr);
-        p += sprintf(p, is_fr?"page de RAM (registre):%d%s"
-                             :"RAM page (register):%d%s",
+        p += sprintf(p, _("RAM page (register):%d%s"),
                          mempager.data.reg_page,
                          special_cr);
-        p += sprintf(p, is_fr?"page de RAM (PIA)     :%d"
-                             :"RAM page (PIA)     :%d",
+        p += sprintf(p, _("RAM page (PIA)     :%d"),
                          mempager.data.pia_page);
     }
     return text;

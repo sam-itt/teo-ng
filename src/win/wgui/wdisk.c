@@ -39,10 +39,13 @@
  *  Modifié par: Eric Botcazou 28/10/2003
  *               François Mouret 17/09/2006 28/08/2011 18/03/2012
  *                               24/10/2012 10/05/2014
+ *               Samuel Cuella 02/2020
  *
  *  Gestion des disquettes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -59,6 +62,7 @@
 #include "media/disk.h"
 #include "media/disk/daccess.h"
 #include "win/gui.h"
+#include "gettext.h"
 
 #define NDISKS 4
 
@@ -127,8 +131,7 @@ static void set_protection_check (HWND hWnd, struct FILE_VECTOR *vector)
     if ((protection == FALSE)
      && (disk_Protection (vector->id, FALSE) == TRUE))
     {
-        MessageBox(hWnd, is_fr?"Ecriture impossible sur ce support."
-                              :"Warning: writing unavailable on this device."
+        MessageBox(hWnd, _("Warning: writing unavailable on this device.")
                        , PROGNAME_STR, MB_OK | MB_ICONINFORMATION);
         CheckDlgButton(hWnd, IDC_DISK0_PROT_CHECK+vector->id, BST_CHECKED);
     }
@@ -310,10 +313,10 @@ static void free_disk_entry (struct FILE_VECTOR *vector)
  */
 static void init_combo (HWND hWnd, struct FILE_VECTOR *vector)
 {
-    add_combo_entry (hWnd, is_fr?"(Aucun)":"(None)", 0, 1, FALSE, vector);
+    add_combo_entry (hWnd, _("(None)"), 0, 1, FALSE, vector);
     if (vector->direct)
         add_combo_entry (hWnd,
-                         is_fr?"(Accès Direct)":"(Direct Access)",
+                         _("(Direct Access)"),
                          vector->id,
                          vector->id+1,
                          TRUE,
@@ -353,19 +356,21 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
     memset(&ofn, 0, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hWnd;
-    ofn.lpstrFilter = is_fr?
-                            "Tous les fichiers\0*.*\0" \
-                            "Fichiers HFE\0*.hfe\0" \
-                            "Fichiers SAP\0*.sap\0" \
-                            "Fichiers disque bruts\0*.fd\0"
-                           :"All files\0*.*\0" \
-                            "HFE files\0*.hfe\0" \
-                            "SAP files\0*.sap\0" \
-                            "Raw floppy files\0*.fd\0";
+    /*Gettext can't handle in-string \0. They are encoded
+     * as \a(bell) and in-place converted to suit format specified
+     * for OPENFILENAME lpstrFilter*/
+    char *_filter = strdup(_("All files\a*.*\aHFE files\a*.hfe\aSAP files\a*.sap\aRaw floppy files\a*.fd\a"));
+    int filter_len = strlen(_filter);
+    for(int i = 0; i < filter_len; i++){
+        if(_filter[i] == '\a')
+            _filter[i] = '\0';
+    }
+    ofn.lpstrFilter = _filter;
+
     ofn.nFilterIndex = 1;
     ofn.lpstrFile = current_file;
     ofn.nMaxFile = BUFFER_SIZE;
-    ofn.lpstrTitle = is_fr?"Choisissez votre disquette:":"Choose your disk:";
+    ofn.lpstrTitle = _("Select your disk:");
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     ofn.lpstrDefExt ="sap";
 
@@ -398,6 +403,7 @@ static void open_file (HWND hWnd, struct FILE_VECTOR *vector)
                             teo.disk[vector->id].file);
         }
     }
+   free(_filter);
 }
 
 
@@ -458,21 +464,19 @@ int CALLBACK wdisk_TabProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
              /* initialisation des textes */
              SetWindowText(GetDlgItem(hWnd, IDC_DISK0_SIDE_RTEXT),
-                           is_fr?"face":"side");
+                           _("side"));
              SetWindowText(GetDlgItem(hWnd, IDC_DISK1_SIDE_RTEXT),
-                           is_fr?"face":"side");
+                           _("side"));
              SetWindowText(GetDlgItem(hWnd, IDC_DISK2_SIDE_RTEXT),
-                           is_fr?"face":"side");
+                           _("side"));
              SetWindowText(GetDlgItem(hWnd, IDC_DISK3_SIDE_RTEXT),
-                           is_fr?"face":"side");
+                           _("side"));
 
              /* initialisation des info-bulles */
              wgui_CreateTooltip (hWnd, IDC_DISK0_EJECT_BUTTON+i,
-                                 is_fr?"Vider la liste des fichiers"
-                                      :"Empty the file list");
+                                 _("Clear the file list"));
              wgui_CreateTooltip (hWnd, IDC_DISK0_MORE_BUTTON+i,
-                                 is_fr?"Ouvrir un fichier disquette"
-                                      :"Open a disk file");
+                                 _("Open a disk file"));
 
              if (first)
              {

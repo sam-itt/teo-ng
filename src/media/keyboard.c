@@ -59,7 +59,7 @@
 #include "teo.h"
 #include "to8keys.h"
 
-static volatile int kb_state; /* contient l'état des touches et leds du clavier PC:
+static volatile int kb_state = 0; /* contient l'état des touches et leds du clavier PC:
                                  - SHIFT (gauche et droit confondus)
                                  - ALTGR
                                  - NUMLOCK */
@@ -96,7 +96,7 @@ static char *tokeys[]={"TOKEY_SHIFT","TOKEY_CTRL","TOKEY_Q_LOWER_CASE","TOKEY_B_
 
 /* ------------------------------------------------------------------------- */
 
-char **keyboard_get_tokeys(void)
+char **keyboard_GetTokeys(void)
 {
     return tokeys;
 }
@@ -238,8 +238,7 @@ int keyboard_Init(int num_joy)
 }
 
 
-//int tokey_to_int(char *tokey)
-int keyboard_tokey_to_int(char *tokey)
+int keyboard_TokeyToInt(char *tokey)
 {
     if(strcmp(tokey,"TOKEY_SHIFT") == 0) return TOKEY_SHIFT;
     if(strcmp(tokey,"TOKEY_CTRL") == 0) return TOKEY_CTRL;

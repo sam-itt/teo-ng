@@ -39,10 +39,13 @@
  *  Modifié par: Eric Botcazou 24/09/2001
  *               Samuel Devulder 23/03/2010
  *               François Mouret 08/2011 19/10/2012 28/12/2012 20/11/2017
+ *               Samuel Cuella   02/2020
  *
  *  Gestion de l'émulation sonore du TO8.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -51,6 +54,8 @@
 #endif
 
 #include "teo.h"
+#include "main.h"
+#include "gettext.h"
 
 
 static AUDIOSTREAM *stream;
@@ -182,7 +187,7 @@ void asound_Init(int freq)
 
     teo.sound_enabled=FALSE;
 
-    printf(is_fr?"Initialisation du son...":"Sound initialization...");
+    main_ConsoleOutput(_("Sound initialization..."));
 
     /* pas de compensation de volume */
     set_volume_per_voice(0);
@@ -198,5 +203,5 @@ void asound_Init(int freq)
     silence_sound ();
     last_index = 0;
 
-    printf(teo.sound_enabled ? "ok\n" : (is_fr?"erreur\n":"error\n"));
+    main_ConsoleOutput(teo.sound_enabled ? "ok\n" : _("error\n"));
 }

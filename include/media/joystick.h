@@ -37,6 +37,7 @@
  *  Version    : 1.8.5
  *  Créé par   : Eric Botcazou 12/02/2001
  *  Modifié par: François Mouret 01/11/2012 02/11/2012
+ *               Samuel Cuella 10/2019
  *
  *  Gestion des manettes du TO8.
  */
@@ -50,6 +51,6 @@ extern void joystick_Reset(void);
 extern void joystick_Move(int joy, int pos);
 extern void joystick_Button(int joy, int button, int state);
 
-int joystick_symbol_to_int(char *symbol);
-void joystick_verbose_debug_command(int value);
+int joystick_SymbolToInt(char *symbol);
+void joystick_VerboseDebugCommand(int value);
 #endif

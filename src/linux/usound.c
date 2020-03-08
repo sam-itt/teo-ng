@@ -43,7 +43,9 @@
  *
  *  Gestion de l'émulation sonore du TO8.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -56,10 +58,13 @@
    #include <alsa/asoundlib.h>
 #endif
 
-#include "hardware.h"
 #include "std.h"
-#include "errors.h"
 #include "teo.h"
+#include "logsys.h"
+#include "main.h"
+#include "hardware.h"
+#include "errors.h"
+#include "gettext.h"
 
 #define ALSA_DEVNAME "default"         /* nom du périphérique */
 #define ALSA_SOUND_FREQ  44100         /* débit */
@@ -262,8 +267,10 @@ void usound_Close (void)
 
 
 
-/* usound_Init:
- *  Initialise le module de streaming audio.
+/** 
+ * Tries to open alsa and setup sound-related teo_ callbacks on success
+ *
+ * @return 0 on success, TEO_ERROR on error. Also sets teo_error_msg.
  */
 int usound_Init(void)
 {
@@ -275,14 +282,11 @@ int usound_Init(void)
 
     if (teo.setting.sound_enabled)
     {
-        printf(is_fr?"Initialisation du son (ALSA)..."
-                    :"Sound initialization (ALSA)...");
+        main_ConsoleOutput(_("Sound initialization (ALSA)..."));
 
         /* Open PCM device for playback. */
         if ((err = snd_pcm_open(&handle, ALSA_DEVNAME, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
-            return sound_error (snd_strerror(err),
-                                   is_fr?"Impossible d'ouvrir le pÃ©riphÃ©rique audio"
-                                        :"Unable to open audio device");
+            return sound_error (snd_strerror(err), _("Unable to open audio device"));
 
         /* Initialise les paramètres hardware */
         snd_pcm_hw_params_alloca (&hwparams);
@@ -298,13 +302,11 @@ int usound_Init(void)
         sound_buffer_size = period_size * ALSA_CHANNELS * (snd_pcm_format_physical_width(data_type) >> 3);
         sound_buffer = (unsigned char *)calloc (sound_buffer_size, sizeof(unsigned char));
         if (sound_buffer == NULL)
-            return sound_error (is_fr?"Erreur audio":"Audio error",
-                                is_fr?"MÃ©moire insuffisante pour le buffer"
-                                     :"Insufficient memory for buffer");
+            return sound_error (_("Audio error"), _("Insufficient memory for buffer"));
 
         snd_pcm_prepare (handle);
 
-        printf("ok\n");
+        main_ConsoleOutput("ok\n");
     }
     
     silence_sound ();
@@ -318,7 +320,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
         if (err == -EPIPE) {    /* under-run */
                 err = snd_pcm_prepare(handle);
                 if (err < 0)
-                        printf("Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
+                        log_msgf(LOG_ERROR,"Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
                 return 0;
         } else if (err == -ESTRPIPE) {
                 while ((err = snd_pcm_resume(handle)) == -EAGAIN)
@@ -326,7 +328,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
                 if (err < 0) {
                         err = snd_pcm_prepare(handle);
                         if (err < 0)
-                                printf("Can't recovery from suspend, prepare failed: %s\n", snd_strerror(err));
+                                log_msgf(LOG_ERROR,"Can't recovery from suspend, prepare failed: %s\n", snd_strerror(err));
                 }
                 return 0;
         }
@@ -355,20 +357,20 @@ void usound_Play(void)
     register int i;
     static struct pollfd *ufds=NULL;
     static int count;
-
+    
     if (ufds==NULL) {
         count = snd_pcm_poll_descriptors_count (handle);
         if (count <= 0) {
-                printf("Invalid poll descriptors count\n");
+                log_msgf(LOG_ERROR,"Invalid poll descriptors count\n");
                 return;
         }
         ufds = malloc(sizeof(struct pollfd) * count);
         if (ufds == NULL) {
-                printf("No enough memory\n");
+                log_msgf(LOG_ERROR,"No enough memory\n");
                 return;
         }
         if ((err = snd_pcm_poll_descriptors(handle, ufds, count)) < 0) {
-                printf("Unable to obtain poll descriptors for playback: %s\n", snd_strerror(err));
+                log_msgf(LOG_ERROR,"Unable to obtain poll descriptors for playback: %s\n", snd_strerror(err));
                 return;
         }
     }
@@ -396,12 +398,11 @@ void usound_Play(void)
                                     snd_pcm_state(handle) == SND_PCM_STATE_SUSPENDED) {
                                         err = snd_pcm_state(handle) == SND_PCM_STATE_XRUN ? -EPIPE : -ESTRPIPE;
                                         if (xrun_recovery(handle, err) < 0) {
-                                                printf("Write error: %s\n", snd_strerror(err));
-                                                exit(EXIT_FAILURE);
+                                            main_ExitMessage("Write error: %s\n", snd_strerror(err));
                                         }
                                         // init = 1;
                                 } else {
-                                        printf("Wait for poll failed\n");
+                                        log_msgf(LOG_ERROR,"Wait for poll failed\n");
                                         return;
                                 }
     }

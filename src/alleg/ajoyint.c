@@ -38,10 +38,13 @@
  *  Créé par   : Eric Botcazou 14/02/2001
  *  Modifié par: Eric Botcazou 22/03/2001
  *               François Mouret 08/2011 02/11/2012
+ *               Samuel Cuella   02/2020
  *
  *  Interface de gestion des manettes.
  */
-
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifndef SCAN_DEPEND
    #include <stdio.h>
@@ -50,6 +53,7 @@
 
 #include "media/joystick.h"
 #include "teo.h"
+#include "gettext.h"
 
 
 static int njoy;
@@ -110,11 +114,8 @@ void ajoyint_Update(void)
  */
 void ajoyint_Init(int num_joy)
 {
-    /* affichage du nombre de joystick(s) détecté(s) */
-    if (is_fr)
-    printf("Initialisation des p‚riph‚riques d'entr‚e: %d joystick(s) d‚tect‚(s)\n", num_joy);
-    else
-    printf("Initialization of input peripherals : %d joystick(s) detected)\n", num_joy);
+    /* affichage du nombre de joystick(s) detecte(s) */
+    main_ConsoleOutput(_("Initialization of input devices : %d joystick(s) detected)\n"), num_joy);
 
     njoy = num_joy;
 }

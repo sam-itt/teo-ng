@@ -37,9 +37,13 @@
  *  Version    : 1.8.5
  *  Créé par   : François Mouret 21/03/2012
  *  Modifié par: François Mouret 22/09/2012
+ *               Samuel Cuella   01/2020
  *
  *  Fenêtre "A propos"
  */
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 
 #ifndef SCAN_DEPEND
@@ -54,6 +58,7 @@
 #include "teo.h"
 #include "linux/gui.h"
 #include <gtk/gtk.h>
+#include "gettext.h"
 
 /* run_about_window:
  *  Affiche le panneau "A propos"
@@ -62,15 +67,20 @@ void uabout_Dialog (GtkButton *button, gpointer user_data)
 {
     const gchar *authors_list[] = { "Gilles FÃ©tis", "Eric Botcazou", "Alexandre Pukall",
                                     "JÃ©rÃ©mie Guillaume", "FranÃ§ois Mouret",
-                                    "Samuel Devulder", NULL };
+                                    "Samuel Devulder", "Samuel Cuella", NULL };
+#ifdef GFX_BACKEND_ALLEGRO
+    GdkPixbuf *pixbuf;
+    pixbuf=gdk_pixbuf_new_from_resource("/net/sourceforge/teoemulator/teo.png", NULL);
+    gtk_window_set_default_icon(pixbuf);
+#endif
 
     gtk_show_about_dialog (GTK_WINDOW(wControl),
-                           "program-name", "Teo",
+                           "program-name", PACKAGE_NAME,
                            "version", TEO_VERSION_STR,
                            "copyright", "Copyright Â© 1997-"TEO_YEAR_STRING,
                            "comments", "Linux/X11",
-                           "website", "http://sourceforge.net/projects/teoemulator/",
-                           "website-label", is_fr?"Teo sur Sourceforge":"Teo on Sourceforge",
+                           "website", PACKAGE_HOMEPAGE,
+                           "website-label", _(PACKAGE_NAME" homepage"),
                            "authors", authors_list,
                            "license-type", GTK_LICENSE_GPL_2_0,
                            NULL);

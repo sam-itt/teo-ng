@@ -38,6 +38,7 @@
  *  Créé par   : Eric Botcazou 1998
  *  Modifié par: Eric Botcazou 23/11/2000
  *               François Mouret 08/2011 20/09/2013 02/06/2014
+ *               Samuel Cuella   02/2020
  *
  *  Gestionnaire de mémoire du TO8.
  *   Ce module est indépendant du reste de l'émulateur et vient se greffer
@@ -50,15 +51,18 @@
    #include <stdio.h>
    #include <conio.h>
 #endif
+#include <stdlib.h>
+#include <assert.h>
 
 #include "defs.h"
 #include "mc68xx/dasm6809.h"
 #include "mc68xx/mc6809.h"
-#include "debug.h"
+#include "to8dbg.h"
 #include "teo.h"
-
+#include "gettext.h"
 
 /* paramètres de disposition des modules à l'écran */
+#define MAP_NLINE 11
 #define MENU_NLINE      7
 #define MENU_POS_X      4
 #define MENU_POS_Y     28
@@ -71,41 +75,8 @@
 #define DIALOG_POS_X    6
 #define DIALOG_POS_Y   39
 
-static char map_line[11][81]={
-#ifdef FRENCH_LANGUAGE
-"                          Gestionnaire de m‚moire du TO8                        ",
-#else
-"                               TO8 memory manager                               ",
-#endif
-"ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ¿",
-"³                  ³         ³                   ³                   ³         ³",
-"³0                3³4       5³6                 9³A                 D³E       F³",
-"³0     BASICs     F³0 Video F³0     System      F³0      User       F³0  I/O  F³",
-"³0      ROM       F³0  RAM  F³0      RAM        F³0      RAM        F³0  ROM  F³",
-"³0                F³0       F³0                 F³0                 F³0       F³",
-"³                  ³         ³                   ³                   ³         ³",
-"ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´",
-"³     bank   /3    ³bank   /1³                   ³     bank   /31    ³bank   /1³",
-"ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ                   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
-};
-
-#ifdef FRENCH_LANGUAGE
-static char menu_line[MENU_NLINE][30]={ "Commandes:",
-                                        " c: charger un bloc m‚moire",
-                                        " s: sauver un bloc m‚moire",
-                                        " a: aller … l'<adresse>",
-                                        " e: ‚diter un octet",
-                                        " TAB,+,-: naviguer",
-                                        " q: quitter le gestionnaire"};
-#else
-static char menu_line[MENU_NLINE][30]={ "Commands:",
-                                        " c: load a memory block",
-                                        " s: save a memory block",
-                                        " a: go to <address>",
-                                        " e: editing a byte",
-                                        " TAB,+,-: navigating",
-                                        " q: quit the manager"};
-#endif
+static char **_map_line = NULL;
+static char **_menu_line = NULL;
 
 static struct P2D {
     int x;
@@ -118,6 +89,47 @@ static int      bank_size[4]={  4,   2,   4,   2};
 static unsigned char *VRAM[2];
 static unsigned char **mapper_table[4]={mem.rom.bank, VRAM, mem.ram.bank, mem.mon.bank};
 
+
+static char *dmem_getMapLine(void)
+{
+    if(!_map_line){
+        int i = 0;
+        _map_line = (char**)malloc(sizeof(char *)*MAP_NLINE);
+        _map_line[i++] = _("                               TO8 memory manager                               ");
+        /*No need to dynalloc anything here, just point to (const char*)s*/
+        _map_line[i++] = "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ¿";
+        _map_line[i++] = "³                  ³         ³                   ³                   ³         ³";
+        _map_line[i++] = "³0                3³4       5³6                 9³A                 D³E       F³";
+        _map_line[i++] = "³0     BASICs     F³0 Video F³0     System      F³0      User       F³0  I/O  F³";
+        _map_line[i++] = "³0      ROM       F³0  RAM  F³0      RAM        F³0      RAM        F³0  ROM  F³";
+        _map_line[i++] = "³0                F³0       F³0                 F³0                 F³0       F³";
+        _map_line[i++] = "³                  ³         ³                   ³                   ³         ³";
+        _map_line[i++] = "ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´";
+        _map_line[i++] = "³     bank   /3    ³bank   /1³                   ³     bank   /31    ³bank   /1³";
+        _map_line[i++] = "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ                   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ";
+      
+        assert( i <= MAP_NLINE);
+    }
+    return _map_line;
+}
+
+static char *ddebug_GetMenu(void)
+{
+    if(!_menu_line){
+        int i = 0;
+        _menu_line = (char**)malloc(sizeof(char *)*MENU_NLINE);
+        _menu_line[i++] = _("Commands:");
+        _menu_line[i++] = _(" c: load a memory block");
+        _menu_line[i++] = _(" s: save a memory block");
+        _menu_line[i++] = _(" a: go to <address>");
+        _menu_line[i++] = _(" e: edit a byte");
+        _menu_line[i++] = _(" TAB;+,-: move around");
+        _menu_line[i++] = _(" q: quit the memory manager");
+
+        assert(i <= MENU_NLINE);
+    }
+    return _menu_line;
+}
 
 
 /* Helper routines:
@@ -300,8 +312,8 @@ static int EditMemory(void)
 {
     int addr, val;
 
-    ReadAddress(&addr,DIALOG_POS_X,DIALOG_POS_Y,is_fr?"Adresse: ":"Address: ");
-    ReadByte(&val,DIALOG_POS_X,DIALOG_POS_Y+1,is_fr?"Nouvelle valeur : ":"New value : ");
+    ReadAddress(&addr,DIALOG_POS_X,DIALOG_POS_Y,_("Address: "));
+    ReadByte(&val,DIALOG_POS_X,DIALOG_POS_Y+1,_("New value : "));
     DeleteBox(DIALOG_POS_X,DIALOG_POS_Y,40,DIALOG_POS_Y+1);
 
     STORE_BYTE(addr, val);
@@ -320,15 +332,15 @@ static int LoadMemory(void)
     int  addr, addr_orig, d;
     FILE *file;
 
-    ReadFileName(file_name,DIALOG_POS_X,DIALOG_POS_Y,is_fr?"Nom du fichier: ":"File name: ");
-    ReadAddress(&addr,DIALOG_POS_X,DIALOG_POS_Y+1,is_fr?"Adresse de d‚but: ":"Start address: ");
+    ReadFileName(file_name,DIALOG_POS_X,DIALOG_POS_Y,_("File name: "));
+    ReadAddress(&addr,DIALOG_POS_X,DIALOG_POS_Y+1,_("Start address: "));
 
     addr_orig=addr;
 
     if ((file=fopen(file_name,"rb")) == NULL)
     {
         gotoxy(DIALOG_POS_X,DIALOG_POS_Y+2);
-        cprintf(is_fr?"Erreur !!!":"Error !!!");
+        cprintf(_("Error !!!"));
     }
     else
     {
@@ -340,11 +352,11 @@ static int LoadMemory(void)
 
         fclose(file);
         gotoxy(DIALOG_POS_X,DIALOG_POS_Y+2);
-        cprintf(is_fr?"Termin‚":"Finished");
+        cprintf(_("Finished"));
     }
 
     gotoxy(DIALOG_POS_X,DIALOG_POS_Y+3);
-    cprintf(is_fr?"Appuyer sur <espace>":"Press <space bar>");
+    cprintf(_("Press <space bar>"));
 
     while (getch() != 32)
         ;
@@ -367,16 +379,16 @@ static void SaveMemory(void)
     int addr1,addr2,c,i;
     FILE *file;
 
-    ReadFileName(file_name,DIALOG_POS_X,DIALOG_POS_Y,is_fr?"Nom du fichier: ":"File name: ");
-    ReadAddress(&addr1,DIALOG_POS_X,DIALOG_POS_Y+1,is_fr?"Adresse de d‚but: ":"Start address: ");
-    ReadAddress(&addr2,DIALOG_POS_X,DIALOG_POS_Y+2,is_fr?"Adresse de fin: ":"End address: ");
+    ReadFileName(file_name,DIALOG_POS_X,DIALOG_POS_Y,_("File name: "));
+    ReadAddress(&addr1,DIALOG_POS_X,DIALOG_POS_Y+1,_("Start address: "));
+    ReadAddress(&addr2,DIALOG_POS_X,DIALOG_POS_Y+2,_("End address: "));
 
     gotoxy(DIALOG_POS_X, DIALOG_POS_Y+3);
-    cprintf(is_fr?"Format: 1.binaire":"Format: 1.binary");
+    cprintf(_("Format: 1.binary"));
     gotoxy(DIALOG_POS_X, DIALOG_POS_Y+4);
     cprintf("        2.ASCII");
     gotoxy(DIALOG_POS_X, DIALOG_POS_Y+5);
-    cprintf(is_fr?"        3.assembleur":"        3.assembler");
+    cprintf(_("        3.assembler"));
 
     do
         c=getch();
@@ -385,7 +397,7 @@ static void SaveMemory(void)
     if ((file=fopen(file_name,"wb")) == NULL)
     {
         gotoxy(DIALOG_POS_X,DIALOG_POS_Y+6);
-        cprintf(is_fr?"Erreur !!!":"Error !!!");
+        cprintf(_("Error !!!"));
     }
     else
     {
@@ -423,11 +435,11 @@ static void SaveMemory(void)
                         
         fclose(file);
         gotoxy(DIALOG_POS_X,DIALOG_POS_Y+6);
-        cprintf(is_fr?"Termin‚":"Finished");
+        cprintf(_("Finished"));
     }
                     
     gotoxy(DIALOG_POS_X,DIALOG_POS_Y+7);
-    cprintf(is_fr?"Appuyer sur <espace>":"Press <space bar>");
+    cprintf(_("Press <space bar>"));
 
     while (getch() != 32)
         ;
@@ -447,6 +459,11 @@ void MemoryManager(void)
              int c=0,hotspot=4,pc;
     struct MC6809_REGS regs;
     unsigned char *mapper_orig[16];
+    char **map_line;
+    char **menu_line;
+
+    menu_line = ddebug_GetMenu();
+    map_line = dmem_getMapLine();
 
     /* on sauvegarde d'abord l'état du mapper */
     for (i=0; i<16; i++)
@@ -470,9 +487,9 @@ void MemoryManager(void)
     textcolor(LIGHTGRAY);
     cputs(map_line[0]);
     gotoxy(DUMP_POS_X-2,DUMP_POS_Y);
-    cprintf(is_fr?"          Contenu de la m‚moire           ":"          Content of the memory           ");
+    cprintf(_("          Content of the memory           "));
     gotoxy(DASM_POS_X-2,DASM_POS_Y);
-    cprintf(is_fr?"       D‚sassembleur MC6809E       ":"       MC6809E disassembler        ");
+    cprintf(_("       MC6809E Disassembler        "));
 
     /* la carte de la mémoire */
     textbackground(BLACK);
@@ -569,7 +586,7 @@ void MemoryManager(void)
 
             case 'a': /* saut à l'adresse voulue */
             case 'A':
-                ReadAddress(&pc,DIALOG_POS_X,DIALOG_POS_Y,is_fr?"Nouvelle adresse: ":"New address: ");
+                ReadAddress(&pc,DIALOG_POS_X,DIALOG_POS_Y,_("New address: "));
                 DeleteBox(DIALOG_POS_X,DIALOG_POS_Y,40,DIALOG_POS_Y);
                 UpdateDasmAndDump(&pc);
                 hotspot=4;
