@@ -11,7 +11,7 @@ Teo-ng is a continuation of [Teo](https://sourceforge.net/projects/teoemulator/)
 
 # Getting Teo-ng
 ---------------
-Head over to the [release](https://github.com/sam-itt/teo-ng/releases) page and pick binaries for your platform.
+Head over to either http://www.teo-ng.com/ or (if you have a developer account) the [release](https://github.com/sam-itt/teo-ng/releases) page and pick binaries for your platform.
 
 Otherwise build from source using instructions below.
 
@@ -45,7 +45,7 @@ Cross compiling can be tricky. Users that really want to build from source will 
 
 ## Linux
 
-Here is an [ebuild](http://www.teo-ng.com/dist/teo-ng-0.9.0.ebuild) for Gentoo Linux. We accept contributions for other distros.
+Here is an [ebuild](http://www.teo-ng.com/dist/releases/teo-ng-2.0.0b.ebuild) for Gentoo Linux. We accept contributions for other distros.
 
 ```sh
 $ ./configure --prefix=/usr --sysconfdir=/etc
@@ -86,14 +86,17 @@ $ ls *.zip # Or ls *.exe
 ```
 
 ### Original Xbox
-To build the original xbox version, you'll need the [nxdk](https://github.com/XboxDev/nxdk/) installed. Make the NXDK_DIR env variable point to the location where you installed nxdk.
+To build the original xbox version, you'll need the [nxdk](https://github.com/XboxDev/nxdk/) installed. Teo-ng uses features that are not yet integrated in the nxdk master branch. To get a suitable environment, use the [get-nxdk.sh](http://www.teo-ng.com/dist/scripts/get-nxdk.sh) script that we'll make available until Teo-ng can be built using vanilla nxdk.  Make the NXDK_DIR env variable point to the location where you installed nxdk.
 ```sh
-export NXDK_DIR=/path/to/nxdk
+$ wget http://www.teo-ng.com/dist/scripts/get-nxdk.sh
+$ source get-nxdk.sh
 ```
-Then proceed with the build:
+Be sure to **source** the script, don't run it in a subshell otherwise you won't get the NXDDK_DIR variable properly set.
+
+Then proceed with the build **using the same shell**:
 ```sh
- make -f Makefile.ogxbox config
- make -f Makefile.ogxbox
+ $ make -f Makefile.ogxbox config
+ $ make -f Makefile.ogxbox
  ```
 
 Known issues
