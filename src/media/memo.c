@@ -66,6 +66,19 @@
 #endif
 
 /* ------------------------------------------------------------------------- */
+static bool memo_CheckName (char *header)
+{
+    for(int i = 0; i < 26; i++){
+        if(header[i] == 0x20){
+            for(int j = i; j < 26; j++){
+                if(header[j] == 0x04){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 
 
 /* memo_IsMemo:
@@ -120,12 +133,6 @@ int memo_IsMemo (const char filename[])
     {
         return TEO_ERROR_DISK_IO;
     }
- 
-    /* first character */
-    if (memo_header[0] != ' ')
-    {
-        return TEO_ERROR_MEMO_HEADER_NAME;
-    }
 
     /* check the checksum */
     for (i = 0; i < 26; i++)
@@ -137,13 +144,8 @@ int memo_IsMemo (const char filename[])
         return TEO_ERROR_MEMO_HEADER_CHECKSUM;
     }
 
-    /* check end of the name */
-    for (i = 0; i < 26; i++)
-    {
-        if (memo_header[i] == '\x04')
-            break;
-    }
-    if (i == 26)
+    /*check cartridge has a well-formatted name*/
+    if( !memo_CheckName(memo_header) )
     {
         return TEO_ERROR_MEMO_HEADER_NAME;
     }
